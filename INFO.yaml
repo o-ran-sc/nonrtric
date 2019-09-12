@@ -1,0 +1,38 @@
+---
+project: 'nonrtric'
+project_creation_date: '2019-08-09'
+project_category: ''
+lifecycle_state: 'Incubation'
+project_lead: &oran_nonrtric_ptl
+    name: 'John Keeney'
+    email: 'John.Keeney@est.tech'
+    id: 'johnkeeney'
+    company: 'Ericsson Software Technology'
+    timezone: 'Europe/Dublin'
+primary_contact: *oran_nonrtric_ptl
+issue_tracking:
+    type: 'jira'
+    url: 'https://jira.o-ran-sc.org/projects/NONRTRIC'
+    key: 'NONRTRIC'
+mailing_list:
+    type: 'groups.io'
+    url: 'https://lists.o-ran-sc.org/g/main'
+realtime_discussion:
+    type: 'irc'
+    server: 'freenode.net'
+    channel: '#o-ran-sc'
+meetings:
+    - type: 'zoom'
+      agenda: ''
+      url: 'https://wiki.o-ran-sc.org/display/RICNR/Meetings'
+      server: 'n/a'
+      channel: 'n/a'
+      repeats: 'weekly'
+      time: 'Mondays, 13:00 UTC'
+repositories:
+    - 'nonrtric'
+committers:
+    - <<: *oran_nonrtric_ptl
+tsc:
+    # yamllint disable-line rule:line-length
+    approval: 'https://wiki.o-ran-sc.org/display/TOC/2019+08+07'
