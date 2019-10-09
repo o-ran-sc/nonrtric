@@ -1,0 +1,34 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='sotn-network-topology-operation-delete' mode='sync'>
+        <block atomic="true">
+            <call module='GENERIC-RESOURCE-API' rpc='validate-sotn-network-input-parameters' mode='sync' ></call>
+            <record plugin="org.onap.ccsdk.sli.core.sli.recording.FileRecorder">
+                <parameter name="file" value="/opt/opendaylight/current/data/log/svclogic.log"/>
+                <parameter name="field1" value="__TIMESTAMP__"/>
+                <parameter name="field2" value="sotn-network-topology-operation-delete"/>
+                <parameter name="field3" value="SOTN-Delete"/>
+            </record>
+            <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" resource='connectivity' 
+        key='connectivity.connectivity-id = $network-topology-operation-input.network-information.network-id'></delete>
+            <set>
+                <parameter name="service-data.networks.network_length" value="`$service-data.networks.network_length - 1`"/>
+            </set>
+            <set>
+                <parameter name="service-data.networks.network[$tmp.nidx]." value=""/>
+            </set>
+            <set>
+                <parameter name='networkId' value='`$network-topology-operation-input.network-information.network-id`' />
+                <parameter name='service-object-path' value="`'restconf/config/GENERIC-RESOURCE-API:services/service/'
+ + $network-topology-operation-input.service-information.service-instance-id
+ + '/service-data/service-topology/'` " />
+            </set>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="`$error-message`" />
+            </return>
+        </block>
+    </method>
+</service-logic>

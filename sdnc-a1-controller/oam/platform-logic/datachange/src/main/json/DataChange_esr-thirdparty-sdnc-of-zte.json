@@ -1,0 +1,405 @@
+[
+    {
+        "id": "909bed3c.217f8",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 197,
+        "y": 85,
+        "z": "6337c566.8d383c",
+        "wires": [
+            [
+                "42a75c1a.2a0054"
+            ]
+        ]
+    },
+    {
+        "id": "42a75c1a.2a0054",
+        "type": "service-logic",
+        "name": "DataChange ${project.version}",
+        "module": "DataChange",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='DataChange' version='${project.version}'>",
+        "outputs": 1,
+        "x": 341,
+        "y": 198,
+        "z": "6337c566.8d383c",
+        "wires": [
+            [
+                "d3b58cb6.7be93"
+            ]
+        ]
+    },
+    {
+        "id": "d3b58cb6.7be93",
+        "type": "method",
+        "name": "method esr-thirdparty-sdnc-of-zte",
+        "xml": "<method rpc='esr-thirdparty-sdnc-of-zte' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 266,
+        "y": 312,
+        "z": "6337c566.8d383c",
+        "wires": [
+            [
+                "d96a4272.22b2d"
+            ]
+        ]
+    },
+    {
+        "id": "d96a4272.22b2d",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 195,
+        "y": 446,
+        "z": "6337c566.8d383c",
+        "wires": [
+            [
+                "81ed8292.6b82",
+                "68becb2a.3bd784",
+                "d51d2b6.59965d8",
+                "33f265dc.9b698a"
+            ]
+        ]
+    },
+    {
+        "id": "81ed8292.6b82",
+        "type": "for",
+        "name": "for 0..key-data_length",
+        "xml": "<for index='idx' start='0' end='`$data-change-notification-input.key-data_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 456,
+        "y": 451,
+        "z": "6337c566.8d383c",
+        "wires": [
+            [
+                "f198696d.07cc58"
+            ]
+        ]
+    },
+    {
+        "id": "f198696d.07cc58",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 647,
+        "y": 452,
+        "z": "6337c566.8d383c",
+        "wires": [
+            [
+                "15a59c73.3ad834",
+                "557fb41a.fc54ec",
+                "2c8b7b9f.b0acf4",
+                "25227c9b.d556a4",
+                "efe677e5.fc6308",
+                "8d2d3c75.3a0c9"
+            ]
+        ]
+    },
+    {
+        "id": "15a59c73.3ad834",
+        "type": "switchNode",
+        "name": "switch service-url",
+        "xml": "<switch test=\"`$data-change-notification-input.key-data[$idx].key-name == 'service-url'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 856,
+        "y": 383,
+        "z": "6337c566.8d383c",
+        "wires": [
+            [
+                "b5b04925.886a28"
+            ]
+        ]
+    },
+    {
+        "id": "557fb41a.fc54ec",
+        "type": "switchNode",
+        "name": "switch user-name",
+        "xml": "<switch test=\"`$data-change-notification-input.key-data[$idx].key-name == 'user-name'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 856,
+        "y": 446,
+        "z": "6337c566.8d383c",
+        "wires": [
+            [
+                "bfe7936.c0f7f7"
+            ]
+        ]
+    },
+    {
+        "id": "2c8b7b9f.b0acf4",
+        "type": "switchNode",
+        "name": "switch password",
+        "xml": "<switch test=\"`$data-change-notification-input.key-data[$idx].key-name == 'password'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 852,
+        "y": 505,
+        "z": "6337c566.8d383c",
+        "wires": [
+            [
+                "3e6f0e11.6ee952"
+            ]
+        ]
+    },
+    {
+        "id": "25227c9b.d556a4",
+        "type": "switchNode",
+        "name": "switch esr-system-info-id",
+        "xml": "<switch test=\"`$data-change-notification-input.key-data[$idx].key-name == 'esr-system-info-id'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 879,
+        "y": 568,
+        "z": "6337c566.8d383c",
+        "wires": [
+            [
+                "329a080c.012238"
+            ]
+        ]
+    },
+    {
+        "id": "efe677e5.fc6308",
+        "type": "switchNode",
+        "name": "switch thirdparty-sdnc-id",
+        "xml": "<switch test=\"`$data-change-notification-input.key-data[$idx].key-name == 'thirdparty-sdnc-id'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 878,
+        "y": 629,
+        "z": "6337c566.8d383c",
+        "wires": [
+            [
+                "93ea3ac5.6755a8"
+            ]
+        ]
+    },
+    {
+        "id": "8d2d3c75.3a0c9",
+        "type": "switchNode",
+        "name": "switch type",
+        "xml": "<switch test=\"`$data-change-notification-input.key-data[$idx].key-name == 'type'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 837,
+        "y": 696,
+        "z": "6337c566.8d383c",
+        "wires": [
+            [
+                "840db98b.49b268"
+            ]
+        ]
+    },
+    {
+        "id": "b5b04925.886a28",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1075,
+        "y": 383,
+        "z": "6337c566.8d383c",
+        "wires": [
+            [
+                "2d9eaf7b.6319e"
+            ]
+        ]
+    },
+    {
+        "id": "bfe7936.c0f7f7",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1074,
+        "y": 445,
+        "z": "6337c566.8d383c",
+        "wires": [
+            [
+                "2b796aae.5b34a6"
+            ]
+        ]
+    },
+    {
+        "id": "3e6f0e11.6ee952",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1074,
+        "y": 504,
+        "z": "6337c566.8d383c",
+        "wires": [
+            [
+                "34eaee93.2338c2"
+            ]
+        ]
+    },
+    {
+        "id": "329a080c.012238",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1074,
+        "y": 568,
+        "z": "6337c566.8d383c",
+        "wires": [
+            [
+                "c6a07788.15af18"
+            ]
+        ]
+    },
+    {
+        "id": "93ea3ac5.6755a8",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1071,
+        "y": 629,
+        "z": "6337c566.8d383c",
+        "wires": [
+            [
+                "4b734f80.6eb31"
+            ]
+        ]
+    },
+    {
+        "id": "840db98b.49b268",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1070,
+        "y": 695,
+        "z": "6337c566.8d383c",
+        "wires": [
+            [
+                "2ea57fe6.0f677"
+            ]
+        ]
+    },
+    {
+        "id": "2d9eaf7b.6319e",
+        "type": "set",
+        "name": "set service-url",
+        "xml": "<set>\n<parameter name='zte.prop.sdncRestApi.thirdpartySdnc.url' value='`$data-change-notification-input.key-data[$idx].key-value`' />\n",
+        "comments": "",
+        "x": 1253,
+        "y": 383,
+        "z": "6337c566.8d383c",
+        "wires": []
+    },
+    {
+        "id": "2b796aae.5b34a6",
+        "type": "set",
+        "name": "set user",
+        "xml": "<set>\n<parameter name='zte.prop.sdncRestApi.thirdpartySdnc.user' value='`$data-change-notification-input.key-data[$idx].key-value`' />\n",
+        "comments": "",
+        "x": 1253,
+        "y": 445,
+        "z": "6337c566.8d383c",
+        "wires": []
+    },
+    {
+        "id": "34eaee93.2338c2",
+        "type": "set",
+        "name": "set password",
+        "xml": "<set>\n<parameter name='zte.prop.sdncRestApi.thirdpartySdnc.password' value='`$data-change-notification-input.key-data[$idx].key-value`' />\n",
+        "comments": "",
+        "x": 1254,
+        "y": 504,
+        "z": "6337c566.8d383c",
+        "wires": []
+    },
+    {
+        "id": "c6a07788.15af18",
+        "type": "set",
+        "name": "set system-info-id",
+        "xml": "<set>\n<parameter name='zte.prop.sdncRestApi.thirdpartySdnc.system-info-id' value='`$data-change-notification-input.key-data[$idx].key-value`' />\n",
+        "comments": "",
+        "x": 1252,
+        "y": 568,
+        "z": "6337c566.8d383c",
+        "wires": []
+    },
+    {
+        "id": "4b734f80.6eb31",
+        "type": "set",
+        "name": "set thirdparty-sdnc-id",
+        "xml": "<set>\n<parameter name='zte.prop.sdncRestApi.thirdpartySdnc.id' value='`$data-change-notification-input.key-data[$idx].key-value`' />\n",
+        "comments": "",
+        "x": 1250,
+        "y": 629,
+        "z": "6337c566.8d383c",
+        "wires": []
+    },
+    {
+        "id": "2ea57fe6.0f677",
+        "type": "set",
+        "name": "set type",
+        "xml": "<set>\n<parameter name='zte.prop.sdncRestApi.type' value='`$data-change-notification-input.key-data[$idx].key-value`' />\n",
+        "comments": "",
+        "x": 1250,
+        "y": 695,
+        "z": "6337c566.8d383c",
+        "wires": []
+    },
+    {
+        "id": "68becb2a.3bd784",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.FileRecorder\">\n<parameter name=\"file\" value=\"/opt/opendaylight/current/data/log/zte.svclogic.log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"data-change-notification\"/>\n<parameter name=\"field3\" value=\"Config\"/>\n<parameter name=\"field4\" value=\"`service-url`\"/>\n<parameter name=\"field5\" value=\"`$zte.prop.sdncRestApi.thirdpartySdnc.url`\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 406,
+        "y": 538,
+        "z": "6337c566.8d383c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d51d2b6.59965d8",
+        "type": "call",
+        "name": "call esr-thirdparty-sdnc-discovery-of-zte",
+        "xml": "<call module='DataChange' rpc='esr-thirdparty-sdnc-discovery-of-zte' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 497,
+        "y": 628,
+        "z": "6337c566.8d383c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "33f265dc.9b698a",
+        "type": "set",
+        "name": "set zte vendor",
+        "xml": "<set>\n<parameter name='prop.zte.sdncRestApi.vendor' value='`$prop.sdncRestApi.vendor`' />\n",
+        "comments": "",
+        "x": 433,
+        "y": 384,
+        "z": "6337c566.8d383c",
+        "wires": []
+    }
+]

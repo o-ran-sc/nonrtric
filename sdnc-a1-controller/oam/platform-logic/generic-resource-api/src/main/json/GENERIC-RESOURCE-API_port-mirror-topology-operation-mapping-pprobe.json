@@ -1,0 +1,564 @@
+[
+    {
+        "id": "de11a95f.852ac8",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 106.66664123535156,
+        "y": 84.99999523162842,
+        "z": "b6bc16fc.df4e08",
+        "wires": [
+            [
+                "a6b03503.57f968"
+            ]
+        ]
+    },
+    {
+        "id": "a6b03503.57f968",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 220.6190185546875,
+        "y": 125.23811626434326,
+        "z": "b6bc16fc.df4e08",
+        "wires": [
+            [
+                "e999d03f.3a56d"
+            ]
+        ]
+    },
+    {
+        "id": "e999d03f.3a56d",
+        "type": "method",
+        "name": "method port-mirror-topology-operation-mapping-pprobe",
+        "xml": "<method rpc='port-mirror-topology-operation-mapping-pprobe' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 247.95243072509766,
+        "y": 166.42856884002686,
+        "z": "b6bc16fc.df4e08",
+        "wires": [
+            [
+                "d54a5c4.3df72a"
+            ]
+        ]
+    },
+    {
+        "id": "9baf7ef3.09748",
+        "type": "comment",
+        "name": "port-mirror-topology-operation-mapping-pprobe",
+        "info": "",
+        "comments": "",
+        "x": 501.0114974975586,
+        "y": 32.58633899688721,
+        "z": "b6bc16fc.df4e08",
+        "wires": []
+    },
+    {
+        "id": "d54a5c4.3df72a",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 123.33333587646484,
+        "y": 659.9999465942383,
+        "z": "b6bc16fc.df4e08",
+        "wires": [
+            [
+                "c44a1b6c.6ee0e8",
+                "f3a203c9.954a3",
+                "e0b23aa2.a3c348",
+                "b278293c.4f9588",
+                "5b676e8b.e1385",
+                "9c57370e.4caf68",
+                "8cb804df.babd98",
+                "b04d986.600fc68",
+                "12cb160c.65893a"
+            ]
+        ]
+    },
+    {
+        "id": "c44a1b6c.6ee0e8",
+        "type": "get-resource",
+        "name": "get-resource l-interface",
+        "xml": "<get-resource plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\t\tresource=\"l-interfaces\" \n\t\tkey=\"pnf.pnf-name = $tmp.dest-pnf-name AND \n\t\t     p-interface.interface-name = $tmp.dest-p-interface AND depth='all'\"\n        pfx='aai.pnf.p-interface' local-only='false' >\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 423.3333206176758,
+        "y": 378.3333511352539,
+        "z": "b6bc16fc.df4e08",
+        "wires": [
+            [
+                "60c80e24.84bd3",
+                "b6d325fc.465448"
+            ]
+        ]
+    },
+    {
+        "id": "b6d325fc.465448",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 637.5795135498047,
+        "y": 396.4842071533203,
+        "z": "b6bc16fc.df4e08",
+        "wires": [
+            [
+                "224dbadd.8b3fd6"
+            ]
+        ]
+    },
+    {
+        "id": "224dbadd.8b3fd6",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error retrieving l-interfaces from AAI\" />\n",
+        "comments": "",
+        "x": 812.5794868469238,
+        "y": 396.48424339294434,
+        "z": "b6bc16fc.df4e08",
+        "wires": []
+    },
+    {
+        "id": "60c80e24.84bd3",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 646.5081100463867,
+        "y": 354.76994037628174,
+        "z": "b6bc16fc.df4e08",
+        "wires": [
+            [
+                "73dbd598.33544c"
+            ]
+        ]
+    },
+    {
+        "id": "73dbd598.33544c",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Destination L-Interfaces are not set for the Destination PNF\" />\n",
+        "comments": "",
+        "x": 812.8573875427246,
+        "y": 354.07551765441895,
+        "z": "b6bc16fc.df4e08",
+        "wires": []
+    },
+    {
+        "id": "f3a203c9.954a3",
+        "type": "switchNode",
+        "name": "switch l-interface_length > 0",
+        "xml": "<switch test='`$aai.pnf.p-interface.l-interface_length &gt; 0`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 436.6666793823242,
+        "y": 445.0000305175781,
+        "z": "b6bc16fc.df4e08",
+        "wires": [
+            [
+                "1a36b2b3.1d74ed"
+            ]
+        ]
+    },
+    {
+        "id": "1a36b2b3.1d74ed",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 648.3333702087402,
+        "y": 443.3333435058594,
+        "z": "b6bc16fc.df4e08",
+        "wires": [
+            [
+                "cb4e30bc.89d64"
+            ]
+        ]
+    },
+    {
+        "id": "cb4e30bc.89d64",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Destination L-Interface is not set for the Destination PNF\" />\n",
+        "comments": "",
+        "x": 811.666618347168,
+        "y": 441.66665744781494,
+        "z": "b6bc16fc.df4e08",
+        "wires": []
+    },
+    {
+        "id": "e0b23aa2.a3c348",
+        "type": "for",
+        "name": "for each l-interface",
+        "xml": "<for index='idx' start='0' end='`$aai.pnf.p-interface.l-interface_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 403.3332977294922,
+        "y": 604.9999256134033,
+        "z": "b6bc16fc.df4e08",
+        "wires": [
+            [
+                "4f93bc13.888424"
+            ]
+        ]
+    },
+    {
+        "id": "4f93bc13.888424",
+        "type": "switchNode",
+        "name": "switch ipv4-address",
+        "xml": "<switch test='`$aai.pnf.p-interface.l-interface[$idx].l3-interface-ipv4-address-list[0].l3-interface-ipv4-address`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 608.3333282470703,
+        "y": 605.0000076293945,
+        "z": "b6bc16fc.df4e08",
+        "wires": [
+            [
+                "e8c160d6.30e49",
+                "87df81a2.3bf67"
+            ]
+        ]
+    },
+    {
+        "id": "e8c160d6.30e49",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 786.6665878295898,
+        "y": 556.6665945053101,
+        "z": "b6bc16fc.df4e08",
+        "wires": [
+            [
+                "8ccdea1a.97e9d8"
+            ]
+        ]
+    },
+    {
+        "id": "87df81a2.3bf67",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 786.238037109375,
+        "y": 675.2859592437744,
+        "z": "b6bc16fc.df4e08",
+        "wires": [
+            [
+                "8affe25c.62539"
+            ]
+        ]
+    },
+    {
+        "id": "8ccdea1a.97e9d8",
+        "type": "switchNode",
+        "name": "switch ipv6-address",
+        "xml": "<switch test='`$aai.pnf.p-interface.l-interface[$idx].l3-interface-ipv6-address-list[0].l3-interface-ipv6-address`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 979.9999237060547,
+        "y": 554.999942779541,
+        "z": "b6bc16fc.df4e08",
+        "wires": [
+            [
+                "85f2249f.93aab8",
+                "deb53a82.0016d8"
+            ]
+        ]
+    },
+    {
+        "id": "85f2249f.93aab8",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1153.3333358764648,
+        "y": 529.9999618530273,
+        "z": "b6bc16fc.df4e08",
+        "wires": [
+            [
+                "50b58898.682778"
+            ]
+        ]
+    },
+    {
+        "id": "deb53a82.0016d8",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1151.238151550293,
+        "y": 581.9526376724243,
+        "z": "b6bc16fc.df4e08",
+        "wires": [
+            [
+                "f1c94d40.8d93d"
+            ]
+        ]
+    },
+    {
+        "id": "ee128f1d.83c73",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value='Destination Port IP Address is not set for the Destination PNF' />\n",
+        "comments": "",
+        "x": 740.0000228881836,
+        "y": 756.6667022705078,
+        "z": "b6bc16fc.df4e08",
+        "wires": []
+    },
+    {
+        "id": "68c4a0ec.b8bfe",
+        "type": "break",
+        "name": "break",
+        "xml": "<break>\n",
+        "comments": "",
+        "x": 1106.6666946411133,
+        "y": 699.9999504089355,
+        "z": "b6bc16fc.df4e08",
+        "wires": []
+    },
+    {
+        "id": "50b58898.682778",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1306.6666450500488,
+        "y": 528.3333024978638,
+        "z": "b6bc16fc.df4e08",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b278293c.4f9588",
+        "type": "set",
+        "name": "set tmp.found-one to false",
+        "xml": "<set>\n<parameter name='tmp.found-one' value='false' />\n",
+        "comments": "",
+        "x": 428.3332977294922,
+        "y": 491.6666488647461,
+        "z": "b6bc16fc.df4e08",
+        "wires": []
+    },
+    {
+        "id": "8affe25c.62539",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 953.333324432373,
+        "y": 676.666615486145,
+        "z": "b6bc16fc.df4e08",
+        "wires": [
+            [
+                "98c4128d.4f2a3",
+                "68c4a0ec.b8bfe"
+            ]
+        ]
+    },
+    {
+        "id": "98c4128d.4f2a3",
+        "type": "set",
+        "name": "set tmp.found-one to true",
+        "xml": "<set>\n<parameter name='tmp.found-one' value='true' />\n",
+        "comments": "",
+        "x": 1164.999927520752,
+        "y": 651.6666278839111,
+        "z": "b6bc16fc.df4e08",
+        "wires": []
+    },
+    {
+        "id": "a9b64a4f.527c28",
+        "type": "break",
+        "name": "break",
+        "xml": "<break>\n",
+        "comments": "",
+        "x": 1463.3333473205566,
+        "y": 601.6666526794434,
+        "z": "b6bc16fc.df4e08",
+        "wires": []
+    },
+    {
+        "id": "f1c94d40.8d93d",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1309.9999771118164,
+        "y": 578.3333177566528,
+        "z": "b6bc16fc.df4e08",
+        "wires": [
+            [
+                "a8e91133.3c04",
+                "a9b64a4f.527c28"
+            ]
+        ]
+    },
+    {
+        "id": "a8e91133.3c04",
+        "type": "set",
+        "name": "set tmp.found-one to true",
+        "xml": "<set>\n<parameter name='tmp.found-one' value='true' />\n",
+        "comments": "",
+        "x": 1521.6665802001953,
+        "y": 553.333330154419,
+        "z": "b6bc16fc.df4e08",
+        "wires": []
+    },
+    {
+        "id": "5b676e8b.e1385",
+        "type": "switchNode",
+        "name": "switch tmp.found-one",
+        "xml": "<switch test='`$tmp.found-one`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 406.6666717529297,
+        "y": 758.333345413208,
+        "z": "b6bc16fc.df4e08",
+        "wires": [
+            [
+                "5a39c52e.e2842c"
+            ]
+        ]
+    },
+    {
+        "id": "5a39c52e.e2842c",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 585,
+        "y": 756.6666469573975,
+        "z": "b6bc16fc.df4e08",
+        "wires": [
+            [
+                "ee128f1d.83c73"
+            ]
+        ]
+    },
+    {
+        "id": "8cb804df.babd98",
+        "type": "for",
+        "name": "for each source vnfc-object",
+        "xml": "<for silentFailure='true' index='vnfc-so-idx' start='0' end='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 423.33326721191406,
+        "y": 854.9999198913574,
+        "z": "b6bc16fc.df4e08",
+        "wires": [
+            [
+                "9172f540.14fc68"
+            ]
+        ]
+    },
+    {
+        "id": "9172f540.14fc68",
+        "type": "for",
+        "name": "for each source vnic",
+        "xml": "<for silentFailure='true' index='vnic-s-idx' start='0' end='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-so-idx].vnics.vnic_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 664.9999313354492,
+        "y": 854.4270343780518,
+        "z": "b6bc16fc.df4e08",
+        "wires": [
+            [
+                "453bf3e8.000eac"
+            ]
+        ]
+    },
+    {
+        "id": "9c57370e.4caf68",
+        "type": "set",
+        "name": "set map-idx to 0",
+        "xml": "<set>\n<parameter name='map-idx' value='0' />\n",
+        "comments": "",
+        "x": 390.4284973144531,
+        "y": 808.3320236206055,
+        "z": "b6bc16fc.df4e08",
+        "wires": []
+    },
+    {
+        "id": "12cb160c.65893a",
+        "type": "set",
+        "name": "set source-to-dest-map_length",
+        "xml": "<set>\n<parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map_length'\n  value='`$map-idx`' />\n",
+        "comments": "",
+        "x": 433.3330726623535,
+        "y": 925,
+        "z": "b6bc16fc.df4e08",
+        "wires": []
+    },
+    {
+        "id": "6c80f24a.f38ccc",
+        "type": "set",
+        "name": "set source-to-dest-map",
+        "xml": "<set>\n<parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].source-port-id'\n  value='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-so-idx].vnics.vnic[$vnic-s-idx].vnic-port-id`' />\n<parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].source-port-name'\n  value='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-so-idx].vnics.vnic[$vnic-s-idx].vnic-port-name`' />\n<parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].source-vserver-id'\n  value='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-so-idx].vserver-id`' />\n\n<parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].dest-port-id'\n  value='`$aai.pnf.p-interface.l-interface[$idx].interface-id`' />\n<parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].dest-port-name'\n  value='`$aai.pnf.p-interface.l-interface[$idx].interface-name`' />\n\n<parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].dest-ip-addresses.ip-addresses.ipv4-address'\n  value='`$aai.pnf.p-interface.l-interface[$idx].l3-interface-ipv4-address-list[0].l3-interface-ipv4-address`' />\n<parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].dest-ip-addresses.ip-addresses.ipv6-address'\n  value='`$aai.pnf.p-interface.l-interface[$idx].l3-interface-ipv6-address-list[0].l3-interface-ipv6-address`' />\n",
+        "comments": "",
+        "x": 1074.9999542236328,
+        "y": 831.6666221618652,
+        "z": "b6bc16fc.df4e08",
+        "wires": []
+    },
+    {
+        "id": "bcb038b9.b6a1a8",
+        "type": "set",
+        "name": "increment map-idx",
+        "xml": "<set>\n<parameter name='map-idx' value='`$map-idx + 1`' />\n",
+        "comments": "",
+        "x": 1058.999885559082,
+        "y": 877.6667728424072,
+        "z": "b6bc16fc.df4e08",
+        "wires": []
+    },
+    {
+        "id": "b04d986.600fc68",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n",
+        "comments": "",
+        "x": 383.3333549499512,
+        "y": 973.3333053588867,
+        "z": "b6bc16fc.df4e08",
+        "wires": []
+    },
+    {
+        "id": "453bf3e8.000eac",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 863.3333129882812,
+        "y": 853.3333129882812,
+        "z": "b6bc16fc.df4e08",
+        "wires": [
+            [
+                "6c80f24a.f38ccc",
+                "bcb038b9.b6a1a8"
+            ]
+        ]
+    }
+]

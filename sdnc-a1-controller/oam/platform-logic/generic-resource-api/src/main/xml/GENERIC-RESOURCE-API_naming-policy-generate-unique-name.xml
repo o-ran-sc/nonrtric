@@ -1,0 +1,182 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='naming-policy-generate-unique-name' mode='sync'>
+        <block atomic="true">
+            <switch test='`$generate-unique-name-input.action`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='generate-unique-name-output.error-message' value='generate-unique-name-input.action not supplied' />
+                    </return>
+                </outcome>
+                <outcome value='ASSIGN'>
+                    <block atomic="true">
+                        <switch test='`$generate-unique-name-input.context-id`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='error-message' 
+	value="generate-unique-name-input.context-id cannot be null for ASSIGN action" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$generate-unique-name-input.name-table-type`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='generate-unique-name-output.error-message' value='generate-unique-name-input.name-table-type not supplied' />
+                                </return>
+                            </outcome>
+                            <outcome value='VNF_INSTANCE'>
+                                <set>
+                                    <parameter name='tmp.gname.custom-query-string' value='nodes/generic-vnfs?vnf-name=' />
+                                </set>
+                            </outcome>
+                            <outcome value='VM_INSTANCE'>
+                                <set>
+                                    <parameter name='tmp.gname.custom-query-string' value='nodes/vservers?vserver-name=' />
+                                </set>
+                            </outcome>
+                            <outcome value='NETWORK_INSTANCE'>
+                                <set>
+                                    <parameter name='tmp.gname.custom-query-string' value='nodes/l3-networks?network-name=' />
+                                </set>
+                            </outcome>
+                            <outcome value='SERVICE_INSTANCE'>
+                                <set>
+                                    <parameter name='tmp.gname.custom-query-string' value='nodes/service-instances?service-instance-name=' />
+                                </set>
+                            </outcome>
+                            <outcome value='VNFC_INSTANCE'>
+                                <set>
+                                    <parameter name='tmp.gname.custom-query-string' value='nodes/vnfcs?vnfc-name=' />
+                                </set>
+                            </outcome>
+                        </switch>
+                        <set>
+                            <parameter name='tmp.gun.nononap' value='NON-ONAP' />
+                        </set>
+                        <set>
+                            <parameter name='tmp.gun.transient' value='TRANSIENT' />
+                        </set>
+                        <set>
+                            <parameter name='tmp.grn.loop.flag' value='true' />
+                        </set>
+                        <while test='`$tmp.grn.loop.flag`'>
+                            <block atomic="true">
+                                <call module='GENERIC-RESOURCE-API' rpc='generate-unique-name' mode='sync' >
+                                    <outcome value='failure'>
+                                        <block atomic="true">
+                                            <set>
+                                                <parameter name='tmp.grn.loop.flag' value='false' />
+                                            </set>
+                                            <return status='failure'>
+                                                <parameter name='error-message' 
+	value="`'Encountered error in naming-policy-generate-unique-name: ' + 
+		$generate-unique-name-output.error-message`" />
+                                            </return>
+                                        </block>
+                                    </outcome>
+                                </call>
+                                <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils" method="urlEncode">
+                                    <parameter name="source" value='`$generate-unique-name-output.generated-name`'/>
+                                    <parameter name="outputPath" value="encoded-name" />
+                                </execute>
+                                <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="custom-query"
+      key="format = 'resource'"
+      force="true"
+      local-only="false"
+      pfx="tmp.nodes-query">
+                                    <parameter name="start[0]" value="`$tmp.gname.custom-query-string + 
+			$encoded-name`" />
+                                    <parameter name="start_length" value="1" />
+                                    <outcome value='not-found'>
+                                        <set>
+                                            <parameter name='tmp.grn.loop.flag' value='false' />
+                                        </set>
+                                    </outcome>
+                                    <outcome value='failure'>
+                                        <block atomic='true'>
+                                            <set>
+                                                <parameter name='tmp.grn.loop.flag' value='false' />
+                                            </set>
+                                            <return status='failure'>
+                                                <parameter name='error-message' 
+	value="`'Error updating GENERIC_RESOURCE_NAME.context_id from TRANSIENT to ' 
+		+ $tmp.context-id.nononap`" />
+                                            </return>
+                                        </block>
+                                    </outcome>
+                                    <outcome value='success'>
+                                        <update plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+	key="update GENERIC_RESOURCE_NAME set context_id = $tmp.gun.nononap  
+		WHERE type = $generate-unique-name-input.name-table-type 
+		AND context_id = $tmp.gun.transient">
+                                            <outcome value='failure'>
+                                                <return status='failure'>
+                                                    <parameter name='error-message' 
+	value="`'Error updating GENERIC_RESOURCE_NAME.context_id from TRANSIENT to ' 
+		+ $tmp.context-id.nononap`" />
+                                                </return>
+                                            </outcome>
+                                            <outcome value='not-found'>
+                                                <return status='failure'>
+                                                    <parameter name='error-message' 
+	value="`'No GENERIC_RESOURCE_NAME found with context_id = TRANSIENT and type = ' 
+		+ $generate-unique-name-input.name-table-type`"/>
+                                                </return>
+                                            </outcome>
+                                        </update>
+                                    </outcome>
+                                </save>
+                            </block>
+                        </while>
+                        <update plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+	key="update GENERIC_RESOURCE_NAME set context_id = $generate-unique-name-input.context-id   
+		WHERE type = $generate-unique-name-input.name-table-type 
+		AND name = $generate-unique-name-output.generated-name 
+		AND context_id = $tmp.gun.transient">
+                            <outcome value='failure'>
+                                <return status='failure'>
+                                    <parameter name='error-message' 
+	value="`'Error updating GENERIC_RESOURCE_NAME.context_id from TRANSIENT to ' 
+		+ $tmp.context-id.nononap`" />
+                                </return>
+                            </outcome>
+                            <outcome value='not-found'>
+                                <return status='failure'>
+                                    <parameter name='error-message' 
+	value="`'No GENERIC_RESOURCE_NAME found with context_id = TRANSIENT and type = ' 
+		+ $generate-unique-name-input.name-table-type`"/>
+                                </return>
+                            </outcome>
+                        </update>
+                    </block>
+                </outcome>
+                <outcome value='DELETE'>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name='rollback-generated-names-input.naming-type' value='`$generate-unique-name-input.name-table-type`' />
+                        </set>
+                        <set>
+                            <parameter name='rollback-generated-names-input.context-id' value='`$generate-unique-name-input.context-id`' />
+                        </set>
+                        <call module='GENERIC-RESOURCE-API' rpc='rollback-generated-names' mode='sync' >
+                            <outcome value='failure'>
+                                <return status='failure'>
+                                    <parameter name='error-message' 
+	value="`'Encountered error in rollback-generated-names: ' + 
+		$error-message`" />
+                                </return>
+                            </outcome>
+                        </call>
+                    </block>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='generate-unique-name-output.error-message' value='Invalid generate-unique-name-input.action. Valid values are ASSIGN or DELETE' />
+                    </return>
+                </outcome>
+            </switch>
+        </block>
+    </method>
+</service-logic>

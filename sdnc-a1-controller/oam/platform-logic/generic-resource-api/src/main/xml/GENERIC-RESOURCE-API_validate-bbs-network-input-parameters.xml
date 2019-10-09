@@ -1,0 +1,118 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='validate-bbs-network-input-parameters' mode='sync'>
+        <block atomic="true">
+            <switch test='`$network-topology-operation-input.sdnc-request-header.svc-action`'>
+                <outcome value='create'>
+                    <block atomic="true">
+                        <switch test='`$network-topology-operation-input.request-information.request-action`'>
+                            <outcome value='CreateAccessConnectivityInstance'>
+                                <switch test='$network-topology-operation-input.network-request-input.network-input-parameters.param_length'>
+                                    <outcome value=''>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="Error invalid request-action" />
+                                        </return>
+                                    </outcome>
+                                </switch>
+                            </outcome>
+                            <outcome value='CreateInternetProfileInstance'>
+                                <switch test='$network-topology-operation-input.network-request-input.network-input-parameters.param_length'>
+                                    <outcome value=''>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="Error invalid request-action" />
+                                        </return>
+                                    </outcome>
+                                </switch>
+                            </outcome>
+                            <outcome value='Other'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="Error invalid request-action" />
+                                </return>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='delete'>
+                    <block atomic="true">
+                        <switch test='`$network-topology-operation-input.request-information.request-action`'>
+                            <outcome value='DeleteAccessConnectivityInstance'>
+                                <switch test='$network-topology-operation-input.network-request-input.network-input-parameters.param_length'>
+                                    <outcome value=''>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="Error invalid request-action" />
+                                        </return>
+                                    </outcome>
+                                </switch>
+                            </outcome>
+                            <outcome value='DeleteInternetProfileInstance'>
+                                <switch test='$network-topology-operation-input.network-request-input.network-input-parameters.param_length'>
+                                    <outcome value=''>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="Error invalid request-action" />
+                                        </return>
+                                    </outcome>
+                                </switch>
+                            </outcome>
+                            <outcome value='Other'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="Error invalid request-action" />
+                                </return>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='update'>
+                    <block atomic="true">
+                        <switch test='`$network-topology-operation-input.request-information.request-action`'>
+                            <outcome value='Other'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="Error invalid request-action" />
+                                </return>
+                            </outcome>
+                            <outcome value='ChangeInternetProfileInstance'>
+                                <switch test='$network-topology-operation-input.network-request-input.network-input-parameters.param_length'>
+                                    <outcome value=''>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="Error invalid request-action" />
+                                        </return>
+                                    </outcome>
+                                </switch>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`$network-topology-operation-input.sdnc-request-header.svc-action + ' is not a valid svc-action'`" />
+                    </return>
+                </outcome>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="svc-action is null" />
+                    </return>
+                </outcome>
+            </switch>
+        </block>
+    </method>
+</service-logic>

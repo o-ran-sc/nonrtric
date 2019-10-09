@@ -1,0 +1,319 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='validate-api-contrail-route-input' mode='sync'>
+        <block atomic="true">
+            <switch test='`$ctotmp.action`'>
+                <outcome value='create'>
+                    <block atomic="true">
+                        <switch test='`$cto-api.parent-service-instance-id`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation:cto-api.parent-service-instance-id is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.port-mirror-configuration-instance-id`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation:cto-api.port-mirror-configuration-instance-id is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.source-network-role`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation:cto-api.source-network-role is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.collector-network-role`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation:cto-api.collector-network-role is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.default-domain`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation:cto-api.default-domain is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.default-project`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation:cto-api.default-project is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.cloud-region-id`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation:cto-api.cloud-region-id is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.cloud-owner`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation-create:cto-api.cloud-owner is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.service-type`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation-create:cto-api.service-type is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.owning-entity`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation-create:cto-api.owning-entity is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='activate'>
+                    <block atomic="true">
+                        <switch test='`$cto-api.default-domain`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation:cto-api.default-domain is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.default-project`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation:cto-api.default-project is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.cloud-region-id`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation:cto-api.cloud-region-id is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.contrail-route-allotted-resource-id`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation:cto-api.src-contrail-network-fqdn is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.src-contrail-network-fqdn`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation:cto-api.src-contrail-network-fqdn is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.collector-contrail-network-fqdn`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation:cto-api.collector-contrail-network-fqdn is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.owning-entity`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation-create:cto-api.owning-entity is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='deactivate'>
+                    <block atomic="true">
+                        <switch test='`$cto-api.default-domain`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation:cto-api.default-domain is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.default-project`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation:cto-api.default-project is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.cloud-region-id`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation:cto-api.cloud-region-id is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.contrail-route-allotted-resource-id`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation:cto-api.src-contrail-network-fqdn is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.src-contrail-network-fqdn`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation:cto-api.src-contrail-network-fqdn is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.collector-contrail-network-fqdn`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation:cto-api.collector-contrail-network-fqdn is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.rollback-flag`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation-create:cto-api.rollback-flag is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.owning-entity`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation-create:cto-api.owning-entity is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='delete'>
+                    <block atomic="true">
+                        <switch test='`$cto-api.default-domain`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation:cto-api.default-domain is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.default-project`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation:cto-api.default-project is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.cloud-region-id`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation:cto-api.cloud-region-id is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.contrail-route-allotted-resource-id`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation:cto-api.src-contrail-network-fqdn is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.rollback-flag`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation-create:cto-api.rollback-flag is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.configuration-id`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation-create:cto-api.configuration-id is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$cto-api.owning-entity`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="API-contrail-route-topology-operation-create:cto-api.owning-entity is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+            </switch>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="`$error-message`" />
+            </return>
+        </block>
+    </method>
+</service-logic>

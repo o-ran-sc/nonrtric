@@ -1,0 +1,92 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='self-serve-vf-module-generate-name-changeassign' mode='sync'>
+        <block atomic='true'>
+            <set>
+                <parameter name='tmp.external-key.value' value='' />
+            </set>
+            <for index='i' start='0' end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$ss.service-data.param.index].resource-resolution-data.resource-key_length`' >
+                <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$ss.service-data.param.index].resource-resolution-data.resource-key[$i].name`'>
+                    <outcome value='external-key'>
+                        <set>
+                            <parameter name='tmp.external-key.value' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$ss.service-data.param.index].resource-resolution-data.resource-key[$i].value`' />
+                        </set>
+                    </outcome>
+                </switch>
+            </for>
+            <switch test='`$tmp.external-key.value`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="self-service-vf-module-generate-name-changeassign error : external-key is null for vf-module" />
+                    </return>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name="tmp.vf-module.changeassign.naming-data-payload" value="`'{&quot;elements&quot;:[{' + '&quot;resource-name&quot;:&quot;' + $vf-module-topology-operation-input.vf-module-request-input.vf-module-input-parameters.param[$ss.input.param.index].name + '&quot;,&quot;resource-value&quot;:&quot;' + $vf-module-topology-operation-input.vf-module-request-input.vf-module-input-parameters.param[$ss.input.param.index].value + '&quot;,&quot;external-key&quot;:&quot;' + $tmp.external-key.value + '&quot;}]}'`"/>
+            </set>
+            <execute plugin='org.openecomp.sdnc.prov.namegeneration.node.AssignNameNode' method='process'>
+                <parameter name='payload' value='`$tmp.vf-module.changeassign.naming-data-payload`' />
+                <parameter name="prifix" value="vf-module.changeassign.nameGenResponse" />
+                <outcome value='failure'>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name='`service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$ss.service-data.param.index].resource-resolution-data.status`' value='FAILED' />
+                        </set>
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="`'Error from NameGenerationNode ChangeAssign vf-module ' + $error-message`" />
+                        </return>
+                    </block>
+                </outcome>
+                <outcome value='not-found'>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name='`service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$ss.service-data.param.index].resource-resolution-data.status`' value='FAILED' />
+                        </set>
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="`'Error from NameGenerationNode ChangeAssign vf-module ' + $error-message`" />
+                        </return>
+                    </block>
+                </outcome>
+            </execute>
+            <update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="vf-module" key="generic-vnf.vnf-id = $service-data.vnfs.vnf[$vnf-index].vnf-id AND vf-module.vf-module-id = $service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-id " >
+                <parameter name="vf-module-name" value='`$vf-module-topology-operation-input.vf-module-request-input.vf-module-input-parameters.param[$ss.input.param.index].value`' />
+                <outcome value='failure'>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name='`service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$ss.service-data.param.index].resource-resolution-data.status`' value='FAILED' />
+                        </set>
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="`'Failed to update vf-module.vf-module-name to ' + $vf-module-topology-operation-input.vf-module-request-input.vf-module-input-parameters.param[$ss.input.param.index].value + ' in AnAI'`" />
+                        </return>
+                    </block>
+                </outcome>
+                <outcome value='not-found'>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name='`service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$ss.service-data.param.index].resource-resolution-data.status`' value='FAILED' />
+                        </set>
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="`'Failed to update vf-module.vf-module-name to ' + $vf-module-topology-operation-input.vf-module-request-input.vf-module-input-parameters.param[$ss.input.param.index].value + ' in AnAI'`" />
+                        </return>
+                    </block>
+                </outcome>
+            </update>
+            <set>
+                <parameter name='`service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$ss.service-data.param.index].value`' value='`$vf-module-topology-operation-input.vf-module-request-input.vf-module-input-parameters.param[$ss.input.param.index].value`'/>
+                <parameter name='`service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$ss.service-data.param.index].resource-resolution-data.status`' value='SUCCESS' />
+            </set>
+        </block>
+    </method>
+</service-logic>

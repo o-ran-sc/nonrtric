@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>SDN-C AdminPortal</title>
+<script class="init">
+    $(document).ready(function() {
+    $('#usertrace').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+
+</head>
+<body>
+
+<div class="well well-sm">
+<h3>User Trace</h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+	<div class="table-responsive">
+	<table id="usertrace" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+		  <th>Date (UTC)</th>
+          <th>ATTUID</th>
+		  <th>Action</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody id="myTable">
+      <% for (var x=0; x<pageInfo.rows.length; x++) { %>
+        <tr>
+            <td><%= pageInfo.rows[x].date %></td>
+            <td><%= pageInfo.rows[x].attuid %></td>
+            <td><%= pageInfo.rows[x].action %></td>
+            <td><%= pageInfo.rows[x].desc %></td>
+        </tr>
+	  <% } %>
+      </tbody>
+    </table>
+	</div>
+</div>
+		
+	
+
+	<div class="container-fluid">
+	<div class="row">
+	<div class="col-md-1 text-left">
+       	<p>&nbsp;&nbsp;Page <%= pageInfo.currentPage %> of <%= pageInfo.pageCount %></p>
+	</div>
+	<div class="col-md-11 text-left">
+	<% if (pageInfo.pageCount > 1) { %>  
+		<ul class="pagination">  
+  		<% if (pageInfo.currentPage > 1) { %>
+      		<li><a href="/logs/pageUserTrace?page=1">&laquo;</a></li>
+  		<% } %>
+  		<% var i = 1;
+  		if (pageInfo.currentPage > 10) {
+  			i = +pageInfo.currentPage - 9;
+  		} %>
+  		<% if (i !== 1) { %>
+      		<!--<li class="disabled"><a href="#">...</a></li>-->
+  		<% } %>
+  		<% for (i; i<=pageInfo.pageCount; i++) { %>
+    		<% if (pageInfo.currentPage == i) { %>
+        		<li class="active"><span><%= i %> <span class="sr-only">(current)</span></span></li>
+    		<% } else { %>
+        		<li><a href="/logs/pageUserTrace?page=<%= i %>"><%= i %></a></li>
+    		<% } %>
+    		<% if (i == (+pageInfo.currentPage + 9)) { %>
+        		<!--<li class="disabled"><a href="#">...</a></li>-->
+    		<% break; } %>
+  		<% } %>
+  		<% if (pageInfo.currentPage != pageInfo.pageCount) { %>
+      		<li><a href="/logs/pageUserTrace?page=<%= pageInfo.pageCount %>">&raquo;</a></li>
+  		<% } %>
+		</ul>  
+	<% } %>  
+	</div><!-- col-md-10 -->
+	</div><!-- row -->
+	</div><!-- container-fluid -->
+
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+</body>
+</html>
+

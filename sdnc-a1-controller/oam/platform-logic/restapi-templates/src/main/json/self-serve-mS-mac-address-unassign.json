@@ -1,0 +1,14 @@
+{
+    "elements": [ ${repeat:ma.elements.element_length:
+      [
+	{
+            "name": "vnf-host-name",
+            "value": ${ma.elements.element[${1}].vnf-host-name}
+	},
+	{
+            "name": "cloud-param-name", 
+            "value": ${ma.elements.element[${1}].cloud-param-name}
+	}
+      ], }
+    ]
+}

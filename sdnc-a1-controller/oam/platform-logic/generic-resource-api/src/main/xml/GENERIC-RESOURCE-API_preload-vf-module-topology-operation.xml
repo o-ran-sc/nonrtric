@@ -1,0 +1,34 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='preload-vf-module-topology-operation' mode='sync'>
+        <block atomic="true">
+            <switch test='`$preload-data.preload-vf-module-topology-information.vf-module-topology.vf-module-topology-identifier.vf-module-name`'>
+                <outcome value=''>
+                    <block></block>
+                </outcome>
+                <outcome value='Other'>
+                    <set>
+                        <parameter name='preload-data.' value='' />
+                    </set>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='preload-data.preload-vf-module-topology-information.'
+  value='`$preload-vf-module-topology-operation-input.preload-vf-module-topology-information.`' />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='setTime' >
+                <parameter name="outputPath" value="tmp.current-time" />
+            </execute>
+            <set>
+                <parameter name='preload-data.preload-oper-status.order-status' value='PendingAssignment' />
+                <parameter name='preload-data.preload-oper-status.create-timestamp' value='`$tmp.current-time`' />
+            </set>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="success" />
+            </return>
+        </block>
+    </method>
+</service-logic>

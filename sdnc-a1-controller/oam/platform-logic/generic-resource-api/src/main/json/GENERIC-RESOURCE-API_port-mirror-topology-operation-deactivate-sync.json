@@ -1,0 +1,267 @@
+[
+    {
+        "id": "da0f0eae.d6e6",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 101.42857360839844,
+        "y": 80,
+        "z": "64e470a6.f1c2",
+        "wires": [
+            [
+                "bf3f1e52.b503c"
+            ]
+        ]
+    },
+    {
+        "id": "bf3f1e52.b503c",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 215.04759979248047,
+        "y": 120.23811340332031,
+        "z": "64e470a6.f1c2",
+        "wires": [
+            [
+                "113ca55d.9f806b"
+            ]
+        ]
+    },
+    {
+        "id": "113ca55d.9f806b",
+        "type": "method",
+        "name": "method port-mirror-topology-operation-deactivate-sync",
+        "xml": "<method rpc='port-mirror-topology-operation-deactivate-sync' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 239.8572006225586,
+        "y": 160,
+        "z": "64e470a6.f1c2",
+        "wires": [
+            [
+                "291f858d.e8a8da"
+            ]
+        ]
+    },
+    {
+        "id": "f3e36ac1.5fde88",
+        "type": "comment",
+        "name": "port-mirror-topology-operation-deactivate-sync",
+        "info": "",
+        "comments": "",
+        "x": 495.77342987060547,
+        "y": 27.58634376525879,
+        "z": "64e470a6.f1c2",
+        "wires": []
+    },
+    {
+        "id": "291f858d.e8a8da",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 161.42857360839844,
+        "y": 524.2857112884521,
+        "z": "64e470a6.f1c2",
+        "wires": [
+            [
+                "44bf4c29.2ac2b4",
+                "18f8a407.260c1c",
+                "b325942e.c008a8",
+                "e8420d4.e95eaf",
+                "dfd22f0a.d304b",
+                "58c32a6.c5959d4"
+            ]
+        ]
+    },
+    {
+        "id": "44bf4c29.2ac2b4",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name='error-code' value='200' />\n<parameter name='ack-final' value='N' />",
+        "comments": "",
+        "x": 436.8571472167969,
+        "y": 624.2856426239014,
+        "z": "64e470a6.f1c2",
+        "wires": []
+    },
+    {
+        "id": "18f8a407.260c1c",
+        "type": "set",
+        "name": "set tmp.pm.configuration-id",
+        "xml": "<set>\n<parameter name='tmp.pm.configuration-id' value='`$port-mirror-topology-operation-input.configuration-information.configuration-id`' />\n\n",
+        "comments": "",
+        "x": 476.1428680419922,
+        "y": 337.1428451538086,
+        "z": "64e470a6.f1c2",
+        "wires": []
+    },
+    {
+        "id": "b325942e.c008a8",
+        "type": "execute",
+        "name": "execute readProperties",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >\n    <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />\n    <parameter name='contextPrefix' value='prop' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 464.2857131958008,
+        "y": 385.7142734527588,
+        "z": "64e470a6.f1c2",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e8420d4.e95eaf",
+        "type": "execute",
+        "name": "generate port-mirror-configuration url",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$prop.restapi.pm-configuration`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.pmc-url\"/>\n    <parameter name=\"target\" value=\"{configuration-id}\"/>\n    <parameter name=\"replacement\" value=\"`$tmp.pm.configuration-id`\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 507.1428756713867,
+        "y": 432.857120513916,
+        "z": "64e470a6.f1c2",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "dfd22f0a.d304b",
+        "type": "execute",
+        "name": "execute RestApiCallNode - get port-mirror-configuration",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.pmc-url`' />\n    <parameter name='restapiUser' value='`$prop.controller.user`' />\n    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='GET' />\n    <parameter name=\"responsePrefix\" value=\"mdsal-pmc\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 567.1428604125977,
+        "y": 480.00005531311035,
+        "z": "64e470a6.f1c2",
+        "wires": [
+            [
+                "c4ace799.8ee718",
+                "4908b83c.f73098"
+            ]
+        ]
+    },
+    {
+        "id": "c4ace799.8ee718",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 865.2959823608398,
+        "y": 450.80790424346924,
+        "z": "64e470a6.f1c2",
+        "wires": [
+            [
+                "fe1d6d18.fd8e7"
+            ]
+        ]
+    },
+    {
+        "id": "4908b83c.f73098",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 862.857120513916,
+        "y": 499.99999809265137,
+        "z": "64e470a6.f1c2",
+        "wires": [
+            [
+                "757e722e.e4749c"
+            ]
+        ]
+    },
+    {
+        "id": "757e722e.e4749c",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"`'Cannot find port-mirror-configuration ' + $tmp.pm.configuration-id`\" />\n",
+        "comments": "",
+        "x": 1377.1427993774414,
+        "y": 497.14286041259766,
+        "z": "64e470a6.f1c2",
+        "wires": []
+    },
+    {
+        "id": "58c32a6.c5959d4",
+        "type": "switchNode",
+        "name": "switch order-status == 'Active'",
+        "xml": "<switch test=\"`$mdsal-pmc.port-mirror-configuration[0].configuration-data.configuration-oper-status.order-status == 'Active'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 490.00003814697266,
+        "y": 554.2856636047363,
+        "z": "64e470a6.f1c2",
+        "wires": [
+            [
+                "d5ac79e0.1c9168"
+            ]
+        ]
+    },
+    {
+        "id": "fe1d6d18.fd8e7",
+        "type": "switchNode",
+        "name": "switch length == 1",
+        "xml": "<switch test='`$mdsal-pmc.port-mirror-configuration_length == 1`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1044.2856826782227,
+        "y": 450.0000123977661,
+        "z": "64e470a6.f1c2",
+        "wires": [
+            [
+                "a174e8a2.7a8d78"
+            ]
+        ]
+    },
+    {
+        "id": "a174e8a2.7a8d78",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1214.2857131958008,
+        "y": 450.00000381469727,
+        "z": "64e470a6.f1c2",
+        "wires": [
+            [
+                "757e722e.e4749c"
+            ]
+        ]
+    },
+    {
+        "id": "d5ac79e0.1c9168",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 718.5714492797852,
+        "y": 554.2857513427734,
+        "z": "64e470a6.f1c2",
+        "wires": [
+            [
+                "11d549bd.b63176"
+            ]
+        ]
+    },
+    {
+        "id": "11d549bd.b63176",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"`'Order status is ' + $mdsal-pmc.port-mirror-configuration[0].configuration-data.configuration-oper-status.order-status + ' but must be Active'`\" />\n",
+        "comments": "",
+        "x": 880.0000381469727,
+        "y": 552.8571624755859,
+        "z": "64e470a6.f1c2",
+        "wires": []
+    }
+]

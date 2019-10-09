@@ -1,0 +1,23 @@
+{
+    "ports": [
+        {
+            "id": "",
+            "portType": ${prop.lan.portType},
+            "portNumber": ${prop.lan.portNumber},
+            "deviceId": ${prop.lan.deviceId},
+            "portSwitch": ${prop.lan.portSwitch},
+            "linkInfo": {
+                 "linkType": "Ethernet",
+                 "cellular": null,
+                 "atm": null,
+                 "ethernet": {
+                      "negotiationMode": "manual",
+                      "media": "copper",
+                      "duplex": "half",
+                      "speed": 10
+                 }
+            }
+        }
+    ]
+}
+

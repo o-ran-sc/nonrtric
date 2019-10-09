@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>SDN AdminPortal</title>
+<script class="init">
+    $(document).ready(function() {
+    $('#params').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+
+</head>
+<body>
+
+<div class="well well-sm">
+<h3>Parameters</h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+
+<div class="actions" style="padding:15px 0px;">
+    <button class="btn btn-primary btn-md" data-toggle="modal" data-target="#new_parameter">
+      Add Parameter
+    </button>
+</div>
+
+	<table id="params" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+          <th>*Name</th>
+          <th>*Value</th>
+          <th>Category</th>
+		  <th>Memo</th>
+		  <% if(priv == 'A'){ %>
+		  <th>Action</th>
+		  <% } %>
+        </tr>
+      </thead>
+      <tbody>
+      <% rows.forEach( function(row) { %> 
+        <tr>
+            <td><%= row.name %></td>
+            <td><%= row.value %></td>
+            <td><%= row.category %></td>
+            <td><%= row.memo %></td>
+			<% if(priv == 'A') { %>
+            <td>
+				<button type="button" class="btn btn-default btn-xs"
+                    onclick="updateParameter('<%=row.name %>','<%= row.value %>','<%= row.category %>','<%= row.memo %>');">Update</button>
+				<button type="button" class="btn btn-default btn-xs"
+                   onclick="deleteParameter('<%= row.name %>','<%=row.value %>','<%= row.category %>','<%= row.memo %>');">Delete</button>
+            </td>
+            <% } %>
+        </tr>
+    <% }); %>
+      </tbody>
+    </table>
+</div>
+
+<% include ../partials/new_parameter %>
+<% include ../partials/update_parameter %>
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+<script type="text/javascript">
+function submitParam(form)
+{
+    var errorMsg='';
+    var name = '';
+    var value = '';
+    var category = '';
+    var memo = '';
+
+    if ( form.name == 'addForm' )
+    {
+        name = form.nf_name;
+        value = form.nf_value;
+        category = form.nf_category;
+        memo = form.nf_memo;
+    }
+    else
+    {
+        name = form.uf_name;
+        value = form.uf_value;
+        category = form.uf_category;
+        memo = form.uf_memo;
+    }
+
+	if ( (name.value == null) || (name.value == "") || isblank(name.value) )
+    {
+        errorMsg += 'Name is required.<br>';
+    }
+	if ( (value.value == null) || (value.value == "") || isblank(value.value) )
+    {
+        errorMsg += 'Value is required.<br>';
+    }
+    if( errorMsg.length > 0 ) {
+        bootbox.alert(errorMsg);
+        return;
+    }
+	form.submit();
+}
+
+
+function updateParameter(name,value,category,memo) {
+
+    document.getElementById('uf_name').value=name;
+    document.getElementById('uf_value').value=value
+    document.getElementById('uf_category').value=category;
+    document.getElementById('uf_memo').value=memo;
+
+    document.getElementById('uf_key_name').value=name;
+
+    $('#update_parameter').modal('show');
+}
+
+function deleteParameter(name,value,category,memo) {
+
+	var url_string = encodeURI("/admin/deleteParameter?name=" + name
+            + "&value=" + value
+            + "&category=" + category
+			+ "&memo=" + memo);
+
+    bootbox.confirm({
+        message: "Are you sure you want to delete PARAMETER [" + name + "][" + value + "] ?",
+        callback: function(result) {
+            if ( result )
+            {
+                location.assign(url_string);
+            }
+            return;
+        },
+        buttons: {
+            cancel: {
+                label: "Cancel"
+            },
+            confirm: {
+                label: "Yes"
+            }
+        }
+    });
+}
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,117 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='generic-configuration-topology-operation' mode='sync'>
+        <block atomic="true">
+            <call module='GENERIC-RESOURCE-API' rpc='validate-generic-configuration-input' mode='sync' >
+                <outcome value='failure'>
+                    <return status='failure'></return>
+                </outcome>
+            </call>
+            <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                <parameter name='contextPrefix' value='prop' />
+            </execute>
+            <switch test='`$generic-configuration-topology-operation-input.sdnc-request-header.svc-action`'>
+                <outcome value='assign'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name='gc.configuration-id'
+  value='`$generic-configuration-topology-operation-input.configuration-information.configuration-id`' />
+                            <parameter name='gc.configuration-data.configuration-operation-information.sdnc-request-header.'
+  value='`$generic-configuration-topology-operation-input.sdnc-request-header.`' />
+                            <parameter name='gc.configuration-data.configuration-operation-information.request-information.'
+  value='`$generic-configuration-topology-operation-input.request-information.`' />
+                            <parameter name='gc.configuration-data.configuration-operation-information.service-information.'
+  value='`$generic-configuration-topology-operation-input.service-information.`' />
+                            <parameter name='gc.configuration-data.configuration-operation-information.configuration-information.'
+  value='`$generic-configuration-topology-operation-input.configuration-information.`' />
+                            <parameter name='gc.configuration-data.configuration-operation-information.gc-request-input.'
+  value='`$generic-configuration-topology-operation-input.gc-request-input.`' />
+                        </set>
+                        <set>
+                            <parameter name='gc.configuration-data.configuration-oper-status.order-status'
+  value='PendingCreate' />
+                            <parameter name='gc.configuration-data.configuration-oper-status.last-rpc-action'
+  value='assign' />
+                            <parameter name='gc.configuration-data.configuration-oper-status.last-action'
+  value='CreateGenericConfigurationInstance' />
+                        </set>
+                        <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                            <parameter name="source" value="`$prop.restapi.gc-configuration`"/>
+                            <parameter name="outputPath" value="tmp.gc-url"/>
+                            <parameter name="target" value="{configuration-id}"/>
+                            <parameter name="replacement" value="`$gc.configuration-id`"/>
+                        </execute>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                            <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.genconfig.templatefile`" />
+                            <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.gc-url`' />
+                            <parameter name='restapiUser' value='`$prop.controller.user`' />
+                            <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                            <parameter name='format' value='json' />
+                            <parameter name='httpMethod' value='PUT' />
+                            <parameter name="responsePrefix" value="mdsal-gc" />
+                            <outcome value='failure'>
+                                <block atomic="true">
+                                    <return status='failure'>
+                                        <parameter name='error-code' value='500' />
+                                        <parameter name='error-message' value='Error updating md-sal for gc-configuration' />
+                                    </return>
+                                </block>
+                            </outcome>
+                            <outcome value='not-found'>
+                                <block atomic="true">
+                                    <return status='failure'>
+                                        <parameter name='error-code' value='500' />
+                                        <parameter name='error-message' value='Error updating md-sal for gc-configuration' />
+                                    </return>
+                                </block>
+                            </outcome>
+                        </execute>
+                    </block>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='notification-url'
+  value="`$prop.controller.url + '/restconf/operations/GENERIC-RESOURCE-API:generic-configuration-notification'`" />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$prop.bondingservice.server + $prop.bondingservice.uri`"/>
+                <parameter name="outputPath" value="tmp.bs-url"/>
+                <parameter name="target" value="{action}"/>
+                <parameter name="replacement" value="`$generic-configuration-topology-operation-input.sdnc-request-header.svc-action`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.bondingservice.templatefile`" />
+                <parameter name='restapiUrl' value='`$tmp.bs-url`' />
+                <parameter name='restapiUser' value='`$prop.bondingservice.user`' />
+                <parameter name='restapiPassword' value='`$prop.bondingservice.password`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='POST' />
+                <parameter name="responsePrefix" value="bonding-service-response" />
+                <parameter name='customHttpHeaders'
+      value="`'Authorization=Basic ' + $prop.bondingservice.authorization`" />
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value="`'Error calling bonding service; ' + $error-message`" />
+                    </return>
+                </outcome>
+            </execute>
+            <set>
+                <parameter name='service-object-path'
+ value="`'restconf/config/GENERIC-RESOURCE-API:services/service/'
+ + $service-data.service-information.service-instance-id
+ + '/service-data/service-topology/'`"/>
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >
+                <parameter name='filename' value='/var/tmp/bgb-genconfig.log' />
+            </execute>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="`$bonding-service-response.ackFinalIndicator`" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="success" />
+            </return>
+        </block>
+    </method>
+</service-logic>

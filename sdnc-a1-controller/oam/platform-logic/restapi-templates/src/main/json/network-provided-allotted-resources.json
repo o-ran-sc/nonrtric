@@ -1,0 +1,10 @@
+{
+	network-provided-allotted-resources: 
+	{
+		"network-provided-ar-id": [
+			${repeat:net-ar.network-provided-allotted-resources.network-provided-ar-id_length:
+			${net-ar.network-provided-allotted-resources.network-provided-ar-id[${1}]},
+			}
+		]
+	}
+}

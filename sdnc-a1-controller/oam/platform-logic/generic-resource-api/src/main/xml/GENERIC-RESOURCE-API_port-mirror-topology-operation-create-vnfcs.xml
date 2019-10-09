@@ -1,0 +1,293 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='port-mirror-topology-operation-create-vnfcs' mode='sync'>
+        <block atomic="true">
+            <set>
+                <parameter name='tmp.vnfc-objects-idx' value='0' />
+            </set>
+            <for silentFailure='true' index='src-li-idx' start='0' end='`$tmp.AnAI-data.src-li.results_length`' >
+                <switch test='`$tmp.AnAI-data.src-li.results[$src-li-idx].vnfc.vnfc-name`'>
+                    <outcome value=''>
+                        <block atomic="true"></block>
+                    </outcome>
+                    <outcome value='Other'>
+                        <block atomic="true">
+                            <set>
+                                <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnfc-key'
+  value='`$tmp.AnAI-data.src-li.results[$src-li-idx].vnfc.vnfc-name`' />
+                                <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnfc-name'
+  value='`$tmp.AnAI-data.src-li.results[$src-li-idx].vnfc.vnfc-name`' />
+                                <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnf-id'
+  value='`$tmp.src-vnf-id`' />
+                            </set>
+                            <set>
+                                <parameter name='tmp.vserver-id' value='0' />
+                            </set>
+                            <for index='rel-idx' start='0' end='`$tmp.AnAI-data.src-li.results[$src-li-idx].vnfc.relationship-list.relationship_length`' >
+                                <switch test="`$tmp.AnAI-data.src-li.results[$src-li-idx].vnfc.relationship-list.relationship[$rel-idx].related-to == 'vserver'`">
+                                    <outcome value='true'>
+                                        <for index='reldata-idx' start='0' end='`$tmp.AnAI-data.src-li.results[$src-li-idx].vnfc.relationship-list.relationship[$rel-idx].relationship-data_length`' >
+                                            <switch test="`$tmp.AnAI-data.src-li.results[$src-li-idx].vnfc.relationship-list.relationship[$rel-idx].relationship-data[$reldata-idx].relationship-key == 'vserver.vserver-id'`">
+                                                <outcome value='true'>
+                                                    <set>
+                                                        <parameter name='tmp.vserver-id' value='`$tmp.AnAI-data.src-li.results[$src-li-idx].vnfc.relationship-list.relationship[$rel-idx].relationship-data[$reldata-idx].relationship-value`' />
+                                                    </set>
+                                                </outcome>
+                                            </switch>
+                                        </for>
+                                    </outcome>
+                                </switch>
+                            </for>
+                            <switch test='`$tmp.vserver-id == 0`'>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <return status='failure'>
+                                            <parameter name='error-code' value='500' />
+                                            <parameter name='error-message' value="`'Unable to find vserver related to vnfc ' + $tmp.AnAI-data.src-li.results[$src-li-idx].vnfc.vnfc-name`" />
+                                        </return>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <for index='src-vs-idx' start='0' end='`$tmp.AnAI-data.src-li.results_length`' >
+                                <switch test='`$tmp.AnAI-data.src-li.results[$src-vs-idx].vserver.vserver-id == $tmp.vserver-id`'>
+                                    <outcome value='true'>
+                                        <block atomic="true">
+                                            <set>
+                                                <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vserver-name'
+  value='`$tmp.AnAI-data.src-li.results[$src-vs-idx].vserver.vserver-name`' />
+                                                <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vserver-id'
+  value='`$tmp.AnAI-data.src-li.results[$src-vs-idx].vserver.vserver-id`' />
+                                                <parameter name='tmp.vs-idx' value='`$src-vs-idx`' />
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                            </for>
+                            <set>
+                                <parameter name='tmp.interface-ids_length' value='0' />
+                            </set>
+                            <for silentFailure='true' index='src-vli-idx' start='0' end='`$tmp.AnAI-data.src-li.results[$tmp.vs-idx].vserver.l-interfaces.l-interface_length`' >
+                                <switch test='`$tmp.AnAI-data.src-li.results[$tmp.vs-idx].vserver.l-interfaces.l-interface[$src-vli-idx].network-name == $tmp.src-network-name`'>
+                                    <outcome value='true'>
+                                        <set>
+                                            <parameter name='tmp.interface-ids[$tmp.interface-ids_length].interface-id' value='`$tmp.AnAI-data.src-li.results[$tmp.vs-idx].vserver.l-interfaces.l-interface[$src-vli-idx].interface-id`' />
+                                            <parameter name='tmp.interface-ids_length' value='`$tmp.interface-ids_length + 1`' />
+                                        </set>
+                                    </outcome>
+                                </switch>
+                            </for>
+                            <set>
+                                <parameter name='tmp.vnic-idx' value='0' />
+                            </set>
+                            <for silentFailure='true' index='src-rs-idx' start='0' end='`$tmp.AnAI-data.src-li.results_length`' >
+                                <switch test='`$tmp.AnAI-data.src-li.results[$src-rs-idx].l-interface.interface-name`'>
+                                    <outcome value=''>
+                                        <block></block>
+                                    </outcome>
+                                    <outcome value='Other'>
+                                        <for index='in-idx' start='0' end='`$tmp.interface-ids_length`' >
+                                            <switch test='`$tmp.AnAI-data.src-li.results[$src-rs-idx].l-interface.interface-id == $tmp.interface-ids[$in-idx].interface-id`'>
+                                                <outcome value='true'>
+                                                    <block atomic="true">
+                                                        <set>
+                                                            <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic[$tmp.vnic-idx].vnic-port-id'
+  value='`$tmp.AnAI-data.src-li.results[$src-rs-idx].l-interface.interface-id`' />
+                                                            <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic[$tmp.vnic-idx].vnic-port-name'
+  value='`$tmp.AnAI-data.src-li.results[$src-rs-idx].l-interface.interface-name`' />
+                                                            <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic[$tmp.vnic-idx].capacity.vnic-capacity'
+  value='`$tmp.src-pps`' />
+                                                            <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic[$tmp.vnic-idx].capacity.used-capacity'
+  value='0' />
+                                                        </set>
+                                                        <switch test='`$tmp.AnAI-data.src-li.results[$src-rs-idx].l-interface.l3-interface-ipv4-address-list[0].l3-interface-ipv4-address`'>
+                                                            <outcome value=''>
+                                                                <block></block>
+                                                            </outcome>
+                                                            <outcome value='Other'>
+                                                                <set>
+                                                                    <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic[$tmp.vnic-idx].vnic-ip-addresses.ip-addresses.ipv4-address'
+  value='`$tmp.AnAI-data.src-li.results[$src-rs-idx].l-interface.l3-interface-ipv4-address-list[0].l3-interface-ipv4-address`' />
+                                                                </set>
+                                                            </outcome>
+                                                        </switch>
+                                                        <switch test='`$tmp.AnAI-data.src-li.results[$src-rs-idx].l-interface.l3-interface-ipv6-address-list[0].l3-interface-ipv6-address`'>
+                                                            <outcome value=''>
+                                                                <block></block>
+                                                            </outcome>
+                                                            <outcome value='Other'>
+                                                                <set>
+                                                                    <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic[$tmp.vnic-idx].vnic-ip-addresses.ip-addresses.ipv6-address'
+  value='`$tmp.AnAI-data.src-li.results[$src-rs-idx].l-interface.l3-interface-ipv6-address-list[0].l3-interface-ipv6-address`' />
+                                                                </set>
+                                                            </outcome>
+                                                        </switch>
+                                                        <set>
+                                                            <parameter name='tmp.vnic-idx' value='`$tmp.vnic-idx + 1`' />
+                                                        </set>
+                                                    </block>
+                                                </outcome>
+                                            </switch>
+                                        </for>
+                                    </outcome>
+                                </switch>
+                            </for>
+                            <set>
+                                <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic_length' value='`$tmp.vnic-idx`' />
+                            </set>
+                            <set>
+                                <parameter name='tmp.vnfc-objects-idx' value='`$tmp.vnfc-objects-idx + 1`' />
+                            </set>
+                        </block>
+                    </outcome>
+                </switch>
+            </for>
+            <set>
+                <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object_length' value='`$tmp.vnfc-objects-idx`' />
+            </set>
+            <set>
+                <parameter name='tmp.vnfc-objects-idx' value='0' />
+            </set>
+            <for silentFailure='true' index='dest-li-idx' start='0' end='`$tmp.AnAI-data.dest-li.results_length`' >
+                <switch test='`$tmp.AnAI-data.dest-li.results[$dest-li-idx].vnfc.vnfc-name`'>
+                    <outcome value=''>
+                        <block atomic="true"></block>
+                    </outcome>
+                    <outcome value='Other'>
+                        <block atomic="true">
+                            <set>
+                                <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnfc-key'
+  value='`$tmp.AnAI-data.dest-li.results[$dest-li-idx].vnfc.vnfc-name`' />
+                                <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnfc-name'
+  value='`$tmp.AnAI-data.dest-li.results[$dest-li-idx].vnfc.vnfc-name`' />
+                                <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnf-id'
+  value='`$tmp.dest-vnf-id`' />
+                            </set>
+                            <set>
+                                <parameter name='tmp.vserver-id' value='0' />
+                            </set>
+                            <for index='rel-idx' start='0' end='`$tmp.AnAI-data.dest-li.results[$dest-li-idx].vnfc.relationship-list.relationship_length`' >
+                                <switch test="`$tmp.AnAI-data.dest-li.results[$dest-li-idx].vnfc.relationship-list.relationship[$rel-idx].related-to == 'vserver'`">
+                                    <outcome value='true'>
+                                        <for index='reldata-idx' start='0' end='`$tmp.AnAI-data.dest-li.results[$dest-li-idx].vnfc.relationship-list.relationship[$rel-idx].relationship-data_length`' >
+                                            <switch test="`$tmp.AnAI-data.dest-li.results[$dest-li-idx].vnfc.relationship-list.relationship[$rel-idx].relationship-data[$reldata-idx].relationship-key == 'vserver.vserver-id'`">
+                                                <outcome value='true'>
+                                                    <set>
+                                                        <parameter name='tmp.vserver-id' value='`$tmp.AnAI-data.dest-li.results[$dest-li-idx].vnfc.relationship-list.relationship[$rel-idx].relationship-data[$reldata-idx].relationship-value`' />
+                                                    </set>
+                                                </outcome>
+                                            </switch>
+                                        </for>
+                                    </outcome>
+                                </switch>
+                            </for>
+                            <switch test='`$tmp.vserver-id == 0`'>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <return status='failure'>
+                                            <parameter name='error-code' value='500' />
+                                            <parameter name='error-message' value="`'Unable to find vserver related to vnfc ' + $tmp.AnAI-data.dest-li.results[$dest-li-idx].vnfc.vnfc-name`" />
+                                        </return>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <for index='dest-vs-idx' start='0' end='`$tmp.AnAI-data.dest-li.results_length`' >
+                                <switch test='`$tmp.AnAI-data.dest-li.results[$dest-vs-idx].vserver.vserver-id == $tmp.vserver-id`'>
+                                    <outcome value='true'>
+                                        <block atomic="true">
+                                            <set>
+                                                <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vserver-name'
+  value='`$tmp.AnAI-data.dest-li.results[$dest-vs-idx].vserver.vserver-name`' />
+                                                <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vserver-id'
+  value='`$tmp.AnAI-data.dest-li.results[$dest-vs-idx].vserver.vserver-id`' />
+                                                <parameter name='tmp.vs-idx' value='`$dest-vs-idx`' />
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                            </for>
+                            <set>
+                                <parameter name='tmp.interface-ids_length' value='0' />
+                            </set>
+                            <for silentFailure='true' index='dest-vli-idx' start='0' end='`$tmp.AnAI-data.dest-li.results[$tmp.vs-idx].vserver.l-interfaces.l-interface_length`' >
+                                <switch test='`$tmp.AnAI-data.dest-li.results[$tmp.vs-idx].vserver.l-interfaces.l-interface[$dest-vli-idx].network-name == $tmp.dest-network-name`'>
+                                    <outcome value='true'>
+                                        <set>
+                                            <parameter name='tmp.interface-ids[$tmp.interface-ids_length].interface-id' value='`$tmp.AnAI-data.dest-li.results[$tmp.vs-idx].vserver.l-interfaces.l-interface[$dest-vli-idx].interface-id`' />
+                                            <parameter name='tmp.interface-ids_length' value='`$tmp.interface-ids_length + 1`' />
+                                        </set>
+                                    </outcome>
+                                </switch>
+                            </for>
+                            <set>
+                                <parameter name='tmp.vnic-idx' value='0' />
+                            </set>
+                            <for silentFailure='true' index='dest-rs-idx' start='0' end='`$tmp.AnAI-data.dest-li.results_length`' >
+                                <switch test='`$tmp.AnAI-data.dest-li.results[$dest-rs-idx].l-interface.interface-name`'>
+                                    <outcome value=''>
+                                        <block></block>
+                                    </outcome>
+                                    <outcome value='Other'>
+                                        <for index='in-idx' start='0' end='`$tmp.interface-ids_length`' >
+                                            <switch test='`$tmp.AnAI-data.dest-li.results[$dest-rs-idx].l-interface.interface-id == $tmp.interface-ids[$in-idx].interface-id`'>
+                                                <outcome value='true'>
+                                                    <block atomic="true">
+                                                        <set>
+                                                            <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic[$tmp.vnic-idx].vnic-port-id'
+  value='`$tmp.AnAI-data.dest-li.results[$dest-rs-idx].l-interface.interface-id`' />
+                                                            <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic[$tmp.vnic-idx].vnic-port-name'
+  value='`$tmp.AnAI-data.dest-li.results[$dest-rs-idx].l-interface.interface-name`' />
+                                                            <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic[$tmp.vnic-idx].capacity.vnic-capacity'
+  value='`$tmp.dest-pps`' />
+                                                            <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic[$tmp.vnic-idx].capacity.used-capacity'
+  value='0' />
+                                                        </set>
+                                                        <switch test='`$tmp.AnAI-data.dest-li.results[$dest-rs-idx].l-interface.l3-interface-ipv4-address-list[0].l3-interface-ipv4-address`'>
+                                                            <outcome value=''>
+                                                                <block></block>
+                                                            </outcome>
+                                                            <outcome value='Other'>
+                                                                <set>
+                                                                    <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic[$tmp.vnic-idx].vnic-ip-addresses.ip-addresses.ipv4-address'
+  value='`$tmp.AnAI-data.dest-li.results[$dest-rs-idx].l-interface.l3-interface-ipv4-address-list[0].l3-interface-ipv4-address`' />
+                                                                </set>
+                                                            </outcome>
+                                                        </switch>
+                                                        <switch test='`$tmp.AnAI-data.dest-li.results[$dest-rs-idx].l-interface.l3-interface-ipv6-address-list[0].l3-interface-ipv6-address`'>
+                                                            <outcome value=''>
+                                                                <block></block>
+                                                            </outcome>
+                                                            <outcome value='Other'>
+                                                                <set>
+                                                                    <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic[$tmp.vnic-idx].vnic-ip-addresses.ip-addresses.ipv6-address'
+  value='`$tmp.AnAI-data.dest-li.results[$dest-rs-idx].l-interface.l3-interface-ipv6-address-list[0].l3-interface-ipv6-address`' />
+                                                                </set>
+                                                            </outcome>
+                                                        </switch>
+                                                        <set>
+                                                            <parameter name='tmp.vnic-idx' value='`$tmp.vnic-idx + 1`' />
+                                                        </set>
+                                                    </block>
+                                                </outcome>
+                                            </switch>
+                                        </for>
+                                    </outcome>
+                                </switch>
+                            </for>
+                            <set>
+                                <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic_length' value='`$tmp.vnic-idx`' />
+                            </set>
+                            <set>
+                                <parameter name='tmp.vnfc-objects-idx' value='`$tmp.vnfc-objects-idx + 1`' />
+                            </set>
+                        </block>
+                    </outcome>
+                </switch>
+            </for>
+            <set>
+                <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object_length' value='`$tmp.vnfc-objects-idx`' />
+            </set>
+            <return status='success'></return>
+        </block>
+    </method>
+</service-logic>

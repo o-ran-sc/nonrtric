@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>SDN-C AdminPortal</title>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+</head>
+
+<body class="container">
+
+<div class="actions" style="padding:0px 25px;">
+<h2>Worklist Orders - VNF - Request ID <%= request_id %></h2>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-bordered">
+      <colgroup>
+        <col class="col-xs-1">
+        <col class="col-xs-7">
+      </colgroup>
+      <tbody>
+        <tr>
+          <th scope="row">VNF OAM IPv4 Addr</th>
+          <td><%= vnf_obj.vnf['vnf-oam-ipv4-addr'] %></td>
+        </tr>
+        <tr>
+          <th scope="row">AIC Site ID</th>
+          <td><%= vnf_obj.vnf['aic-site-id'] %></td>
+        </tr>
+        <tr>
+          <th scope="row">VNF Name</th>
+          <td><%= vnf_obj.vnf['vnf-name'] %></td>
+        </tr>
+        <tr>
+          <th scope="row">VNF Type</th>
+          <td><%= vnf_obj.vnf['vnf-type'] %></td>
+        </tr>
+        <tr>
+          <th scope="row">VNF Status</th>
+          <td><%= vnf_obj.vnf['vnf-status'] %></td>
+        </tr>
+        <tr>
+          <th scope="row">Availability Zone</th>
+          <td><%= vnf_obj.vnf['availability-zone'] %></td>
+        </tr>
+		<tr>
+          <th scope="row">Network Connection(s)</th>
+          <td><pre><%= JSON.stringify(vnf_obj.vnf['network-connections'],null,4) %></pre></td>
+        </tr>
+
+	</tbody>
+    </table>
+ </div>
+
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+</body>
+</html>
+

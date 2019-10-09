@@ -1,0 +1,1225 @@
+[
+  {
+    "id":"825ca84c.445e48",
+    "type":"dgstart",
+    "name":"DGSTART",
+    "outputs":1,
+    "x":128,
+    "y":116,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "cf18f6a3.a7c1d8"
+      ]
+    ]
+  },
+  {
+    "id":"cf18f6a3.a7c1d8",
+    "type":"service-logic",
+    "name":"GENERIC-RESOURCE-API ${project.version}",
+    "module":"GENERIC-RESOURCE-API",
+    "version":"${project.version}",
+    "comments":"",
+    "xml":"<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+    "outputs":1,
+    "x":224.23807907104492,
+    "y":176.95239067077637,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "6f43722e.e1375c"
+      ]
+    ]
+  },
+  {
+    "id":"6f43722e.e1375c",
+    "type":"method",
+    "name":"tunnelxconn-topology-operation-delete",
+    "xml":"<method rpc='tunnelxconn-topology-operation-delete' mode='sync'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":270.15485763549805,
+    "y":212.19044589996338,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "9223e1d9.9d3d5"
+      ]
+    ]
+  },
+  {
+    "id":"9223e1d9.9d3d5",
+    "type":"block",
+    "name":"block : atomic",
+    "xml":"<block atomic=\"true\">",
+    "atomic":"true",
+    "comments":"",
+    "outputs":1,
+    "x":156.47621154785156,
+    "y":1191.523856163025,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "57095392.42df9c",
+        "928254df.b8f1b8",
+        "78ce1588.233b4c",
+        "b1b79d47.5b712",
+        "bcbc27ec.51c808",
+        "14dcb243.87919e",
+        "f375d1a2.57ce",
+        "f6543328.c0463",
+        "4fa81b0c.d25c04",
+        "e12d04d1.e4c6f8",
+        "4b2a2744.b37d78",
+        "509b7252.07649c",
+        "67c6c537.098aac",
+        "ac80ef88.64417",
+        "d6a9b477.b43e58",
+        "3c1eab50.8ab6e4",
+        "a6c06bf0.9acdf8",
+        "fd3c881.1134678",
+        "eccfefb.8a8691",
+        "cadbc326.95747",
+        "d6edf81e.59db08",
+        "9e3a6d03.74879",
+        "ec194f5.ff3e8b",
+        "a35bc5f0.41f1a8",
+        "6017aedf.2d3db",
+        "6a140f25.dc1a2"
+      ]
+    ]
+  },
+  {
+    "id":"928254df.b8f1b8",
+    "type":"returnSuccess",
+    "name":"return success",
+    "xml":"<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+    "comments":"",
+    "x":432.0001564025879,
+    "y":2202.8811111450195,
+    "z":"613ada42.e46534",
+    "wires":[
+
+    ]
+  },
+  {
+    "id":"57095392.42df9c",
+    "type":"set",
+    "name":"set output to api handler",
+    "xml":"<set>\n<parameter name='allotted-resource-id' value='`$tmp.ar.allotted-resource-id`' />\n<parameter name='tunnelxconn-object-path' value=\"`$tmp.ar.self-link`\"/>\n<parameter name='service-object-path' value=\"`'restconf/config/GENERIC-RESOURCE-API:services/service/'\n + $tunnelxconn-topology-operation-input.service-information.service-instance-id\n + '/service-data/service-topology/'`\"/>\n \n",
+    "comments":"",
+    "x":460.7540702819824,
+    "y":2167.0036573410034,
+    "z":"613ada42.e46534",
+    "wires":[
+
+    ]
+  },
+  {
+    "id":"4fa81b0c.d25c04",
+    "type":"set",
+    "name":"set allotted-resource-oper-status",
+    "xml":"<set>\n<parameter name='tx-ar.allotted-resource-data.allotted-resource-oper-status.order-status' value='PendingDelete' />\n<parameter name='tx-ar.allotted-resource-data.allotted-resource-oper-status.last-action' value='`$tunnelxconn-topology-operation-input.request-information.request-action`' />\n<parameter name='tx-ar.allotted-resource-data.allotted-resource-oper-status.last-rpc-action' value='`$tunnelxconn-topology-operation-input.sdnc-request-header.svc-action`' />\n<parameter name='tx-ar.allotted-resource-data.allotted-resource-oper-status.last-svc-request-id' value='`$tunnelxconn-topology-operation-input.sdnc-request-header.svc-request-id`' />\n<parameter name='tx-ar.allotted-resource-data.allotted-resource-oper-status.create-timestamp' value='`$tmp.current-time`' />\n",
+    "comments":"",
+    "x":484.7542190551758,
+    "y":736.0514001846313,
+    "z":"613ada42.e46534",
+    "wires":[
+
+    ]
+  },
+  {
+    "id":"b1b79d47.5b712",
+    "type":"set",
+    "name":"set tmp.ar.self-link",
+    "xml":"<set>\n<parameter name='tmp.ar.self-link' value=\"`'restconf/config/GENERIC-RESOURCE-API:tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/'\n + $tmp.ar.allotted-resource-id\n + '/allotted-resource-data/tunnelxconn-topology/'` \" />\n\n",
+    "comments":"",
+    "x":440.73806381225586,
+    "y":329.33332538604736,
+    "z":"613ada42.e46534",
+    "wires":[
+
+    ]
+  },
+  {
+    "id":"78ce1588.233b4c",
+    "type":"set",
+    "name":"set tmp.ar.allotted-resource-id,etc",
+    "xml":"<set>\n<parameter name='tmp.ar.allotted-resource-id' value='`$tunnelxconn-topology-operation-input.allotted-resource-information.allotted-resource-id`' />\n<parameter name='tmp.ar.parent-service-instance-id' value='`$tunnelxconn-topology-operation-input.allotted-resource-information.parent-service-instance-id`' />\n\n\n",
+    "comments":"",
+    "x":487.9973258972168,
+    "y":295.59259128570557,
+    "z":"613ada42.e46534",
+    "wires":[
+
+    ]
+  },
+  {
+    "id":"bcbc27ec.51c808",
+    "type":"execute",
+    "name":"execute Properties",
+    "xml":"<execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >\n    <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />\n    <parameter name='contextPrefix' value='prop' />\n",
+    "comments":"",
+    "outputs":1,
+    "x":446.9934196472168,
+    "y":365.23152446746826,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+
+      ]
+    ]
+  },
+  {
+    "id":"f375d1a2.57ce",
+    "type":"execute",
+    "name":"execute RestApiCallNode - Get AR by id",
+    "xml":"<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />\n    <parameter name='restapiUser' value='`$prop.controller.user`' />\n    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='GET' />\n    <parameter name=\"responsePrefix\" value=\"mdsal-ar\" />\n\n",
+    "comments":"",
+    "outputs":1,
+    "x":509.5187530517578,
+    "y":526.4594917297363,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "f6518fb0.ce253",
+        "356ea1a.9b58a5e"
+      ]
+    ]
+  },
+  {
+    "id":"14dcb243.87919e",
+    "type":"execute",
+    "name":"generate allotted-resource url",
+    "xml":"<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$prop.restapi.tx-allottedresource`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.ar-url\"/>\n    <parameter name=\"target\" value=\"{allotted-resource-id}\"/>\n    <parameter name=\"replacement\" value=\"`$tmp.ar.allotted-resource-id`\"/>\n",
+    "comments":"",
+    "outputs":1,
+    "x":475.0648536682129,
+    "y":425.0172290802002,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+
+      ]
+    ]
+  },
+  {
+    "id":"f6518fb0.ce253",
+    "type":"success",
+    "name":"success",
+    "xml":"<outcome value='success'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":766.8148918151855,
+    "y":525.2672522068024,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "629610f3.9604d"
+      ]
+    ]
+  },
+  {
+    "id":"b0337e65.8f372",
+    "type":"not-found",
+    "name":"not-found",
+    "xml":"<outcome value='not-found'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":787.837329864502,
+    "y":932.432332418859,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "840b1c1.394d0e"
+      ]
+    ]
+  },
+  {
+    "id":"fc786288.11187",
+    "type":"failure",
+    "name":"failure",
+    "xml":"<outcome value='failure'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":778.8373794555664,
+    "y":900.9323581680655,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "840b1c1.394d0e"
+      ]
+    ]
+  },
+  {
+    "id":"2102e230.72a77e",
+    "type":"success",
+    "name":"success",
+    "xml":"<outcome value='success'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":782.5874176025391,
+    "y":871.2894630432129,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "6f565745.8303b8"
+      ]
+    ]
+  },
+  {
+    "id":"840b1c1.394d0e",
+    "type":"returnFailure",
+    "name":"return failure",
+    "xml":"<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error updating md-sal for tunnelxconn-allotted-resource\" />\n",
+    "comments":"",
+    "x":948.5874176025391,
+    "y":901.6823820099235,
+    "z":"613ada42.e46534",
+    "wires":[
+
+    ]
+  },
+  {
+    "id":"629610f3.9604d",
+    "type":"block",
+    "name":"block: atomic",
+    "xml":"<block atomic=\"true\">\n",
+    "atomic":"false",
+    "comments":"",
+    "outputs":1,
+    "x":947.8148460388184,
+    "y":525.7672016620636,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "db6398fb.5393b8",
+        "5570421f.b1cd1c"
+      ]
+    ]
+  },
+  {
+    "id":"db6398fb.5393b8",
+    "type":"switchNode",
+    "name":"switch tx length",
+    "xml":"<switch test='`$mdsal-ar.tunnelxconn-allotted-resource_length`'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":1193.6720924377441,
+    "y":560.052964925766,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "6fdf29e8.2e0f38"
+      ]
+    ]
+  },
+  {
+    "id":"6fdf29e8.2e0f38",
+    "type":"other",
+    "name":"outcome 1",
+    "xml":"<outcome value='1'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":1384.6720962524414,
+    "y":560.0529625415802,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "a18ae609.19d3c8"
+      ]
+    ]
+  },
+  {
+    "id":"6f978da.693bf74",
+    "type":"set",
+    "name":"set tx-ar from get",
+    "xml":"<set>\n<parameter name='tx-ar.' value='$mdsal-ar.tunnelxconn-allotted-resource[0].' />\n",
+    "comments":"",
+    "x":1784.5292320251465,
+    "y":560.6243867874146,
+    "z":"613ada42.e46534",
+    "wires":[
+
+    ]
+  },
+  {
+    "id":"a18ae609.19d3c8",
+    "type":"block",
+    "name":"block: atomic",
+    "xml":"<block atomic='true'>\n",
+    "atomic":"false",
+    "comments":"",
+    "outputs":1,
+    "x":1555.5290794372559,
+    "y":560.6244316101074,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "6f978da.693bf74",
+        "66b9fbd6.4d38a4",
+        "7b6d747a.efbadc"
+      ]
+    ]
+  },
+  {
+    "id":"66b9fbd6.4d38a4",
+    "type":"set",
+    "name":"set oper-status",
+    "xml":"<set>\n<parameter name='tx-ar.allotted-resource-data.allotted-resource-oper-status.last-action' value='`$tx-ar.allotted-resource-data.allotted-resource-operation-information.request-information.request-action`' />\n<parameter name='tx-ar.allotted-resource-data.allotted-resource-oper-status.last-rpc-action' value='`$tx-ar.allotted-resource-status.rpc-action`' />\n<parameter name='tx-ar.allotted-resource-data.allotted-resource-oper-status.last-svc-request-id' value='`$tx-ar.allotted-resource-data.allotted-resource-operation-information.sdnc-request-header.svc-request-id`' />\n\n",
+    "comments":"",
+    "x":1782.5294761657715,
+    "y":628.0529508590698,
+    "z":"613ada42.e46534",
+    "wires":[
+
+    ]
+  },
+  {
+    "id":"a62aafbc.fe6bb",
+    "type":"comment",
+    "name":"GET tunnelxconn-allotted-resource from mdsal",
+    "info":"",
+    "comments":"",
+    "x":534.8148155212402,
+    "y":489.7671926021576,
+    "z":"613ada42.e46534",
+    "wires":[
+
+    ]
+  },
+  {
+    "id":"7b6d747a.efbadc",
+    "type":"switchNode",
+    "name":"switch order-status",
+    "xml":"<switch test='`$tx-ar.allotted-resource-data.allotted-resource-oper-status.order-status`'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":1792.52925491333,
+    "y":593.6243848800659,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "d5b999f8.8cb468",
+        "f4d4f6e9.cf0858"
+      ]
+    ]
+  },
+  {
+    "id":"d5b999f8.8cb468",
+    "type":"outcome",
+    "name":"outcome Created",
+    "xml":"<outcome value='Created'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":2004.1292114257812,
+    "y":554.6243848800659,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "48576b51.340d84"
+      ]
+    ]
+  },
+  {
+    "id":"f4d4f6e9.cf0858",
+    "type":"outcome",
+    "name":"outcome Other",
+    "xml":"<outcome value='Other'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":2029.8435859680176,
+    "y":590.052975654602,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "48576b51.340d84"
+      ]
+    ]
+  },
+  {
+    "id":"83b8f4eb.666af8",
+    "type":"comment",
+    "name":"Set allotted-resource-identifiers",
+    "info":"",
+    "comments":"",
+    "x":490.33863830566406,
+    "y":580.3386459350586,
+    "z":"613ada42.e46534",
+    "wires":[
+
+    ]
+  },
+  {
+    "id":"5570421f.b1cd1c",
+    "type":"set",
+    "name":"save backup copy of mdsal-ar for rollback",
+    "xml":"<set>\n<parameter name='bk-tx-ar' value='$mdsal-ar.' />\n",
+    "comments":"",
+    "x":1273.3864250183105,
+    "y":525.7672936916351,
+    "z":"613ada42.e46534",
+    "wires":[
+
+    ]
+  },
+  {
+    "id":"26dce256.9f5d0e",
+    "type":"comment",
+    "name":"Create urls for restapi",
+    "info":"",
+    "comments":"",
+    "x":445.9576606750488,
+    "y":394.6243562698364,
+    "z":"613ada42.e46534",
+    "wires":[
+
+    ]
+  },
+  {
+    "id":"6f565745.8303b8",
+    "type":"block",
+    "name":"block",
+    "xml":"<block>\n",
+    "atomic":"false",
+    "comments":"",
+    "outputs":1,
+    "x":924.2433853149414,
+    "y":867.481632232666,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+
+      ]
+    ]
+  },
+  {
+    "id":"fcabb34d.45a2a",
+    "type":"comment",
+    "name":"TO DO: vnf/put parent",
+    "info":"",
+    "comments":"",
+    "x":458.2433776855469,
+    "y":801.4815540313718,
+    "z":"613ada42.e46534",
+    "wires":[
+
+    ]
+  },
+  {
+    "id":"f6543328.c0463",
+    "type":"execute",
+    "name":"execute getTime",
+    "xml":"<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='setTime' >\n    <parameter name=\"outputPath\" value=\"tmp.current-time\" />\n\n",
+    "comments":"",
+    "outputs":1,
+    "x":432.24338150024414,
+    "y":697.4815549850464,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+
+      ]
+    ]
+  },
+  {
+    "id":"356ea1a.9b58a5e",
+    "type":"other",
+    "name":"other",
+    "xml":"<outcome value='Other'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":766.5766868591309,
+    "y":561.4814250469208,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "413a7bac.d6ab24"
+      ]
+    ]
+  },
+  {
+    "id":"413a7bac.d6ab24",
+    "type":"block",
+    "name":"block: atomic",
+    "xml":"<block atomic=\"true\">\n",
+    "atomic":"false",
+    "comments":"",
+    "outputs":1,
+    "x":946.5766372680664,
+    "y":562.1479756832123,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+
+      ]
+    ]
+  },
+  {
+    "id":"e12d04d1.e4c6f8",
+    "type":"set",
+    "name":"set id",
+    "xml":"<set>\n<parameter name='tx-ar.allotted-resource-id' value=\"`$tmp.ar.allotted-resource-id` \" />\n<parameter name='tx-ar.allotted-resource-status.action' value=\"`$tunnelxconn-topology-operation-input.request-information.request-action` \" />\n<parameter name='tx-ar.allotted-resource-status.rpc-name' value=\"tunnelxconn-topology-operation\" />\n<parameter name='tx-ar.allotted-resource-status.rpc-action' value=\"`$tunnelxconn-topology-operation-input.sdnc-request-header.svc-action` \" />\n<parameter name='tx-ar.allotted-resource-data.allotted-resource-operation-information.request-information.' value=\"`$tunnelxconn-topology-operation-input.request-information.` \" />\n<parameter name='tx-ar.allotted-resource-data.allotted-resource-operation-information.sdnc-request-header.' value=\"`$tunnelxconn-topology-operation-input.sdnc-request-header.` \" />\n<parameter name='tx-ar.allotted-resource-data.allotted-resource-operation-information.service-information.' value=\"`$tunnelxconn-topology-operation-input.service-information.` \" />\n<parameter name='tx-ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.' value=\"`$tunnelxconn-topology-operation-input.allotted-resource-information.` \" />\n<parameter name='tx-ar.allotted-resource-data.allotted-resource-operation-information.tunnelxconn-request-input.' value=\"`$tunnelxconn-topology-operation-input.tunnelxconn-request-input.` \" />",
+    "comments":"",
+    "x":415.24342346191406,
+    "y":617.1481666564941,
+    "z":"613ada42.e46534",
+    "wires":[
+
+    ]
+  },
+  {
+    "id":"48576b51.340d84",
+    "type":"block",
+    "name":"block",
+    "xml":"<block>\n",
+    "atomic":"false",
+    "comments":"",
+    "outputs":1,
+    "x":2218.5997276306152,
+    "y":556.0000190734863,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+
+      ]
+    ]
+  },
+  {
+    "id":"4b2a2744.b37d78",
+    "type":"execute",
+    "name":"execute RestApiCallNode - PUT AR by id",
+    "xml":"<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='templateFileName' value=\"`$prop.restapi.templateDir + '/' + $prop.restapi.tx.templatefile`\" />\n    <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />\n    <parameter name='restapiUser' value='`$prop.controller.user`' />\n    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='PUT' />\n    <parameter name=\"responsePrefix\" value=\"mdsal-ar\" />\n\n",
+    "comments":"",
+    "outputs":1,
+    "x":515.0000152587891,
+    "y":882.0000247955322,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "2102e230.72a77e",
+        "fc786288.11187",
+        "b0337e65.8f372"
+      ]
+    ]
+  },
+  {
+    "id":"509b7252.07649c",
+    "type":"set",
+    "name":"clear tx-ar-assignments",
+    "xml":"<set>\n<parameter name='tx-ar-assignments.' value=\"\" />\n\n\n\n",
+    "comments":"",
+    "x":459,
+    "y":768,
+    "z":"613ada42.e46534",
+    "wires":[
+
+    ]
+  },
+  {
+    "id":"d6edf81e.59db08",
+    "type":"execute",
+    "name":"execute RestApiCallNode - delete vgMUX to vG vxlan tunnel port",
+    "xml":"<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n  <parameter name='restapiUrl' value='`$tmp.honeycomb.url + $tmp.vpp-honeycomb-url`' />\n    <parameter name='restapiUser' value='`$prop.honeycomb.user`' />\n    <parameter name='restapiPassword' value='`$prop.honeycomb.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='DELETE' />\n    <parameter name=\"responsePrefix\" value=\"honeycomb-vnf\" />\n\n",
+    "comments":"",
+    "outputs":1,
+    "x":593.6668548583984,
+    "y":2109.3331184387207,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "5a2ca87c.542c08",
+        "ab819131.dd45",
+        "63ff344a.e380fc"
+      ]
+    ]
+  },
+  {
+    "id":"5a2ca87c.542c08",
+    "type":"not-found",
+    "name":"not-found",
+    "xml":"<outcome value='not-found'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":1162.6414413452148,
+    "y":2149.331505201757,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "f6c1b57a.e80c28"
+      ]
+    ]
+  },
+  {
+    "id":"ab819131.dd45",
+    "type":"failure",
+    "name":"failure",
+    "xml":"<outcome value='failure'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":1153.6414909362793,
+    "y":2117.8315309509635,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "f6c1b57a.e80c28"
+      ]
+    ]
+  },
+  {
+    "id":"63ff344a.e380fc",
+    "type":"success",
+    "name":"success",
+    "xml":"<outcome value='success'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":1157.391529083252,
+    "y":2088.188635826111,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "14140cfc.718ec3"
+      ]
+    ]
+  },
+  {
+    "id":"f6c1b57a.e80c28",
+    "type":"returnFailure",
+    "name":"return failure",
+    "xml":"<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error updating md-sal for tunnelxconn-allotted-resource\" />\n",
+    "comments":"",
+    "x":1323.391529083252,
+    "y":2118.5815547928214,
+    "z":"613ada42.e46534",
+    "wires":[
+
+    ]
+  },
+  {
+    "id":"14140cfc.718ec3",
+    "type":"block",
+    "name":"block",
+    "xml":"<block>\n",
+    "atomic":"false",
+    "comments":"",
+    "outputs":1,
+    "x":1299.0474967956543,
+    "y":2084.380805015564,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+
+      ]
+    ]
+  },
+  {
+    "id":"d6a9b477.b43e58",
+    "type":"execute",
+    "name":"generate full vgMUX-vG vpp-honeycomb url",
+    "xml":"<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$prop.restapi.vpp-honeycomb`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.vpp-honeycomb-url\"/>\n    <parameter name=\"target\" value=\"{tunnel-name}\"/>\n    <parameter name=\"replacement\" value=\"`$tmp.tunnel-vgMUX-vG-name`\"/>\n",
+    "comments":"",
+    "outputs":1,
+    "x":521.1111145019531,
+    "y":1617.6667919158936,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+
+      ]
+    ]
+  },
+  {
+    "id":"67c6c537.098aac",
+    "type":"execute",
+    "name":"generate honeycomb-url to vgMUX",
+    "xml":"<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$prop.honeycomb.url`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.honeycomb.url\"/>\n    <parameter name=\"target\" value=\"{honeycomb-instance-ip}\"/>\n    <parameter name=\"replacement\" value=\"`$tx-ar.allotted-resource-data.tunnelxconn-topology.tunnelxconn-assignments.vgmux-mgmt-ip`\"/>\n",
+    "comments":"",
+    "outputs":1,
+    "x":486.7778778076172,
+    "y":1328.333438873291,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+
+      ]
+    ]
+  },
+  {
+    "id":"3c1eab50.8ab6e4",
+    "type":"execute",
+    "name":"execute RestApiCallNode - delete vG-vgMUX xconnect",
+    "xml":"<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='restapiUrl' value=\"`$tmp.honeycomb.url + $tmp.vpp-honeycomb-url + '/v3po:l2' `\" />\n    <parameter name='restapiUser' value='`$prop.honeycomb.user`' />\n    <parameter name='restapiPassword' value='`$prop.honeycomb.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='DELETE' />\n    <parameter name=\"responsePrefix\" value=\"honeycomb-vnf\" />\n\n",
+    "comments":"",
+    "outputs":1,
+    "x":557.6670074462891,
+    "y":1696.881510734558,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "133ecf83.ed702",
+        "2da75da5.50c6e2",
+        "f90f3fc7.0dbc5"
+      ]
+    ]
+  },
+  {
+    "id":"133ecf83.ed702",
+    "type":"not-found",
+    "name":"not-found",
+    "xml":"<outcome value='not-found'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":1166.3083801269531,
+    "y":1676.8796142563224,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "7f5777a.bc39688"
+      ]
+    ]
+  },
+  {
+    "id":"2da75da5.50c6e2",
+    "type":"failure",
+    "name":"failure",
+    "xml":"<outcome value='failure'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":1157.3084297180176,
+    "y":1645.379640005529,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "7f5777a.bc39688"
+      ]
+    ]
+  },
+  {
+    "id":"f90f3fc7.0dbc5",
+    "type":"success",
+    "name":"success",
+    "xml":"<outcome value='success'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":1161.0584678649902,
+    "y":1615.7367448806763,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "9aa4cd15.2e381"
+      ]
+    ]
+  },
+  {
+    "id":"7f5777a.bc39688",
+    "type":"returnFailure",
+    "name":"return failure",
+    "xml":"<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error updating md-sal for tunnelxconn-allotted-resource\" />\n",
+    "comments":"",
+    "x":1327.0584678649902,
+    "y":1646.1296638473868,
+    "z":"613ada42.e46534",
+    "wires":[
+
+    ]
+  },
+  {
+    "id":"9aa4cd15.2e381",
+    "type":"block",
+    "name":"block",
+    "xml":"<block>\n",
+    "atomic":"false",
+    "comments":"",
+    "outputs":1,
+    "x":1302.7144355773926,
+    "y":1611.9289140701294,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+
+      ]
+    ]
+  },
+  {
+    "id":"eccfefb.8a8691",
+    "type":"execute",
+    "name":"execute RestApiCallNode - delete vgMUX to vBRG vxlan tunnel port",
+    "xml":"<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n  <parameter name='restapiUrl' value='`$tmp.honeycomb.url + $tmp.vpp-honeycomb-url`' />\n    <parameter name='restapiUser' value='`$prop.honeycomb.user`' />\n    <parameter name='restapiPassword' value='`$prop.honeycomb.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='DELETE' />\n    <parameter name=\"responsePrefix\" value=\"honeycomb-vnf\" />\n\n",
+    "comments":"",
+    "outputs":1,
+    "x":598.666690826416,
+    "y":1946.0000019073486,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "4db8b84d.b2ecd8",
+        "ac063462.f4ca28",
+        "5e7c8c01.42d984"
+      ]
+    ]
+  },
+  {
+    "id":"4db8b84d.b2ecd8",
+    "type":"not-found",
+    "name":"not-found",
+    "xml":"<outcome value='not-found'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":1165.9746704101562,
+    "y":1995.9981521591544,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "66bd1389.36824c"
+      ]
+    ]
+  },
+  {
+    "id":"ac063462.f4ca28",
+    "type":"failure",
+    "name":"failure",
+    "xml":"<outcome value='failure'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":1156.9747200012207,
+    "y":1964.498177908361,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "66bd1389.36824c"
+      ]
+    ]
+  },
+  {
+    "id":"5e7c8c01.42d984",
+    "type":"success",
+    "name":"success",
+    "xml":"<outcome value='success'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":1160.7247581481934,
+    "y":1934.8552827835083,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "dae96ea2.d0433"
+      ]
+    ]
+  },
+  {
+    "id":"66bd1389.36824c",
+    "type":"returnFailure",
+    "name":"return failure",
+    "xml":"<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error updating md-sal for tunnelxconn-allotted-resource\" />\n",
+    "comments":"",
+    "x":1326.7247581481934,
+    "y":1965.2482017502189,
+    "z":"613ada42.e46534",
+    "wires":[
+
+    ]
+  },
+  {
+    "id":"dae96ea2.d0433",
+    "type":"block",
+    "name":"block",
+    "xml":"<block>\n",
+    "atomic":"false",
+    "comments":"",
+    "outputs":1,
+    "x":1302.3807258605957,
+    "y":1931.0474519729614,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+
+      ]
+    ]
+  },
+  {
+    "id":"ac80ef88.64417",
+    "type":"set",
+    "name":"set vgMUX to vG and vgMUX to vBRG VXLAN Tunnel Name",
+    "xml":"<set>\n<parameter name='tmp.tunnel-vgMUX-vG-name' value=\"`'vxlanTun' + $tx-ar.allotted-resource-data.tunnelxconn-topology.tunnelxconn-assignments.vg-ip` \" />\n<parameter name='tmp.tunnel-vgMUX-vBRG-name' value=\"`'vxlanTun' + $tx-ar.allotted-resource-data.tunnelxconn-topology.tunnelxconn-assignments.vbrg-wan-ip` \" />\n",
+    "comments":"",
+    "x":571.3333129882812,
+    "y":1552.3332386016846,
+    "z":"613ada42.e46534",
+    "wires":[
+
+    ]
+  },
+  {
+    "id":"fd3c881.1134678",
+    "type":"execute",
+    "name":"execute RestApiCallNode - delete vBRG-vgMUX xconnect",
+    "xml":"<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='restapiUrl' value=\"`$tmp.honeycomb.url + $tmp.vpp-honeycomb-url + '/v3po:l2' `\" />\n    <parameter name='restapiUser' value='`$prop.honeycomb.user`' />\n    <parameter name='restapiPassword' value='`$prop.honeycomb.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='DELETE' />\n    <parameter name=\"responsePrefix\" value=\"honeycomb-vnf\" />\n\n",
+    "comments":"",
+    "outputs":1,
+    "x":568.666675567627,
+    "y":1849.3331651687622,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "66d058c6.066908",
+        "8879fdd0.457de",
+        "82ba2dc0.22ad1"
+      ]
+    ]
+  },
+  {
+    "id":"82ba2dc0.22ad1",
+    "type":"not-found",
+    "name":"not-found",
+    "xml":"<outcome value='not-found'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":1160.3333892822266,
+    "y":1842.6665658950806,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "700450a1.c41fd"
+      ]
+    ]
+  },
+  {
+    "id":"8879fdd0.457de",
+    "type":"failure",
+    "name":"failure",
+    "xml":"<outcome value='failure'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":1151.333438873291,
+    "y":1811.166591644287,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "700450a1.c41fd"
+      ]
+    ]
+  },
+  {
+    "id":"66d058c6.066908",
+    "type":"success",
+    "name":"success",
+    "xml":"<outcome value='success'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":1153.4169692993164,
+    "y":1773.1904611587524,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "2e7fb96e.6c49e6"
+      ]
+    ]
+  },
+  {
+    "id":"700450a1.c41fd",
+    "type":"returnFailure",
+    "name":"return failure",
+    "xml":"<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error updating md-sal for tunnelxconn-allotted-resource\" />\n",
+    "comments":"",
+    "x":1321.0834770202637,
+    "y":1811.916615486145,
+    "z":"613ada42.e46534",
+    "wires":[
+
+    ]
+  },
+  {
+    "id":"2e7fb96e.6c49e6",
+    "type":"block",
+    "name":"block",
+    "xml":"<block>\n",
+    "atomic":"false",
+    "comments":"",
+    "outputs":1,
+    "x":1296.739444732666,
+    "y":1777.7158657088876,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+
+      ]
+    ]
+  },
+  {
+    "id":"a6c06bf0.9acdf8",
+    "type":"execute",
+    "name":"generate full vgMUX-vBRG vpp-honeycomb url",
+    "xml":"<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$prop.restapi.vpp-honeycomb`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.vpp-honeycomb-url\"/>\n    <parameter name=\"target\" value=\"{tunnel-name}\"/>\n    <parameter name=\"replacement\" value=\"`$tmp.tunnel-vgMUX-vBRG-name`\"/>\n",
+    "comments":"",
+    "outputs":1,
+    "x":532.0000114440918,
+    "y":1767.6665334701538,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+
+      ]
+    ]
+  },
+  {
+    "id":"cadbc326.95747",
+    "type":"execute",
+    "name":"generate full vgMUX-vG vpp-honeycomb url",
+    "xml":"<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$prop.restapi.vpp-honeycomb`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.vpp-honeycomb-url\"/>\n    <parameter name=\"target\" value=\"{tunnel-name}\"/>\n    <parameter name=\"replacement\" value=\"`$tmp.tunnel-vgMUX-vG-name`\"/>\n",
+    "comments":"",
+    "outputs":1,
+    "x":523.6666603088379,
+    "y":2034.3332509994507,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+
+      ]
+    ]
+  },
+  {
+    "id":"6017aedf.2d3db",
+    "type":"get-resource",
+    "name":"get-resource IPADDR from dmaap DHCP_MAP ",
+    "xml":"<get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='IPADDR' key=\"SELECT min(ip_addr) ip from DHCP_MAP where mac_addr = $tx-ar.allotted-resource-data.allotted-resource-operation-information.tunnelxconn-request-input.brg-wan-mac-address\" pfx=\"tmp.brg-wan-ip\" >\n",
+    "comments":"",
+    "outputs":1,
+    "x":529.5001373291016,
+    "y":1428.0001401901245,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+
+      ]
+    ]
+  },
+  {
+    "id":"6a140f25.dc1a2",
+    "type":"set",
+    "name":"set tunnelxconn-ar.allotted-resource-data.tunnelxconn-topology.tunnelxconn-assignments.vbrg-wan-ip",
+    "xml":"<set>\n<parameter name='tunnelxconn-ar.allotted-resource-data.tunnelxconn-topology.tunnelxconn-assignments.vbrg-wan-ip' value='`$tmp.brg-wan-ip.ip`' />\n",
+    "comments":"",
+    "x":694.1428833007812,
+    "y":1479.9166345596313,
+    "z":"613ada42.e46534",
+    "wires":[
+
+    ]
+  },
+  {
+    "id":"ef15c78a.710b88",
+    "type":"comment",
+    "name":"Get vgmux-mgmt-ip",
+    "info":"",
+    "comments":"",
+    "x":271.0000114440918,
+    "y":1009.5001254081726,
+    "z":"613ada42.e46534",
+    "wires":[
+
+    ]
+  },
+  {
+    "id":"ec194f5.ff3e8b",
+    "type":"call",
+    "name":"call GENERIC-RESOURCE-API:get-vnf-api-parent-instance",
+    "xml":"<call module='GENERIC-RESOURCE-API' rpc='get-vnf-api-parent-instance' mode='sync' >\n\n",
+    "comments":"",
+    "outputs":1,
+    "x":572.666633605957,
+    "y":1125.8331098556519,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+
+      ]
+    ]
+  },
+  {
+    "id":"9e3a6d03.74879",
+    "type":"set",
+    "name":"set tmp.search.parent-service-instance-id to find vgmux-mgmt-ip",
+    "xml":"<set>\n<parameter name='tmp.search.parent-service-instance-id' value='`$tmp.ar.parent-service-instance-id`' />\n",
+    "comments":"",
+    "x":585.3332901000977,
+    "y":1060.8331365585327,
+    "z":"613ada42.e46534",
+    "wires":[
+
+    ]
+  },
+  {
+    "id":"3ac2ce1c.2c1862",
+    "type":"set",
+    "name":"set vgmux-mgmt-ip",
+    "xml":"<set>\n<parameter name='tx-ar.allotted-resource-data.tunnelxconn-topology.tunnelxconn-assignments.vgmux-mgmt-ip' value='`$parent-service-instance.vnf-topology-information.vnf-parameters[$paramidx].vnf-parameter-value`' />\n",
+    "comments":"",
+    "x":1329.3330459594727,
+    "y":1187.4999752044678,
+    "z":"613ada42.e46534",
+    "wires":[
+
+    ]
+  },
+  {
+    "id":"a35bc5f0.41f1a8",
+    "type":"for",
+    "name":"for vnf-parameters in parent-service-instance",
+    "xml":"<for index='paramidx' start='0' end='`$parent-service-instance.vnf-topology-information.vnf-parameters_length`' >\n\n\n",
+    "comments":"",
+    "outputs":1,
+    "x":529.3331909179688,
+    "y":1192.499638557434,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "cce1cb0f.707e78"
+      ]
+    ]
+  },
+  {
+    "id":"cce1cb0f.707e78",
+    "type":"switchNode",
+    "name":"switch parameter matches vgmux_private_ip_1",
+    "xml":"<switch test='`$parent-service-instance.vnf-topology-information.vnf-parameters[$paramidx].vnf-parameter-name == vgmux_private_ip_1`'>\n\n\n",
+    "comments":"",
+    "outputs":1,
+    "x":900.6666717529297,
+    "y":1191.4996423721313,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "9d32fcca.bd388"
+      ]
+    ]
+  },
+  {
+    "id":"9d32fcca.bd388",
+    "type":"success",
+    "name":"true",
+    "xml":"<outcome value='true'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":1159.3330192565918,
+    "y":1189.166374206543,
+    "z":"613ada42.e46534",
+    "wires":[
+      [
+        "3ac2ce1c.2c1862"
+      ]
+    ]
+  },
+  {
+    "id":"d65683ee.c2f16",
+    "type":"comment",
+    "name":"Get brg-wan-ip",
+    "info":"",
+    "comments":"",
+    "x":264.0000190734863,
+    "y":1384.00004196167,
+    "z":"613ada42.e46534",
+    "wires":[
+
+    ]
+  }
+]

@@ -1,0 +1,337 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='validate-contrail-route-input' mode='sync'>
+        <block atomic="true">
+            <switch test='`$contrail-route-topology-operation-input.sdnc-request-header.svc-action`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="sdnc-request-header.svc-action is a required input" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$contrail-route-topology-operation-input.sdnc-request-header.svc-request-id`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="sdnc-request-header.svc-request-id is a required input" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$contrail-route-topology-operation-input.request-information.request-action`'>
+                <outcome value='CreateContrailRouteInstance'>
+                    <block></block>
+                </outcome>
+                <outcome value='DeleteContrailRouteInstance'>
+                    <block></block>
+                </outcome>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="request-information.request-action is a required input" />
+                    </return>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Invalid request-information.request-action " />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$contrail-route-topology-operation-input.service-information.service-instance-id`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="service-information.service-instance-id is a required input" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$contrail-route-topology-operation-input.sdnc-request-header.svc-action`'>
+                <outcome value='assign'>
+                    <block atomic="true">
+                        <switch test='`$contrail-route-topology-operation-input.request-information.request-action`'>
+                            <outcome value='CreateContrailRouteInstance'>
+                                <block atomic="true">
+                                    <switch test='`$contrail-route-topology-operation-input.allotted-resource-information.allotted-resource-id`'>
+                                        <outcome value=''>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="allotted-resource-information.allotted-resource-id is a required input" />
+                                            </return>
+                                        </outcome>
+                                    </switch>
+                                    <switch test='`$contrail-route-topology-operation-input.allotted-resource-information.allotted-resource-type`'>
+                                        <outcome value=''>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="allotted-resource-information.allotted-resource-type is a required input" />
+                                            </return>
+                                        </outcome>
+                                    </switch>
+                                    <switch test='`$contrail-route-topology-operation-input.allotted-resource-information.parent-service-instance-id`'>
+                                        <outcome value=''>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="allotted-resource-information.parent-service-instance-id is a required input" />
+                                            </return>
+                                        </outcome>
+                                    </switch>
+                                    <switch test='`$contrail-route-topology-operation-input.allotted-resource-information.onap-model-information.model-customization-uuid`'>
+                                        <outcome value=''>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="contrail-route-information.onap-model-information.model-customization-uuid is a required input" />
+                                            </return>
+                                        </outcome>
+                                    </switch>
+                                    <switch test='`$contrail-route-topology-operation-input.contrail-route-request-input.source-network.network-id`'>
+                                        <outcome value=''>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="contrail-route-topology-operation-input.contrail-route-request-input.source-network.network-id is a required input" />
+                                            </return>
+                                        </outcome>
+                                    </switch>
+                                    <switch test='`$contrail-route-topology-operation-input.contrail-route-request-input.source-network.network-role`'>
+                                        <outcome value=''>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="contrail-route-topology-operation-input.contrail-route-request-input.source-network.network-role is a required input" />
+                                            </return>
+                                        </outcome>
+                                    </switch>
+                                    <switch test='`$contrail-route-topology-operation-input.contrail-route-request-input.dest-network.network-role`'>
+                                        <outcome value=''>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="contrail-topology-operation-input.contrail-route-request-input.dest-network.network-role is a required input" />
+                                            </return>
+                                        </outcome>
+                                    </switch>
+                                    <switch test='`$contrail-route-topology-operation-input.contrail-route-request-input.contrail-applied-service-info.service-instance-id`'>
+                                        <outcome value=''>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="contrail-route-topology-operation-input.contrail-route-request-input.contrail-applied-service-info.service-instance-id is a required input" />
+                                            </return>
+                                        </outcome>
+                                    </switch>
+                                    <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT * from ALLOTTED_RESOURCE_MODEL WHERE customization_uuid = $contrail-route-topology-operation-input.allotted-resource-information.onap-model-information.model-customization-uuid'
+  pfx='ar-model'>
+                                        <outcome value='not-found'>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="`'No alloted resource model found for model customization UUID ' + $contrail-route-topology-operation-input.allotted-resource-information.onap-model-information.model-customization-uuid`" />
+                                            </return>
+                                        </outcome>
+                                        <outcome value='failure'>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="`'No alloted resource model found for model customization UUID ' + $contrail-route-topology-operation-input.allotted-resource-information.onap-model-information.model-customization-uuid`" />
+                                            </return>
+                                        </outcome>
+                                    </get-resource>
+                                </block>
+                            </outcome>
+                            <outcome value='Other'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="request-information.request-action is a required to be CreateContrailRouteInstance for svc-action=assign" />
+                                </return>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='create'>
+                    <block atomic="true">
+                        <switch test='`$contrail-route-topology-operation-input.request-information.request-action`'>
+                            <outcome value='CreateContrailRouteInstance'>
+                                <block atomic="true">
+                                    <switch test='`$contrail-route-topology-operation-input.allotted-resource-information.allotted-resource-id`'>
+                                        <outcome value=''>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="allotted-resource-information.allotted-resource-id is a required input" />
+                                            </return>
+                                        </outcome>
+                                    </switch>
+                                    <switch test='`$contrail-route-topology-operation-input.allotted-resource-information.parent-service-instance-id`'>
+                                        <outcome value=''>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="allotted-resource-information.parent-service-instance-id is a required input" />
+                                            </return>
+                                        </outcome>
+                                    </switch>
+                                </block>
+                            </outcome>
+                            <outcome value='Other'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="request-information.request-action is a required to be CreateNetworkInstance for svc-action=create" />
+                                </return>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='activate'>
+                    <block atomic="true">
+                        <switch test='`$contrail-route-topology-operation-input.request-information.request-action`'>
+                            <outcome value='CreateContrailRouteInstance'>
+                                <block atomic="true">
+                                    <switch test='`$contrail-route-topology-operation-input.allotted-resource-information.allotted-resource-id`'>
+                                        <outcome value=''>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="allotted-resource-information.allotted-resource-id is a required input" />
+                                            </return>
+                                        </outcome>
+                                    </switch>
+                                    <switch test='`$contrail-route-topology-operation-input.allotted-resource-information.parent-service-instance-id`'>
+                                        <outcome value=''>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="allotted-resource-information.parent-service-instance-id is a required input" />
+                                            </return>
+                                        </outcome>
+                                    </switch>
+                                </block>
+                            </outcome>
+                            <outcome value='Other'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="request-information.request-action is a required to be CreateContrailRouteInstance for svc-action=activate" />
+                                </return>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='deactivate'>
+                    <block atomic="true">
+                        <switch test='`$contrail-route-topology-operation-input.request-information.request-action`'>
+                            <outcome value='DeleteContrailRouteInstance'>
+                                <block atomic="true">
+                                    <switch test='`$contrail-route-topology-operation-input.allotted-resource-information.allotted-resource-id`'>
+                                        <outcome value=''>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="allotted-resource-information.allotted-resource-id is a required input" />
+                                            </return>
+                                        </outcome>
+                                    </switch>
+                                    <switch test='`$contrail-route-topology-operation-input.allotted-resource-information.parent-service-instance-id`'>
+                                        <outcome value=''>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="allotted-resource-information.parent-service-instance-id is a required input" />
+                                            </return>
+                                        </outcome>
+                                    </switch>
+                                </block>
+                            </outcome>
+                            <outcome value='Other'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="request-information.request-action is a required to be DeleteContrailRouteInstance for svc-action=deactivate" />
+                                </return>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='delete'>
+                    <block atomic="true">
+                        <switch test='`$contrail-route-topology-operation-input.request-information.request-action`'>
+                            <outcome value='DeleteContrailRouteInstance'>
+                                <block atomic="true">
+                                    <switch test='`$contrail-route-topology-operation-input.allotted-resource-information.allotted-resource-id`'>
+                                        <outcome value=''>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="allotted-resource-information.allotted-resource-id is a required input" />
+                                            </return>
+                                        </outcome>
+                                    </switch>
+                                    <switch test='`$contrail-route-topology-operation-input.allotted-resource-information.parent-service-instance-id`'>
+                                        <outcome value=''>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="allotted-resource-information.parent-service-instance-id is a required input" />
+                                            </return>
+                                        </outcome>
+                                    </switch>
+                                </block>
+                            </outcome>
+                            <outcome value='Other'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="request-information.request-action is a required to be DeleteContrailRouteInstance for svc-action=delete" />
+                                </return>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='unassign'>
+                    <block atomic="true">
+                        <switch test='`$contrail-route-topology-operation-input.request-information.request-action`'>
+                            <outcome value='DeleteContrailRouteInstance'>
+                                <block atomic="true">
+                                    <switch test='`$contrail-route-topology-operation-input.allotted-resource-information.allotted-resource-id`'>
+                                        <outcome value=''>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="allotted-resource-information.allotted-resource-id is a required input" />
+                                            </return>
+                                        </outcome>
+                                    </switch>
+                                </block>
+                            </outcome>
+                            <outcome value='Other'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="request-information.request-action is a required to be DeleteContrailRouteInstance for svc-action=unassign" />
+                                </return>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+            </switch>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="`$error-message`" />
+            </return>
+        </block>
+    </method>
+</service-logic>

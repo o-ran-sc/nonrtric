@@ -1,0 +1,100 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='service-topology-operation-delete' mode='sync'>
+        <block atomic="true">
+            <switch test='`$service-data.service-topology.service-topology-identifier.service-instance-id`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="404" />
+                        <parameter name="error-message" value="`'Service ' + $service-topology-operation-input.service-information.service-instance-id + ' is not found'`" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$service-topology-operation-input.request-information.request-action`'>
+                <outcome value='DeleteServiceInstance'>
+                    <block></block>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="If svc-action is 'delete' then request-action must be 'DeleteServiceInstance'" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$service-data.networks.network_length`'>
+                <outcome value='0'>
+                    <block></block>
+                </outcome>
+                <outcome value=''>
+                    <block></block>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Cannot delete the service because there are networks defined" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$service-data.vnfs.vnf_length`'>
+                <outcome value='0'>
+                    <block></block>
+                </outcome>
+                <outcome value=''>
+                    <block></block>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Cannot delete the service because there are VNFs defined" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$service-data.provided-allotted-resources.provided-allotted-resource_length`'>
+                <outcome value='0'>
+                    <block></block>
+                </outcome>
+                <outcome value=''>
+                    <block></block>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Cannot deactivate this service because there are provided allotted resources" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$service-data.consumed-allotted-resources.consumed-allotted-resource_length`'>
+                <outcome value='0'>
+                    <block></block>
+                </outcome>
+                <outcome value=''>
+                    <block></block>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Cannot deactivate this service because there are consumed allotted resources" />
+                    </return>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='naming-policy-generate-name-input.naming-type' value='SERVICE' />
+                <parameter name='naming-policy-generate-name-input.context-id' value='`$service-topology-operation-input.service-information.service-instance-id`' />
+                <parameter name='naming-policy-generate-name-input.query-parameter' value='`$service-data.service-topology.onap-model-information.model-uuid`' />
+                <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+            </set>
+            <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+            <set>
+                <parameter name='service-data.' value='' />
+                <parameter name='service-status.' value='' />
+            </set>
+        </block>
+    </method>
+</service-logic>

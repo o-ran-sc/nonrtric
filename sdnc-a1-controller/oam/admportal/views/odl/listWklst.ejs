@@ -1,0 +1,2224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>SDN-C AdminPortal</title>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+
+<script type="text/javascript">
+$(document).ready(function() {
+        $('.tree').treegrid( { initialState: 'collapsed' } );
+});
+</script>
+
+</head>
+<body>
+
+<div class="well well-sm">
+<h3>L3SDN-API Services</h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+        if (result.code.length > 0) {
+            if ( result.code == 'success' ) { %>
+                <div class='alert alert-success' role='alert'><%=result.msg %></div>
+            <% } else { %>
+                <div class='alert alert-danger' role='danger'><%=result.msg %></div>
+            <% } %>
+        <% } %>
+<% } %>
+
+<div class="container-fluid">
+<div class="content">
+
+<table class="table tree table-hover table-condensed">
+<% var i=1; root_node=1;
+pageInfo.rows.forEach(function(request)
+{
+        root_node = i; %>
+
+		<tr class="treegrid-<%= i %>">
+		  	<td><%= request['service-instance-id'] %></td>
+		</tr>
+		<% i++; %>
+
+		<% if ( typeof request['service-status'] != 'undefined' )
+        { %>
+        	<tr class="treegrid-<%= i %>> treegrid-parent-<%= root_node %>">
+			<td>			
+				<a class=""
+                   		href="javascript:serviceStatus(
+                       '<%= request['service-status']['rpc-name'] %>',
+                       '<%= request['service-status']['final-indicator'] %>',
+                       '<%= request['service-status']['request-status'] %>',
+                       '<%= request['service-status']['rpc-action'] %>',
+                       '<%= request['service-status']['l3sdn-action'] %>',
+                       '<%= request['service-status']['l3sdn-subaction'] %>',
+                       '<%= request['service-status']['response-message'] %>',
+                       '<%= request['service-status']['response-code'] %>',
+                       '<%= request['service-status']['response-timestamp'] %>' );">service-status</a>
+			</td>
+			</tr>
+			<% i++; %>
+        <% } %>
+		<% if ( typeof request['service-data'] != 'undefined' )
+		{ %>
+			<% var service_data_node = i; %>
+        	<tr class="treegrid-<%= i %> treegrid-parent-<%= root_node %>">
+				<td> service-data</td>
+			</tr>
+			<% i++; %>
+
+			<% if ( typeof request['service-data']['internet-evc-access-information'] != 'undefined' )
+           	{ %>
+        		<tr class="treegrid-<%= i %> treegrid-parent-<%= service_data_node %>">
+				<td>
+                   	<a class=""
+                   		href="javascript:internetInfo(
+                       		'<%= request['service-data']['internet-evc-access-information']['ip-version'] %>',
+                       		'<%= request['service-data']['internet-evc-access-information']['internet-evc-speed-value'] %>',
+                       		'<%= request['service-data']['internet-evc-access-information']['internet-evc-speed-units'] %>');">internet-evc-access-information</a>
+				</td>
+				</tr>
+				<% i++; %>
+			<% } %>
+		<% if ( typeof request['service-data']['oper-status'] != 'undefined' )
+    	{ %>
+        	<tr class="treegrid-<%= i %> treegrid-parent-<%= service_data_node %>">
+			<td>
+			<a class=""
+           		href="javascript:operStatus(
+                    '<%= request['service-data']['oper-status']['order-status'] %>',
+                    '<%= request['service-data']['oper-status']['modify-timestamp'] %>',
+                    '<%= request['service-data']['oper-status']['last-svc-request-id'] %>',
+                    '<%= request['service-data']['oper-status']['last-sub-action'] %>',
+                    '<%= request['service-data']['oper-status']['t-defaulted-v6-vrlan'] %>',
+                    '<%= request['service-data']['oper-status']['last-action'] %>',
+                    '<%= request['service-data']['oper-status']['create-timestamp'] %>',
+                    '<%= request['service-data']['oper-status']['maintenance-indicator'] %>',
+                    '<%= request['service-data']['oper-status']['last-order-status'] %>');">oper-status</a>
+			</td>
+			</tr>
+			<% i = i+1; %>
+		<% } %>
+		<% if ( typeof request['service-data']['svc-topology-additional-data'] != 'undefined' )
+    	{ %>
+        	<tr class="treegrid-<%= i %> treegrid-parent-<%= service_data_node %>">
+			<td>
+			<a class=""
+           		href="javascript:svcTopo(
+               '<%= request['service-data']['svc-topology-additional-data']['svc-vnf-type'] %>');">svc-topology-additional-data</a>
+			</td>
+			</tr>
+			<% i = i+1; %>
+		<% }  %>
+		<% if ( typeof request['service-data']['request-information'] != 'undefined' )
+		{ %>
+        	<tr class="treegrid-<%= i %> treegrid-parent-<%= service_data_node %>">
+			<td>
+			<a class=""
+               href="javascript:reqInfo(
+               	'<%= request['service-data']['request-information']['notification-url'] %>',
+                '<%= request['service-data']['request-information']['source'] %>',
+                '<%= request['service-data']['request-information']['order-number'] %>',
+                '<%= request['service-data']['request-information']['request-id'] %>',
+                '<%= request['service-data']['request-information']['order-version'] %>',
+                '<%= request['service-data']['request-information']['request-action'] %>',
+                '<%= request['service-data']['request-information']['request-sub-action'] %>');">request-information</a>
+			</td>
+			</tr>
+			<% i = i+1; %>
+		<% } %>
+		<% if ( typeof request['service-data']['sdnc-request-header'] != 'undefined' )
+		{ %>
+        	<tr class="treegrid-<%= i %> treegrid-parent-<%= service_data_node %>">
+			<td>
+			<a class=""
+               href="javascript:reqHeader(
+               '<%= request['service-data']['sdnc-request-header']['svc-notification-url'] %>',
+               '<%= request['service-data']['sdnc-request-header']['svc-request-id'] %>',
+               '<%= request['service-data']['sdnc-request-header']['svc-action'] %>');">sdnc-request-header</a>
+			</td>
+			</tr>
+			<% i = i+1; %>
+		<% } %>
+		<% if ( typeof request['service-data']['l2-homing-information'] != 'undefined' )
+    	{ %>
+        	<tr class="treegrid-<%= i %> treegrid-parent-<%= service_data_node %>">
+			<td>
+				<a class=""
+               	href="javascript:l2Homing(
+               	'<%= request['service-data']['l2-homing-information']['evc-name'] %>',
+               	'<%= request['service-data']['l2-homing-information']['preferred-aic-clli'] %>',
+               	'<%= request['service-data']['l2-homing-information']['topology'] %>');">l2-homing-information</a>
+			</td>
+			</tr>
+			<% i = i+1; %>
+		<% } %>
+		<% if ( typeof request['service-data']['service-information'] != 'undefined' )
+    	{ %>
+        	<tr class="treegrid-<%= i %> treegrid-parent-<%= service_data_node %>">
+			<td>
+				<a class=""
+               href="javascript:svcInfo(
+               '<%= request['service-data']['service-information']['service-instance-id'] %>',
+               '<%= request['service-data']['service-information']['subscriber-name'] %>',
+               '<%= request['service-data']['service-information']['service-type'] %>');">service-information</a>
+			</td>
+			</tr>
+			<% i++; %>
+		<% } %>
+		<% if ( typeof request['service-data']['feature-list'] != 'undefined' )
+        { %>
+			<% var feature_list_node = i; %>
+        	<tr class="treegrid-<%= i %> treegrid-parent-<%= service_data_node %>">
+			<td> feature-list</td>
+			</tr>
+            <% i++; %>
+
+        	<% request['service-data']['feature-list'].forEach(function(request) 
+			{ %>
+            	<tr class="treegrid-<%= i %> treegrid-parent-<%= feature_list_node %>">
+            	<td>
+                	<a class=""
+               			href="javascript:feature_list(
+               			'<%= request['feature-instance-id'] %>',
+               			'<%= request['feature-instance-xpath'] %>',
+               			'<%= request['feature-sub-type'] %>',
+               			'<%= request['feature-type'] %>');">feature-list</a>
+            	</td>
+            	</tr>
+            	<% i++; %>
+			<% }); %>
+        <% } %>
+		<% if ( typeof request['service-data']['svc-config-additional-data'] != 'undefined' )
+		{ %>
+			<% var svc_config_additional_data_node = i; %>
+        	<tr class="treegrid-<%= i %> treegrid-parent-<%= service_data_node %>">
+			<td> svc-config-additional-data</td>
+			</tr>
+            <% i++; %>
+
+			<tr class="treegrid-<%= i %> treegrid-parent-<%= svc_config_additional_data_node %>">
+            <td>
+            	<a class=""
+                	href="javascript:svc_config_additional_data(
+                    '<%= request['service-data']['svc-config-additional-data']['management-ip'] %>');">management-ip</a>
+            </td>
+            </tr>
+            <% i++; %>
+		<% } %>
+		<% if ( typeof request['service-data']['equipment'] != 'undefined' )
+        { %>
+			<% var equipment_node = i; %>
+        	<tr class="treegrid-<%= i %> treegrid-parent-<%= service_data_node %>">
+			<td> equipment</td>
+			</tr>
+            <% i++; %>
+
+        	<% request['service-data']['equipment'].forEach(function(equip) 
+			{ %>
+				<tr class="treegrid-<%= i %> treegrid-parent-<%= equipment_node %>">
+                <td>
+                    <a class=""
+                        href="javascript:equipment(
+                        '<%= equip['equipment-role'] %>',
+                        '<%= equip['ipv4-oam-address'] %>',
+                        '<%= equip['ipv4-oam-gateway-address-prefix-length'] %>',
+                        '<%= equip['ptnii-name'] %>',
+                        '<%= equip['v4-loopback0-ip-address'] %>',
+                        '<%= equip['ipv4-oam-gateway-address'] %>');">equipment</a>
+                </td>
+                </tr>
+                <% i++; %>
+
+				<% if ( typeof equip['ipv4-infrastructure-static-route'] != 'undefined' )
+                { %>
+                    <% ipv4_infrastructure_static_route_node = i; %>
+                    <tr class="treegrid-<%= i %> treegrid-parent-<%= equipment_node %>">
+                    <td> ipv4-infrastructure-static-route</td>
+                    </tr>
+                    <% i++; %>
+			
+					<% equip['ipv4-infrastructure-static-route'].forEach(function(eroute)
+                    { %>
+                        <tr class="treegrid-<%= i %> treegrid-parent-<%= ipv4_infrastructure_static_route_node %>">
+                        <td>
+                            <a class=""
+                                href="javascript:ipv4_infrastructure_static_route(
+                                '<%= eroute['ipv4-outgoing-interface'] %>',
+                                '<%= eroute['ipv4-next-hop-address'] %>',
+                                '<%= eroute['ipv4-dest-prefix'] %>',
+                                '<%= eroute['ipv4-dest-prefix-length'] %>');">ipv4_infrastructure_static_route</a>
+                        </td>
+                        </tr>
+                        <% i++; %>
+                    <% }); %>
+                <% } %>
+				<% if ( typeof equip['ipv6-infrastructure-static-route'] != 'undefined' )
+                { %>
+                    <% ipv6_infrastructure_static_route_node = i; %>
+                    <tr class="treegrid-<%= i %> treegrid-parent-<%= equipment_node %>">
+                    <td> ipv6-infrastructure-static-route</td>
+                    </tr>
+                    <% i++; %>
+
+                    <% equip['ipv6-infrastructure-static-route'].forEach(function(eroute)
+                    { %>
+                        <tr class="treegrid-<%= i %> treegrid-parent-<%= ipv6_infrastructure_static_route_node %>">
+                        <td>
+                            <a class=""
+                                href="javascript:ipv6_infrastructure_static_route(
+                                '<%= eroute['ipv6-outgoing-interface'] %>',
+                                '<%= eroute['ipv6-next-hop-address'] %>',
+                                '<%= eroute['ipv6-dest-prefix'] %>',
+                                '<%= eroute['ipv6-dest-prefix-length'] %>');">ipv6_infrastructure_static_route</a>
+                        </td>
+                        </tr>
+                        <% i++; %>
+                    <% }); %>
+                <% } %>
+				<% if ( typeof equip['interface'] != 'undefined' )
+                { %>
+                    <% interface_node = i; %>
+                    <tr class="treegrid-<%= i %> treegrid-parent-<%= equipment_node %>">
+                    <td> interface</td>
+                    </tr>
+                    <% i++; %>
+
+                    <% equip['interface'].forEach(function(interface)
+                    { %>
+                        <tr class="treegrid-<%= i %> treegrid-parent-<%= interface_node %>">
+                        <td>
+                            <a class=""
+                                href="javascript:interface(
+                                '<%= interface['interface-name'] %>',
+                                '<%= interface['interface-role'] %>');">interface</a>
+                        </td>
+                        </tr>
+                        <% i++; %>
+
+						<% if ( typeof interface['vlan'] != 'undefined' )
+                    	{ %>
+                    		<% vlan_node = i; %>
+                    		<tr class="treegrid-<%= i %> treegrid-parent-<%= interface_node %>">
+                    		<td> vlan</td>
+                    		</tr>
+                    		<% i++; %>
+
+                    		<% interface['vlan'].forEach(function(vlan)
+                    		{ %>
+                        		<tr class="treegrid-<%= i %> treegrid-parent-<%= vlan_node %>">
+                        		<td>
+                            		<a class=""
+                                		href="javascript:vlan(
+                                		'<%= vlan['vlan-interface'] %>',
+                                		'<%= vlan['vlan-id-outer'] %>',
+                                		'<%= vlan['vlan-id-inner'] %>');">vlan</a>
+                        		</td>
+                        		</tr>
+                        		<% i++; %>
+
+								<% if ( typeof vlan['l3-interface-ipv4-address-list'] != 'undefined' )
+                    			{ %>
+                    				<% ipv4_address_list_node = i; %>
+                    				<tr class="treegrid-<%= i %> treegrid-parent-<%= interface_node %>">
+                    				<td> l3-interface-ipv4-address-list</td>
+                    				</tr>
+                    				<% i++; %>
+
+                    				<% vlan['l3-interface-ipv4-address-list'].forEach(function(v4)
+                    				{ %>
+										<tr class="treegrid-<%= i %> treegrid-parent-<%= ipv4_address_list_node %>">
+                                		<td>
+                                    		<a class=""
+                                        		href="javascript:l3_interface_ipv4_address_list(
+                                        		'<%= v4['l3-interface-ipv4-address'] %>',
+                                        		'<%= v4['l3-interface-ipv4-prefix-length'] %>');">l3-interface-ipv4-address-list</a>
+                                		</td>
+                                		</tr>
+                                		<% i++; %>
+
+                    				<% }); %>
+                    			<% }; %>
+
+								<% if ( typeof vlan['l3-interface-ipv6-address-list'] != 'undefined' )
+                                { %>
+                                    <% ipv6_address_list_node = i; %>
+                                    <tr class="treegrid-<%= i %> treegrid-parent-<%= interface_node %>">
+                                    <td> l3-interface-ipv6-address-list</td>
+                                    </tr>
+                                    <% i++; %>
+
+                                    <% vlan['l3-interface-ipv6-address-list'].forEach(function(v6)
+                                    { %>
+										<tr class="treegrid-<%= i %> treegrid-parent-<%= ipv6_address_list_node %>">
+                                		<td>
+                                    		<a class=""
+                                        		href="javascript:l3_interface_ipv6_address_list(
+                                        		'<%= v6['l3-interface-ipv6-address'] %>',
+                                        		'<%= v6['l3-interface-ipv6-prefix-length'] %>');">l3-interface-ipv6-address-list</a>
+                                		</td>
+                                		</tr>
+                                		<% i++; %>
+                                    <% }); %>
+                                <% }; %>
+                    		<% }); %>
+                    	<% }; %>
+                	<% }); %>
+                <% } %>
+
+
+
+			<% }); %>
+		<% } %>
+
+		<% if ( typeof request['service-data']['l3sdn-vnf-fields'] != 'undefined' )
+		{ %>
+			<% l3sdn_vnf_fields_node = i; %>
+        	<tr class="treegrid-<%= i %> treegrid-parent-<%= service_data_node %>">
+			<td> l3sdn-vnf-fields</td>
+			</tr>
+			<% i++; %>
+
+			<tr class="treegrid-<%= i %> treegrid-parent-<%= l3sdn_vnf_fields_node %>">
+            	<td>
+            		<a class=""
+            		href="javascript:l3sdn_vnf_fields(
+            		'<%= request['service-data']['l3sdn-vnf-fields']['availability-zone'] %>',
+            		'<%= request['service-data']['l3sdn-vnf-fields']['vnf-stack-id'] %>',
+            		'<%= request['service-data']['l3sdn-vnf-fields']['vnf-name'] %>',
+            		'<%= request['service-data']['l3sdn-vnf-fields']['vnf-name2'] %>',
+            		'<%= request['service-data']['l3sdn-vnf-fields']['vnf-type'] %>',
+            		'<%= request['service-data']['l3sdn-vnf-fields']['vnf-status'] %>',
+            		'<%= request['service-data']['l3sdn-vnf-fields']['vnf-id'] %>',
+            		'<%= request['service-data']['l3sdn-vnf-fields']['oam-network-name'] %>',
+            		'<%= request['service-data']['l3sdn-vnf-fields']['aic_site_id'] %>');">l3sdn-vnf-fields</a>
+            	</td>
+            </tr>
+            <% i++; %>
+
+			<% if ( typeof request['service-data']['l3sdn-vnf-fields']['network-connections'] != 'undefined' )
+            { %>
+                <% network_connections_node = i; %>
+                <tr class="treegrid-<%= i %> treegrid-parent-<%= l3sdn_vnf_fields_node %>">
+                <td> network-connections</td>
+                </tr>
+                <% i++; %>
+
+                <% request['service-data']['l3sdn-vnf-fields']['network-connections'].forEach(function(nconn)
+                { %>
+                    <tr class="treegrid-<%= i %> treegrid-parent-<%= network_connections_node %>">
+                    <td>
+                        <a class=""
+                        href="javascript:network_connections(
+                        '<%= nconn['stack-id'] %>',
+                        '<%= nconn['net-status'] %>',
+                        '<%= nconn['connection-type'] %>',
+                        '<%= nconn['provider-network'] %>',
+                        '<%= nconn['interface-id'] %>',
+                        '<%= nconn['vlan'] %>',
+                        '<%= nconn['port-group-name'] %>',
+                        '<%= nconn['neutron-network-id'] %>');">network-connections</a>
+                    </td>
+                    </tr>
+                    <% i++; %>
+                <% }); %>
+            <% } %>
+
+			<% if ( typeof request['service-data']['l3sdn-vnf-fields']['vnf-vm-information'] != 'undefined' )
+            { %>
+                <% vnf_vm_information_node = i; %>
+                <tr class="treegrid-<%= i %> treegrid-parent-<%= l3sdn_vnf_fields_node %>">
+                <td> vnf-vm-information</td>
+                </tr>
+                <% i++; %>
+
+                <% request['service-data']['l3sdn-vnf-fields']['vnf-vm-information'].forEach(function(info)
+                { %>
+                    <tr class="treegrid-<%= i %> treegrid-parent-<%= vnf_vm_information_node %>">
+                    <td>
+                        <a class=""
+                        href="javascript:vnf_vm_information(
+                        '<%= info['vserver-type'] %>',
+                        '<%= info['vserver-name'] %>');">vnf-vm-information</a>
+                    </td>
+                    </tr>
+                    <% i++; %>
+                <% }); %>
+            <% } %>
+
+
+		<% } %>
+
+		<% if ( typeof request['service-data']['vr-lan'] != 'undefined' )
+		{ %>
+			<% if ( typeof request['service-instance-id'] != 'undefined' )
+			{ 
+    			var svc_instance_id = request['service-instance-id'];
+			} %>
+
+			<% vr_lan_node = i; %>
+        	<tr class="treegrid-<%= i %> treegrid-parent-<%= service_data_node %>">
+			<td> vr-lan</td>
+			</tr>
+			<% i++; %>
+			
+
+			<% if ( request['service-data']['vr-lan']['routing-protocol'] != 'undefined' )
+			{ %>
+				<tr class="treegrid-<%= i %> treegrid-parent-<%= vr_lan_node %>">
+				<td>
+            		<a href="javascript:routing_protocol('<%= svc_instance_id %>',
+					'<%= request['service-data']['vr-lan']['routing-protocol'] %>');">routing-protocol</a> 
+				</td>
+				</tr>
+				<% i++; %>
+			<% } %>
+			<% vr_lan_interface_node = i; %>
+        	<tr class="treegrid-<%= i %> treegrid-parent-<%= vr_lan_node %>">
+			<td> vr-lan-interface</td>
+			</tr>
+			<% i++; %>
+
+			<% if( typeof request['service-data']['vr-lan']['vr-lan-interface'] != 'undefined' )
+    		{ %>
+				
+        		<% request['service-data']['vr-lan']['vr-lan-interface'].forEach(function(request) 
+				{ %>
+
+        			<% if ( request['vr-designation'] != 'undefined')
+        			{
+            			var vr_designation = request['vr-designation'];
+        			} %>
+
+					<tr class="treegrid-<%= i %> treegrid-parent-<%= vr_lan_interface_node %>">
+        			<td>
+            			<a href="javascript:vrlan_interface(
+               			'<%= svc_instance_id %>',
+               			'<%= request['vr-designation'] %>',
+               			'<%= request['v6-vr-lan-prefix'] %>',
+               			'<%= request['v6-vr-lan-prefix-length'] %>',
+               			'<%= request['v6-vce-wan-address'] %>',
+               			'<%= request['v4-vr-lan-prefix-length'] %>',
+               			'<%= request['v4-vr-lan-prefix'] %>',
+               			'<%= request['t-defaulted-v6-vrlan'] %>',
+               			'<%= request['v4-vce-loopback-address'] %>');">vr-lan-interface</a>
+        			</td>
+        			</tr>
+        			<% i++; %>
+
+					<% if ( typeof request['dhcp'] != 'undefined' )
+        			{ %>
+            			<% var dhcp_node = i; %>
+            			<tr class="treegrid-<%= i %> treegrid-parent-<%= vr_lan_interface_node %>">
+            			<td> dhcp</td>
+            			</tr>
+            			<% i++; %>
+
+            			<tr class="treegrid-<%= i %> treegrid-parent-<%= dhcp_node %>">
+            			<td>
+                			<a href="javascript:dhcp(
+                   			'<%= svc_instance_id %>',
+                   			'<%= request['dhcp']['use-v4-default-pool'] %>',
+                   			'<%= request['dhcp']['use-v6-default-pool'] %>',
+                   			'<%= request['dhcp']['v4-dhcp-server-enabled'] %>',
+                   			'<%= request['dhcp']['v6-dhcp-server-enabled'] %>',
+                   			'<%= request['dhcp']['v6-dhcp-default-pool-prefix'] %>',
+                   			'<%= request['dhcp']['v6-dhcp-default-pool-prefix-length'] %>',
+                   			'<%= request['dhcp']['v4-dhcp-default-pool-prefix'] %>',
+                   			'<%= request['dhcp']['v4-dhcp-default-pool-prefix-length'] %>');">dhcp</a>
+            			</td>
+            			</tr>
+            			<% i++; %>
+
+						<% if ( typeof request['dhcp']['v4-dhcp-pools'] != 'undefined' )
+            			{ %>
+                			<% var v4_dhcp_pools_node = i; %>
+                			<tr class="treegrid-<%= i %> treegrid-parent-<%= dhcp_node %>">
+                			<td>v4-dhcp-pool</td>
+                			</tr>
+                			<% i++; %>
+
+                			<% request['dhcp']['v4-dhcp-pools'].forEach(function(v4request)
+                			{ %>
+                    			<tr class="treegrid-<%= i %> treegrid-parent-<%= v4_dhcp_pools_node %>">
+                    			<td>
+                        			<a href="javascript:v4_dhcp_pools(
+                        			'<%= svc_instance_id %>',
+                        			'<%= v4request['v4-dhcp-relay-next-hop-address'] %>',
+                        			'<%= v4request['v4-dhcp-pool-prefix'] %>',
+                        			'<%= v4request['v4-dhcp-pool-prefix-length'] %>',
+                        			'<%= v4request['v4-dhcp-relay-gateway-address'] %>');">v4-dhcp-pools</a>
+                    			</td>
+                    			</tr>
+                    			<% i++; %>
+
+                    			<% if ( typeof v4request['excluded-v4-address'] != 'undefined' )
+                    			{ %>
+                        			<% var excluded_v4_address_node = i; %>
+                        			<tr class="treegrid-<%= i %> treegrid-parent-<%= v4_dhcp_pools_node %>">
+                            			<td>exluded-v4-address</td>
+                        			</tr>
+                        			<% i++; %>
+
+                        			<% v4request['excluded-v4-addresses'].forEach(function(ex_request)
+                        			{ %>
+                            			<tr class="treegrid-<%= i %> treegrid-parent-<%= excluded_v4_address_node %>">
+                            			<td>
+                                			<a href="javascript:excluded_v4_address(
+                                			'<%= svc_instance_id %>',
+                                			'<%= ex_request['excluded-v4-address'] %>');">excluded-v4-address</a>
+                            			</td>
+                            			</tr>
+                            			<% i++; %>
+                        			<% }); %>
+                    			<% } %>
+                			<% }); %>
+            			<% } %>
+				
+						<% if ( typeof request['dhcp']['excluded-v4-dhcp-addresses-from-default-pool'] != 'undefined' )
+            			{ %>
+                			<% var exc_v4_address_node = i; %>
+                			<tr class="treegrid-<%= i %> treegrid-parent-<%= dhcp_node %>">
+                			<td>excluded-v4-dhcp-addresses-from-default-pool</td>
+                			</tr>
+                			<% i++; %>
+
+                			<% request['dhcp']['excluded-v4-dhcp-addresses-from-default-pool'].forEach(function(ex_request)
+                			{ %>
+                    			<tr class="treegrid-<%= i %> treegrid-parent-<%= exc_v4_address_node %>">
+                    			<td>
+                        			<a href="javascript:excluded_v4_addresses_from_default_pool(
+                        			'<%= svc_instance_id %>',
+                        			'<%= ex_request['excluded-v4-address'] %>');">excluded-v4-dhcp-addresses-from-default-pool</a>
+                    			</td>
+                    			</tr>
+                    			</tr>
+                    			<% i++; %>
+                			<% }); %>
+            			<% } %>
+						<% if ( typeof request['dhcp']['v6-dhcp-pools'] != 'undefined' )
+						{ %>
+                			<% var v6_dhcp_pools_node = i; %>
+                			<tr class="treegrid-<%= i %> treegrid-parent-<%= dhcp_node %>">
+                			<td>v6-dhcp-pool</td>
+                			</tr>
+                			<% i++; %>
+
+                			<% request['dhcp']['v6-dhcp-pools'].forEach(function(v6request)
+                			{ %>
+                    			<tr class="treegrid-<%= i %> treegrid-parent-<%= v6_dhcp_pools_node %>">
+                    			<td>
+                        			<a href="javascript:v6_dhcp_pools(
+                        			'<%= svc_instance_id %>',
+                        			'<%= v6request['v6-dhcp-relay-next-hop-address'] %>',
+                        			'<%= v6request['v6-dhcp-pool-prefix'] %>',
+                        			'<%= v6request['v6-dhcp-pool-prefix-length'] %>',
+                        			'<%= v6request['v6-dhcp-relay-gateway-address'] %>');">v6-dhcp-pools</a>
+                    			</td>
+                    			</tr>
+                    			<% i++; %>
+
+                    			<% if ( typeof v6request['excluded-v6-addresses'] != 'undefined' )
+                    			{ %>
+                        			<% var excluded_v6_address_node = i; %>
+                        			<tr class="treegrid-<%= i %> treegrid-parent-<%= v6_dhcp_pools_node %>">
+                            			<td>exluded-v6-address</td>
+                        			</tr>
+                        			<% i++; %>
+
+                        			<% v6request['excluded-v6-addresses'].forEach(function(ex_request)
+                        			{ %>
+                            			<tr class="treegrid-<%= i %> treegrid-parent-<%= excluded_v6_address_node %>">
+                            			<td>
+                                			<a href="javascript:excluded_v6_addresses(
+                                			'<%= svc_instance_id %>',
+                                			'<%= ex_request['excluded-v6-address'] %>');">excluded-v6-address</a>
+                            			</td>
+                            			</tr>
+                            			<% i++; %>
+                        			<% }); %>
+                    			<% } %>
+                			<% }); %>
+            			<% } %>
+						
+						<% if ( typeof request['dhcp']['excluded-v6-dhcp-addresses-from-default-pool'] != 'undefined' )
+            			{ %>
+                			<% var exc_v6_address_node = i; %>
+                			<tr class="treegrid-<%= i %> treegrid-parent-<%= dhcp_node %>">
+                			<td>excluded-v6-dhcp-addresses-from-default-pool</td>
+                			</tr>
+                			<% i++; %>
+
+                			<% request['dhcp']['excluded-v6-dhcp-addresses-from-default-pool'].forEach(function(ex_request)
+                			{ %>
+                    			<tr class="treegrid-<%= i %> treegrid-parent-<%= exc_v6_address_node %>">
+                    			<td>
+                        			<a href="javascript:excluded_v6_addresses_from_default_pool(
+                        			'<%= svc_instance_id %>',
+                        			'<%= ex_request['excluded-v6-address'] %>');">excluded-v6-dhcp-addresses-from-default-pool</a>
+                    			</td>
+                    			</tr>
+                    			</tr>
+                    			<% i++; %>
+                			<% }); %>
+            			<% } %>
+				<% } %>
+				<% if ( typeof request['firewall-lite'] != 'undefined' )
+                { %>
+                    <% var firewall_lite_node = i; %>
+                    <tr class="treegrid-<%= i %> treegrid-parent-<%= vr_lan_interface_node %>">
+                        <td> firewall-lite</td>
+                    </tr>
+                    <% i++; %>
+
+                    <tr class="treegrid-<%= i %> treegrid-parent-<%= firewall_lite_node %>">
+                    <td>
+                        <a href="javascript:firewall_lite(
+                        '<%= svc_instance_id %>',
+                        '<%= vr_designation %>',
+                        '<%= request['firewall-lite']['stateful-firewall-lite-v6-enabled'] %>',
+                        '<%= request['firewall-lite']['stateful-firewall-lite-v4-enabled'] %>');">firewall-lite</a>
+                    </td>
+                    </tr>
+                    <% i++; %>
+
+                    <% if ( typeof request['firewall-lite']['v6-firewall-packet-filters'] != 'undefined' )
+                    { %>
+                        <% var v6_firewall_packet_filters_node = i; %>
+                        <tr class="treegrid-<%= i %> treegrid-parent-<%= firewall_lite_node %>">
+                            <td>v6_firewall_packet_filters</td>
+                        </tr>
+                        <% i++; %>
+
+						<% request['firewall-lite']['v6-firewall-packet-filters'].forEach(function(v6request)
+                        { %>
+                            <tr class="treegrid-<%= i %> treegrid-parent-<%= v6_firewall_packet_filters_node %>">
+                            <td>
+                                <a href="javascript:v6_firewall_packet_filters(
+                                '<%= svc_instance_id %>',
+                                '<%= v6request['v6-firewall-prefix'] %>',
+                                '<%= v6request['v6-firewall-prefix-length'] %>',
+                                '<%= v6request['allow-icmp-ping'] %>');">v6-firewall-packet-filters</a>
+                            </td>
+                            </tr>
+                            <% i++; %>
+
+							<% if ( typeof v6request['udp-port-list'] != 'undefined' )
+                            { %>
+                                <% var udp_port_list_node = i; %>
+                                <tr class="treegrid-<%= i %> treegrid-parent-<%= v6_firewall_packet_filters_node %>">
+                                    <td>udp_port_list</td>
+                                </tr>
+                                <% i++; %>
+
+                                <% v6request['udp-port-list'].forEach(function(udp_request)
+                                { %>
+                                    <tr class="treegrid-<%= i %> treegrid-parent-<%= udp_port_list_node %>">
+                                    <td>
+                                        <a href="javascript:udp_port_list(
+                                        '<%= svc_instance_id %>',
+                                        '<%= udp_request['port-number'] %>');">udp-port-list</a>
+                                    </td>
+                                    </tr>
+                                    <% i++; %>
+                                <% }); %>
+                            <% } %>
+							<% if ( typeof v6request['tcp-port-list'] != 'undefined' )
+                            { %>
+                                <% var tcp_port_list_node = i; %>
+                                <tr class="treegrid-<%= i %> treegrid-parent-<%= v6_firewall_packet_filters_node %>">
+                                    <td>tcp_port_list</td>
+                                </tr>
+                                <% i++; %>
+ 								<% v6request['tcp-port-list'].forEach(function(tcp_request)
+                                { %>
+                                    <tr class="treegrid-<%= i %> treegrid-parent-<%= tcp_port_list_node %>">
+                                    <td>
+                                        <a href="javascript:tcp_port_list(
+                                        '<%= svc_instance_id %>',
+                                        '<%= tcp_request['port-number'] %>');">tcp-port-list</a>
+                                    </td>
+                                    </tr>
+                                    <% i++; %>
+                                <% }); %>
+                            <% } %>
+						<% }); %>
+
+                    <% } %>
+					<% if ( typeof request['firewall-lite']['v4-firewall-packet-filters'] != 'undefined' )
+                 	{ %>
+                        <% var v4_firewall_packet_filters_node = i; %>
+                        <tr class="treegrid-<%= i %> treegrid-parent-<%= firewall_lite_node %>">
+                            <td>v4_firewall_packet_filters</td>
+                        </tr>
+                        <% i++; %>
+
+                        <% request['firewall-lite']['v4-firewall-packet-filters'].forEach(function(v4request)
+                        { %>
+                            <tr class="treegrid-<%= i %> treegrid-parent-<%= v4_firewall_packet_filters_node %>">
+                            <td>
+                                <a href="javascript:v4_firewall_packet_filters(
+                                '<%= svc_instance_id %>',
+                                '<%= v4request['v4-firewall-prefix'] %>',
+                                '<%= v4request['v4-firewall-prefix-length'] %>',
+                                '<%= v4request['allow-icmp-ping'] %>');">v4-firewall-packet-filters</a>
+                            </td>
+                            </tr>
+                            <% i++; %>
+
+                            <% if ( typeof v4request['udp-port-list'] != 'undefined' )
+                            { %>
+                                <% var udp_port_list_node = i; %>
+                                <tr class="treegrid-<%= i %> treegrid-parent-<%= v4_firewall_packet_filters_node %>">
+                                    <td>udp_port_list</td>
+                                </tr>
+                                <% i++; %>
+
+                                <% v4request['udp-port-list'].forEach(function(udp_request)
+                                { %>
+                                    <tr class="treegrid-<%= i %> treegrid-parent-<%= udp_port_list_node %>">
+                                    <td>
+                                        <a href="javascript:udp_port_list(
+                                        '<%= svc_instance_id %>',
+                                        '<%= udp_request['port-number'] %>');">udp-port-list</a>
+                                    </td>
+                                    </tr>
+                                    <% i++; %>
+                                <% }); %>
+                            <% } %>
+                            <% if ( typeof v4request['tcp-port-list'] != 'undefined' )
+                            { %>
+                                <% var tcp_port_list_node = i; %>
+                                <tr class="treegrid-<%= i %> treegrid-parent-<%= v4_firewall_packet_filters_node %>">
+                                    <td>tcp_port_list</td>
+                                </tr>
+                                <% i++; %>
+                                <% v4request['tcp-port-list'].forEach(function(tcp_request)
+                                { %>
+                                    <tr class="treegrid-<%= i %> treegrid-parent-<%= tcp_port_list_node %>">
+                                    <td>
+                                        <a href="javascript:tcp_port_list(
+                                        '<%= svc_instance_id %>',
+                                        '<%= tcp_request['port-number'] %>');">tcp-port-list</a>
+                                    </td>
+                                    </tr>
+                                    <% i++; %>
+                                <% }); %>
+                            <% } %>
+                        <% }); %>
+
+                    <% } %>
+
+                <% } %>
+
+
+ 				<% if ( typeof request['v4-public-lan-prefixes'] != 'undefined')
+				{ %>
+					<% var v4_public_lan_prefixes_node = i; %>
+                    <tr class="treegrid-<%= i %> treegrid-parent-<%= vr_lan_interface_node %>">
+                    	<td> v4-public-lan-prefixes</td>
+                    </tr>
+                    <% i++; %>
+
+					<% if (typeof request['v4-public-lan-prefixes']['t-provided-v4-lan-public-prefixes'] != 'undefined')
+        			{ %>
+
+            			<% request['v4-public-lan-prefixes']['t-provided-v4-lan-public-prefixes'].forEach(function(trequest)
+						{ %>
+                			<tr class="treegrid-<%= i %> treegrid-parent-<%= v4_public_lan_prefixes_node %>">
+                			<td>
+                    			<a href="javascript:t_provided_v4_prefixes(
+                    			'<%= svc_instance_id %>',
+                    			'<%= trequest['request-index'] %>',
+                    			'<%= trequest['v4-lan-public-prefix-length'] %>',
+                    			'<%= trequest['v4-lan-public-prefix'] %>');">t-provided-v4-lan-public-prefixes</a>
+                			</td>
+                			</tr>
+                			<% i++; %>
+            			<% }); %>
+        			<% } %>
+				<% } %>
+				<% if ( typeof request['v6-public-lan-prefixes'] != 'undefined')
+                { %>
+                    <% var v6_public_lan_prefixes_node = i; %>
+                    <tr class="treegrid-<%= i %> treegrid-parent-<%= vr_lan_interface_node %>">
+                        <td> v6-public-lan-prefixes</td>
+                    </tr>
+                    <% i++; %>
+
+                    <% if (typeof request['v6-public-lan-prefixes']['t-provided-v6-lan-public-prefixes'] != 'undefined')
+                    { %>
+
+                        <% request['v6-public-lan-prefixes']['t-provided-v6-lan-public-prefixes'].forEach(function(trequest)
+                        { %>
+                            <tr class="treegrid-<%= i %> treegrid-parent-<%= v6_public_lan_prefixes_node %>">
+                            <td>
+                                <a href="javascript:t_provided_v6_prefixes(
+                                '<%= svc_instance_id %>',
+                                '<%= trequest['request-index'] %>',
+                                '<%= trequest['v6-lan-public-prefix-length'] %>',
+                                '<%= trequest['v6-lan-public-prefix'] %>');">t-provided-v6-lan-public-prefixes</a>
+                            </td>
+                            </tr>
+                            <% i++; %>
+                        <% }); %>
+                    <% } %>
+                <% } %>
+
+				<% if ( typeof request['nat'] != 'undefined' )
+        		{ %>
+            		<% var nat_node = i %>
+            		<tr class="treegrid-<%= i %> treegrid-parent-<%= vr_lan_interface_node %>">
+                		<td> nat</td>
+            		</tr>
+            		<% i++; %>
+
+            		<tr class="treegrid-<%= i %> treegrid-parent-<%= nat_node %>">
+            		<td>
+                		<a href="javascript:nat(
+                		'<%= svc_instance_id %>',
+                		'<%= request['nat']['v4-nat-enabled'] %>');">nat</a>
+            		</td>
+            		</tr>
+            		<% i++; %>
+
+            		<% if ( typeof request['nat']['v4-nat-mapping-entries'] != 'undefined' )
+            		{
+                		var nat_mapping_node = i %>
+                		<tr class="treegrid-<%= i %> treegrid-parent-<%= nat_node %>">
+                    		<td>v4-nat-mapping-entries</td>
+                		</tr>
+                		<% i++; %>
+		
+                		<% request['nat']['v4-nat-mapping-entries'].forEach(function(trequest)
+                		{ %>
+                			<tr class="treegrid-<%= i %> treegrid-parent-<%= nat_mapping_node %>">
+                				<td>
+                    				<a href="javascript:v4_nat_mapping_entries(
+                    				'<%= svc_instance_id %>',
+                    				'<%= trequest['v4-nat-external'] %>',
+                    				'<%= trequest['v4-nat-next-hop-address'] %>',
+                    				'<%= trequest['v4-nat-internal'] %>');">v4-nat-mapping-entries</a>
+                				</td>
+                			</tr>
+                			<% i++; %>
+                		<% }); %>
+            		<% } %>
+        		<% } %>
+
+				<% if ( typeof request['static-routes'] != 'undefined' )
+        		{ %>
+            		<% var static_route_node = i; %>
+            		<tr class="treegrid-<%= i %> treegrid-parent-<%= vr_lan_interface_node %>">
+            			<td> static-routes</td>
+            		</tr>
+            		<% i++; %>
+            		<% if ( typeof request['static-routes']['v6-static-routes'] != 'undefined' )
+            		{ %>
+                		<% v6_static_route = i %>
+                		<tr class="treegrid-<%= i %> treegrid-parent-<%= static_route_node %>">
+                				<td>v6-static-routes</td>
+                		</tr>
+                		<% i++; %>
+
+                		<% request['static-routes']['v6-static-routes'].forEach(function(strequest){ %>
+                    		<tr class="treegrid-<%= i %> treegrid-parent-<%= v6_static_route %>">
+                    		<td>
+                        		<a href="javascript:v6_static_routes(
+                        		'<%= svc_instance_id %>',
+                        		'<%= strequest['v6-static-route-prefix'] %>',
+                        		'<%= strequest['v6-next-hop-address'] %>',
+                        		'<%= strequest['v6-static-route-prefix-length'] %>');">v6-static-routes</a>
+                    		</td>
+                    		</tr>
+                    		<% i++; %>
+                		<% }); %>
+            		<% } %>
+            		<% if ( typeof request['static-routes']['v4-static-routes'] != 'undefined' )
+            		{ %>
+                		<% v4_static_route = i %>
+                		<tr class="treegrid-<%= i %> treegrid-parent-<%= static_route_node %>">
+                		<td> v4-static-routes</td>
+                		</tr>
+                		<% i++; %>
+                		<% request['static-routes']['v4-static-routes'].forEach(function(v4request)
+                		{ %>
+                    		<tr class="treegrid-<%= i %> treegrid-parent-<%= v4_static_route %>">
+                    		<td>
+                        		<a href="javascript:v4_static_routes(
+                        		'<%= svc_instance_id %>',
+                        		'<%= v4request['v4-static-route-prefix'] %>',
+                        		'<%= v4request['v4-next-hop-address'] %>',
+                        		'<%= v4request['v4-static-route-prefix-length'] %>');">v4-static-routes</a>
+                    		</td>
+                    		</tr>
+                    		<% i++; %>
+                		<% }); %>
+            		<% } %>
+        		<% } %>
+
+				<% if ( typeof request['pat'] != 'undefined' )
+        		{ %>
+            		<% var pat_node = i %>
+            		<tr class="treegrid-<%= i %> treegrid-parent-<%= vr_lan_interface_node %>">
+                		<td> pat</td>
+            		</tr>
+            		<% i++; %>
+
+            		<tr class="treegrid-<%= i %> treegrid-parent-<%= pat_node %>">
+            			<td>
+                			<a href="javascript:pat(
+                			'<%= svc_instance_id %>',
+                			'<%= request['pat']['v4-pat-default-pool-prefix-length'] %>',
+                			'<%= request['pat']['use-v4-default-pool'] %>',
+                			'<%= request['pat']['v4-pat-enabled'] %>',
+                			'<%= request['pat']['v4-pat-default-pool-prefix'] %>');">pat</a>
+            			</td>
+            		</tr>
+	            	<% i++; %>
+
+            		<% if ( typeof request['pat']['v4-pat-pools'] != 'undefined' )
+            		{ %>
+                		<% var pat_pools_node = i %>
+                		<tr class="treegrid-<%= i %> treegrid-parent-<%= pat_node %>">
+                    		<td> v4-pat-pools</td>
+                		</tr>
+                		<% i++; %>
+
+                		<% request['pat']['v4-pat-pools'].forEach(function(trequest)
+                		{ %>
+                			<tr class="treegrid-<%= i %> treegrid-parent-<%= pat_pools_node %>">
+                			<td>
+                    			<a href="javascript:pat_pools(
+                    			'<%= svc_instance_id %>',
+                    			'<%= trequest['v4-pat-pool-next-hop-address'] %>',
+                    			'<%= trequest['v4-pat-pool-prefix-length'] %>',
+                    			'<%= trequest['v4-pat-pool-prefix'] %>');">v4-pat-pools</a>
+                			</td>
+                			</tr>
+                			<% i++; %>
+                		<% }); %>
+            	<% } %>
+        	<% } %>
+
+
+
+
+
+
+				<% }); %>
+			<% } %>
+		<% } %>
+
+	<% } %>
+	<% }); %> 
+</table>
+</div>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+    <div class="col-md-1 text-left">
+        <p>&nbsp;&nbsp;Page <%= pageInfo.currentPage %> of <%= pageInfo.pageCount %></p>
+    </div>
+    <div class="col-md-11 text-left">
+    <% if (pageInfo.pageCount > 1) { %>
+        <ul class="pagination">
+        <% if (pageInfo.currentPage > 1) { %>
+            <li><a href="/odl/pageWklst?page=1">&laquo;</a></li>
+        <% } %>
+        <% var i = 1;
+        if (pageInfo.currentPage > 10) {
+            i = +pageInfo.currentPage - 9;
+        } %>
+        <% if (i !== 1) { %>
+            <!--<li class="disabled"><a href="#">...</a></li>-->
+        <% } %>
+        <% for (i; i<=pageInfo.pageCount; i++) { %>
+            <% if (pageInfo.currentPage == i) { %>
+                <li class="active"><span><%= i %> <span class="sr-only">(current)</span></span></li>
+            <% } else { %>
+                <li><a href="/odl/pageWklst?page=<%= i %>"><%= i %></a></li>
+            <% } %>
+            <% if (i == (+pageInfo.currentPage + 9)) { %>
+                <!--<li class="disabled"><a href="#">...</a></li>-->
+            <% break; } %>
+        <% } %>
+        <% if (pageInfo.currentPage != pageInfo.pageCount) { %>
+            <li><a href="/odl/pageWklst?page=<%= pageInfo.pageCount %>">&raquo;</a></li>
+        <% } %>
+        </ul>
+    <% } %>
+    </div><!-- col-md-10 -->
+    </div><!-- row -->
+    </div><!-- container-fluid -->
+
+
+
+<% include ../partials/vnf_vm_information %>
+<% include ../partials/network_connections %>
+<% include ../partials/l3sdn_vnf_fields %>
+<% include ../partials/l3_interface_ipv4_address_list %>
+<% include ../partials/l3_interface_ipv6_address_list %>
+<% include ../partials/vlan %>
+<% include ../partials/interface %>
+<% include ../partials/ipv6_infrastructure_static_route %>
+<% include ../partials/ipv4_infrastructure_static_route %>
+<% include ../partials/equipment %>
+<% include ../partials/svc_config_additional_data %>
+<% include ../partials/feature_list %>
+<% include ../partials/pat %>
+<% include ../partials/pat_pools %>
+<% include ../partials/v6_static_routes %>
+<% include ../partials/v4_static_routes %>
+<% include ../partials/nat %>
+<% include ../partials/v4_nat_mapping_entries %>
+<% include ../partials/t_provided_v4_lan_public_prefixes %>
+<% include ../partials/v4_firewall_packet_filters %>
+<% include ../partials/udp_port_list %>
+<% include ../partials/tcp_port_list %>
+<% include ../partials/v6_firewall_packet_filters %>
+<% include ../partials/firewall_lite %>
+<% include ../partials/excluded_v6_addresses %>
+<% include ../partials/excluded_v6_address_from_default_pool %>
+<% include ../partials/v6_dhcp_pools %>
+<% include ../partials/excluded_v4_address_from_default_pool %>
+<% include ../partials/excluded_v4_address %>
+<% include ../partials/v4_dhcp_pools %>
+<% include ../partials/dhcp %>
+<% include ../partials/routing_protocol %>
+<% include ../partials/t_provided_v6_lan_public_prefixes %>
+<% include ../partials/vr_lan_interface %>
+<% include ../partials/service_information_modal %>
+<% include ../partials/l2_homing_information_modal %>
+<% include ../partials/sdnc_request_header_modal %>
+<% include ../partials/request_information_modal %>
+<% include ../partials/svc_topology_additional_data_modal %>
+<% include ../partials/service_status_modal %>
+<% include ../partials/oper_status_modal %>
+<% include ../partials/internet_evc_modal %>
+
+<footer>
+<% include ../partials/footer %>
+</footer>
+    
+<script type="text/javascript">
+
+
+
+function vnf_vm_information(vserver_type,vserver_name)
+{
+	var lvalue = document.getElementById('vserver_type');
+    if( vserver_type != 'undefined' ){
+        lvalue.value=vserver_type;
+    } else {
+        lvalue.value='';
+    }
+	lvalue = document.getElementById('vserver_name');
+    if( vserver_name != 'undefined' ){
+        lvalue.value=vserver_name;
+    } else {
+        lvalue.value='';
+    }
+    $('#vnf-vm-information-modal').modal('show');
+}
+function network_connections (stack_id,net_status,connection_type,provider_network,interface_id,vlan,port_group_name,neutron_network_id)
+{
+	var lvalue = document.getElementById('stack_id');
+    if( stack_id != 'undefined' ){
+        lvalue.value=stack_id;
+    } else {
+        lvalue.value='';
+    }
+	lvalue = document.getElementById('net_status');
+    if( net_status != 'undefined' ){
+        lvalue.value=net_status;
+    } else {
+        lvalue.value='';
+    }
+	lvalue = document.getElementById('connection_type');
+    if( connection_type != 'undefined' ){
+        lvalue.value=connection_type;
+    } else {
+        lvalue.value='';
+    }
+	lvalue = document.getElementById('provider_network');
+    if( provider_network != 'undefined' ){
+        lvalue.value=provider_network;
+    } else {
+        lvalue.value='';
+    }
+	lvalue = document.getElementById('interface_id');
+    if( interface_id != 'undefined' ){
+        lvalue.value=interface_id;
+    } else {
+        lvalue.value='';
+    }
+	lvalue = document.getElementById('vlan');
+    if( vlan != 'undefined' ){
+        lvalue.value=vlan;
+    } else {
+        lvalue.value='';
+    }
+	lvalue = document.getElementById('port_group_name');
+    if( port_group_name != 'undefined' ){
+        lvalue.value=port_group_name;
+    } else {
+        lvalue.value='';
+    }
+	lvalue = document.getElementById('neutron_network_id');
+    if( neutron_network_id != 'undefined' ){
+        lvalue.value=neutron_network_id;
+    } else {
+        lvalue.value='';
+    }
+    $('#network-connections-modal').modal('show');
+}
+
+function l3sdn_vnf_fields(availability_zone,vnf_stack_id,vnf_name,vnf_name2,vnf_type,vnf_status,vnf_id,oam_network_name,aic_site_id)
+{
+    var lvalue = document.getElementById('availability_zone');
+    if( availability_zone != 'undefined' ){
+        lvalue.value=availability_zone;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('vnf_stack_id');
+    if( vnf_stack_id != 'undefined' ){
+        lvalue.value=vnf_stack_id;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('vnf_name');
+    if( vnf_name != 'undefined' ){
+        lvalue.value=vnf_name;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('vnf_name2');
+    if( vnf_name2 != 'undefined' ){
+        lvalue.value=vnf_name2;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('vnf_type');
+    if( vnf_type != 'undefined' ){
+        lvalue.value=vnf_type;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('vnf_status');
+    if( vnf_status != 'undefined' ){
+        lvalue.value=vnf_status;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('vnf_id');
+    if( vnf_id != 'undefined' ){
+        lvalue.value=vnf_id;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('oam_network_name');
+    if( oam_network_name != 'undefined' ){
+        lvalue.value=oam_network_name;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('aic_site_id');
+    if( aic_site_id != 'undefined' ){
+        lvalue.value=aic_site_id;
+    } else {
+        lvalue.value='';
+    }
+    $('#l3sdn-vnf-fields-modal').modal('show');
+}
+function l3_interface_ipv4_address_list(l3_interface_ipv4_address,l3_interface_ipv4_prefix_length)
+{
+    var lvalue = document.getElementById('l3_interface_ipv4_address');
+    if( l3_interface_ipv4_address != 'undefined' ){
+        lvalue.value=l3_interface_ipv4_address;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('l3_interface_ipv4_prefix_length');
+    if( l3_interface_ipv4_prefix_length != 'undefined' ){
+        lvalue.value=l3_interface_ipv4_prefix_length;
+    } else {
+        lvalue.value='';
+    }
+    $('#l3-interface-ipv4-address-list-modal').modal('show');
+}
+
+function l3_interface_ipv6_address_list(l3_interface_ipv6_address,l3_interface_ipv6_prefix_length)
+{
+    var lvalue = document.getElementById('l3_interface_ipv6_address');
+    if( l3_interface_ipv6_address != 'undefined' ){
+        lvalue.value=l3_interface_ipv6_address;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('l3_interface_ipv6_prefix_length');
+    if( l3_interface_ipv6_prefix_length != 'undefined' ){
+        lvalue.value=l3_interface_ipv6_prefix_length;
+    } else {
+        lvalue.value='';
+    }
+    $('#l3-interface-ipv6-address-list-modal').modal('show');
+}
+
+
+function vlan(vlan_interface,vlan_id_inner,vlan_id_outer)
+{
+    var lvalue = document.getElementById('vlan_interface');
+    if( vlan_interface != 'undefined' ){
+        lvalue.value=vlan_interface;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('vlan_id_inner');
+    if( vlan_id_inner != 'undefined' ){
+        lvalue.value=vlan_id_inner;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('vlan_id_outer');
+    if( vlan_id_outer != 'undefined' ){
+        lvalue.value=vlan_id_outer;
+    } else {
+        lvalue.value='';
+    }
+    $('#vlan-modal').modal('show');
+}
+
+function interface(interface_name,interface_role)
+{
+    var lvalue = document.getElementById('interface_name');
+    if( interface_name != 'undefined' ){
+        lvalue.value=interface_name;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('interface_role');
+    if( interface_role != 'undefined' ){
+        lvalue.value=interface_role;
+    } else {
+        lvalue.value='';
+    }
+    $('#interface-modal').modal('show');
+}
+
+function ipv4_infrastructure_static_route(ipv4_outgoing_interface,ipv4_next_hop_address,ipv4_dest_prefix,ipv4_dest_prefix_length)
+{
+    var lvalue = document.getElementById('ipv4_outgoing_interface');
+    if( ipv4_outgoing_interface != 'undefined' ){
+        lvalue.value=ipv4_outgoing_interface;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('ipv4_next_hop_address');
+    if( ipv4_next_hop_address != 'undefined' ){
+        lvalue.value=ipv4_next_hop_address;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('ipv4_dest_prefix');
+    if( ipv4_dest_prefix != 'undefined' ){
+        lvalue.value=ipv4_dest_prefix;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('ipv4_dest_prefix_length');
+    if( ipv4_dest_prefix_length != 'undefined' ){
+        lvalue.value=ipv4_dest_prefix_length;
+    } else {
+        lvalue.value='';
+    }
+    $('#ipv4-infrastructure-static-route-modal').modal('show');
+}
+
+function ipv6_infrastructure_static_route(ipv6_outgoing_interface,ipv6_next_hop_address,ipv6_dest_prefix,ipv6_dest_prefix_length)
+{
+    var lvalue = document.getElementById('ipv6_outgoing_interface');
+    if( ipv6_outgoing_interface != 'undefined' ){
+        lvalue.value=ipv6_outgoing_interface;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('ipv6_next_hop_address');
+    if( ipv6_next_hop_address != 'undefined' ){
+        lvalue.value=ipv6_next_hop_address;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('ipv6_dest_prefix');
+    if( ipv6_dest_prefix != 'undefined' ){
+        lvalue.value=ipv6_dest_prefix;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('ipv6_dest_prefix_length');
+    if( ipv6_dest_prefix_length != 'undefined' ){
+        lvalue.value=ipv6_dest_prefix_length;
+    } else {
+        lvalue.value='';
+    }
+    $('#ipv6-infrastructure-static-route-modal').modal('show');
+}
+
+function equipment(equipment_role,ipv4_oam_address,ipv4_oam_gateway_address_prefix_length,ptnii_name,v4_loopback0_ip_address,ipv4_oam_gateway_address)
+{
+    var lvalue = document.getElementById('equipment_role');
+    if( equipment_role != 'undefined' ){
+        lvalue.value=equipment_role;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('ipv4_oam_address');
+    if( ipv4_oam_address != 'undefined' ){
+        lvalue.value=ipv4_oam_address;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('ipv4_oam_gateway_address_prefix_length');
+    if( ipv4_oam_gateway_address_prefix_length != 'undefined' ){
+        lvalue.value=ipv4_oam_gateway_address_prefix_length;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('ptnii_name');
+    if( ptnii_name != 'undefined' ){
+        lvalue.value=ptnii_name;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v4_loopback0_ip_address');
+    if( v4_loopback0_ip_address != 'undefined' ){
+        lvalue.value=v4_loopback0_ip_address;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('ipv4_oam_gateway_address');
+    if( ipv4_oam_gateway_address != 'undefined' ){
+        lvalue.value=ipv4_oam_gateway_address;
+    } else {
+        lvalue.value='';
+    }
+    $('#equipment-modal').modal('show');
+}
+function svc_config_additional_data(management_ip)
+{
+    var lvalue = document.getElementById('management_ip');
+    if( management_ip != 'undefined' ){
+        lvalue.value=management_ip;
+    } else {
+        lvalue.value='';
+    }
+    $('#svc-config-additional-data-modal').modal('show');
+}
+function feature_list(feature_instance_id,feature_instance_xpath,feature_sub_type,feature_type)
+{
+    var lvalue = document.getElementById('feature_instance_id');
+    if( feature_instance_id != 'undefined' ){
+        lvalue.value=feature_instance_id;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('feature_instance_xpath');
+    if( feature_instance_xpath != 'undefined' ){
+        lvalue.value=feature_instance_xpath;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('feature_sub_type');
+    if( feature_sub_type != 'undefined' ){
+        lvalue.value=feature_sub_type;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('feature_type');
+    if( feature_type != 'undefined' ){
+        lvalue.value=feature_type;
+    } else {
+        lvalue.value='';
+    }
+    $('#feature-list-modal').modal('show');
+}
+function pat_pools(svc_instance_id,v4_pat_pool_next_hop_address,v4_pat_pool_prefix_length,v4_pat_pool_prefix)
+{
+    document.getElementById('svc_instance_id').value = svc_instance_id;
+    var lvalue = document.getElementById('v4_pat_pool_next_hop_address');
+    if( v4_pat_pool_next_hop_address != 'undefined' ){
+        lvalue.value=v4_pat_pool_next_hop_address;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v4_pat_pool_prefix_length');
+    if( v4_pat_pool_prefix_length != 'undefined' ){
+        lvalue.value=v4_pat_pool_prefix_length;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v4_pat_pool_prefix');
+    if( v4_pat_pool_prefix != 'undefined' ){
+        lvalue.value=v4_pat_pool_prefix;
+    } else {
+        lvalue.value='';
+    }
+    $('#pat-pools-modal').modal('show');
+}
+function pat(svc_instance_id,v4_pat_default_pool_prefix_length,use_v4_default_pool,v4_pat_enabled,v4_pat_default_pool_prefix)
+{
+    document.getElementById('svc_instance_id').value = svc_instance_id;
+    var lvalue = document.getElementById('v4_pat_default_pool_prefix_length');
+    if( v4_pat_default_pool_prefix_length != 'undefined' ){
+        lvalue.value=v4_pat_default_pool_prefix_length;
+    } else {
+        lvalue.value='';
+    }
+
+    lvalue = document.getElementById('use_v4_default_pool');
+    if( use_v4_default_pool != 'undefined' ){
+        lvalue.value = use_v4_default_pool;
+    } else {
+        lvalue.value = '';
+    }
+
+    lvalue = document.getElementById('v4_pat_enabled');
+    if( v4_pat_enabled != 'undefined' ){
+        lvalue.value = v4_pat_enabled;
+    } else {
+        lvalue.value = '';
+    }
+
+    lvalue = document.getElementById('v4_pat_default_pool_prefix');
+    if( v4_pat_default_pool_prefix != 'undefined' ){
+        lvalue.value = v4_pat_default_pool_prefix;
+    } else {
+        lvalue.value = '';
+    }
+    $('#pat-modal').modal('show');
+}
+
+function v4_static_routes(svc_instance_id,v4_static_route_prefix,static_v4_next_hop_address,v4_static_route_prefix_length)
+{
+    document.getElementById('svc_instance_id').value = svc_instance_id;
+    var lvalue = document.getElementById('v4_static_route_prefix');
+    if( v4_static_route_prefix != 'undefined' ){
+        lvalue.value=v4_static_route_prefix;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('static_v4_next_hop_address');
+    if( static_v4_next_hop_address != 'undefined' ){
+        lvalue.value=static_v4_next_hop_address;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v4_static_route_prefix_length');
+    if( v4_static_route_prefix_length != 'undefined' ){
+        lvalue.value=v4_static_route_prefix_length;
+    } else {
+        lvalue.value='';
+    }
+    $('#v4-static-routes-modal').modal('show');
+}
+
+function v6_static_routes(svc_instance_id,v6_static_route_prefix,static_v6_next_hop_address,v6_static_route_prefix_length)
+{
+    document.getElementById('svc_instance_id').value = svc_instance_id;
+    var lvalue = document.getElementById('v6_static_route_prefix');
+    if( v6_static_route_prefix != 'undefined' ){
+        lvalue.value=v6_static_route_prefix;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('static_v6_next_hop_address');
+    if( static_v6_next_hop_address != 'undefined' ){
+        lvalue.value=static_v6_next_hop_address;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v6_static_route_prefix_length');
+    if( v6_static_route_prefix_length != 'undefined' ){
+        lvalue.value=v6_static_route_prefix_length;
+    } else {
+        lvalue.value='';
+    }
+    $('#v6-static-routes-modal').modal('show');
+}
+
+function nat(svc_instance_id,v4_nat_enabled) {
+    document.getElementById('svc_instance_id').value = svc_instance_id;
+    var lvalue = document.getElementById('v4_nat_enabled');
+    if( v4_nat_enabled != 'undefined' ){
+        lvalue.value=v4_nat_enabled;
+    } else {
+        lvalue.value='';
+    }
+    $('#nat-modal').modal('show');
+}
+function v4_nat_mapping_entries(svc_instance_id,v4_nat_external,v4_nat_next_hop_address,v4_nat_internal)
+{
+    document.getElementById('svc_instance_id').value = svc_instance_id;
+    var lvalue = document.getElementById('v4_nat_external');
+    if( v4_nat_external != 'undefined' ){
+        lvalue.value=v4_nat_external;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v4_nat_next_hop_address');
+    if( v4_nat_next_hop_address != 'undefined' ){
+        lvalue.value=v4_nat_next_hop_address;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v4_nat_internal');
+    if( v4_nat_internal != 'undefined' ){
+        lvalue.value=v4_nat_internal;
+    } else {
+        lvalue.value='';
+    }
+    $('#v4-nat-mapping-entries-modal').modal('show');
+}
+
+function v4_firewall_packet_filters(svc_instance_id,v4_firewall_prefix,v4_firewall_prefix_length,v4_allow_icmp_ping)
+{
+    document.getElementById('svc_instance_id').value = svc_instance_id;
+    var lvalue = document.getElementById('v4_firewall_prefix');
+    if( v4_firewall_prefix != 'undefined' ){
+        lvalue.value=v4_firewall_prefix;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v4_firewall_prefix_length');
+    if( v4_firewall_prefix_length != 'undefined' ){
+        lvalue.value=v4_firewall_prefix_length;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v4_allow_icmp_ping');
+    if( v4_allow_icmp_ping != 'undefined' ){
+        lvalue.value=v4_allow_icmp_ping;
+    } else {
+        lvalue.value='';
+    }
+    $('#v4-firewall-packet-filters-modal').modal('show');
+}
+
+function v6_firewall_packet_filters(svc_instance_id,v6_firewall_prefix,v6_firewall_prefix_length,v6_allow_icmp_ping)
+{
+    document.getElementById('svc_instance_id').value = svc_instance_id;
+    var lvalue = document.getElementById('v6_firewall_prefix');
+    if( v6_firewall_prefix != 'undefined' ){
+        lvalue.value=v6_firewall_prefix;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v6_firewall_prefix_length');
+    if( v6_firewall_prefix_length != 'undefined' ){
+        lvalue.value=v6_firewall_prefix_length;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v6_allow_icmp_ping');
+    if( v6_allow_icmp_ping != 'undefined' ){
+        lvalue.value=v6_allow_icmp_ping;
+    } else {
+        lvalue.value='';
+    }
+    $('#v6-firewall-packet-filters-modal').modal('show');
+}
+
+function tcp_port_list(svc_instance_id,tcp_port_number)
+{
+    document.getElementById('svc_instance_id').value = svc_instance_id;
+    var lvalue = document.getElementById('tcp_port_number');
+    if( tcp_port_number != 'undefined' ){
+        lvalue.value=tcp_port_number;
+    } else {
+        lvalue.value='';
+    }
+    $('#tcp-port-list-modal').modal('show');
+}
+function udp_port_list(svc_instance_id,udp_port_number)
+{
+    document.getElementById('svc_instance_id').value = svc_instance_id;
+    var lvalue = document.getElementById('udp_port_number');
+    if( udp_port_number != 'undefined' ){
+        lvalue.value=udp_port_number;
+    } else {
+        lvalue.value='';
+    }
+    $('#udp-port-list-modal').modal('show');
+}
+
+function firewall_lite(svc_instance_id,firewall_lite_vr_designation,stateful_firewall_lite_v4_enabled,stateful_firewall_lite_v6_enabled)
+{
+    document.getElementById('svc_instance_id').value = svc_instance_id;
+    document.getElementById('firewall_lite_vr_designation').value = firewall_lite_vr_designation;
+    var lvalue = document.getElementById('stateful_firewall_lite_v4_enabled');
+    if( stateful_firewall_lite_v4_enabled != 'undefined' ){
+        lvalue.value=stateful_firewall_lite_v4_enabled;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('stateful_firewall_lite_v6_enabled');
+    if( stateful_firewall_lite_v6_enabled != 'undefined' ){
+        lvalue.value=stateful_firewall_lite_v6_enabled;
+    } else {
+        lvalue.value='';
+    }
+    $('#firewall-lite-modal').modal('show');
+}
+
+function excluded_v6_addresses(svc_instance_id, excluded_v6_address)
+{
+    document.getElementById('svc_instance_id').value = svc_instance_id;
+    var lvalue = document.getElementById('excluded_v6_address');
+    if( excluded_v6_address != 'undefined' ){
+        lvalue.value=excluded_v6_address;
+    } else {
+        lvalue.value='';
+    }
+    $('#excluded-v6-addresses-modal').modal('show');
+}
+
+
+function excluded_v6_addresses_from_default_pool(svc_instance_id, excluded_v6_address_from_default_pool)
+{
+    document.getElementById('svc_instance_id').value = svc_instance_id;
+    var lvalue = document.getElementById('excluded_v6_address_from_default_pool');
+    if( excluded_v6_address_from_default_pool != 'undefined' ){
+        lvalue.value=excluded_v6_address_from_default_pool;
+    } else {
+        lvalue.value='';
+    }
+    $('#excluded-v6-address-from-default-pool-modal').modal('show');
+}
+
+
+function v6_dhcp_pools(svc_instance_id,v6_dhcp_relay_next_hop_address,v6_dhcp_pool_prefix,v6_dhcp_pool_prefix_length,v6_dhcp_relay_gateway_address)
+{
+    document.getElementById('svc_instance_id').value = svc_instance_id;
+    var lvalue = document.getElementById('v6_dhcp_relay_next_hop_address');
+    if( v6_dhcp_relay_next_hop_address != 'undefined' ){
+        lvalue.value=v6_dhcp_relay_next_hop_address;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v6_dhcp_pool_prefix');
+    if( v6_dhcp_pool_prefix != 'undefined' ){
+        lvalue.value=v6_dhcp_pool_prefix;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v6_dhcp_pool_prefix_length');
+    if( v6_dhcp_pool_prefix_length != 'undefined' ){
+        lvalue.value=v6_dhcp_pool_prefix_length;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v6_dhcp_relay_gateway_address');
+    if( v6_dhcp_relay_gateway_address != 'undefined' ){
+        lvalue.value=v6_dhcp_relay_gateway_address;
+    } else {
+        lvalue.value='';
+    }
+    $('#v6-dhcp-pools-modal').modal('show');
+}
+
+function excluded_v4_addresses_from_default_pool(svc_instance_id, excluded_v4_address)
+{
+    document.getElementById('svc_instance_id').value = svc_instance_id;
+    var lvalue = document.getElementById('excluded_v4_address_from_default_pool');
+    if( excluded_v4_address != 'undefined' ){
+        lvalue.value=excluded_v4_address;
+    } else {
+        lvalue.value='';
+    }
+    $('#excluded-v4-address-from-default-pool-modal').modal('show');
+}
+
+
+function exluded_v4_address(svc_instance_id, excluded_v4_address)
+{
+    document.getElementById('svc_instance_id').value = svc_instance_id;
+    var lvalue = document.getElementById('excluded_v4_address');
+    if( excluded_v4_address != 'undefined' ){
+        lvalue.value=excluded_v4_address;
+    } else {
+        lvalue.value='';
+    }
+    $('#excluded-v4-address-modal').modal('show');
+}
+
+function v4_dhcp_pools(svc_instance_id,v4_dhcp_relay_next_hop_address,v4_dhcp_pool_prefix,v4_dhcp_pool_prefix_length,v4_dhcp_relay_gateway_address)
+{
+    document.getElementById('svc_instance_id').value = svc_instance_id;
+    var lvalue = document.getElementById('v4_dhcp_relay_next_hop_address');
+    if( v4_dhcp_relay_next_hop_address != 'undefined' ){
+        lvalue.value=v4_dhcp_relay_next_hop_address;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v4_dhcp_pool_prefix');
+    if( v4_dhcp_pool_prefix != 'undefined' ){
+        lvalue.value=v4_dhcp_pool_prefix;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v4_dhcp_pool_prefix_length');
+    if( v4_dhcp_pool_prefix_length != 'undefined' ){
+        lvalue.value=v4_dhcp_pool_prefix_length;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v4_dhcp_relay_gateway_address');
+    if( v4_dhcp_relay_gateway_address != 'undefined' ){
+        lvalue.value=v4_dhcp_relay_gateway_address;
+    } else {
+        lvalue.value='';
+    }
+    $('#v4-dhcp-pools-modal').modal('show');
+}
+
+function dhcp(svc_instance_id,use_v4_default_pool,use_v6_default_pool,v4_dhcp_server_enabled,v6_dhcp_server_enabled,v6_dhcp_default_pool_prefix,v6_dhcp_default_pool_prefix_length,v4_dhcp_default_pool_prefix,v4_dhcp_default_pool_prefix_length)
+{
+    document.getElementById('svc_instance_id').value = svc_instance_id;
+    var lvalue = document.getElementById('use_v4_default_pool');
+    if( use_v4_default_pool != 'undefined' ){
+        lvalue.value=use_v4_default_pool;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('use_v6_default_pool');
+    if( use_v6_default_pool != 'undefined' ){
+        lvalue.value=use_v6_default_pool;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v4_dhcp_server_enabled');
+    if( v4_dhcp_server_enabled != 'undefined' ){
+        lvalue.value=v4_dhcp_server_enabled;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v6_dhcp_server_enabled');
+    if( v6_dhcp_server_enabled != 'undefined' ){
+        lvalue.value=v6_dhcp_server_enabled;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v6_dhcp_default_pool_prefix');
+    if( v6_dhcp_default_pool_prefix != 'undefined' ){
+        lvalue.value=v6_dhcp_default_pool_prefix;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v6_dhcp_default_pool_prefix_length');
+    if( v6_dhcp_default_pool_prefix_length != 'undefined' ){
+        lvalue.value=v6_dhcp_default_pool_prefix_length;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v4_dhcp_default_pool_prefix');
+    if( v4_dhcp_default_pool_prefix != 'undefined' ){
+        lvalue.value=v4_dhcp_default_pool_prefix;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v4_dhcp_default_pool_prefix_length');
+    if( v4_dhcp_default_pool_prefix_length != 'undefined' ){
+        lvalue.value=v4_dhcp_default_pool_prefix_length;
+    } else {
+        lvalue.value='';
+    }
+    $('#dhcp-modal').modal('show');
+}
+
+function routing_protocol(svc_instance_id, routing_protocol)
+{
+    document.getElementById('svc_instance_id').value = svc_instance_id;
+    var lvalue = document.getElementById('routing_protocol');
+    if( routing_protocol != 'undefined' ){
+        lvalue.value=routing_protocol;
+    } else {
+        lvalue.value='';
+    }
+    $('#routing-protocol-modal').modal('show');
+}
+function t_provided_v4_prefixes(svc_instance_id,v4_request_index,v4_lan_public_prefix_length,v4_lan_public_prefix)
+{
+    document.getElementById('svc_instance_id').value = svc_instance_id;
+    var lvalue = document.getElementById('v4_request_index');
+    if( v4_request_index != 'undefined' ){
+        lvalue.value=v4_request_index;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v4_lan_public_prefix_length');
+    if( v4_lan_public_prefix_length != 'undefined' ){
+        lvalue.value=v4_lan_public_prefix_length;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v4_lan_public_prefix');
+    if( v4_lan_public_prefix != 'undefined' ){
+        lvalue.value=v4_lan_public_prefix;
+    } else {
+        lvalue.value='';
+    }
+    $('#t-provided-v4-lan-public-prefixes-modal').modal('show');
+}
+
+function t_provided_v6_prefixes(svc_instance_id,v6_request_index,v6_lan_public_prefix_length,v6_lan_public_prefix)
+{
+    document.getElementById('svc_instance_id').value = svc_instance_id;
+    var lvalue = document.getElementById('v6_request_index');
+    if( v6_request_index != 'undefined' ){
+        lvalue.value=v6_request_index;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v6_lan_public_prefix_length');
+    if( v6_lan_public_prefix_length != 'undefined' ){
+        lvalue.value=v6_lan_public_prefix_length;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v6_lan_public_prefix');
+    if( v6_lan_public_prefix != 'undefined' ){
+        lvalue.value=v6_lan_public_prefix;
+    } else {
+        lvalue.value='';
+    }
+    $('#t-provided-v6-lan-public-prefixes-modal').modal('show');
+}
+
+function vrlan_interface(svc_instance_id,vr_designation,v6_vr_lan_prefix, v6_vr_lan_prefix_length, v6_vce_wan_address, v4_vr_lan_prefix_length, v4_vr_lan_prefix, t_defaulted_v6_vrlan,v4_vce_loopback_address)
+{
+    document.getElementById('svc_instance_id').value = svc_instance_id;
+    var lvalue = document.getElementById('vr_designation');
+    if( vr_designation != 'undefined' ){
+        lvalue.value=vr_designation;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v6_vr_lan_prefix');
+    if( v6_vr_lan_prefix != 'undefined' ){
+        lvalue.value=v6_vr_lan_prefix;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v6_vr_lan_prefix_length');
+    if( v6_vr_lan_prefix_length != 'undefined' ){
+        lvalue.value=v6_vr_lan_prefix_length;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v6_vce_wan_address');
+    if( v6_vce_wan_address != 'undefined' ){
+        lvalue.value=v6_vce_wan_address;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v4_vr_lan_prefix_length');
+    if( v4_vr_lan_prefix_length != 'undefined' ){
+        lvalue.value=v4_vr_lan_prefix_length;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v4_vr_lan_prefix');
+    if( v4_vr_lan_prefix != 'undefined' ){
+        lvalue.value=v4_vr_lan_prefix;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('v4_vce_loopback_address');
+    if( v4_vce_loopback_address != 'undefined' ){
+        lvalue.value=v4_vce_loopback_address;
+    } else {
+        lvalue.value='';
+    }
+    lvalue = document.getElementById('t_defaulted_v6_vrlan');
+    if( t_defaulted_v6_vrlan != 'undefined' ){
+        lvalue.value=t_defaulted_v6_vrlan;
+    } else {
+        lvalue.value='';
+    }
+    $('#vr-lan-interface-modal').modal('show');
+}
+
+function getvrlan(svc_instance_id)
+{
+location.assign("/odl/getvrlan?request=" + svc_instance_id);
+return;
+}
+
+function svcInfo(service_instance_id,subscriber_name,service_type){
+	var lvalue = document.getElementById('service_instance_id'); 
+	if( service_instance_id != 'undefined' ){
+		lvalue.value=service_instance_id;
+	} else {
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('subscriber_name'); 
+	if( subscriber_name != 'undefined' ){
+		lvalue.value=subscriber_name;
+	} else {
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('service_type'); 
+	if( service_type != 'undefined' ){
+		lvalue.value=service_type;
+	} else {
+		lvalue.value='';
+	}
+	$('#service-information-modal').modal('show');
+}
+function l2Homing(evc_name,preferred_aic_clli,topology){
+	var lvalue = document.getElementById('evc_name'); 
+	if( evc_name != 'undefined' ){
+		lvalue.value=evc_name;
+	} else {
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('preferred_aic_clli'); 
+	if( preferred_aic_clli != 'undefined' ){
+		lvalue.value=preferred_aic_clli;
+	} else {
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('topology'); 
+	if( topology != 'undefined' ){
+		lvalue.value=topology;
+	} else {
+		lvalue.value='';
+	}
+	$('#l2-homing-information-modal').modal('show');
+}
+function reqHeader(svc_notification_url, svc_request_id, svc_action){
+	var lvalue = document.getElementById('svc_notification_url'); 
+	if( svc_notification_url != 'undefined' ){
+		lvalue.value=svc_notification_url;
+	} else {
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('svc_request_id'); 
+	if( svc_request_id != 'undefined' ){
+		lvalue.value=svc_request_id;
+	} else {
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('svc_action'); 
+	if( svc_action != 'undefined' ){
+		lvalue.value=svc_action;
+	} else {
+		lvalue.value='';
+	}
+	$('#sdnc-request-header-modal').modal('show');
+}
+function reqInfo(notification_url, source, order_number, request_id, order_version, 
+	request_action, request_sub_action){
+
+	var lvalue = document.getElementById('notification_url'); 
+	if( notification_url != 'undefined' ){
+		lvalue.value=notification_url;
+	} else {
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('source'); 
+	if( source != 'undefined' ){
+		lvalue.value=source;
+	} else {
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('order_number'); 
+	if( order_number != 'undefined' ){
+		lvalue.value=order_number;
+	} else {
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('request_id'); 
+	if( request_id != 'undefined' ){
+		lvalue.value=request_id;
+	} else {
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('order_version'); 
+	if( order_version != 'undefined' ){
+		lvalue.value=order_version;
+	} else {
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('request_action'); 
+	if( request_action != 'undefined' ){
+		lvalue.value=request_action;
+	} else {
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('request_sub_action'); 
+	if( request_sub_action != 'undefined' ){
+		lvalue.value=request_sub_action;
+	} else {
+		lvalue.value='';
+	}
+	$('#request-information-modal').modal('show');
+}
+function svcTopo(svc_vnf_type){
+	var lvalue = document.getElementById('svc_vnf_type'); 
+	if( svc_vnf_type != 'undefined' ){
+		lvalue.value=svc_vnf_type;
+	} else {
+		lvalue.value='';
+	}
+	$('#svc-topology-additional-data-modal').modal('show');
+}
+function operStatus(order_status, modify_timestamp,last_svc_request_id,last_sub_action,
+	t_defaulted_v6_vrlan, last_action, create_timestamp, maintenance_indicator, last_order_status){
+	var lvalue = document.getElementById('order_status'); 
+	if( order_status != 'undefined' ){
+		lvalue.value=order_status;
+	} else {
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('modify_timestamp'); 
+	if( modify_timestamp != 'undefined' ){
+		lvalue.value=modify_timestamp;
+	} else {
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('last_svc_request_id'); 
+	if( last_svc_request_id != 'undefined' ){
+		lvalue.value=last_svc_request_id;
+	} else {
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('last_sub_action'); 
+	if( last_sub_action != 'undefined' ){
+		lvalue.value=last_sub_action;
+	} else {
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('t_defaulted_v6_vrlan'); 
+	if( t_defaulted_v6_vrlan != 'undefined' ){
+		lvalue.value=t_defaulted_v6_vrlan;
+	} else {
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('last_action'); 
+	if( last_action != 'undefined' ){
+		lvalue.value=last_action;
+	} else {
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('create_timestamp'); 
+	if( create_timestamp != 'undefined' ){
+		lvalue.value=create_timestamp;
+	} else {
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('maintenance_indicator'); 
+	if( maintenance_indicator != 'undefined' ){
+		lvalue.value=maintenance_indicator;
+	} else {
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('last_order_status'); 
+	if( last_order_status != 'undefined' ){
+		lvalue.value=last_order_status;
+	} else {
+		lvalue.value='';
+	}
+	$('#oper-status-modal').modal('show');
+}
+function internetInfo(ip_version,internet_evc_speed_value,internet_evc_speed_units){
+
+	var lvalue = document.getElementById('ip_version'); 
+	if( ip_version != 'undefined' ){
+		lvalue.value=ip_version;
+	} else {
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('internet_evc_speed_value'); 
+	if( internet_evc_speed_value != 'undefined' ){
+		lvalue.value=internet_evc_speed_value;
+	} else {
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('internet_evc_speed_units'); 
+	if( internet_evc_speed_units != 'undefined' ){
+		lvalue.value=internet_evc_speed_units;
+	} else {
+		lvalue.value='';
+	}
+	$('#internet-evc-modal').modal('show');
+}
+function serviceStatus( rpc_name, final_indicator, request_status, rpc_action, l3sdn_action, l3sdn_subaction, response_message, response_code, response_timestamp){
+
+	var lvalue = document.getElementById('rpc_name'); 
+	if( rpc_name != 'undefined' ){
+		lvalue.value=rpc_name;
+	} else {
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('final_indicator'); 
+	if( final_indicator != 'undefined' ){
+		lvalue.value=final_indicator;
+	}else{
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('request_status'); 
+	if( request_status != 'undefined' ){
+		lvalue.value=request_status;
+	}else{
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('rpc_action'); 
+	if( rpc_action != 'undefined' ){
+		lvalue.value=rpc_action;
+	}else{
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('l3sdn_action'); 
+	if( l3sdn_action != 'undefined' ){
+		lvalue.value=l3sdn_action;
+	}else{
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('l3sdn_subaction'); 
+	if( l3sdn_subaction != 'undefined' ){
+		lvalue.value=l3sdn_subaction;
+	}else{
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('response_message'); 
+	if( response_message != 'undefined' ){
+		lvalue.value=response_message;
+	}else{
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('response_code'); 
+	if( lvalue != 'undefined' ){
+		response_code.value=response_code;
+	}else{
+		lvalue.value='';
+	}
+	lvalue = document.getElementById('response_timestamp'); 
+	if( response_timestamp != 'undefined' ){
+		lvalue.value=response_timestamp;
+	}else{
+		lvalue.value='';
+	}
+	$('#service-status-modal').modal('show');
+}
+</script>
+
+</body>
+</html>
+

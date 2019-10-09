@@ -1,0 +1,66 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='DataChange' version='${project.version}'>
+    <method rpc='esr-thirdparty-sdnc-of-zte' mode='sync'>
+        <block atomic='true'>
+            <set>
+                <parameter name='prop.zte.sdncRestApi.vendor' value='`$prop.sdncRestApi.vendor`' />
+            </set>
+            <for index='idx' start='0' end='`$data-change-notification-input.key-data_length`' >
+                <block>
+                    <switch test="`$data-change-notification-input.key-data[$idx].key-name == 'service-url'`">
+                        <outcome value='true'>
+                            <set>
+                                <parameter name='zte.prop.sdncRestApi.thirdpartySdnc.url' value='`$data-change-notification-input.key-data[$idx].key-value`' />
+                            </set>
+                        </outcome>
+                    </switch>
+                    <switch test="`$data-change-notification-input.key-data[$idx].key-name == 'user-name'`">
+                        <outcome value='true'>
+                            <set>
+                                <parameter name='zte.prop.sdncRestApi.thirdpartySdnc.user' value='`$data-change-notification-input.key-data[$idx].key-value`' />
+                            </set>
+                        </outcome>
+                    </switch>
+                    <switch test="`$data-change-notification-input.key-data[$idx].key-name == 'password'`">
+                        <outcome value='true'>
+                            <set>
+                                <parameter name='zte.prop.sdncRestApi.thirdpartySdnc.password' value='`$data-change-notification-input.key-data[$idx].key-value`' />
+                            </set>
+                        </outcome>
+                    </switch>
+                    <switch test="`$data-change-notification-input.key-data[$idx].key-name == 'esr-system-info-id'`">
+                        <outcome value='true'>
+                            <set>
+                                <parameter name='zte.prop.sdncRestApi.thirdpartySdnc.system-info-id' value='`$data-change-notification-input.key-data[$idx].key-value`' />
+                            </set>
+                        </outcome>
+                    </switch>
+                    <switch test="`$data-change-notification-input.key-data[$idx].key-name == 'thirdparty-sdnc-id'`">
+                        <outcome value='true'>
+                            <set>
+                                <parameter name='zte.prop.sdncRestApi.thirdpartySdnc.id' value='`$data-change-notification-input.key-data[$idx].key-value`' />
+                            </set>
+                        </outcome>
+                    </switch>
+                    <switch test="`$data-change-notification-input.key-data[$idx].key-name == 'type'`">
+                        <outcome value='true'>
+                            <set>
+                                <parameter name='zte.prop.sdncRestApi.type' value='`$data-change-notification-input.key-data[$idx].key-value`' />
+                            </set>
+                        </outcome>
+                    </switch>
+                </block>
+            </for>
+            <record plugin="org.onap.ccsdk.sli.core.sli.recording.FileRecorder">
+                <parameter name="file" value="/opt/opendaylight/current/data/log/zte.svclogic.log"/>
+                <parameter name="field1" value="__TIMESTAMP__"/>
+                <parameter name="field2" value="data-change-notification"/>
+                <parameter name="field3" value="Config"/>
+                <parameter name="field4" value="`service-url`"/>
+                <parameter name="field5" value="`$zte.prop.sdncRestApi.thirdpartySdnc.url`"/>
+            </record>
+            <call module='DataChange' rpc='esr-thirdparty-sdnc-discovery-of-zte' mode='sync' ></call>
+        </block>
+    </method>
+</service-logic>

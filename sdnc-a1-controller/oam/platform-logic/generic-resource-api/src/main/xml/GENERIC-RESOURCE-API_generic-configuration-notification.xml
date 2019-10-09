@@ -1,0 +1,39 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='generic-configuration-notification' mode='sync'>
+        <block atomic="true">
+            <switch test='`$generic-configuration-notification-input.sdnc-request-header.svc-action`'>
+                <outcome value='assign'>
+                    <call module='GENERIC-RESOURCE-API' rpc='generic-configuration-notification-assign' mode='sync' >
+                        <outcome value='failure'>
+                            <return status='failure'></return>
+                        </outcome>
+                    </call>
+                </outcome>
+                <outcome value='activate'>
+                    <call module='GENERIC-RESOURCE-API' rpc='generic-configuration-notification-activate' mode='sync' >
+                        <outcome value='failure'>
+                            <return status='failure'></return>
+                        </outcome>
+                    </call>
+                </outcome>
+                <outcome value='deactivate'>
+                    <call module='GENERIC-RESOURCE-API' rpc='generic-configuration-notification-deactivate' mode='sync' >
+                        <outcome value='failure'>
+                            <return status='failure'></return>
+                        </outcome>
+                    </call>
+                </outcome>
+                <outcome value='unassign'>
+                    <call module='GENERIC-RESOURCE-API' rpc='generic-configuration-notification-unassign' mode='sync' >
+                        <outcome value='failure'>
+                            <return status='failure'></return>
+                        </outcome>
+                    </call>
+                </outcome>
+            </switch>
+            <return status='success'></return>
+        </block>
+    </method>
+</service-logic>

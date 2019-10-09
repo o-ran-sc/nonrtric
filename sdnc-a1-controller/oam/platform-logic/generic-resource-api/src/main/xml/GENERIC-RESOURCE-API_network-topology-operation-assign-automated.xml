@@ -1,0 +1,1405 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='network-topology-operation-assign-automated' mode='sync'>
+        <block atomic="true">
+            <switch test="`$tmp.nidx`">
+                <outcome value=''>
+                    <switch test='`$service-data.networks.network_length`'>
+                        <outcome value=''>
+                            <set>
+                                <parameter name='nidx' value='0' />
+                                <parameter name='nidx_len' value='1'/>
+                            </set>
+                        </outcome>
+                        <outcome value='Other'>
+                            <set>
+                                <parameter name='nidx' value='`$service-data.networks.network_length`' />
+                                <parameter name='nidx_len' value='`$service-data.networks.network_length + 1`' />
+                            </set>
+                        </outcome>
+                    </switch>
+                </outcome>
+                <outcome value='Other'>
+                    <set>
+                        <parameter name='nidx' value='`$tmp.nidx`' />
+                        <parameter name='nidx_len' value='`$service-data.networks.network_length`' />
+                    </set>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name="tmp.error-message" value=""/>
+            </set>
+            <set>
+                <parameter name='service-data.networks.network[$nidx].network-data.sdnc-request-header.' value='`$network-topology-operation-input.sdnc-request-header.`' />
+                <parameter name='service-data.networks.network[$nidx].network-data.request-information.' value='`$network-topology-operation-input.request-information.`' />
+                <parameter name='service-data.networks.network[$nidx].network-data.service-information.' value='`$network-topology-operation-input.service-information.`' />
+                <parameter name='service-data.networks.network[$nidx].network-data.network-information.' value='`$network-topology-operation-input.network-information.`' />
+                <parameter name='service-data.networks.network[$nidx].network-data.network-request-input.' value='`$network-topology-operation-input.network-request-input.`' />
+            </set>
+            <set>
+                <parameter name='tmp.l3-network.model-invariant-id' value="`$network-topology-operation-input.network-information.onap-model-information.model-invariant-uuid`" />
+                <parameter name='tmp.l3-network.model-version-id' value="`$network-topology-operation-input.network-information.onap-model-information.model-version`" />
+                <parameter name='tmp.l3-network.model-customization-id' value="`$network-topology-operation-input.network-information.onap-model-information.model-customization-uuid`" />
+                <parameter name='s-onap-model-information.model-invariant-uuid' value='`$service-model.invariant-uuid`' />
+                <parameter name='s-onap-model-information.model-version' value='`$service-model.version`' />
+                <parameter name='s-onap-model-information.model-uuid' value='`$service-model.service-uuid`' />
+                <parameter name='s-onap-model-information.model-name' value='`$service-model.name`' />
+                <parameter name='n-onap-model-information.model-invariant-uuid' value='`$network-model.invariant-uuid`' />
+                <parameter name='n-onap-model-information.model-version' value='`$network-model.version`' />
+                <parameter name='n-onap-model-information.model-uuid' value='`$network-model.uuid`' />
+                <parameter name='n-onap-model-information.model-name' value='`$network-model.name`' />
+            </set>
+            <set>
+                <parameter name='network-data.service-information.ecomp-model-information.' value="`$s-onap-model-information.`" />
+                <parameter name='network-data.network-information.ecomp-model-information.' value="`$n-onap-model-information.`" />
+            </set>
+            <switch test='`$network-model.is-bound-to-vpn`'>
+                <outcome value='Y'>
+                    <block atomic="true">
+                        <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT * from VPN_BINDINGS WHERE network_customization_uuid = $network-topology-operation-input.network-information.onap-model-information.model-customization-uuid'
+  pfx='vpn-bindings[]'>
+                            <outcome value='success'>
+                                <block atomic="true">
+                                    <set>
+                                        <parameter name='hasVpnBindings' value='true' />
+                                    </set>
+                                    <for index='vidx' start='0' end='`$vpn-bindings_length`' >
+                                        <block atomic="true">
+                                            <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="vpn-binding" 
+		key="vpn-binding.vpn-id = $vpn-bindings[$vidx].binding-uuid"
+        pfx='aai.vpnBinding' local-only='false' >
+                                                <outcome value='success'>
+                                                    <block></block>
+                                                </outcome>
+                                                <outcome value='not-found'>
+                                                    <block atomic='true'>
+                                                        <set>
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="tmp.error-message" value="`'No vpn binding found for network-model.vpn-binding=' 
+    + $vpn-bindings[$vidx].binding-uuid`"/>
+                                                        </set>
+                                                        <block atomic='true'>
+                                                            <set>
+                                                                <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                                                <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                                                <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                                            </set>
+                                                            <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                                            <return status='failure'>
+                                                                <parameter name='error-code' value='500'/>
+                                                                <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                                                            </return>
+                                                        </block>
+                                                    </block>
+                                                </outcome>
+                                                <outcome value='Other'>
+                                                    <block atomic='true'>
+                                                        <set>
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="tmp.error-message" value="`'No vpn binding found for network-model.vpn-binding=' 
+    + $vpn-bindings[$vidx].binding-uuid`"/>
+                                                        </set>
+                                                        <block atomic='true'>
+                                                            <set>
+                                                                <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                                                <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                                                <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                                            </set>
+                                                            <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                                            <return status='failure'>
+                                                                <parameter name='error-code' value='500'/>
+                                                                <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                                                            </return>
+                                                        </block>
+                                                    </block>
+                                                </outcome>
+                                            </get-resource>
+                                        </block>
+                                    </for>
+                                </block>
+                            </outcome>
+                            <outcome value='not-found'>
+                                <block atomic='true'>
+                                    <set>
+                                        <parameter name="error-code" value="500"/>
+                                        <parameter name="tmp.error-message" value="Network model is_bound_to_vpn=true but no vpn_binding is present"/>
+                                    </set>
+                                    <block atomic='true'>
+                                        <set>
+                                            <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                            <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                            <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                        </set>
+                                        <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                        <return status='failure'>
+                                            <parameter name='error-code' value='500'/>
+                                            <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                                        </return>
+                                    </block>
+                                </block>
+                            </outcome>
+                            <outcome value='Other'>
+                                <block atomic='true'>
+                                    <set>
+                                        <parameter name="error-code" value="500"/>
+                                        <parameter name="tmp.error-message" value="Unexpected error retrieving vpn binding"/>
+                                    </set>
+                                    <block atomic='true'>
+                                        <set>
+                                            <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                            <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                            <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                        </set>
+                                        <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                        <return status='failure'>
+                                            <parameter name='error-code' value='500'/>
+                                            <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                                        </return>
+                                    </block>
+                                </block>
+                            </outcome>
+                        </get-resource>
+                    </block>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='tmp.l3-network.network-id' value="`$tmp.return.generate-l3network-network-id.uuid`" />
+                <parameter name='tmp.l3-network.network-name' value="`$tmp.network-instance-name`" />
+                <parameter name='tmp.l3-network.network-type' value="`$network-model.network-type`" />
+                <parameter name='tmp.l3-network.network-role' value="`$network-model.network-role`" />
+                <parameter name='tmp.l3-network.network-technology' value="`$network-model.network-technology`" />
+                <parameter name='tmp.l3-network.is-bound-to-vpn' value="`$network-model.is-bound-to-vpn`" />
+                <parameter name='tmp.l3-network.orchestration-status' value="PendingCreate" />
+                <parameter name='tmp.l3-network.model-invariant-id' value="`$network-topology-operation-input.network-information.onap-model-information.model-invariant-uuid`" />
+                <parameter name='tmp.l3-network.model-version-id' value="`$network-topology-operation-input.network-information.onap-model-information.model-version`" />
+                <parameter name='tmp.l3-network.model-customization-id' value="`$network-topology-operation-input.network-information.onap-model-information.model-customization-uuid`" />
+                <parameter name='tmp.l3-network.is-provider-network' value="`$network-model.is-provider-network`" />
+                <parameter name='tmp.l3-network.is-shared-network' value="`$network-model.is-shared-network`" />
+                <parameter name='tmp.l3-network.is-external-network' value="`$network-model.is-external-network`" />
+                <parameter name='tmp.l3-network.eipam-v6-address-plan' value="`$network-model.eipam-v6-address-plan`" />
+                <parameter name='tmp.l3-network.eipam-v4-address-plan' value="`$network-model.eipam-v4-address-plan`" />
+                <parameter name='tmp.l3-network.service-id' value="`$service-data.service-information.service-id`" />
+                <parameter name='tmp.l3-network.self-link' value="`'restconf/config/GENERIC-RESOURCE-API:services/service/'
+ + $network-topology-operation-input.service-information.service-instance-id
+ + '/service-data/networks/network/'
+ + $tmp.l3-network.network-id
+ + '/network-data/network-topology/'` " />
+            </set>
+            <switch test='`$network-model.is-provider-network`'>
+                <outcome value='Y'>
+                    <set>
+                        <parameter name='tmp.l3-network.physical-network-name' value="`$network-model.physical-network-name`" />
+                        <parameter name='tmp.l3-network.is-provider-network-boolean' value='true' />
+                    </set>
+                </outcome>
+                <outcome value='Other'>
+                    <set>
+                        <parameter name='tmp.l3-network.physical-network-name' value="" />
+                        <parameter name='tmp.l3-network.is-provider-network-boolean' value='false' />
+                    </set>
+                </outcome>
+            </switch>
+            <switch test='`$network-model.is-shared-network`'>
+                <outcome value='Y'>
+                    <set>
+                        <parameter name='tmp.l3-network.is-shared-network-boolean' value='true' />
+                    </set>
+                </outcome>
+                <outcome value='Other'>
+                    <set>
+                        <parameter name='tmp.l3-network.is-shared-network-boolean' value='false' />
+                    </set>
+                </outcome>
+            </switch>
+            <switch test='`$network-model.is-external-network`'>
+                <outcome value='Y'>
+                    <set>
+                        <parameter name='tmp.l3-network.is-external-network-boolean' value='true' />
+                    </set>
+                </outcome>
+                <outcome value='Other'>
+                    <set>
+                        <parameter name='tmp.l3-network.is-external-network-boolean' value='false' />
+                    </set>
+                </outcome>
+            </switch>
+            <switch test='`$network-model.is-bound-to-vpn`'>
+                <outcome value='Y'>
+                    <set>
+                        <parameter name='tmp.l3-network.is-bound-to-vpn-boolean' value='true' />
+                    </set>
+                </outcome>
+                <outcome value='Other'>
+                    <set>
+                        <parameter name='tmp.l3-network.is-bound-to-vpn-boolean' value='false' />
+                    </set>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='tmp.complex-found' value='false' />
+            </set>
+            <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="cloud-region" 
+		key="cloud-region.cloud-owner = $prop.cloud-region.cloud-owner AND 
+		     cloud-region.cloud-region-id = $network-topology-operation-input.network-request-input.aic-cloud-region AND 
+		     depth = '0'"
+        pfx='aai.cloud-region' local-only='false' >
+                <outcome value='not-found'>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="Cloud region not found in AAI"/>
+                        </set>
+                        <block atomic='true'>
+                            <set>
+                                <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                            </set>
+                            <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500'/>
+                                <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+                <outcome value='failure'>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="Error retrieving cloud region from AAI"/>
+                        </set>
+                        <block atomic='true'>
+                            <set>
+                                <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                            </set>
+                            <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500'/>
+                                <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+            </get-resource>
+            <switch test='`$aai.cloud-region.relationship-list.relationship_length`'>
+                <outcome value='0'>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="Cloud region missing relationships in AAI"/>
+                        </set>
+                        <block atomic='true'>
+                            <set>
+                                <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                            </set>
+                            <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500'/>
+                                <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+                <outcome value=''>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="Cloud region missing relationships in AAI"/>
+                        </set>
+                        <block atomic='true'>
+                            <set>
+                                <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                            </set>
+                            <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500'/>
+                                <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+            </switch>
+            <for silentFailure='false' index='ridx' start='0' end="`$aai.cloud-region.relationship-list.relationship_length`" >
+                <for silentFailure='false' index='rdidx' start='0' end="`$aai.cloud-region.relationship-list.relationship[$ridx].relationship-data_length`" >
+                    <switch test='`$aai.cloud-region.relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-key`'>
+                        <outcome value='complex.physical-location-id'>
+                            <block atomic="true">
+                                <set>
+                                    <parameter name='tmp.complex-found' value='true' />
+                                </set>
+                                <set>
+                                    <parameter name='service-data.network-request-input.aic-clli' value='`$aai.complex.physical-location-id`' />
+                                </set>
+                                <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="complex" 
+		key="complex.physical-location-id = $aai.cloud-region.relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-value"
+        pfx='aai.complex' local-only='false' >
+                                    <outcome value='success'>
+                                        <block atomic="true">
+                                            <switch test='`$aai.complex.region`'>
+                                                <outcome value='USA'>
+                                                    <block>
+                                                        <set>
+                                                            <parameter name='aai.complex.region' value='US' />
+                                                        </set>
+                                                    </block>
+                                                </outcome>
+                                                <outcome value='CALA'>
+                                                    <block>
+                                                        <set>
+                                                            <parameter name='aai.complex.region' value='LA' />
+                                                        </set>
+                                                    </block>
+                                                </outcome>
+                                                <outcome value='CA'>
+                                                    <block></block>
+                                                </outcome>
+                                                <outcome value='US'>
+                                                    <block></block>
+                                                </outcome>
+                                                <outcome value='LA'>
+                                                    <block></block>
+                                                </outcome>
+                                                <outcome value='EMEA'>
+                                                    <block></block>
+                                                </outcome>
+                                                <outcome value='AP'>
+                                                    <block></block>
+                                                </outcome>
+                                                <outcome value='Other'>
+                                                    <block atomic='true'>
+                                                        <set>
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="tmp.error-message" value="Complex.region unknown"/>
+                                                        </set>
+                                                        <block atomic='true'>
+                                                            <set>
+                                                                <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                                                <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                                                <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                                            </set>
+                                                            <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                                            <return status='failure'>
+                                                                <parameter name='error-code' value='500'/>
+                                                                <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                                                            </return>
+                                                        </block>
+                                                    </block>
+                                                </outcome>
+                                            </switch>
+                                        </block>
+                                    </outcome>
+                                    <outcome value='not-found'>
+                                        <block atomic='true'>
+                                            <set>
+                                                <parameter name="error-code" value="500"/>
+                                                <parameter name="tmp.error-message" value="Complex not found in AAI"/>
+                                            </set>
+                                            <block atomic='true'>
+                                                <set>
+                                                    <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                                    <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                                    <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                                </set>
+                                                <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                                <return status='failure'>
+                                                    <parameter name='error-code' value='500'/>
+                                                    <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                                                </return>
+                                            </block>
+                                        </block>
+                                    </outcome>
+                                    <outcome value='failure'>
+                                        <block atomic='true'>
+                                            <set>
+                                                <parameter name="error-code" value="500"/>
+                                                <parameter name="tmp.error-message" value="Error retrieving complex from AA"/>
+                                            </set>
+                                            <block atomic='true'>
+                                                <set>
+                                                    <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                                    <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                                    <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                                </set>
+                                                <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                                <return status='failure'>
+                                                    <parameter name='error-code' value='500'/>
+                                                    <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                                                </return>
+                                            </block>
+                                        </block>
+                                    </outcome>
+                                </get-resource>
+                            </block>
+                        </outcome>
+                    </switch>
+                </for>
+            </for>
+            <switch test='`$tmp.complex-found`'>
+                <outcome value='false'>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="Complex not found in AAI"/>
+                        </set>
+                        <block atomic='true'>
+                            <set>
+                                <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                            </set>
+                            <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500'/>
+                                <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+            </switch>
+            <switch test='`$network-model.network-technology`'>
+                <outcome value='Contrail'>
+                    <block atomic="true">
+                        <switch test="`$network-model.use-ipv4`">
+                            <outcome value='Y'>
+                                <block atomic='true'>
+                                    <switch test='`$network-model.eipam-v4-address-plan`'>
+                                        <outcome value='AIC_ATM_UNPROTECTED_V4'>
+                                            <block></block>
+                                        </outcome>
+                                        <outcome value='AIC_ATM_PROTECTED_V4'>
+                                            <block></block>
+                                        </outcome>
+                                        <outcome value='AIC_AIM_LANDING_NETWORK_V4'>
+                                            <block></block>
+                                        </outcome>
+                                        <outcome value='Other'>
+                                            <block atomic='true'>
+                                                <set>
+                                                    <parameter name="error-code" value="500"/>
+                                                    <parameter name="tmp.error-message" value="Invalid address plan for VIPR"/>
+                                                </set>
+                                                <block atomic='true'>
+                                                    <set>
+                                                        <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                                        <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                                        <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                                    </set>
+                                                    <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                                    <return status='failure'>
+                                                        <parameter name='error-code' value='500'/>
+                                                        <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                                                    </return>
+                                                </block>
+                                            </block>
+                                        </outcome>
+                                    </switch>
+                                </block>
+                            </outcome>
+                        </switch>
+                        <switch test="`$network-model.use-ipv6`">
+                            <outcome value='Y'>
+                                <block atomic='true'>
+                                    <switch test='`$network-model.eipam-v6-address-plan`'>
+                                        <outcome value='AIC_ATM_UNPROTECTED_V6'>
+                                            <block></block>
+                                        </outcome>
+                                        <outcome value='AIC_ATM_PROTECTED_V6'>
+                                            <block></block>
+                                        </outcome>
+                                        <outcome value='AIC_AIM_LANDING_NETWORK_V6'>
+                                            <block></block>
+                                        </outcome>
+                                        <outcome value='Other'>
+                                            <block atomic='true'>
+                                                <set>
+                                                    <parameter name="error-code" value="500"/>
+                                                    <parameter name="tmp.error-message" value="EIPAM V6 Address plan should be null"/>
+                                                </set>
+                                                <block atomic='true'>
+                                                    <set>
+                                                        <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                                        <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                                        <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                                    </set>
+                                                    <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                                    <return status='failure'>
+                                                        <parameter name='error-code' value='500'/>
+                                                        <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                                                    </return>
+                                                </block>
+                                            </block>
+                                        </outcome>
+                                    </switch>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='AIC_SR_IOV'>
+                    <block atomic="true">
+                        <switch test="`$network-model.use-ipv4`">
+                            <outcome value='Y'>
+                                <block atomic='true'>
+                                    <switch test='`$network-model.eipam-v4-address-plan`'>
+                                        <outcome value='AIC_DATA_PLANE_UNPROTECTED_V4'>
+                                            <block></block>
+                                        </outcome>
+                                        <outcome value='AIC_DATA_PLANE_PROTECTED_V4'>
+                                            <block></block>
+                                        </outcome>
+                                        <outcome value='AIC_DATA_PLANE_PRIVATE_V4'>
+                                            <block></block>
+                                        </outcome>
+                                        <outcome value='Other'>
+                                            <block atomic='true'>
+                                                <set>
+                                                    <parameter name="error-code" value="500"/>
+                                                    <parameter name="tmp.error-message" value="Invalid address plan for SRIOV"/>
+                                                </set>
+                                                <block atomic='true'>
+                                                    <set>
+                                                        <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                                        <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                                        <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                                    </set>
+                                                    <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                                    <return status='failure'>
+                                                        <parameter name='error-code' value='500'/>
+                                                        <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                                                    </return>
+                                                </block>
+                                            </block>
+                                        </outcome>
+                                    </switch>
+                                </block>
+                            </outcome>
+                        </switch>
+                        <switch test="`$network-model.use-ipv6`">
+                            <outcome value='Y'>
+                                <block atomic='true'>
+                                    <switch test='`$network-model.eipam-v6-address-plan`'>
+                                        <outcome value="AIC_ATM_UNPROTECTED_V6">
+                                            <block></block>
+                                        </outcome>
+                                        <outcome value="AIC_ATM_PROTECTED_V6">
+                                            <block></block>
+                                        </outcome>
+                                        <outcome value="AIC_DATA_PLANE_UNPROTECTED_V6">
+                                            <block></block>
+                                        </outcome>
+                                        <outcome value="AIC_DATA_PLANE_PRIVATE_V6">
+                                            <block></block>
+                                        </outcome>
+                                        <outcome value="AIC_DATA_PLANE_PROTECTED_V6">
+                                            <block></block>
+                                        </outcome>
+                                        <outcome value='Other'>
+                                            <block atomic='true'>
+                                                <set>
+                                                    <parameter name="error-code" value="500"/>
+                                                    <parameter name="tmp.error-message" value="Invalid ipv6 address plan for SRIOV"/>
+                                                </set>
+                                                <block atomic='true'>
+                                                    <set>
+                                                        <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                                        <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                                        <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                                    </set>
+                                                    <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                                    <return status='failure'>
+                                                        <parameter name='error-code' value='500'/>
+                                                        <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                                                    </return>
+                                                </block>
+                                            </block>
+                                        </outcome>
+                                    </switch>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='Other'>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="Invalid network-technology.  Only AIC_SR_IOV and Contrail are supported for network automated flow"/>
+                        </set>
+                        <block atomic='true'>
+                            <set>
+                                <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                            </set>
+                            <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500'/>
+                                <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='tmp.process-eipam-action' value='assign' />
+            </set>
+            <!--tmp.level should be set to 1-->
+            <call module='GENERIC-RESOURCE-API' rpc='process-eipam-pools' mode='sync' ></call>
+            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                <parameter name="logger" value="message-log"/>
+                <parameter name="field1" value="__TIMESTAMP__"/>
+                <parameter name="field2" value="GENERIC-RESOURCE-API.process-eipam-pools:REQID"/>
+                <parameter name="field3" value="`$network-topology-operation-input.sdnc-request-header.svc-request-id`"/>
+                <parameter name="field4" value="Values after process-eipam"/>
+                <parameter name="field5" value="`level1-v4-mask`"/>
+                <parameter name="field6" value="`$tmp.l3-network.level1.v4.mask`"/>
+                <parameter name="field7" value="`level1-v4-ipprefix`"/>
+                <parameter name="field8" value="`$tmp.l3-network.level1.v4.ip-prefix`"/>
+                <parameter name="field9" value="`level1-v4-entity-id`"/>
+                <parameter name="field10" value="`$tmp.l3-network.level1.v4.entity-id`"/>
+                <parameter name="field11" value="`level2-v4-mask`"/>
+                <parameter name="field12" value="`$tmp.l3-network.level2.v4.mask`"/>
+                <parameter name="field13" value="`level2-v4-ipprefix`"/>
+                <parameter name="field14" value="`$tmp.l3-network.level2.v4.ip-prefix`"/>
+                <parameter name="field15" value="`level2-v4-entity-id`"/>
+                <parameter name="field16" value="`$tmp.l3-network.level2.v4.entity-id`"/>
+            </record>
+            <set>
+                <parameter name='v4.entity-id' value='`$tmp.l3-network.level2.v4.entity-id`' />
+                <parameter name='v4.ip-prefix' value='`$tmp.l3-network.level2.v4.ip-prefix`' />
+                <parameter name='v4.mask' value='`$tmp.l3-network.level2.v4.mask`' />
+                <parameter name='v6.entity-id' value='`$tmp.l3-network.level2.v6.entity-id`' />
+                <parameter name='v6.ip-prefix' value='`$tmp.l3-network.level2.v6.ip-prefix`' />
+                <parameter name='v6.mask' value='`$tmp.l3-network.level2.v6.mask`' />
+            </set>
+            <!--tmp.level should be set to 1-->
+            <call module='GENERIC-RESOURCE-API' rpc='create-l3-subnet' mode='sync' ></call>
+            <set>
+                <parameter name='tmp.network-topology.network-topology-identifier-structure.network-id' value="`$tmp.l3-network.network-name`" />
+                <parameter name='tmp.network-topology.network-topology-identifier-structure.network-name' value="`$tmp.l3-network.network-name`" />
+                <parameter name='tmp.network-topology.network-topology-identifier-structure.network-type' value="`$tmp.l3-network.network-type`" />
+                <parameter name='tmp.network-topology.network-topology-identifier-structure.network-role' value="`$tmp.l3-network.network-role`" />
+                <parameter name='tmp.network-topology.network-topology-identifier-structure.network-technology' value="`$tmp.l3-network.network-technology`" />
+                <parameter name='tmp.network-topology.network-topology-identifier-structure.eipam-v4-address-plan' value="`$network-model.eipam-v4-address-plan`" />
+                <parameter name='tmp.network-topology.network-topology-identifier-structure.eipam-v6-address-plan' value="`$network-model.eipam-v6-address-plan`" />
+                <parameter name='tmp.network-topology.region-identifier.tenant' value="`$network-topology-operation-input.network-request-input.tenant`" />
+                <parameter name='tmp.network-topology.region-identifier.aic-cloud-region' value="`$network-topology-operation-input.network-request-input.aic-cloud-region`" />
+                <parameter name='tmp.network-topology.region-identifier.aic-clli' value="`$network-topology-operation-input.network-request-input.aic-clli`" />
+                <parameter name='tmp.network-topology.onap-model-information.' value="`$network-topology-operation-input.network-information.onap-model-information.`" />
+                <parameter name='tmp.network-topology.network-parameters.' value="`$network-topology-operation-input.network-request-input.network-input-parameters.`" />
+            </set>
+            <switch test='`$tmp.l3-network.service-id`'>
+                <outcome value=''>
+                    <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+		key="l3-network.network-id = $tmp.l3-network.network-id" >
+                        <!-- Create l3-network object -->
+                        <parameter name="network-id" value="`$tmp.l3-network.network-id`" />
+                        <parameter name="network-name" value="`$tmp.l3-network.network-name`" />
+                        <parameter name="network-type" value="`$tmp.l3-network.network-type`" />
+                        <parameter name="network-role" value="`$tmp.l3-network.network-role`" />
+                        <parameter name="network-technology" value="`$tmp.l3-network.network-technology`" />
+                        <parameter name="is-bound-to-vpn" value="`$tmp.l3-network.is-bound-to-vpn-boolean`" />
+                        <parameter name="tenant-id" value="`$network-topology-operation-input.network-request-information.tenant`" />
+                        <parameter name="orchestration-status" value="PendingCreate" />
+                        <parameter name="persona-model-id" value="`$tmp.l3-network.persona-model-id`" />
+                        <parameter name="persona-model-version" value="`$tmp.l3-network.persona-model-version`" />
+                        <parameter name="persona-model-customization-id" value="`$tmp.l3-network.persona-model-customization-id`" />
+                        <parameter name="physical-network-name" value="`$tmp.l3-network.physical-network-name`" />
+                        <parameter name="is-provider-network" value="`$tmp.l3-network.is-provider-network-boolean`" />
+                        <parameter name="is-shared-network" value="`$tmp.l3-network.is-shared-network-boolean`" />
+                        <parameter name="is-external-network" value="`$tmp.l3-network.is-external-network-boolean`" />
+                        <parameter name="selflink" value="`$tmp.l3-network.self-link`" />
+                        <outcome value='failure'>
+                            <block>
+                                <set>
+                                    <parameter name="error-code" value="500"/>
+                                    <parameter name="tmp.error-message" value="`'Failed to save l3-network in AAI for network-id = ' + $tmp.l3-network.network-id`"/>
+                                </set>
+                                <block atomic='true'>
+                                    <set>
+                                        <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                        <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                        <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                    </set>
+                                    <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                    <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+	key="l3-network.network-id = $tmp.l3-network.network-id"></delete>
+                                    <return status='failure'>
+                                        <parameter name='error-code' value='500'/>
+                                        <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                                    </return>
+                                </block>
+                            </block>
+                        </outcome>
+                        <outcome value='not-found'>
+                            <block>
+                                <set>
+                                    <parameter name="error-code" value="500"/>
+                                    <parameter name="tmp.error-message" value="`'Failed to save l3-network in AAI for network-id = ' + $tmp.l3-network.network-id`"/>
+                                </set>
+                                <block atomic='true'>
+                                    <set>
+                                        <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                        <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                        <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                    </set>
+                                    <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                    <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+	key="l3-network.network-id = $tmp.l3-network.network-id"></delete>
+                                    <return status='failure'>
+                                        <parameter name='error-code' value='500'/>
+                                        <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                                    </return>
+                                </block>
+                            </block>
+                        </outcome>
+                    </save>
+                </outcome>
+                <outcome value='Other'>
+                    <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+		key="l3-network.network-id = $tmp.l3-network.network-id" >
+                        <!-- Create l3-network object -->
+                        <parameter name="network-id" value="`$tmp.l3-network.network-id`" />
+                        <parameter name="network-name" value="`$tmp.l3-network.network-name`" />
+                        <parameter name="network-type" value="`$tmp.l3-network.network-type`" />
+                        <parameter name="network-role" value="`$tmp.l3-network.network-role`" />
+                        <parameter name="network-technology" value="`$tmp.l3-network.network-technology`" />
+                        <parameter name="is-bound-to-vpn" value="`$tmp.l3-network.is-bound-to-vpn-boolean`" />
+                        <parameter name="service-id" value="`$tmp.l3-network.service-id`" />
+                        <parameter name="tenant-id" value="`$network-topology-operation-input.network-request-information.tenant`" />
+                        <parameter name="orchestration-status" value="PendingCreate" />
+                        <parameter name="persona-model-id" value="`$tmp.l3-network.persona-model-id`" />
+                        <parameter name="persona-model-version" value="`$tmp.l3-network.persona-model-version`" />
+                        <parameter name="persona-model-customization-id" value="`$tmp.l3-network.persona-model-customization-id`" />
+                        <parameter name="physical-network-name" value="`$tmp.l3-network.physical-network-name`" />
+                        <parameter name="is-provider-network" value="`$tmp.l3-network.is-provider-network-boolean`" />
+                        <parameter name="is-shared-network" value="`$tmp.l3-network.is-shared-network-boolean`" />
+                        <parameter name="is-external-network" value="`$tmp.l3-network.is-external-network-boolean`" />
+                        <parameter name="selflink" value="`$tmp.l3-network.self-link`" />
+                        <outcome value='failure'>
+                            <block>
+                                <set>
+                                    <parameter name="error-code" value="500"/>
+                                    <parameter name="tmp.error-message" value="`'Failed to save l3-network in AAI for network-id = ' + $tmp.l3-network.network-id`"/>
+                                </set>
+                                <block atomic='true'>
+                                    <set>
+                                        <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                        <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                        <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                    </set>
+                                    <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                    <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+	key="l3-network.network-id = $tmp.l3-network.network-id"></delete>
+                                    <return status='failure'>
+                                        <parameter name='error-code' value='500'/>
+                                        <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                                    </return>
+                                </block>
+                            </block>
+                        </outcome>
+                        <outcome value='not-found'>
+                            <block>
+                                <set>
+                                    <parameter name="error-code" value="500"/>
+                                    <parameter name="tmp.error-message" value="`'Failed to save l3-network in AAI for network-id = ' + $tmp.l3-network.network-id`"/>
+                                </set>
+                                <block atomic='true'>
+                                    <set>
+                                        <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                        <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                        <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                    </set>
+                                    <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                    <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+	key="l3-network.network-id = $tmp.l3-network.network-id"></delete>
+                                    <return status='failure'>
+                                        <parameter name='error-code' value='500'/>
+                                        <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                                    </return>
+                                </block>
+                            </block>
+                        </outcome>
+                    </save>
+                </outcome>
+            </switch>
+            <for index='sidx' start='0' end='`$tmp.l3-network.subnet_length`' >
+                <block atomic="true">
+                    <set>
+                        <parameter name="tmp.subnet-id" value="`$tmp.l3-network.subnet[$sidx].subnet-id`"/>
+                    </set>
+                    <switch test='`$tmp.l3-network.subnet[$sidx].dhcp-enabled`'>
+                        <outcome value='true'>
+                            <block atomic="true">
+                                <switch test='`$tmp.l3-network.subnet[$sidx].gateway-address`'>
+                                    <outcome value=''>
+                                        <block atomic='true'>
+                                            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="subnet" 
+		key="l3-network.network-id = $tmp.l3-network.network-id 
+			AND subnet.subnet-id = $tmp.subnet-id" >
+                                                <!-- Create l3-network object -->
+                                                <parameter name="network-id" value="`$tmp.l3-network.network-id`" />
+                                                <parameter name="subnet-id" value="`$tmp.l3-network.subnet[$sidx].subnet-id`" />
+                                                <parameter name="subnet-name" value="`$tmp.l3-network.subnet[$sidx].subnet-name`" />
+                                                <parameter name="network-start-address" value="`$tmp.l3-network.subnet[$sidx].network-start-address`" />
+                                                <parameter name="cidr-mask" value="`$tmp.l3-network.subnet[$sidx].cidr-mask`" />
+                                                <parameter name="ip-version" value="`$tmp.l3-network.subnet[$sidx].ip-version`" />
+                                                <parameter name="dhcp-start" value="`$tmp.l3-network.subnet[$sidx].dhcp-start`" />
+                                                <parameter name="dhcp-end" value="`$tmp.l3-network.subnet[$sidx].dhcp-end`" />
+                                                <parameter name="dhcp-enabled" value="`$tmp.l3-network.subnet[$sidx].dhcp-enabled`" />
+                                                <parameter name="orchestration-status" value="PendingCreate" />
+                                                <outcome value='failure'>
+                                                    <block atomic='true'>
+                                                        <set>
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="tmp.error-message" value="`'An error occurred while saving subnet relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                                        </set>
+                                                        <block atomic='true'>
+                                                            <set>
+                                                                <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                                                <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                                                <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                                            </set>
+                                                            <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                                            <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+	key="l3-network.network-id = $tmp.l3-network.network-id"></delete>
+                                                            <return status='failure'>
+                                                                <parameter name='error-code' value='500'/>
+                                                                <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                                                            </return>
+                                                        </block>
+                                                    </block>
+                                                </outcome>
+                                                <outcome value='not-found'>
+                                                    <block atomic='true'>
+                                                        <set>
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="tmp.error-message" value="`'An error occurred while saving subnet relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                                        </set>
+                                                        <block atomic='true'>
+                                                            <set>
+                                                                <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                                                <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                                                <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                                            </set>
+                                                            <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                                            <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+	key="l3-network.network-id = $tmp.l3-network.network-id"></delete>
+                                                            <return status='failure'>
+                                                                <parameter name='error-code' value='500'/>
+                                                                <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                                                            </return>
+                                                        </block>
+                                                    </block>
+                                                </outcome>
+                                            </save>
+                                        </block>
+                                    </outcome>
+                                    <outcome value='Other'>
+                                        <block atomic='true'>
+                                            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="subnet" 
+		key="l3-network.network-id = $tmp.l3-network.network-id 
+			AND subnet.subnet-id = $tmp.subnet-id" >
+                                                <!-- Create l3-network object -->
+                                                <parameter name="network-id" value="`$tmp.l3-network.network-id`" />
+                                                <parameter name="subnet-id" value="`$tmp.l3-network.subnet[$sidx].subnet-id`" />
+                                                <parameter name="subnet-name" value="`$tmp.l3-network.subnet[$sidx].subnet-name`" />
+                                                <parameter name="gateway-address" value="`$tmp.l3-network.subnet[$sidx].gateway-address`" />
+                                                <parameter name="network-start-address" value="`$tmp.l3-network.subnet[$sidx].network-start-address`" />
+                                                <parameter name="cidr-mask" value="`$tmp.l3-network.subnet[$sidx].cidr-mask`" />
+                                                <parameter name="ip-version" value="`$tmp.l3-network.subnet[$sidx].ip-version`" />
+                                                <parameter name="dhcp-start" value="`$tmp.l3-network.subnet[$sidx].dhcp-start`" />
+                                                <parameter name="dhcp-end" value="`$tmp.l3-network.subnet[$sidx].dhcp-end`" />
+                                                <parameter name="dhcp-enabled" value="`$tmp.l3-network.subnet[$sidx].dhcp-enabled`" />
+                                                <parameter name="orchestration-status" value="PendingCreate" />
+                                                <outcome value='failure'>
+                                                    <block atomic='true'>
+                                                        <set>
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="tmp.error-message" value="`'An error occurred while saving subnet relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                                        </set>
+                                                        <block atomic='true'>
+                                                            <set>
+                                                                <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                                                <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                                                <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                                            </set>
+                                                            <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                                            <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+	key="l3-network.network-id = $tmp.l3-network.network-id"></delete>
+                                                            <return status='failure'>
+                                                                <parameter name='error-code' value='500'/>
+                                                                <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                                                            </return>
+                                                        </block>
+                                                    </block>
+                                                </outcome>
+                                                <outcome value='not-found'>
+                                                    <block atomic='true'>
+                                                        <set>
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="tmp.error-message" value="`'An error occurred while saving subnet relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                                        </set>
+                                                        <block atomic='true'>
+                                                            <set>
+                                                                <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                                                <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                                                <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                                            </set>
+                                                            <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                                            <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+	key="l3-network.network-id = $tmp.l3-network.network-id"></delete>
+                                                            <return status='failure'>
+                                                                <parameter name='error-code' value='500'/>
+                                                                <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                                                            </return>
+                                                        </block>
+                                                    </block>
+                                                </outcome>
+                                            </save>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                            </block>
+                        </outcome>
+                        <outcome value='false'>
+                            <block atomic="true">
+                                <switch test='`$tmp.l3-network.subnet[$sidx].gateway-address`'>
+                                    <outcome value=''>
+                                        <block atomic='true'>
+                                            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="subnet" 
+		key="l3-network.network-id = $tmp.l3-network.network-id 
+			AND subnet.subnet-id = $tmp.subnet-id" >
+                                                <!-- Create l3-network object -->
+                                                <parameter name="network-id" value="`$tmp.l3-network.network-id`" />
+                                                <parameter name="subnet-id" value="`$tmp.l3-network.subnet[$sidx].subnet-id`" />
+                                                <parameter name="subnet-name" value="`$tmp.l3-network.subnet[$sidx].subnet-name`" />
+                                                <parameter name="network-start-address" value="`$tmp.l3-network.subnet[$sidx].network-start-address`" />
+                                                <parameter name="cidr-mask" value="`$tmp.l3-network.subnet[$sidx].cidr-mask`" />
+                                                <parameter name="ip-version" value="`$tmp.l3-network.subnet[$sidx].ip-version`" />
+                                                <parameter name="dhcp-enabled" value="`$tmp.l3-network.subnet[$sidx].dhcp-enabled`" />
+                                                <parameter name="orchestration-status" value="PendingCreate" />
+                                                <outcome value='failure'>
+                                                    <block atomic='true'>
+                                                        <set>
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="tmp.error-message" value="`'An error occurred while saving subnet relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                                        </set>
+                                                        <block atomic='true'>
+                                                            <set>
+                                                                <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                                                <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                                                <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                                            </set>
+                                                            <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                                            <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+	key="l3-network.network-id = $tmp.l3-network.network-id"></delete>
+                                                            <return status='failure'>
+                                                                <parameter name='error-code' value='500'/>
+                                                                <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                                                            </return>
+                                                        </block>
+                                                    </block>
+                                                </outcome>
+                                                <outcome value='not-found'>
+                                                    <block atomic='true'>
+                                                        <set>
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="tmp.error-message" value="`'An error occurred while saving subnet relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                                        </set>
+                                                        <block atomic='true'>
+                                                            <set>
+                                                                <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                                                <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                                                <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                                            </set>
+                                                            <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                                            <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+	key="l3-network.network-id = $tmp.l3-network.network-id"></delete>
+                                                            <return status='failure'>
+                                                                <parameter name='error-code' value='500'/>
+                                                                <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                                                            </return>
+                                                        </block>
+                                                    </block>
+                                                </outcome>
+                                            </save>
+                                        </block>
+                                    </outcome>
+                                    <outcome value='Other'>
+                                        <block atomic='true'>
+                                            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="subnet" 
+		key="l3-network.network-id = $tmp.l3-network.network-id 
+			AND subnet.subnet-id = $tmp.subnet-id" >
+                                                <!-- Create l3-network object -->
+                                                <parameter name="network-id" value="`$tmp.l3-network.network-id`" />
+                                                <parameter name="subnet-id" value="`$tmp.l3-network.subnet[$sidx].subnet-id`" />
+                                                <parameter name="subnet-name" value="`$tmp.l3-network.subnet[$sidx].subnet-name`" />
+                                                <parameter name="gateway-address" value="`$tmp.l3-network.subnet[$sidx].gateway-address`" />
+                                                <parameter name="network-start-address" value="`$tmp.l3-network.subnet[$sidx].network-start-address`" />
+                                                <parameter name="cidr-mask" value="`$tmp.l3-network.subnet[$sidx].cidr-mask`" />
+                                                <parameter name="ip-version" value="`$tmp.l3-network.subnet[$sidx].ip-version`" />
+                                                <parameter name="dhcp-enabled" value="`$tmp.l3-network.subnet[$sidx].dhcp-enabled`" />
+                                                <parameter name="orchestration-status" value="PendingCreate" />
+                                                <outcome value='failure'>
+                                                    <block atomic='true'>
+                                                        <set>
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="tmp.error-message" value="`'An error occurred while saving subnet relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                                        </set>
+                                                        <block atomic='true'>
+                                                            <set>
+                                                                <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                                                <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                                                <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                                            </set>
+                                                            <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                                            <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+	key="l3-network.network-id = $tmp.l3-network.network-id"></delete>
+                                                            <return status='failure'>
+                                                                <parameter name='error-code' value='500'/>
+                                                                <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                                                            </return>
+                                                        </block>
+                                                    </block>
+                                                </outcome>
+                                                <outcome value='not-found'>
+                                                    <block atomic='true'>
+                                                        <set>
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="tmp.error-message" value="`'An error occurred while saving subnet relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                                        </set>
+                                                        <block atomic='true'>
+                                                            <set>
+                                                                <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                                                <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                                                <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                                            </set>
+                                                            <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                                            <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+	key="l3-network.network-id = $tmp.l3-network.network-id"></delete>
+                                                            <return status='failure'>
+                                                                <parameter name='error-code' value='500'/>
+                                                                <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                                                            </return>
+                                                        </block>
+                                                    </block>
+                                                </outcome>
+                                            </save>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                            </block>
+                        </outcome>
+                    </switch>
+                </block>
+            </for>
+            <switch test='`$hasVpnBindings`'>
+                <outcome value='true'>
+                    <block atomic="true">
+                        <for index='vidx' start='0' end='`$vpn-bindings_length`' >
+                            <block atomic='true'>
+                                <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network:relationship-list" 
+	key="l3-network.network-id = $tmp.l3-network.network-id" >
+                                    <parameter name="relationship-list.relationship[0].related-to" value="vpn-binding" />
+                                    <parameter name="relationship-list.relationship[0].relationship-data[0].relationship-key" value="vpn-binding.vpn-id" />
+                                    <parameter name="relationship-list.relationship[0].relationship-data[0].relationship-value" value="`$vpn-bindings[$vidx].binding-uuid`" />
+                                    <outcome value='failure'>
+                                        <block>
+                                            <set>
+                                                <parameter name="error-code" value="500"/>
+                                                <parameter name="tmp.error-message" value="`'An error occurred while saving vpn binding relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                            </set>
+                                            <block atomic='true'>
+                                                <set>
+                                                    <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                                    <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                                    <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                                </set>
+                                                <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                                <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+	key="l3-network.network-id = $tmp.l3-network.network-id"></delete>
+                                                <return status='failure'>
+                                                    <parameter name='error-code' value='500'/>
+                                                    <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                                                </return>
+                                            </block>
+                                        </block>
+                                    </outcome>
+                                    <outcome value='not-found'>
+                                        <block>
+                                            <set>
+                                                <parameter name="error-code" value="500"/>
+                                                <parameter name="tmp.error-message" value="`'An error occurred while saving vpn binding relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                            </set>
+                                            <block atomic='true'>
+                                                <set>
+                                                    <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                                    <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                                    <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                                </set>
+                                                <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                                <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+	key="l3-network.network-id = $tmp.l3-network.network-id"></delete>
+                                                <return status='failure'>
+                                                    <parameter name='error-code' value='500'/>
+                                                    <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                                                </return>
+                                            </block>
+                                        </block>
+                                    </outcome>
+                                </save>
+                            </block>
+                        </for>
+                    </block>
+                </outcome>
+            </switch>
+            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network:relationship-list" 
+	key="l3-network.network-id = $tmp.l3-network.network-id" >
+                <parameter name="relationship-list.relationship[0].related-to" value="service-instance" />
+                <parameter name="relationship-list.relationship[0].relationship-data[0].relationship-key" value="customer.global-customer-id" />
+                <parameter name="relationship-list.relationship[0].relationship-data[0].relationship-value" value="`$service-data.service-information.global-customer-id`" />
+                <parameter name="relationship-list.relationship[0].relationship-data[1].relationship-key" value="service-subscription.service-type" />
+                <parameter name="relationship-list.relationship[0].relationship-data[1].relationship-value" value="`$service-data.service-information.subscription-service-type`" />
+                <parameter name="relationship-list.relationship[0].relationship-data[2].relationship-key" value="service-instance.service-instance-id" />
+                <parameter name="relationship-list.relationship[0].relationship-data[2].relationship-value" value="`$service-data.service-information.service-instance-id`" />
+                <outcome value='failure'>
+                    <block>
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="`'An error occurred while saving service instance relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                        </set>
+                        <block atomic='true'>
+                            <set>
+                                <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                            </set>
+                            <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                            <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+	key="l3-network.network-id = $tmp.l3-network.network-id"></delete>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500'/>
+                                <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+                <outcome value='not-found'>
+                    <block>
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="`'An error occurred while saving service instance relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                        </set>
+                        <block atomic='true'>
+                            <set>
+                                <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                            </set>
+                            <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                            <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+	key="l3-network.network-id = $tmp.l3-network.network-id"></delete>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500'/>
+                                <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+            </save>
+            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network:relationship-list" 
+	key="l3-network.network-id = $tmp.l3-network.network-id" 
+	force="true" 
+	local-only="false">
+                <!-- create relationship-list -->
+                <parameter name="relationship-list.relationship[0].related-to" value="tenant" />
+                <parameter name="relationship-list.relationship[0].relationship-data[0].relationship-key" value="cloud-region.cloud-owner" />
+                <parameter name="relationship-list.relationship[0].relationship-data[0].relationship-value" value="`$prop.cloud-region.cloud-owner`" />
+                <parameter name="relationship-list.relationship[0].relationship-data[1].relationship-key" value="cloud-region.cloud-region-id" />
+                <parameter name="relationship-list.relationship[0].relationship-data[1].relationship-value" value="`$network-topology-operation-input.network-request-input.aic-cloud-region`" />
+                <parameter name="relationship-list.relationship[0].relationship-data[2].relationship-key" value="tenant.tenant-id" />
+                <parameter name="relationship-list.relationship[0].relationship-data[2].relationship-value" value="`$network-topology-operation-input.network-request-input.tenant`" />
+                <parameter name="relationship-list.relationship[1].related-to" value="cloud-region" />
+                <parameter name="relationship-list.relationship[1].relationship-data[0].relationship-key" value="cloud-region.cloud-owner" />
+                <parameter name="relationship-list.relationship[1].relationship-data[0].relationship-value" value="`$prop.cloud-region.cloud-owner`" />
+                <parameter name="relationship-list.relationship[1].relationship-data[1].relationship-key" value="cloud-region.cloud-region-id" />
+                <parameter name="relationship-list.relationship[1].relationship-data[1].relationship-value" value="`$network-topology-operation-input.network-request-input.aic-cloud-region`" />
+                <outcome value='failure'>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="`'An error occurred while saving tenant and cloud-region relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                        </set>
+                        <block atomic='true'>
+                            <set>
+                                <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                            </set>
+                            <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                            <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+	key="l3-network.network-id = $tmp.l3-network.network-id"></delete>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500'/>
+                                <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+                <outcome value='not-found'>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="`'An error occurred while saving tenant and cloud-region relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                        </set>
+                        <block atomic='true'>
+                            <set>
+                                <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                            </set>
+                            <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                            <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+	key="l3-network.network-id = $tmp.l3-network.network-id"></delete>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500'/>
+                                <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+            </save>
+            <switch test='`$network-model.network-technology`'>
+                <outcome value='AIC_SR_IOV'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name="tmp.l3-network.segmentation-id" value="1"/>
+                        </set>
+                        <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="segmentation-assignment" 
+		key="l3-network.network-id = $tmp.l3-network.network-id 
+			AND segmentation-assignment.segmentation-id = $tmp.l3-network.segmentation-id" >
+                            <!-- Create segmentation-assignment object -->
+                            <parameter name="network-id" value="`$tmp.l3-network.network-id`" />
+                            <parameter name="segmentation-id" value="`$tmp.l3-network.segmentation-id`" />
+                            <outcome value='failure'>
+                                <block atomic='true'>
+                                    <set>
+                                        <parameter name="error-code" value="500"/>
+                                        <parameter name="tmp.error-message" value="`'An error occurred while saving segmentation-assignment for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                    </set>
+                                    <block atomic='true'>
+                                        <set>
+                                            <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                            <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                            <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                        </set>
+                                        <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                        <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+	key="l3-network.network-id = $tmp.l3-network.network-id"></delete>
+                                        <return status='failure'>
+                                            <parameter name='error-code' value='500'/>
+                                            <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                                        </return>
+                                    </block>
+                                </block>
+                            </outcome>
+                            <outcome value='not-found'>
+                                <block atomic='true'>
+                                    <set>
+                                        <parameter name="error-code" value="500"/>
+                                        <parameter name="tmp.error-message" value="`'An error occurred while saving segmentation-assignment for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                    </set>
+                                    <block atomic='true'>
+                                        <set>
+                                            <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                                            <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                            <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                        </set>
+                                        <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                        <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+	key="l3-network.network-id = $tmp.l3-network.network-id"></delete>
+                                        <return status='failure'>
+                                            <parameter name='error-code' value='500'/>
+                                            <parameter name='error-message' value="`'Error writing to l3-network - ' + $tmp.error-message`"/>
+                                        </return>
+                                    </block>
+                                </block>
+                            </outcome>
+                        </save>
+                    </block>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='network-topology.network-topology-identifier-structure.' value='`$tmp.l3-network.`' />
+                <parameter name='network-topology.tenant' value='`$network-topology-operation-input.network-request-input.tenant`' />
+                <parameter name='network-topology.onap-model-information.' value='`$network-topology-operation-input.network-information.onap-model-information.`' />
+                <parameter name='network-topology.network-parameters.' value='`$network-topology-operation-input.network-request-input.network-parameters.`' />
+                <parameter name='network-topology.aic-cloud-region' value='`$network-topology-operation-input.network-request-input.aic-cloud-region`' />
+            </set>
+            <set>
+                <parameter name="service-data.networks.network[$nidx].network-id" value='`$tmp.l3-network.network-id`' />
+                <parameter name="service-data.networks.network[$nidx].network-data.network-topology." value='$network-topology.' />
+                <parameter name="service-data.networks.network[$nidx].network-data.network-request-input." value='$x.' />
+                <parameter name="service-data.networks.network_length" value='`$nidx_len`' />
+            </set>
+            <set>
+                <parameter name='networkId' value='`$tmp.l3-network.network-id`' />
+            </set>
+            <set>
+                <parameter name='network-object-path'
+ value="`$tmp.l3-network.self-link`"/>
+            </set>
+            <set>
+                <parameter name='service-data.networks.network[$nidx].network-data.network-level-oper-status.order-status' value='PendingCreate' />
+                <parameter name='service-data.networks.network[$nidx].network-data.network-level-oper-status.last-rpc-action' value='`$network-topology-operation-input.sdnc-request-header.svc-action`' />
+                <parameter name='service-data.networks.network[$nidx].network-data.network-level-oper-status.last-action' value='`$network-topology-operation-input.request-information.request-action`' />
+            </set>
+            <return status='success'>
+                <parameter name='' value='' />
+            </return>
+        </block>
+    </method>
+</service-logic>

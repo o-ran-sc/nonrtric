@@ -1,0 +1,32 @@
+<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='VNF-API' version='${project.version}'><method rpc='vnf-topology-changedelete' mode='sync'>
+<block atomic="true"><switch test="`$vnf-topology-operation-input.vnf-request-information.vnf-id == $service-data.vnf-id`"><outcome value='false'>
+<return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='vnf-id not found'/></return></outcome></switch><switch test="'$service-data.oper-status.order-status == Active'">
+
+<!--
+leaf order-status {
+	type enumeration {
+		enum "Active";
+		enum "PendingAssignment";
+		enum "PendingCreate";
+		enum "PendingUpdate";
+		enum "Deleted";
+	}
+}
+--><outcome value='false'><return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='Invalid last-order-status'/></return></outcome></switch><update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="generic-vnf" 
+		key="generic-vnf.vnf-id = $vnf-topology-operation-input.vnf-request-information.generic-vnf-id" 
+	force="true" 
+	local-only="false" >
+	<parameter name="orchestration-status" value="pending-delete" />
+</update><set>
+	<parameter name="service-data.oper-status.last-order-status" value="`$service-data.oper-status.order-status`"/></set><set>
+	<parameter name="service-data.oper-status.order-status" value="PendingDelete"/></set><set>
+	<parameter name="service-data.oper-status.last-action" value="`$service-data.request-information.request-action`"/></set><set>
+	<parameter name="service-data." value="vnf-topology-operation-input." /> 
+</set><return status='success'>
+	<parameter name="error-code" value="200" />
+</return></block></method></service-logic>

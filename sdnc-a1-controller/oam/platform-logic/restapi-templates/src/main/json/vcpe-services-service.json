@@ -1,0 +1,55 @@
+{
+  "service": [
+    {
+      "service-instance-id": ${tmp.service-data.service-information.service-instance-id},
+      "service-status": {
+        "action": ${brg-ar.allotted-resource-status.action},
+        "rpc-name": ${brg-ar.allotted-resource-status.rpc-name},
+        "rpc-action": ${brg-ar.allotted-resource-status.rpc-action}
+      },
+      "service-data": {
+        "service-level-oper-status": {
+          "last-order-status": ${tmp.service-data.oper-status.last-order-status},
+          "order-status": ${tmp.service-data.oper-status.order-status},
+          "last-action": ${tmp.service-data.oper-status.last-action}
+        },
+        "service-topology": {
+          "service-topology-identifier": {
+            "service-id": ${tmp.service-data.service-information.service-id},
+            "service-type": ${tmp.service-data.vnf-topology-information.vnf-topology-identifier.service-type},
+            "service-instance-id": ${tmp.service-data.service-information.service-instance-id}
+          }
+        },
+        "request-information": {
+          "request-action": ${tmp.service-data.request-information.request-action},
+          "request-id": ${tmp.service-data.request-information.request-id},
+          "source": ${tmp.service-data.request-information.source}
+        },
+        "service-information": {
+          "service-instance-id": ${tmp.service-data.service-information.service-instance-id},
+          "subscriber-name": ${tmp.service-data.service-information.subscriber-name}
+        },
+        "sdnc-request-header": {
+          "svc-action": ${tmp.service-data.sdnc-request-header.svc-action},
+          "svc-notification-url": ${tmp.service-data.sdnc-request-header.svc-notification-url},
+          "svc-request-id": ${tmp.service-data.sdnc-request-header.svc-request-id}
+        },
+        "vnfs": {
+          "vnf": [
+            {
+              "vnf-id": ${tmp.service-data.vnf-request-information.vnf-id}
+            }
+          ]
+        },
+        "consumed-allotted-resources": {
+          "consumed-allotted-resource": [
+            {
+              "allotted-resource-type": ${brg-ar.allotted-resource-data.brg-topology.allotted-resource-identifiers.allotted-resource-type},
+              "allotted-resource-id": ${brg-ar.allotted-resource-data.brg-topology.allotted-resource-identifiers.allotted-resource-id}
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>SDN-C AdminPortal</title>
+<script class="init">
+    $(document).ready(function() {
+    $('#owbc_properties').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+
+</head>
+<body>
+
+<div class="well well-sm">
+<h3>OWBC Properties</h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+
+	 <% if(priv == 'A'){ %>
+        <div class="actions" style="padding:15px 0px;">
+            <button class="btn btn-primary" data-toggle="modal" data-target="#add_owbc_properties">
+            Add OWBC Properties
+            </button>
+            </div>
+    <% } %>
+
+	<table id="owbc_properties" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+		   <th>Controller ID</th>
+		   <th>Base URL</th>
+		   <th>Service Create Extension</th>
+		   <th>Service Delete Extension</th>
+          <th>Auth Username</th>
+          <th>Auth Password</th>
+		   <% if(priv == 'A'){ %>
+          <th>Action</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+      <% rows.forEach( function(row) { %> 
+        <tr>
+            <td><%= row.controller_id %></td>
+            <td><%= row.base_uri %></td>
+            <td><%= row.service_create_extension %></td>
+            <td><%= row.service_delete_extension %></td>
+            <td><%= row.auth_username %></td>
+            <td>*****</td>
+			<% if(priv == 'A') { %>
+            <td>
+				<button type="button" class="btn btn-default btn-xs"
+                onclick="updateOwbcProperties('<%=row.controller_id %>','<%= row.base_uri %>','<%= row.service_create_extension %>','<%= row.service_delete_extension %>','<%= row.auth_username %>','<%= row.auth_password %>');">Update</button>
+				<button type="button" class="btn btn-default btn-xs"
+				onclick="deleteOwbcProperties('<%= row.controller_id %>');">Delete</button>
+            </td>
+            <% } %>
+
+        </tr>
+    <% }); %>
+      </tbody>
+    </table>
+
+</div>
+
+<% include ../partials/owbc_properties %>
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+<script type="text/javascript">
+function submitOwbcProperties(form)
+{
+    var errorMsg='';
+	var controller_id = '';
+	var base_uri = '';
+	var service_create_extension = '';
+	var service_delete_extension = '';
+	var auth_username = '';
+	var auth_password = '';
+	var confirm_auth_password = '';
+
+    if ( form.name == 'addForm' )
+    {
+		controller_id = form.nf_controller_id;
+		base_uri = form.nf_base_uri;
+		service_create_extension = form.nf_service_create_extension;
+		service_delete_extension = form.nf_service_delete_extension;
+		auth_username = form.nf_auth_username;
+		auth_password = form.nf_auth_password;
+		confirm_auth_password = form.nf_confirm_auth_password;
+
+		if ( auth_password.value != confirm_auth_password.value )
+		{
+			bootbox.alert('Passwords do not match.');
+			return;
+		}
+    }
+    else
+    {
+		controller_id = form.uf_controller_id;
+		base_uri = form.uf_base_uri;
+		service_create_extension = form.uf_service_create_extension;
+		service_delete_extension = form.uf_service_delete_extension;
+		auth_username = form.uf_auth_username;
+		auth_password = form.uf_auth_password;
+		confirm_auth_password = form.uf_confirm_auth_password;
+
+		if ( auth_password.value != confirm_auth_password.value )
+		{
+			bootbox.alert('Passwords do not match.');
+			return;
+		}
+    }
+    if ( (controller_id.value == null) || (controller_id.value == "") || isblank(controller_id.value) )
+    {
+        errorMsg += 'Controller Id is required.<br>';
+    }
+    if ( (base_uri.value == null) || (base_uri.value == "") || isblank(base_uri.value) )
+    {
+        errorMsg += 'Base URL is required.<br>';
+    }
+    if ( (service_create_extension.value == null) || (service_create_extension.value == "") || isblank(service_create_extension.value) )
+    {
+        errorMsg += 'Service Create Extension is required.<br>';
+    }
+    if ( (service_delete_extension.value == null) || (service_delete_extension.value == "") || isblank(service_delete_extension.value) )
+    {
+        errorMsg += 'Service Delete Extension is required.<br>';
+    }
+    if ( (auth_username.value == null) || (auth_username.value == "") || isblank(auth_username.value) )
+    {
+        errorMsg += 'Auth Username is required.<br>';
+    }
+    if ( (auth_password.value == null) || (auth_password.value == "") || isblank(auth_password.value) )
+    {
+        errorMsg += 'Auth Password is required.<br>';
+    }
+    if( errorMsg.length > 0 ) {
+        bootbox.alert(errorMsg);
+        return;
+    }
+    form.submit();
+}
+
+function updateOwbcProperties(controller_id,base_uri,service_create_extension,service_delete_extension,auth_username,auth_password) {
+
+    document.getElementById('uf_controller_id').value=controller_id;
+    document.getElementById('uf_key_controller_id').value=controller_id;
+    document.getElementById('uf_base_uri').value=base_uri;
+    document.getElementById('uf_service_create_extension').value=service_create_extension;
+    document.getElementById('uf_service_delete_extension').value=service_delete_extension;
+    document.getElementById('uf_auth_username').value=auth_username;
+    document.getElementById('uf_auth_password').value=auth_password;
+    document.getElementById('uf_confirm_auth_password').value=auth_password;
+
+    $('#update_owbc_properties').modal('show');
+}
+
+function deleteOwbcProperties(controller_id) {
+
+	var url_string = encodeURI("/tunnel/deleteOwbcProperties?controller_id=" + controller_id );
+
+    bootbox.confirm({
+        message: "Are you sure you want to delete OWBC Properties? " + controller_id,
+        callback: function(result) {
+            if ( result )
+            {
+				location.assign(url_string);
+            }
+            return;
+        },
+        buttons: {
+            cancel: {
+                label: "Cancel"
+            },
+            confirm: {
+                label: "Yes"
+            }
+        }
+    });
+}
+
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,55 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='getpathsegment-topology-operation-create' mode='sync'>
+        <block>
+            <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT * from FORWARDING_PATH WHERE service_uuid = $getpathsegment-topology-operation-input.service-information.onap-model-information.model-uuid'
+  pfx='db.forwarding-path[]'>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="System error reading FORWARDING_PATH table" />
+                    </return>
+                </outcome>
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`'No paths found for service UUID ' + $getpathsegment-topology-operation-input.service-information.onap-model-information.model-uuid + ' in FORWARDING_PATH table'`" />
+                    </return>
+                </outcome>
+                <outcome value='success'>
+                    <block>
+                        <for index='path-index' start='0' end='`$db.forwarding-path_length`' >
+                            <switch test='`$db.forwarding-path[$path-index].path-type`'>
+                                <outcome value='VF'>
+                                    <call module='GENERIC-RESOURCE-API' rpc='getpathsegment-create-simple-path' mode='sync' ></call>
+                                </outcome>
+                                <outcome value='Service Proxy'>
+                                    <call module='GENERIC-RESOURCE-API' rpc='getpathsegment-create-composite-path' mode='sync' ></call>
+                                </outcome>
+                                <outcome value='Other'>
+                                    <return status='failure'>
+                                        <parameter name='ack-final' value='Y'/>
+                                        <parameter name="error-code" value="500" />
+                                        <parameter name="error-message" value="`'Unexpected path type ' + $db.forwarding-path[$path-index].path-type + ' in FORWARDING_PATH table'`" />
+                                    </return>
+                                </outcome>
+                            </switch>
+                        </for>
+                        <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >
+                            <parameter name='filename' value='/var/tmp/gps.log' />
+                        </execute>
+                        <return status='success'>
+                            <parameter name="ack-final-indicator" value="Y" />
+                            <parameter name="error-code" value="200" />
+                            <parameter name="error-message" value="`$error-message`" />
+                        </return>
+                    </block>
+                </outcome>
+            </get-resource>
+        </block>
+    </method>
+</service-logic>

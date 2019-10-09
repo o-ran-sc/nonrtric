@@ -1,0 +1,67 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='self-serve-vnf-mdsal-put' mode='sync'>
+        <block atomic='true'>
+            <set>
+                <parameter name='vf.vnf-id'
+    value='`$service-data.vnfs.vnf[$vnf-index].vnf-id`' />
+                <parameter name='vf.vnf-data.sdnc-request-header.'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.sdnc-request-header.`' />
+                <parameter name='vf.vnf-data.request-information.'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.request-information.`' />
+                <parameter name='vf.vnf-data.service-information.'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.service-information.`' />
+                <parameter name='vf.vnf-data.vnf-information.'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-information.`' />
+                <parameter name='vf.vnf-data.vnf-topology.'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.`' />
+                <parameter name='vf.vnf-data.vnf-level-oper-status.'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-level-oper-status.`' />
+                <parameter name='vf.vnf-data.vnf-request-input.vnf-input-parameters.'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-request-input.vnf-input-parameters.`' />
+                <parameter name='vf.vnf-data.vnf-request-input.request-version'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-request-input.request-version`' />
+                <parameter name='vf.vnf-data.vnf-request-input.vnf-name'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-request-input.vnf-name`' />
+                <parameter name='vf.vnf-data.vnf-request-input.tenant'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-request-input.tenant`' />
+                <parameter name='vf.vnf-data.vnf-request-input.aic-cloud-region'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-request-input.aic-cloud-region`' />
+                <parameter name='vf.vnf-data.vnf-request-input.aic-clli'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-request-input.aic-clli`' />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$prop.restapi.ss-vnf-assignments`"/>
+                <parameter name="outputPath" value="tmp.ss-vnf-url"/>
+                <parameter name="target" value="{service-instance-id}"/>
+                <parameter name="replacement" value="`$service-data.vnfs.vnf[$vnf-index].vnf-data.service-information.service-instance-id`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$tmp.ss-vnf-url`"/>
+                <parameter name="outputPath" value="tmp.ss-vnf-url"/>
+                <parameter name="target" value="{vnf-id}"/>
+                <parameter name="replacement" value="`$service-data.vnfs.vnf[$vnf-index].vnf-id`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.ss.vnf.templatefile`" />
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ss-vnf-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='PUT' />
+                <parameter name="responsePrefix" value="mdsal-ss-vnf" />
+                <outcome value='failure'>
+                    <set>
+                        <parameter name="error-message" value="`'Failed to persist self-serve vnf assignments during assign in MD-SAL. ' + $error-message`" />
+                    </set>
+                </outcome>
+                <outcome value='not-found'>
+                    <set>
+                        <parameter name="error-message" value="`'Failed to persist self-serve vnf assignments during assign in MD-SAL. ' + $error-message`" />
+                    </set>
+                </outcome>
+            </execute>
+        </block>
+    </method>
+</service-logic>

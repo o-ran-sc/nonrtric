@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.onap.ccsdk.parent</groupId>
+        <artifactId>binding-parent</artifactId>
+        <version>1.4.3</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>org.onap.sdnc.northbound</groupId>
+    <artifactId>generic-resource-api-model</artifactId>
+    <version>1.7.3-SNAPSHOT</version>
+    <packaging>bundle</packaging>
+
+    <name>sdnc-northbound :: generic-resource-api :: ${project.artifactId}</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.opendaylight.mdsal.binding.model.ietf</groupId>
+            <artifactId>rfc6991</artifactId>
+        </dependency>
+
+        
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <executions>
+                    <execution>
+                        <configuration>
+                            <executable>python</executable>
+                            <arguments>
+                                <argument>scripts/python/yang2props.py</argument>
+                                <argument>src/main/yang/GENERIC-RESOURCE-API.yang</argument>
+                                <argument>target/generic-resource-api.properties</argument>
+                            </arguments>
+                        </configuration>
+                        <id>generation</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

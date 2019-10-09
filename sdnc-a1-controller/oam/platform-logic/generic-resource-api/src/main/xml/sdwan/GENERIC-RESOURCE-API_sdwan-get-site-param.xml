@@ -1,0 +1,141 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='sdwan-get-site-param' mode='sync'>
+        <block atomic="true">
+            <for index='idx' start='0' end='`$vnf-request-input.vnf-input-parameters.param_length`' >
+                <block>
+                    <switch test="`$vnf-request-input.vnf-input-parameters.param[$idx].name == 'name'`">
+                        <outcome value='true'>
+                            <set>
+                                <parameter name='prop.site.name' value='`$vnf-request-input.vnf-input-parameters.param[$idx].value`' />
+                            </set>
+                        </outcome>
+                    </switch>
+                    <switch test="`$vnf-request-input.vnf-input-parameters.param[$idx].name == 'description'`">
+                        <outcome value='true'>
+                            <set>
+                                <parameter name='prop.site.description' value='`$vnf-request-input.vnf-input-parameters.param[$idx].value`' />
+                            </set>
+                        </outcome>
+                    </switch>
+                    <switch test="`$vnf-request-input.vnf-input-parameters.param[$idx].name == 'name'`">
+                        <outcome value='true'>
+                            <set>
+                                <parameter name='prop.site.name' value='`$vnf-request-input.vnf-input-parameters.param[$idx].value`' />
+                            </set>
+                        </outcome>
+                    </switch>
+                    <switch test="`$vnf-request-input.vnf-input-parameters.param[$idx].name == 'location-name'`">
+                        <outcome value='true'>
+                            <set>
+                                <parameter name='prop.site.location-name' value='`$vnf-request-input.vnf-input-parameters.param[$idx].value`' />
+                            </set>
+                        </outcome>
+                    </switch>
+                    <switch test="`$vnf-request-input.vnf-input-parameters.param[$idx].name == 'address'`">
+                        <outcome value='true'>
+                            <set>
+                                <parameter name='prop.site.location-address' value='`$vnf-request-input.vnf-input-parameters.param[$idx].value`' />
+                            </set>
+                        </outcome>
+                    </switch>
+                    <switch test="`$vnf-request-input.vnf-input-parameters.param[$idx].name == 'postcode'`">
+                        <outcome value='true'>
+                            <set>
+                                <parameter name='prop.site.location-postcode' value='`$vnf-request-input.vnf-input-parameters.param[$idx].value`' />
+                            </set>
+                        </outcome>
+                    </switch>
+                    <switch test="`$vnf-request-input.vnf-input-parameters.param[$idx].name == 'latitude'`">
+                        <outcome value='true'>
+                            <set>
+                                <parameter name='prop.site.location-latitude' value='`$vnf-request-input.vnf-input-parameters.param[$idx].value`' />
+                            </set>
+                        </outcome>
+                    </switch>
+                    <switch test="`$vnf-request-input.vnf-input-parameters.param[$idx].name == 'longitude'`">
+                        <outcome value='true'>
+                            <set>
+                                <parameter name='prop.site.location-longitude' value='`$vnf-request-input.vnf-input-parameters.param[$idx].value`' />
+                            </set>
+                        </outcome>
+                    </switch>
+                    <switch test="`$vnf-request-input.vnf-input-parameters.param[$idx].name == 'emails'`">
+                        <outcome value='true'>
+                            <block atomic="true">
+                                <set>
+                                    <parameter name='prop.site.emails' value='`$vnf-request-input.vnf-input-parameters.param[$idx].value`' />
+                                </set>
+                                <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >
+                                    <parameter name="original_string" value='`$prop.site.emails`'/>
+                                    <parameter name="regex" value=","/>
+                                    <parameter name="ctx_memory_result_key" value="prop.site.email"/>
+                                </execute>
+                            </block>
+                        </outcome>
+                    </switch>
+                    <switch test="`$vnf-request-input.vnf-input-parameters.param[$idx].name == 'type'`">
+                        <outcome value='true'>
+                            <block>
+                                <switch test="`$vnf-request-input.vnf-input-parameters.param[$idx].value`">
+                                    <outcome value=''>
+                                        <block></block>
+                                    </outcome>
+                                    <outcome value='Other'>
+                                        <set>
+                                            <parameter name='prop.site.type' value='`$vnf-request-input.vnf-input-parameters.param[$idx].value`' />
+                                            <parameter name='prop.site.sdwan' value='true' />
+                                        </set>
+                                    </outcome>
+                                </switch>
+                            </block>
+                        </outcome>
+                    </switch>
+                    <switch test="`$vnf-request-input.vnf-input-parameters.param[$idx].name == 'role'`">
+                        <outcome value='true'>
+                            <block atomic="true">
+                                <set>
+                                    <parameter name='prop.site.role' value='`$vnf-request-input.vnf-input-parameters.param[$idx].value`' />
+                                </set>
+                                <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >
+                                    <parameter name="original_string" value='`$prop.site.role`'/>
+                                    <parameter name="regex" value=","/>
+                                    <parameter name="ctx_memory_result_key" value="prop.site.roles"/>
+                                </execute>
+                            </block>
+                        </outcome>
+                    </switch>
+                    <switch test="`$vnf-request-input.vnf-input-parameters.param[$idx].name == 'controlPoint'`">
+                        <outcome value='true'>
+                            <block>
+                                <switch test="`$vnf-request-input.vnf-input-parameters.param[$idx].value`">
+                                    <outcome value=''>
+                                        <block></block>
+                                    </outcome>
+                                    <outcome value='Other'>
+                            <block atomic="true">
+                                <set>
+                                    <parameter name='prop.site.controlPoint' value='`$vnf-request-input.vnf-input-parameters.param[$idx].value`' />
+                                </set>
+                                <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >
+                                    <parameter name="original_string" value='`$prop.site.controlPoint`'/>
+                                    <parameter name="regex" value=","/>
+                                    <parameter name="ctx_memory_result_key" value="prop.site.controlpoints"/>
+                                </execute>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                            </block>
+                        </outcome>
+                    </switch>
+                    <return status='success'>
+                        <parameter name="ack-final-indicator" value="Y" />
+                        <parameter name="error-code" value="200" />
+                        <parameter name="error-message" value="`$error-message`" />
+                    </return>
+                </block>
+            </for>
+        </block>
+    </method>
+</service-logic>

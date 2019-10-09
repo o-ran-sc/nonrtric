@@ -1,0 +1,117 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='validate-service-input' mode='sync'>
+        <block atomic="true">
+            <switch test='`$service-topology-operation-input.sdnc-request-header.svc-action`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="sdnc-request-header.svc-action is a required input" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$service-topology-operation-input.sdnc-request-header.svc-request-id`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="sdnc-request-header.svc-request-id is a required input" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$service-topology-operation-input.request-information.request-action`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="request-information.request-action is a required input" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$service-topology-operation-input.sdnc-request-header.svc-action`'>
+                <outcome value='assign'>
+                    <block atomic="true">
+                        <switch test='`$service-topology-operation-input.service-information.subscription-service-type`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="service-information.subscription-service-type is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$service-topology-operation-input.service-information.global-customer-id`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="service-information.global-customer-id is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$service-topology-operation-input.service-information.onap-model-information.model-invariant-uuid`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="service-information.onap-model-information.model-invariant-uuid is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$service-topology-operation-input.service-information.onap-model-information.model-uuid`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="service-information.onap-model-information.model-uuid is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$service-topology-operation-input.service-information.onap-model-information.model-name`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="service-information.onap-model-information.model-name is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='changeassign'>
+                    <block atomic="true">
+                        <switch test='`$service-topology-operation-input.service-information.onap-model-information.model-invariant-uuid`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="service-information.onap-model-information.model-invariant-uuid is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$service-topology-operation-input.service-information.onap-model-information.model-uuid`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="service-information.onap-model-information.model-uuid is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$service-topology-operation-input.service-information.onap-model-information.model-name`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="service-information.onap-model-information.model-name is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+            </switch>
+        </block>
+    </method>
+</service-logic>

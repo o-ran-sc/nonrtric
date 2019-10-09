@@ -1,0 +1,153 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='vf-module-topology-operation' mode='sync'>
+        <block atomic="true">
+            <call module='GENERIC-RESOURCE-API' rpc='validate-vf-module-input' mode='sync' ></call>
+            <switch test='`$vf-module-topology-operation-input.sdnc-request-header.svc-action`'>
+                <outcome value='assign'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name='skip-mdsal-update' value='Y' />
+                        </set>
+                        <set>
+                            <parameter name='ack-final' value='N' />
+                        </set>
+                    </block>
+                </outcome>
+                <outcome value='unassign'>
+                    <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-operation-unassign' mode='sync' ></call>
+                </outcome>
+                <outcome value='changeassign'>
+                    <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-operation-changeassign' mode='sync' ></call>
+                </outcome>
+                <outcome value='create'>
+                    <block atomic="true">
+                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.FileRecorder">
+                            <parameter name="file" value="/opt/opendaylight/current/data/log/svclogic.log"/>
+                            <parameter name="field1" value="__TIMESTAMP__"/>
+                            <parameter name="field2" value="request-action"/>
+                            <parameter name="field3" value='`$vf-module-topology-operation-input.request-information.request-action`'/>
+                        </record>
+                        <switch test='`$vf-module-topology-operation-input.request-information.request-action`'>
+                            <outcome value='CreateSDWANVpnInstance'>
+                                <call module='GENERIC-RESOURCE-API' rpc='sdwan-vf-operation-vpn-create' mode='sync' ></call>
+                            </outcome>
+                            <outcome value='CreateSDWANSiteInstance'>
+                                <call module='GENERIC-RESOURCE-API' rpc='sdwan-vf-operation-site-create' mode='sync' ></call>
+                            </outcome>
+                            <outcome value='CreateSDWANDeviceInstance'>
+                                <call module='GENERIC-RESOURCE-API' rpc='sdwan-vf-operation-device-create' mode='sync' ></call>
+                            </outcome>
+                            <outcome value='CreateSDWANLanPortInstance'>
+                                <call module='GENERIC-RESOURCE-API' rpc='sdwan-vf-operation-lanport-create' mode='sync' ></call>
+                            </outcome>
+                            <outcome value='CreateSDWANPortInstance'>
+                                <call module='GENERIC-RESOURCE-API' rpc='sdwan-vf-operation-wanport-create' mode='sync' ></call>
+                            </outcome>
+                            <outcome value='Other'>
+                                <block></block>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='activate'>
+                    <block atomic="true">
+                        <switch test='`$vf-module-topology-operation-input.request-information.request-action`'>
+                            <outcome value='ActivateSDWANVpnInstance'>
+                                <call module='GENERIC-RESOURCE-API' rpc='sdwan-vf-operation-vpn-activate' mode='sync' ></call>
+                            </outcome>
+                            <outcome value='ActivateSDWANSiteInstance'>
+                                <call module='GENERIC-RESOURCE-API' rpc='sdwan-vf-operation-site-activate' mode='sync' ></call>
+                            </outcome>
+                            <outcome value='ActivateSDWANDeviceInstance'>
+                                <call module='GENERIC-RESOURCE-API' rpc='sdwan-vf-operation-device-activate' mode='sync' ></call>
+                            </outcome>
+                            <outcome value='ActivateSDWANLanPortInstance'>
+                                <call module='GENERIC-RESOURCE-API' rpc='sdwan-vf-operation-lanport-activate' mode='sync' ></call>
+                            </outcome>
+                            <outcome value='ActivateSDWANPortInstance'>
+                                <call module='GENERIC-RESOURCE-API' rpc='sdwan-vf-operation-wanport-activate' mode='sync' ></call>
+                            </outcome>
+                            <outcome value='Other'>
+                                <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-operation-activate' mode='sync' ></call>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='deactivate'>
+                    <block atomic="true">
+                        <switch test='`$vf-module-topology-operation-input.request-information.request-action`'>
+                            <outcome value='DeactivateSDWANVpnInstance'>
+                                <call module='GENERIC-RESOURCE-API' rpc='sdwan-vf-operation-vpn-deactivate' mode='sync' ></call>
+                            </outcome>
+                            <outcome value='DeactivateSDWANSiteInstance'>
+                                <call module='GENERIC-RESOURCE-API' rpc='sdwan-vf-operation-site-deactivate' mode='sync' ></call>
+                            </outcome>
+                            <outcome value='DeactivateSDWANDeviceInstance'>
+                                <call module='GENERIC-RESOURCE-API' rpc='sdwan-vf-operation-device-deactivate' mode='sync' ></call>
+                            </outcome>
+                            <outcome value='DeactivateSDWANLanPortInstance'>
+                                <call module='GENERIC-RESOURCE-API' rpc='sdwan-vf-operation-lanport-deactivate' mode='sync' ></call>
+                            </outcome>
+                            <outcome value='DeactivateSDWANPortInstance'>
+                                <call module='GENERIC-RESOURCE-API' rpc='sdwan-vf-operation-wanport-deactivate' mode='sync' ></call>
+                            </outcome>
+                            <outcome value='Other'>
+                                <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-operation-deactivate' mode='sync' ></call>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='delete'>
+                    <block atomic="true">
+                        <switch test='`$vf-module-topology-operation-input.request-information.request-action`'>
+                            <outcome value='DeleteSDWANVpnInstance'>
+                                <call module='GENERIC-RESOURCE-API' rpc='sdwan-vf-operation-vpn-delete' mode='sync' ></call>
+                            </outcome>
+                            <outcome value='DeleteSDWANSiteInstance'>
+                                <call module='GENERIC-RESOURCE-API' rpc='sdwan-vf-operation-site-delete' mode='sync' ></call>
+                            </outcome>
+                            <outcome value='DeleteSDWANDeviceInstance'>
+                                <call module='GENERIC-RESOURCE-API' rpc='sdwan-vf-operation-device-delete' mode='sync' ></call>
+                            </outcome>
+                            <outcome value='DeleteSDWANLanPortInstance'>
+                                <call module='GENERIC-RESOURCE-API' rpc='sdwan-vf-operation-lanport-delete' mode='sync' ></call>
+                            </outcome>
+                            <outcome value='DeleteSDWANPortInstance'>
+                                <call module='GENERIC-RESOURCE-API' rpc='sdwan-vf-operation-wanport-delete' mode='sync' ></call>
+                            </outcome>
+                            <outcome value='Other'>
+                                <block></block>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='update'>
+                    <block atomic="true">
+                        <switch test='`$vf-module-topology-operation-input.request-information.request-action`'>
+                            <outcome value='SdwanBandwidthChange'>
+                                <call module='GENERIC-RESOURCE-API' rpc='sdwan-bandwidth-policy-change' mode='sync' ></call>
+                            </outcome>
+                            <outcome value='Other'>
+                                <block></block>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`$vnf-topology-operation-input.sdnc-request-header.svc-action + ' is not a valid svc-action'`" />
+                    </return>
+                </outcome>
+            </switch>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="`$error-message`" />
+            </return>
+        </block>
+    </method>
+</service-logic>

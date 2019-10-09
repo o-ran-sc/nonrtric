@@ -1,0 +1,181 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='get-complex-resource-service-model' mode='sync'>
+        <block atomic="true">
+            <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT * from COMPLEX_RESOURCE 
+  WHERE customization_uuid = $get-complex-resource-service-model-input.customization-uuid'
+  pfx='db.complex-resource'>
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`'No complex resource found for customization UUID ' + $get-complex-resource-service-model-input.customization-uuid`" />
+                    </return>
+                </outcome>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`'No complex resource found for customization UUID ' + $get-complex-resource-service-model-input.customization-uuid`" />
+                    </return>
+                </outcome>
+            </get-resource>
+            <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT * from ATTRIBUTE_VALUE_PAIR 
+  WHERE resource_uuid = $db.complex-resource.uuid
+  and resource_type = $db.complex-resource.type'
+  pfx='db.av-pair'>
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`'No attribute found for customization UUID ' + $get-complex-resource-service-model-input.customization-uuid`" />
+                    </return>
+                </outcome>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`'No attribute found for customization UUID ' + $get-complex-resource-service-model-input.customization-uuid`" />
+                    </return>
+                </outcome>
+                <outcome value='success'>
+                    <for silentFailure='true' index='idx' start='0' end='`$db.av-pair_length`' >
+                        <block atomic='true'>
+                            <switch test="`$db.sdn-circuit-req[$idx].attribute-name == 'cr_function' `">
+                                <outcome value='true'>
+                                    <set>
+                                        <parameter name='get-complex-resource-service-model-output.cr-function' value='`$db.sdn-circuit-req[$idx].attribute-value`' />
+                                    </set>
+                                </outcome>
+                            </switch>
+                            <switch test="`$db.sdn-circuit-req[$idx].attribute-name == 'cr_role'`">
+                                <outcome value='true'>
+                                    <set>
+                                        <parameter name="get-complex-resource-service-model-output.cr-role" value="`$db.sdn-circuit-req[$idx].attribute-value`" />
+                                    </set>
+                                </outcome>
+                            </switch>
+                            <switch test="`$db.sdn-circuit-req[$idx].attribute-name == 'cr_type'`">
+                                <outcome value='true'>
+                                    <set>
+                                        <parameter name="get-complex-resource-service-model-output.cr-type" value="`$db.sdn-circuit-req[$idx].attribute-value`" />
+                                    </set>
+                                </outcome>
+                            </switch>
+                            <switch test="`$db.sdn-circuit-req[$idx].attribute-name == 'network_collection_function'`">
+                                <outcome value='true'>
+                                    <set>
+                                        <parameter name="get-complex-resource-service-model-output.network-collection-function" value="`$db.sdn-circuit-req[$idx].attribute-value`" />
+                                    </set>
+                                </outcome>
+                            </switch>
+                            <switch test="`$db.sdn-circuit-req[$idx].attribute-name == 'network_collection_description'`">
+                                <outcome value='true'>
+                                    <set>
+                                        <parameter name="get-complex-resource-service-model-output.network-collection-description" value="`$db.sdn-circuit-req[$idx].attribute-value`" />
+                                    </set>
+                                </outcome>
+                            </switch>
+                            <switch test="`$db.sdn-circuit-req[$idx].attribute-name == 'subinterface_network_quantity'`">
+                                <outcome value='true'>
+                                    <set>
+                                        <parameter name="get-complex-resource-service-model-output.subinterface-network-quantity" value="`$db.sdn-circuit-req[$idx].attribute-value`" />
+                                    </set>
+                                </outcome>
+                            </switch>
+                        </block>
+                    </for>
+                </outcome>
+            </get-resource>
+            <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT * from NETWORK_MODEL 
+  WHERE complex_resource_uuid = $db.complex-resource.uuid'
+  pfx='db.network-model'>
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="No network model found" />
+                    </return>
+                </outcome>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="No network model found" />
+                    </return>
+                </outcome>
+            </get-resource>
+            <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT * from RESOURCE_POLICY_TO_TARGET_NODE_MAPPING
+  WHERE target_node_uuid = $db.network-model.uuid
+  AND target_node_customization_uuid = db.network-model.customization-uuid'
+  pfx='db.respoltargetnodemap' >
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="No resource_policy_to_target_node_mapping found"  />
+                    </return>
+                </outcome>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="No resource_policy_to_target_node_mapping found"  />
+                    </return>
+                </outcome>
+            </get-resource>
+            <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key="SELECT * from RESOURCE_POLICY  
+  WHERE policy_uuid = $db.respoltargetnodemap.policy_uuid
+  and policy_type = 'ecomp.policies.External' "
+  pfx='db.resource-policy'>
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`'No complex resource found for customization UUID ' + $get-complex-resource-service-model-input.customization-uuid`" />
+                    </return>
+                </outcome>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`'No complex resource found for customization UUID ' + $get-complex-resource-service-model-input.customization-uuid`" />
+                    </return>
+                </outcome>
+                <outcome value='success'>
+                    <for silentFailure='true' index='idx' start='0' end='`$db.resource-policy_length`' >
+                        <block atomic='true'>
+                            <switch test="`$db.resource-policy[$idx].property-type == 'Name' and $db.resource-policy[$idx].property-name == 'Network Collection Name'`">
+                                <outcome value='true'>
+                                    <set>
+                                        <parameter name="get-complex-resource-service-model-output.network-naming-policy" value="`$db.resource-policy[$idx].policy-name`" />
+                                    </set>
+                                </outcome>
+                            </switch>
+                            <switch test="`$db.resource-policy[$idx].property-type == 'subnetwork assignments' and $db.resource-policy[$idx].property-name == 'subnet'`">
+                                <outcome value='true'>
+                                    <set>
+                                        <parameter name="get-complex-resource-service-model-output.subnet-assignment-policy" value="`$db.resource-policy[$idx].policy-name`" />
+                                    </set>
+                                </outcome>
+                            </switch>
+                            <switch test="`$db.resource-policy[$idx].property-type == 'network assignments' and $db.resource-policy[$idx].property-name == 'route target'`">
+                                <outcome value='true'>
+                                    <set>
+                                        <parameter name="get-complex-resource-service-model-output.vpn-binding-policy" value="`$db.resource-policy[$idx].policy-name`" />
+                                    </set>
+                                </outcome>
+                            </switch>
+                        </block>
+                    </for>
+                </outcome>
+            </get-resource>
+        </block>
+    </method>
+</service-logic>

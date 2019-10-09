@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>SDN-C AdminPortal</title>
+<script class="init">
+    $(document).ready(function() {
+    $('#max_server_speed').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+
+</head>
+<body>
+
+<div class="well well-sm">
+<h3>Max Server Speed</h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+
+	<% if (priv == 'A'){ %>
+		<div class="actions" style="padding:15px 0px;">
+    	<button class="btn btn-primary" data-toggle="modal" data-target="#add_max_server_speed">
+      	Add Max Server Speed
+    	</button>
+		</div>
+	<% } %>
+
+	<table id="max_server_speed" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+		  <th>*ID</th>
+          <th>*Server Model</th>
+		  <th>*EVC Count</th>
+          <th>*Max Speed</th>
+          <th>*Unit</th>
+          <th>Description</th>
+		   <% if(priv == 'A'){ %>
+          <th>Action</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+      <% rows.forEach( function(row) { %> 
+        <tr>
+            <td><%= row.max_server_speed_id %></td>
+            <td><%= row.server_model %></td>
+            <td><%= row.evc_count %></td>
+            <td><%= row.max_speed %></td>
+            <td><%= row.unit %></td>
+            <td><%= row.description %></td>
+			<% if(priv == 'A') { %>
+            <td>
+				<button type="button" class="btn btn-default btn-xs"
+                    onclick="updateMaxServerSpeed('<%=row.max_server_speed_id %>','<%= row.server_model %>','<%= row.evc_count %>','<%= row.max_speed %>','<%= row.unit %>', '<%= row.description %>');">Update</button>
+				<button type="button" class="btn btn-default btn-xs"
+                   onclick="deleteMaxServerSpeed('<%= row.max_server_speed_id %>');">Delete</button>
+            </td>
+            <% } %>
+
+        </tr>
+    <% }); %>
+      </tbody>
+    </table>
+
+</div>
+
+<% include ../partials/max_server_speed %>
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+<script type="text/javascript">
+function submitMaxServerSpeed(form)
+{
+    var errorMsg='';
+	var server_model = '';
+	var evc_count = '';
+	var max_speed = '';
+	var unit = '';
+	var description = '';
+
+    if ( form.name == 'addForm' )
+    {
+		server_model = form.nf_server_model;
+		evc_count = form.nf_evc_count;
+        max_speed = form.nf_max_speed;
+		unit = form.nf_unit;
+		description = form.nf_description;
+    }
+    else
+    {
+		server_model = form.uf_server_model;
+		evc_count = form.uf_evc_count;
+        max_speed = form.uf_max_speed;
+		unit = form.uf_unit;
+		description = form.uf_description;
+    }
+
+
+    if ( (server_model.value == null) || (server_model.value == "") || isblank(server_model.value) )
+    {
+        errorMsg += 'Server Model is required.<br>';
+    }
+    if ( (evc_count.value == null) || (evc_count.value == "") || isblank(evc_count.value) )
+    {
+        errorMsg += 'EVC Count is required.<br>';
+    }
+    if ( (max_speed.value == null) || (max_speed.value == "") || isblank(max_speed.value) ){
+        errorMsg += 'Max Speed is required.<br>';
+    }
+    if ( (unit.value == null) || (unit.value == "") || isblank(unit.value) ){
+        errorMsg += 'Unit is required.<br>';
+    }
+    if( errorMsg.length > 0 ) {
+        bootbox.alert(errorMsg);
+        return;
+    }
+
+    if ( !isDigit(evc_count.value) )
+    {
+        bootbox.alert('EVC Count must be a number.');
+        return;
+    }
+    if ( !isDigit(max_speed.value) )
+    {
+        bootbox.alert('Max Speed must be a number.');
+        return;
+    }
+
+    form.submit();
+}
+
+function updateMaxServerSpeed(max_server_speed_id,server_model,evc_count,max_speed,unit,description) {
+
+    document.getElementById('uf_max_server_speed_id').value=max_server_speed_id;
+    document.getElementById('uf_server_model').value=server_model;
+    document.getElementById('uf_evc_count').value=evc_count;
+    document.getElementById('uf_max_speed').value=max_speed;
+    document.getElementById('uf_unit').value=unit;
+    document.getElementById('uf_description').value=description;
+
+    document.getElementById('uf_key_max_server_speed_id').value=max_server_speed_id;
+
+    $('#update_max_server_speed').modal('show');
+}
+
+function deleteMaxServerSpeed(max_server_speed_id) {
+
+    bootbox.confirm({
+        message: "Are you sure you want to delete MAX_SERVER_SPEED [" + max_server_speed_id + "]",
+        callback: function(result) {
+            if ( result )
+            {
+				location.assign("/resalloc/deleteMaxServerSpeed?max_server_speed_id=" + max_server_speed_id);
+            }
+            return;
+        },
+        buttons: {
+            cancel: {
+                label: "Cancel"
+            },
+            confirm: {
+                label: "Yes"
+            }
+        }
+    });
+}
+
+</script>
+
+</body>
+</html>
+

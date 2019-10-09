@@ -1,0 +1,694 @@
+[
+    {
+        "id": "7e3f5196.e417c",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 111.42857360839844,
+        "y": 60.00000047683716,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "10b8528a.211b1d"
+            ]
+        ]
+    },
+    {
+        "id": "10b8528a.211b1d",
+        "type": "service-logic",
+        "name": "VNF-API ${project.version}",
+        "module": "VNF-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='VNF-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 276.59523010253906,
+        "y": 60.166672229766846,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "59ca7427.fd225c"
+            ]
+        ]
+    },
+    {
+        "id": "26eeb6ea.2961fa",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 188.92858123779297,
+        "y": 163.00000047683716,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "54500f80.f1dde",
+                "b5bb0315.e5f83",
+                "e31262f8.d4f67",
+                "b5584bc7.3ea138",
+                "7c0c33c0.92e28c",
+                "e091d3c2.33bc",
+                "ed72da5e.728ab8",
+                "579e919a.69eb7",
+                "d72290b6.13cfc",
+                "7b79f91e.a56ff8",
+                "723df9f0.89be98"
+            ]
+        ]
+    },
+    {
+        "id": "54500f80.f1dde",
+        "type": "set",
+        "name": "set: order-status = PendingUpdate",
+        "xml": "<set>\n\t<parameter name=\"vnf-instance-service-data.oper-status.order-status\" value=\"PendingUpdate\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 484.37345123291016,
+        "y": 887.4610962867737,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b5bb0315.e5f83",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n\t<parameter name=\"error-code\" value=\"200\" />",
+        "comments": "",
+        "x": 422.6432647705078,
+        "y": 1022.2609753608704,
+        "z": "2cd468d5.f36418",
+        "wires": []
+    },
+    {
+        "id": "e31262f8.d4f67",
+        "type": "switchNode",
+        "name": "switch: service-data order-status = Active",
+        "xml": "<switch test=\"`$vnf-instance-service-data.oper-status.order-status == Active`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 495.2063674926758,
+        "y": 163.66666984558105,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "83191ca8.35ba"
+            ]
+        ]
+    },
+    {
+        "id": "1634a3cd.229f0c",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='error-code' value='400'/>\n\t<parameter name='error-message' value='Invalid service-data order status'/>",
+        "comments": "",
+        "x": 899.9561920166016,
+        "y": 166.00004768371582,
+        "z": "2cd468d5.f36418",
+        "wires": []
+    },
+    {
+        "id": "83191ca8.35ba",
+        "type": "other",
+        "name": "false",
+        "xml": "<outcome value='false'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 741.3729934692383,
+        "y": 163.24992179870605,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "1634a3cd.229f0c"
+            ]
+        ]
+    },
+    {
+        "id": "59ca7427.fd225c",
+        "type": "method",
+        "name": "method vnf-instance-topology-changeassign",
+        "xml": "<method rpc='vnf-instance-topology-changeassign' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 233.65078735351562,
+        "y": 109.88889026641846,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "26eeb6ea.2961fa"
+            ]
+        ]
+    },
+    {
+        "id": "b5584bc7.3ea138",
+        "type": "set",
+        "name": "set: last-action ",
+        "xml": "<set>\n\t<parameter name=\"vnf-instance-service-data.oper-status.last-action\" value=\"`$vnf-instance-service-data.request-information.request-action`\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 422.3810043334961,
+        "y": 933.4761109352112,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7c0c33c0.92e28c",
+        "type": "set",
+        "name": "set: last-order-status = order-status",
+        "xml": "<set>\n\t<parameter name=\"vnf-instance-service-data.oper-status.last-order-status\" value=\"`$vnf-instance-service-data.oper-status.order-status`\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 486.3810043334961,
+        "y": 841.4761109352112,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e091d3c2.33bc",
+        "type": "call",
+        "name": "call: vnf-instance-topology-assign-vnf-networks",
+        "xml": "<call module='VNF-API' rpc='vnf-instance-topology-assign-vnf-networks' mode='sync' >",
+        "comments": "",
+        "outputs": 1,
+        "x": 514.3174896240234,
+        "y": 209.77777767181396,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "579e919a.69eb7",
+        "type": "save",
+        "name": "delete l3-network relationship",
+        "xml": "<delete plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\tresource=\"generic-vnf:relationship-list\" \n\t\tkey=\"generic-vnf.vnf-id = $vnf-instance-topology-operation-input.vnf-instance-request-information.vnf-instance-id \n\t\t\tAND related-to = l3-network\" >",
+        "comments": "",
+        "outputs": 1,
+        "x": 461.793701171875,
+        "y": 348.7938804626465,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "12305cd8.a70123"
+            ]
+        ]
+    },
+    {
+        "id": "6fb4fdc9.79da44",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='error-code' value='500'/>\n\t<parameter name='error-message' value=\"`'An error occurred while deleting existing l3-network relationship in AnAI with with vnf-instance-id = ' + $vnf-instance-topology-operation-input.vnf-instance-request-information.vnf-instance-id + ' vnf-instance update FAILED.'`\"/>",
+        "comments": "",
+        "x": 863.6506958007812,
+        "y": 349.07925033569336,
+        "z": "2cd468d5.f36418",
+        "wires": []
+    },
+    {
+        "id": "ed72da5e.728ab8",
+        "type": "save",
+        "name": "get AnAI - vnf-instance",
+        "xml": "<get-resource plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\tresource=\"generic-vnf\" \n\t\tkey=\"generic-vnf.vnf-id = $vnf-instance-topology-operation-input.vnf-instance-request-information.vnf-instance-id\" \n\tpfx=\"tmp.AnAI.vnf-instance\" >",
+        "comments": "",
+        "outputs": 1,
+        "x": 440.0952453613281,
+        "y": 253.55556106567383,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "75c63427.b2a41c",
+                "58db1cd8.34dbb4"
+            ]
+        ]
+    },
+    {
+        "id": "f6b122b7.d730f",
+        "type": "save",
+        "name": "save l3-network relationship",
+        "xml": "<save plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\tresource=\"generic-vnf:relationship-list\" \n\t\tkey=\"generic-vnf.vnf-id = $vnf-instance-topology-operation-input.vnf-instance-request-information.vnf-instance-id\" >\n\t\n\t<parameter name=\"relationship-list.relationship[0].related-to\" value=\"l3-network\" />\n\t<parameter name=\"relationship-list.relationship[0].relationship-data[0].relationship-key\" value=\"l3-network.network-id\" />\n\t<parameter name=\"relationship-list.relationship[0].relationship-data[0].relationship-value\" value=\"`$vnf-instance-service-data.vnf-instance-topology-information.vnf-assignments.vnf-networks[$i].network-id`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 780.8290863037109,
+        "y": 438.56689071655273,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "f6bb7bd9.76bae8"
+            ]
+        ]
+    },
+    {
+        "id": "f6bb7bd9.76bae8",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 989.9733276367188,
+        "y": 438.61392307281494,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "93b5ee1e.221ca"
+            ]
+        ]
+    },
+    {
+        "id": "d72290b6.13cfc",
+        "type": "for",
+        "name": "for i : SERVICE_DATA vnf-networks",
+        "xml": "<for index=\"i\" start=\"0\" end=\"`$vnf-instance-service-data.vnf-instance-topology-information.vnf-assignments.vnf-networks_length`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 481.0475311279297,
+        "y": 439.1068420410156,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "f6b122b7.d730f"
+            ]
+        ]
+    },
+    {
+        "id": "5921c16b.5bd97",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='error-code' value='500'/>\n\t<parameter name='error-message' value=\"`'Failed to update vnf-instance l3-network relationship in AnAI. ' + $error-message`\"/>",
+        "comments": "",
+        "x": 1335.166160583496,
+        "y": 818.8087882995605,
+        "z": "2cd468d5.f36418",
+        "wires": []
+    },
+    {
+        "id": "93b5ee1e.221ca",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1152.9520797729492,
+        "y": 438.84466648101807,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "5921c16b.5bd97",
+                "76dff6e4.660dd8",
+                "625f1fb8.1f18e",
+                "efc90ef3.b0a7c",
+                "e4edafac.b2e1f"
+            ]
+        ]
+    },
+    {
+        "id": "625f1fb8.1f18e",
+        "type": "save",
+        "name": "delete relationship: vf-module",
+        "xml": "<delete plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\tresource=\"generic-vnf:relationship-list\" \n\t\tkey=\"generic-vnf.vnf-id = $vnf-instance-topology-operation-input.vnf-instance-request-information.vnf-instance-id \n\t\t\tAND related-to = l3-network\" >",
+        "comments": "",
+        "outputs": 1,
+        "x": 1392.4521484375,
+        "y": 486.7734680175781,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e63dcfd2.1a0d3",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='error-code' value='500'/>\n\t<parameter name='error-message' value=\"`'An error occurred while querying generic-vnf from AnAI with vnf-instance-id = ' + $vnf-instance-topology-operation-input.vnf-instance-request-information.vnf-instance-id`\"/>",
+        "comments": "",
+        "x": 821.3808288574219,
+        "y": 254.26970291137695,
+        "z": "2cd468d5.f36418",
+        "wires": []
+    },
+    {
+        "id": "12305cd8.a70123",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 677.6508178710938,
+        "y": 349.222225189209,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "6fb4fdc9.79da44"
+            ]
+        ]
+    },
+    {
+        "id": "7b79f91e.a56ff8",
+        "type": "set",
+        "name": "Set final indicator to Y",
+        "xml": "<set>\n<parameter name=\"ack-final\" value=\"Y\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 444.00003814697266,
+        "y": 979.4286103248596,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "efc90ef3.b0a7c",
+        "type": "for",
+        "name": "for i : tmp.AnAI.vnf-instance.relationship",
+        "xml": "<for index=\"i\" start=\"0\" end=\"`$tmp.AnAI.vnf-instance.relationship-list.relationship_length`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1425.4164733886719,
+        "y": 577.6667003631592,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "68e41057.68fce"
+            ]
+        ]
+    },
+    {
+        "id": "68e41057.68fce",
+        "type": "switchNode",
+        "name": "switch: relationship.related-to",
+        "xml": "<switch test=\"`$tmp.AnAI.vnf-instance.relationship-list.relationship[$i].related-to`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1732.4164428710938,
+        "y": 577.3810205459595,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "ac07b174.2f5ff"
+            ]
+        ]
+    },
+    {
+        "id": "ac07b174.2f5ff",
+        "type": "other",
+        "name": "l3-network",
+        "xml": "<outcome value='l3-network'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1955.4164428710938,
+        "y": 577.3810205459595,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "87f7cb69.27eb38"
+            ]
+        ]
+    },
+    {
+        "id": "a34ca0bd.1f59f",
+        "type": "for",
+        "name": "for j : tmp.AnAI.vnf-instance.relationship-data",
+        "xml": "<for index=\"j\" start=\"0\" end=\"`$tmp.AnAI.vnf-instance.relationship-list.relationship[$i].relationship-data_length`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1866.6664123535156,
+        "y": 711.0238761901855,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "867a21f.18c04e"
+            ]
+        ]
+    },
+    {
+        "id": "867a21f.18c04e",
+        "type": "save",
+        "name": "save l3-network relationship",
+        "xml": "<save plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\tresource=\"generic-vnf:relationship-list\" \n\t\tkey=\"generic-vnf.vnf-id = $vnf-instance-topology-operation-input.vnf-instance-request-information.vnf-instance-id\" >\n\t\n\t<parameter name=\"relationship-list.relationship[0].related-to\" value=\"l3-network\" />\n\t<parameter name=\"relationship-list.relationship[0].relationship-data[0].relationship-key\" value=\"l3-network.network-id\" />\n\t<parameter name=\"relationship-list.relationship[0].relationship-data[0].relationship-value\" value=\"`$tmp.AnAI.vnf-instance.relationship-list.relationship[$i].relationship-data[$j].relationship-value`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 2224.2378692626953,
+        "y": 711.1667594909668,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "6dbc5217.3d6f5c",
+                "6f428706.86a3b8"
+            ]
+        ]
+    },
+    {
+        "id": "6dbc5217.3d6f5c",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2482.2378692626953,
+        "y": 711.1667594909668,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "6609cec3.9d5d2"
+            ]
+        ]
+    },
+    {
+        "id": "75c63427.b2a41c",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 629.9524192810059,
+        "y": 253.69842910766602,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "e63dcfd2.1a0d3"
+            ]
+        ]
+    },
+    {
+        "id": "76dff6e4.660dd8",
+        "type": "set",
+        "name": "set error-message",
+        "xml": "<set>\n\t<parameter name=\"error-code\" value=\"500\" />\n\t<parameter name=\"error-message\" value=\"`' | An error occurred while saving l3-network relationship with network-id = ' + $vnf-instance-service-data.vnf-instance-topology-information.vnf-assignments.vnf-networks[$i].network-id + ' for vnf-instance with vnf-instance-id = ' + $vnf-instance-topology-operation-input.vnf-instance-request-information.vnf-instance-id`\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1357.4522171020508,
+        "y": 438.7738342285156,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6609cec3.9d5d2",
+        "type": "set",
+        "name": "set error-message",
+        "xml": "<set>\n\t<parameter name=\"error-code\" value=\"500\" />\n\t<parameter name=\"error-message\" value=\"`$error-message + ' | An error occurred while during rollback of l3-network relationship for vnf-instance with vnf-instance-id = ' + $vnf-instance-topology-operation-input.vnf-instance-request-information.vnf-instance-id`\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2680.2021865844727,
+        "y": 710.7024040222168,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "58db1cd8.34dbb4",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 636.8452453613281,
+        "y": 296.1388740539551,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "e63dcfd2.1a0d3"
+            ]
+        ]
+    },
+    {
+        "id": "6f428706.86a3b8",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2492.5235748291016,
+        "y": 752.3452558517456,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "6609cec3.9d5d2"
+            ]
+        ]
+    },
+    {
+        "id": "f7812e3d.246cd",
+        "type": "switchNode",
+        "name": "set: vnf-instance-service-data...vnf-networks_length = 0",
+        "xml": "<set>\n\t<parameter name=\"vnf-instance-service-data.vnf-instance-topology-information.vnf-assignments.vnf-networks_length\" value = \"0\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1126.888816833496,
+        "y": 394.7142753601074,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a018c1ed.7323c",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 828.1388168334961,
+        "y": 394.7142753601074,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "f7812e3d.246cd"
+            ]
+        ]
+    },
+    {
+        "id": "723df9f0.89be98",
+        "type": "switchNode",
+        "name": "switch: vnf-instance-service-data...vnf-networks_length",
+        "xml": "<switch test=\"`$vnf-instance-service-data.vnf-instance-topology-information.vnf-assignments.vnf-networks_length`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 540.6388244628906,
+        "y": 394.7142753601074,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "a018c1ed.7323c"
+            ]
+        ]
+    },
+    {
+        "id": "b1a06442.5f4468",
+        "type": "switchNode",
+        "name": "set: tmp.AnAI.vnf-instance.relationship-list.relationship_length = 0",
+        "xml": "<set>\n\t<parameter name=\"tmp.AnAI.vnf-instance.relationship-list.relationship_length\" value = \"0\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 2139.2380905151367,
+        "y": 533.6667156219482,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "cfeea49e.1a6548",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1821.4880905151367,
+        "y": 533.6667156219482,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "b1a06442.5f4468"
+            ]
+        ]
+    },
+    {
+        "id": "e4edafac.b2e1f",
+        "type": "switchNode",
+        "name": "switch: tmp.AnAI.vnf-instance.relationship-list.relationship_length",
+        "xml": "<switch test=\"`$tmp.AnAI.vnf-instance.relationship-list.relationship_length`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1502.9880981445312,
+        "y": 533.6667156219482,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "cfeea49e.1a6548"
+            ]
+        ]
+    },
+    {
+        "id": "87f7cb69.27eb38",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1571.250015258789,
+        "y": 663.7500133514404,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "baf72e9.09de9d",
+                "a34ca0bd.1f59f"
+            ]
+        ]
+    },
+    {
+        "id": "baf72e9.09de9d",
+        "type": "switchNode",
+        "name": "switch: tmp.AnAI.vnf-instance.relationship-list.relationship[$i].relationship-data_length",
+        "xml": "<switch test=\"`$tmp.AnAI.vnf-instance.relationship-list.relationship[$i].relationship-data_length`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1990.7500228881836,
+        "y": 664.0000171661377,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "ddf26f89.730fa"
+            ]
+        ]
+    },
+    {
+        "id": "ddf26f89.730fa",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2367.250015258789,
+        "y": 664.0000171661377,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            [
+                "a4584fcd.7e598"
+            ]
+        ]
+    },
+    {
+        "id": "a4584fcd.7e598",
+        "type": "switchNode",
+        "name": "set: tmp.AnAI.vnf-instance.relationship-list.relationship[$i].relationship-data_length = 0",
+        "xml": "<set>\n\t<parameter name=\"tmp.AnAI.vnf-instance.relationship-list.relationship[$i].relationship-data_length\" value = \"0\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 2752.000015258789,
+        "y": 664.0000171661377,
+        "z": "2cd468d5.f36418",
+        "wires": [
+            []
+        ]
+    }
+]

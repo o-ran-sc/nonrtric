@@ -1,0 +1,1862 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='1-4-2-20181108R1'>
+    <method rpc='vf-module-topology-operation-assign' mode='sync'>
+        <block atomic="true">
+            <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                <parameter name='contextPrefix' value='prop' />
+            </execute>
+            <set>
+                <parameter name="so.ack-final-indicator" value="Y" />
+                <parameter name="so.response-code" value="500" />
+                <parameter name="so.notification-url" value="`$vf-module-topology-operation-input.sdnc-request-header.svc-notification-url`" />
+                <parameter name="so.svc-request-id" value="`$vf-module-topology-operation-input.sdnc-request-header.svc-request-id`" />
+                <parameter name="so.service-type" value="`$vf-module-topology-operation-input.service-information.subscription-service-type`" />
+                <parameter name="so.service-instance-id" value="`$vf-module-topology-operation-input.service-information.service-instance-id`" />
+            </set>
+            <switch test='`$vf-module-topology-operation-input.vf-module-request-input.cloud-owner`'>
+                <outcome value=''>
+                    <block></block>
+                </outcome>
+                <outcome value='Other'>
+                    <set>
+                        <parameter name='prop.cloud-region.cloud-owner' value='`$vf-module-topology-operation-input.vf-module-request-input.cloud-owner`' />
+                    </set>
+                </outcome>
+            </switch>
+            <switch test='`$vf-module-topology-operation-input.request-information.request-action`'>
+                <outcome value='CreateVfModuleInstance'>
+                    <block></block>
+                </outcome>
+                <outcome value='Other'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name="error-message" value="If svc-action is 'assign' then request-action must be 'CreateVfModuleInstance'" />
+                        </set>
+                        <block atomic='true'>
+                            <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="`$error-message`" />
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+            </switch>
+            <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT * from VF_MODULE_MODEL WHERE customization_uuid = $vf-module-topology-operation-input.vf-module-information.onap-model-information.model-customization-uuid'
+  pfx='db.vf-module-model'>
+                <outcome value='failure'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name="error-message" value="Error reading VF_MODULE_MODEL table" />
+                        </set>
+                        <block atomic='true'>
+                            <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="`$error-message`" />
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+                <outcome value='not-found'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name="error-message" value="`'No model found for VF module customization UUID ' + $vf-module-topology-operation-input.vf-module-information.onap-model-information.model-customization-uuid`" />
+                        </set>
+                        <block atomic='true'>
+                            <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="`$error-message`" />
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+            </get-resource>
+            <set>
+                <parameter name='vnf-index' value='-1' />
+            </set>
+            <switch test='`$service-data.vnfs.vnf_length`'>
+                <outcome value=''>
+                    <block atomic="true">
+                        <set>
+                            <parameter name="error-message" value="There are no VNFs defined in MD-SAL" />
+                        </set>
+                        <block atomic='true'>
+                            <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="`$error-message`" />
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+                <outcome value='Other'>
+                    <for index='idx' start='0' end='`$service-data.vnfs.vnf_length`' >
+                        <switch test='`$service-data.vnfs.vnf[$idx].vnf-id == $vf-module-topology-operation-input.vnf-information.vnf-id`'>
+                            <outcome value='true'>
+                                <block>
+                                    <set>
+                                        <parameter name='vnf-index' value='`$idx`' />
+                                    </set>
+                                    <break/>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </for>
+                </outcome>
+            </switch>
+            <switch test='`$vnf-index`'>
+                <outcome value='-1'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name="error-message" value="`'Unable to find VNF ID ' + $vf-module-topology-operation-input.vnf-information.vnf-id + ' in MD-SAL'`" />
+                        </set>
+                        <block atomic='true'>
+                            <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="`$error-message`" />
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+            </switch>
+            <call module='GENERIC-RESOURCE-API' rpc='self-serve-vf-module-forking-logic' mode='sync' ></call>
+            <switch test="`$ss.self-serve-flag`">
+                <outcome value='true'>
+                    <block atomic="true">
+                        <call module='GENERIC-RESOURCE-API' rpc='self-serve-vf-module-assign' mode='sync' >
+                            <outcome value='failure'>
+                                <block atomic="true">
+                                    <set>
+                                        <parameter name="error-message" value="`'Failed to create self-serve assignment for vf-module with vf-module-id=' + $vf-module-topology-operation-input.vf-module-information.vf-module-id + ' with error: ' + $error-message`" />
+                                    </set>
+                                    <block atomic='true'>
+                                        <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="`$error-message`" />
+                                        </return>
+                                    </block>
+                                </block>
+                            </outcome>
+                        </call>
+                        <set>
+                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-level-oper-status.order-status'
+  value='PendingCreate' />
+                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-level-oper-status.last-rpc-action'
+  value='`$vf-module-topology-operation-input.sdnc-request-header.svc-action`' />
+                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-level-oper-status.last-action'
+  value='`$vf-module-topology-operation-input.request-information.request-action`' />
+                        </set>
+                        <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >
+                            <parameter name='filename' value='/var/tmp/ss-vnfend.log' />
+                        </execute>
+                        <set>
+                            <parameter name="so.response-code" value="200" />
+                        </set>
+                        <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                        <return status='success'>
+                            <parameter name="ack-final-indicator" value="Y" />
+                            <parameter name="error-code" value="200" />
+                            <parameter name="error-message" value="`$error-message`" />
+                        </return>
+                    </block>
+                </outcome>
+                <outcome value='false'>
+                    <block atomic="true">
+                        <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module_length`'>
+                            <outcome value=''>
+                                <set>
+                                    <parameter name='vf-module-index' value='0' />
+                                </set>
+                            </outcome>
+                            <outcome value='Other'>
+                                <block>
+                                    <set>
+                                        <parameter name='vf-module-index' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module_length`' />
+                                    </set>
+                                    <for index='idx' start='0' end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module_length`' >
+                                        <switch test='`$vf-module-topology-operation-input.vf-module-information.vf-module-id == $service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$idx].vf-module-id`'>
+                                            <outcome value='true'>
+                                                <block atomic="true">
+                                                    <set>
+                                                        <parameter name="error-message" value="`'VF module id ' + $service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$idx].vf-module-id
+       + ' already exists, and status is ' + $service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$idx].vf-module-data.vf-module-level-oper-status.order-status`" />
+                                                    </set>
+                                                    <block atomic='true'>
+                                                        <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                        <return status='failure'>
+                                                            <parameter name='ack-final' value='Y'/>
+                                                            <parameter name="error-code" value="500" />
+                                                            <parameter name="error-message" value="`$error-message`" />
+                                                        </return>
+                                                    </block>
+                                                </block>
+                                            </outcome>
+                                        </switch>
+                                    </for>
+                                </block>
+                            </outcome>
+                        </switch>
+                        <set>
+                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module_length' value='`$vf-module-index + 1`' />
+                        </set>
+                        <set>
+                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-id'
+   value='`$vf-module-topology-operation-input.vf-module-information.vf-module-id`' />
+                        </set>
+                        <set>
+                            <parameter name='tmp.vf-module-topology.vf-module-topology-identifier.vf-module-id' value='`$vf-module-topology-operation-input.vf-module-information.vf-module-id`' />
+                            <parameter name='tmp.vf-module-topology.vf-module-topology-identifier.vf-module-name' value='`$vf-module-topology-operation-input.vf-module-request-input.vf-module-name`' />
+                            <parameter name='tmp.vf-module-topology.vf-module-topology-identifier.vf-module-type' value='`$vf-module-topology-operation-input.vf-module-information.vf-module-type`' />
+                            <parameter name='tmp.vf-module-topology.tenant' value='`$vf-module-topology-operation-input.vf-module-request-input.tenant`' />
+                            <parameter name='tmp.vf-module-topology.aic-cloud-region' value='`$vf-module-topology-operation-input.vf-module-request-input.aic-cloud-region`' />
+                        </set>
+                        <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="cloud-region" 
+		key="cloud-region.cloud-owner = $prop.cloud-region.cloud-owner AND 
+		     cloud-region.cloud-region-id = $vf-module-topology-operation-input.vf-module-request-input.aic-cloud-region"
+        pfx='aai.cloud-region' local-only='false' >
+                            <outcome value='not-found'>
+                                <block atomic="true">
+                                    <set>
+                                        <parameter name="error-message" value="Cloud region not found in AAI" />
+                                    </set>
+                                    <block atomic='true'>
+                                        <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="`$error-message`" />
+                                        </return>
+                                    </block>
+                                </block>
+                            </outcome>
+                            <outcome value='failure'>
+                                <block atomic="true">
+                                    <set>
+                                        <parameter name="error-message" value="Error retrieving cloud region from AAI.  Is AAI down?" />
+                                    </set>
+                                    <block atomic='true'>
+                                        <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="`$error-message`" />
+                                        </return>
+                                    </block>
+                                </block>
+                            </outcome>
+                        </get-resource>
+                        <for index='idx' start='0' end='`$aai.cloud-region.relationship-list.relationship_length`' >
+                            <switch test='`$aai.cloud-region.relationship-list.relationship[$idx].related-to`'>
+                                <outcome value='complex'>
+                                    <block atomic="true">
+                                        <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split'>
+                                            <parameter name='ctx_memory_result_key' value='aai-uid-split' />
+                                            <parameter name='original_string' value='`$aai.cloud-region.relationship-list.relationship[$idx].related-link`' />
+                                            <parameter name='regex' value='/' />
+                                        </execute>
+                                        <set>
+                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.aic-clli'
+   value='`$aai-uid-split[$aai-uid-split_length - 1]`' />
+                                        </set>
+                                        <break/>
+                                    </block>
+                                </outcome>
+                            </switch>
+                        </for>
+                        <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.aic-clli`'>
+                            <outcome value=''>
+                                <block atomic="true">
+                                    <set>
+                                        <parameter name="error-message" value="`'Unable to find aic-clli in AAI for aic-cloud-region ' + $vf-module-topology-operation-input.vf-module-request-input.aic-cloud-region`" />
+                                    </set>
+                                    <block atomic='true'>
+                                        <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="`$error-message`" />
+                                        </return>
+                                    </block>
+                                </block>
+                            </outcome>
+                        </switch>
+                        <switch test='`$vf-module-topology-operation-input.vf-module-information.onap-model-information.model-invariant-uuid`'>
+                            <outcome value=''>
+                                <set>
+                                    <parameter name='tmp.vf-module-topology.onap-model-information.model-invariant-uuid'
+  value='`$db.vf-module-model.invariant-uuid`' />
+                                </set>
+                            </outcome>
+                            <outcome value='Other'>
+                                <set>
+                                    <parameter name='tmp.vf-module-topology.onap-model-information.model-invariant-uuid'
+  value='`$vf-module-topology-operation-input.vf-module-information.onap-model-information.model-invariant-uuid`' />
+                                </set>
+                            </outcome>
+                        </switch>
+                        <switch test='`$vf-module-topology-operation-input.vf-module-information.onap-model-information.model-uuid`'>
+                            <outcome value=''>
+                                <set>
+                                    <parameter name='tmp.vf-module-topology.onap-model-information.model-uuid'
+  value='`$db.vf-module-model.uuid`' />
+                                </set>
+                            </outcome>
+                            <outcome value='Other'>
+                                <set>
+                                    <parameter name='tmp.vf-module-topology.onap-model-information.model-uuid'
+  value='`$vf-module-topology-operation-input.vf-module-information.onap-model-information.model-uuid`' />
+                                </set>
+                            </outcome>
+                        </switch>
+                        <switch test='`$vf-module-topology-operation-input.vf-module-information.onap-model-information.model-version`'>
+                            <outcome value=''>
+                                <set>
+                                    <parameter name='tmp.vf-module-topology.onap-model-information.model-version'
+  value='`$db.vf-module-model.version`' />
+                                </set>
+                            </outcome>
+                            <outcome value='Other'>
+                                <set>
+                                    <parameter name='tmp.vf-module-topology.onap-model-information.model-version'
+  value='`$vf-module-topology-operation-input.vf-module-information.onap-model-information.model-version`' />
+                                </set>
+                            </outcome>
+                        </switch>
+                        <switch test='`$vf-module-topology-operation-input.vf-module-information.onap-model-information.model-name`'>
+                            <outcome value=''>
+                                <set>
+                                    <parameter name='tmp.vf-module-topology.onap-model-information.model-name'
+  value='`$db.vf-module-model.name`' />
+                                </set>
+                            </outcome>
+                            <outcome value='Other'>
+                                <set>
+                                    <parameter name='tmp.vf-module-topology.onap-model-information.model-name'
+  value='`$vf-module-topology-operation-input.vf-module-information.onap-model-information.model-name`' />
+                                </set>
+                            </outcome>
+                        </switch>
+                        <set>
+                            <parameter name='tmp.vf-module-topology.onap-model-information.model-customization-uuid'
+  value='`$vf-module-topology-operation-input.vf-module-information.onap-model-information.model-customization-uuid`' />
+                        </set>
+                        <switch test='`$vf-module-topology-operation-input.vf-module-request-input.vf-module-name`'>
+                            <outcome value=''>
+                                <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-operation-assign-no-preload' mode='sync' >
+                                    <outcome value='failure'>
+                                        <block atomic="true">
+                                            <set>
+                                                <parameter name="error-message" value="`'from-preload flag is true but could not find preload information for VF module name ' + $vf-module-topology-operation-input.vf-module-request-input.vf-module-name`" />
+                                            </set>
+                                            <block atomic='true'>
+                                                <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                <return status='failure'>
+                                                    <parameter name='ack-final' value='Y'/>
+                                                    <parameter name="error-code" value="500" />
+                                                    <parameter name="error-message" value="`$error-message`" />
+                                                </return>
+                                            </block>
+                                        </block>
+                                    </outcome>
+                                </call>
+                            </outcome>
+                            <outcome value='Other'>
+                                <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                    <parameter name='restapiUrl' value="`$prop.controller.url + $prop.restapi.preloadinformation + $vf-module-topology-operation-input.vf-module-request-input.vf-module-name + '/vf-module'`" />
+                                    <parameter name='restapiUser' value='`$prop.controller.user`' />
+                                    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                                    <parameter name='format' value='json' />
+                                    <parameter name='httpMethod' value='GET' />
+                                    <parameter name="responsePrefix" value="mdsal-preload" />
+                                    <outcome value='failure'>
+                                        <block>
+                                            <switch test='`$mdsal-preload.response-code`'>
+                                                <outcome value='404'>
+                                                    <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-operation-assign-no-preload' mode='sync' >
+                                                        <outcome value='failure'>
+                                                            <block atomic="true">
+                                                                <set>
+                                                                    <parameter name="error-message" value="`'from-preload flag is true but could not find preload information for VF module name ' + $vf-module-topology-operation-input.vf-module-request-input.vf-module-name`" />
+                                                                </set>
+                                                                <block atomic='true'>
+                                                                    <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                    <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                    <return status='failure'>
+                                                                        <parameter name='ack-final' value='Y'/>
+                                                                        <parameter name="error-code" value="500" />
+                                                                        <parameter name="error-message" value="`$error-message`" />
+                                                                    </return>
+                                                                </block>
+                                                            </block>
+                                                        </outcome>
+                                                    </call>
+                                                </outcome>
+                                                <outcome value='Other'>
+                                                    <block atomic="true">
+                                                        <set>
+                                                            <parameter name="error-message" value="Error retrieving preload-information" />
+                                                        </set>
+                                                        <block atomic='true'>
+                                                            <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                            <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                            <return status='failure'>
+                                                                <parameter name='ack-final' value='Y'/>
+                                                                <parameter name="error-code" value="500" />
+                                                                <parameter name="error-message" value="`$error-message`" />
+                                                            </return>
+                                                        </block>
+                                                    </block>
+                                                </outcome>
+                                            </switch>
+                                        </block>
+                                    </outcome>
+                                    <outcome value='success'>
+                                        <block>
+                                            <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-operation-assign-preload' mode='sync' >
+                                                <outcome value='failure'>
+                                                    <block atomic='true'>
+                                                        <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                        <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                        <return status='failure'>
+                                                            <parameter name='ack-final' value='Y'/>
+                                                            <parameter name="error-code" value="500" />
+                                                            <parameter name="error-message" value="`$error-message`" />
+                                                        </return>
+                                                    </block>
+                                                </outcome>
+                                            </call>
+                                        </block>
+                                    </outcome>
+                                </execute>
+                            </outcome>
+                        </switch>
+                        <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >
+                            <parameter name='filename' value='/var/tmp/bgb-vfmoduleb.log' />
+                        </execute>
+                        <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-information.from-preload`'>
+                            <outcome value='false'>
+                                <set>
+                                    <parameter name='automated-assignment' value='true' />
+                                </set>
+                            </outcome>
+                            <outcome value='true'>
+                                <set>
+                                    <parameter name='automated-assignment' value='false' />
+                                </set>
+                            </outcome>
+                        </switch>
+                        <for silentFailure='true' index='vm-type-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm_length`' >
+                            <for silentFailure='true' index='vnfc-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names_length`' >
+                                <for silentFailure='true' index='vnfc-network-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data_length`' >
+                                    <block atomic="true">
+                                        <set>
+                                            <parameter name='vnf-network-index' value='-1' />
+                                        </set>
+                                        <for index='idx' start='0' end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network_length`' >
+                                            <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-network-role
+  == $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$idx].network-role`'>
+                                                <outcome value='true'>
+                                                    <block atomic="true">
+                                                        <set>
+                                                            <parameter name='vnf-network-index' value='`$idx`' />
+                                                        </set>
+                                                        <set>
+                                                            <parameter name='$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].network-id'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$idx].network-id`' />
+                                                        </set>
+                                                        <break/>
+                                                    </block>
+                                                </outcome>
+                                            </switch>
+                                        </for>
+                                        <switch test='`$vnf-network-index`'>
+                                            <outcome value='-1'>
+                                                <block atomic="true">
+                                                    <set>
+                                                        <parameter name="error-message" value="`'VNFC network role '
+      + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-network-role
+      + ' is not found in VNF network list'
+      `" />
+                                                    </set>
+                                                    <block atomic='true'>
+                                                        <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                        <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                        <return status='failure'>
+                                                            <parameter name='ack-final' value='Y'/>
+                                                            <parameter name="error-code" value="500" />
+                                                            <parameter name="error-message" value="`$error-message`" />
+                                                        </return>
+                                                    </block>
+                                                </block>
+                                            </outcome>
+                                        </switch>
+                                        <for index='subnet-role-index' start='0'
+  end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-subnet_length`' >
+                                            <for index='address-family-index' start='0'
+  end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-subnet[$subnet-role-index].vnfc-ip-assignments_length`' >
+                                                <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-subnet[$subnet-role-index].vnfc-ip-assignments[$address-family-index].vnfc-subnet-ip_length`'>
+                                                    <outcome value=''>
+                                                        <block></block>
+                                                    </outcome>
+                                                    <outcome value='0'>
+                                                        <block></block>
+                                                    </outcome>
+                                                    <outcome value='Other'>
+                                                        <block atomic="true">
+                                                            <set>
+                                                                <parameter name='tmp.address-family'
+  value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-subnet[$subnet-role-index].vnfc-ip-assignments[$address-family-index].vnfc-address-family`' />
+                                                            </set>
+                                                            <block atomic="true">
+                                                                <set>
+                                                                    <parameter name='af-count' value='0' />
+                                                                </set>
+                                                                <for index='subnet-data-index' start='0' end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].subnets-data.subnet-data_length`' >
+                                                                    <switch test='`$tmp.address-family
+  == $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].subnets-data.subnet-data[$subnet-data-index].ip-version`'>
+                                                                        <outcome value='true'>
+                                                                            <block atomic="true">
+                                                                                <set>
+                                                                                    <parameter name='subnet-id' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].subnets-data.subnet-data[$subnet-data-index].sdnc-subnet-id`' />
+                                                                                </set>
+                                                                                <set>
+                                                                                    <parameter name='af-count' value='`$af-count + 1`' />
+                                                                                </set>
+                                                                            </block>
+                                                                        </outcome>
+                                                                    </switch>
+                                                                </for>
+                                                                <switch test='`$af-count`'>
+                                                                    <outcome value='1'>
+                                                                        <set>
+                                                                            <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-subnet[$subnet-role-index].vnfc-ip-assignments[$address-family-index].subnet-id'
+  value='`$subnet-id`' />
+                                                                        </set>
+                                                                    </outcome>
+                                                                    <outcome value='Other'>
+                                                                        <block atomic="true">
+                                                                            <set>
+                                                                                <parameter name='subnet-id' value='-1' />
+                                                                            </set>
+                                                                            <for index='subnet-data-index' start='0' end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].subnets-data.subnet-data_length`' >
+                                                                                <switch test='`$tmp.address-family
+  == $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].subnets-data.subnet-data[$subnet-data-index].ip-version`'>
+                                                                                    <outcome value='true'>
+                                                                                        <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].subnets-data.subnet-data[$subnet-data-index].network-start-address`'>
+                                                                                            <outcome value=''>
+                                                                                                <block atomic="true">
+                                                                                                    <set>
+                                                                                                        <parameter name="error-message" value="`'SDNC subnet id '
+      + $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].subnets-data.subnet-data[$subnet-data-index].sdnc-subnet-id
+      + ' does not have network-start-address populated'`" />
+                                                                                                    </set>
+                                                                                                    <block atomic='true'>
+                                                                                                        <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                                                        <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                                                        <return status='failure'>
+                                                                                                            <parameter name='ack-final' value='Y'/>
+                                                                                                            <parameter name="error-code" value="500" />
+                                                                                                            <parameter name="error-message" value="`$error-message`" />
+                                                                                                        </return>
+                                                                                                    </block>
+                                                                                                </block>
+                                                                                            </outcome>
+                                                                                            <outcome value='Other'>
+                                                                                                <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].subnets-data.subnet-data[$subnet-data-index].cidr-mask`'>
+                                                                                                    <outcome value=''>
+                                                                                                        <block atomic="true">
+                                                                                                            <set>
+                                                                                                                <parameter name="error-message" value="`'SDNC subnet id '
+      + $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].subnets-data.subnet-data[$subnet-data-index].sdnc-subnet-id
+      + ' does not have cidr-mask populated'`" />
+                                                                                                            </set>
+                                                                                                            <block atomic='true'>
+                                                                                                                <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                                                                <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                                                                <return status='failure'>
+                                                                                                                    <parameter name='ack-final' value='Y'/>
+                                                                                                                    <parameter name="error-code" value="500" />
+                                                                                                                    <parameter name="error-message" value="`$error-message`" />
+                                                                                                                </return>
+                                                                                                            </block>
+                                                                                                        </block>
+                                                                                                    </outcome>
+                                                                                                    <outcome value='Other'>
+                                                                                                        <block atomic="true">
+                                                                                                            <switch test='`$tmp.address-family`'>
+                                                                                                                <outcome value='ipv4'>
+                                                                                                                    <set>
+                                                                                                                        <parameter name='ip-type' value='IPv4' />
+                                                                                                                    </set>
+                                                                                                                </outcome>
+                                                                                                                <outcome value='ipv6'>
+                                                                                                                    <set>
+                                                                                                                        <parameter name='ip-type' value='IPv6' />
+                                                                                                                    </set>
+                                                                                                                </outcome>
+                                                                                                            </switch>
+                                                                                                            <execute plugin="com.att.sdnctl.sli.plugin.ipAddressTools.IpAddressTool" method="isInSameSubnet">
+                                                                                                                <parameter name="firstIPAddr" value="`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].subnets-data.subnet-data[$subnet-data-index].network-start-address`" />
+                                                                                                                <parameter name="secondIPAddr" value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-subnet[$subnet-role-index].vnfc-ip-assignments[$address-family-index].vnfc-subnet-ip[0].vnfc-ip-address`" />
+                                                                                                                <parameter name="subnet" value="`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].subnets-data.subnet-data[$subnet-data-index].cidr-mask`" />
+                                                                                                                <parameter name="ipType" value="`$ip-type`" />
+                                                                                                                <outcome value='success'>
+                                                                                                                    <block atomic="true">
+                                                                                                                        <set>
+                                                                                                                            <parameter name='subnet-id' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].subnets-data.subnet-data[$subnet-data-index].sdnc-subnet-id`' />
+                                                                                                                        </set>
+                                                                                                                        <break/>
+                                                                                                                    </block>
+                                                                                                                </outcome>
+                                                                                                            </execute>
+                                                                                                        </block>
+                                                                                                    </outcome>
+                                                                                                </switch>
+                                                                                            </outcome>
+                                                                                        </switch>
+                                                                                    </outcome>
+                                                                                </switch>
+                                                                            </for>
+                                                                            <switch test='`$subnet-id`'>
+                                                                                <outcome value='-1'>
+                                                                                    <block atomic="true">
+                                                                                        <set>
+                                                                                            <parameter name="error-message" value="`'Not able to find VNF network subnet that contains address '
+      + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-subnet[$subnet-role-index].vnfc-ip-assignments[$address-family-index].vnfc-subnet-ip[0].vnfc-ip-address
+      `" />
+                                                                                        </set>
+                                                                                        <block atomic='true'>
+                                                                                            <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                                            <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                                            <return status='failure'>
+                                                                                                <parameter name='ack-final' value='Y'/>
+                                                                                                <parameter name="error-code" value="500" />
+                                                                                                <parameter name="error-message" value="`$error-message`" />
+                                                                                            </return>
+                                                                                        </block>
+                                                                                    </block>
+                                                                                </outcome>
+                                                                            </switch>
+                                                                            <set>
+                                                                                <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-subnet[$subnet-role-index].vnfc-ip-assignments[$address-family-index].subnet-id' value='`$subnet-id`' />
+                                                                            </set>
+                                                                        </block>
+                                                                    </outcome>
+                                                                </switch>
+                                                            </block>
+                                                        </block>
+                                                    </outcome>
+                                                </switch>
+                                            </for>
+                                        </for>
+                                    </block>
+                                </for>
+                            </for>
+                        </for>
+                        <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >
+                            <parameter name='filename' value='/var/tmp/bgb-vfmodulec.log' />
+                        </execute>
+                        <for silentFailure='true' index='vm-type-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm_length`' >
+                            <block atomic="true">
+                                <for silentFailure='true' index='network-role-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network_length`' >
+                                    <block atomic="true">
+                                        <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT * from VFC_RELATED_NETWORK_ROLE where vfc_customization_uuid = $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].model-customization-uuid
+    and network_role = $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].network-role'
+  pfx='db.vnf-related-network-role[]'>
+                                            <outcome value='failure'>
+                                                <block atomic='true'>
+                                                    <set>
+                                                        <parameter name="error-message" value="Error reading VFC_RELATED_NETWORK_ROLE table" />
+                                                    </set>
+                                                    <block atomic='true'>
+                                                        <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                        <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                        <return status='failure'>
+                                                            <parameter name='ack-final' value='Y'/>
+                                                            <parameter name="error-code" value="500" />
+                                                            <parameter name="error-message" value="`$error-message`" />
+                                                        </return>
+                                                    </block>
+                                                </block>
+                                            </outcome>
+                                            <outcome value='success'>
+                                                <for index='db-related-network-index' start='0' end='`$db.vnf-related-network-role_length`' >
+                                                    <block atomic="true">
+                                                        <set>
+                                                            <parameter name='found-related-network' value='false' />
+                                                        </set>
+                                                        <for silentFailure='true' index='vnf-network-index' start='0' end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network_length`' >
+                                                            <block atomic="true">
+                                                                <for silentFailure='true' index='related-network-index' start='0' end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].related-networks.related-network_length`' >
+                                                                    <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].related-networks.related-network[$related-network-index].network-role
+  == $db.vnf-related-network-role[$db-related-network-index].related-network-role`'>
+                                                                        <outcome value='true'>
+                                                                            <block atomic="true">
+                                                                                <set>
+                                                                                    <parameter name='found-related-network' value='true' />
+                                                                                </set>
+                                                                                <set>
+                                                                                    <parameter name='saved-vnf-network-index' value='`$vnf-network-index`' />
+                                                                                    <parameter name='saved-related-network-index' value='`$related-network-index`' />
+                                                                                </set>
+                                                                                <break/>
+                                                                            </block>
+                                                                        </outcome>
+                                                                    </switch>
+                                                                </for>
+                                                                <switch test='`$found-related-network`'>
+                                                                    <outcome value='true'>
+                                                                        <break/>
+                                                                    </outcome>
+                                                                </switch>
+                                                            </block>
+                                                        </for>
+                                                        <switch test='`$found-related-network`'>
+                                                            <outcome value='false'>
+                                                                <block atomic='true'>
+                                                                    <set>
+                                                                        <parameter name="error-message" value="`'Unable to find related network '
+      + $db.vnf-related-network-role[$db-related-network-index].related-network-role + ' in vnf-networks'`" />
+                                                                    </set>
+                                                                    <block atomic='true'>
+                                                                        <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                        <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                        <return status='failure'>
+                                                                            <parameter name='ack-final' value='Y'/>
+                                                                            <parameter name="error-code" value="500" />
+                                                                            <parameter name="error-message" value="`$error-message`" />
+                                                                        </return>
+                                                                    </block>
+                                                                </block>
+                                                            </outcome>
+                                                        </switch>
+                                                        <set>
+                                                            <parameter name='$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].is-trunked'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$saved-vnf-network-index].is-trunked`' />
+                                                            <parameter name='$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].segmentation-id'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$saved-vnf-network-index].segmentation-id`' />
+                                                        </set>
+                                                        <set>
+                                                            <parameter name='rn-index' value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].related-networks.related-network_length`' />
+                                                        </set>
+                                                        <switch test='`$rn-index`'>
+                                                            <outcome value=''>
+                                                                <set>
+                                                                    <parameter name='rn-index' value='0' />
+                                                                </set>
+                                                            </outcome>
+                                                        </switch>
+                                                        <set>
+                                                            <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].related-networks.related-network[$rn-index].network-id'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$saved-vnf-network-index].related-networks.related-network[$saved-related-network-index].network-id`' />
+                                                            <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].related-networks.related-network[$rn-index].network-role'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$saved-vnf-network-index].related-networks.related-network[$saved-related-network-index].network-role`' />
+                                                            <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].related-networks.related-network[$rn-index].vlan-tags.vlan-interface'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$saved-vnf-network-index].related-networks.related-network[$saved-related-network-index].vlan-tags.vlan-interface`' />
+                                                            <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].related-networks.related-network[$rn-index].vlan-tags.lower-tag-id'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$saved-vnf-network-index].related-networks.related-network[$saved-related-network-index].vlan-tags.lower-tag-id`' />
+                                                            <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].related-networks.related-network[$rn-index].vlan-tags.upper-tag-id'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$saved-vnf-network-index].related-networks.related-network[$saved-related-network-index].vlan-tags.upper-tag-id`' />
+                                                            <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].related-networks.related-network[$rn-index].vlan-tags.is-private'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$saved-vnf-network-index].related-networks.related-network[$saved-related-network-index].vlan-tags.is-private`' />
+                                                        </set>
+                                                        <set>
+                                                            <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].related-networks.related-network_length'
+  value='`$rn-index + 1`' />
+                                                        </set>
+                                                    </block>
+                                                </for>
+                                            </outcome>
+                                        </get-resource>
+                                    </block>
+                                </for>
+                            </block>
+                        </for>
+                        <set>
+                            <parameter name='vf-module-object-path'
+ value="`'restconf/config/GENERIC-RESOURCE-API:services/service/'
+ + $vf-module-topology-operation-input.service-information.service-instance-id
+ + '/service-data/vnfs/vnf/'
+ + $service-data.vnfs.vnf[$vnf-index].vnf-id
+ + '/vnf-data/vf-modules/vf-module/'
+ + $vf-module-topology-operation-input.vf-module-information.vf-module-id
+ + '/vf-module-data/vf-module-topology/'`"/>
+                            <parameter name='vnf-object-path'
+ value="`'restconf/config/GENERIC-RESOURCE-API:services/service/'
+ + $vf-module-topology-operation-input.service-information.service-instance-id
+ + '/service-data/vnfs/vnf/'
+ + $service-data.vnfs.vnf[$vnf-index].vnf-id
+ + '/vnf-data/vnf-topology/'`"/>
+                            <parameter name='service-object-path'
+ value="`'restconf/config/GENERIC-RESOURCE-API:services/service/'
+ + $vf-module-topology-operation-input.service-information.service-instance-id
+ + '/service-data/service-topology/'`"/>
+                        </set>
+                        <update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+   resource="vf-module"
+   key="vf-module.vf-module-id = $service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-id
+      AND generic-vnf.vnf-id = $service-data.vnfs.vnf[$vnf-index].vnf-id"
+   force="true" pfx="tmp.AnAI-data">
+                            <parameter name="vf-module-name" value="`$tmp.vf-module-topology.vf-module-topology-identifier.vf-module-name`" />
+                            <parameter name="model-invariant-id" value="`$tmp.vf-module-topology.onap-model-information.model-invariant-uuid`" />
+                            <parameter name="model-version-id" value="`$tmp.vf-module-topology.onap-model-information.model-uuid`" />
+                            <parameter name="model-customization-id" value="`$tmp.vf-module-topology.onap-model-information.model-customization-uuid`" />
+                            <parameter name="selflink" value="`$vf-module-object-path`" />
+                            <parameter name="automated-assignment" value="`$automated-assignment`" />
+                            <outcome value='failure'>
+                                <block atomic="true">
+                                    <set>
+                                        <parameter name="error-message" value="Error updating vf-module in AAI" />
+                                    </set>
+                                    <block atomic='true'>
+                                        <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                        <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="`$error-message`" />
+                                        </return>
+                                    </block>
+                                </block>
+                            </outcome>
+                            <outcome value='not-found'>
+                                <block atomic="true">
+                                    <set>
+                                        <parameter name="error-message" value="`'No vf-module found in AAI for vf module ID ' + $service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-id`" />
+                                    </set>
+                                </block>
+                            </outcome>
+                        </update>
+                        <for silentFailure='true' index='vm-type-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm_length`' >
+                            <block atomic="true">
+                                <for silentFailure='true' index='vnfc-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names_length`' >
+                                    <block atomic="true">
+                                        <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].nfc-naming-code`'>
+                                            <outcome value=''>
+                                                <set>
+                                                    <parameter name='tmp.nfc-naming-code' value='DEFAULT' />
+                                                </set>
+                                            </outcome>
+                                            <outcome value='Other'>
+                                                <set>
+                                                    <parameter name='tmp.nfc-naming-code' value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].nfc-naming-code`' />
+                                                </set>
+                                            </outcome>
+                                        </switch>
+                                        <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].nfc-function`'>
+                                            <outcome value=''>
+                                                <set>
+                                                    <parameter name='tmp.nfc-function' value='DEFAULT' />
+                                                </set>
+                                            </outcome>
+                                            <outcome value='Other'>
+                                                <set>
+                                                    <parameter name='tmp.nfc-function' value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].nfc-function`' />
+                                                </set>
+                                            </outcome>
+                                        </switch>
+                                        <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].invariant-uuid`'>
+                                            <outcome value=''>
+                                                <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="vnfc" 
+	key="vnfc.vnfc-name = $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-name" >
+                                                    <parameter name="vnfc-name" value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-name`" />
+                                                    <parameter name="nfc-naming-code" value="`$tmp.nfc-naming-code`" />
+                                                    <parameter name="nfc-function" value="`$tmp.nfc-function`" />
+                                                    <parameter name="orchestration-status" value="`PendingCreate`" />
+                                                    <parameter name="in-maint" value="true" />
+                                                    <parameter name="prov-status" value="`PREPROV`" />
+                                                    <outcome value='failure'>
+                                                        <block atomic="true">
+                                                            <set>
+                                                                <parameter name="error-message" value="Error saving vnfc to AAI" />
+                                                            </set>
+                                                            <block atomic='true'>
+                                                                <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                <return status='failure'>
+                                                                    <parameter name='ack-final' value='Y'/>
+                                                                    <parameter name="error-code" value="500" />
+                                                                    <parameter name="error-message" value="`$error-message`" />
+                                                                </return>
+                                                            </block>
+                                                        </block>
+                                                    </outcome>
+                                                    <outcome value='not-found'>
+                                                        <block atomic="true">
+                                                            <set>
+                                                                <parameter name="error-message" value="Error saving vnfc to AAI" />
+                                                            </set>
+                                                            <block atomic='true'>
+                                                                <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                <return status='failure'>
+                                                                    <parameter name='ack-final' value='Y'/>
+                                                                    <parameter name="error-code" value="500" />
+                                                                    <parameter name="error-message" value="`$error-message`" />
+                                                                </return>
+                                                            </block>
+                                                        </block>
+                                                    </outcome>
+                                                </save>
+                                            </outcome>
+                                            <outcome value='Other'>
+                                                <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="vnfc" 
+	key="vnfc.vnfc-name = $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-name" >
+                                                    <parameter name="vnfc-name" value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-name`" />
+                                                    <parameter name="nfc-naming-code" value="`$tmp.nfc-naming-code`" />
+                                                    <parameter name="nfc-function" value="`$tmp.nfc-function`" />
+                                                    <parameter name="model-invariant-id" value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].invariant-uuid`" />
+                                                    <parameter name="model-version-id" value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].uuid`" />
+                                                    <parameter name="model-customization-id" value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].model-customization-uuid`" />
+                                                    <parameter name="orchestration-status" value="`PendingCreate`" />
+                                                    <parameter name="in-maint" value="true" />
+                                                    <parameter name="prov-status" value="`PREPROV`" />
+                                                    <outcome value='failure'>
+                                                        <block atomic="true">
+                                                            <set>
+                                                                <parameter name="error-message" value="Error saving vnfc to AAI" />
+                                                            </set>
+                                                            <block atomic='true'>
+                                                                <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                <return status='failure'>
+                                                                    <parameter name='ack-final' value='Y'/>
+                                                                    <parameter name="error-code" value="500" />
+                                                                    <parameter name="error-message" value="`$error-message`" />
+                                                                </return>
+                                                            </block>
+                                                        </block>
+                                                    </outcome>
+                                                    <outcome value='not-found'>
+                                                        <block atomic="true">
+                                                            <set>
+                                                                <parameter name="error-message" value="Error saving vnfc to AAI" />
+                                                            </set>
+                                                            <block atomic='true'>
+                                                                <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                <return status='failure'>
+                                                                    <parameter name='ack-final' value='Y'/>
+                                                                    <parameter name="error-code" value="500" />
+                                                                    <parameter name="error-message" value="`$error-message`" />
+                                                                </return>
+                                                            </block>
+                                                        </block>
+                                                    </outcome>
+                                                </save>
+                                            </outcome>
+                                        </switch>
+                                        <set>
+                                            <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].created_flag' value='true' />
+                                        </set>
+                                        <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+   resource="vnfc:relationship-list"
+   key="vnfc.vnfc-name = $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-name"
+   force="true" pfx="tmp.AnAI-data">
+                                            <parameter name="relationship-list.relationship[0].related-to" value="generic-vnf" />
+                                            <parameter name="relationship-list.relationship[0].related-link"
+      value="`'/aai/v$/network/generic-vnfs/generic-vnf/' +
+        $vf-module-topology-operation-input.vnf-information.vnf-id`" />
+                                            <parameter name="relationship-list.relationship[1].related-to" value="vf-module" />
+                                            <parameter name="relationship-list.relationship[1].related-link"
+      value="`'/aai/v$/network/generic-vnfs/generic-vnf/' +
+        $vf-module-topology-operation-input.vnf-information.vnf-id +
+        '/vf-modules/vf-module/' +
+        $service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-id`" />
+                                            <outcome value='failure'>
+                                                <block atomic="true">
+                                                    <set>
+                                                        <parameter name="error-message" value="Error updating vnfc relationships in AAI" />
+                                                    </set>
+                                                    <block atomic='true'>
+                                                        <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                        <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                        <return status='failure'>
+                                                            <parameter name='ack-final' value='Y'/>
+                                                            <parameter name="error-code" value="500" />
+                                                            <parameter name="error-message" value="`$error-message`" />
+                                                        </return>
+                                                    </block>
+                                                </block>
+                                            </outcome>
+                                            <outcome value='not-found'>
+                                                <block atomic="true">
+                                                    <set>
+                                                        <parameter name="error-message" value="Not-found error updating vnfc relationships" />
+                                                    </set>
+                                                    <block atomic='true'>
+                                                        <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                        <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                        <return status='failure'>
+                                                            <parameter name='ack-final' value='Y'/>
+                                                            <parameter name="error-code" value="500" />
+                                                            <parameter name="error-message" value="`$error-message`" />
+                                                        </return>
+                                                    </block>
+                                                </block>
+                                            </outcome>
+                                        </save>
+                                        <for silentFailure='true' index='network-role-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data_length`' >
+                                            <block atomic="true">
+                                                <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils" method="generateUUID" >
+                                                    <parameter name="ctx-destination" value="cp-instance-id" />
+                                                </execute>
+                                                <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="cp" 
+	key="vnfc.vnfc-name = $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-name
+	  AND cp.cp-instance-id = $cp-instance-id" >
+                                                    <parameter name="cp-instance-id" value="`$cp-instance-id`" />
+                                                    <parameter name="port-id" value="0" />
+                                                    <outcome value='failure'>
+                                                        <block atomic="true">
+                                                            <set>
+                                                                <parameter name="error-message" value="Error saving cp object to AAI" />
+                                                            </set>
+                                                            <block atomic='true'>
+                                                                <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                <return status='failure'>
+                                                                    <parameter name='ack-final' value='Y'/>
+                                                                    <parameter name="error-code" value="500" />
+                                                                    <parameter name="error-message" value="`$error-message`" />
+                                                                </return>
+                                                            </block>
+                                                        </block>
+                                                    </outcome>
+                                                    <outcome value='not-found'>
+                                                        <block atomic="true">
+                                                            <set>
+                                                                <parameter name="error-message" value="Error saving cp object to AAI" />
+                                                            </set>
+                                                            <block atomic='true'>
+                                                                <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                <return status='failure'>
+                                                                    <parameter name='ack-final' value='Y'/>
+                                                                    <parameter name="error-code" value="500" />
+                                                                    <parameter name="error-message" value="`$error-message`" />
+                                                                </return>
+                                                            </block>
+                                                        </block>
+                                                    </outcome>
+                                                </save>
+                                                <set>
+                                                    <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$network-role-index].connection-point.connection-point-id'
+  value='`$cp-instance-id`' />
+                                                    <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$network-role-index].connection-point.port-id'
+  value='0' />
+                                                </set>
+                                                <for silentFailure='true' index='subnet-role-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$network-role-index].vnfc-subnet_length`' >
+                                                    <for silentFailure='true' index='address-family-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$network-role-index].vnfc-subnet[$subnet-role-index].vnfc-ip-assignments_length`' >
+                                                        <block atomic="true">
+                                                            <set>
+                                                                <parameter name='tmp.address-family'
+  value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$network-role-index].vnfc-subnet[$subnet-role-index].vnfc-ip-assignments[$address-family-index].vnfc-address-family`' />
+                                                            </set>
+                                                            <for silentFailure='true' index='address-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$network-role-index].vnfc-subnet[$subnet-role-index].vnfc-ip-assignments[$address-family-index].vnfc-subnet-ip_length`' >
+                                                                <switch test='`$tmp.address-family`'>
+                                                                    <outcome value='ipv4'>
+                                                                        <block atomic="true">
+                                                                            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-interface-ipv4-address-list" 
+	key="vnfc.vnfc-name = $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-name
+	  AND cp.cp-instance-id = $cp-instance-id
+	  AND l3-interface-ipv4-address-list.l3-interface-ipv4-address = $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$network-role-index].vnfc-subnet[$subnet-role-index].vnfc-ip-assignments[$address-family-index].vnfc-subnet-ip[$address-index].vnfc-ip-address" >
+                                                                                <parameter name="l3-interface-ipv4-address" value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$network-role-index].vnfc-subnet[$subnet-role-index].vnfc-ip-assignments[$address-family-index].vnfc-subnet-ip[$address-index].vnfc-ip-address`" />
+                                                                                <parameter name="l3-interface-ipv4-prefix-length" value="32" />
+                                                                                <parameter name="is-floating" value="false" />
+                                                                                <outcome value='failure'>
+                                                                                    <block atomic="true">
+                                                                                        <set>
+                                                                                            <parameter name="error-message" value="Error creating l3-interface-ipv4-address-list object in AAI" />
+                                                                                        </set>
+                                                                                        <block atomic='true'>
+                                                                                            <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                                            <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                                            <return status='failure'>
+                                                                                                <parameter name='ack-final' value='Y'/>
+                                                                                                <parameter name="error-code" value="500" />
+                                                                                                <parameter name="error-message" value="`$error-message`" />
+                                                                                            </return>
+                                                                                        </block>
+                                                                                    </block>
+                                                                                </outcome>
+                                                                            </save>
+                                                                            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+   resource="l3-interface-ipv4-address-list:relationship-list"
+   key="vnfc.vnfc-name = $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-name
+	  AND cp.cp-instance-id = $cp-instance-id
+	  AND l3-interface-ipv4-address-list.l3-interface-ipv4-address = $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$network-role-index].vnfc-subnet[$subnet-role-index].vnfc-ip-assignments[$address-family-index].vnfc-subnet-ip[$address-index].vnfc-ip-address"
+   force="true" pfx="tmp.AnAI-data">
+                                                                                <parameter name="relationship-list.relationship[0].related-to" value="l3-network" />
+                                                                                <parameter name="relationship-list.relationship[0].related-link"
+      value="`'/aai/v$/network/l3-networks/l3-network/' +
+        $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$network-role-index].network-id`" />
+                                                                                <parameter name="relationship-list.relationship[1].related-to" value="subnet" />
+                                                                                <parameter name="relationship-list.relationship[1].related-link"
+      value="`'/aai/v$/network/l3-networks/l3-network/' +
+        $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$network-role-index].network-id +
+        '/subnets/subnet/' +
+        $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$network-role-index].vnfc-subnet[$subnet-role-index].vnfc-ip-assignments[$address-family-index].subnet-id`" />
+                                                                                <outcome value='failure'>
+                                                                                    <block atomic="true">
+                                                                                        <set>
+                                                                                            <parameter name="error-message" value="Error updating l3-interface-ipv4-address-list relationships in AAI" />
+                                                                                        </set>
+                                                                                        <block atomic='true'>
+                                                                                            <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                                            <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                                            <return status='failure'>
+                                                                                                <parameter name='ack-final' value='Y'/>
+                                                                                                <parameter name="error-code" value="500" />
+                                                                                                <parameter name="error-message" value="`$error-message`" />
+                                                                                            </return>
+                                                                                        </block>
+                                                                                    </block>
+                                                                                </outcome>
+                                                                                <outcome value='not-found'>
+                                                                                    <block atomic="true">
+                                                                                        <set>
+                                                                                            <parameter name="error-message" value="Not-found error updating l3-interface-ipv4-address-list relationships" />
+                                                                                        </set>
+                                                                                        <block atomic='true'>
+                                                                                            <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                                            <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                                            <return status='failure'>
+                                                                                                <parameter name='ack-final' value='Y'/>
+                                                                                                <parameter name="error-code" value="500" />
+                                                                                                <parameter name="error-message" value="`$error-message`" />
+                                                                                            </return>
+                                                                                        </block>
+                                                                                    </block>
+                                                                                </outcome>
+                                                                            </save>
+                                                                        </block>
+                                                                    </outcome>
+                                                                    <outcome value='ipv6'>
+                                                                        <block atomic="true">
+                                                                            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-interface-ipv6-address-list" 
+	key="vnfc.vnfc-name = $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-name
+	  AND cp.cp-instance-id = $cp-instance-id
+	  AND l3-interface-ipv6-address-list.l3-interface-ipv6-address = $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$network-role-index].vnfc-subnet[$subnet-role-index].vnfc-ip-assignments[$address-family-index].vnfc-subnet-ip[$address-index].vnfc-ip-address" >
+                                                                                <parameter name="l3-interface-ipv6-address" value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$network-role-index].vnfc-subnet[$subnet-role-index].vnfc-ip-assignments[$address-family-index].vnfc-subnet-ip[$address-index].vnfc-ip-address`" />
+                                                                                <parameter name="l3-interface-ipv6-prefix-length" value="128" />
+                                                                                <parameter name="is-floating" value="false" />
+                                                                                <outcome value='failure'>
+                                                                                    <block atomic="true">
+                                                                                        <set>
+                                                                                            <parameter name="error-message" value="Error creating l3-interface-ipv6-address-list object in AAI" />
+                                                                                        </set>
+                                                                                        <block atomic='true'>
+                                                                                            <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                                            <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                                            <return status='failure'>
+                                                                                                <parameter name='ack-final' value='Y'/>
+                                                                                                <parameter name="error-code" value="500" />
+                                                                                                <parameter name="error-message" value="`$error-message`" />
+                                                                                            </return>
+                                                                                        </block>
+                                                                                    </block>
+                                                                                </outcome>
+                                                                            </save>
+                                                                            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+   resource="l3-interface-ipv6-address-list:relationship-list"
+   key="vnfc.vnfc-name = $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-name
+	  AND cp.cp-instance-id = $cp-instance-id
+	  AND l3-interface-ipv6-address-list.l3-interface-ipv6-address = $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$network-role-index].vnfc-subnet[$subnet-role-index].vnfc-ip-assignments[$address-family-index].vnfc-subnet-ip[$address-index].vnfc-ip-address"
+   force="true" pfx="tmp.AnAI-data">
+                                                                                <parameter name="relationship-list.relationship[0].related-to" value="l3-network" />
+                                                                                <parameter name="relationship-list.relationship[0].related-link"
+      value="`'/aai/v$/network/l3-networks/l3-network/' +
+        $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$network-role-index].network-id`" />
+                                                                                <parameter name="relationship-list.relationship[1].related-to" value="subnet" />
+                                                                                <parameter name="relationship-list.relationship[1].related-link"
+      value="`'/aai/v$/network/l3-networks/l3-network/' +
+        $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$network-role-index].network-id +
+        '/subnets/subnet/' +
+        $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$network-role-index].vnfc-subnet[$subnet-role-index].vnfc-ip-assignments[$address-family-index].subnet-id`" />
+                                                                                <outcome value='failure'>
+                                                                                    <block atomic="true">
+                                                                                        <set>
+                                                                                            <parameter name="error-message" value="Error updating l3-interface-ipv6-address-list relationships in AAI" />
+                                                                                        </set>
+                                                                                        <block atomic='true'>
+                                                                                            <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                                            <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                                            <return status='failure'>
+                                                                                                <parameter name='ack-final' value='Y'/>
+                                                                                                <parameter name="error-code" value="500" />
+                                                                                                <parameter name="error-message" value="`$error-message`" />
+                                                                                            </return>
+                                                                                        </block>
+                                                                                    </block>
+                                                                                </outcome>
+                                                                                <outcome value='not-found'>
+                                                                                    <block atomic="true">
+                                                                                        <set>
+                                                                                            <parameter name="error-message" value="Not-found error updating l3-interface-ipv6-address-list relationships" />
+                                                                                        </set>
+                                                                                        <block atomic='true'>
+                                                                                            <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                                            <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                                            <return status='failure'>
+                                                                                                <parameter name='ack-final' value='Y'/>
+                                                                                                <parameter name="error-code" value="500" />
+                                                                                                <parameter name="error-message" value="`$error-message`" />
+                                                                                            </return>
+                                                                                        </block>
+                                                                                    </block>
+                                                                                </outcome>
+                                                                            </save>
+                                                                        </block>
+                                                                    </outcome>
+                                                                </switch>
+                                                            </for>
+                                                        </block>
+                                                    </for>
+                                                </for>
+                                                <for index='vnf-network-index' start='0' end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network_length`' >
+                                                    <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$network-role-index].vnfc-network-role
+  == $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].network-role`'>
+                                                        <outcome value='true'>
+                                                            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+   resource="cp:relationship-list"
+   key="vnfc.vnfc-name = $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-name
+     AND cp.cp-instance-id = $cp-instance-id"
+   force="true" pfx="tmp.AnAI-data">
+                                                                <parameter name="relationship-list.relationship[0].related-to" value="l3-network" />
+                                                                <parameter name="relationship-list.relationship[0].related-link"
+      value="`'/aai/v$/network/l3-networks/l3-network/' +
+        $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].network-id`" />
+                                                                <outcome value='failure'>
+                                                                    <block atomic="true">
+                                                                        <set>
+                                                                            <parameter name="error-message" value="Error updating cp relationship to l3-network in AAI" />
+                                                                        </set>
+                                                                        <block atomic='true'>
+                                                                            <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                            <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                            <return status='failure'>
+                                                                                <parameter name='ack-final' value='Y'/>
+                                                                                <parameter name="error-code" value="500" />
+                                                                                <parameter name="error-message" value="`$error-message`" />
+                                                                            </return>
+                                                                        </block>
+                                                                    </block>
+                                                                </outcome>
+                                                                <outcome value='not-found'>
+                                                                    <block atomic="true">
+                                                                        <set>
+                                                                            <parameter name="error-message" value="Not-found error updating cp relationship to l3-network" />
+                                                                        </set>
+                                                                        <block atomic='true'>
+                                                                            <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                            <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                            <return status='failure'>
+                                                                                <parameter name='ack-final' value='Y'/>
+                                                                                <parameter name="error-code" value="500" />
+                                                                                <parameter name="error-message" value="`$error-message`" />
+                                                                            </return>
+                                                                        </block>
+                                                                    </block>
+                                                                </outcome>
+                                                            </save>
+                                                        </outcome>
+                                                    </switch>
+                                                </for>
+                                                <for silentFailure='true' index='network-role-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network_length`' >
+                                                    <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].network-role
+  == $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].network-role`'>
+                                                        <outcome value='true'>
+                                                            <for silentFailure='true' index='related-network-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].related-networks.related-network_length`' >
+                                                                <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+   resource="cp:relationship-list"
+   key="vnfc.vnfc-name = $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-name
+     AND cp.cp-instance-id = $cp-instance-id"
+   force="true" pfx="tmp.AnAI-data">
+                                                                    <parameter name="relationship-list.relationship[0].related-to" value="l3-network" />
+                                                                    <parameter name="relationship-list.relationship[0].related-link"
+      value="`'/aai/v$/network/l3-networks/l3-network/' +
+        $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].related-networks.related-network[$related-network-index].network-id`" />
+                                                                    <parameter name="relationship-list.relationship[1].related-to" value="vlan-tag" />
+                                                                    <parameter name="relationship-list.relationship[1].related-link"
+      value="`'/aai/v$/network/vlan-tags/vlan-tag/' +
+        $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].related-networks.related-network[$related-network-index].vlan-tags.vlan-interface`" />
+                                                                    <outcome value='failure'>
+                                                                        <block atomic="true">
+                                                                            <set>
+                                                                                <parameter name="error-message" value="Error updating cp relationship to l3-network and vlan-tag in AAI" />
+                                                                            </set>
+                                                                            <block atomic='true'>
+                                                                                <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                                <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                                <return status='failure'>
+                                                                                    <parameter name='ack-final' value='Y'/>
+                                                                                    <parameter name="error-code" value="500" />
+                                                                                    <parameter name="error-message" value="`$error-message`" />
+                                                                                </return>
+                                                                            </block>
+                                                                        </block>
+                                                                    </outcome>
+                                                                    <outcome value='not-found'>
+                                                                        <block atomic="true">
+                                                                            <set>
+                                                                                <parameter name="error-message" value="Not-found error updating cp relationship to l3-network and vlan-tag" />
+                                                                            </set>
+                                                                            <block atomic='true'>
+                                                                                <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                                <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                                <return status='failure'>
+                                                                                    <parameter name='ack-final' value='Y'/>
+                                                                                    <parameter name="error-code" value="500" />
+                                                                                    <parameter name="error-message" value="`$error-message`" />
+                                                                                </return>
+                                                                            </block>
+                                                                        </block>
+                                                                    </outcome>
+                                                                </save>
+                                                            </for>
+                                                        </outcome>
+                                                    </switch>
+                                                </for>
+                                            </block>
+                                        </for>
+                                    </block>
+                                </for>
+                                <for silentFailure='true' index='network-role-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network_length`' >
+                                    <block atomic="true">
+                                        <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+   resource="vf-module:relationship-list"
+   key="vf-module.vf-module-id = $service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-id
+      AND generic-vnf.vnf-id = $service-data.vnfs.vnf[$vnf-index].vnf-id"
+   force="true" pfx="tmp.AnAI-data">
+                                            <parameter name="relationship-list.relationship[0].related-to" value="l3-network" />
+                                            <parameter name="relationship-list.relationship[0].related-link"
+      value="`'/aai/v$/network/l3-networks/l3-network/' +
+        $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].network-id`" />
+                                            <outcome value='failure'>
+                                                <block atomic="true">
+                                                    <set>
+                                                        <parameter name="error-message" value="Error updating vf-module relationships in AAI" />
+                                                    </set>
+                                                    <block atomic='true'>
+                                                        <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                        <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                        <return status='failure'>
+                                                            <parameter name='ack-final' value='Y'/>
+                                                            <parameter name="error-code" value="500" />
+                                                            <parameter name="error-message" value="`$error-message`" />
+                                                        </return>
+                                                    </block>
+                                                </block>
+                                            </outcome>
+                                            <outcome value='not-found'>
+                                                <block atomic="true">
+                                                    <set>
+                                                        <parameter name="error-message" value="`'No l3-network found in AAI for network ID '
+      + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].network-id`" />
+                                                    </set>
+                                                    <block atomic='true'>
+                                                        <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                        <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                        <return status='failure'>
+                                                            <parameter name='ack-final' value='Y'/>
+                                                            <parameter name="error-code" value="500" />
+                                                            <parameter name="error-message" value="`$error-message`" />
+                                                        </return>
+                                                    </block>
+                                                </block>
+                                            </outcome>
+                                        </save>
+                                        <set>
+                                            <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].created-flag' value='true' />
+                                        </set>
+                                        <for silentFailure='true' index='ipv4-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].floating-ips.floating-ip-v4_length`' >
+                                            <block atomic="true">
+                                                <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="vip-ipv4-address-list" 
+	key="cloud-region.cloud-owner = $prop.cloud-region.cloud-owner
+	  AND cloud-region.cloud-region-id = $vf-module-topology-operation-input.vf-module-request-input.aic-cloud-region
+	  AND vip-ipv4-address-list.vip-ipv4-address = $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].floating-ips.floating-ip-v4[$ipv4-index]" >
+                                                    <parameter name="vip-ipv4-address" value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].floating-ips.floating-ip-v4[$ipv4-index]`" />
+                                                    <parameter name="vip-ipv4-prefix-length" value="32" />
+                                                    <parameter name="is-floating" value="false" />
+                                                    <outcome value='failure'>
+                                                        <block atomic="true">
+                                                            <set>
+                                                                <parameter name="error-message" value="Error saving vip-ipv4-address-list in AAI" />
+                                                            </set>
+                                                            <block atomic='true'>
+                                                                <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                <return status='failure'>
+                                                                    <parameter name='ack-final' value='Y'/>
+                                                                    <parameter name="error-code" value="500" />
+                                                                    <parameter name="error-message" value="`$error-message`" />
+                                                                </return>
+                                                            </block>
+                                                        </block>
+                                                    </outcome>
+                                                    <outcome value='not-found'>
+                                                        <block atomic="true">
+                                                            <set>
+                                                                <parameter name="error-message" value="Not-found error saving vip-ipv4-address-list" />
+                                                            </set>
+                                                            <block atomic='true'>
+                                                                <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                <return status='failure'>
+                                                                    <parameter name='ack-final' value='Y'/>
+                                                                    <parameter name="error-code" value="500" />
+                                                                    <parameter name="error-message" value="`$error-message`" />
+                                                                </return>
+                                                            </block>
+                                                        </block>
+                                                    </outcome>
+                                                </save>
+                                                <set>
+                                                    <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].floating-ips.created-ipv4-flag' value='true' />
+                                                </set>
+                                                <for silentFailure='true' index='vnfc-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names_length`' >
+                                                    <block atomic="true">
+                                                        <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+   resource="vip-ipv4-address-list:relationship-list"
+   key="cloud-region.cloud-owner = $prop.cloud-region.cloud-owner
+	  AND cloud-region.cloud-region-id = $vf-module-topology-operation-input.vf-module-request-input.aic-cloud-region
+	  AND vip-ipv4-address-list.vip-ipv4-address = $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].floating-ips.floating-ip-v4[$ipv4-index]"
+   force="true" pfx="tmp.AnAI-data">
+                                                            <parameter name="relationship-list.relationship[0].related-to" value="subnet" />
+                                                            <parameter name="relationship-list.relationship[0].related-link"
+      value="`'/aai/v$/network/l3-networks/l3-network/'
+        + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].network-id
+        + '/subnets/subnet/'
+        + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].floating-ips.ipv4-subnet-id`" />
+                                                            <parameter name="relationship-list.relationship[1].related-to" value="vnfc" />
+                                                            <parameter name="relationship-list.relationship[1].related-link"
+      value="`'/aai/v$/network/vnfcs/vnfc/'
+        + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-name`" />
+                                                            <outcome value='failure'>
+                                                                <block atomic="true">
+                                                                    <set>
+                                                                        <parameter name="error-message" value="Error updating vip-ipv4-address-list relationships in AAI" />
+                                                                    </set>
+                                                                    <block atomic='true'>
+                                                                        <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                        <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                        <return status='failure'>
+                                                                            <parameter name='ack-final' value='Y'/>
+                                                                            <parameter name="error-code" value="500" />
+                                                                            <parameter name="error-message" value="`$error-message`" />
+                                                                        </return>
+                                                                    </block>
+                                                                </block>
+                                                            </outcome>
+                                                            <outcome value='not-found'>
+                                                                <block atomic="true">
+                                                                    <set>
+                                                                        <parameter name="error-message" value="Not-found error updating vip-ipv4-address-list relationships" />
+                                                                    </set>
+                                                                    <block atomic='true'>
+                                                                        <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                        <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                        <return status='failure'>
+                                                                            <parameter name='ack-final' value='Y'/>
+                                                                            <parameter name="error-code" value="500" />
+                                                                            <parameter name="error-message" value="`$error-message`" />
+                                                                        </return>
+                                                                    </block>
+                                                                </block>
+                                                            </outcome>
+                                                        </save>
+                                                        <for silentFailure='true' index='vnfc-network-role-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data_length`' >
+                                                            <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].network-role
+  == $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-role-index].vnfc-network-role`'>
+                                                                <outcome value='true'>
+                                                                    <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+   resource="vip-ipv4-address-list:relationship-list"
+   key="cloud-region.cloud-owner = $prop.cloud-region.cloud-owner
+	  AND cloud-region.cloud-region-id = $vf-module-topology-operation-input.vf-module-request-input.aic-cloud-region
+	  AND vip-ipv4-address-list.vip-ipv4-address = $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].floating-ips.floating-ip-v4[$ipv4-index]"
+   force="true" pfx="tmp.AnAI-data">
+                                                                        <parameter name="relationship-list.relationship[0].related-to" value="cp" />
+                                                                        <parameter name="relationship-list.relationship[0].related-link"
+      value="`'/aai/v$/network/vnfcs/vnfc/'
+        + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-name
+        + '/cps/cp/'
+        + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-role-index].connection-point.connection-point-id`" />
+                                                                        <outcome value='failure'>
+                                                                            <block atomic="true">
+                                                                                <set>
+                                                                                    <parameter name="error-message" value="Error updating vip-ipv4-address-list relationship to cp in AAI" />
+                                                                                </set>
+                                                                                <block atomic='true'>
+                                                                                    <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                                    <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                                    <return status='failure'>
+                                                                                        <parameter name='ack-final' value='Y'/>
+                                                                                        <parameter name="error-code" value="500" />
+                                                                                        <parameter name="error-message" value="`$error-message`" />
+                                                                                    </return>
+                                                                                </block>
+                                                                            </block>
+                                                                        </outcome>
+                                                                        <outcome value='not-found'>
+                                                                            <block atomic="true">
+                                                                                <set>
+                                                                                    <parameter name="error-message" value="Not-found error updating vip-ipv4-address-list relationship to cp" />
+                                                                                </set>
+                                                                                <block atomic='true'>
+                                                                                    <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                                    <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                                    <return status='failure'>
+                                                                                        <parameter name='ack-final' value='Y'/>
+                                                                                        <parameter name="error-code" value="500" />
+                                                                                        <parameter name="error-message" value="`$error-message`" />
+                                                                                    </return>
+                                                                                </block>
+                                                                            </block>
+                                                                        </outcome>
+                                                                    </save>
+                                                                </outcome>
+                                                            </switch>
+                                                        </for>
+                                                    </block>
+                                                </for>
+                                            </block>
+                                        </for>
+                                        <for silentFailure='true' index='ipv6-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].floating-ips.floating-ip-v6_length`' >
+                                            <block atomic="true">
+                                                <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="vip-ipv6-address-list" 
+	key="cloud-region.cloud-owner = $prop.cloud-region.cloud-owner
+	  AND cloud-region.cloud-region-id = $vf-module-topology-operation-input.vf-module-request-input.aic-cloud-region
+	  AND vip-ipv6-address-list.vip-ipv6-address = $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].floating-ips.floating-ip-v6[$ipv6-index]" >
+                                                    <parameter name="vip-ipv6-address" value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].floating-ips.floating-ip-v6[$ipv6-index]`" />
+                                                    <parameter name="vip-ipv6-prefix-length" value="128" />
+                                                    <parameter name="is-floating" value="false" />
+                                                    <outcome value='failure'>
+                                                        <block atomic="true">
+                                                            <set>
+                                                                <parameter name="error-message" value="Error saving vip-ipv6-address-list in AAI" />
+                                                            </set>
+                                                            <block atomic='true'>
+                                                                <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                <return status='failure'>
+                                                                    <parameter name='ack-final' value='Y'/>
+                                                                    <parameter name="error-code" value="500" />
+                                                                    <parameter name="error-message" value="`$error-message`" />
+                                                                </return>
+                                                            </block>
+                                                        </block>
+                                                    </outcome>
+                                                    <outcome value='not-found'>
+                                                        <block atomic="true">
+                                                            <set>
+                                                                <parameter name="error-message" value="Not-found error saving vip-ipv6-address-list" />
+                                                            </set>
+                                                            <block atomic='true'>
+                                                                <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                <return status='failure'>
+                                                                    <parameter name='ack-final' value='Y'/>
+                                                                    <parameter name="error-code" value="500" />
+                                                                    <parameter name="error-message" value="`$error-message`" />
+                                                                </return>
+                                                            </block>
+                                                        </block>
+                                                    </outcome>
+                                                </save>
+                                                <set>
+                                                    <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].floating-ips.created-ipv6-flag' value='true' />
+                                                </set>
+                                                <for silentFailure='true' index='vnfc-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names_length`' >
+                                                    <block atomic="true">
+                                                        <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+   resource="vip-ipv6-address-list:relationship-list"
+   key="cloud-region.cloud-owner = $prop.cloud-region.cloud-owner
+	  AND cloud-region.cloud-region-id = $vf-module-topology-operation-input.vf-module-request-input.aic-cloud-region
+	  AND vip-ipv6-address-list.vip-ipv6-address = $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].floating-ips.floating-ip-v6[$ipv6-index]"
+   force="true" pfx="tmp.AnAI-data">
+                                                            <parameter name="relationship-list.relationship[0].related-to" value="subnet" />
+                                                            <parameter name="relationship-list.relationship[0].related-link"
+      value="`'/aai/v$/network/l3-networks/l3-network/'
+        + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].network-id
+        + '/subnets/subnet/'
+        + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].floating-ips.ipv6-subnet-id`" />
+                                                            <parameter name="relationship-list.relationship[1].related-to" value="vnfc" />
+                                                            <parameter name="relationship-list.relationship[1].related-link"
+      value="`'/aai/v$/network/vnfcs/vnfc/'
+        + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-name`" />
+                                                            <outcome value='failure'>
+                                                                <block atomic="true">
+                                                                    <set>
+                                                                        <parameter name="error-message" value="Error updating vip-ipv6-address-list relationships in AAI" />
+                                                                    </set>
+                                                                    <block atomic='true'>
+                                                                        <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                        <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                        <return status='failure'>
+                                                                            <parameter name='ack-final' value='Y'/>
+                                                                            <parameter name="error-code" value="500" />
+                                                                            <parameter name="error-message" value="`$error-message`" />
+                                                                        </return>
+                                                                    </block>
+                                                                </block>
+                                                            </outcome>
+                                                            <outcome value='not-found'>
+                                                                <block atomic="true">
+                                                                    <set>
+                                                                        <parameter name="error-message" value="Not-found error updating vip-ipv6-address-list relationships" />
+                                                                    </set>
+                                                                    <block atomic='true'>
+                                                                        <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                        <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                        <return status='failure'>
+                                                                            <parameter name='ack-final' value='Y'/>
+                                                                            <parameter name="error-code" value="500" />
+                                                                            <parameter name="error-message" value="`$error-message`" />
+                                                                        </return>
+                                                                    </block>
+                                                                </block>
+                                                            </outcome>
+                                                        </save>
+                                                        <for silentFailure='true' index='vnfc-network-role-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data_length`' >
+                                                            <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].network-role
+  == $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-role-index].vnfc-network-role`'>
+                                                                <outcome value='true'>
+                                                                    <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+   resource="vip-ipv6-address-list:relationship-list"
+   key="cloud-region.cloud-owner = $prop.cloud-region.cloud-owner
+	  AND cloud-region.cloud-region-id = $vf-module-topology-operation-input.vf-module-request-input.aic-cloud-region
+	  AND vip-ipv6-address-list.vip-ipv6-address = $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].floating-ips.floating-ip-v6[$ipv6-index]"
+   force="true" pfx="tmp.AnAI-data">
+                                                                        <parameter name="relationship-list.relationship[0].related-to" value="cp" />
+                                                                        <parameter name="relationship-list.relationship[0].related-link"
+      value="`'/aai/v$/network/vnfcs/vnfc/'
+        + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-name
+        + '/cps/cp/'
+        + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-role-index].connection-point.connection-point-id`" />
+                                                                        <outcome value='failure'>
+                                                                            <block atomic="true">
+                                                                                <set>
+                                                                                    <parameter name="error-message" value="Error updating vip-ipv4-address-list relationship to cp in AAI" />
+                                                                                </set>
+                                                                                <block atomic='true'>
+                                                                                    <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                                    <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                                    <return status='failure'>
+                                                                                        <parameter name='ack-final' value='Y'/>
+                                                                                        <parameter name="error-code" value="500" />
+                                                                                        <parameter name="error-message" value="`$error-message`" />
+                                                                                    </return>
+                                                                                </block>
+                                                                            </block>
+                                                                        </outcome>
+                                                                        <outcome value='not-found'>
+                                                                            <block atomic="true">
+                                                                                <set>
+                                                                                    <parameter name="error-message" value="Not-found error updating vip-ipv4-address-list relationship to cp" />
+                                                                                </set>
+                                                                                <block atomic='true'>
+                                                                                    <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                                                                    <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                                                                    <return status='failure'>
+                                                                                        <parameter name='ack-final' value='Y'/>
+                                                                                        <parameter name="error-code" value="500" />
+                                                                                        <parameter name="error-message" value="`$error-message`" />
+                                                                                    </return>
+                                                                                </block>
+                                                                            </block>
+                                                                        </outcome>
+                                                                    </save>
+                                                                </outcome>
+                                                            </switch>
+                                                        </for>
+                                                    </block>
+                                                </for>
+                                            </block>
+                                        </for>
+                                    </block>
+                                </for>
+                            </block>
+                        </for>
+                        <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-vlan-tagging-assign' mode='sync' >
+                            <outcome value='failure'>
+                                <block atomic="true">
+                                    <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >
+                                        <parameter name='filename' value='/var/tmp/bgb-vlantaggingfailure.log' />
+                                    </execute>
+                                    <block atomic='true'>
+                                        <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                        <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="`$error-message`" />
+                                        </return>
+                                    </block>
+                                </block>
+                            </outcome>
+                        </call>
+                        <call module='GENERIC-RESOURCE-API' rpc='vf-module-generate-heat-parameters' mode='sync' ></call>
+                        <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >
+                            <parameter name='filename' value='/var/tmp/bgb-vfmoduleheat.log' />
+                        </execute>
+                        <for silentFailure='true' index='vm-type-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm_length`' >
+                            <for index='vm-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-count`' >
+                                <block atomic="true">
+                                    <delete plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='DELETE from VIPR_CONFIGURATION WHERE vnf_id = $service-data.vnfs.vnf[$vnf-index].vnf-id
+     AND ecomp_service_instance_id = $service-data.service-information.service-instance-id
+     AND vm_name = $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vm-name[$vm-index]' >
+                                        <outcome value='failure'>
+                                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                <parameter name="logger" value="message-log"/>
+                                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                                <parameter name="field2" value="GENERIC-RESOURCE-API.vf-module-topology-operation-assign:REQID"/>
+                                                <parameter name="field3" value="`$vf-module-topology-operation-input.sdnc-request-header.svc-request-id`"/>
+                                                <parameter name="field4" value="Failed to insert VIPR_CONFIGURATION record"/>
+                                            </record>
+                                        </outcome>
+                                    </delete>
+                                    <save plugin="org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource" resource="SQL"
+key="INSERT INTO VIPR_CONFIGURATION (vnf_id, vnf_name, ecomp_service_instance_id, vm_name, cloud_region_id, cloud_owner) VALUES ( $service-data.vnfs.vnf[$vnf-index].vnf-id , $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-topology-identifier-structure.vnf-name , $service-data.service-information.service-instance-id , $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vm-name[$vm-index] , $tmp.vf-module-topology.aic-cloud-region , $prop.cloud-region.cloud-owner )" >
+                                        <outcome value='failure'>
+                                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                <parameter name="logger" value="message-log"/>
+                                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                                <parameter name="field2" value="GENERIC-RESOURCE-API.vf-module-topology-operation-assign:REQID"/>
+                                                <parameter name="field3" value="`$vf-module-topology-operation-input.sdnc-request-header.svc-request-id`"/>
+                                                <parameter name="field4" value="Failed to insert VIPR_CONFIGURATION record"/>
+                                            </record>
+                                        </outcome>
+                                    </save>
+                                </block>
+                            </for>
+                        </for>
+                        <set>
+                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.' value='tmp.vf-module-topology.' />
+                        </set>
+                        <set>
+                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.sdnc-request-header.'
+   value='$vf-module-topology-operation-input.sdnc-request-header.' />
+                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.request-information.'
+   value='$vf-module-topology-operation-input.request-information.' />
+                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.service-information.'
+   value='$vf-module-topology-operation-input.service-information.' />
+                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vnf-information.'
+   value='$vf-module-topology-operation-input.vnf-information.' />
+                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-information.'
+   value='$vf-module-topology-operation-input.vf-module-information.' />
+                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-request-input.'
+   value='$vf-module-topology-operation-input.vf-module-request-input.' />
+                        </set>
+                        <set>
+                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-level-oper-status.order-status'
+  value='PendingCreate' />
+                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-level-oper-status.last-rpc-action'
+  value='`$vf-module-topology-operation-input.sdnc-request-header.svc-action`' />
+                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-level-oper-status.last-action'
+  value='`$vf-module-topology-operation-input.sdnc-request-header.request-action`' />
+                        </set>
+                        <set>
+                            <parameter name='vf-module-data.'
+  value='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.' />
+                        </set>
+                        <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                            <parameter name="source" value="`$prop.restapi.vf-module`"/>
+                            <parameter name="outputPath" value="tmp.part"/>
+                            <parameter name="target" value="{service-instance-id}"/>
+                            <parameter name="replacement" value="`$service-data.service-topology.service-topology-identifier.service-instance-id`"/>
+                        </execute>
+                        <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                            <parameter name="source" value="`$tmp.part`"/>
+                            <parameter name="outputPath" value="tmp.part"/>
+                            <parameter name="target" value="{vnf-id}"/>
+                            <parameter name="replacement" value="`$service-data.vnfs.vnf[$vnf-index].vnf-id`"/>
+                        </execute>
+                        <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                            <parameter name="source" value="`$tmp.part`"/>
+                            <parameter name="outputPath" value="tmp.vf-module.url"/>
+                            <parameter name="target" value="{vf-module-id}"/>
+                            <parameter name="replacement" value="`$vf-module-topology-operation-input.vf-module-information.vf-module-id`"/>
+                        </execute>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                            <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + 'vf-module-assign.json'`" />
+                            <parameter name='restapiUrl' value="`$prop.controller.url + $tmp.vf-module.url`" />
+                            <parameter name='restapiUser' value='`$prop.controller.user`' />
+                            <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                            <parameter name='format' value='json' />
+                            <parameter name='httpMethod' value='PUT' />
+                            <parameter name="responsePrefix" value="vf-module-assign" />
+                            <outcome value='failure'>
+                                <block atomic="true">
+                                    <set>
+                                        <parameter name="error-message" value="Error doing PUT of vf-module" />
+                                    </set>
+                                    <block atomic='true'>
+                                        <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                        <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="`$error-message`" />
+                                        </return>
+                                    </block>
+                                </block>
+                            </outcome>
+                            <outcome value='not-found'>
+                                <block atomic="true">
+                                    <set>
+                                        <parameter name="error-message" value="Error doing PUT of vf-module" />
+                                    </set>
+                                    <block atomic='true'>
+                                        <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-assign-rollback' mode='sync' ></call>
+                                        <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="`$error-message`" />
+                                        </return>
+                                    </block>
+                                </block>
+                            </outcome>
+                        </execute>
+                        <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >
+                            <parameter name='filename' value='/var/tmp/bgb-vfmodule.log' />
+                        </execute>
+                        <set>
+                            <parameter name="so.response-code" value="200" />
+                        </set>
+                        <call module='GENERIC-RESOURCE-API' rpc='send-so-response' mode='sync' ></call>
+                        <return status='success'>
+                            <parameter name="ack-final-indicator" value="Y" />
+                            <parameter name="error-code" value="200" />
+                            <parameter name="error-message" value="`$error-message`" />
+                        </return>
+                    </block>
+                </outcome>
+            </switch>
+        </block>
+    </method>
+</service-logic>

@@ -1,0 +1,6 @@
+---
+- hosts: all
+  tasks:
+  - name: Set vG to vG-MUX interface down
+    shell: vppctl set int state GigabitEthernet0/4/0 down 
+    become: true

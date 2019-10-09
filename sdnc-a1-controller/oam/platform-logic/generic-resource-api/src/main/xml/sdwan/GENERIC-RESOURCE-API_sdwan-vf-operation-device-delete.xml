@@ -1,0 +1,142 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='sdwan-vf-operation-device-delete' mode='sync'>
+        <block atomic="true">
+            <switch test='`$service-data.vnfs.vnf_length`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="vnf-topology-operation-input.vnf-request-input.vnf-id not found in service-data" />
+                    </return>
+                </outcome>
+            </switch>
+            <for index='idx' start='0' end='`$service-data.vnfs.vnf_length`' >
+                <switch test="`$service-data.vnfs.vnf[$idx].vnf-id == $vf-module-topology-operation-input.vnf-information.vnf-id`">
+                    <outcome value='true'>
+                        <set>
+                            <parameter name='vnf-index' value='`$idx`' />
+                        </set>
+                    </outcome>
+                </switch>
+            </for>
+            <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module_length`'>
+                <outcome value='0'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="vnf-topology-operation-input.vnf-request-input.vnf-id not found in service-data" />
+                    </return>
+                </outcome>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="vnf-topology-operation-input.vnf-request-input.vnf-id not found in service-data" />
+                    </return>
+                </outcome>
+                <outcome value='Other'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name='vf-module-length' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module_length`' />
+                        </set>
+                        <for index='idx' start='0' end='`$vf-module-length`' >
+                            <switch test="`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$idx].vf-module-id == $vf-module-topology-operation-input.vf-module-information.vf-module-id`">
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <set>
+                                            <parameter name='tmp.vidx' value='`$idx`' />
+                                            <parameter name='ctx.vf-module-data.' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$idx].vf-module-data.`' />
+                                        </set>
+                                        <set>
+                                            <parameter name='vf-module-request-input.' value='`$ctx.vf-module-data.vf-module-request-input.`' />
+                                        </set>
+                                        <call module='GENERIC-RESOURCE-API' rpc='sdwan-get-vf-module-device-param' mode='sync' ></call>
+                                    </block>
+                                </outcome>
+                            </switch>
+                        </for>
+                    </block>
+                </outcome>
+            </switch>
+            <switch test="`$tmp.vidx`">
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="vnf-topology-operation-input.vnf-request-input.vnf-id not found in service-data" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$tmp.vidx].vf-module-data.vf-module-level-oper-status.order-status`'>
+                <outcome value='PendingDelete'>
+                    <block atomic="true"></block>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`'VNF is not in appropriate state for activate. Current state is ' + $service-data.vnfs.vnf[$tmp.nidx].vnf-data.vnf-level-oper-status.order-status`" />
+                    </return>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='prop.vnfidxLen' value='`0`' />
+            </set>
+            <for index='lidx' start='0' end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module_length`' >
+                <block atomic="true">
+                    <switch test="`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$lidx].vf-module-id == $vf-module-topology-operation-input.vf-module-information.vf-module-id`">
+                        <outcome value='false'>
+                            <block atomic="true">
+                                <set>
+                                    <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$prop.vnfidxLen].vnf-id' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[lidx].vf-module-id`' />
+                                    <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$prop.vnfidxLen].vnf-data.' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[lidx].vf-module-data.`' />
+                                </set>
+                                <set>
+                                    <parameter name='prop.vnfidxLen' value='`$prop.vnfidxLen + 1`' />
+                                </set>
+                            </block>
+                        </outcome>
+                    </switch>
+                </block>
+            </for>
+            <set>
+                <parameter name="service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module_length" value='`$prop.vnfidxLen`'/>
+            </set>
+            <set>
+                <parameter name="service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$prop.vnfidxLen]." value=""/>
+            </set>
+            <set>
+                <parameter name='vf-module-object-path' value="`'restconf/config/GENERIC-RESOURCE-API:services/service/'
+ + $vf-module-topology-operation-input.service-information.service-instance-id
+ + '/service-data/vnfs/vnf/'
+ + $service-data.vnfs.vnf[$vnf-index].vnf-id
+ + '/vnf-data/vf-modules/vf-module/'
+ + $vf-module-topology-operation-input.vf-module-information.vf-module-id
+ + '/vf-module-data/vf-module-topology/'`"/>
+                <parameter name='vnf-object-path'
+ value="`'restconf/config/GENERIC-RESOURCE-API:services/service/'
+ + $vf-module-topology-operation-input.service-information.service-instance-id
+ + '/service-data/vnfs/vnf/'
+ + $service-data.vnfs.vnf[$vnf-index].vnf-id
+ + '/vnf-data/vnf-topology/'`"/>
+                <parameter name='service-object-path'
+ value="`'restconf/config/GENERIC-RESOURCE-API:services/service/'
+ + $vf-module-topology-operation-input.service-information.service-instance-id
+ + '/service-data/service-topology/'`"/>
+            </set>
+            <switch test="`$prop.device.sdncCreate`">
+                <outcome value='true'>
+                    <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" resource='device' 
+        key='device.device-id = $vf-module-topology-operation-input.vf-module-information.vf-module-id'></delete>
+                </outcome>
+            </switch>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="`$error-message`" />
+            </return>
+        </block>
+    </method>
+</service-logic>

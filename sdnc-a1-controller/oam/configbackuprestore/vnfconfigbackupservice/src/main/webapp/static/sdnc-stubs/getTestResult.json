@@ -1,0 +1,42 @@
+
+{  
+   "preTestResponse":[  
+      {  
+         "ipaddress":"1.160.10.240",
+         "status":"unreachable",
+         "testtype":"Network Layer",
+         "statistics":null,
+         "avgTime":null
+      },
+      {  
+         "ipaddress":"1.160.10.240",
+         "status":"unreachable",
+         "testtype":"Protocol Layer",
+         "statistics":null,
+         "avgTime":null
+      },
+      {  
+         "ipaddress":"1.160.10.240",
+         "status":"reachable",
+         "testtype":"Network Layer",
+         "statistics":"0% loss",
+         "avgTime":"Minimum = 70ms"
+      }
+   ],
+   "status":200,
+   "config":{  
+      "method":"GET",
+      "transformRequest":[  
+         null
+      ],
+      "transformResponse":[  
+         null
+      ],
+      "params":"",
+      "headers":{  
+         "Accept":"application/json"
+      },
+      "url":"/findReportByDeviceName/Thu Mar 15 2018 00:00:00 GMT+0530 (India Standard Time)/Fri Mar 16 2018 00:00:00 GMT+0530 (India Standard Time)/Router"
+   },
+   "statusText":""
+}

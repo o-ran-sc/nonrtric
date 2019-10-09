@@ -1,0 +1,44 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='send-so-response' mode='sync'>
+        <block atomic="true">
+            <set>
+                <parameter name="so.response-message" value="`$error-message`" />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + 'so-response.json'`" />
+                <parameter name='restapiUrl' value="`$so.notification-url`" />
+                <parameter name='restapiUser' value='`$prop.so.user`' />
+                <parameter name='restapiPassword' value='`$prop.so.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='POST' />
+                <parameter name="responsePrefix" value="soResponse-vnf-assign" />
+                <outcome value='failure'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name="error-message" value="`'Error sending SO response. ' + $error-message`" />
+                        </set>
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="`$error-message`" />
+                        </return>
+                    </block>
+                </outcome>
+                <outcome value='not-found'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name="error-message" value="`'Error sending SO response. ' + $error-message`" />
+                        </set>
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="`$error-message`" />
+                        </return>
+                    </block>
+                </outcome>
+            </execute>
+        </block>
+    </method>
+</service-logic>

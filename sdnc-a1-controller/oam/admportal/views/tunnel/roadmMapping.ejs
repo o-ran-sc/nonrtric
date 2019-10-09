@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<% include ../partials/head %>
+<% include ../partials/header %>
+<script type="text/javascript" src="/javascripts/admportal.js" async></script>
+<title>SDNC-MLC AdminPortal</title>
+
+
+<script class="init"> 
+	$(document).ready(function() {
+    $('#roadmMapping').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+</head>
+
+<body>
+
+<div class="well well-sm">
+<h3>ROADM Mapping</h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+
+	<% if(priv == 'A'){ %>
+        <div class="actions" style="padding:15px 0px;">
+            <button class="btn btn-primary btn-md" data-toggle="modal" data-target="#add_roadm_mapping">Add Mapping</button>
+        </div>
+    <% } %>
+
+	<table id="roadmMapping" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+		  <th>*Router Name</th>
+          <th>*ROADM Name</th>
+          <th>*CLLI</th>
+          <th>*City Name</th>
+		  <th>*LAT</th>
+		  <th>*LON</th>
+		  <th>*SNRC</th>
+		   <% if(priv == 'A'){ %>
+          <th>Action</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+      <% rows.forEach( function(row) { %> 
+        <tr>
+            <td><%= row.router_name %></td>
+            <td><%= row.roadm_name %></td>
+            <td><%= row.clli %></td>
+            <td><%= row.city_name %></td>
+            <td><%= row.lat %></td>
+            <td><%= row.lon %></td>
+            <td><%= row.snrc %></td>
+			<% if(priv == 'A') { %>
+            <td>
+				<button type="button" class="btn btn-default btn-xs" onclick="updateRoadmMapping('<%= row.router_name %>', 
+                    '<%= row.roadm_name %>', '<%= row.clli %>', '<%= row.city_name %>', '<%= row.lat %>', '<%= row.lon %>', '<%= row.snrc %>');">Update</button>
+				<button type="button" class="btn btn-default btn-xs" onclick="deleteRoadmMapping('<%= row.router_name %>');">Delete</button>
+            </td>
+            <% } %>
+        </tr>
+    <% }); %>
+      </tbody>
+    </table>
+
+    <% if(priv == 'A'){ %>
+    <div class="actions" style="padding:0px 25px;">
+        <form method="POST" action="/tunnel/uploadRoadmMapping" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="dest">File input</label>
+            <input name="filename" type="file" id="dest">
+            <p class="help-block">Choose a file to upload.</p>
+        </div>
+        <button type="button" class="btn btn-default" onclick="uploadFile(this.form);">Upload File</button>
+        </form>
+    </div>
+    <% } %>
+
+</div>
+
+<% include ../partials/roadm_mapping %>
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+<script type="text/javascript">
+function saveRoadmMapping(form)
+{
+    var errorMsg='';
+    var router_name = '';
+	var roadm_name = '';
+	var clli = '';
+	var city_name = '';
+	var lat = '';
+	var lon = '';
+	var snrc = '';
+
+    if ( form.name == 'addForm' )
+    {
+		router_name = form.nf_router_name;
+		roadm_name = form.nf_roadm_name;
+		clli = form.nf_clli;
+		city_name = form.nf_city_name;
+		lat = form.nf_lat;
+		lon = form.nf_lon;
+		snrc = form.nf_snrc;
+    }
+    else
+    {
+		router_name = form.uf_router_name;
+		roadm_name = form.uf_roadm_name;
+		clli = form.uf_clli;
+		city_name = form.uf_city_name;
+		lat = form.uf_lat;
+		lon = form.uf_lon;
+		snrc = form.uf_snrc;
+    }
+
+    if ( (router_name.value == null) || (router_name.value == "") || isblank(router_name.value) )
+    {
+        errorMsg += 'Router Name is required.<br>';
+    }
+    if ( (roadm_name.value == null) || (roadm_name.value == "") || isblank(roadm_name.value) )
+    {
+        errorMsg += 'ROADM Name is required.<br>';
+    }
+    if ( (clli.value == null) || (clli.value == "") || isblank(clli.value) )
+    {
+        errorMsg += 'CLLI is required.<br>';
+    }
+    if ( (city_name.value == null) || (city_name.value == "") || isblank(city_name.value) )
+    {
+        errorMsg += 'City Name is required.<br>';
+    }
+    if ( (lat.value == null) || (lat.value == "") || isblank(lat.value) )
+    {
+        errorMsg += 'LAT (latitude) is required.<br>';
+    }
+    if ( (lon.value == null) || (lon.value == "") || isblank(lon.value) )
+    {
+        errorMsg += 'LON (longitude) is required.<br>';
+    }
+    if ( (snrc.value == null) || (snrc.value == "") || isblank(snrc.value) )
+    {
+        errorMsg += 'SNRC is required.<br>';
+    }
+    if( errorMsg.length > 0 ) {
+        bootbox.alert(errorMsg);
+        return;
+    }
+    form.submit();
+}
+
+function updateRoadmMapping(router_name,roadm_name,clli,city_name,lat,lon,snrc) {
+
+    document.getElementById('uf_router_name').value=router_name;
+    document.getElementById('uf_roadm_name').value=roadm_name;
+    document.getElementById('uf_clli').value=clli;
+    document.getElementById('uf_city_name').value=city_name;
+    document.getElementById('uf_lat').value=lat;
+    document.getElementById('uf_lon').value=lon;
+    document.getElementById('uf_snrc').value=snrc;
+    document.getElementById('uf_key_router_name').value=router_name;
+
+    $('#update_roadm_mapping').modal('show');
+}
+
+function deleteRoadmMapping(router_name) {
+
+	var url_string = encodeURI("/tunnel/deleteRoadmMapping?router_name=" + router_name);
+
+    bootbox.confirm({
+        message: "Are you sure you want to delete this mapping? [" + router_name + "]",
+        callback: function(result) {
+            if ( result )
+            {
+				location.assign(url_string);
+            }
+            return;
+        },
+        buttons: {
+            cancel: {
+                label: "Cancel"
+            },
+            confirm: {
+                label: "Yes"
+            }
+        }
+    });
+}
+
+</script>
+
+</body>
+</html>
+

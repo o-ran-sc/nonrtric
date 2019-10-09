@@ -1,0 +1,242 @@
+[
+    {
+        "id": "d581c562.c43188",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 105.71428680419922,
+        "y": 82.85714721679688,
+        "z": "3db8bf99.514be",
+        "wires": [
+            [
+                "fe2cb5ef.9a8118"
+            ]
+        ]
+    },
+    {
+        "id": "fe2cb5ef.9a8118",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 219.33331298828125,
+        "y": 123.09526062011719,
+        "z": "3db8bf99.514be",
+        "wires": [
+            [
+                "afb77106.81ec6"
+            ]
+        ]
+    },
+    {
+        "id": "afb77106.81ec6",
+        "type": "method",
+        "name": "method policy-manager-delete-policy",
+        "xml": "<method rpc='policy-manager-delete-policy' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 191.14291381835938,
+        "y": 162.85714721679688,
+        "z": "3db8bf99.514be",
+        "wires": [
+            [
+                "fac4023.3e872"
+            ]
+        ]
+    },
+    {
+        "id": "7456b083.f5c67",
+        "type": "comment",
+        "name": "policy-manager-delete-policy",
+        "info": "",
+        "comments": "",
+        "x": 500.05914306640625,
+        "y": 30.443490982055664,
+        "z": "3db8bf99.514be",
+        "wires": []
+    },
+    {
+        "id": "fac4023.3e872",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 221.42858123779297,
+        "y": 324.28570556640625,
+        "z": "3db8bf99.514be",
+        "wires": [
+            [
+                "e7322979.b0b9c8",
+                "fbc41199.2cc44"
+            ]
+        ]
+    },
+    {
+        "id": "e7322979.b0b9c8",
+        "type": "execute",
+        "name": "RestapiCallnode deletePolicy PDP",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='templateFileName' value=\"`$prop.restapi.templateDir + '/' + $prop.restapi.pm.deletepolicypdp.templatefile`\" />\n    <parameter name='restapiUrl' value=\"`$prop.policy-manager.url + '/pdp/api/deletePolicy'`\" />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='DELETE' />\n    <parameter name='convertResponse' value=\"false\" />\n    <parameter name='customHttpHeaders'\n      value=\"`'Authorization=Basic ' + $prop.policy-manager.authorization + ',ClientAuth=Basic ' + $prop.policy-manager.clientauth + ',Environment=' + $prop.policy-manager.environment `\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 499.99998474121094,
+        "y": 284.28571224212646,
+        "z": "3db8bf99.514be",
+        "wires": [
+            [
+                "47d31b8a.83ea94",
+                "fef211f6.ec11e"
+            ]
+        ]
+    },
+    {
+        "id": "47d31b8a.83ea94",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 728.5714263916016,
+        "y": 260.0000009536743,
+        "z": "3db8bf99.514be",
+        "wires": [
+            [
+                "3d158249.ff10fe"
+            ]
+        ]
+    },
+    {
+        "id": "3d158249.ff10fe",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 892.2857513427734,
+        "y": 259.9284768104553,
+        "z": "3db8bf99.514be",
+        "wires": [
+            [
+                "56e0237b.2129ac"
+            ]
+        ]
+    },
+    {
+        "id": "fef211f6.ec11e",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 724.7089653015137,
+        "y": 307.92321395874023,
+        "z": "3db8bf99.514be",
+        "wires": [
+            [
+                "2cb54eeb.c893e2"
+            ]
+        ]
+    },
+    {
+        "id": "f1cdea53.99d408",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1370.0000076293945,
+        "y": 233.5714454650879,
+        "z": "3db8bf99.514be",
+        "wires": [
+            [
+                "37d77ceb.7b75b4"
+            ]
+        ]
+    },
+    {
+        "id": "37d77ceb.7b75b4",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1533.7143325805664,
+        "y": 233.4999213218689,
+        "z": "3db8bf99.514be",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e6cf96c3.b55948",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1366.1375465393066,
+        "y": 281.4946584701538,
+        "z": "3db8bf99.514be",
+        "wires": [
+            [
+                "898e79aa.dcca08"
+            ]
+        ]
+    },
+    {
+        "id": "2cb54eeb.c893e2",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value='Failed to delete policy from Policy Manager (PDP)' />\n",
+        "comments": "",
+        "x": 890.0000381469727,
+        "y": 308.000018119812,
+        "z": "3db8bf99.514be",
+        "wires": []
+    },
+    {
+        "id": "fbc41199.2cc44",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n",
+        "comments": "",
+        "x": 438.5714111328125,
+        "y": 362.85710525512695,
+        "z": "3db8bf99.514be",
+        "wires": []
+    },
+    {
+        "id": "56e0237b.2129ac",
+        "type": "execute",
+        "name": "RestapiCallnode deletePolicy PAP",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='templateFileName' value=\"`$prop.restapi.templateDir + '/' + $prop.restapi.pm.deletepolicypap.templatefile`\" />\n    <parameter name='restapiUrl' value=\"`$prop.policy-manager.url + '/pdp/api/deletePolicy'`\" />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='DELETE' />\n    <parameter name='convertResponse' value=\"false\" />\n    <parameter name='customHttpHeaders'\n      value=\"`'Authorization=Basic ' + $prop.policy-manager.authorization + ',ClientAuth=Basic ' + $prop.policy-manager.clientauth + ',Environment=' + $prop.policy-manager.environment `\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1131.4286193847656,
+        "y": 259.14286613464355,
+        "z": "3db8bf99.514be",
+        "wires": [
+            [
+                "f1cdea53.99d408",
+                "e6cf96c3.b55948"
+            ]
+        ]
+    },
+    {
+        "id": "898e79aa.dcca08",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value='Failed to delete policy from Policy Manager (PAP)' />\n",
+        "comments": "",
+        "x": 1529.1429328918457,
+        "y": 282.2857246398926,
+        "z": "3db8bf99.514be",
+        "wires": []
+    }
+]

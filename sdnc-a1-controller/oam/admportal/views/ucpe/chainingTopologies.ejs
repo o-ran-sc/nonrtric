@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>SDN-C AdminPortal</title>
+<script class="init">
+    $(document).ready(function() {
+    $('#chaining_topologies').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+
+</head>
+<body>
+
+<div class="well well-sm">
+<h3>uCPE Chaining Topologies</h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+        if (result.code.length > 0) {
+            if ( result.code == 'success' ) { %>
+                <div class='alert alert-success' role='alert'>
+                <%
+                for ( x in result.msg ){ %>
+                    <div><%= result.msg[x] %></div>
+                <% } %>
+                </div>
+            <% } else { %>
+                <div class='alert alert-danger' role='danger'>
+                <%
+                for ( x in result.msg ){ %>
+                    <div><%= result.msg[x] %></div>
+                <% } %>
+                </div>
+            <% } %>
+        <% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+
+<!--
+	 <% if (priv == 'A'){ %>
+    <div class="actions" style="padding:15px 0px;">
+    <button class="btn btn-primary" data-toggle="modal" data-target="#add_vnf_profile">
+      Add VNF Profile
+    </button>
+    </div>
+    <% } %>
+-->
+
+	<table id="chaining_topologies" class="table table-hover table-condensed">
+    <thead>
+        <tr>
+		  <th>*TOPOLOGY_NAME</th>
+		  <th>*START_VNF_TYPE</th>
+		  <th>*SEQUENCE_NUMBER</th>
+		  <th>START_SERVIVE_PORT_NAME</th>
+		  <th>VNF_TYPE</th>
+		  <th>SERVICE_PORT_NAME</th>
+        </tr>
+    </thead>
+	<tbody>
+    <% rows.forEach( function(row) { %>
+        <tr>
+            <td><%= row.topology_name %></td>
+            <td><%= row.start_vnf_type %></td>
+            <td><%= row.sequence_number %></td>
+            <td><%= row.start_service_port_name %></td>
+            <td><%= row.vnf_type %></td>
+            <td><%= row.service_port_name %></td>
+        </tr>
+    <% }); %>
+    </tbody>
+    </table>
+
+</div>
+
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+
+</body>
+</html>
+

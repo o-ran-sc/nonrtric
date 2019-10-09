@@ -1,0 +1,675 @@
+[
+    {
+        "id": "89a5f171.637f3",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 102.85714721679688,
+        "y": 27.142858505249023,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "726d4b48.6b3284"
+            ]
+        ]
+    },
+    {
+        "id": "ba98d97d.0b8a38",
+        "type": "method",
+        "name": "method self-serve-aai-pnf-put",
+        "xml": "<method rpc='self-serve-aai-pnf-put' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 207.92857360839844,
+        "y": 108.31746292114258,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "f00b1d79.cbbfd"
+            ]
+        ]
+    },
+    {
+        "id": "f00b1d79.cbbfd",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 193.75001525878906,
+        "y": 174.80955505371094,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "8e501ff3.989f9",
+                "f0ca58a.1b0cda8",
+                "ced3a890.5dcf98",
+                "fad2d25.74e043"
+            ]
+        ]
+    },
+    {
+        "id": "726d4b48.6b3284",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 375.71429443359375,
+        "y": 26.571425437927246,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "ba98d97d.0b8a38"
+            ]
+        ]
+    },
+    {
+        "id": "8e501ff3.989f9",
+        "type": "switchNode",
+        "name": "switch: ss.capability-action",
+        "xml": "<switch test='`$ss.capability-action`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 459.6429328918457,
+        "y": 228.74998331069946,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "11cee7f1.2e1cd8",
+                "107d90ac.e448ef"
+            ]
+        ]
+    },
+    {
+        "id": "11cee7f1.2e1cd8",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 683.1429290771484,
+        "y": 228.99998331069946,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "c5d83975.009c18"
+            ]
+        ]
+    },
+    {
+        "id": "c5d83975.009c18",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status=\"failure\">\n\t<parameter name=\"ack-final\" value=\"Y\" />\n\t<parameter name=\"error-code\" value=\"500\"/>\n\t<parameter name=\"error-message\" value=\"ss.capability-action is null\" />\n",
+        "comments": "",
+        "x": 843.0596008300781,
+        "y": 229.11108207702637,
+        "z": "de6615d.b5910e8",
+        "wires": []
+    },
+    {
+        "id": "107d90ac.e448ef",
+        "type": "outcome",
+        "name": "assign",
+        "xml": "<outcome value='assign'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 682.8929252624512,
+        "y": 277.99998664855957,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "122bdfd4.0eeb4"
+            ]
+        ]
+    },
+    {
+        "id": "575e2623.493218",
+        "type": "for",
+        "name": "for aidx in param_length (PNF)",
+        "xml": "<for silentFailure='true' index=\"aidx\" start=\"0\" end=\"`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param_length`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1122.884937286377,
+        "y": 277.9603753089905,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "95379e3b.20688"
+            ]
+        ]
+    },
+    {
+        "id": "f0ca58a.1b0cda8",
+        "type": "execute",
+        "name": "printContext",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >\n<parameter name='filename' value='/var/tmp/ss-aai-pnf-put.log' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 404.702392578125,
+        "y": 593.0952491760254,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "95379e3b.20688",
+        "type": "switchNode",
+        "name": "switch: param[].name",
+        "xml": "<switch test='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$aidx].name`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1445.4286041259766,
+        "y": 278.21428871154785,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "bf35662a.fd7a28",
+                "a34f4b03.d69878",
+                "2c5c4f3f.a39d2",
+                "cba4e46a.a153b8",
+                "8d9b71bd.4a778",
+                "3935817d.ee66ee"
+            ]
+        ]
+    },
+    {
+        "id": "bf35662a.fd7a28",
+        "type": "outcome",
+        "name": "pnf-name",
+        "xml": "<outcome value='pnf-name'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1676.3215980529785,
+        "y": 277.9999809265137,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "57231303.ea37dc"
+            ]
+        ]
+    },
+    {
+        "id": "a34f4b03.d69878",
+        "type": "outcome",
+        "name": "pnf-id",
+        "xml": "<outcome value='pnf-id'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1667.6788024902344,
+        "y": 386.9642949104309,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "f63b6a7a.ac9fd8"
+            ]
+        ]
+    },
+    {
+        "id": "57231303.ea37dc",
+        "type": "set",
+        "name": "set pnf-name, index",
+        "xml": "<set>\n<parameter name='ss.param.pnf-name' value ='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$aidx].value`' />\n<parameter name='ss.param.pnf-name-index' value='`$aidx`' />",
+        "comments": "",
+        "x": 1879.321605682373,
+        "y": 278.4999966621399,
+        "z": "de6615d.b5910e8",
+        "wires": []
+    },
+    {
+        "id": "f63b6a7a.ac9fd8",
+        "type": "set",
+        "name": "set pnf-id, index",
+        "xml": "<set>\n<parameter name='ss.param.pnf-id' value ='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$aidx].value`' />\n<parameter name='ss.param.pnf-id-index' value='`$aidx`' />",
+        "comments": "",
+        "x": 1843.1788139343262,
+        "y": 386.7142958641052,
+        "z": "de6615d.b5910e8",
+        "wires": []
+    },
+    {
+        "id": "7b5b542e.56480c",
+        "type": "save",
+        "name": "update pnf",
+        "xml": "<update plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\"\n\tresource=\"pnf\"\n\t\tkey=\"pnf.pnf-name = $ss.param.pnf-name \" >\n<parameter name=\"pnf-name2\" value=\"`$ss.param.pnf-name2`\" />\n<parameter name=\"prov-status\" value=\"PREPROV\" />\n<parameter name=\"selflink\" value=\"`$ss.selflink`\" />\n<parameter name=\"ipaddress-v4-oam\" value=\"`$ss.param.ipv4-oam-address`\" />\n<parameter name=\"ipaddress-v6-oam\" value=\"`$ss.param.ipv6-oam-address`\" />\n<parameter name=\"model-customization-id\"\n        value=\"`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-details.onap-model-information.model-customization-uuid`\" />\n<parameter name=\"model-invariant-id\"\n        value=\"`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-details.onap-model-information.model-invariant-uuid`\" />\n<parameter name=\"model-version-id\"\n        value=\"`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-details.onap-model-information.model-uuid`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1060.7498931884766,
+        "y": 897.3929443359375,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "f112cd3.4ede93",
+                "84b6dbe8.3fe148"
+            ]
+        ]
+    },
+    {
+        "id": "f112cd3.4ede93",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1260.9999237060547,
+        "y": 897.7499914169312,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "28f613dd.534a9c"
+            ]
+        ]
+    },
+    {
+        "id": "84b6dbe8.3fe148",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1267.2499351501465,
+        "y": 949.5000257492065,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "26471432.bb892c"
+            ]
+        ]
+    },
+    {
+        "id": "dff94b2c.d48618",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"`'Failed to update pnf.pnf-name in AnAI with pnf-name=' + $ss.param.pnf-name`\" />\n",
+        "comments": "",
+        "x": 1654.5830841064453,
+        "y": 897.5357427597046,
+        "z": "de6615d.b5910e8",
+        "wires": []
+    },
+    {
+        "id": "43d277af.fa5098",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"`'pnf with pnf-name =' + $ss.param.pnf-name + ' is not found in AAI'`\" />\n",
+        "comments": "",
+        "x": 1653.7260665893555,
+        "y": 948.7738838195801,
+        "z": "de6615d.b5910e8",
+        "wires": []
+    },
+    {
+        "id": "9bdf4d2.171ffb",
+        "type": "save",
+        "name": "get pnf",
+        "xml": "<get-resource plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\"\n\tresource=\"pnf\"\n\t\tkey=\"pnf.pnf-name = $ss.param.pnf-name \"\n\tpfx=\"tmp.aai.pnf\" >\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1042.03564453125,
+        "y": 638.0000247955322,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "1bebe350.ee380d",
+                "ab2a6854.6c93e8"
+            ]
+        ]
+    },
+    {
+        "id": "1bebe350.ee380d",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1250.5712776184082,
+        "y": 637.499945640564,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "4ad9bcb5.06d024"
+            ]
+        ]
+    },
+    {
+        "id": "ab2a6854.6c93e8",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1258.8211975097656,
+        "y": 736.3928537368774,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "363ef080.c1121"
+            ]
+        ]
+    },
+    {
+        "id": "dd0d7e04.e3135",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"`'Encountered error to get pnf with pnf-name=' + $ss.param.pnf-name + ' from AnAI'`\" />\n",
+        "comments": "",
+        "x": 1676.4400024414062,
+        "y": 685.8571395874023,
+        "z": "de6615d.b5910e8",
+        "wires": []
+    },
+    {
+        "id": "aaf8ef15.0a2c9",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"`'pnf with pnf-name=' + $ss.param.pnf-name + ' not found in AAI'`\" />\n",
+        "comments": "",
+        "x": 1678.1544570922852,
+        "y": 736.0953845977783,
+        "z": "de6615d.b5910e8",
+        "wires": []
+    },
+    {
+        "id": "122bdfd4.0eeb4",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 840.6429214477539,
+        "y": 278.2499828338623,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "575e2623.493218",
+                "9bdf4d2.171ffb",
+                "7b5b542e.56480c",
+                "1331d99f.8d7da6",
+                "45a19896.9c1308"
+            ]
+        ]
+    },
+    {
+        "id": "4ad9bcb5.06d024",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1422.142864227295,
+        "y": 637.5357389450073,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "9a1993dc.ff74",
+                "dd0d7e04.e3135"
+            ]
+        ]
+    },
+    {
+        "id": "28f613dd.534a9c",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1434.4284896850586,
+        "y": 897.8215160369873,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "9a1993dc.ff74",
+                "dff94b2c.d48618"
+            ]
+        ]
+    },
+    {
+        "id": "26471432.bb892c",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1437.2857055664062,
+        "y": 948.6786575317383,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "9a1993dc.ff74",
+                "43d277af.fa5098"
+            ]
+        ]
+    },
+    {
+        "id": "363ef080.c1121",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1424.999942779541,
+        "y": 736.5357389450073,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "9a1993dc.ff74",
+                "aaf8ef15.0a2c9"
+            ]
+        ]
+    },
+    {
+        "id": "9a1993dc.ff74",
+        "type": "set",
+        "name": "set resource-resolution-data.status = FAILED",
+        "xml": "<set>\n<parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$ss.param.aai-pnf-put-index].resource-resolution-data.status' \n\tvalue='FAILED' />\n",
+        "comments": "",
+        "x": 1785.9999465942383,
+        "y": 637.392951965332,
+        "z": "de6615d.b5910e8",
+        "wires": []
+    },
+    {
+        "id": "6b74947.f0ea76c",
+        "type": "comment",
+        "name": "PNF params",
+        "info": "",
+        "comments": "",
+        "x": 1096.9286308288574,
+        "y": 228.33332681655884,
+        "z": "de6615d.b5910e8",
+        "wires": []
+    },
+    {
+        "id": "1331d99f.8d7da6",
+        "type": "set",
+        "name": "set resource-resolution-data.status = SUCCESS",
+        "xml": "<set>\n<parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$ss.param.aai-pnf-put-index].resource-resolution-data.status' \n\tvalue='SUCCESS' />\n",
+        "comments": "",
+        "x": 1187.9882431030273,
+        "y": 1092.6783409118652,
+        "z": "de6615d.b5910e8",
+        "wires": []
+    },
+    {
+        "id": "2c5c4f3f.a39d2",
+        "type": "outcome",
+        "name": "aai-pnf-put",
+        "xml": "<outcome value='aai-pnf-put'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1679.8215141296387,
+        "y": 446.2499794960022,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "b874d734.628b78"
+            ]
+        ]
+    },
+    {
+        "id": "b874d734.628b78",
+        "type": "set",
+        "name": "set ss.param.aai-pnf-put-index",
+        "xml": "<set>\n<parameter name='ss.param.aai-pnf-put-index' value='`$aidx`' />",
+        "comments": "",
+        "x": 1913.3215255737305,
+        "y": 445.9999804496765,
+        "z": "de6615d.b5910e8",
+        "wires": []
+    },
+    {
+        "id": "ced3a890.5dcf98",
+        "type": "switchNode",
+        "name": "switch: ss.capability-name",
+        "xml": "<switch test='`$ss.capability-name`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 458.0357475280762,
+        "y": 174.46428155899048,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "4ddefe6.88848"
+            ]
+        ]
+    },
+    {
+        "id": "4ddefe6.88848",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "outputs": 1,
+        "x": 683.0357704162598,
+        "y": 174.964280128479,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "a5814d23.17c89"
+            ]
+        ]
+    },
+    {
+        "id": "a5814d23.17c89",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status=\"failure\">\n\t<parameter name=\"ack-final\" value=\"Y\" />\n\t<parameter name=\"error-code\" value=\"500\"/>\n\t<parameter name=\"error-message\" value=\"ss.capability-name is null\" />\n",
+        "comments": "",
+        "x": 842.9524421691895,
+        "y": 175.0753788948059,
+        "z": "de6615d.b5910e8",
+        "wires": []
+    },
+    {
+        "id": "fad2d25.74e043",
+        "type": "set",
+        "name": "set param[$ss.param.aai-pnf-put-index].value = SUCCESS",
+        "xml": "<set>\n<parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$ss.param.aai-pnf-put-index].value' \n\tvalue='SUCCESS' />\n",
+        "comments": "",
+        "x": 567.0357360839844,
+        "y": 418.74999713897705,
+        "z": "de6615d.b5910e8",
+        "wires": []
+    },
+    {
+        "id": "45a19896.9c1308",
+        "type": "set",
+        "name": "set ss.selflink",
+        "xml": "<set>\n<parameter name=\"ss.selflink\" \n\tvalue=\"`'restconf/config/GENERIC-RESOURCE-API:services/service/' + \n\t$service-data.pnfs.pnf[$pnf-index].pnf-data.service-information.service-instance-id + \n\t'/service-data/pnfs/pnf/' + \n\t$ss.param.pnf-id + \n\t'/pnf-data/pnf-topology/'`\" />\n",
+        "comments": "",
+        "x": 1065.9999618530273,
+        "y": 808.5714473724365,
+        "z": "de6615d.b5910e8",
+        "wires": []
+    },
+    {
+        "id": "cba4e46a.a153b8",
+        "type": "outcome",
+        "name": "pnf-name2",
+        "xml": "<outcome value='pnf-name2'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1682.5715141296387,
+        "y": 331.42857694625854,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "3b829d40.830272"
+            ]
+        ]
+    },
+    {
+        "id": "3b829d40.830272",
+        "type": "set",
+        "name": "set pnf-name, index",
+        "xml": "<set>\n<parameter name='ss.param.pnf-name2' value ='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$aidx].value`' />\n<parameter name='ss.param.pnf-name2-index' value='`$aidx`' />",
+        "comments": "",
+        "x": 1885.857265472412,
+        "y": 330.9286093711853,
+        "z": "de6615d.b5910e8",
+        "wires": []
+    },
+    {
+        "id": "8d9b71bd.4a778",
+        "type": "outcome",
+        "name": "ipv4-oam-address",
+        "xml": "<outcome value='ipv4-oam-address'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1703.7143363952637,
+        "y": 501.42857694625854,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "82ab755c.be9198"
+            ]
+        ]
+    },
+    {
+        "id": "82ab755c.be9198",
+        "type": "set",
+        "name": "set ss.param.ipv4-oam-address, index",
+        "xml": "<set>\n<parameter name='ss.param.ipv4-oam-address' value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$aidx].value`' />\n<parameter name='ss.param.ipv4-oam-address-index' value='`$aidx`' />",
+        "comments": "",
+        "x": 2009.107265472412,
+        "y": 501.17865324020386,
+        "z": "de6615d.b5910e8",
+        "wires": []
+    },
+    {
+        "id": "3935817d.ee66ee",
+        "type": "outcome",
+        "name": "ipv6-oam-address",
+        "xml": "<outcome value='ipv6-oam-address'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1703.7143363952637,
+        "y": 552.857165813446,
+        "z": "de6615d.b5910e8",
+        "wires": [
+            [
+                "2b822ef4.66ac12"
+            ]
+        ]
+    },
+    {
+        "id": "2b822ef4.66ac12",
+        "type": "set",
+        "name": "set ss.param.ipv6-oam-address, index",
+        "xml": "<set>\n<parameter name='ss.param.ipv6-oam-address' value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$aidx].value`' />\n<parameter name='ss.param.ipv6-oam-address-index' value='`$aidx`' />",
+        "comments": "",
+        "x": 2009.107265472412,
+        "y": 552.6072421073914,
+        "z": "de6615d.b5910e8",
+        "wires": []
+    }
+]

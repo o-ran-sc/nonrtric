@@ -1,0 +1,12 @@
+<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='VNF-API' version='${project.version}'><method rpc='vnf-topology-automated-rollback' mode='sync'>
+<block atomic="true"><switch test="`$vnf-topology-operation-input.vnf-request-information.vnf-id == $service-data.vnf-id`"><outcome value='false'>
+<return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value="`'vnf-id = ' + $vnf-topology-operation-input.vnf-request-information.vnf-id + ' not found in config tree'`"/></return></outcome></switch><switch test="`$service-data.oper-status.order-status == PendingCreate`"><outcome value='false'><return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='Invalid order-status'/></return></outcome></switch><call module='VNF-API' rpc='rollback-eipam-ip-assignment' mode='sync' ></call><set>
+	<parameter name="service-data.oper-status.last-order-status" value="`$service-data.oper-status.order-status`"/></set><set>
+	<parameter name="service-data.oper-status.order-status" value="Deleted"/></set><set>
+	<parameter name="service-data.oper-status.last-action" value="`$service-data.request-information.request-action`"/></set><set>
+	<parameter name="service-data." value="" /> 
+</set></block></method></service-logic>

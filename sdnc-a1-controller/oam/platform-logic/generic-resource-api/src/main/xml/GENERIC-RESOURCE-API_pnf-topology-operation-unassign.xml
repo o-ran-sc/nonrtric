@@ -1,0 +1,93 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='pnf-topology-operation-unassign' mode='sync'>
+        <block atomic="true">
+            <switch test='`$pnf-topology-operation-input.request-information.request-action`'>
+                <outcome value='DeletePnfInstance'>
+                    <block></block>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="If svc-action is 'unassign' then request-action must be 'DeletePnfInstance'" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$service-data.pnfs.pnf_length`'>
+                <outcome value=''>
+                    <return status='success'>
+                        <parameter name="ack-final-indicator" value="Y" />
+                        <parameter name="error-code" value="200" />
+                    </return>
+                </outcome>
+                <outcome value='Other'>
+                    <block atomic="true">
+                        <for index='idx' start='0' end='`$service-data.pnfs.pnf_length`' >
+                            <switch test='`$service-data.pnfs.pnf[$idx].pnf-id == $pnf-topology-operation-input.pnf-details.pnf-id`' >
+                                <outcome value='true'>
+                                    <set>
+                                        <parameter name='pnf-index' value='`$idx`' />
+                                    </set>
+                                </outcome>
+                            </switch>
+                        </for>
+                        <switch test='`$pnf-index`'>
+                            <outcome value=''>
+                                <return status='success'>
+                                    <parameter name="ack-final-indicator" value="Y" />
+                                    <parameter name="error-code" value="200" />
+                                </return>
+                            </outcome>
+                            <outcome value='Other'>
+                                <block atomic="true">
+                                    <call module='GENERIC-RESOURCE-API' rpc='self-serve-pnf-unassign' mode='sync' >
+                                        <outcome value='success'>
+                                            <switch test='`$service-data.pnfs.pnf_length`'>
+                                                <outcome value='1'>
+                                                    <set>
+                                                        <parameter name="service-data.pnfs." value=""/>
+                                                    </set>
+                                                </outcome>
+                                                <outcome value='Other'>
+                                                    <block atomic="true">
+                                                        <for index='idx' start='`$pnf-index + 1`' end='`$service-data.pnfs.pnf_length`' >
+                                                            <block>
+                                                                <set>
+                                                                    <parameter name="$tmpidx" value="`$idx - 1`"/>
+                                                                </set>
+                                                                <set>
+                                                                    <parameter name="service-data.pnfs.pnf[$tmpidx]." value="" />
+                                                                </set>
+                                                                <set>
+                                                                    <parameter name="service-data.pnfs.pnf[$tmpidx]." value="$service-data.pnfs.pnf[$idx]." />
+                                                                </set>
+                                                            </block>
+                                                        </for>
+                                                        <set>
+                                                            <parameter name="service-data.pnfs.pnf[$service-data.pnfs.pnf_length - 1]." value=""/>
+                                                        </set>
+                                                        <set>
+                                                            <parameter name="service-data.pnfs.pnf_length" value="`$service-data.pnfs.pnf_length - 1`"/>
+                                                        </set>
+                                                    </block>
+                                                </outcome>
+                                            </switch>
+                                        </outcome>
+                                        <outcome value='failure'>
+                                            <return status='failure'>
+                                                <parameter name='error-code' value='500' />
+                                                <parameter name='error-message' value="`'Encountered error while unassigning self-serve  pnf resources with error: '+ $error-message`" />
+                                            </return>
+                                        </outcome>
+                                    </call>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+            </switch>
+        </block>
+    </method>
+</service-logic>

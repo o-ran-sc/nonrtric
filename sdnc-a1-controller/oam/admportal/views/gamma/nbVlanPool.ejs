@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>SDN-C AdminPortal</title>
+
+<script class="init">
+    $(document).ready(function() {
+    $('#nb_vlan_pool').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+
+</head>
+<body>
+
+<div class="well well-sm">
+<h3>NetBond VLAN Pools</h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){ 
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+<div class="container-fluid">
+
+	<table id="nb_vlan_pool" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+          <th>AIC Site Id</th>
+          <th>Availability Zone</th>
+		  <th>VLAN Plan Id</th>
+		  <th>Plan Type</th>
+		  <th>Purpose</th>
+		  <th>VLAN Id</th>
+	      <th>Status</th>
+		  <% if(priv == 'A'){ %>
+		  <th>Action</th>
+		  <% } %>
+        </tr>
+      </thead>
+      <tbody>
+      <% rows.forEach( function(row) { %> 
+        <tr>
+            <td><%= row.aic_site_id %></td>
+            <td><%= row.availability_zone %></td>
+            <td><%= row.vlan_plan_id %></td>
+            <td><%= row.plan_type %></td>
+            <td><%= row.purpose %></td>
+            <td><%= row.vlan_id %></td>
+            <td><%= row.status %></td>
+			<% if(priv == 'A') { %>
+            <td>
+               	<button type="button" class="btn btn-default btn-xs" 
+					onclick="updateNbVlanPool('<%= row.aic_site_id %>', '<%= row.availability_zone %>',
+						'<%= row.vlan_plan_id %>', '<%= row.plan_type %>', '<%= row.purpose %>', 
+						'<%= row.vlan_id %>', '<%= row.status %>');">Update</button>
+            </td>
+            <% } else { %>
+				<td>&nbsp;</td>
+			<% } %>
+        </tr>
+    <% }); %>
+      </tbody>
+    </table>
+</div>
+
+<% include ../partials/nb_vlan_pool %>
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+<script type="text/javascript">
+
+function updateNbVlanPool(aic_site_id,availability_zone,vlan_plan_id,plan_type,purpose,vlan_id,pstatus) {
+
+    document.getElementById('uf_key_aic_site_id').value=aic_site_id;
+    document.getElementById('uf_key_availability_zone').value=availability_zone;
+    document.getElementById('uf_key_vlan_plan_id').value=vlan_plan_id;
+    document.getElementById('uf_key_plan_type').value=plan_type;
+    document.getElementById('uf_key_purpose').value=purpose;
+    document.getElementById('uf_key_vlan_id').value=vlan_id;
+    document.getElementById('uf_status').value=pstatus;
+
+    $('#update_nb_vlan_pool').modal('show');
+}
+
+function saveNbVlanPool(form)
+{
+   	form.submit();
+}
+
+</script>
+
+</body>
+</html>
+

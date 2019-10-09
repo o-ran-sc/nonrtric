@@ -1,0 +1,46 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='policy-manager-delete-policy' mode='sync'>
+        <block atomic="true">
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.pm.deletepolicypdp.templatefile`" />
+                <parameter name='restapiUrl' value="`$prop.policy-manager.url + '/pdp/api/deletePolicy'`" />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='DELETE' />
+                <parameter name='convertResponse' value="false" />
+                <parameter name='customHttpHeaders'
+      value="`'Authorization=Basic ' + $prop.policy-manager.authorization + ',ClientAuth=Basic ' + $prop.policy-manager.clientauth + ',Environment=' + $prop.policy-manager.environment `" />
+                <outcome value='success'>
+                    <block atomic="true">
+                        <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                            <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.pm.deletepolicypap.templatefile`" />
+                            <parameter name='restapiUrl' value="`$prop.policy-manager.url + '/pdp/api/deletePolicy'`" />
+                            <parameter name='format' value='json' />
+                            <parameter name='httpMethod' value='DELETE' />
+                            <parameter name='convertResponse' value="false" />
+                            <parameter name='customHttpHeaders'
+      value="`'Authorization=Basic ' + $prop.policy-manager.authorization + ',ClientAuth=Basic ' + $prop.policy-manager.clientauth + ',Environment=' + $prop.policy-manager.environment `" />
+                            <outcome value='success'>
+                                <block atomic="true"></block>
+                            </outcome>
+                            <outcome value='Other'>
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value='Failed to delete policy from Policy Manager (PAP)' />
+                                </return>
+                            </outcome>
+                        </execute>
+                    </block>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value='Failed to delete policy from Policy Manager (PDP)' />
+                    </return>
+                </outcome>
+            </execute>
+            <return status='success'></return>
+        </block>
+    </method>
+</service-logic>

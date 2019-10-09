@@ -1,0 +1,113 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='port-mirror-get-policy' mode='sync'>
+        <block atomic="true">
+            <set>
+                <parameter name='tmp.policy-name' value='`$db.cap[0].policy-name`' />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.pm.getpolicy.templatefile`" />
+                <parameter name='restapiUrl' value="`$prop.policy-manager.url + '/pdp/api/getConfig'`" />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='POST' />
+                <parameter name='responsePrefix' value="policy" />
+                <parameter name='customHttpHeaders'
+      value="`'Authorization=Basic ' + $prop.policy-manager.authorization + ',ClientAuth=Basic ' + $prop.policy-manager.clientauth + ',Environment=' + $prop.policy-manager.environment `" />
+                <outcome value='success'>
+                    <block atomic="true"></block>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value='Failed to get policy from Policy Manager' />
+                    </return>
+                </outcome>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='jsonStringToCtx' >
+                <parameter name='source' value="policy.config" />
+                <parameter name='outputPath' value="tmp.config-ctx" />
+                <parameter name='isEscaped' value='false' />
+                <outcome value='success'>
+                    <block atomic="true"></block>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value='Failed to convert config variable from PolicyManager' />
+                    </return>
+                </outcome>
+            </execute>
+            <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils" method="toLower">
+                <parameter name="source" value="`$tmp.tenant-context`" />
+                <parameter name="outputPath" value="tmp.lc-tenant-context" />
+            </execute>
+            <switch test='`$tmp.lc-tenant-context`'>
+                <outcome value=''>
+                    <set>
+                        <parameter name='tmp.dest-p-interface' value='`$tmp.config-ctx.content.defaultContext`' />
+                    </set>
+                </outcome>
+                <outcome value='Other'>
+                    <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils" method="contains" emitsOutcome='true'>
+                        <parameter name="source" value="`$tmp.lc-tenant-context`" />
+                        <parameter name="target" value="prod" />
+                        <outcome value='true'>
+                            <set>
+                                <parameter name='tmp.dest-p-interface' value='`$tmp.config-ctx.content.productionContext`' />
+                            </set>
+                        </outcome>
+                        <outcome value='Other'>
+                            <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils" method="contains" emitsOutcome='true'>
+                                <parameter name="source" value="`$tmp.lc-tenant-context`" />
+                                <parameter name="target" value="test" />
+                                <outcome value='true'>
+                                    <set>
+                                        <parameter name='tmp.dest-p-interface' value='`$tmp.config-ctx.content.testContext`' />
+                                    </set>
+                                </outcome>
+                                <outcome value='Other'>
+                                    <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils" method="contains" emitsOutcome='true'>
+                                        <parameter name="source" value="`$tmp.lc-tenant-context`" />
+                                        <parameter name="target" value="dev" />
+                                        <outcome value='true'>
+                                            <set>
+                                                <parameter name='tmp.dest-p-interface' value='`$tmp.config-ctx.content.developmentContext`' />
+                                            </set>
+                                        </outcome>
+                                        <outcome value='Other'>
+                                            <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils" method="contains" emitsOutcome='true'>
+                                                <parameter name="source" value="`$tmp.lc-tenant-context`" />
+                                                <parameter name="target" value="default" />
+                                                <outcome value='true'>
+                                                    <set>
+                                                        <parameter name='tmp.dest-p-interface' value='`$tmp.config-ctx.content.defaultContext`' />
+                                                    </set>
+                                                </outcome>
+                                                <outcome value='Other'>
+                                                    <return status='failure'>
+                                                        <parameter name='error-code' value='500' />
+                                                        <parameter name='error-message' value="`'Unexpected tenant-context value of ' + $tmp.tenant-context`" />
+                                                    </return>
+                                                </outcome>
+                                            </execute>
+                                        </outcome>
+                                    </execute>
+                                </outcome>
+                            </execute>
+                        </outcome>
+                    </execute>
+                </outcome>
+            </switch>
+            <switch test='`$tmp.dest-p-interface`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value="`'Unable to find p-interface in policy ' + tmp.policy-name`" />
+                    </return>
+                </outcome>
+            </switch>
+            <return status='success'></return>
+        </block>
+    </method>
+</service-logic>

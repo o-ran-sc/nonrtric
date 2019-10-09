@@ -1,0 +1,17 @@
+
+{  
+   "testList":[  
+      {  
+         "testId":"1",
+         "testName":"Test1"
+      },
+      {  
+         "testId":"2",
+         "testName":"Test2"
+      },
+      {  
+         "testId":"3",
+         "testName":"Test3"
+      }
+   ]
+}

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>SDN-C AdminPortal</title>
+
+<script class="init"> 
+	$(document).ready(function() {
+    $('#network_profile').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+
+</head>
+<body>
+
+<div class="well well-sm">
+<h3>Network Profile</h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+
+	 <% if(priv == 'A'){ %>
+        <div class="actions" style="padding:15px 0px;">
+            <button class="btn btn-primary btn-md" data-toggle="modal" data-target="#add_network_profile">
+            Add Profile 
+            </button>
+            </div>
+    <% } %>
+
+	<table id="network_profile" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+		  <th>*Network Type</th>
+          <th>Technology</th>
+		   <% if(priv == 'A'){ %>
+          <th>Action</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+      <% rows.forEach( function(row) { %> 
+        <tr>
+            <td><%= row.network_type %></td>
+            <td><%= row.technology %></td>
+			<% if(priv == 'A') { %>
+            <td>
+				<% if (priv == 'A') { %>
+				<button type="button" class="btn btn-default btn-xs" onclick="updateNetworkProfile('<%= row.network_type %>', '<%= row.technology %>');">Update</button>
+				<button type="button" class="btn btn-default btn-xs" onclick="deleteNetworkProfile('<%= row.network_type %>');">Delete</button>
+				<% } %>
+            </td>
+            <% } %>
+
+        </tr>
+    <% }); %>
+      </tbody>
+    </table>
+</div>
+
+<% include ../partials/network_profile %>
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+<script type="text/javascript">
+function saveNetworkProfile(form)
+{
+    var errorMsg='';
+    var network_type = '';
+	var technology = '';
+
+    if ( form.name == 'addForm' )
+    {
+		network_type = form.nf_network_type;
+		technology = form.nf_technology;
+    }
+    else
+    {
+		network_type = form.uf_network_type;
+		technology = form.uf_technology;
+    }
+
+
+    if ( (network_type.value == null) || (network_type.value == "") || isblank(network_type.value) )
+    {
+        errorMsg += 'Network Type is required.<br>';
+    }
+    if( errorMsg.length > 0 ) {
+        bootbox.alert(errorMsg);
+        return;
+    }
+    form.submit();
+}
+
+function updateNetworkProfile(network_type,technology) {
+
+    document.getElementById('uf_network_type').value=network_type;
+    document.getElementById('uf_technology').value=technology;
+
+    document.getElementById('uf_key_network_type').value=network_type;
+
+    $('#update_network_profile').modal('show');
+}
+
+function deleteNetworkProfile(network_type) {
+
+    bootbox.confirm({
+        message: "Are you sure you want to delete this Network Profile [" + network_type + "]",
+        callback: function(result) {
+            if ( result )
+            {
+				location.assign("/gamma/deleteNetworkProfile?network_type=" + network_type);
+            }
+            return;
+        },
+        buttons: {
+            cancel: {
+                label: "Cancel"
+            },
+            confirm: {
+                label: "Yes"
+            }
+        }
+    });
+}
+
+</script>
+
+</body>
+</html>
+

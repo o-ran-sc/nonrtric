@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>SDN-C AdminPortal</title>
+<script class="init">
+    $(document).ready(function() {
+    $('#vm_profile').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+
+</head>
+<body>
+
+<div class="well well-sm">
+<h3>VM Profile </h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+
+	<% if (priv == 'A'){ %>
+	<div class="actions" style="padding:15px 0px;">
+    <button class="btn btn-primary btn-md" data-toggle="modal" data-target="#add_vm_profile">
+      Add VM Profile
+    </button>
+	</div>
+	<% } %>
+
+	<table id="vm_profile" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+		  <th>*VNF_TYPE</th>
+		  <th>*VM_TYPE</th>
+		  <th>VM_COUNT</th>
+		  <% if(priv == 'A'){ %>
+          <th>Action</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+		<% rows.forEach( function(row) { %>
+        <tr>
+            <td><%= row.vnf_type %></td>
+            <td><%= row.vm_type %></td>
+            <td><%= row.vm_count %></td>
+			<% if(priv == 'A' ) { %>
+            <td>
+				<button type="button" class="btn btn-default btn-xs"
+                   onclick="deleteVmProfile('<%= row.vnf_type %>', '<%= row.vm_type %>');">Delete</button>
+            </td>
+            <% } %>
+        </tr>
+		<% }); %>
+      </tbody>
+    </table>
+
+	<% if(priv == 'A'){ %>
+	<div class="actions" style="padding:0px 25px;">
+	<form method="POST" action="/mobility/uploadVmProfile" enctype="multipart/form-data">
+		<div class="form-group">
+    		<label for="dest">File input</label>
+    		<input name="filename" type="file" id="dest">
+    		<p class="help-block">Choose a file to upload.</p>
+  		</div>
+        <button type="button" class="btn btn-default"
+                onclick="uploadFile(this.form);">Upload File</button>
+	</form>
+	</div>
+	<% } %>
+</div>
+
+<% include ../partials/vm_profile %>
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+<script type="text/javascript">
+
+function addVmProfile(form)
+{
+	var errorMsg='';
+	var vnf_type='';
+	var vm_type='';
+	var vm_count='';
+
+	if ( form.name == 'addForm' )
+	{
+		vnf_type = form.nf_vnf_type;
+		vm_type = form.nf_vm_type;
+		vm_count = form.nf_vm_count;
+	}
+
+	if ( (vnf_type.value == null) || (vnf_type.value == "") || isblank(vnf_type.value) )
+	{
+		errorMsg += 'VNF Type is required.<br>';
+	}
+	if ( (vm_type.value == null) || (vm_type.value == "") || isblank(vm_type.value) )
+	{
+		errorMsg += 'VM Type is required.<br>';
+	}
+	if( errorMsg.length > 0 ) {
+		bootbox.alert(errorMsg);
+		return;
+	}
+
+	if ( vm_count.value.length > 0 && !isDigit(vm_count.value) )
+	{
+		bootbox.alert('VM Count must be a number.');
+		return;
+	}
+	form.submit();
+}
+
+function deleteVmProfile(vnf_type, vm_type) {
+
+    bootbox.confirm({
+        message: "Are you sure you want to delete VM_PROFILE [" + vnf_type + "][" + vm_type + "]",
+        callback: function(result) {
+            if ( result )
+            {
+				location.assign("/mobility/deleteVmProfile?vnf_type=" + vnf_type + "&vm_type=" + vm_type);
+            }
+            return;
+        },
+        buttons: {
+            cancel: {
+                label: "Cancel"
+            },
+            confirm: {
+                label: "Yes"
+            }
+        }
+    });
+}
+
+</script>
+
+</body>
+</html>
+

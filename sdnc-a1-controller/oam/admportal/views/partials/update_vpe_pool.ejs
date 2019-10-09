@@ -1,0 +1,88 @@
+   <div class="modal fade" id="update_vpe_pool_modal" tabindex="-1" role="dialog" 
+		aria-labelledby="update_vpe_pool_label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Update VPE Pool</h4>
+          </div>
+          <div class="modal-body">
+            <form role="form" action="/gamma/updateVpePool" method="POST">
+              <div class="form-group">
+                <label for="uf_aic_site_id">AIC Site ID</label>
+                <input type="text" class="form-control" name="uf_aic_site_id" id="uf_aic_site_id">
+              </div>
+              <div class="form-group">
+                <label for="uf_vpe_name">VPE Name</label>
+                <input type="text" class="form-control" name="uf_vpe_name" id="uf_vpe_name">
+              </div>
+              <div class="form-group">
+                <label for="uf_availability_zone">Availability Zone</label>
+                <input type="text" class="form-control" name="uf_availability_zone" id="uf_availability_zone">
+              </div>
+              <div class="form-group">
+                <label for="uf_ipv4_oam_address">IPV4 OAM Address</label>
+                <input type="text" class="form-control" name="uf_ipv4_oam_address" id="uf_ipv4_oam_address">
+              </div>
+              <div class="form-group">
+                <label for="uf_loopback0_ipv4_address">Loopback IPV4 Address</label>
+                <input type="text" class="form-control" name="uf_loopback0_ipv4_address" id="uf_loopback0_ipv4_address">
+              </div>
+              <div class="form-group">
+                <label for="uf_provisioning_status">Provisioning Status</label>
+                <select class="form-control" name="uf_provisioning_status" id="uf_provisioning_status">
+                    <option value=PREPROV>PREPROV</option>
+                    <option value=NVTPROV>NVTPROV</option>
+                    <option value=PROV>PROV</option>
+                    <option value=CAPPED>CAPPED</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="uf_vlan_id_outer">VLAN ID Outer</label>
+                <input type="text" class="form-control" name="uf_vlan_id_outer" id="uf_vlan_id_outer">
+              </div>
+              <div class="form-group">
+                <label for="uf_vendor">Vendor</label>
+                <input type="text" class="form-control" name="uf_vendor" id="uf_vendor">
+              </div>
+              <div class="form-group">
+                <label for="uf_physical_intf_name">Interface Name</label>
+                <input type="text" class="form-control" name="uf_physical_intf_name" id="uf_physical_intf_name">
+              </div>
+              <div class="form-group">
+                <label for="uf_physical_intf_speed">Interface Speed</label>
+                <input type="text" class="form-control" name="uf_physical_intf_speed" id="uf_physical_intf_speed">
+              </div>
+              <div class="form-group">
+                <label for="uf_physical_intf_units">Interface Units</label>
+                <input type="text" class="form-control" name="uf_physical_intf_units" id="uf_physical_intf_units">
+              </div>
+              <div class="form-group">
+                <label for="uf_vpe_uuid">VPE UUID</label>
+                <input type="text" class="form-control" name="uf_vpe_uuid" id="uf_vpe_uuid">
+              </div>
+              <div class="form-group">
+                <label for="uf_as_number">AS_NUMBER</label>
+                <input type="text" class="form-control" name="uf_as_number" id="uf_as_number">
+              </div>
+              <div class="form-group">
+                <label for="uf_vpe_id">VPE ID</label>
+                <input type="text" class="form-control" name="uf_vpe_id" id="uf_vpe_id">
+              </div>
+              <div class="form-group">
+                <label for="uf_image_filename">Image Filename</label>
+                <input type="text" class="form-control" name="uf_image_filename" id="uf_image_filename">
+              </div>
+              <div class="form-group">
+                <input type="hidden" name="uf_key_vpe_name" id="uf_key_vpe_name">
+                <input type="hidden" name="uf_key_availability_zone" id="uf_key_availability_zone">
+                <input type="hidden" name="uf_key_aic_site_id" id="uf_key_aic_site_id">
+				<input type="hidden" name="uf_action" id="uf_action">
+                <button type="submit" class="btn btn-primary">Submit</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>

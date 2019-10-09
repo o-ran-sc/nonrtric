@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>SDN-C AdminPortal</title>
+<script class="init">
+    $(document).ready(function() {
+    $('#metroRoadmServiceRequest').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+
+</head>
+<body>
+
+<div class="well well-sm">
+<h3>Metro ROADM Service Request</h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+
+    <!--
+	 <% if(priv == 'A'){ %>
+        <div class="actions" style="padding:15px 0px;">
+            <button class="btn btn-primary" data-toggle="modal" data-target="#add_metroroadm_service_request">
+            Add Metro ROADM Serice Request
+            </button>
+            </div>
+    <% } %>
+    -->
+
+	<table id="metroRoadmServiceRequest" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+		   <th>ReqId</th>
+		   <th>ReqSource</th>
+		   <th>NotificationURL</th>
+		   <th>Action</th>
+          <th>ReqTimestamp</th>
+          <th>UpdateTimestamp</th>
+          <th>ReqStatus</th>
+          <th>ProcStatus</th>
+          <th>ReasonCode</th>
+          <th>ReasonMsg</th>
+          <th>ServiceId</th>
+          <th>CommonId</th>
+          <th>Clli_A</th>
+          <th>Clli_Z</th>
+          <th>Customer</th>
+          <th>ControllerId</th>
+		   <% if(priv == 'A'){ %>
+          <th>Action</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+      <% rows.forEach( function(row) { %> 
+        <tr>
+            <td><%= row.request_id %></td>
+            <td><%= row.request_source %></td>
+            <td><%= row.notification_url %></td>
+            <td><%= row.action %></td>
+            <td><%= row.request_timestamp %></td>
+            <td><%= row.update_timestamp %></td>
+            <td><%= row.request_status %></td>
+            <td><%= row.processing_status %></td>
+            <td><%= row.reason_code %></td>
+            <td><%= row.reason_message %></td>
+            <td><%= row.service_id %></td>
+            <td><%= row.common_id %></td>
+            <td><%= row.clli_a %></td>
+            <td><%= row.clli_z %></td>
+            <td><%= row.customer %></td>
+            <td><%= row.controller_id %></td>
+			<% if(priv == 'A') { %>
+            <td>
+				<button type="button" class="btn btn-default btn-xs"
+                onclick="updateMetroRoadmServiceRequest('<%=row.request_id %>','<%= row.request_source %>',
+                    '<%=row.notification_url %>','<%= row.action %>','<%= row.request_timestamp %>',
+                    '<%= row.update_timestamp %>','<%= row.request_status %>', '<%= row.processing_status %>',
+                    '<%= row.reason_code %>', '<%= row.reason_message %>','<%= row.service_id %>',
+                    '<%= row.common_id %>','<%= row.clli_a %>', '<%= row.clli_z %>','<%= row.customer %>',
+                    '<%= row.controller_id %>');">Update</button>
+				<button type="button" class="btn btn-default btn-xs"
+				onclick="deleteMetroRoadmServiceRequest('<%= row.request_id %>');">Delete</button>
+            </td>
+            <% } %>
+        </tr>
+    <% }); %>
+      </tbody>
+    </table>
+</div>
+
+<% include ../partials/metroroadm_service_request %>
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+<script type="text/javascript">
+function submitMetroRoadmServiceRequest(form)
+{
+    var errorMsg='';
+    var request_id='';
+	var request_source = '';
+	var notification_url = '';
+	var action = '';
+	var request_timestamp = '';
+	var update_timestamp = '';
+	var request_status = '';
+	var processing_status = '';
+	var reason_code = '';
+	var reason_message = '';
+	var service_id = '';
+	var common_id = '';
+	var clli_a = '';
+	var clli_z = '';
+	var customer = '';
+	var controller_id = '';
+
+    if ( form.name == 'addForm' )
+    {
+		request_id = form.nf_request_id;
+		request_source = form.nf_request_source;
+		notification_url = form.nf_notification_url;
+		action = form.nf_l_action;
+		request_timestamp = form.nf_request_timestamp;
+		update_timestamp = form.nf_update_timestamp;
+		request_status = form.nf_request_status;
+		processing_status = form.nf_processing_status;
+		reason_code = form.nf_reason_code;
+		reason_message = form.nf_reason_message;
+		service_id = form.nf_service_id;
+		common_id = form.nf_common_id;
+		clli_a = form.nf_clli_a;
+		clli_z = form.nf_clli_z;
+		customer = form.nf_customer;
+		controller_id = form.nf_controller_id;
+    }
+    else
+    {
+		request_id = form.uf_request_id;
+		request_source = form.uf_request_source;
+		notification_url = form.uf_notification_url;
+		action = form.uf_l_action;
+		request_timestamp = form.uf_request_timestamp;
+		update_timestamp = form.uf_update_timestamp;
+		request_status = form.uf_request_status;
+		processing_status = form.uf_processing_status;
+		reason_code = form.uf_reason_code;
+		reason_message = form.uf_reason_message;
+		service_id = form.uf_service_id;
+		common_id = form.uf_common_id;
+		clli_a = form.uf_clli_a;
+		clli_z = form.uf_clli_z;
+		customer = form.uf_customer;
+		controller_id = form.uf_controller_id;
+    }
+    if ( (request_id.value == null) || (request_id.value == "") || isblank(request_id.value) )
+    {
+        errorMsg += 'Request Id is required.\n';
+    }
+    if ( (action.value == null) || (action.value == "") || isblank(action.value) )
+    {
+        errorMsg += 'Action is required.\n';
+    }
+    if ( (request_timestamp.value == null) || (request_timestamp.value == "") || isblank(request_timestamp.value) )
+    {
+        errorMsg += 'Request Timestamp is required.\n';
+    }
+    if ( (request_status.value == null) || (request_status.value == "") || isblank(request_status.value) )
+    {
+        errorMsg += 'Request Status is required.\n';
+    }
+    if ( (processing_status.value == null) || (processing_status.value == "") || isblank(processing_status.value) )
+    {
+        errorMsg += 'Processing Status is required.\n';
+    }
+    if ( (service_id.value == null) || (service_id.value == "") || isblank(service_id.value) )
+    {
+        errorMsg += 'Service Id is required.\n';
+    }
+    if ( (controller_id.value == null) || (controller_id.value == "") || isblank(controller_id.value) )
+    {
+        errorMsg += 'Controller Id is required.\n';
+    }
+    if( errorMsg.length > 0 ) {
+        alert(errorMsg);
+        return;
+    }
+
+    // edit request_timestamp, update_timestamp
+    if (!isValid(request_timestamp.value)){ 
+        alert('Request Timestamp must be in format YYYY-MM-DD HH:MM:SS');
+        return;
+    }
+    if ( update_timestamp.length > 0 )
+    {
+        if (!isValid(update_timestamp.value)){ 
+            alert('Update Timestamp must be in format YYYY-MM-DD HH:MM:SS');
+            return;
+        }
+    }
+    form.submit();
+}
+
+function isValid(dateString) {
+    if (dateString == '0000-00-00 00:00:00'){
+        return(true);
+    }
+    var minDate = new Date('1970-01-01 00:00:01');
+    var maxDate = new Date('2038-01-19 03:14:07');
+    var date = new Date(dateString);
+    return date > minDate && date < maxDate;
+}
+
+function updateMetroRoadmServiceRequest(request_id,request_source,notification_url,action,request_timestamp,update_timestamp,
+        request_status,processing_status,reason_code,reason_message,service_id,common_id,clli_a,clli_z,customer,controller_id) {
+
+    document.getElementById('uf_request_id').value=request_id;
+    document.getElementById('uf_key_request_id').value=request_id;
+    document.getElementById('uf_request_source').value=request_source;
+    document.getElementById('uf_notification_url').value=notification_url;
+    document.getElementById('uf_l_action').value=action;
+    document.getElementById('uf_request_timestamp').value=request_timestamp;
+    document.getElementById('uf_update_timestamp').value=update_timestamp;
+    document.getElementById('uf_request_status').value=request_status;
+    document.getElementById('uf_processing_status').value=processing_status;
+    document.getElementById('uf_reason_code').value=reason_code;
+    document.getElementById('uf_reason_message').value=reason_message;
+    document.getElementById('uf_service_id').value=service_id;
+    document.getElementById('uf_common_id').value=common_id;
+    document.getElementById('uf_clli_a').value=clli_a;
+    document.getElementById('uf_clli_z').value=clli_z;
+    document.getElementById('uf_customer').value=customer;
+    document.getElementById('uf_controller_id').value=controller_id;
+
+    $('#update_metroroadm_service_request').modal('show');
+}
+
+function deleteMetroRoadmServiceRequest(request_id) {
+
+	var url_string = encodeURI("/tunnel/deleteMetroRoadmServiceRequest?request_id=" + request_id );
+
+    bootbox.confirm({
+        message: "Are you sure you want to delete Metro ROADM Service Request? " + request_id,
+        callback: function(result) {
+            if ( result )
+            {
+				location.assign(url_string);
+            }
+            return;
+        },
+        buttons: {
+            cancel: {
+                label: "Cancel"
+            },
+            confirm: {
+                label: "Yes"
+            }
+        }
+    });
+}
+
+</script>
+
+</body>
+</html>
+

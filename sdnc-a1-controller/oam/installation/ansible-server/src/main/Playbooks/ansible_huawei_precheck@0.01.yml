@@ -1,0 +1,41 @@
+---
+- hosts: all
+  tasks:
+  - name: create a temporary file for additional data
+    file: 
+      path: /tmp/tmp-{{Id}}
+      state: touch
+
+  - name: prepare additional data
+    shell: echo {{additionalData}} > /tmp/tmp-{{Id}}
+
+  - name: execute pre-check operation
+    shell: ./swm/upgrade-pre-check {{pnfId}} {{oldSwVersion}} {{targetSwVersion}} {{ruleName}} /tmp/tmp-{{Id}}
+    ignore_errors: yes
+    register: precheck_result
+
+  - name: write output to file
+    local_action: copy content="{{precheck_result.stdout}}" dest="{{inventory_dir}}/{{inventory_hostname}}_results.txt"
+    when: precheck_result.stdout != ""
+
+  - name: remove the temporary file
+    file:
+      path: /tmp/tmp-{{Id}}
+      state: absent
+
+  - name: build error message
+    set_fact:
+      err_msg:
+        "reason": "{{precheck_result.stderr}}"
+        "result": "Failure"
+    when: precheck_result is failed and precheck_result.stdout == "" and precheck_result.stderr != ""
+
+  - name: write error message to file
+    local_action: copy content="{{err_msg}}" dest="{{inventory_dir}}/{{inventory_hostname}}_results.txt"
+    when: precheck_result is failed and precheck_result.stdout == "" and precheck_result.stderr != ""
+
+  - name: use result of pre-check as the result of Playbook
+    fail:
+      msg: "{{precheck_result.stderr}}"
+    when: precheck_result is failed
+

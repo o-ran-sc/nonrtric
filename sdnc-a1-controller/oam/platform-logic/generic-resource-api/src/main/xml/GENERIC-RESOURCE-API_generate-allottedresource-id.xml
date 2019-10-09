@@ -1,0 +1,68 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc="generate-allottedresource-id" mode="sync">
+        <block atomic="true">
+            <set>
+                <parameter name="tmp.local-variables.generate-allottedresource-id." value="" />
+                <parameter name="tmp.return.generate-allottedresource-id." value="" />
+            </set>
+            <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils" method="generateUUID" >
+                <parameter name="ctx-destination" value="tmp.return.generate-allottedresource-id.id" />
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <!-- Used to work around execute node bug -->
+                        <parameter name="execute_failure" value="false" />
+                        <!-- return parameters -->
+                        <parameter name="error-message.generate-l3network-network-id" value="An error occured while generating a UUID for L3-NETWORK." />
+                    </return>
+                </outcome>
+            </execute>
+            <for atomic="true" index="n" start="0" end="1" >
+                <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+              resource="allotted-resource"
+              key="customer.global-customer-id = $service-data.service-information.global-customer-id AND
+					service-subscription.service-type = $cto-api.service-type AND
+					service-instance.service-instance-id = $cto-api.port-mirror-configuration-instance-id AND
+					allotted-resource.id = $tmp.return.generate-allottedresource-id.id"
+              local-only="false"
+              pfx="tmp.local-variables.generate-allottedresource-id.ALLOTTEDRESOURCE" >
+                    <outcome value='success'>
+                        <block atomic='true'>
+                            <set>
+                                <parameter name="tmp.local-variables.generate-allottedresource-id.is-unique" value="0" />
+                            </set>
+                            <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils" method="generateUUID" >
+                                <parameter name="ctx-destination" value="tmp.return.generate-allottedresource-id.id" />
+                                <outcome value='failure'>
+                                    <return status="failure">
+                                        <!-- return parameters -->
+                                        <parameter name="error-message.generate-allottedresource-id" value="An error occured while generating a UUID for ALLOTTED-RESOURCE." />
+                                    </return>
+                                </outcome>
+                            </execute>
+                        </block>
+                    </outcome>
+                    <outcome value='not-found'>
+                        <block></block>
+                    </outcome>
+                    <outcome value='failure'>
+                        <return status="failure">
+                            <!-- return parameters -->
+                            <parameter name="error-message.generate-allottedresource-id" value="`'An error occured while checking if a generated allotted-resource-id was unique. allotted-resource-id = ' + $tmp.local-variables.generate-allottedresource-id.id`" />
+                        </return>
+                    </outcome>
+                    <outcome value="Other">
+                        <return status="failure">
+                            <!-- return parameters -->
+                            <parameter name="error-message.generate-allottedresource-id" value="`'An error occured while checking if a generated allotted-resource-id was unique. allotted-resource-id = ' + $tmp.local-variables.generate-allottedresource-id.id`" />
+                        </return>
+                    </outcome>
+                </get-resource>
+            </for>
+            <set>
+                <parameter name="tmp.local-variables.generate-allottedresource-id." value="" />
+            </set>
+        </block>
+    </method>
+</service-logic>

@@ -1,0 +1,89 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='vnf-topology-operation-vpn-site-resource-deactivate' mode='sync'>
+        <block atomic="true">
+            <switch test='`$service-data.vnfs.vnf_length`'>
+                <outcome value='0'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="vnf-topology-operation-input.vnf-request-input.vnf-id not found in service-data" />
+                    </return>
+                </outcome>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="vnf-topology-operation-input.vnf-request-input.vnf-id not found in service-data" />
+                    </return>
+                </outcome>
+                <outcome value='Other'>
+                    <block atomic="true">
+                        <for index='vidx' start='0' end='`$service-data.vnfs.vnf_length`' >
+                            <block>
+                                <switch test="`$service-data.vnfs.vnf[$vidx].vnf-id == $vnf-topology-operation-input.vnf-information.vnf-id`">
+                                    <outcome value='true'>
+                                        <block atomic="true">
+                                            <set>
+                                                <parameter name='tmp.vidx' value='`$vidx`' />
+                                                <parameter name='ctx.vnf-data.' value='`$service-data.vnfs.vnf[$vidx].`' />
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                            </block>
+                        </for>
+                        <switch test="`$tmp.vidx`">
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="vnf-topology-operation-input.vnf-request-input.vnf-id not found in service-data" />
+                                </return>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+            </switch>
+            <switch test='`$service-data.vnfs.vnf[$tmp.vidx].vnf-data.vnf-level-oper-status.order-status`'>
+                <outcome value='Active'>
+                    <block atomic="true"></block>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`'VNF is not in appropriate state for activate. Current state is ' + $service-data.vnfs.vnf[$tmp.nidx].vnf-data.vnf-level-oper-status.order-status`" />
+                    </return>
+                </outcome>
+            </switch>
+            <set>
+                <!--parameter name='service-data.vnfs.vnf[$tmp.vidx].vnf-id' value='`$vnf-topology-operation-input.vnf-information.vnf-id`' /-->
+                <parameter name='service-data.vnfs.vnf[$tmp.vidx].vnf-data.sdnc-request-header.' value='$vnf-topology-operation-input.sdnc-request-header.' />
+                <parameter name='service-data.vnfs.vnf[$tmp.vidx].vnf-data.request-information.' value='$vnf-topology-operation-input.request-information.' />
+                <parameter name='service-data.vnfs.vnf[$tmp.vidx].vnf-data.service-information.' value='$vnf-topology-operation-input.service-information.' />
+            </set>
+            <set>
+                <parameter name='vnfId' value='`$vnf-topology-operation-input.vnf-information.vnf-id`' />
+                <parameter name="vnf-object-path" value="`'restconf/config/GENERIC-RESOURCE-API:services/service/'  + $vnf-topology-operation-input.service-information.service-instance-id  + '/service-data/vnfs/vnf/'  + $vnf-topology-operation-input.vnf-information.vnf-id  + '/vnf-data/'` " />
+            </set>
+            <set>
+                <parameter name='service-data.vnfs.vnf[$tmp.vidx].vnf-data.vnf-level-oper-status.order-status' value='PendingDelete' />
+                <parameter name='service-data.vnfs.vnf[$tmp.vidx].vnf-data.vnf-level-oper-status.last-rpc-action' value='`$vnf-topology-operation-input.sdnc-request-header.svc-action`' />
+                <parameter name='service-data.vnfs.vnf[$tmp.vidx].vnf-data.vnf-level-oper-status.last-action' value='`$vnf-topology-operation-input.request-information.request-action`' />
+            </set>
+            <update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="generic-vnf"   
+		key="generic-vnf.vnf-id = $vnfId" >
+                <parameter name="orchestration-status" value="PendingDelete" />
+                <parameter name="vnf-type" value="some vnf-type" />
+            </update>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="`$error-message`" />
+            </return>
+        </block>
+    </method>
+</service-logic>

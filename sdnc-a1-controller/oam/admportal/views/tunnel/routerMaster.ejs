@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<% include ../partials/head %>
+<% include ../partials/header %>
+<script type="text/javascript" src="/javascripts/admportal.js" async></script>
+<title>SDN-C AdminPortal</title>
+
+
+<script class="init"> 
+	$(document).ready(function() {
+    $('#routerMaster').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+</head>
+
+<body>
+
+<div class="well well-sm">
+<h3>Router Master</h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+
+	<% if(priv == 'A'){ %>
+        <div class="actions" style="padding:15px 0px;">
+            <button class="btn btn-primary btn-md" data-toggle="modal" data-target="#add_router_master">Add Router</button>
+        </div>
+    <% } %>
+
+	<table id="routerMaster" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+		  <th>*CRS Name</th>
+          <th>Loopback IP</th>
+		   <% if(priv == 'A'){ %>
+          <th>Action</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+      <% rows.forEach( function(row) { %> 
+        <tr>
+            <td><%= row.crs_name %></td>
+            <td><%= row.loopback_ip %></td>
+			<% if(priv == 'A') { %>
+            <td>
+				<button type="button" class="btn btn-default btn-xs" onclick="updateRouterMaster('<%= row.crs_name %>', 
+					'<%= row.loopback_ip %>');">Update</button>
+				<button type="button" class="btn btn-default btn-xs" onclick="deleteRouterMaster('<%= row.crs_name %>');">Delete</button>
+            </td>
+            <% } %>
+        </tr>
+    <% }); %>
+      </tbody>
+    </table>
+</div>
+
+<% include ../partials/router_master %>
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+<script type="text/javascript">
+function saveRouterMaster(form)
+{
+    var errorMsg='';
+    var crs_name = '';
+	var loopback_ip = '';
+
+    if ( form.name == 'addForm' )
+    {
+		crs_name = form.nf_crs_name;
+		loopback_ip = form.nf_loopback_ip;
+    }
+    else
+    {
+		crs_name = form.uf_crs_name;
+		loopback_ip = form.uf_loopback_ip;
+    }
+
+
+    if ( (crs_name.value == null) || (crs_name.value == "") || isblank(crs_name.value) )
+    {
+        errorMsg += 'CRS Name is required.<br>';
+    }
+    if ( (loopback_ip.value == null) || (loopback_ip.value == "") || isblank(loopback_ip.value) )
+    {
+        errorMsg += 'Loopback IP is required.<br>';
+    }
+    if( errorMsg.length > 0 ) {
+        bootbox.alert(errorMsg);
+        return;
+    }
+    form.submit();
+}
+
+function updateRouterMaster(crs_name,loopback_ip) {
+
+    document.getElementById('uf_crs_name').value=crs_name;
+    document.getElementById('uf_loopback_ip').value=loopback_ip;
+    document.getElementById('uf_key_crs_name').value=crs_name;
+
+    $('#update_router_master').modal('show');
+}
+
+function deleteRouterMaster(crs_name) {
+
+	var url_string = encodeURI("/tunnel/deleteRouterMaster?crs_name=" + crs_name);
+
+    bootbox.confirm({
+        message: "Are you sure you want to delete this Router [" + crs_name + "]",
+        callback: function(result) {
+            if ( result )
+            {
+				location.assign(url_string);
+            }
+            return;
+        },
+        buttons: {
+            cancel: {
+                label: "Cancel"
+            },
+            confirm: {
+                label: "Yes"
+            }
+        }
+    });
+}
+
+</script>
+
+</body>
+</html>
+

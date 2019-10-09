@@ -1,0 +1,156 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='self-serve-aai-pnf-put' mode='sync'>
+        <block atomic="true">
+            <switch test='`$ss.capability-name`'>
+                <outcome value=''>
+                    <return status="failure">
+                        <parameter name="ack-final" value="Y" />
+                        <parameter name="error-code" value="500"/>
+                        <parameter name="error-message" value="ss.capability-name is null" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$ss.capability-action`'>
+                <outcome value=''>
+                    <return status="failure">
+                        <parameter name="ack-final" value="Y" />
+                        <parameter name="error-code" value="500"/>
+                        <parameter name="error-message" value="ss.capability-action is null" />
+                    </return>
+                </outcome>
+                <outcome value='assign'>
+                    <block atomic='true'>
+                        <for silentFailure='true' index="aidx" start="0" end="`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param_length`">
+                            <switch test='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$aidx].name`'>
+                                <outcome value='pnf-name'>
+                                    <set>
+                                        <parameter name='ss.param.pnf-name' value ='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$aidx].value`' />
+                                        <parameter name='ss.param.pnf-name-index' value='`$aidx`' />
+                                    </set>
+                                </outcome>
+                                <outcome value='pnf-name2'>
+                                    <set>
+                                        <parameter name='ss.param.pnf-name2' value ='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$aidx].value`' />
+                                        <parameter name='ss.param.pnf-name2-index' value='`$aidx`' />
+                                    </set>
+                                </outcome>
+                                <outcome value='pnf-id'>
+                                    <set>
+                                        <parameter name='ss.param.pnf-id' value ='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$aidx].value`' />
+                                        <parameter name='ss.param.pnf-id-index' value='`$aidx`' />
+                                    </set>
+                                </outcome>
+                                <outcome value='aai-pnf-put'>
+                                    <set>
+                                        <parameter name='ss.param.aai-pnf-put-index' value='`$aidx`' />
+                                    </set>
+                                </outcome>
+                                <outcome value='ipv4-oam-address'>
+                                    <set>
+                                        <parameter name='ss.param.ipv4-oam-address' value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$aidx].value`' />
+                                        <parameter name='ss.param.ipv4-oam-address-index' value='`$aidx`' />
+                                    </set>
+                                </outcome>
+                                <outcome value='ipv6-oam-address'>
+                                    <set>
+                                        <parameter name='ss.param.ipv6-oam-address' value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$aidx].value`' />
+                                        <parameter name='ss.param.ipv6-oam-address-index' value='`$aidx`' />
+                                    </set>
+                                </outcome>
+                            </switch>
+                        </for>
+                        <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+	resource="pnf"
+		key="pnf.pnf-name = $ss.param.pnf-name "
+	pfx="tmp.aai.pnf" >
+                            <outcome value='failure'>
+                                <block atomic='true'>
+                                    <set>
+                                        <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$ss.param.aai-pnf-put-index].resource-resolution-data.status' 
+	value='FAILED' />
+                                    </set>
+                                    <return status='failure'>
+                                        <parameter name='error-code' value='500' />
+                                        <parameter name='error-message' value="`'Encountered error to get pnf with pnf-name=' + $ss.param.pnf-name + ' from AnAI'`" />
+                                    </return>
+                                </block>
+                            </outcome>
+                            <outcome value='not-found'>
+                                <block atomic='true'>
+                                    <set>
+                                        <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$ss.param.aai-pnf-put-index].resource-resolution-data.status' 
+	value='FAILED' />
+                                    </set>
+                                    <return status='failure'>
+                                        <parameter name='error-code' value='500' />
+                                        <parameter name='error-message' value="`'pnf with pnf-name=' + $ss.param.pnf-name + ' not found in AAI'`" />
+                                    </return>
+                                </block>
+                            </outcome>
+                        </get-resource>
+                        <set>
+                            <parameter name="ss.selflink" 
+	value="`'restconf/config/GENERIC-RESOURCE-API:services/service/' + 
+	$service-data.pnfs.pnf[$pnf-index].pnf-data.service-information.service-instance-id + 
+	'/service-data/pnfs/pnf/' + 
+	$ss.param.pnf-id + 
+	'/pnf-data/pnf-topology/'`" />
+                        </set>
+                        <update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+	resource="pnf"
+		key="pnf.pnf-name = $ss.param.pnf-name " >
+                            <parameter name="pnf-name2" value="`$ss.param.pnf-name2`" />
+                            <parameter name="prov-status" value="PREPROV" />
+                            <parameter name="selflink" value="`$ss.selflink`" />
+                            <parameter name="ipaddress-v4-oam" value="`$ss.param.ipv4-oam-address`" />
+                            <parameter name="ipaddress-v6-oam" value="`$ss.param.ipv6-oam-address`" />
+                            <parameter name="model-customization-id"
+        value="`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-details.onap-model-information.model-customization-uuid`" />
+                            <parameter name="model-invariant-id"
+        value="`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-details.onap-model-information.model-invariant-uuid`" />
+                            <parameter name="model-version-id"
+        value="`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-details.onap-model-information.model-uuid`" />
+                            <outcome value='failure'>
+                                <block atomic='true'>
+                                    <set>
+                                        <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$ss.param.aai-pnf-put-index].resource-resolution-data.status' 
+	value='FAILED' />
+                                    </set>
+                                    <return status='failure'>
+                                        <parameter name='error-code' value='500' />
+                                        <parameter name='error-message' value="`'Failed to update pnf.pnf-name in AnAI with pnf-name=' + $ss.param.pnf-name`" />
+                                    </return>
+                                </block>
+                            </outcome>
+                            <outcome value='not-found'>
+                                <block atomic='true'>
+                                    <set>
+                                        <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$ss.param.aai-pnf-put-index].resource-resolution-data.status' 
+	value='FAILED' />
+                                    </set>
+                                    <return status='failure'>
+                                        <parameter name='error-code' value='500' />
+                                        <parameter name='error-message' value="`'pnf with pnf-name =' + $ss.param.pnf-name + ' is not found in AAI'`" />
+                                    </return>
+                                </block>
+                            </outcome>
+                        </update>
+                        <set>
+                            <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$ss.param.aai-pnf-put-index].resource-resolution-data.status' 
+	value='SUCCESS' />
+                        </set>
+                    </block>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$ss.param.aai-pnf-put-index].value' 
+	value='SUCCESS' />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >
+                <parameter name='filename' value='/var/tmp/ss-aai-pnf-put.log' />
+            </execute>
+        </block>
+    </method>
+</service-logic>

@@ -1,0 +1,364 @@
+[
+    {
+        "id": "2525c69c.46a53a",
+        "type": "method",
+        "name": "config-scale-out",
+        "xml": "<method rpc='config-scale-out' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 525,
+        "y": 310,
+        "z": "2e6279df.227e56",
+        "wires": [
+            [
+                "fbc1ecc4.e47a5"
+            ]
+        ]
+    },
+    {
+        "id": "71bc22fb.570a1c",
+        "type": "service-logic",
+        "name": "LCM ${project.version}",
+        "module": "LCM",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='LCM' version='${project.version}'>",
+        "outputs": 1,
+        "x": 316.99993896484375,
+        "y": 312,
+        "z": "2e6279df.227e56",
+        "wires": [
+            [
+                "2525c69c.46a53a"
+            ]
+        ]
+    },
+    {
+        "id": "9aa59a9a.573488",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 535,
+        "y": 499.0000305175781,
+        "z": "2e6279df.227e56",
+        "wires": [
+            [
+                "1648f778.245cc9"
+            ]
+        ]
+    },
+    {
+        "id": "af21aba.b59b158",
+        "type": "other",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 534,
+        "y": 573,
+        "z": "2e6279df.227e56",
+        "wires": [
+            [
+                "4b5b877e.ab2088"
+            ]
+        ]
+    },
+    {
+        "id": "def90fda.f980a",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name='status.code' value='`$restconf.response-code`' />\n<parameter name='status.message' value='`$restconf.response-message`' />",
+        "comments": "",
+        "x": 833.9998779296875,
+        "y": 629.0000305175781,
+        "z": "2e6279df.227e56",
+        "wires": []
+    },
+    {
+        "id": "42cca51a.60b21c",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 132,
+        "y": 311,
+        "z": "2e6279df.227e56",
+        "wires": [
+            [
+                "71bc22fb.570a1c"
+            ]
+        ]
+    },
+    {
+        "id": "fbc1ecc4.e47a5",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 117.91668701171875,
+        "y": 448.0833435058594,
+        "z": "2e6279df.227e56",
+        "wires": [
+            [
+                "78a05e7a.6a51e",
+                "bafaa90c.54ab78",
+                "4ce05c2c.5aa5b4",
+                "dfe17100.934dc"
+            ]
+        ]
+    },
+    {
+        "id": "78a05e7a.6a51e",
+        "type": "execute",
+        "name": "execute Properties",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >\n    <parameter name='fileName' value='%SDNC_CONFIG_DIR%/lcm-dg.properties' />\n    <parameter name='contextPrefix' value='prop' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 302.00001525878906,
+        "y": 427.0833435058594,
+        "z": "2e6279df.227e56",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2f415068.43c48",
+        "type": "execute",
+        "name": "execute DmaapMsg",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='templateFileName' value=\"`$prop.restapi.templateDir + '/' + $prop.restapi.lcm.dmaap.publish.templatefile`\" />\n    <parameter name='restapiUrl' value='`$prop.lcm.dmaap.url`' />\n    <parameter name='restapiUser' value='`$prop.lcm.dmaap.user`' />\n    <parameter name='restapiPassword' value='`$prop.lcm.dmaap.password`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='POST' />\n    <parameter name='contentType' value='application/json' />\n    <parameter name='responsePrefix' value='dmaap' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 864.0000610351562,
+        "y": 435.0833435058594,
+        "z": "2e6279df.227e56",
+        "wires": [
+            [
+                "fdf40e79.456aa"
+            ]
+        ]
+    },
+    {
+        "id": "fdf40e79.456aa",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1046,
+        "y": 434.0833435058594,
+        "z": "2e6279df.227e56",
+        "wires": [
+            [
+                "d3492d84.dee36"
+            ]
+        ]
+    },
+    {
+        "id": "1648f778.245cc9",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 673,
+        "y": 500.0833435058594,
+        "z": "2e6279df.227e56",
+        "wires": [
+            [
+                "2f415068.43c48",
+                "fb59df11.d6057",
+                "aafbe068.0daef"
+            ]
+        ]
+    },
+    {
+        "id": "c832fe63.37e5f",
+        "type": "execute",
+        "name": "execute DmaapMsg",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='templateFileName' value=\"`$prop.restapi.templateDir + '/' + $prop.restapi.lcm.dmaap.publish.templatefile`\" />\n    <parameter name='restapiUrl' value='`$prop.lcm.dmaap.url`' />\n    <parameter name='restapiUser' value='`$prop.lcm.dmaap.user`' />\n    <parameter name='restapiPassword' value='`$prop.lcm.dmaap.password`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='POST' />\n    <parameter name='contentType' value='application/json' />\n    <parameter name='responsePrefix' value='dmaap' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 854.4998779296875,
+        "y": 578.0833435058594,
+        "z": "2e6279df.227e56",
+        "wires": [
+            [
+                "5e5bf79f.1bf8b8"
+            ]
+        ]
+    },
+    {
+        "id": "5e5bf79f.1bf8b8",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1031.4998779296875,
+        "y": 577.0833740234375,
+        "z": "2e6279df.227e56",
+        "wires": [
+            [
+                "1e79000b.07848"
+            ]
+        ]
+    },
+    {
+        "id": "d3492d84.dee36",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\"> \n\t<parameter name=\"logger\" value=\"message-log\"/> \n\t<parameter name=\"field1\" value='Failed to Publish to DMaap'/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1173,
+        "y": 434.0833435058594,
+        "z": "2e6279df.227e56",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "fb59df11.d6057",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='status.code' value= '`$lcm-dmaap.status.code`'/>\n<parameter name='status.message' value='`$lcm-dmaap.status.message`' />\n",
+        "comments": "",
+        "x": 844.9166870117188,
+        "y": 485.0833435058594,
+        "z": "2e6279df.227e56",
+        "wires": []
+    },
+    {
+        "id": "1e79000b.07848",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\"> \n\t<parameter name=\"logger\" value=\"message-log\"/> \n\t<parameter name=\"field1\" value='Failed to Publish to DMaap'/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1163.9166259765625,
+        "y": 575.0833740234375,
+        "z": "2e6279df.227e56",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "aafbe068.0daef",
+        "type": "set",
+        "name": "set",
+        "xml": "<set>\n<parameter name='lcm-dmaap.version' value='`$prop.lcm.dmaap.version`'/>\n<parameter name='lcm-dmaap.correlation-id' value=\"`$config-scale-out-input.common-header.request-id + '-' + $config-scale-out-input.common-header.sub-request-id`\"/>\n<parameter name='lcm-dmaap.partition' value='`$prop.lcm.dmaap.partition`'/>\n<parameter name='lcm-dmaap.rpc-name' value='config-scale-out'/>\n<parameter name='lcm-dmaap.type' value='`$prop.lcm.dmaap.type`'/>\n<parameter name='lcm-dmaap.timestamp' value='`$config-scale-out-input.common-header.timestamp`'/>\n<parameter name='lcm-dmaap.api-ver' value='`$config-scale-out-input.common-header.api-ver`'/>\n<parameter name='lcm-dmaap.originator-id' value='`$config-scale-out-input.common-header.originator-id`'/>\n<parameter name='lcm-dmaap.request-id' value='`$config-scale-out-input.common-header.request-id`'/>\n<parameter name='lcm-dmaap.sub-request-id' value='`$config-scaleout-input.common-header.sub-request-id`'/>\n<parameter name='lcm-dmaap.flags.mode' value='`$config-scale-out-input.common-header.flags.mode`'/>\n<parameter name='lcm-dmaap.flags.force' value='`$config-scale-out-input.common-header.flags.force`'/>\n<parameter name='lcm-dmaap.flags.ttl' value='`$config-scale-out-input.common-header.flags.ttl`'/>\n<parameter name='lcm-dmaap.status.code' value='401' />\n<parameter name='lcm-dmaap.status.message' value=\"`'DG-Failure '  + $restconf.response-message + ' RestConf ResponseCode=' + $restconf.response-code`\"/>\n",
+        "comments": "",
+        "x": 832.0000610351562,
+        "y": 379.0833435058594,
+        "z": "2e6279df.227e56",
+        "wires": []
+    },
+    {
+        "id": "4b5b877e.ab2088",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 683.9998779296875,
+        "y": 577.0833129882812,
+        "z": "2e6279df.227e56",
+        "wires": [
+            [
+                "c832fe63.37e5f",
+                "654b3892.a14d08",
+                "def90fda.f980a"
+            ]
+        ]
+    },
+    {
+        "id": "654b3892.a14d08",
+        "type": "set",
+        "name": "set",
+        "xml": "<set>\n<parameter name='lcm-dmaap.version' value='`$prop.lcm.dmaap.version`'/>\n<parameter name='lcm-dmaap.correlation-id' value=\"`$config-scale-out-input.common-header.request-id + '-' + $upgrade-software-input.common-header.sub-request-id`\"/>\n<parameter name='lcm-dmaap.partition' value='`$prop.lcm.dmaap.partition`'/>\n<parameter name='lcm-dmaap.rpc-name' value='config-scale-out'/>\n<parameter name='lcm-dmaap.type' value='`$prop.lcm.dmaap.type`'/>\n<parameter name='lcm-dmaap.timestamp' value='`$config-scale-out-input.common-header.timestamp`'/>\n<parameter name='lcm-dmaap.api-ver' value='`$config-scaleout-input.common-header.api-ver`'/>\n<parameter name='lcm-dmaap.originator-id' value='`$config-scale-out-input.common-header.originator-id`'/>\n<parameter name='lcm-dmaap.request-id' value='`$config-scale-out-input.common-header.request-id`'/>\n<parameter name='lcm-dmaap.sub-request-id' value='`$config-scale-out-input.common-header.sub-request-id`'/>\n<parameter name='lcm-dmaap.flags.mode' value='`$config-scale-out-input.common-header.flags.mode`'/>\n<parameter name='lcm-dmaap.flags.force' value='`$config-scale-out-input.common-header.flags.force`'/>\n<parameter name='lcm-dmaap.flags.ttl' value='`$config-scale-out-input.common-header.flags.ttl`'/>\n<parameter name='lcm-dmaap.status.code' value='`$restconf.response-code`' />\n<parameter name='lcm-dmaap.status.message' value='`$restconf.response-message`'/>\n\n",
+        "comments": "",
+        "x": 814.1666259765625,
+        "y": 530.0833435058594,
+        "z": "2e6279df.227e56",
+        "wires": []
+    },
+    {
+        "id": "bafaa90c.54ab78",
+        "type": "set",
+        "name": "set default status value",
+        "xml": "<set>\n<parameter name='status.code' value='200' />\n<parameter name='status.message' value='unexpected return from LCM DG' />",
+        "comments": "",
+        "x": 310,
+        "y": 473,
+        "z": "2e6279df.227e56",
+        "wires": []
+    },
+    {
+        "id": "dfe17100.934dc",
+        "type": "execute",
+        "name": "execute RestConfAPI",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='templateFileName' value=\"`$prop.restapi.templateDir + '/' + $prop.lcm.restconf.configscaleout.templatefile`\" />\n    <parameter name='restapiUrl' value=\"`'http://' + $payloadJson.request-parameters.host-ip-address + ':' + $prop.lcm.restconf.port + $prop.lcm.restconf.configscaleout.urlpath  + $payloadJson.configuration-parameters.ip-addr`\" />\n    <parameter name='restapiUser' value='`$prop.lcm.restconf.configscaleout.user`' />\n    <parameter name='restapiPassword' value='`$prop.lcm.restconf.configscaleout.password`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='PUT' />\n    <parameter name='contentType' value='application/json' />\n    <parameter name=\"responsePrefix\" value=\"restconf\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 302,
+        "y": 582,
+        "z": "2e6279df.227e56",
+        "wires": [
+            [
+                "9aa59a9a.573488",
+                "af21aba.b59b158"
+            ]
+        ]
+    },
+    {
+        "id": "4ce05c2c.5aa5b4",
+        "type": "execute",
+        "name": "execute jsonStringToCtx",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='jsonStringToCtx'>\n\t<parameter name='source' value='config-scale-out-input.payload' />\n\t<parameter name='outputPath' value='payloadJson' />\n\t<parameter name='isEscaped' value='true' />",
+        "comments": "",
+        "outputs": 1,
+        "x": 310,
+        "y": 520,
+        "z": "2e6279df.227e56",
+        "wires": [
+            [
+                "e5f5e49e.ae0018"
+            ]
+        ]
+    },
+    {
+        "id": "874cba8d.9da118",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin='org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder'> \n\t<parameter name='logger' value='message-log'/> \n\t<parameter name='field1' value='`$payloadJson.request-parameters.host-ip-address`'/>\n\t<parameter name='field2' value='`$payloadJson.configuration-parameters.ip-addr`'/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 678,
+        "y": 430,
+        "z": "2e6279df.227e56",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e5f5e49e.ae0018",
+        "type": "other",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 536,
+        "y": 429,
+        "z": "2e6279df.227e56",
+        "wires": [
+            [
+                "874cba8d.9da118"
+            ]
+        ]
+    }
+]

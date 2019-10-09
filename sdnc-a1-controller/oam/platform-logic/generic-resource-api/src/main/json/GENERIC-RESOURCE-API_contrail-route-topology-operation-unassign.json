@@ -1,0 +1,1662 @@
+[
+    {
+        "id": "cf211855.5ed1f8",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 168.57142639160156,
+        "y": 75.71428775787354,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "bc882a0e.799dc8"
+            ]
+        ]
+    },
+    {
+        "id": "bc882a0e.799dc8",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 314.80950927734375,
+        "y": 150.66668128967285,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "49d2f441.d1158c"
+            ]
+        ]
+    },
+    {
+        "id": "49d2f441.d1158c",
+        "type": "method",
+        "name": "contrail-route-topology-operation-unassign",
+        "xml": "<method rpc='contrail-route-topology-operation-unassign' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 394.7262763977051,
+        "y": 219.90472984313965,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "851e5011.006bf"
+            ]
+        ]
+    },
+    {
+        "id": "851e5011.006bf",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 303.04761123657227,
+        "y": 363.23807191848755,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "7f6e26b0.fa04c8",
+                "e1f61957.040858",
+                "52c8941e.34706c",
+                "9fe9d7fd.07e6d8",
+                "e043065a.680238",
+                "6a751595.cd154c",
+                "e915cfb.5954f3",
+                "216c3eb7.9d46c2",
+                "856fcfb5.c8342",
+                "6247b30a.8bdabc",
+                "250f7992.c6d986",
+                "a787f7d2.22c9c8",
+                "e991aac8.552e48",
+                "36023b8e.b1c6e4",
+                "ba43457f.b66688",
+                "64afab36.0ce6d4",
+                "a5078016.a7585",
+                "9190dbed.f454e8"
+            ]
+        ]
+    },
+    {
+        "id": "e1f61957.040858",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+        "comments": "",
+        "x": 541.1588745117188,
+        "y": 1725.2621965408325,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "7f6e26b0.fa04c8",
+        "type": "set",
+        "name": "set output to api handler",
+        "xml": "<set>\n<parameter name='allotted-resource-id' value='`$tmp.ar.allotted-resource-id`' />\n<parameter name='service-object-path' value=\"`'restconf/config/GENERIC-RESOURCE-API:services/service/'\n + $contrail-route-topology-operation-input.service-information.service-instance-id\n + '/service-data/service-topology/'`\"/>\n \n",
+        "comments": "",
+        "x": 569.9127807617188,
+        "y": 1687.7179899215698,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "9fe9d7fd.07e6d8",
+        "type": "set",
+        "name": "set tmp.ar.self-link",
+        "xml": "<set>\n<parameter name='tmp.ar.self-link' value=\"`'restconf/config/GENERIC-RESOURCE-API:contrail-route-allotted-resources/contrail-route-allotted-resource/'\n + $tmp.ar.allotted-resource-id\n + '/allotted-resource-data/contrail-route-topology/'` \" />\n\n",
+        "comments": "",
+        "x": 565.3094825744629,
+        "y": 337.04760932922363,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "52c8941e.34706c",
+        "type": "set",
+        "name": "set tmp.ar.allotted-resource-id,etc",
+        "xml": "<set>\n<parameter name='tmp.ar.allotted-resource-id' value='`$contrail-route-topology-operation-input.allotted-resource-information.allotted-resource-id`' />\n<parameter name='tmp.ar.parent-service-instance-id' value='`$contrail-route-topology-operation-input.allotted-resource-information.parent-service-instance-id`' />\n\n\n",
+        "comments": "",
+        "x": 612.5687446594238,
+        "y": 303.30687522888184,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "e043065a.680238",
+        "type": "execute",
+        "name": "execute Properties - pull properties file",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >\n    <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />\n    <parameter name='contextPrefix' value='prop' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 628.8981494903564,
+        "y": 369.6125030517578,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e915cfb.5954f3",
+        "type": "execute",
+        "name": "execute RestApiCallNode - Get AR by id",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />\n    <parameter name='restapiUser' value='`$prop.controller.user`' />\n    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='GET' />\n    <parameter name=\"responsePrefix\" value=\"mdsal-ar\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 629.8679656982422,
+        "y": 683.3960418701172,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "1a91ce88.4d2c91",
+                "bb4b7f07.d9ff6"
+            ]
+        ]
+    },
+    {
+        "id": "6a751595.cd154c",
+        "type": "execute",
+        "name": "generate allotted-resource url",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$prop.restapi.cr-allottedresource`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.ar-url\"/>\n    <parameter name=\"target\" value=\"{allotted-resource-id}\"/>\n    <parameter name=\"replacement\" value=\"`$tmp.ar.allotted-resource-id`\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 599.6362724304199,
+        "y": 432.73151302337646,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1a91ce88.4d2c91",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 875.1640701293945,
+        "y": 684.2038555145264,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "55fcf194.b47d5"
+            ]
+        ]
+    },
+    {
+        "id": "55fcf194.b47d5",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1044.1640739440918,
+        "y": 682.7037563323975,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "5479fd32.f72504"
+            ]
+        ]
+    },
+    {
+        "id": "5479fd32.f72504",
+        "type": "switchNode",
+        "name": "switch cr length",
+        "xml": "<switch test='`$mdsal-ar.contrail-route-allotted-resource_length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1255.0213165283203,
+        "y": 682.3228855133057,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "9300342b.83b788",
+                "d9b9b305.104fe"
+            ]
+        ]
+    },
+    {
+        "id": "9300342b.83b788",
+        "type": "other",
+        "name": "outcome 1",
+        "xml": "<outcome value='1'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1444.354621887207,
+        "y": 682.3228435516357,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "8a8034cd.f86478"
+            ]
+        ]
+    },
+    {
+        "id": "81b74a81.710da8",
+        "type": "set",
+        "name": "set ar from get",
+        "xml": "<set>\n<parameter name='ar.' value='$mdsal-ar.contrail-route-allotted-resource[0].' />\n",
+        "comments": "",
+        "x": 1839.7677383422852,
+        "y": 711.1165752410889,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "8a8034cd.f86478",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic='true'>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1628.878511428833,
+        "y": 679.2276773452759,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "81b74a81.710da8",
+                "ae3a9c95.9f86f",
+                "1b54a40a.1567fc",
+                "8dd6e424.319b18"
+            ]
+        ]
+    },
+    {
+        "id": "ae3a9c95.9f86f",
+        "type": "set",
+        "name": "set oper-status",
+        "xml": "<set>\n<parameter name='sz-ar.allotted-resource-data.allotted-resource-oper-status.last-action' value='`$sz-ar.allotted-resource-data.allotted-resource-operation-information.request-information.request-action`' />\n<parameter name='sz-ar.allotted-resource-data.allotted-resource-oper-status.last-rpc-action' value='`$sz-ar.allotted-resource-status.rpc-action`' />\n<parameter name='sz-ar.allotted-resource-data.allotted-resource-oper-status.last-svc-request-id' value='`$sz-ar.allotted-resource-data.allotted-resource-operation-information.sdnc-request-header.svc-request-id`' />\n\n",
+        "comments": "",
+        "x": 1847.767665863037,
+        "y": 775.2117185592651,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "6d24bc6e.b432b4",
+        "type": "comment",
+        "name": "GET contrail-route-allotted-resource from mdsal",
+        "info": "",
+        "comments": "",
+        "x": 643.1640129089355,
+        "y": 650.7037448883057,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "8dd6e424.319b18",
+        "type": "switchNode",
+        "name": "switch order-status",
+        "xml": "<switch test='`$ar.allotted-resource-data.allotted-resource-oper-status.order-status`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1861.4817581176758,
+        "y": 742.1165647506714,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "f8de75cd.7a7528",
+                "395f6853.653ed8"
+            ]
+        ]
+    },
+    {
+        "id": "f8de75cd.7a7528",
+        "type": "outcome",
+        "name": "outcome Created",
+        "xml": "<outcome value='Created'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2094.7487030029297,
+        "y": 730.4975290298462,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "525c5ee0.9d3fa"
+            ]
+        ]
+    },
+    {
+        "id": "395f6853.653ed8",
+        "type": "outcome",
+        "name": "outcome Other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2091.415626525879,
+        "y": 769.4023504257202,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "c5891364.a15db"
+            ]
+        ]
+    },
+    {
+        "id": "525c5ee0.9d3fa",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" \n    value=\"`'Existing contrail-route-allotted-resource with order status of ' + $ar.allotted-resource-data.allotted-resource-oper-status.order-status + '.'`\" />\n",
+        "comments": "",
+        "x": 2317.748405456543,
+        "y": 729.7355508804321,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "1b54a40a.1567fc",
+        "type": "set",
+        "name": "save backup copy of mdsal-ar for rollback",
+        "xml": "<set>\n<parameter name='bk-cr-ar' value='$mdsal-ar.' />\n",
+        "comments": "",
+        "x": 1927.6247901916504,
+        "y": 677.9260673522949,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "12dc5691.1f3bf9",
+        "type": "comment",
+        "name": "Create urls for restapi",
+        "info": "",
+        "comments": "",
+        "x": 570.5290794372559,
+        "y": 402.3386402130127,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "45ecfa97.8bea64",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"404\" />\n    <parameter name=\"error-message\" value=\"Error: Contrail Route not found\" />\n    \n",
+        "comments": "",
+        "x": 1628.0162181854248,
+        "y": 795.2699184417725,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "bb4b7f07.d9ff6",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 867.0158729553223,
+        "y": 719.2699403762817,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "c4bc3964.e647b8"
+            ]
+        ]
+    },
+    {
+        "id": "c4bc3964.e647b8",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1047.0158233642578,
+        "y": 719.9364910125732,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "45ecfa97.8bea64"
+            ]
+        ]
+    },
+    {
+        "id": "216c3eb7.9d46c2",
+        "type": "set",
+        "name": "set ar data",
+        "xml": "<set>\n<parameter name='ar.allotted-resource-id' value=\"`$tmp.ar.allotted-resource-id` \" />\n<parameter name='ar.allotted-resource-status.action' value=\"`$contrail-route-topology-operation-input.request-information.request-action` \" />\n<parameter name='ar.allotted-resource-status.rpc-name' value=\"contrail-route-topology-operation\" />\n<parameter name='ar.allotted-resource-status.rpc-action' value=\"`$contrail-route-topology-operation-input.sdnc-request-header.svc-action` \" />\n<parameter name='ar.allotted-resource-data.allotted-resource-operation-information.request-information.' value=\"`$contrail-route-topology-operation-input.request-information.` \" />\n<parameter name='ar.allotted-resource-data.allotted-resource-operation-information.sdnc-request-header.' value=\"`$contrail-route-topology-operation-input.sdnc-request-header.` \" />\n<parameter name='ar.allotted-resource-data.allotted-resource-operation-information.service-information.' value=\"`$contrail-route-topology-operation-input.service-information.` \" />\n<parameter name='ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.' value=\"`$contrail-route-topology-operation-input.allotted-resource-information.` \" />\n<parameter name='ar.allotted-resource-data.allotted-resource-operation-information.contrail-route-request-input.' value=\"`$contrail-route-topology-operation-input.contrail-route-request-input.` \" />\n<parameter name='tmp.dest-network-id' value='`$ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.dest-network.network-id`' />\n",
+        "comments": "",
+        "x": 532.5713729858398,
+        "y": 752.0475673675537,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "d9b9b305.104fe",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1432.68257522583,
+        "y": 719.6032037734985,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "45ecfa97.8bea64"
+            ]
+        ]
+    },
+    {
+        "id": "c5891364.a15db",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2295.9051361083984,
+        "y": 769.5873670578003,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "36023b8e.b1c6e4",
+        "type": "execute",
+        "name": "execute RestApiCallNode - DELETE AR by id",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />\n    <parameter name='restapiUser' value='`$prop.controller.user`' />\n    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='DELETE' />\n    <parameter name=\"responsePrefix\" value=\"mdsal-ar\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 654.1865539550781,
+        "y": 1205.833387374878,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "9feba3d6.f55d3",
+                "8704b793.312ca8",
+                "11ed62bd.b7f16d"
+            ]
+        ]
+    },
+    {
+        "id": "4768fe31.b5a5c",
+        "type": "comment",
+        "name": "Delete AR from mdsal",
+        "info": "",
+        "comments": "",
+        "x": 602.9168090820312,
+        "y": 1176.4682731628418,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "64afab36.0ce6d4",
+        "type": "execute",
+        "name": "execute RestApiCallNode - Delete parent provided service AR",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='templateFileName' value=\"`$prop.restapi.templateDir + '/' + $prop.restapi.parentsvc.templatefile`\" />\n    <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.parent-ar-url`' />\n    <parameter name='restapiUser' value='`$prop.controller.user`' />\n    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='DELETE' />\n    <parameter name=\"responsePrefix\" value=\"parent\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 688.9484634399414,
+        "y": 835.3571434020996,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "dcd0467e.92fe18",
+                "3ff5c872.9a1a18",
+                "b114286b.199858"
+            ]
+        ]
+    },
+    {
+        "id": "dcd0467e.92fe18",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1006.2565650939941,
+        "y": 884.7996797561646,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "38844671.fda6da"
+            ]
+        ]
+    },
+    {
+        "id": "3ff5c872.9a1a18",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1002.2565307617188,
+        "y": 848.8553867340088,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "38844671.fda6da"
+            ]
+        ]
+    },
+    {
+        "id": "b114286b.199858",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1006.0065689086914,
+        "y": 819.2124916091561,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "ac08724a.8c537"
+            ]
+        ]
+    },
+    {
+        "id": "38844671.fda6da",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error updating md-sal for contrail-route-allotted-resource\" />\n",
+        "comments": "",
+        "x": 1172.0065689086914,
+        "y": 849.6054105758667,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "ac08724a.8c537",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1147.6625366210938,
+        "y": 815.4046607986093,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "470f34a0.7311bc",
+        "type": "comment",
+        "name": "Delete the parent allotted resource from mdsal ",
+        "info": "",
+        "comments": "",
+        "x": 631.5039825439453,
+        "y": 803.3570127487183,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "febec64d.8ef9d8",
+        "type": "comment",
+        "name": "Create urls for restapi",
+        "info": "",
+        "comments": "",
+        "x": 956.8214263916016,
+        "y": 336.21428775787354,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "a5078016.a7585",
+        "type": "execute",
+        "name": "generate parent-network url",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$prop.restapi.network`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.ar-parentnetwork-url\"/>\n    <parameter name=\"target\" value=\"{service-instance-id}\"/>\n    <parameter name=\"replacement\" value=\"`$tmp.ar.parent-service-instance-id`\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 599.3083038330078,
+        "y": 533.3676280975342,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "856fcfb5.c8342",
+        "type": "execute",
+        "name": "generate parent-ar url - replace service-instance-id",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$prop.restapi.parent-provided-resource`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.parent-ar-url\"/>\n    <parameter name=\"target\" value=\"{service-instance-id}\"/>\n    <parameter name=\"replacement\" value=\"`$tmp.ar.parent-service-instance-id`\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 668.3972930908203,
+        "y": 466.70129585266113,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6247b30a.8bdabc",
+        "type": "execute",
+        "name": "generate parent-ar url - replace allotted-resource-id",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$tmp.parent-ar-url`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.parent-ar-url\"/>\n    <parameter name=\"target\" value=\"{allotted-resource-id}\"/>\n    <parameter name=\"replacement\" value=\"`$tmp.ar.allotted-resource-id`\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 672.5991821289062,
+        "y": 498.2142753601074,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "250f7992.c6d986",
+        "type": "execute",
+        "name": "generate network-ar url - replace service-instance-id",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$prop.restapi.network-provided-resource`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.network-ar-url\"/>\n    <parameter name=\"target\" value=\"{service-instance-id}\"/>\n    <parameter name=\"replacement\" value=\"`$tmp.ar.parent-service-instance-id`\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 672.5991668701172,
+        "y": 570.4364900588989,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a787f7d2.22c9c8",
+        "type": "execute",
+        "name": "generate network-ar url - replace network-id",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$tmp.network-ar-url`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.network-ar-url\"/>\n    <parameter name=\"target\" value=\"{network-id}\"/>\n    <parameter name=\"replacement\" value=\"`$tmp.dest-network-id`\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 632.3769683837891,
+        "y": 1029.769829750061,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e991aac8.552e48",
+        "type": "execute",
+        "name": "execute RestApiCallNode - GET parent network provided AR",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.network-ar-url`' />\n    <parameter name='restapiUser' value='`$prop.controller.user`' />\n    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='GET' />\n    <parameter name=\"responsePrefix\" value=\"net-ar\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 687.9324493408203,
+        "y": 1062.7697076797485,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "b4567206.fa863",
+                "a71a40c5.88def",
+                "554f70e5.d5d85"
+            ]
+        ]
+    },
+    {
+        "id": "a71a40c5.88def",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1099.2405281066895,
+        "y": 1063.4353370666504,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "499ec72d.b02448"
+            ]
+        ]
+    },
+    {
+        "id": "554f70e5.d5d85",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1091.9072380065918,
+        "y": 1098.6017951965332,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "499ec72d.b02448"
+            ]
+        ]
+    },
+    {
+        "id": "b4567206.fa863",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1093.9905624389648,
+        "y": 1028.9588814750314,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "f1a4599b.49b4d8"
+            ]
+        ]
+    },
+    {
+        "id": "499ec72d.b02448",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1273.646499633789,
+        "y": 1063.484673500061,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "9c979e8d.9ba31",
+        "type": "comment",
+        "name": "Delete AR from parent network allotted resource from mdsal",
+        "info": "",
+        "comments": "",
+        "x": 671.0434722900391,
+        "y": 998.9922933578491,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "6c0f7db7.db6b84",
+        "type": "for",
+        "name": "for snidx..service-data.consumed-allotted-resources.consumed-allotted-resource[]",
+        "xml": "<for silentFailure='true' index='snidx' start='`$tmp.sdidx + 1`' end='`$service-data.consumed-allotted-resources.consumed-allotted-resource_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1642.4245147705078,
+        "y": 1583.7696347236633,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "9dfc230a.0b6c1"
+            ]
+        ]
+    },
+    {
+        "id": "e8ab0dfb.30e2a",
+        "type": "comment",
+        "name": "Remove CAR from service data",
+        "info": "",
+        "comments": "",
+        "x": 594.2659225463867,
+        "y": 1416.8652505874634,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "ba43457f.b66688",
+        "type": "switchNode",
+        "name": "switch $service-data.consumed-allotted-resource.length",
+        "xml": "<switch test='`$service-data.consumed-allotted-resources.consumed-allotted-resource_length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 671.0316925048828,
+        "y": 1449.3177938461304,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "883c0f9b.2274b",
+                "7e619691.b53748"
+            ]
+        ]
+    },
+    {
+        "id": "883c0f9b.2274b",
+        "type": "outcome",
+        "name": "1",
+        "xml": "<outcome value='1'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1027.4125289916992,
+        "y": 1455.9842100143433,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "d2f770e7.24326"
+            ]
+        ]
+    },
+    {
+        "id": "d11a120d.f125a",
+        "type": "set",
+        "name": "Remove AR",
+        "xml": "<set>\n\t<parameter name=\"service-data.consumed-allotted-resources.\" value=\"\"/>\n\n",
+        "comments": "",
+        "x": 1415.5869064331055,
+        "y": 1458.5399341583252,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "7e619691.b53748",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1021.5712547302246,
+        "y": 1582.7619514465332,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "37a9c9fb.ba1086"
+            ]
+        ]
+    },
+    {
+        "id": "e96ed39b.1e002",
+        "type": "set",
+        "name": "set new CAR length",
+        "xml": "<set>\n\t<parameter name=\"service-data.consumed-allotted-resources.consumed-allotted-resource_length\" value=\"`$service-data.consumed-allotted-resources.consumed-allotted-resource_length - 1`\"/>\n\n\t\n",
+        "comments": "",
+        "x": 1448.5500106811523,
+        "y": 1612.7621221542358,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "237fb279.27975e",
+        "type": "set",
+        "name": "Remove CAR",
+        "xml": "<set>\n\t<parameter name=\"service-data.consumed-allotted-resources.consumed-allotted-resource[$tmp.new_length].\" value=\"\"/>\n\n",
+        "comments": "",
+        "x": 1430.6186714172363,
+        "y": 1644.0633525848389,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "37a9c9fb.ba1086",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1205.793441772461,
+        "y": 1582.6507930755615,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "6c0f7db7.db6b84",
+                "237fb279.27975e",
+                "e96ed39b.1e002",
+                "b0a56887.03df98"
+            ]
+        ]
+    },
+    {
+        "id": "93c6f0ff.65042",
+        "type": "set",
+        "name": "set new consumed allotted resource length",
+        "xml": "<set>\n\t<parameter name=\"service-data.consumed-allotted-resources.consumed-allotted-resource_length\" value=\"0\"/>\n\n\t\n",
+        "comments": "",
+        "x": 1511.92041015625,
+        "y": 1489.9102430343628,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "d2f770e7.24326",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1206.7458419799805,
+        "y": 1456.688006401062,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "d11a120d.f125a",
+                "93c6f0ff.65042"
+            ]
+        ]
+    },
+    {
+        "id": "446a27f7.923d98",
+        "type": "comment",
+        "name": "If only one remove all networks",
+        "info": "",
+        "comments": "",
+        "x": 1098.7828903198242,
+        "y": 1420.5769834518433,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "b0a56887.03df98",
+        "type": "set",
+        "name": "Set new length",
+        "xml": "<set>\n\t<parameter name=\"tmp.new_length\" value=\"`$service-data.consumed-allotted-resources.consumed-allotted-resource_length - 1`\"/>\n\t\n\t\n",
+        "comments": "",
+        "x": 1432.4970474243164,
+        "y": 1551.2434558868408,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "c78ea6ce.ed3d88",
+        "type": "set",
+        "name": "move CAR to remove one",
+        "xml": "<set>\n\t<parameter name=\"service-data.consumed-allotted-resources.consumed-allotted-resource[$tmp.newidx].\" value=\"$service-data.consumed-allotted-resources.consumed-allotted-resource[$snidx].\" />\n\t\n",
+        "comments": "",
+        "x": 2278.154495239258,
+        "y": 1613.7696771621704,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "9dfc230a.0b6c1",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2038.7102508544922,
+        "y": 1583.5473852157593,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "c78ea6ce.ed3d88",
+                "9fa5c66e.e79918"
+            ]
+        ]
+    },
+    {
+        "id": "9fa5c66e.e79918",
+        "type": "set",
+        "name": "Set new index",
+        "xml": "<set>\n\t<parameter name=\"tmp.newidx\" value=\"`$snidx - 1`\"/>\n\t\n\t\n",
+        "comments": "",
+        "x": 2242.3027267456055,
+        "y": 1583.3623399734497,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "95095ce2.63d2c",
+        "type": "switchNode",
+        "name": "switch net-ar_length",
+        "xml": "<switch test='`$net-ar.network-provided-allotted-resources.network-provided-ar-id_length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1527.4880981445312,
+        "y": 1065.2143659591675,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "daff076a.52d9c8",
+                "3e839fd2.eaab4"
+            ]
+        ]
+    },
+    {
+        "id": "b833a46f.312d28",
+        "type": "for",
+        "name": "for nidx..net-ar[]",
+        "xml": "<for index='nidx' start='0' end='`$net-ar.network-provided-allotted-resources.network-provided-ar-id_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2223.821563720703,
+        "y": 1075.214337348938,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "56f3d41c.41b2ec"
+            ]
+        ]
+    },
+    {
+        "id": "daff076a.52d9c8",
+        "type": "other",
+        "name": "outcome Null",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1813.4399795532227,
+        "y": 1059.2143049240112,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "4b792998.db27c8"
+            ]
+        ]
+    },
+    {
+        "id": "3e839fd2.eaab4",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1796.9638061523438,
+        "y": 1092.4524030685425,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "12f12009.d4012"
+            ]
+        ]
+    },
+    {
+        "id": "56f3d41c.41b2ec",
+        "type": "switchNode",
+        "name": "switch allotted-resource-id",
+        "xml": "<switch test=\"`$net-ar.network-provided-allotted-resources.network-provided-ar-id[$nidx] == $tmp.ar.allotted-resource-id`\">\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2452.916534423828,
+        "y": 1074.2742738723755,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "d553befb.edc66"
+            ]
+        ]
+    },
+    {
+        "id": "12f12009.d4012",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2012.852783203125,
+        "y": 1092.673376083374,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "b833a46f.312d28",
+                "63eb735f.7f9c2c"
+            ]
+        ]
+    },
+    {
+        "id": "a142704e.b2dcd",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2422.7298698425293,
+        "y": 1151.3517026901245,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "6f7d4fb7.127fe"
+            ]
+        ]
+    },
+    {
+        "id": "6f7d4fb7.127fe",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2588.0631217956543,
+        "y": 1150.6849546432495,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "33a44101.5b5f8e",
+                "95a9abab.e40798",
+                "b54f3c4c.94e97"
+            ]
+        ]
+    },
+    {
+        "id": "847a6eca.9652",
+        "type": "comment",
+        "name": "allotted resource already exists- remove it",
+        "info": "",
+        "comments": "",
+        "x": 2280.4881286621094,
+        "y": 1117.6428899765015,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "63eb735f.7f9c2c",
+        "type": "switchNode",
+        "name": "switch tmp.found-nidx",
+        "xml": "<switch test='`$tmp.found-nidx`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2235.7298698425293,
+        "y": 1151.684832572937,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "a142704e.b2dcd"
+            ]
+        ]
+    },
+    {
+        "id": "7e3be93c.b00018",
+        "type": "set",
+        "name": "set tmp.found-nidx = false",
+        "xml": "<set>\n<parameter name='tmp.found-nidx' value='false' />",
+        "comments": "",
+        "x": 1544.1548461914062,
+        "y": 1027.548228263855,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "4b792998.db27c8",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2006.6790924072266,
+        "y": 1057.880581855774,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8704b793.312ca8",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 944.3928985595703,
+        "y": 1206.0714263916016,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "ee0682c4.4dd54"
+            ]
+        ]
+    },
+    {
+        "id": "11ed62bd.b7f16d",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 937.0596084594727,
+        "y": 1241.2378845214844,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "ee0682c4.4dd54"
+            ]
+        ]
+    },
+    {
+        "id": "9feba3d6.f55d3",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 939.1429328918457,
+        "y": 1171.5949707999825,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "ee0682c4.4dd54"
+            ]
+        ]
+    },
+    {
+        "id": "ee0682c4.4dd54",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1110.798828125,
+        "y": 1176.1207542419434,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d553befb.edc66",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2664.7266120910645,
+        "y": 1074.7383260726929,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "940eba69.169448"
+            ]
+        ]
+    },
+    {
+        "id": "940eba69.169448",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2831.487575531006,
+        "y": 1076.2622215747833,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "5177c11e.0b323",
+                "ddf3d738.471938"
+            ]
+        ]
+    },
+    {
+        "id": "5177c11e.0b323",
+        "type": "set",
+        "name": "set tmp.nidx ",
+        "xml": "<set>\n<parameter name='tmp.found-nidx' value='true' />\n<parameter name='tmp.nidx' value='`$nidx`' />",
+        "comments": "",
+        "x": 3043.487968444824,
+        "y": 1067.5474972724915,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "ddf3d738.471938",
+        "type": "break",
+        "name": "break",
+        "xml": "<break>\n",
+        "comments": "",
+        "x": 3027.824966430664,
+        "y": 1099.5421304702759,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "92537a13.9547c8",
+        "type": "execute",
+        "name": "execute RestApiCallNode - Update parent network provided AR",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='templateFileName' value=\"`$prop.restapi.templateDir + '/' + $prop.restapi.network-ar.templatefile`\" />\n    <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.network-ar-url`' />\n    <parameter name='restapiUser' value='`$prop.controller.user`' />\n    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='PUT' />\n    <parameter name=\"responsePrefix\" value=\"p-network-ar\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3978.821517944336,
+        "y": 1252.261715888977,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "64bea154.8f9d5",
+                "b00d1773.aa42c8",
+                "3e77dced.50ab64"
+            ]
+        ]
+    },
+    {
+        "id": "33a44101.5b5f8e",
+        "type": "set",
+        "name": "set length",
+        "xml": "<set>\n<parameter name='net-ar.network-provided-allotted-resources.network-provided-ar-id_length' value='`$net-ar.network-provided-allotted-resources.network-provided-ar-id_length - 1`' />\n\n",
+        "comments": "",
+        "x": 2834.0590324401855,
+        "y": 1186.7385053634644,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "f1a4599b.49b4d8",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1270.8214263916016,
+        "y": 1030.2142877578735,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "7e3be93c.b00018",
+                "95095ce2.63d2c"
+            ]
+        ]
+    },
+    {
+        "id": "95a9abab.e40798",
+        "type": "for",
+        "name": "for snidx..",
+        "xml": "<for silentFailure='true' index='snidx' start='`$tmp.nidx + 1`' end='`$net-ar.network-provided-allotted-resources.network-provided-ar-id_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2829.1074752807617,
+        "y": 1153.9285192489624,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "509eacd6.5c68f4"
+            ]
+        ]
+    },
+    {
+        "id": "509eacd6.5c68f4",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 3003.9157524108887,
+        "y": 1154.9764223098755,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "98719d81.af49e",
+                "a96a395d.a9c718"
+            ]
+        ]
+    },
+    {
+        "id": "a96a395d.a9c718",
+        "type": "set",
+        "name": "move ar to remove one",
+        "xml": "<set>\n\t<parameter name=\"$net-ar.network-provided-allotted-resources.network-provided-ar-id[$tmp.newidx]\" value=\"$net-ar.network-provided-allotted-resources.network-provided-ar-id[$snidx]\" />\n\t\n",
+        "comments": "",
+        "x": 3233.3929748535156,
+        "y": 1181.071322441101,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "98719d81.af49e",
+        "type": "set",
+        "name": "Set new index",
+        "xml": "<set>\n\t<parameter name=\"tmp.newidx\" value=\"`$snidx - 1`\"/>\n\t\n\t\n",
+        "comments": "",
+        "x": 3203.0965881347656,
+        "y": 1151.4576597213745,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "b54f3c4c.94e97",
+        "type": "switchNode",
+        "name": "switch net-ar.network-provided-allotted-resources.network-provided-ar-id_length",
+        "xml": "<switch test='`$net-ar.network-provided-allotted-resources.network-provided-ar-id_length == 0`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3056.250045776367,
+        "y": 1219.6427507400513,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "ca553a96.f4df98",
+                "db554f7.968feb"
+            ]
+        ]
+    },
+    {
+        "id": "ca553a96.f4df98",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3449.1073150634766,
+        "y": 1218.2142877578735,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "5cf72e29.a46dc"
+            ]
+        ]
+    },
+    {
+        "id": "5cf72e29.a46dc",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 3614.4405670166016,
+        "y": 1217.5475397109985,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "5a4fd640.a50a38"
+            ]
+        ]
+    },
+    {
+        "id": "db554f7.968feb",
+        "type": "outcomeTrue",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3453.3929595947266,
+        "y": 1253.9286432266235,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "86504a83.f25a68"
+            ]
+        ]
+    },
+    {
+        "id": "86504a83.f25a68",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 3618.7262115478516,
+        "y": 1253.2618951797485,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "92537a13.9547c8"
+            ]
+        ]
+    },
+    {
+        "id": "5a4fd640.a50a38",
+        "type": "execute",
+        "name": "execute RestApiCallNode - Delete parent network provided AR",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='templateFileName' value=\"`$prop.restapi.templateDir + '/' + $prop.restapi.network-ar.templatefile`\" />\n    <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.network-ar-url`' />\n    <parameter name='restapiUser' value='`$prop.controller.user`' />\n    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='DELETE' />\n    <parameter name=\"responsePrefix\" value=\"p-network-ar\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3980.5357818603516,
+        "y": 1218.500054359436,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "64bea154.8f9d5",
+                "b00d1773.aa42c8",
+                "3e77dced.50ab64"
+            ]
+        ]
+    },
+    {
+        "id": "3e77dced.50ab64",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 4370.535781860352,
+        "y": 1289.642876625061,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "5ab14fa1.280a3"
+            ]
+        ]
+    },
+    {
+        "id": "b00d1773.aa42c8",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 4366.535747528076,
+        "y": 1253.6985836029053,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "5ab14fa1.280a3"
+            ]
+        ]
+    },
+    {
+        "id": "64bea154.8f9d5",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 4370.285785675049,
+        "y": 1224.0556884780526,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "5ab14fa1.280a3"
+            ]
+        ]
+    },
+    {
+        "id": "5ab14fa1.280a3",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 4511.941753387451,
+        "y": 1220.2478576675057,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "9190dbed.f454e8",
+        "type": "for",
+        "name": "for snidx..service-data.consumed-allotted-resources.consumed-allotted-resource[]",
+        "xml": "<for silentFailure='true' index='snidx' start='0' end='`$service-data.consumed-allotted-resources.consumed-allotted-resource_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 762.857177734375,
+        "y": 1350,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "9666f99.8880108"
+            ]
+        ]
+    },
+    {
+        "id": "9666f99.8880108",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1198.825813293457,
+        "y": 1348.206350326538,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "82b75bd4.03ad58"
+            ]
+        ]
+    },
+    {
+        "id": "82b75bd4.03ad58",
+        "type": "switchNode",
+        "name": "switch AR found",
+        "xml": "<switch test='`$service-data.consumed-allotted-resources.consumed-allotted-resource[$sdix].allotted-resource-id == $tmp.ar.allotted-resource-id`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1401.4285316467285,
+        "y": 1348.5714282989502,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "516d19eb.7811d8"
+            ]
+        ]
+    },
+    {
+        "id": "5240ee4d.031fa",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1778.571434020996,
+        "y": 1347.1429796218872,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "62717720.864aa8",
+                "9074a0fd.53bf6"
+            ]
+        ]
+    },
+    {
+        "id": "62717720.864aa8",
+        "type": "set",
+        "name": "Set sdidx",
+        "xml": "<set>\n\t<parameter name=\"tmp.sdidx\" value=\"`$snidx`\"/>\n\t\n\t\n",
+        "comments": "",
+        "x": 1992.8571434020996,
+        "y": 1311.4287633895874,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "9074a0fd.53bf6",
+        "type": "break",
+        "name": "break",
+        "xml": "<break>\n",
+        "comments": "",
+        "x": 1984.2856636047363,
+        "y": 1345.7144775390625,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "6edc1d83.b18194",
+        "type": "comment",
+        "name": "Find AR idx in consumed allotted resource list",
+        "info": "",
+        "comments": "",
+        "x": 679.9999389648438,
+        "y": 1315.714391708374,
+        "z": "124cd5eb.a6beaa",
+        "wires": []
+    },
+    {
+        "id": "516d19eb.7811d8",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1589.999885559082,
+        "y": 1347.142997264862,
+        "z": "124cd5eb.a6beaa",
+        "wires": [
+            [
+                "5240ee4d.031fa"
+            ]
+        ]
+    }
+]

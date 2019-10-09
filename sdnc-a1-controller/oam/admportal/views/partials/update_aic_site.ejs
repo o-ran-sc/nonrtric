@@ -1,0 +1,57 @@
+   <div class="modal fade" id="update_aic_site_modal" tabindex="-1" role="dialog" 
+		aria-labelledby="update_aic_site_label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Update AIC Site</h4>
+          </div>
+          <div class="modal-body">
+            <form role="form" action="/gamma/updateAicSite" method="POST">
+              <div class="form-group">
+                <label for="uf_name">Name</label>
+                <input type="text" class="form-control" name="uf_name" id="uf_name">
+              </div>
+              <div class="form-group">
+                <label for="uf_aic_site_id">AIC Site ID</label>
+                <input type="text" class="form-control" name="uf_aic_site_id" id="uf_aic_site_id">
+              </div>
+              <div class="form-group">
+                <label for="uf_vcenter_url">VCenter URL</label>
+                <input type="text" class="form-control" name="uf_vcenter_url" id="uf_vcenter_url">
+              </div>
+              <div class="form-group">
+                <label for="uf_vcenter_username">VCenter User</label>
+                <input type="text" class="form-control" name="uf_vcenter_username" id="uf_vcenter_username">
+              </div>
+              <div class="form-group">
+                <label for="uf_vcenter_passwd">VCenter Password</label>
+                <input type="password" class="form-control" name="uf_vcenter_passwd" id="uf_vcenter_passwd">
+              </div>
+              <div class="form-group">
+                <label for="uf_oam_gateway_addr">OAM Gateway Address</label>
+                <input type="text" class="form-control" name="uf_oam_gateway_addr" id="uf_oam_gateway_addr">
+              </div>
+              <div class="form-group">
+                <label for="uf_city">City</label>
+                <input type="text" class="form-control" name="uf_city" id="uf_city">
+              </div>
+              <div class="form-group">
+                <label for="uf_state">State</label>
+                <input type="text" class="form-control" name="uf_state" id="uf_state">
+              </div>
+              <div class="form-group">
+                <label for="uf_operational_status">Operational Status</label>
+                <input type="text" class="form-control" name="uf_operational_status" id="uf_operational_status">
+              </div>
+              <div class="form-group">
+				<input type="hidden" name="uf_action" id="uf_action">
+				<input type="hidden" name="uf_key_aic_site_id" id="uf_key_aic_site_id">
+                <button type="submit" class="btn btn-primary">Submit</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>

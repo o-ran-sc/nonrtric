@@ -1,0 +1,53 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='LCM' version='${project.version}'>
+    <method rpc='snapshot' mode='sync'>
+        <block>
+            <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                <parameter name='fileName' value='%SDNC_CONFIG_DIR%/lcm-dg.properties' />
+                <parameter name='contextPrefix' value='prop' />
+            </execute>
+            <set>
+                <parameter name='status.code' value='200' />
+                <parameter name='status.message' value='unexpected return from DG' />
+            </set>
+            <set>
+                <parameter name='lcm-dmaap.version' value='`$prop.lcm.dmaap.version`'/>
+                <parameter name='lcm-dmaap.correlation-id' value="`$snapshot-input.common-header.request-id + '-' + $snapshot-input.common-header.sub-request-id`"/>
+                <parameter name='lcm-dmaap.partition' value='`$prop.lcm.dmaap.partition`'/>
+                <parameter name='lcm-dmaap.rpc-name' value='snapshot'/>
+                <parameter name='lcm-dmaap.type' value='`$prop.lcm.dmaap.type`'/>
+                <parameter name='lcm-dmaap.timestamp' value='`$snapshot-input.common-header.timestamp`'/>
+                <parameter name='lcm-dmaap.api-ver' value='`$snapshot-input.common-header.api-ver`'/>
+                <parameter name='lcm-dmaap.originator-id' value='`$snapshot-input.common-header.originator-id`'/>
+                <parameter name='lcm-dmaap.request-id' value='`$snapshot-input.common-header.originator-id`'/>
+                <parameter name='lcm-dmaap.sub-request-id' value='`$snapshot-input.common-header.sub-request-id`'/>
+                <parameter name='lcm-dmaap.flags.mode' value='`$snapshot-input.common-header.flags.mode`'/>
+                <parameter name='lcm-dmaap.flags.force' value='`$snapshot-input.common-header.flags.force`'/>
+                <parameter name='lcm-dmaap.flags.ttl' value='`$snapshot-input.common-header.flags.ttl`'/>
+                <parameter name='lcm-dmaap.status.code' value='400' />
+                <parameter name='lcm-dmaap.status.message' value='SDNC Snapshot Mock returns success'/>
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.lcm.dmaap.publish.templatefile`" />
+                <parameter name='restapiUrl' value='`$prop.lcm.dmaap.url`' />
+                <parameter name='restapiUser' value='`$prop.lcm.dmaap.user`' />
+                <parameter name='restapiPassword' value='`$prop.lcm.dmaap.password`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='POST' />
+                <parameter name='contentType' value='application/json' />
+                <parameter name="responsePrefix" value="lcm" />
+                <outcome value='failure'>
+                    <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                        <parameter name="logger" value="message-log"/>
+                        <parameter name="field1" value='Failed to Publish to DMaap'/>
+                    </record>
+                </outcome>
+            </execute>
+            <return status='success'>
+                <parameter name='status.code' value='400' />
+                <parameter name='status.message' value='SDNC Snapshot Mock returns success'/>
+            </return>
+        </block>
+    </method>
+</service-logic>

@@ -1,0 +1,84 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='vnf-topology-operation-activate' mode='sync'>
+        <block atomic="true">
+            <switch test='`$vnf-topology-operation-input.request-information.request-action`'>
+                <outcome value='CreateVnfInstance'>
+                    <block></block>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="If svc-action is 'activate' then request-action must be 'CreateVnfInstance'" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$service-data.vnfs.vnf_length`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="404" />
+                        <parameter name="error-message" value="There are no VNFs in MD-SAL" />
+                    </return>
+                </outcome>
+            </switch>
+            <for index='idx' start='0' end='`$service-data.vnfs.vnf_length`' >
+                <switch test='`$service-data.vnfs.vnf[$idx].vnf-id == $vnf-topology-operation-input.vnf-information.vnf-id`'>
+                    <outcome value='true'>
+                        <set>
+                            <parameter name='vnf-index' value='`$idx`' />
+                        </set>
+                    </outcome>
+                </switch>
+            </for>
+            <switch test='`$vnf-index`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="404" />
+                        <parameter name="error-message" value="'Could not find VNF ' + $vnf-topology-operation-input.vnf-information.vnf-id + ' in MD-SAL'" />
+                    </return>
+                </outcome>
+            </switch>
+            <update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+   resource="generic-vnf"
+   key="generic-vnf.vnf-id = $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-topology-identifier-structure.vnf-id"
+   force="true" pfx="tmp.AnAI-data">
+                <parameter name="prov-status" value="NVTPROV" />
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error updating generic-vnf in AAI" />
+                    </return>
+                </outcome>
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`'No generic-vnf found in AAI for vnf ID ' + $service-data.vnfs.vnf[$vnf-index].vnf-id`" />
+                    </return>
+                </outcome>
+            </update>
+            <set>
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.sdnc-request-header.' value='$vnf-topology-operation-input.sdnc-request-header.' />
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.request-information.' value='$vnf-topology-operation-input.request-information.' />
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.service-information.' value='$vnf-topology-operation-input.service-information.' />
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-information.' value='$vnf-topology-operation-input.vnf-information.' />
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-request-input.' value='$vnf-topology-operation-input.vnf-request-input.' />
+            </set>
+            <set>
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-level-oper-status.order-status' value='Created' />
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-level-oper-status.last-rpc-action' value='`$vnf-topology-operation-input.sdnc-request-header.svc-action`' />
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-level-oper-status.last-action' value='`$vnf-topology-operation-input.request-information.request-action`' />
+            </set>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="`$error-message`" />
+            </return>
+        </block>
+    </method>
+</service-logic>

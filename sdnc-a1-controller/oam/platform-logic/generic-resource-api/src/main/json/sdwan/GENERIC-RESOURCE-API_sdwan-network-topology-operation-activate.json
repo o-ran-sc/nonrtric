@@ -1,0 +1,847 @@
+[
+  {
+    "id": "803ab026.91f8f",
+    "type": "dgstart",
+    "name": "DGSTART",
+    "outputs": 1,
+    "x": 107.03125,
+    "y": 31.031251907348633,
+    "z": "b086040b.a7e558",
+    "wires": [
+      [
+        "c6313a09.482648"
+      ]
+    ]
+  },
+  {
+    "id": "c6313a09.482648",
+    "type": "service-logic",
+    "name": "GENERIC-RESOURCE-API ${project.version}",
+    "module": "GENERIC-RESOURCE-API",
+    "version": "${project.version}",
+    "comments": "",
+    "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+    "outputs": 1,
+    "x": 293.03125381469727,
+    "y": 103.03126907348633,
+    "z": "b086040b.a7e558",
+    "wires": [
+      [
+        "95ab199b.094c18"
+      ]
+    ]
+  },
+  {
+    "id": "95ab199b.094c18",
+    "type": "method",
+    "name": "method sdwan-network-topology-operation-activate",
+    "xml": "<method rpc='sdwan-network-topology-operation-activate' mode='sync'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 281.0313720703125,
+    "y": 191.03125190734863,
+    "z": "b086040b.a7e558",
+    "wires": [
+      [
+        "1c62871.b17ef79"
+      ]
+    ]
+  },
+  {
+    "id": "1c62871.b17ef79",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 455.03126525878906,
+    "y": 299.03131103515625,
+    "z": "b086040b.a7e558",
+    "wires": [
+      [
+        "3b3f6a1b.7b4ca6",
+        "4e3bd6cb.ba9f78",
+        "694fbbd7.3f5854",
+        "17e80004.9e42d",
+        "285802e9.ef74ae",
+        "620b9b98.d14b04",
+        "8b0e2661.6611b8",
+        "418307b4.ccc048",
+        "96303f3f.254fa",
+        "2f6a3a39.effb56",
+        "e079dd14.d6c7f",
+        "c053f4f5.ddb828",
+        "9311c45c.c481e8",
+        "f2e5b424.d52178",
+        "9cac03d4.f972",
+        "9720bf6e.06444"
+      ]
+    ]
+  },
+  {
+    "id": "3b3f6a1b.7b4ca6",
+    "type": "call",
+    "name": "call GENERIC-RESOURCE-API:validate-sdwan-network-input-parameters",
+    "xml": "<call module='GENERIC-RESOURCE-API' rpc='validate-sdwan-network-input-parameters' mode='sync' >\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 913.4201507568359,
+    "y": 48.03125190734863,
+    "z": "b086040b.a7e558",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "4e3bd6cb.ba9f78",
+    "type": "record",
+    "name": "record",
+    "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.FileRecorder\">\n<parameter name=\"file\" value=\"/opt/opendaylight/current/data/log/svclogic.log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"sdwan-network-topology-operation-activate\"/>\n<parameter name=\"field3\" value=\"SDWAN-Activate\"/>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 713.5868492126465,
+    "y": 101.8091049194336,
+    "z": "b086040b.a7e558",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "694fbbd7.3f5854",
+    "type": "set",
+    "name": "set networkId and network-object-path",
+    "xml": "<set>\n<parameter name='networkId' value='`$network-topology-operation-input.network-information.network-id`' />\n<parameter name=\"network-object-path\" value=\"`'restconf/config/GENERIC-RESOURCE-API:services/service/'  + $network-topology-operation-input.service-information.service-instance-id  + '/service-data/networks/network/'  + $network-topology-operation-input.network-information.network-id  + '/network-data/'` \" />",
+    "comments": "",
+    "x": 800.5871276855469,
+    "y": 1024.3447210788727,
+    "z": "b086040b.a7e558",
+    "wires": []
+  },
+  {
+    "id": "17e80004.9e42d",
+    "type": "returnSuccess",
+    "name": "return success",
+    "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+    "comments": "",
+    "x": 722.3649291992188,
+    "y": 1213.9001410007477,
+    "z": "b086040b.a7e558",
+    "wires": []
+  },
+  {
+    "id": "285802e9.ef74ae",
+    "type": "set",
+    "name": "set network-level-oper-status",
+    "xml": "<set>\n<parameter name='service-data.networks.network[$tmp.nidx].network-data.network-level-oper-status.order-status' value='Active' />\n<parameter name='service-data.networks.network[$tmp.nidx].network-data.network-level-oper-status.last-rpc-action' value='`$network-topology-operation-input.sdnc-request-header.svc-action`' />\n<parameter name='service-data.networks.network[$tmp.nidx].network-data.network-level-oper-status.last-action' value='`$network-topology-operation-input.request-information.request-action`' />",
+    "comments": "",
+    "x": 767.4760437011719,
+    "y": 1085.566895723343,
+    "z": "b086040b.a7e558",
+    "wires": []
+  },
+  {
+    "id": "620b9b98.d14b04",
+    "type": "execute",
+    "name": "execute Properties",
+    "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >\n    <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />\n    <parameter name='contextPrefix' value='prop' />\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 745.8889541625977,
+    "y": 154.80914115905762,
+    "z": "b086040b.a7e558",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "8b0e2661.6611b8",
+    "type": "update",
+    "name": "update SDWAN VPN status to AAI",
+    "xml": "<update plugin='org.onap.ccsdk.sli.adaptors.aai.AAIService' resource='sdwan-vpn' \n      key='sdwan-vpn.sdwan-vpn-id = $network-topology-operation-input.network-information.network-id' >\n<parameter name='sdwan-vpn-id' value='`$network-topology-operation-input.network-information.network-id`' />\n<parameter name='operational-status' value='Active' />\n<parameter name='tenanat-id' value='`$prop.tenant-id`' />\n<parameter name='vpn-id' value='`$prop.vpn-id`' />",
+    "comments": "",
+    "outputs": 1,
+    "x": 784.6947593688965,
+    "y": 1148.270107269287,
+    "z": "b086040b.a7e558",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "418307b4.ccc048",
+    "type": "set",
+    "name": "set network in service-data",
+    "xml": "<set>\n<parameter name='service-data.networks.network[$tmp.nidx].network-data.sdnc-request-header.' value='`$network-topology-operation-input.sdnc-request-header.`' />\n<parameter name='service-data.networks.network[$tmp.nidx].network-data.request-information.' value='`$network-topology-operation-input.request-information.`' />\n<parameter name='service-data.networks.network[$tmp.nidx].network-data.service-information.' value='`$network-topology-operation-input.service-information.`' />\n<parameter name='service-data.networks.network[$tmp.nidx].network-data.network-information.' value='`$network-topology-operation-input.network-information.`' />",
+    "comments": "",
+    "x": 761.0316581726074,
+    "y": 971.1225550174713,
+    "z": "b086040b.a7e558",
+    "wires": []
+  },
+  {
+    "id": "96303f3f.254fa",
+    "type": "for",
+    "name": "for each network-input-parameters",
+    "xml": "<for index='idx' start='0' end='`$ctx.network-data.network-request-input.network-input-parameters.param_length`' >\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 798.03125,
+    "y": 225.0351594388485,
+    "z": "b086040b.a7e558",
+    "wires": [
+      [
+        "ce83acb3.4528a"
+      ]
+    ]
+  },
+  {
+    "id": "ce83acb3.4528a",
+    "type": "block",
+    "name": "block",
+    "xml": "<block>\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 1054.8646812438965,
+    "y": 159.3685105741024,
+    "z": "b086040b.a7e558",
+    "wires": [
+      [
+        "ecc115d.f7101e8",
+        "d7b4205b.949d1"
+      ]
+    ]
+  },
+  {
+    "id": "ecc115d.f7101e8",
+    "type": "switchNode",
+    "name": "switch name",
+    "xml": "<switch test=\"`$ctx.network-data.network-request-input.network-input-parameters.param[$idx].name == 'name'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1245.8647422790527,
+    "y": 155.36854299902916,
+    "z": "b086040b.a7e558",
+    "wires": [
+      [
+        "f5dbb094.881f6"
+      ]
+    ]
+  },
+  {
+    "id": "f5dbb094.881f6",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1419.8648681640625,
+    "y": 155.36854681372643,
+    "z": "b086040b.a7e558",
+    "wires": [
+      [
+        "d151144e.a69038"
+      ]
+    ]
+  },
+  {
+    "id": "d151144e.a69038",
+    "type": "set",
+    "name": "set name",
+    "xml": "<set>\n<parameter name='prop.name' value='`$ctx.network-data.network-request-input.network-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 1582.8647537231445,
+    "y": 154.96854147315025,
+    "z": "b086040b.a7e558",
+    "wires": []
+  },
+  {
+    "id": "c053f4f5.ddb828",
+    "type": "get-resource",
+    "name": "get-resource esr-thirdparty-sdnc",
+    "xml": "<get-resource plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\t\tresource=\"esr-thirdparty-sdnc\" \n\t\tkey=\"esr-thirdparty-sdnc.thirdparty-sdnc-id = 'SDWANController' AND \n\t\t     depth = '1'\"\n        pfx='tmp.aai.esr-thirdparty-sdnc' local-only='false' >\n\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 792.03125,
+    "y": 334.03515815734863,
+    "z": "b086040b.a7e558",
+    "wires": [
+      [
+        "6d5ba109.a3671",
+        "90ffe3bf.39fcd",
+        "dbe2a88c.8b12f8"
+      ]
+    ]
+  },
+  {
+    "id": "6d5ba109.a3671",
+    "type": "success",
+    "name": "success",
+    "xml": "<outcome value='success'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1037.03125,
+    "y": 280.0351594388485,
+    "z": "b086040b.a7e558",
+    "wires": [
+      [
+        "f907f929.492558"
+      ]
+    ]
+  },
+  {
+    "id": "90ffe3bf.39fcd",
+    "type": "not-found",
+    "name": "not-found",
+    "xml": "<outcome value='not-found'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1040.522216796875,
+    "y": 327.60919508337975,
+    "z": "b086040b.a7e558",
+    "wires": [
+      [
+        "b624a8b6.bf4ac8"
+      ]
+    ]
+  },
+  {
+    "id": "dbe2a88c.8b12f8",
+    "type": "other",
+    "name": "other",
+    "xml": "<outcome value='Other'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1035.855224609375,
+    "y": 368.942508071661,
+    "z": "b086040b.a7e558",
+    "wires": [
+      [
+        "7d3f8d7a.844044"
+      ]
+    ]
+  },
+  {
+    "id": "f907f929.492558",
+    "type": "set",
+    "name": "set controller data",
+    "xml": "<set>\n<parameter name='prop.sdncRestApi.thirdpartySdnc.url' value=\"`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].service-url`\" />\n<parameter name='prop.sdncRestApi.thirdpartySdnc.user' value=\"`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].user-name`\" />\n<parameter name='prop.sdncRestApi.thirdpartySdnc.password' value=\"`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].password`\" />\n",
+    "comments": "",
+    "x": 1234.5313110351562,
+    "y": 268.0351594388485,
+    "z": "b086040b.a7e558",
+    "wires": []
+  },
+  {
+    "id": "b624a8b6.bf4ac8",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`'An error occurred while querying esr-thirdparty-sdnc from AnAI with thirdparty-sdnc-id = ' + $tmp.thirdparty-sdnc-id`\" />\n\n",
+    "comments": "",
+    "x": 1217.0936279296875,
+    "y": 315.8949311673641,
+    "z": "b086040b.a7e558",
+    "wires": []
+  },
+  {
+    "id": "7d3f8d7a.844044",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`'Unexpected error occurred while querying esr-thirdparty-sdnc from AnAI with thirdparty-sdnc-id = ' + $tmp.thirdparty-sdnc-id`\" />\n\n",
+    "comments": "",
+    "x": 1223.6277809143066,
+    "y": 364.3817008435726,
+    "z": "b086040b.a7e558",
+    "wires": []
+  },
+  {
+    "id": "9311c45c.c481e8",
+    "type": "execute",
+    "name": "execute RestApiCallNode Get token",
+    "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n<parameter name=\"templateFileName\" value=\"`$prop.restapi.templateDir + '/actokentemplate.json'`\" />\n<parameter name=\"restapiUrl\" value=\"`$prop.sdncRestApi.thirdpartySdnc.url + '/controller/v2/tokens'`\" />\n<parameter name=\"format\" value=\"json\"/>\n<parameter name=\"httpMethod\" value=\"post\"/>\n<parameter name=\"responsePrefix\" value=\"token-result\"/>\n<parameter name=\"trustStoreFileName\" value=\"/opt/onap/sdnc/data/stores/truststore.onap.client.jks\"/>\n<parameter name=\"trustStorePassword\" value=\"adminadmin\"/>\n<parameter name=\"keyStoreFileName\" value=\"/opt/onap/sdnc/data/stores/sdnc.p12\"/>\n<parameter name=\"keyStorePassword\" value=\"adminadmin\"/>",
+    "comments": "",
+    "outputs": 1,
+    "x": 800.03125,
+    "y": 445.03515815734863,
+    "z": "b086040b.a7e558",
+    "wires": [
+      [
+        "e9b6301b.a1571",
+        "27918c6e.3a59a4"
+      ]
+    ]
+  },
+  {
+    "id": "e9b6301b.a1571",
+    "type": "success",
+    "name": "success",
+    "xml": "<outcome value='success'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1039.031322479248,
+    "y": 423.0351896286011,
+    "z": "b086040b.a7e558",
+    "wires": [
+      [
+        "25b0c9da.a209a6"
+      ]
+    ]
+  },
+  {
+    "id": "27918c6e.3a59a4",
+    "type": "failure",
+    "name": "failure",
+    "xml": "<outcome value='failure'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1031.281322479248,
+    "y": 476.6780729293823,
+    "z": "b086040b.a7e558",
+    "wires": [
+      [
+        "5b42d4fd.ac727c"
+      ]
+    ]
+  },
+  {
+    "id": "25b0c9da.a209a6",
+    "type": "set",
+    "name": "set token-id",
+    "xml": "<set>\n<parameter name='prop.sdncRestApi.token_id' value='`$token-result.data.token_id`' />\n",
+    "comments": "",
+    "x": 1189.03125,
+    "y": 424.03515815734863,
+    "z": "b086040b.a7e558",
+    "wires": []
+  },
+  {
+    "id": "5b42d4fd.ac727c",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error executing get token rest api\" />\n",
+    "comments": "",
+    "x": 1184.031322479248,
+    "y": 476.4281339645386,
+    "z": "b086040b.a7e558",
+    "wires": []
+  },
+  {
+    "id": "d7b4205b.949d1",
+    "type": "switchNode",
+    "name": "switch topology",
+    "xml": "<switch test=\"`$ctx.network-data.network-request-input.network-input-parameters.param[$idx].name == 'topology'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1244.28125,
+    "y": 208.0351594388485,
+    "z": "b086040b.a7e558",
+    "wires": [
+      [
+        "9f3b4d42.904a6"
+      ]
+    ]
+  },
+  {
+    "id": "9f3b4d42.904a6",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1418.2813758850098,
+    "y": 208.03516325354576,
+    "z": "b086040b.a7e558",
+    "wires": [
+      [
+        "c7a8b800.265778"
+      ]
+    ]
+  },
+  {
+    "id": "c7a8b800.265778",
+    "type": "set",
+    "name": "set topology",
+    "xml": "<set>\n<parameter name='prop.topology' value='`$ctx.network-data.network-request-input.network-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 1581.2812614440918,
+    "y": 207.6351579129696,
+    "z": "b086040b.a7e558",
+    "wires": []
+  },
+  {
+    "id": "f2e5b424.d52178",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 721.7812957763672,
+    "y": 691.0352811813354,
+    "z": "b086040b.a7e558",
+    "wires": [
+      [
+        "be08c0ea.c5f31"
+      ]
+    ]
+  },
+  {
+    "id": "be08c0ea.c5f31",
+    "type": "execute",
+    "name": "execute RestApiCallNode Create network orchestration",
+    "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n<parameter name=\"templateFileName\" value=\"`$prop.restapi.templateDir + '/sdwan-network-orchestration.json'`\" />\n<parameter name=\"restapiUrl\" value=\"`$prop.sdncRestApi.thirdpartySdnc.url + '/controller/campus/v1/sdwan/net/network-orchestration-resources'`\" />\n<parameter name=\"restapiUser\" value=\"`$prop.sdncRestApi.thirdpartySdnc.user`\" />\n<parameter name=\"restapiPassword\" value=\"`$prop.sdncRestApi.thirdpartySdnc.password`\" />\n<parameter name=\"format\" value=\"json\"/>\n<parameter name=\"httpMethod\" value=\"put\"/>\n<parameter name=\"responsePrefix\" value=\"orchestration-result\"/>\n<parameter name=\"trustStoreFileName\" value=\"/opt/onap/sdnc/data/stores/truststore.onap.client.jks\"/>\n<parameter name=\"trustStorePassword\" value=\"adminadmin\"/>\n<parameter name=\"keyStoreFileName\" value=\"/opt/onap/sdnc/data/stores/sdnc.p12\"/>\n<parameter name=\"keyStorePassword\" value=\"adminadmin\"/>\n<parameter name='customHttpHeaders' value=\"`'X-ACCESS-TOKEN=' + $prop.sdncRestApi.token_id`\" />",
+    "comments": "",
+    "outputs": 1,
+    "x": 1042.2814025878906,
+    "y": 680.035364151001,
+    "z": "b086040b.a7e558",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "2f6a3a39.effb56",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 724.2812652587891,
+    "y": 753.0352095067501,
+    "z": "b086040b.a7e558",
+    "wires": [
+      [
+        "7ec8c1c5.bf91a",
+        "8dc97b4a.332098",
+        "cd1c7839.bb73a8"
+      ]
+    ]
+  },
+  {
+    "id": "8dc97b4a.332098",
+    "type": "execute",
+    "name": "execute RestApiCallNode Create vpn",
+    "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n<parameter name=\"templateFileName\" value=\"`$prop.restapi.templateDir + '/sdwan-vpn-create.json'`\" />\n<parameter name=\"restapiUrl\" value=\"`$prop.sdncRestApi.thirdpartySdnc.url + '/controller/campus/v1/sdwan/overlay-network/vpn'`\" />\n<parameter name=\"restapiUser\" value=\"`$prop.sdncRestApi.thirdpartySdnc.user`\" />\n<parameter name=\"restapiPassword\" value=\"`$prop.sdncRestApi.thirdpartySdnc.password`\" />\n<parameter name=\"format\" value=\"json\"/>\n<parameter name=\"httpMethod\" value=\"post\"/>\n<parameter name=\"responsePrefix\" value=\"vpn-result\"/>\n<parameter name=\"trustStoreFileName\" value=\"/opt/onap/sdnc/data/stores/truststore.onap.client.jks\"/>\n<parameter name=\"trustStorePassword\" value=\"adminadmin\"/>\n<parameter name=\"keyStoreFileName\" value=\"/opt/onap/sdnc/data/stores/sdnc.p12\"/>\n<parameter name=\"keyStorePassword\" value=\"adminadmin\"/>\n<parameter name='customHttpHeaders' value=\"`'X-ACCESS-TOKEN=' + $prop.sdncRestApi.token_id`\" />",
+    "comments": "",
+    "outputs": 1,
+    "x": 995.7813110351562,
+    "y": 743.0353334844112,
+    "z": "b086040b.a7e558",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "7ec8c1c5.bf91a",
+    "type": "set",
+    "name": "set prop.vpn-id and prop.vpn1Id",
+    "xml": "<set>\n<parameter name='prop.vpn-id' value='`$vpn-result.success[0].id`' />\n<parameter name='prop.vpn1Id' value='`$vpn-result.success[0].id`' />\n",
+    "comments": "",
+    "x": 991.7814674377441,
+    "y": 795.0354328155518,
+    "z": "b086040b.a7e558",
+    "wires": []
+  },
+  {
+    "id": "cd1c7839.bb73a8",
+    "type": "execute",
+    "name": "execute RestApiCallNode Create vpn topology",
+    "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n<parameter name=\"templateFileName\" value=\"`$prop.restapi.templateDir + '/sdwan-vpn-topology-create.json'`\" />\n<parameter name=\"restapiUrl\" value=\"`$prop.sdncRestApi.thirdpartySdnc.url + '/controller/campus/v1/sdwan/overlay-network/' + $prop.vpn-id + '/topology'`\" />\n<parameter name=\"restapiUser\" value=\"`$prop.sdncRestApi.thirdpartySdnc.user`\" />\n<parameter name=\"restapiPassword\" value=\"`$prop.sdncRestApi.thirdpartySdnc.password`\" />\n<parameter name=\"format\" value=\"json\"/>\n<parameter name=\"httpMethod\" value=\"post\"/>\n<parameter name=\"responsePrefix\" value=\"vpn-result\"/>\n<parameter name=\"trustStoreFileName\" value=\"/opt/onap/sdnc/data/stores/truststore.onap.client.jks\"/>\n<parameter name=\"trustStorePassword\" value=\"adminadmin\"/>\n<parameter name=\"keyStoreFileName\" value=\"/opt/onap/sdnc/data/stores/sdnc.p12\"/>\n<parameter name=\"keyStorePassword\" value=\"adminadmin\"/>\n<parameter name='customHttpHeaders' value=\"`'X-ACCESS-TOKEN=' + $prop.sdncRestApi.token_id`\" />",
+    "comments": "",
+    "outputs": 1,
+    "x": 1023.2813148498535,
+    "y": 847.0352077484131,
+    "z": "b086040b.a7e558",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "e079dd14.d6c7f",
+    "type": "set",
+    "name": "set tenant-id to service-data",
+    "xml": "<set>\n<parameter name='service-data.networks.network[$tmp.nidx].network-data.network-request-input.network-input-parameters.param[$network-topology-operation-input.network-request-input.network-input-parameters.param_length].name' value='tenant-id' />\n<parameter name='service-data.networks.network[$tmp.nidx].network-data.network-request-input.network-input-parameters.param[$network-topology-operation-input.network-request-input.network-input-parameters.param_length].value' value='`$prop.tenant-id`' />\n<parameter name='service-data.networks.network[$tmp.nidx].network-data.network-request-input.network-input-parameters.param_length' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param_length + 1`' />",
+    "comments": "",
+    "x": 759.2814025878906,
+    "y": 888.7853422164917,
+    "z": "b086040b.a7e558",
+    "wires": []
+  },
+  {
+    "id": "9720bf6e.06444",
+    "type": "get-resource",
+    "name": "get-resource service-subscription",
+    "xml": "<get-resource plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\t\tresource=\"service-subscription\" \n        key= 'service-subscription.service-type = $service-data.networks.network[$tmp.nidx].network-data.service-information.subscription-service-type \n        AND customer.global-customer-id = $service-data.networks.network[$tmp.nidx].network-data.service-information.global-customer-id'\n      force=\"true\" pfx=\"tmp.AnAI-data\">\n      \n",
+    "comments": "",
+    "outputs": 1,
+    "x": 776.1027908325195,
+    "y": 595.713773727417,
+    "z": "b086040b.a7e558",
+    "wires": [
+      [
+        "bbcbdc4.862f32",
+        "4736bcfb.a0c9e4"
+      ]
+    ]
+  },
+  {
+    "id": "b8d38e16.8f50d",
+    "type": "switchNode",
+    "name": "switch temp-ub-sub-account-id",
+    "xml": "<switch test='`$tmp.AnAI-data.temp-ub-sub-account-id`'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1188.102882385254,
+    "y": 560.4638547897339,
+    "z": "b086040b.a7e558",
+    "wires": [
+      [
+        "59cc568a.83f018",
+        "73ddfac2.a0d4e4"
+      ]
+    ]
+  },
+  {
+    "id": "59cc568a.83f018",
+    "type": "outcome",
+    "name": "NULL",
+    "xml": "<outcome value=''>",
+    "comments": "",
+    "outputs": 1,
+    "x": 1380.81734085083,
+    "y": 534.4638872146606,
+    "z": "b086040b.a7e558",
+    "wires": [
+      [
+        "e9b5fb34.606db8"
+      ]
+    ]
+  },
+  {
+    "id": "73ddfac2.a0d4e4",
+    "type": "other",
+    "name": "Other",
+    "xml": "<outcome value='Other'>",
+    "comments": "",
+    "outputs": 1,
+    "x": 1381.102897644043,
+    "y": 589.4638586044312,
+    "z": "b086040b.a7e558",
+    "wires": [
+      [
+        "b0968203.54d37"
+      ]
+    ]
+  },
+  {
+    "id": "fb4eb84c.02a668",
+    "type": "set",
+    "name": "set prop.tenant-id",
+    "xml": "<set>\n<parameter name='prop.tenant-id' value='`$tmp.AnAI-data.temp-ub-sub-account-id`' />\n",
+    "comments": "",
+    "x": 1628.5314903259277,
+    "y": 674.6066589355469,
+    "z": "b086040b.a7e558",
+    "wires": []
+  },
+  {
+    "id": "e9b5fb34.606db8",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 1520.2812385559082,
+    "y": 534.7851557731628,
+    "z": "b086040b.a7e558",
+    "wires": [
+      [
+        "caa8d5b4.0ad2b8",
+        "a7278d93.3720c",
+        "160a6c8c.918963",
+        "da44425a.02876",
+        "416c4dbb.36fe64",
+        "4cac2ec3.0933d",
+        "33b241ad.e4aa3e"
+      ]
+    ]
+  },
+  {
+    "id": "da44425a.02876",
+    "type": "set",
+    "name": "set prop.customer-id",
+    "xml": "<set>\n<parameter name='prop.customer-id' value='`$ctx.network-data.service-information.global-customer-id`' />\n",
+    "comments": "",
+    "x": 1731.9243469238281,
+    "y": 345.35671615600586,
+    "z": "b086040b.a7e558",
+    "wires": []
+  },
+  {
+    "id": "caa8d5b4.0ad2b8",
+    "type": "execute",
+    "name": "execute RestApiCallNode Create tenant",
+    "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n<parameter name=\"templateFileName\" value=\"`$prop.restapi.templateDir + '/sdwan-tenant.json'`\" />\n<parameter name=\"restapiUrl\" value=\"`$prop.sdncRestApi.thirdpartySdnc.url + '/controller/campus/v1/baseservice/tenants'`\" />\n<parameter name=\"restapiUser\" value=\"`$prop.sdncRestApi.thirdpartySdnc.user`\" />\n<parameter name=\"restapiPassword\" value=\"`$prop.sdncRestApi.thirdpartySdnc.password`\" />\n<parameter name=\"format\" value=\"json\"/>\n<parameter name=\"httpMethod\" value=\"post\"/>\n<parameter name=\"responsePrefix\" value=\"tenant-result\"/>\n<parameter name=\"trustStoreFileName\" value=\"/opt/onap/sdnc/data/stores/truststore.onap.client.jks\"/>\n<parameter name=\"trustStorePassword\" value=\"adminadmin\"/>\n<parameter name=\"keyStoreFileName\" value=\"/opt/onap/sdnc/data/stores/sdnc.p12\"/>\n<parameter name=\"keyStorePassword\" value=\"adminadmin\"/>\n<parameter name='customHttpHeaders' value=\"`'X-ACCESS-TOKEN=' + $prop.sdncRestApi.token_id`\" />",
+    "comments": "",
+    "outputs": 1,
+    "x": 1790.9241638183594,
+    "y": 475.9280071258545,
+    "z": "b086040b.a7e558",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "a7278d93.3720c",
+    "type": "set",
+    "name": "set prop.tenant-id",
+    "xml": "<set>\n<parameter name='prop.tenant-id' value='`$tenant-result.data.tenantId`' />\n",
+    "comments": "",
+    "x": 1743.7814826965332,
+    "y": 600.7852363586426,
+    "z": "b086040b.a7e558",
+    "wires": []
+  },
+  {
+    "id": "160a6c8c.918963",
+    "type": "execute",
+    "name": "execute RestApiCallNode Create tenant auth",
+    "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n<parameter name=\"templateFileName\" value=\"`$prop.restapi.templateDir + '/actokentemplate.json'`\" />\n<parameter name=\"restapiUrl\" value=\"`$prop.sdncRestApi.thirdpartySdnc.url + '/controller/campus/v1/baseservice/tenants/authorization/' + $prop.tenant-id`\" />\n<parameter name=\"restapiUser\" value=\"`$prop.sdncRestApi.thirdpartySdnc.user`\" />\n<parameter name=\"restapiPassword\" value=\"`$prop.sdncRestApi.thirdpartySdnc.password`\" />\n<parameter name=\"format\" value=\"json\"/>\n<parameter name=\"httpMethod\" value=\"put\"/>\n<parameter name=\"responsePrefix\" value=\"tenant-result\"/>\n<parameter name=\"trustStoreFileName\" value=\"/opt/onap/sdnc/data/stores/truststore.onap.client.jks\"/>\n<parameter name=\"trustStorePassword\" value=\"adminadmin\"/>\n<parameter name=\"keyStoreFileName\" value=\"/opt/onap/sdnc/data/stores/sdnc.p12\"/>\n<parameter name=\"keyStorePassword\" value=\"adminadmin\"/>\n<parameter name='customHttpHeaders' value=\"`'X-ACCESS-TOKEN=' + $prop.sdncRestApi.token_id`\" />",
+    "comments": "",
+    "outputs": 1,
+    "x": 1811.281478881836,
+    "y": 636.5352363586426,
+    "z": "b086040b.a7e558",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "416c4dbb.36fe64",
+    "type": "get-resource",
+    "name": "update-resource customer-id in service-subscription",
+    "xml": "<update plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\t\tresource=\"service-subscription\" \n        key= 'service-subscription.service-type = $service-data.networks.network[$tmp.nidx].network-data.service-information.subscription-service-type \n        AND customer.global-customer-id = $service-data.networks.network[$tmp.nidx].network-data.service-information.global-customer-id'>\n<parameter name='temp-ub-sub-account-id' value='`$tenant-result.data.tenantId`' />\n<!--parameter name='temp-ub-sub-account-id' value='`$prop.customer-id`' /-->\n\n\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1835.2098541259766,
+    "y": 536.9281234741211,
+    "z": "b086040b.a7e558",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "bbcbdc4.862f32",
+    "type": "success",
+    "name": "success",
+    "xml": "<outcome value='success'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 986.602653503418,
+    "y": 568.4598321914673,
+    "z": "b086040b.a7e558",
+    "wires": [
+      [
+        "b8d38e16.8f50d"
+      ]
+    ]
+  },
+  {
+    "id": "4736bcfb.a0c9e4",
+    "type": "failure",
+    "name": "failure",
+    "xml": "<outcome value='failure'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 980.2812423706055,
+    "y": 620.6741437911987,
+    "z": "b086040b.a7e558",
+    "wires": [
+      [
+        "f07e116f.03b5"
+      ]
+    ]
+  },
+  {
+    "id": "f07e116f.03b5",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error executing get token rest api\" />\n",
+    "comments": "",
+    "x": 1133.0312423706055,
+    "y": 620.424204826355,
+    "z": "b086040b.a7e558",
+    "wires": []
+  },
+  {
+    "id": "9cac03d4.f972",
+    "type": "set",
+    "name": "set  vpn-id to service-data",
+    "xml": "<set>\n<parameter name='service-data.networks.network[$tmp.nidx].network-data.network-request-input.network-input-parameters.param[$network-topology-operation-input.network-request-input.network-input-parameters.param_length].name' value='vpn-id' />\n<parameter name='service-data.networks.network[$tmp.nidx].network-data.network-request-input.network-input-parameters.param[$network-topology-operation-input.network-request-input.network-input-parameters.param_length].value' value='`$prop.vpn-id`' />\n<parameter name='service-data.networks.network[$tmp.nidx].network-data.network-request-input.network-input-parameters.param_length' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param_length + 1`' />",
+    "comments": "",
+    "x": 757.5313262939453,
+    "y": 926.5352201461792,
+    "z": "b086040b.a7e558",
+    "wires": []
+  },
+  {
+    "id": "b0968203.54d37",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 1439.7536544799805,
+    "y": 672.6108503341675,
+    "z": "b086040b.a7e558",
+    "wires": [
+      [
+        "fb4eb84c.02a668",
+        "a2f6331e.2d634"
+      ]
+    ]
+  },
+  {
+    "id": "a2f6331e.2d634",
+    "type": "execute",
+    "name": "execute RestApiCallNode Create tenant auth",
+    "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n<parameter name=\"templateFileName\" value=\"`$prop.restapi.templateDir + '/actokentemplate.json'`\" />\n<parameter name=\"restapiUrl\" value=\"`$prop.sdncRestApi.thirdpartySdnc.url + '/controller/campus/v1/baseservice/tenants/authorization/' + $prop.tenant-id`\" />\n<parameter name=\"restapiUser\" value=\"`$prop.sdncRestApi.thirdpartySdnc.user`\" />\n<parameter name=\"restapiPassword\" value=\"`$prop.sdncRestApi.thirdpartySdnc.password`\" />\n<parameter name=\"format\" value=\"json\"/>\n<parameter name=\"httpMethod\" value=\"put\"/>\n<parameter name=\"responsePrefix\" value=\"tenant-result\"/>\n<parameter name=\"trustStoreFileName\" value=\"/opt/onap/sdnc/data/stores/truststore.onap.client.jks\"/>\n<parameter name=\"trustStorePassword\" value=\"adminadmin\"/>\n<parameter name=\"keyStoreFileName\" value=\"/opt/onap/sdnc/data/stores/sdnc.p12\"/>\n<parameter name=\"keyStorePassword\" value=\"adminadmin\"/>\n<parameter name='customHttpHeaders' value=\"`'X-ACCESS-TOKEN=' + $prop.sdncRestApi.token_id`\" />",
+    "comments": "",
+    "outputs": 1,
+    "x": 1711.1822509765625,
+    "y": 721.1822528839111,
+    "z": "b086040b.a7e558",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "4cac2ec3.0933d",
+    "type": "set",
+    "name": "set prop.userAccount",
+    "xml": "<set>\n<parameter name='prop.userAccount' value='`$tmp.userAccountEmail`' />\n<parameter name='prop.userEmail' value='`$tmp.userAccountEmail`' />",
+    "comments": "",
+    "x": 1732.03125,
+    "y": 423.03125190734863,
+    "z": "b086040b.a7e558",
+    "wires": []
+  },
+  {
+    "id": "33b241ad.e4aa3e",
+    "type": "execute",
+    "name": "execute concat customer-id and @test.com",
+    "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='concat' >\n    <parameter name=\"source\" value='`$prop.customer-id`'/>\n    <parameter name=\"outputPath\" value=\"tmp.userAccountEmail\"/>\n    <parameter name=\"target\" value=\"@test.com\"/>\n\n\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1807.0351257324219,
+    "y": 387.03519439697266,
+    "z": "b086040b.a7e558",
+    "wires": [
+      []
+    ]
+  }
+]

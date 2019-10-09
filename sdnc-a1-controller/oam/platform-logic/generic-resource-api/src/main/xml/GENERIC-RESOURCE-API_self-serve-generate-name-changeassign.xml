@@ -1,0 +1,50 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='self-serve-generate-name-changeassign' mode='sync'>
+        <block atomic="true">
+            <switch test='`$prop.controller.user`'>
+                <outcome value=''>
+                    <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                        <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                        <parameter name='contextPrefix' value='prop' />
+                    </execute>
+                </outcome>
+            </switch>
+            <call module='GENERIC-RESOURCE-API' rpc='self-serve-capability-param-resolution' mode='sync' ></call>
+            <switch test='`$ss.input.param.index`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="ss.input.param.index is null" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$ss.service-data.param.index`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="ss.service-data.param.index is null" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$ss.capability-type`'>
+                <outcome value='vnf'>
+                    <call module='GENERIC-RESOURCE-API' rpc='self-serve-vnf-generate-name-changeassign' mode='sync' ></call>
+                </outcome>
+                <outcome value='vf-module'>
+                    <call module='GENERIC-RESOURCE-API' rpc='self-serve-vf-module-generate-name-changeassign' mode='sync' ></call>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`'Unknown capability-type [' + $ss.capability-type + '], valid value are: vnf, pnf, vf-module'`" />
+                    </return>
+                </outcome>
+            </switch>
+        </block>
+    </method>
+</service-logic>

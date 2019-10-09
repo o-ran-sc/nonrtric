@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset>
+  <rule ref="rulesets/java/naming.xml/BooleanGetMethodName">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/j2ee.xml/StaticEJBFieldShouldBeFinal">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/coupling.xml/CouplingBetweenObjects">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/codesize.xml/TooManyMethods">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/naming.xml/AvoidFieldNameMatchingTypeName">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/basic.xml/DoubleCheckedLocking">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/naming.xml/AvoidFieldNameMatchingMethodName">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/coupling.xml/ExcessiveImports">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/basic.xml/OverrideBothEqualsAndHashcode">
+    <priority>2</priority>
+  </rule>
+  <rule ref="rulesets/java/naming.xml/ShortMethodName">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/basic.xml/BooleanInstantiation">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/codesize.xml/TooManyFields">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/controversial.xml/AvoidUsingNativeCode">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/optimizations.xml/UseStringBufferForStringAppends">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/coupling.xml/LooseCoupling">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/NonThreadSafeSingleton">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/j2ee.xml/DoNotUseThreads">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/sunsecure.xml/ArrayIsStoredDirectly">
+    <priority>5</priority>
+  </rule>
+  <rule ref="rulesets/java/sunsecure.xml/MethodReturnsInternalArray">
+    <priority>2</priority>
+  </rule>
+  <rule ref="rulesets/java/design.xml/AssignmentToNonFinalStatic">
+    <priority>3</priority>
+  </rule>
+  <rule ref="rulesets/java/strictexception.xml/AvoidCatchingGenericException">
+    <priority>3</priority>
+  </rule>
+</ruleset>
+

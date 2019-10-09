@@ -1,0 +1,61 @@
+<title>SDN-FC AdminPortal</title>
+
+<!-- views/partials/header.ejs -->
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+
+
+		<div class="navbar-header">
+			<a class="navbar-brand" href="#">&nbsp;SDN-FC AdminPortal</a>
+    	</div>
+
+        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-default navbar-btn "
+				onclick="location.assign('/sla/listSLA');">SLA</button>
+
+			<div class="btn-group" role="group">
+      			<button type="button" class="btn btn-default navbar-btn dropdown-toggle" 
+					data-toggle="dropdown" aria-expanded="false" vlanidpool-submenu>Table Management <span class="caret"></span>
+				</button>
+      			<ul class="dropdown-menu" role="menu">
+                    <li><a href="/sdnfc/getTables">View Tables</a></li>
+        			<li class="divider"></li>
+                    <li><a href="/sdnfc/getVrrCredentials">VRR Credentials</a></li>
+                    <li><a href="/sdnfc/getBgpUpdates">BGP Updates</a></li>
+                    <li><a href="/sdnfc/getCliUpdates">CLI Updates</a></li>
+        			<li class="divider"></li>
+        			<li><a href="/admin/getParameters">Parameters</a></li>
+				</ul>
+			</div>
+
+			<div class="btn-group" role="group">
+      			<button type="button" class="btn btn-default navbar-btn dropdown-toggle" 
+					data-toggle="dropdown" 
+					aria-expanded="false">ODL  <span class="caret"></span></button>
+      			<ul class="dropdown-menu" role="menu">
+        			<li><a href="/odl/getClusterStatus">Get Cluster Status</a></li>
+				</ul>
+			</div>
+
+			<!-- LOGS -->
+			<div class="btn-group" role="group">
+      			<button type="button" class="btn btn-default navbar-btn dropdown-toggle" 
+					data-toggle="dropdown" 
+					aria-expanded="false">Logs  <span class="caret"></span></button>
+      			<ul class="dropdown-menu" role="menu">
+        			<li><a href="/logs/getUserTrace">User Trace</a></li>
+        			<li><a href="/logs/getAccessLog">Access Log</a></li>
+				</ul>
+			</div>
+
+            <button type="button" class="btn btn-default navbar-btn"
+				onclick="location.assign('/user/listUsers');">User Admin</button>
+            <button type="button" class="btn btn-default navbar-btn"
+				onclick="location.assign('/logout');">Logout</button>
+        </div>
+        </div>
+    </div>
+
+</nav>

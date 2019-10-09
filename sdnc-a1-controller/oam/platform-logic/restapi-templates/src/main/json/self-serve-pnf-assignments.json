@@ -1,0 +1,112 @@
+{
+    "pnf": [{
+        "pnf-id": ${pf.pnf-id},
+        "pnf-data": {
+            "sdnc-request-header": {
+                "svc-request-id": ${pf.pnf-data.sdnc-request-header.svc-request-id},
+                "svc-action": ${pf.pnf-data.sdnc-request-header.svc-action},
+                "svc-notification-url": ${pf.pnf-data.sdnc-request-header.svc-notification-url}
+            },
+            "request-information": {
+                "request-id": ${pf.pnf-data.request-information.request-id},
+                "request-action": ${pf.pnf-data.request-information.request-action},
+                "source": ${pf.pnf-data.request-information.source},
+                "notification-url": ${pf.pnf-data.request-information.notification-url},
+                "order-number": ${pf.pnf-data.request-information.order-number},
+                "order-version": ${pf.pnf-data.request-information.order-version}
+            },
+            "service-information": {
+                "service-id": ${pf.pnf-data.service-information.service-id},
+                "subscription-service-type": ${pf.pnf-data.service-information.subscription-service-type},
+                "onap-model-information": {
+                    "model-invariant-uuid": ${pf.pnf-data.service-information.onap-model-information.model-invariant-uuid},
+                    "model-customization-uuid": ${pf.pnf-data.service-information.onap-model-information.model-customization-uuid},
+                    "model-uuid": ${pf.pnf-data.service-information.onap-model-information.model-uuid},
+                    "model-version": ${pf.pnf-data.service-information.onap-model-information.model-version},
+                    "model-name": ${pf.pnf-data.service-information.onap-model-information.model-name}
+                },
+                "service-instance-id": ${pf.pnf-data.service-information.service-instance-id},
+                "global-customer-id": ${pf.pnf-data.service-information.global-customer-id},
+                "subscriber-name": ${pf.pnf-data.service-information.subscriber-name}
+            },
+            "pnf-details": {
+                "pnf-id": ${pf.pnf-data.pnf-details.pnf-id},
+                "pnf-type": ${pf.pnf-data.pnf-details.pnf-type},
+                "pnf-name": ${pf.pnf-data.pnf-details.pnf-name},
+                "onap-model-information": {
+                    "model-invariant-uuid": ${pf.pnf-data.pnf-details.onap-model-information.model-invariant-uuid},
+                    "model-customization-uuid": ${pf.pnf-data.pnf-details.onap-model-information.model-customization-uuid},
+                    "model-uuid": ${pf.pnf-data.pnf-details.onap-model-information.model-uuid},
+                    "model-version": ${pf.pnf-data.pnf-details.onap-model-information.model-version},
+                    "model-name": ${pf.pnf-data.pnf-details.onap-model-information.model-name}
+                }
+            },
+            "pnf-request-input": {
+                "request-version": ${pf.pnf-data.pnf-request-input.request-version},
+                "pnf-name": ${pf.pnf-data.pnf-request-input.pnf-name},
+                "tenant": ${pf.pnf-data.pnf-request-input.tenant},
+                "aic-cloud-region": ${pf.pnf-data.pnf-request-input.aic-cloud-region},
+                "aic-clli": ${pf.pnf-data.pnf-request-input.aic-clli},
+                "pnf-input-parameters": {
+                    "param": [
+        ${repeat:pf.pnf-data.pnf-request-input.pnf-input-parameters.param_length:
+                        {
+                            "name": ${pf.pnf-data.pnf-request-input.pnf-input-parameters.param[${1}].name},
+                            "value": ${pf.pnf-data.pnf-request-input.pnf-input-parameters.param[${1}].value}
+                        },
+        }
+                    ]
+                }
+            },
+            "pnf-topology": {
+                "pnf-topology-identifier-structure": {
+                    "pnf-id": ${pf.pnf-data.pnf-topology.pnf-topology-identifier-structure.pnf-id},
+                    "pnf-name": ${pf.pnf-data.pnf-topology.pnf-topology-identifier-structure.pnf-name},
+                    "pnf-type": ${pf.pnf-data.pnf-topology.pnf-topology-identifier-structure.pnf-type}
+                },
+                "onap-model-information": {
+                    "model-invariant-uuid": ${pf.pnf-data.pnf-topology.onap-model-information.model-invariant-uuid},
+                    "model-customization-uuid": ${pf.pnf-data.pnf-topology.onap-model-information.model-customization-uuid},
+                    "model-uuid": ${pf.pnf-data.pnf-topology.onap-model-information.model-uuid},
+                    "model-version": ${pf.pnf-data.pnf-topology.onap-model-information.model-version},
+                    "model-name": ${pf.pnf-data.pnf-topology.onap-model-information.model-name}
+                },
+                "pnf-parameters-data": {
+                    "param": [
+        ${repeat:pf.pnf-data.pnf-topology.pnf-parameters-data.param_length:
+                        {
+                            "name": ${pf.pnf-data.pnf-topology.pnf-parameters-data.param[${1}].name},
+                            "value": ${pf.pnf-data.pnf-topology.pnf-parameters-data.param[${1}].value},
+                            "resource-resolution-data": {
+                                "resource-key": [
+                ${repeat:pf.pnf-data.pnf-topology.pnf-parameters-data.param[${1}].resource-resolution-data.resource-key_length:
+                                    {
+                                        "name": ${pf.pnf-data.pnf-topology.pnf-parameters-data.param[${1}].resource-resolution-data.resource-key[${2}].name},
+                                        "value": ${pf.pnf-data.pnf-topology.pnf-parameters-data.param[${1}].resource-resolution-data.resource-key[${2}].value}
+                                    },
+                }
+                                ],
+                                "status": ${pf.pnf-data.pnf-topology.pnf-parameters-data.param[${1}].resource-resolution-data.status},
+                                "capability-name": ${pf.pnf-data.pnf-topology.pnf-parameters-data.param[${1}].resource-resolution-data.capability-name}
+                            },
+                        },
+        }
+                    ]
+                },
+                "tenant": ${pf.pnf-data.pnf-topology.tenant},
+                "aic-cloud-region": ${pf.pnf-data.pnf-topology.aic-cloud-region},
+                "aic-clli": ${pf.pnf-data.pnf-topology.aic-clli}
+                "sdnc-generated-cloud-resources": ${pf.pnf-data.pnf-topology.sdnc-generated-cloud-resources}
+            },
+            "pnf-level-oper-status": {
+                "order-status": ${pf.pnf-data.pnf-level-oper-status.order-status},
+                "last-rpc-action": ${pf.pnf-data.pnf-level-oper-status.last-rpc-action},
+                "last-action": ${pf.pnf-data.pnf-level-oper-status.last-action},
+                "last-svc-request-id": ${pf.pnf-data.pnf-level-oper-status.last-svc-request-id},
+                "last-order-status": ${pf.pnf-data.pnf-level-oper-status.last-order-status},
+                "create-timestamp": ${pf.pnf-data.pnf-level-oper-status.create-timestamp},
+                "modify-timestamp": ${pf.pnf-data.pnf-level-oper-status.modify-timestamp}
+            }
+        }
+    }]
+}

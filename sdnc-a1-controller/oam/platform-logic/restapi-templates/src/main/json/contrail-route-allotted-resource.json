@@ -1,0 +1,102 @@
+{
+	"contrail-route-allotted-resource": [{
+		"allotted-resource-id": ${ar.allotted-resource-id},
+		"allotted-resource-data": {
+			"contrail-route-topology": {
+				"allotted-resource-identifiers": {
+					"consuming-service-instance-id": ${ar.allotted-resource-data.contrail-route-topology.allotted-resource-identifiers.consuming-service-instance-id},
+					"allotted-resource-name": ${ar.allotted-resource-data.contrail-route-topology.allotted-resource-identifiers.allotted-resource-name},
+					"allotted-resource-id": ${ar.allotted-resource-data.contrail-route-topology.allotted-resource-identifiers.allotted-resource-id},
+					"parent-service-instance-id": ${ar.allotted-resource-data.contrail-route-topology.allotted-resource-identifiers.parent-service-instance-id},
+					"allotted-resource-type": ${ar.allotted-resource-data.contrail-route-topology.allotted-resource-identifiers.allotted-resource-type}
+				},
+				"onap-model-information": {
+					"model-invariant-uuid": ${ar.allotted-resource-data.contrail-route-topology.onap-model-information.model-invariant-uuid},
+					"model-customization-uuid": ${ar.allotted-resource-data.contrail-route-topology.onap-model-information.model-customization-uuid},
+					"model-uuid": ${ar.allotted-resource-data.contrail-route-topology.onap-model-information.model-uuid},
+					"model-version": ${ar.allotted-resource-data.contrail-route-topology.onap-model-information.model-version}
+				},
+				"contrail-route-assignments": {
+					"fq-name": ${ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.fq-name},
+					"contrail-id": ${ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.contrail-id},
+					"vlan-tag": ${ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.vlan-tag},
+					"source-network": {
+						"network-id": ${ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.source-network.network-id},
+						"network-role": ${ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.source-network.network-role}
+					},
+					"dest-network": {
+						"network-id": ${ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.dest-network.network-id},
+						"network-role": ${ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.dest-network.network-role}
+					},
+					"contrail-applied-service": {
+						"service-instance-id": ${ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.contrail-applied-service.service-instance-id},
+						"vnf-id": ${ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.contrail-applied-service.vnf-id},
+						"contrail-fqdn": ${ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.contrail-applied-service.contrail-fqdn}
+					}
+				},
+				"contrail-route-parameters": {
+					"param" : [
+  ${repeat:ar.allotted-resource-data.contrail-route-topology.contrail-route-parameters_length:
+    					{
+						"name": ${ar.allotted-resource-data.contrail-route-topology.contrail-route-parameters[${1}].name},
+						"value": ${ar.allotted-resource-data.contrail-route-topology.contrail-route-parameters[${1}].value}
+    					}
+   }
+					]
+				}
+			},
+			"allotted-resource-operation-information": {
+			"allotted-resource-information": {
+      				"allotted-resource-id": ${ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.allotted-resource-id},
+					"allotted-resource-type": ${ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.allotted-resource-type},
+					"parent-service-instance-id": ${ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.parent-service-instance-id},
+					"onap-model-information": {
+						"model-invariant-uuid": ${ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.onap-model-information.model-invariant-uuid},
+						"model-customization-uuid": ${ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.onap-model-information.model-customization-uuid},
+						"model-uuid": ${ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.onap-model-information.model-uuid},
+						"model-version": ${ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.onap-model-information.model-version}
+      				}
+    			},
+    			"sdnc-request-header": {
+      				"svc-request-id": ${ar.allotted-resource-data.allotted-resource-operation-information.sdnc-request-header.svc-request-id},
+      				"svc-action": ${ar.allotted-resource-data.allotted-resource-operation-information.sdnc-request-header.svc-action}
+    			},
+			"request-information": {
+				"request-id": ${ar.allotted-resource-data.allotted-resource-operation-information.request-information.request-id},
+				"source": ${ar.allotted-resource-data.allotted-resource-operation-information.request-information.source},
+				"order-version": ${ar.allotted-resource-data.allotted-resource-operation-information.request-information.order-version},
+				"order-number": ${ar.allotted-resource-data.allotted-resource-operation-information.request-information.order-number},
+				"notification-url": ${ar.allotted-resource-data.allotted-resource-operation-information.request-information.notification-url},
+				"request-action": ${ar.allotted-resource-data.allotted-resource-operation-information.request-information.request-action}
+			},
+			"contrail-route-request-input": {
+				"source-network": {
+					"network-id": ${ar.allotted-resource-data.allotted-resource-operation-information.contrail-route-request-input.source-network.network-id},
+					"network-role": ${ar.allotted-resource-data.allotted-resource-operation-information.contrail-route-request-input.source-network.network-role}
+				},
+				"dest-network": {
+					"network-id": ${ar.allotted-resource-data.allotted-resource-operation-information.contrail-route-request-input.dest-network.network-id},
+					"network-role": ${ar.allotted-resource-data.allotted-resource-operation-information.contrail-route-request-input.dest-network.network-role}
+				},
+				"contrail-applied-service-info": {
+					"service-instance-id" : ${ar.allotted-resource-data.allotted-resource-operation-information.contrail-route-request-input.contrail-applied-service-info.service-instance-id}
+				}
+    			}
+			},
+			"allotted-resource-oper-status": {
+				"last-action": ${ar.allotted-resource-data.allotted-resource-oper-status.last-action},
+				"modify-timestamp": ${ar.allotted-resource-data.allotted-resource-oper-status.modify-timestamp},
+				"last-order-status": ${ar.allotted-resource-data.allotted-resource-oper-status.last-order-status},
+				"create-timestamp": ${ar.allotted-resource-data.allotted-resource-oper-status.create-timestamp},
+				"order-status": ${ar.allotted-resource-data.allotted-resource-oper-status.order-status},
+				"last-rpc-action": ${ar.allotted-resource-data.allotted-resource-oper-status.last-rpc-action},
+				"last-svc-request-id": ${ar.allotted-resource-data.allotted-resource-oper-status.last-svc-request-id}
+			}
+		},
+		"allotted-resource-status" : {
+			"action": ${ar.allotted-resource-status.action},
+			"rpc-name": ${ar.allotted-resource-status.rpc-name},
+			"rpc-action": ${ar.allotted-resource-status.rpc-action}
+		}
+	}]
+}

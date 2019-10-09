@@ -1,0 +1,110 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='wan-connection-topology-operation-deactivate' mode='sync'>
+        <block atomic="true">
+            <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                <parameter name='contextPrefix' value='prop' />
+            </execute>
+            <set>
+                <parameter name='tmp.found-network-input' value='false' />
+            </set>
+            <for index='pidx' start='0' end='`$service-data.networks.network_length`' >
+                <switch test="`$service-data.networks.network[$pidx].network-id == $network-topology-operation-input.network-information.network-id`">
+                    <outcome value='true'>
+                        <set>
+                            <parameter name='tmp.pidx' value='`$pidx`' />
+                            <parameter name='tmp.network.' value='`$service-data.networks.network[$pidx].`' />
+                            <parameter name='tmp.network-input-parameters' value='`$service-data.networks.network[$pidx].network-data.network-request-input.network-input-parameters`' />
+                            <parameter name='tmp.found-network-input' value='true' />
+                        </set>
+                    </outcome>
+                </switch>
+            </for>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="`$error-message`" />
+            </return>
+            <block atomic="true">
+                <set>
+                    <parameter name='isLocalIdFound' value='false' />
+                </set>
+                <for index='paidx' start='0' end='`$tmp.network.network-data.network-request-input.network-input-parameters.param_length`' >
+                    <switch test="`$tmp.network.network-data.network-request-input.network-input-parameters.param[$paidx].name == 'localServiceId'`">
+                        <outcome value='true'>
+                            <set>
+                                <parameter name='localServiceId' value='`$tmp.network.network-data.network-request-input.network-input-parameters.param[$paidx].value`' />
+                                <parameter name='isLocalIdFound' value='true' />
+                            </set>
+                        </outcome>
+                    </switch>
+                </for>
+                <switch test="`$isLocalIdFound`">
+                    <outcome value='false'>
+                        <set>
+                            <parameter name='sotnServiceId' value='73aa6033-a43e-3162-9bc9-085edc2b5a10' />
+                        </set>
+                    </outcome>
+                </switch>
+                <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                    <parameter name="templateFileName" value="`$prop.restapi.templateDir + '/sotn_get_zte_template.json' `" />
+                    <parameter name="restapiUrl" value="http://10.80.80.21:8443/restconf/operations/ZTE-API-ConnectivityService:get-service-details" />
+                    <parameter name="restapiUser" value="admin" />
+                    <parameter name="restapiPassword" value="admin" />
+                    <parameter name="format" value="json"/>
+                    <parameter name="httpMethod" value="post"/>
+                    <parameter name="responsePrefix" value="restApiResult"/>
+                    <outcome value='success'>
+                        <block atomic="true">
+                            <set>
+                                <parameter name='localId' value='`$restApiResult.output.normal-service.name[0].value`' />
+                            </set>
+                            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                <parameter name="templateFileName" value="`$prop.restapi.templateDir + '/sotn_delete_zte_template.json' `" />
+                                <parameter name="restapiUrl" value="http://10.80.80.21:8443/restconf/operations/ZTE-API-ConnectivityService:delete-connectivity-service" />
+                                <parameter name="restapiUser" value="admin" />
+                                <parameter name="restapiPassword" value="admin" />
+                                <parameter name="format" value="json"/>
+                                <parameter name="httpMethod" value="post"/>
+                                <parameter name="responsePrefix" value="restApiResult"/>
+                                <outcome value='success'>
+                                    <block></block>
+                                </outcome>
+                                <outcome value='failure'>
+                                    <return status='failure'>
+                                        <parameter name='ack-final' value='Y'/>
+                                        <parameter name="error-code" value="500" />
+                                        <parameter name="error-message" value="`'Error calling ' + $tmp.restapiUrl`" />
+                                    </return>
+                                </outcome>
+                                <outcome value='not-found'>
+                                    <return status='failure'>
+                                        <parameter name='ack-final' value='Y'/>
+                                        <parameter name="error-code" value="500" />
+                                        <parameter name="error-message" value="`'Error calling ' + $tmp.restapiUrl`" />
+                                    </return>
+                                </outcome>
+                            </execute>
+                        </block>
+                    </outcome>
+                    <outcome value='failure'>
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="`'Error calling ' + $tmp.restapiUrl`" />
+                        </return>
+                    </outcome>
+                    <outcome value='not-found'>
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="`'Error calling ' + $tmp.restapiUrl`" />
+                        </return>
+                    </outcome>
+                </execute>
+            </block>
+        </block>
+    </method>
+</service-logic>

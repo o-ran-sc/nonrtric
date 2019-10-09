@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>SDN-C AdminPortal</title>
+
+<script class="init">
+    $(document).ready(function() {
+    $('#availability_zone').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+
+</head>
+<body>
+
+<div class="well well-sm">
+<h3>AIC Availabilty Zone Pool</h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+	<table id="availability_zone" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+          <th>AIC Site ID</th>
+          <th>Availability Zone</th>
+          <th>Token</th>
+		  <th>Service Type</th>
+          <th>Status</th>
+          <th>VNF ID</th>
+          <th>VNF Type</th>
+          <th>Hypervisor</th>
+		  <% if(priv == 'A') { %>
+		  <th>Action</th>
+		  <% } %>
+        </tr>
+      </thead>
+      <tbody>
+      <% rows.forEach( function(row) { %> 
+        <tr>
+            <td><%= row.aic_site_id %></td>
+            <td><%= row.availability_zone %></td>
+            <td><%= row.token %></td>
+            <td><%= row.service_type %></td>
+            <td><%= row.status %></td>
+            <td><%= row.vnf_id %></td>
+            <td><%= row.vnf_type %></td>
+            <td><%= row.hypervisor %></td>
+			<% if(priv == 'A') { %>
+            <td>
+				<button type="button" class="btn btn-default btn-xs"
+                    onclick="updateAicAvailZone('<%=row.aic_site_id %>','<%= row.availability_zone %>','<%= row.token %>','<%= row.service_type %>','<%= row.status %>','<%= row.vnf_id %>','<%= row.vnf_type %>','<%= row.hypervisor %>');">Update</button>
+				<button type="button" class="btn btn-default btn-xs"
+                   onclick="deleteZone('<%=row.aic_site_id %>','<%= row.availability_zone %>', '<%= row.token %>');">Delete</button>
+            </td>
+            <% } %>
+        </tr>
+    <% }); %>
+      </tbody>
+    </table>
+
+
+<!--
+	<% if(priv == 'A'){ %>
+	<div class="actions" style="padding:0px 25px;">
+	<form method="POST" action="/gamma/uploadAicAvailZone" enctype="multipart/form-data">
+		<div class="form-group">
+    		<label for="dest">File input</label>
+    		<input name="filename" type="file" id="dest">
+    		<p class="help-block">Choose a file to upload.</p>
+  		</div>
+		<% if(priv == 'A') { %>
+			<button type="button" class="btn btn-default"
+				onclick="uploadFile(this.form);">Upload File</button>
+		<% } else { %>
+			<button type="button" class="btn btn-default disabled"
+				onclick="uploadFile(this.form);">Upload File</button>
+		<% } %>
+	</form>
+	</div>
+	<% } %>
+-->
+</div>
+
+<% include ../partials/update_aic_avail_zone %>
+
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+<script type="text/javascript">
+function updateAicAvailZone(aic_site_id,availability_zone,token,service_type,status,vnf_id,vnf_type,hypervisor) {
+
+    document.getElementById('uf_aic_site_id').value=aic_site_id;
+    document.getElementById('uf_availability_zone').value=availability_zone
+    document.getElementById('uf_token').value=token;
+    document.getElementById('uf_service_type').value=service_type;
+    document.getElementById('uf_status').value=status;
+    document.getElementById('uf_vnf_id').value=vnf_id;
+    document.getElementById('uf_vnf_type').value=vnf_type;
+    document.getElementById('uf_hypervisor').value=hypervisor;
+    document.getElementById('uf_key_aic_site_id').value=aic_site_id;
+    document.getElementById('uf_key_availability_zone').value=availability_zone
+    document.getElementById('uf_key_token').value=token;
+    $('#update_aic_avail_zone_modal').modal('show');
+}
+
+function deleteZone(siteid,azone,token) {
+
+    bootbox.confirm({
+        message: "Are you sure you want to delete zone [" + siteid + "][" + azone + "][" + token + "] ?",
+        callback: function(result) {
+            if ( result )
+            {
+                location.assign("/gamma/deleteZone?siteid=" + siteid + "&azone=" + azone + "&token=" + token);
+            }
+            return;
+        },
+        buttons: {
+            cancel: {
+                label: "Cancel"
+            },
+            confirm: {
+                label: "Yes"
+            }
+        }
+    });
+}
+</script>
+
+
+</body>
+</html>
+

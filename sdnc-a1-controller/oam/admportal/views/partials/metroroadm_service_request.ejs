@@ -1,0 +1,170 @@
+<div class="modal fade" id="add_metroroadm_service_request" tabindex="-1" role="dialog"
+        aria-labelledby="add_metroroadm_service_request_label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Add Metro ROADM Service Request</h4>
+          </div>
+          <div class="modal-body">
+            <form name="addForm" role="form" action="/tunnel/addMetroRoadmServiceRequest" method="POST">
+              <div class="form-group">
+                <label for="nf_request_id">*Request ID</label>
+                <input type="text" class="form-control" maxlength="75" name="nf_request_id" id="nf_request_id" placeholder="varchar(75)">
+              </div>
+              <div class="form-group">
+                <label for="nf_request_source">Request Source</label>
+                <input type="text" class="form-control" maxlength="20" name="nf_request_source" id="nf_request_source" placeholder="varchar(20)">
+              </div>
+              <div class="form-group">
+                <label for="nf_notification_url">Notification URL</label>
+                <input type="text" class="form-control" maxlength="255" name="nf_notification_url" id="nf_notification_url" placeholder="varchar(255)">
+              </div>
+              <div class="form-group">
+                <label for="nf_l_action">*Action</label>
+                <input type="text" class="form-control" maxlength="10" name="nf_l_action" id="nf_l_action" placeholder="varchar(10)">
+              </div>
+              <div class="form-group">
+                <label for="nf_request_timestamp">*Request Timestamp</label>
+                <input type="text" class="form-control" maxlength="80" name="nf_request_timestamp" id="nf_request_timestamp" placeholder="YYYY-MM-DD HH:MM:SS">
+              </div>
+              <div class="form-group">
+                <label for="nf_update_timestamp">Update Timestamp</label>
+                <input type="text" class="form-control" maxlength="80" name="nf_update_timestamp" id="nf_update_timestamp" placeholder="varchar(80)">
+              </div>
+              <div class="form-group">
+                <label for="nf_request_status">*Request Status</label>
+                <input type="text" class="form-control" maxlength="20" name="nf_request_status" id="nf_request_status" placeholder="varchar(20)">
+              </div>
+              <div class="form-group">
+                <label for="nf_processing_status">*Processing Status</label>
+                <input type="text" class="form-control" maxlength="40" name="nf_processing_status" id="nf_processing_status" placeholder="varchar(40)">
+              </div>
+              <div class="form-group">
+                <label for="nf_reason_code">Reason Code</label>
+                <input type="text" class="form-control" maxlength="255" name="nf_reason_code" id="nf_reason_code" placeholder="varchar(255)">
+              </div>
+              <div class="form-group">
+                <label for="nf_reason_message">Reason Message</label>
+                <input type="text" class="form-control" maxlength="255" name="nf_reason_message" id="nf_reason_message" placeholder="varchar(255)">
+              </div>
+              <div class="form-group">
+                <label for="nf_service_id">*Service Id</label>
+                <input type="text" class="form-control" maxlength="50" name="nf_service_id" id="nf_service_id" placeholder="varchar(50)">
+              </div>
+              <div class="form-group">
+                <label for="nf_common_id">Common Id</label>
+                <input type="text" class="form-control" maxlength="12" name="nf_common_id" id="nf_common_id" placeholder="varchar(12)">
+              </div>
+              <div class="form-group">
+                <label for="nf_clli_a">CLLI A</label>
+                <input type="text" class="form-control" maxlength="20" name="nf_clli_a" id="nf_clli_a" placeholder="varchar(20)">
+              </div>
+              <div class="form-group">
+                <label for="nf_clli_z">CLLI Z</label>
+                <input type="text" class="form-control" maxlength="20" name="nf_clli_z" id="nf_clli_z" placeholder="varchar(20)">
+              </div>
+              <div class="form-group">
+                <label for="nf_customer">Customer</label>
+                <input type="text" class="form-control" maxlength="255" name="nf_customer" id="nf_customer" placeholder="varchar(255)">
+              </div>
+              <div class="form-group">
+                <label for="nf_controller_id">*Controller Id</label>
+                <input type="text" class="form-control" maxlength="255" name="nf_controller_id" id="nf_controller_id" placeholder="varchar(255)">
+              </div>
+              <div class="form-group">
+                <input type="hidden" name="nf_action" id="nf_action">
+                <button type="button" class="btn btn-primary" onclick="submitMetroRoadmServiceRequest(this.form);">Submit</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>
+
+   <div class="modal fade" id="update_metroroadm_service_request" tabindex="-1" role="dialog" 
+		aria-labelledby="update_metroroadm_service_request_label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Update Metro ROADM Service Request</h4>
+          </div>
+          <div class="modal-body">
+            <form role="form" action="/tunnel/updateMetroRoadmServiceRequest" method="POST">
+              <div class="form-group">
+                    <label for="uf_request_id">*Request ID</label>
+                    <input type="text" class="form-control" maxlength="75" name="uf_request_id" id="uf_request_id" placeholder="varchar(75)">
+              </div>
+              <div class="form-group">
+                <label for="uf_request_source">Request Source</label>
+                <input type="text" class="form-control" maxlength="20" name="uf_request_source" id="uf_request_source" placeholder="varchar(20)">
+              </div>
+              <div class="form-group">
+                <label for="uf_notification_url">Notification URL</label>
+                <input type="text" class="form-control" maxlength="255" name="uf_notification_url" id="uf_notification_url" placeholder="varchar(255)">
+              </div>
+              <div class="form-group">
+                <label for="uf_l_action">*Action</label>
+                <input type="text" class="form-control" maxlength="10" name="uf_l_action" id="uf_l_action" placeholder="varchar(10)">
+              </div>
+              <div class="form-group">
+                <label for="uf_request_timestamp">*Request Timestamp</label>
+                <input type="text" class="form-control" maxlength="80" name="uf_request_timestamp" id="uf_request_timestamp" placeholder="varchar(80)">
+              </div>
+              <div class="form-group">
+                <label for="uf_update_timestamp">Update Timestamp</label>
+                <input type="text" class="form-control" maxlength="80" name="uf_update_timestamp" id="uf_update_timestamp" placeholder="varchar(80)">
+              </div>
+              <div class="form-group">
+                <label for="uf_request_status">*Request Status</label>
+                <input type="text" class="form-control" maxlength="20" name="uf_request_status" id="uf_request_status" placeholder="varchar(20)">
+              </div>
+              <div class="form-group">
+                <label for="uf_processing_status">*Processing Status</label>
+                <input type="text" class="form-control" maxlength="40" name="uf_processing_status" id="uf_processing_status" placeholder="varchar(40)">
+              </div>
+              <div class="form-group">
+                <label for="uf_reason_code">Reason Code</label>
+                <input type="text" class="form-control" maxlength="255" name="uf_reason_code" id="uf_reason_code" placeholder="varchar(255)">
+              </div>
+              <div class="form-group">
+                <label for="uf_reason_message">Reason Message</label>
+                <input type="text" class="form-control" maxlength="255" name="uf_reason_message" id="uf_reason_message" placeholder="varchar(255)">
+              </div>
+              <div class="form-group">
+                <label for="uf_service_id">*Service Id</label>
+                <input type="text" class="form-control" maxlength="50" name="uf_service_id" id="uf_service_id" placeholder="varchar(50)">
+              </div>
+              <div class="form-group">
+                <label for="uf_common_id">Common Id</label>
+                <input type="text" class="form-control" maxlength="12" name="uf_common_id" id="uf_common_id" placeholder="varchar(12)">
+              </div>
+              <div class="form-group">
+                <label for="uf_clli_a">CLLI A</label>
+                <input type="text" class="form-control" maxlength="20" name="uf_clli_a" id="uf_clli_a" placeholder="varchar(20)">
+              </div>
+              <div class="form-group">
+                <label for="uf_clli_z">CLLI Z</label>
+                <input type="text" class="form-control" maxlength="20" name="uf_clli_z" id="uf_clli_z" placeholder="varchar(20)">
+              </div>
+              <div class="form-group">
+                <label for="uf_customer">Customer</label>
+                <input type="text" class="form-control" maxlength="255" name="uf_customer" id="uf_customer" placeholder="varchar(255)">
+              </div>
+              <div class="form-group">
+                <label for="uf_controller_id">*Controller Id</label>
+                <input type="text" class="form-control" maxlength="255" name="uf_controller_id" id="uf_controller_id" placeholder="varchar(255)">
+              </div>
+              <div class="form-group">
+				<input type="hidden" name="uf_action" id="uf_action">
+                <input type="hidden" name="uf_key_request_id" id="uf_key_request_id">
+                <button type="button" class="btn btn-primary" onclick="submitMetroRoadmServiceRequest(this.form);">Submit</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>

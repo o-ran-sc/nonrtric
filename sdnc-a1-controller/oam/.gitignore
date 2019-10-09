@@ -1,0 +1,62 @@
+#####standard .git ignore entries#####
+
+## IDE Specific Files ##
+org.eclipse.core.resources.prefs
+.checkstyle
+.classpath
+.project
+.settings
+.idea
+.externalToolBuilders
+.pydevproject
+maven-eclipse.xml
+workspace
+
+## Compilation Files ##
+*.class
+**/target
+target
+target-ide
+MANIFEST.MF
+
+## Misc Ignores (OS specific etc) ##
+bin/
+dist
+*~
+*.ipr
+*.iml
+*.iws
+classes
+out/
+.DS_STORE
+.metadata
+
+## antlr4 generated files ##
+ExprGrammarBaseListener.java
+ExprGrammarLexer.java
+ExprGrammarListener.java
+ExprGrammarParser.java
+ExprGrammar.tokens
+ExprGrammarLexer.tokens
+
+# BlackDuck generated file
+sdnc-oam_bdio.jsonld
+blackDuckHubProjectName.txt
+blackDuckHubProjectVersionName.txt
+
+#Chef local mode cache
+local-mode-cache
+
+# Generated local docker image
+**/docker-files/opt
+**/src/main/resources/opt
+
+#dgbuilder releases
+#**/dgbuilder/releases
+
+#version plugin backups
+**/*.versionsBackup
+
+#Yang generated
+**/restconfapi-yang/src/main/java/
+**/yang-gen-sal/

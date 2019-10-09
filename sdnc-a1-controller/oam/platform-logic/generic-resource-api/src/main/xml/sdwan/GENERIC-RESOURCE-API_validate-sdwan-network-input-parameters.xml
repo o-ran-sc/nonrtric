@@ -1,0 +1,305 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='validate-sdwan-network-input-parameters' mode='sync'>
+        <block atomic="true">
+            <switch test='`$network-topology-operation-input.sdnc-request-header.svc-action`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="sdnc-request-header.svc-request-id is a required input" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$network-topology-operation-input.sdnc-request-header.svc-action`'>
+                <outcome value='create'>
+                    <block atomic="true">
+                        <switch test='`$network-topology-operation-input.request-information.request-action`'>
+                            <outcome value='CreateSDWANConnectivityInstance'>
+                                <block atomic="true">
+                                    <for index="i" start="0" end="`$network-topology-operation-input.network-request-input.network-input-parameters.param_length`">
+                                        <block>
+                                            <set>
+                                                <parameter name='tmp.name' value='' />
+                                                <parameter name='tmp.value' value='' />
+                                            </set>
+                                            <set>
+                                                <parameter name='tmp.name' value="`$network-topology-operation-input.network-request-input.network-input-parameters.param[$i].name`"/>
+                                                <parameter name='tmp.value' value="`$network-topology-operation-input.network-request-input.network-input-parameters.param[$i].value`"/>
+                                            </set>
+                                            <switch test="`$tmp.name`">
+                                                <outcome value='name'>
+                                                    <switch test="`$tmp.value`">
+                                                        <outcome value=''>
+                                                            <return status='failure'>
+                                                                <parameter name='ack-final' value='Y'/>
+                                                                <parameter name="error-code" value="500" />
+                                                                <parameter name="error-message" value="`'network-request-input.network-input-parameters.param '+ $tmp.name +' is a required input'`" />
+                                                            </return>
+                                                        </outcome>
+                                                    </switch>
+                                                </outcome>
+                                                <outcome value='topology'>
+                                                    <switch test="`$tmp.value`">
+                                                        <outcome value=''>
+                                                            <return status='failure'>
+                                                                <parameter name='ack-final' value='Y'/>
+                                                                <parameter name="error-code" value="500" />
+                                                                <parameter name="error-message" value="`'network-request-input.network-input-parameters.param '+ $tmp.name +' is a required input'`" />
+                                                            </return>
+                                                        </outcome>
+                                                    </switch>
+                                                </outcome>
+                                                <outcome value=''>
+                                                    <return status='failure'>
+                                                        <parameter name='ack-final' value='Y'/>
+                                                        <parameter name="error-code" value="500" />
+                                                        <parameter name="error-message" value="`'network-topology-operation-input.network-request-input.network-input-parameters.param[' + $i + ']' + '.name is a required input'`" />
+                                                    </return>
+                                                </outcome>
+                                            </switch>
+                                        </block>
+                                    </for>
+                                </block>
+                            </outcome>
+                            <outcome value='Other'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="request-information.request-action is required to be SOTN CreateVPNNetworkInstance for svc-action=create" />
+                                </return>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='activate'>
+                    <switch test='`$network-topology-operation-input.request-information.request-action`'>
+                        <outcome value='ActivateSDWANConnectivityInstance'>
+                            <block atomic="true">
+                                <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='requiredParameters' >
+                                    <parameter name="network-topology-operation-input.network-information.network-id" value="$network-topology-operation-input.network-information.network-id"/>
+                                </execute>
+                                <switch test="`$network-topology-operation-input.network-information.network-id`">
+                                    <outcome value=''>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="network-request-input.network-input-parameters.name is a required input" />
+                                        </return>
+                                    </outcome>
+                                </switch>
+                                <switch test='`$service-data.networks.network_length`'>
+                                    <outcome value=''>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="network-topology-operation-input.network-request-input.network-id not found in service-data" />
+                                        </return>
+                                    </outcome>
+                                    <outcome value='Other'>
+                                        <block atomic="true">
+                                            <for index='nidx' start='0' end='`$service-data.networks.network_length`' >
+                                                <switch test="`$service-data.networks.network[$nidx].network-id == $network-topology-operation-input.network-information.network-id`">
+                                                    <outcome value='true'>
+                                                        <block atomic="true">
+                                                            <set>
+                                                                <parameter name='tmp.nidx' value='`$nidx`' />
+                                                                <parameter name='ctx.network-data.' value='`$service-data.networks.network[$nidx].network-data.`' />
+                                                            </set>
+                                                        </block>
+                                                    </outcome>
+                                                </switch>
+                                            </for>
+                                            <switch test="`$tmp.nidx`">
+                                                <outcome value=''>
+                                                    <return status='failure'>
+                                                        <parameter name='ack-final' value='Y'/>
+                                                        <parameter name="error-code" value="500" />
+                                                        <parameter name="error-message" value="network-topology-operation-input.network-request-input.network-id not found in service-data" />
+                                                    </return>
+                                                </outcome>
+                                            </switch>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                                <switch test='`$service-data.networks.network[$tmp.nidx].network-data.network-level-oper-status.order-status`'>
+                                    <outcome value='Created'>
+                                        <block atomic="true"></block>
+                                    </outcome>
+                                    <outcome value='Other'>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="`'Network is not in appropriate state for activate. Current state is ' + $service-data.networks.network[$tmp.nidx].network-data.network-level-oper-status.order-status`" />
+                                        </return>
+                                    </outcome>
+                                </switch>
+                            </block>
+                        </outcome>
+                        <outcome value='Other'>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="request-information.request-action is required to be SOTN ActivateVPNNetworkInstance for svc-action=activate" />
+                            </return>
+                        </outcome>
+                    </switch>
+                </outcome>
+                <outcome value='deactivate'>
+                    <switch test='`$network-topology-operation-input.request-information.request-action`'>
+                        <outcome value='DeactivateSDWANConnectivityInstance'>
+                            <block atomic="true">
+                                <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='requiredParameters' >
+                                    <parameter name="network-topology-operation-input.network-information.network-id" value="$network-topology-operation-input.network-information.network-id"/>
+                                </execute>
+                                <switch test="`$network-topology-operation-input.network-information.network-id`">
+                                    <outcome value=''>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="network-request-input.network-input-parameters.name is a required input" />
+                                        </return>
+                                    </outcome>
+                                </switch>
+                                <switch test='`$service-data.networks.network_length`'>
+                                    <outcome value=''>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="network-topology-operation-input.network-request-input.network-id not found in service-data" />
+                                        </return>
+                                    </outcome>
+                                    <outcome value='Other'>
+                                        <block atomic="true">
+                                            <for index='nidx' start='0' end='`$service-data.networks.network_length`' >
+                                                <switch test="`$service-data.networks.network[$nidx].network-id == $network-topology-operation-input.network-information.network-id`">
+                                                    <outcome value='true'>
+                                                        <block atomic="true">
+                                                            <set>
+                                                                <parameter name='tmp.nidx' value='`$nidx`' />
+                                                                <parameter name='ctx.network-data.' value='`$service-data.networks.network[$nidx].network-data.`' />
+                                                            </set>
+                                                        </block>
+                                                    </outcome>
+                                                </switch>
+                                            </for>
+                                            <switch test="`$tmp.nidx`">
+                                                <outcome value=''>
+                                                    <return status='failure'>
+                                                        <parameter name='ack-final' value='Y'/>
+                                                        <parameter name="error-code" value="500" />
+                                                        <parameter name="error-message" value="network-topology-operation-input.network-request-input.network-id not found in service-data" />
+                                                    </return>
+                                                </outcome>
+                                            </switch>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                                <switch test='`$service-data.networks.network[$tmp.nidx].network-data.network-level-oper-status.order-status`'>
+                                    <outcome value='Active'>
+                                        <block atomic="true"></block>
+                                    </outcome>
+                                    <outcome value='Other'>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="`'Network is not in appropriate state for deactivate. Current state is ' + $service-data.networks.network[$tmp.nidx].network-data.network-level-oper-status.order-status`" />
+                                        </return>
+                                    </outcome>
+                                </switch>
+                            </block>
+                        </outcome>
+                        <outcome value='Other'>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="request-information.request-action is required to be SOTN DeactivateVPNNetworkInstance for svc-action=deactivate" />
+                            </return>
+                        </outcome>
+                    </switch>
+                </outcome>
+                <outcome value='delete'>
+                    <switch test='`$network-topology-operation-input.request-information.request-action`'>
+                        <outcome value='DeleteSDWANConnectivityInstance'>
+                            <block atomic="true">
+                                <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='requiredParameters' >
+                                    <parameter name="network-topology-operation-input.network-information.network-id" value="$network-topology-operation-input.network-information.network-id"/>
+                                </execute>
+                                <switch test="`$network-topology-operation-input.network-information.network-id`">
+                                    <outcome value=''>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="network-request-input.network-input-parameters.name is a required input" />
+                                        </return>
+                                    </outcome>
+                                </switch>
+                                <switch test='`$service-data.networks.network_length`'>
+                                    <outcome value=''>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="network-topology-operation-input.network-request-input.network-id not found in service-data" />
+                                        </return>
+                                    </outcome>
+                                    <outcome value='Other'>
+                                        <block atomic="true">
+                                            <for index='nidx' start='0' end='`$service-data.networks.network_length`' >
+                                                <switch test="`$service-data.networks.network[$nidx].network-id == $network-topology-operation-input.network-information.network-id`">
+                                                    <outcome value='true'>
+                                                        <block atomic="true">
+                                                            <set>
+                                                                <parameter name='tmp.nidx' value='`$nidx`' />
+                                                                <parameter name='ctx.network-data.' value='`$service-data.networks.network[$nidx].network-data.`' />
+                                                            </set>
+                                                        </block>
+                                                    </outcome>
+                                                </switch>
+                                            </for>
+                                            <switch test="`$tmp.nidx`">
+                                                <outcome value=''>
+                                                    <return status='failure'>
+                                                        <parameter name='ack-final' value='Y'/>
+                                                        <parameter name="error-code" value="500" />
+                                                        <parameter name="error-message" value="network-topology-operation-input.network-request-input.network-id not found in service-data" />
+                                                    </return>
+                                                </outcome>
+                                            </switch>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                                <switch test='`$service-data.networks.network[$tmp.nidx].network-data.network-level-oper-status.order-status`'>
+                                    <outcome value='PendingDelete'>
+                                        <block atomic="true"></block>
+                                    </outcome>
+                                    <outcome value='Other'>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="`'Network is not in appropriate state for delete. Current state is ' + $service-data.networks.network[$tmp.nidx].network-data.network-level-oper-status.order-status`" />
+                                        </return>
+                                    </outcome>
+                                </switch>
+                            </block>
+                        </outcome>
+                        <outcome value='Other'>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="request-information.request-action is required to be SOTN DeleteVPNNetworkInstance for svc-action=delete" />
+                            </return>
+                        </outcome>
+                    </switch>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`$network-topology-operation-input.sdnc-request-header.svc-action + ' is not a valid svc-action'`" />
+                    </return>
+                </outcome>
+            </switch>
+        </block>
+    </method>
+</service-logic>

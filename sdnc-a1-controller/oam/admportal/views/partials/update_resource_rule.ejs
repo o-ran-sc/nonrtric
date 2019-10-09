@@ -1,0 +1,57 @@
+   <div class="modal fade" id="update_resource_rule" tabindex="-1" role="dialog" 
+		aria-labelledby="update_resource_rule_label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Update Resource Rule</h4>
+          </div>
+          <div class="modal-body">
+            <form role="form" action="/resalloc/updateResourceRule" method="POST">
+              <div class="form-group">
+                <label for="uf_resource_rule_id">Rule ID</label>
+                <input readonly type="text" class="form-control" name="uf_resource_rule_id" id="uf_resource_rule_id">
+              </div>
+              <div class="form-group">
+                <label for="uf_resource_name">Name</label>
+                <input type="text" class="form-control" maxlength="50" name="uf_resource_name" id="uf_resource_name">
+              </div>
+              <div class="form-group">
+                <label for="uf_end_point_position">End Point Position</label>
+                <input type="text" class="form-control" maxlength="50" name="uf_end_point_position" id="uf_end_point_position">
+              </div>
+              <div class="form-group">
+                <label for="uf_service_expression">Service Expression</label>
+                <input type="text" class="form-control" maxlength="2000" name="uf_service_expression" id="uf_service_expression">
+              </div>
+              <div class="form-group">
+                <label for="uf_equipment_level">Equipment Level</label>
+                <input type="text" class="form-control" maxlength="50" name="uf_equipment_level" id="uf_equipment_level">
+			  </div>
+              <div class="form-group">
+                <label for="uf_equipment_expression">Equipment Expression</label>
+                <input type="text" class="form-control" maxlength="2000" name="uf_equipment_expression" id="uf_equipment_expression">
+			  </div>
+              <div class="form-group">
+                <label for="uf_allocation_expression">Allocation Expression</label>
+                <input type="text" class="form-control" maxlength="2000" name="uf_allocation_expression" id="uf_allocation_expression">
+              </div>
+              <div class="form-group">
+                <label for="uf_soft_limit_expression">Soft Limit Expression</label>
+                <input type="text" class="form-control" maxlength="2000" name="uf_soft_limit_expression" id="uf_soft_limit_expression">
+              </div>
+              <div class="form-group">
+                <label for="uf_hard_limit_expression">Hard Limit Expression</label>
+                <input type="text" class="form-control" maxlength="2000" name="uf_hard_limit_expression" id="uf_hard_limit_expression">
+              </div>
+              <div class="form-group">
+				<input type="hidden" name="uf_action" id="uf_action">
+				<input type="hidden" name="uf_key_resource_rule_id" id="uf_key_resource_rule_id">
+                <button type="submit" class="btn btn-primary">Submit</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>

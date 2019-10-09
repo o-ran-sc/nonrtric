@@ -1,0 +1,242 @@
+[
+    {
+        "id": "5ea66244.2043ac",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 101.42857360839844,
+        "y": 82.85714721679688,
+        "z": "2f4e466a.a72c1a",
+        "wires": [
+            [
+                "1488d42d.2b4bec"
+            ]
+        ]
+    },
+    {
+        "id": "1488d42d.2b4bec",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 215.04759979248047,
+        "y": 123.09526062011719,
+        "z": "2f4e466a.a72c1a",
+        "wires": [
+            [
+                "accb6834.19e2e8"
+            ]
+        ]
+    },
+    {
+        "id": "accb6834.19e2e8",
+        "type": "method",
+        "name": "method policy-manager-create-policy",
+        "xml": "<method rpc='policy-manager-create-policy' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 186.8572006225586,
+        "y": 162.85714721679688,
+        "z": "2f4e466a.a72c1a",
+        "wires": [
+            [
+                "4c2a088b.3e0ba8"
+            ]
+        ]
+    },
+    {
+        "id": "dfa928b6.5c06b8",
+        "type": "comment",
+        "name": "policy-manager-create-policy",
+        "info": "",
+        "comments": "",
+        "x": 495.77342987060547,
+        "y": 30.443490982055664,
+        "z": "2f4e466a.a72c1a",
+        "wires": []
+    },
+    {
+        "id": "4c2a088b.3e0ba8",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 217.1428680419922,
+        "y": 324.28570556640625,
+        "z": "2f4e466a.a72c1a",
+        "wires": [
+            [
+                "189efe08.1f8952",
+                "e0ad431.613cbc"
+            ]
+        ]
+    },
+    {
+        "id": "189efe08.1f8952",
+        "type": "execute",
+        "name": "RestapiCallnode createPolicy",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='templateFileName' value=\"`$prop.restapi.templateDir + '/' + $prop.restapi.pm.createpolicy.templatefile`\" />\n    <parameter name='restapiUrl' value=\"`$prop.policy-manager.url + '/pdp/api/createPolicy'`\" />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='PUT' />\n    <parameter name='convertResponse' value=\"false\" />\n    <parameter name='customHttpHeaders'\n      value=\"`'Authorization=Basic ' + $prop.policy-manager.authorization + ',ClientAuth=Basic ' + $prop.policy-manager.clientauth + ',Environment=' + $prop.policy-manager.environment `\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 472.8571548461914,
+        "y": 284.2857074737549,
+        "z": "2f4e466a.a72c1a",
+        "wires": [
+            [
+                "1edc5a5e.259046",
+                "ac8ecfcb.7d84c"
+            ]
+        ]
+    },
+    {
+        "id": "1edc5a5e.259046",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 685.7142562866211,
+        "y": 258.5714349746704,
+        "z": "2f4e466a.a72c1a",
+        "wires": [
+            [
+                "c0e63f5a.e0d5e"
+            ]
+        ]
+    },
+    {
+        "id": "c0e63f5a.e0d5e",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 849.428581237793,
+        "y": 258.4999108314514,
+        "z": "2f4e466a.a72c1a",
+        "wires": [
+            [
+                "8a75b361.99d53"
+            ]
+        ]
+    },
+    {
+        "id": "ac8ecfcb.7d84c",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 681.8517951965332,
+        "y": 306.4946479797363,
+        "z": "2f4e466a.a72c1a",
+        "wires": [
+            [
+                "3c3c68db.b16138"
+            ]
+        ]
+    },
+    {
+        "id": "8a75b361.99d53",
+        "type": "execute",
+        "name": "RestapiCallnode pushPolicy",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='templateFileName' value=\"`$prop.restapi.templateDir + '/' + $prop.restapi.pm.pushpolicy.templatefile`\" />\n    <parameter name='restapiUrl' value=\"`$prop.policy-manager.url + '/pdp/api/pushPolicy'`\" />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='PUT' />\n    <parameter name='convertResponse' value=\"false\" />\n    <parameter name='customHttpHeaders'\n      value=\"`'Authorization=Basic ' + $prop.policy-manager.authorization + ',ClientAuth=Basic ' + $prop.policy-manager.clientauth + ',Environment=' + $prop.policy-manager.environment `\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1084.2857666015625,
+        "y": 222.85716438293457,
+        "z": "2f4e466a.a72c1a",
+        "wires": [
+            [
+                "dd3bc8bc.e85af8",
+                "5808b3a9.1ba37c"
+            ]
+        ]
+    },
+    {
+        "id": "dd3bc8bc.e85af8",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1290,
+        "y": 195.71431159973145,
+        "z": "2f4e466a.a72c1a",
+        "wires": [
+            [
+                "fe10eb1e.6c23a8"
+            ]
+        ]
+    },
+    {
+        "id": "fe10eb1e.6c23a8",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1453.7143249511719,
+        "y": 195.64278745651245,
+        "z": "2f4e466a.a72c1a",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5808b3a9.1ba37c",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1286.137538909912,
+        "y": 243.63752460479736,
+        "z": "2f4e466a.a72c1a",
+        "wires": [
+            [
+                "731c4238.4b27ac"
+            ]
+        ]
+    },
+    {
+        "id": "3c3c68db.b16138",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value='Failed to create policy in Policy Manager' />\n",
+        "comments": "",
+        "x": 847.1428680419922,
+        "y": 306.5714521408081,
+        "z": "2f4e466a.a72c1a",
+        "wires": []
+    },
+    {
+        "id": "731c4238.4b27ac",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value='Failed to push policy in Policy Manager' />\n",
+        "comments": "",
+        "x": 1450.5714225769043,
+        "y": 243.28573417663574,
+        "z": "2f4e466a.a72c1a",
+        "wires": []
+    },
+    {
+        "id": "e0ad431.613cbc",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n",
+        "comments": "",
+        "x": 425.71429443359375,
+        "y": 362.857138633728,
+        "z": "2f4e466a.a72c1a",
+        "wires": []
+    }
+]

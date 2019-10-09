@@ -1,0 +1,260 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='sdwan-vf-operation-site-activate' mode='sync'>
+        <block atomic="true">
+            <set>
+                <parameter name='prop.site.sdwan' value="false" />
+            </set>
+            <switch test='`$service-data.vnfs.vnf_length`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="404" />
+                        <parameter name="error-message" value="There are no VNFs in MD-SAL" />
+                    </return>
+                </outcome>
+            </switch>
+            <for index='idx' start='0' end='`$service-data.vnfs.vnf_length`' >
+                <switch test="`$service-data.vnfs.vnf[$idx].vnf-id == $vf-module-topology-operation-input.vnf-information.vnf-id`">
+                    <outcome value='true'>
+                        <set>
+                            <parameter name='vnf-index' value='`$idx`' />
+                        </set>
+                    </outcome>
+                </switch>
+            </for>
+            <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module_length`'>
+                <outcome value='0'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="vf-module-operation-input.vf-module-request-input.vf-id not found in service-data" />
+                    </return>
+                </outcome>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="vf-module-operation-input.vf-module-request-input.vf-id not found in service-data" />
+                    </return>
+                </outcome>
+                <outcome value='Other'>
+                    <block>
+                        <set>
+                            <parameter name='prop.site.deviceId_length' value='0' />
+                        </set>
+                        <set>
+                            <parameter name='vf-module-length' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module_length`' />
+                        </set>
+                        <for index='idx' start='0' end='`$vf-module-length`' >
+                            <block atomic="true">
+                                <switch test="`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$idx].vf-module-id == $vf-module-topology-operation-input.vf-module-information.vf-module-id`">
+                                    <outcome value='true'>
+                                        <block atomic="true">
+                                            <set>
+                                                <parameter name='tmp.vidx' value='`$idx`' />
+                                                <parameter name='ctx.vf-module-data.' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$idx].vf-module-data.`' />
+                                            </set>
+                                            <set>
+                                                <parameter name='vf-module-request-input.' value='`$ctx.vf-module-data.vf-module-request-input.`' />
+                                            </set>
+                                            <call module='GENERIC-RESOURCE-API' rpc='sdwan-get-vf-module-site-param' mode='sync' ></call>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                                <switch test="`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$idx].vf-module-data.request-information.request-action == 'ActivateSDWANDeviceInstance'`">
+                                    <outcome value='true'>
+                                        <block atomic="true">
+                                            <for index="deviceidx" start="0" end="`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$idx].vf-module-data.vf-module-request-input.vf-module-input-parameters.param_length`">
+                                                <block>
+                                                    <switch test="`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$idx].vf-module-data.vf-module-request-input.vf-module-input-parameters.param[$deviceidx].name == 'deviceId'`">
+                                                        <outcome value='true'>
+                                                            <set>
+                                                                <parameter name='prop.site.deviceId[$prop.site.deviceId_length]' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$idx].vf-module-data.vf-module-request-input.vf-module-input-parameters.param[$deviceidx].value`' />
+                                                                <parameter name='prop.site.deviceId_length' value='`$prop.site.deviceId_length + 1`' />
+                                                            </set>
+                                                        </outcome>
+                                                    </switch>
+                                                </block>
+                                            </for>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                            </block>
+                        </for>
+                    </block>
+                </outcome>
+            </switch>
+            <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                <parameter name='contextPrefix' value='prop' />
+            </execute>
+            <switch test="`$prop.site.sdwan`">
+                <outcome value='true'>
+                    <block atomic="true">
+                        <switch test="`$prop.site.controlPoint`">
+                            <outcome value=''>
+                                <block>
+                                    <set>
+                                        <parameter name='template.site.role' value="hub" />
+                                    </set>
+                                </block>
+                            </outcome>
+                            <outcome value='Other'>
+                                <block atomic="true">
+                                    <set>
+                                        <parameter name='template.site.role' value="spoke" />
+                                    </set>
+                                    <for index='cpidx' start='0' end='`$prop.site.controlpoints_length`' >
+                                        <block atomic="true">
+                                            <set>
+                                                <parameter name='prop.controlPtId' value='`$prop.site.controlpoints[$cpidx]`' />
+                                            </set>
+                                            <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="site-resource" 
+		key="site-resource.site-resource-name = $prop.controlPtId AND 
+		     depth = '1'"
+        pfx='tmp.aai.controlPoints' local-only='false' >
+                                                <outcome value='success'>
+                                                    <set>
+                                                        <parameter name='prop.site.controlpoints[$cpidx]' value='`$tmp.aai.controlPoints.generated-site-id`' />
+                                                    </set>
+                                                </outcome>
+                                                <outcome value='failure'>
+                                                    <block></block>
+                                                </outcome>
+                                            </get-resource>
+                                        </block>
+                                    </for>
+                                </block>
+                            </outcome>
+                        </switch>
+                        <set>
+                            <parameter name='prop.site.siteId' value="" />
+                        </set>
+                        <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="esr-thirdparty-sdnc" 
+		key="esr-thirdparty-sdnc.thirdparty-sdnc-id = SDWANController AND 
+		     depth = '1'"
+        pfx='tmp.aai.esr-thirdparty-sdnc' local-only='false' >
+                            <outcome value='success'>
+                                <set>
+                                    <parameter name='prop.sdncRestApi.thirdpartySdnc.url' value="`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].service-url`" />
+                                    <parameter name='prop.sdncRestApi.thirdpartySdnc.user' value="`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].user-name`" />
+                                    <parameter name='prop.sdncRestApi.thirdpartySdnc.password' value="`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].password`" />
+                                </set>
+                            </outcome>
+                            <outcome value='not-found'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="`'An error occurred while querying esr-thirdparty-sdnc from AnAI with thirdparty-sdnc-id = ' + $tmp.thirdparty-sdnc-id`" />
+                                </return>
+                            </outcome>
+                            <outcome value='Other'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="`'Unexpected error occurred while querying esr-thirdparty-sdnc from AnAI with thirdparty-sdnc-id = ' + $tmp.thirdparty-sdnc-id`" />
+                                </return>
+                            </outcome>
+                        </get-resource>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                            <parameter name="templateFileName" value="`$prop.restapi.templateDir + '/actokentemplate.json'`" />
+                            <parameter name="restapiUrl" value="`$prop.sdncRestApi.thirdpartySdnc.url + '/controller/v2/tokens'`" />
+                            <parameter name="format" value="json"/>
+                            <parameter name="httpMethod" value="post"/>
+                            <parameter name="responsePrefix" value="token-result"/>
+                            <parameter name="trustStoreFileName" value="/opt/onap/sdnc/data/stores/truststore.onap.client.jks"/>
+                            <parameter name="trustStorePassword" value="adminadmin"/>
+                            <parameter name="keyStoreFileName" value="/opt/onap/sdnc/data/stores/sdnc.p12"/>
+                            <parameter name="keyStorePassword" value="adminadmin"/>
+                            <outcome value='success'>
+                                <set>
+                                    <parameter name='prop.sdncRestApi.token_id' value='`$token-result.data.token_id`' />
+                                </set>
+                            </outcome>
+                            <outcome value='failure'>
+                                <block></block>
+                            </outcome>
+                        </execute>
+                        <call module='GENERIC-RESOURCE-API' rpc='sdwan-get-tenant-auth' mode='sync' ></call>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                            <parameter name="templateFileName" value="`$prop.restapi.templateDir + '/sdwan-site-' + $template.site.role + '.json'`" />
+                            <parameter name="restapiUrl" value="`$prop.sdncRestApi.thirdpartySdnc.url + '/controller/campus/v1/sdwan/net/sites'`" />
+                            <parameter name="restapiUser" value="`$prop.sdncRestApi.thirdpartySdnc.user`" />
+                            <parameter name="restapiPassword" value="`$prop.sdncRestApi.thirdpartySdnc.password`" />
+                            <parameter name="format" value="json"/>
+                            <parameter name="httpMethod" value="post"/>
+                            <parameter name="responsePrefix" value="site-result"/>
+                            <parameter name="trustStoreFileName" value="/opt/onap/sdnc/data/stores/truststore.onap.client.jks"/>
+                            <parameter name="trustStorePassword" value="adminadmin"/>
+                            <parameter name="keyStoreFileName" value="/opt/onap/sdnc/data/stores/sdnc.p12"/>
+                            <parameter name="keyStorePassword" value="adminadmin"/>
+                            <parameter name='customHttpHeaders' value="`'X-ACCESS-TOKEN=' + $prop.sdncRestApi.token_id`" />
+                            <outcome value='success'>
+                                <block atomic="true"></block>
+                            </outcome>
+                            <outcome value='failure'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="Error executing Create vpn rest api" />
+                                </return>
+                            </outcome>
+                        </execute>
+                    </block>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$tmp.vidx].vf-module-data.vf-module-request-input.vf-module-input-parameters.param[$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$tmp.vidx].vf-module-data.vf-module-request-input.vf-module-input-parameters.param_length].name' value='siteId' />
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$tmp.vidx].vf-module-data.vf-module-request-input.vf-module-input-parameters.param[$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$tmp.vidx].vf-module-data.vf-module-request-input.vf-module-input-parameters.param_length].value' value='`$site-result.success[0].id`' />
+            </set>
+            <set>
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$tmp.vidx].vf-module-data.vf-module-request-input.vf-module-input-parameters.param_length' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$tmp.vidx].vf-module-data.vf-module-request-input.vf-module-input-parameters.param_length + 1`' />
+            </set>
+            <set>
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$tmp.vidx].vf-module-data.sdnc-request-header.' value='`$vf-module-topology-operation-input.sdnc-request-header.`' />
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$tmp.vidx].vf-module-data.request-information.' value='`$vf-module-topology-operation-input.request-information.`' />
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$tmp.vidx].vf-module-data.service-information.' value='`$vf-module-topology-operation-input.service-information.`' />
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$tmp.vidx].vf-module-data.vf-module-information.' value='`$vf-module-topology-operation-input.vf-module-information.`' />
+            </set>
+            <set>
+                <parameter name='vf-module-object-path' value="`'restconf/config/GENERIC-RESOURCE-API:services/service/'
+ + $vf-module-topology-operation-input.service-information.service-instance-id
+ + '/service-data/vnfs/vnf/'
+ + $service-data.vnfs.vnf[$vnf-index].vnf-id
+ + '/vnf-data/vf-modules/vf-module/'
+ + $vf-module-topology-operation-input.vf-module-information.vf-module-id
+ + '/vf-module-data/vf-module-topology/'`"/>
+                <parameter name='vnf-object-path'
+ value="`'restconf/config/GENERIC-RESOURCE-API:services/service/'
+ + $vf-module-topology-operation-input.service-information.service-instance-id
+ + '/service-data/vnfs/vnf/'
+ + $service-data.vnfs.vnf[$vnf-index].vnf-id
+ + '/vnf-data/vnf-topology/'`"/>
+                <parameter name='service-object-path'
+ value="`'restconf/config/GENERIC-RESOURCE-API:services/service/'
+ + $vf-module-topology-operation-input.service-information.service-instance-id
+ + '/service-data/service-topology/'`"/>
+            </set>
+            <set>
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$tmp.vidx].vf-module-data.vf-module-level-oper-status.order-status'  value='Active' />
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$tmp.vidx].vf-module-data.vf-module-level-oper-status.last-rpc-action'  value='`$vf-module-topology-operation-input.sdnc-request-header.svc-action`' />
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$tmp.vidx].vf-module-data.vf-module-level-oper-status.last-action'  value='`$vf-module-topology-operation-input.sdnc-request-header.request-action`' />
+            </set>
+            <update plugin='org.onap.ccsdk.sli.adaptors.aai.AAIService' resource='site-resource' 
+      key='site-resource.site-resource-id = $vf-module-topology-operation-input.vf-module-information.vf-module-id' >
+                <parameter name='site-resource-id' value='`$vf-module-topology-operation-input.vf-module-information.vf-module-id`' />
+                <parameter name='generated-site-id' value='`$site-result.success[0].id`' />
+                <parameter name='operational-status' value='Active' />
+            </update>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="`$error-message`" />
+            </return>
+        </block>
+    </method>
+</service-logic>

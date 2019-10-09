@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>SDN-C AdminPortal</title>
+<script class="init">
+    $(document).ready(function() {
+    $('#access').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+
+</head>
+<body>
+
+<div class="well well-sm">
+<h3>HTTP Server Access Log</h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+	<table id="access" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+		  <th>Date (UTC)</th>
+          <th>Method</th>
+		  <th>Version</th>
+          <th>Status</th>
+          <th>URL</th>
+        </tr>
+      </thead>
+      <tbody>
+	  <% for(var x=0; x < rows.length; x++) { %>
+        <tr>
+            <td><%= rows[x].date %></td>
+            <td><%= rows[x].method %></td>
+            <td><%= rows[x].version %></td>
+            <td><%= rows[x].status %></td>
+            <td><%= rows[x].url %></td>
+        </tr>
+    <% } %>
+      </tbody>
+    </table>
+</div>
+
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+</body>
+</html>
+

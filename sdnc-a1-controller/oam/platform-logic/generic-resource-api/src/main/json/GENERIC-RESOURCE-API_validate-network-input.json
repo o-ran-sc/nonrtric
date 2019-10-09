@@ -1,0 +1,2249 @@
+[
+  {
+    "id": "8788b5a2.1dbb88",
+    "type": "dgstart",
+    "name": "DGSTART",
+    "outputs": 1,
+    "x": 159,
+    "y": 79,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "3ba09ab5.471bb6"
+      ]
+    ]
+  },
+  {
+    "id": "3ba09ab5.471bb6",
+    "type": "service-logic",
+    "name": "GENERIC-RESOURCE-API ${project.version}",
+    "module": "GENERIC-RESOURCE-API",
+    "version": "${project.version}",
+    "comments": "",
+    "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+    "outputs": 1,
+    "x": 231.28570556640625,
+    "y": 131.2381134033203,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "14d14939.627767"
+      ]
+    ]
+  },
+  {
+    "id": "14d14939.627767",
+    "type": "method",
+    "name": "validate-network-input",
+    "xml": "<method rpc='validate-network-input' mode='sync'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 231.42862701416016,
+    "y": 193,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "b2af2fbc.edaf5"
+      ]
+    ]
+  },
+  {
+    "id": "b2af2fbc.edaf5",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "outputs": 1,
+    "x": 244.7500457763672,
+    "y": 475.44349479675293,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "ad851adc.fdf888",
+        "205d6a31.b83f56",
+        "bb69c265.9ec57",
+        "402cb1d.785695",
+        "96d49b08.fa0328",
+        "80d58546.aa7e88"
+      ]
+    ]
+  },
+  {
+    "id": "ad851adc.fdf888",
+    "type": "switchNode",
+    "name": "switch svc-request-id",
+    "xml": "<switch test='`$network-topology-operation-input.sdnc-request-header.svc-request-id`'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 561.1428604125977,
+    "y": 201.42859077453613,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "33b50e86.044722"
+      ]
+    ]
+  },
+  {
+    "id": "33b50e86.044722",
+    "type": "other",
+    "name": "NULL",
+    "xml": "<outcome value=''>",
+    "comments": "",
+    "outputs": 1,
+    "x": 786.8571646554128,
+    "y": 201.42859322684126,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "70f295d3.d71adc"
+      ]
+    ]
+  },
+  {
+    "id": "70f295d3.d71adc",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"sdnc-request-header.svc-request-id is a required input\" />\n",
+    "comments": "",
+    "x": 938.2857306344167,
+    "y": 201.42859131949263,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "205d6a31.b83f56",
+    "type": "switchNode",
+    "name": "switch svc-action",
+    "xml": "<switch test='`$network-topology-operation-input.sdnc-request-header.svc-action`'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 549.7142333984375,
+    "y": 160.00002098083496,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "b11b9bfa.b83dd8"
+      ]
+    ]
+  },
+  {
+    "id": "b11b9bfa.b83dd8",
+    "type": "other",
+    "name": "NULL",
+    "xml": "<outcome value=''>",
+    "comments": "",
+    "outputs": 1,
+    "x": 785.4285850524902,
+    "y": 158.57141876220703,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "1d63b726.f05909"
+      ]
+    ]
+  },
+  {
+    "id": "1d63b726.f05909",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"sdnc-request-header.svc-action is a required input\" />\n",
+    "comments": "",
+    "x": 935.4285583496094,
+    "y": 158.5714282989502,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "bb69c265.9ec57",
+    "type": "switchNode",
+    "name": "switch request-action",
+    "xml": "<switch test='`$network-topology-operation-input.request-information.request-action`'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 559.7142715454102,
+    "y": 244.285737991333,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "23018cf6.3779b4"
+      ]
+    ]
+  },
+  {
+    "id": "23018cf6.3779b4",
+    "type": "other",
+    "name": "NULL",
+    "xml": "<outcome value=''>",
+    "comments": "",
+    "outputs": 1,
+    "x": 786.8571602957591,
+    "y": 244.28574698311968,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "3d7d65b5.26ffaa"
+      ]
+    ]
+  },
+  {
+    "id": "3d7d65b5.26ffaa",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"request-information.request-action is a required input\" />\n",
+    "comments": "",
+    "x": 938.285726274763,
+    "y": 244.28574507577105,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "402cb1d.785695",
+    "type": "switchNode",
+    "name": "switch service-instance-id",
+    "xml": "<switch test='`$network-topology-operation-input.service-information.service-instance-id`'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 568.857177734375,
+    "y": 287,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "f8fe5d6a.080ae"
+      ]
+    ]
+  },
+  {
+    "id": "f8fe5d6a.080ae",
+    "type": "other",
+    "name": "NULL",
+    "xml": "<outcome value=''>",
+    "comments": "",
+    "outputs": 1,
+    "x": 785.2857666015625,
+    "y": 288,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "cc71f851.6ba9a8"
+      ]
+    ]
+  },
+  {
+    "id": "cc71f851.6ba9a8",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"service-information.service-instance-id is a required input\" />\n",
+    "comments": "",
+    "x": 943.7142944335938,
+    "y": 287,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "e6be7a59.b96b68",
+    "type": "comment",
+    "name": "validate-network-input - CHANGELOG",
+    "info": "12/8: Initial release 1.0.0",
+    "comments": "",
+    "x": 444,
+    "y": 43,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "96d49b08.fa0328",
+    "type": "switchNode",
+    "name": "switch svc-action",
+    "xml": "<switch test='`$network-topology-operation-input.sdnc-request-header.svc-action`'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 546,
+    "y": 374,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "3c93b861.36fba8",
+        "88f1d93c.c06f98",
+        "a20067e.94ffe98",
+        "d5a289af.7573e8",
+        "f8a0e353.63b13"
+      ]
+    ]
+  },
+  {
+    "id": "3c93b861.36fba8",
+    "type": "other",
+    "name": "assign",
+    "xml": "<outcome value='assign'>",
+    "comments": "",
+    "outputs": 1,
+    "x": 778.71435546875,
+    "y": 379.5714111328125,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "21db76c1.48922a"
+      ]
+    ]
+  },
+  {
+    "id": "88f1d93c.c06f98",
+    "type": "other",
+    "name": "activate",
+    "xml": "<outcome value='activate'>",
+    "comments": "",
+    "outputs": 1,
+    "x": 772.0000114440918,
+    "y": 566.0000247955322,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "98c549ed.adadc8"
+      ]
+    ]
+  },
+  {
+    "id": "a20067e.94ffe98",
+    "type": "other",
+    "name": "deactivate",
+    "xml": "<outcome value='deactivate'>",
+    "comments": "",
+    "outputs": 1,
+    "x": 770.000114440918,
+    "y": 862.0001058578491,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "99c9746e.0bf598"
+      ]
+    ]
+  },
+  {
+    "id": "21db76c1.48922a",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "comments": "",
+    "outputs": 1,
+    "x": 941,
+    "y": 379,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "272bb5f8.f31cda"
+      ]
+    ]
+  },
+  {
+    "id": "272bb5f8.f31cda",
+    "type": "switchNode",
+    "name": "switch request-action",
+    "xml": "<switch test='`$network-topology-operation-input.request-information.request-action`'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1161,
+    "y": 379,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "75bb00b.643f9",
+        "de64b013.96b09"
+      ]
+    ]
+  },
+  {
+    "id": "75bb00b.643f9",
+    "type": "other",
+    "name": "CreateNetworkInstance",
+    "xml": "<outcome value='CreateNetworkInstance'>",
+    "comments": "",
+    "outputs": 1,
+    "x": 1441,
+    "y": 344,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "46e41b99.978564"
+      ]
+    ]
+  },
+  {
+    "id": "de64b013.96b09",
+    "type": "other",
+    "name": "Other",
+    "xml": "<outcome value='Other'>",
+    "comments": "",
+    "outputs": 1,
+    "x": 1390,
+    "y": 388,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "7d916d38.e514a4"
+      ]
+    ]
+  },
+  {
+    "id": "7d916d38.e514a4",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"request-information.request-action is required to be CreateNetworkInstance for svc-action=assign\" />\n",
+    "comments": "",
+    "x": 1559,
+    "y": 388,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "98c549ed.adadc8",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "outputs": 1,
+    "x": 946.0000114440918,
+    "y": 566.0000247955322,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "7cbbeac6.2691d4"
+      ]
+    ]
+  },
+  {
+    "id": "7cbbeac6.2691d4",
+    "type": "switchNode",
+    "name": "switch request-action",
+    "xml": "<switch test='`$network-topology-operation-input.request-information.request-action`'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1163.0000114440918,
+    "y": 566.0000247955322,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "34d0495d.e1b546",
+        "b4c471fa.cde5e",
+        "985ba54f.3974a8",
+        "1c550262.882b2e",
+        "dce79fa4.7fd85"
+      ]
+    ]
+  },
+  {
+    "id": "34d0495d.e1b546",
+    "type": "other",
+    "name": "CreateNetworkInstance",
+    "xml": "<outcome value='CreateNetworkInstance'>",
+    "comments": "",
+    "outputs": 1,
+    "x": 1444.0000114440918,
+    "y": 567.0000247955322,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "c5dc69fd.8115a8"
+      ]
+    ]
+  },
+  {
+    "id": "b4c471fa.cde5e",
+    "type": "other",
+    "name": "Other",
+    "xml": "<outcome value='Other'>",
+    "comments": "",
+    "outputs": 1,
+    "x": 1387.0000114440918,
+    "y": 607.0000247955322,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "d8bc1fab.0cb7b"
+      ]
+    ]
+  },
+  {
+    "id": "d8bc1fab.0cb7b",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"request-information.request-action is required to be CreateNetworkInstance for svc-action=activate\" />\n",
+    "comments": "",
+    "x": 1545.8573112487793,
+    "y": 606.4286451339722,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "99c9746e.0bf598",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "outputs": 1,
+    "x": 952.000114440918,
+    "y": 861.0001058578491,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "2c02914c.ac786e"
+      ]
+    ]
+  },
+  {
+    "id": "2c02914c.ac786e",
+    "type": "switchNode",
+    "name": "switch request-action",
+    "xml": "<switch test='`$network-topology-operation-input.request-information.request-action`'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1169.000114440918,
+    "y": 861.0001058578491,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "e6f9cf57.ba236",
+        "95775b49.fc2318",
+        "a630529b.bc37b",
+        "4893ca1b.86d634",
+        "10d3655a.b8cb0b"
+      ]
+    ]
+  },
+  {
+    "id": "e6f9cf57.ba236",
+    "type": "other",
+    "name": "DeleteNetworkInstance",
+    "xml": "<outcome value='DeleteNetworkInstance'>",
+    "comments": "",
+    "outputs": 1,
+    "x": 1450.000114440918,
+    "y": 862.0001058578491,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "397759af.0b93f6"
+      ]
+    ]
+  },
+  {
+    "id": "95775b49.fc2318",
+    "type": "other",
+    "name": "Other",
+    "xml": "<outcome value='Other'>",
+    "comments": "",
+    "outputs": 1,
+    "x": 1393.000114440918,
+    "y": 902.0001058578491,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "41fdec9e.e8a644"
+      ]
+    ]
+  },
+  {
+    "id": "41fdec9e.e8a644",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"request-information.request-action is required to be DeleteNetworkInstance for svc-action=deactivate\" />\n",
+    "comments": "",
+    "x": 1562.0001792907715,
+    "y": 904.8572673797607,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "d5a289af.7573e8",
+    "type": "other",
+    "name": "unassign",
+    "xml": "<outcome value='unassign'>",
+    "comments": "",
+    "outputs": 1,
+    "x": 766.0000839233398,
+    "y": 956.0000829696655,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "390e2b39.6c4854"
+      ]
+    ]
+  },
+  {
+    "id": "390e2b39.6c4854",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "outputs": 1,
+    "x": 948.000114440918,
+    "y": 952.0001058578491,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "106acf9d.333d5"
+      ]
+    ]
+  },
+  {
+    "id": "106acf9d.333d5",
+    "type": "switchNode",
+    "name": "switch request-action",
+    "xml": "<switch test='`$network-topology-operation-input.request-information.request-action`'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1165.000114440918,
+    "y": 952.0001058578491,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "7360ef3d.9811b",
+        "6d03b112.dfc4"
+      ]
+    ]
+  },
+  {
+    "id": "7360ef3d.9811b",
+    "type": "other",
+    "name": "DeleteNetworkInstance",
+    "xml": "<outcome value='DeleteNetworkInstance'>",
+    "comments": "",
+    "outputs": 1,
+    "x": 1446.000114440918,
+    "y": 953.0001058578491,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "c8e6a8bb.defab8"
+      ]
+    ]
+  },
+  {
+    "id": "6d03b112.dfc4",
+    "type": "other",
+    "name": "Other",
+    "xml": "<outcome value='Other'>",
+    "comments": "",
+    "outputs": 1,
+    "x": 1389.000114440918,
+    "y": 993.0001058578491,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "7dd14282.06273c"
+      ]
+    ]
+  },
+  {
+    "id": "7dd14282.06273c",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"request-information.request-action is required to be DeleteNetworkInstance for svc-action=unassign\" />\n",
+    "comments": "",
+    "x": 1558.000114440918,
+    "y": 993.0001058578491,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "46e41b99.978564",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "comments": "",
+    "outputs": 1,
+    "x": 1677,
+    "y": 343,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "7e651b21.c50284",
+        "6b264531.de0afc",
+        "87ae2dd3.c6822",
+        "77cf2c9e.63a064",
+        "e62c59c8.088828",
+        "d8c0a4b6.4a38d8",
+        "6f3ed145.89e1a",
+        "81763a92.4e5c78"
+      ]
+    ]
+  },
+  {
+    "id": "c5dc69fd.8115a8",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "comments": "",
+    "outputs": 1,
+    "x": 1669.0000114440918,
+    "y": 567.0000247955322,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "dc0c345f.272208",
+        "7e651b21.c50284",
+        "6b264531.de0afc",
+        "87ae2dd3.c6822",
+        "77cf2c9e.63a064",
+        "d8c0a4b6.4a38d8",
+        "6f3ed145.89e1a"
+      ]
+    ]
+  },
+  {
+    "id": "397759af.0b93f6",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "comments": "",
+    "outputs": 1,
+    "x": 1706.000114440918,
+    "y": 863.0001058578491,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "dc0c345f.272208"
+      ]
+    ]
+  },
+  {
+    "id": "c8e6a8bb.defab8",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "comments": "",
+    "outputs": 1,
+    "x": 1705.000114440918,
+    "y": 954.0001058578491,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "dc0c345f.272208"
+      ]
+    ]
+  },
+  {
+    "id": "6f3ed145.89e1a",
+    "type": "switchNode",
+    "name": "switch onap-model-information.model-uuid",
+    "xml": "<switch test='`$network-topology-operation-input.service-information.onap-model-information.model-uuid`'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2266.166816711426,
+    "y": 1150.7499980926514,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "6ba35582.02a89c",
+        "8d6ac32a.9037"
+      ]
+    ]
+  },
+  {
+    "id": "dc0c345f.272208",
+    "type": "switchNode",
+    "name": "switch network-information.network-id",
+    "xml": "<switch test='`$network-topology-operation-input.network-information.network-id`'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2277.6665954589844,
+    "y": 317.666729927063,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "320cd589.df0dea"
+      ]
+    ]
+  },
+  {
+    "id": "320cd589.df0dea",
+    "type": "other",
+    "name": "NULL",
+    "xml": "<outcome value=''>",
+    "comments": "",
+    "outputs": 1,
+    "x": 2508.380714416504,
+    "y": 317.6667537689209,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "a1d040a8.b6d41"
+      ]
+    ]
+  },
+  {
+    "id": "a1d040a8.b6d41",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"service-information.network-information.network-id is a required input\" />\n",
+    "comments": "",
+    "x": 2669.8095474243164,
+    "y": 319.66674613952637,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "3e5905e9.f5a48a",
+    "type": "comment",
+    "name": "validations - required for all",
+    "info": "",
+    "comments": "",
+    "x": 577,
+    "y": 117,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "19e922fc.da104d",
+    "type": "comment",
+    "name": "validations specific per svc-action",
+    "info": "",
+    "comments": "",
+    "x": 589,
+    "y": 332,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "c5d98990.732158",
+    "type": "comment",
+    "name": "network-request-information block validations",
+    "info": "",
+    "comments": "",
+    "x": 2269.5001525878906,
+    "y": 1002.7500467300415,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "7e651b21.c50284",
+    "type": "switchNode",
+    "name": "switch network-request-information.tenant",
+    "xml": "<switch test='`$network-topology-operation-input.network-request-input.tenant`'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2266.5001525878906,
+    "y": 1052.7500467300415,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "b8f089fb.d935a8"
+      ]
+    ]
+  },
+  {
+    "id": "b8f089fb.d935a8",
+    "type": "other",
+    "name": "NULL",
+    "xml": "<outcome value=''>",
+    "comments": "",
+    "outputs": 1,
+    "x": 2508.2145080566406,
+    "y": 1054.7500467300415,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "3d496a0d.53e9c6"
+      ]
+    ]
+  },
+  {
+    "id": "3d496a0d.53e9c6",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"network-request-input.tenant is a required input\" />\n",
+    "comments": "",
+    "x": 2659.643096923828,
+    "y": 1052.7500467300415,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "6b264531.de0afc",
+    "type": "switchNode",
+    "name": "switch network-request-information.aic-cloud-region",
+    "xml": "<switch test='`$network-topology-operation-input.network-request-input.aic-cloud-region`'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2295.5001525878906,
+    "y": 1095.7500467300415,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "615cc864.89ade8"
+      ]
+    ]
+  },
+  {
+    "id": "615cc864.89ade8",
+    "type": "other",
+    "name": "NULL",
+    "xml": "<outcome value=''>",
+    "comments": "",
+    "outputs": 1,
+    "x": 2557.2145080566406,
+    "y": 1095.7500467300415,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "b53a0b88.3c7958"
+      ]
+    ]
+  },
+  {
+    "id": "b53a0b88.3c7958",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"service-information.network-request-information.aic-cloud-region is a required input\" />\n",
+    "comments": "",
+    "x": 2721.6429748535156,
+    "y": 1094.7500467300415,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "87ae2dd3.c6822",
+    "type": "switchNode",
+    "name": "switch onap-model-information.model-invariant-uuid",
+    "xml": "<switch test='`$network-topology-operation-input.network-information.onap-model-information.model-invariant-uuid`'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2308.0001220703125,
+    "y": 826.750057220459,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "cc6685f6.058958"
+      ]
+    ]
+  },
+  {
+    "id": "cc6685f6.058958",
+    "type": "other",
+    "name": "NULL",
+    "xml": "<outcome value=''>",
+    "comments": "",
+    "outputs": 1,
+    "x": 2593.0001831054688,
+    "y": 825.7500514984131,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "582d90a3.b7998"
+      ]
+    ]
+  },
+  {
+    "id": "582d90a3.b7998",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"network-information.onap-model-information.model-invariant-uuid is a required input\" />\n",
+    "comments": "",
+    "x": 2744.4286499023438,
+    "y": 824.7500514984131,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "77cf2c9e.63a064",
+    "type": "switchNode",
+    "name": "switch onap-model-information.model-uuid",
+    "xml": "<switch test='`$network-topology-operation-input.network-information.onap-model-information.model-uuid`'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2280.1429138183594,
+    "y": 902.6072015762329,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "4f68a79d.3bf918"
+      ]
+    ]
+  },
+  {
+    "id": "4f68a79d.3bf918",
+    "type": "other",
+    "name": "NULL",
+    "xml": "<outcome value=''>",
+    "comments": "",
+    "outputs": 1,
+    "x": 2521.1430053710938,
+    "y": 903.6071376800537,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "7690e5c.85ea81c"
+      ]
+    ]
+  },
+  {
+    "id": "7690e5c.85ea81c",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"network-information.onap-model-information.model-uuid is a required input\" />\n",
+    "comments": "",
+    "x": 2686.5714721679688,
+    "y": 901.6071071624756,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "68ca38a1.08f0d8",
+    "type": "comment",
+    "name": "network-information.onap-model-information block validations",
+    "info": "",
+    "comments": "",
+    "x": 2327.1432495117188,
+    "y": 786.6071996688843,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "d8c0a4b6.4a38d8",
+    "type": "switchNode",
+    "name": "switch onap-model-information.model-customization-uuid",
+    "xml": "<switch test='`$network-topology-operation-input.network-information.onap-model-information.model-customization-uuid`'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2326.0000610351562,
+    "y": 861.750020980835,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "a2943e5e.6f374"
+      ]
+    ]
+  },
+  {
+    "id": "a2943e5e.6f374",
+    "type": "other",
+    "name": "NULL",
+    "xml": "<outcome value=''>",
+    "comments": "",
+    "outputs": 1,
+    "x": 2622.0000610351562,
+    "y": 862.750020980835,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "c180f18b.aebfe"
+      ]
+    ]
+  },
+  {
+    "id": "c180f18b.aebfe",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"network-information.onap-model-information.model-customization-uuid is a required input\" />\n",
+    "comments": "",
+    "x": 2769.4285278320312,
+    "y": 862.750020980835,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "80d58546.aa7e88",
+    "type": "returnSuccess",
+    "name": "return success",
+    "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+    "comments": "",
+    "x": 551.3570747375488,
+    "y": 695.6428346633911,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "e62c59c8.088828",
+    "type": "switchNode",
+    "name": "switch network-information.network-instance-group-id",
+    "xml": "<switch test='`$network-topology-operation-input.network-information.network-instance-group-id`'>\n\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2310.5001220703125,
+    "y": 623.5835075378418,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "5b95f49.d609d0c",
+        "d09003b.e23f4"
+      ]
+    ]
+  },
+  {
+    "id": "5b95f49.d609d0c",
+    "type": "other",
+    "name": "Other",
+    "xml": "<outcome value='Other'>",
+    "comments": "",
+    "outputs": 1,
+    "x": 2600.250011444092,
+    "y": 653.7501907348633,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "1d7d3883.7d3737"
+      ]
+    ]
+  },
+  {
+    "id": "d09003b.e23f4",
+    "type": "other",
+    "name": "NULL",
+    "xml": "<outcome value=''>",
+    "comments": "",
+    "outputs": 1,
+    "x": 2597.91690826416,
+    "y": 620.7500648498535,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "738908db.7d8f28"
+      ]
+    ]
+  },
+  {
+    "id": "738908db.7d8f28",
+    "type": "returnSuccess",
+    "name": "return success",
+    "xml": "<return status='success'>\n<parameter name='' value='' />\n",
+    "comments": "",
+    "x": 2758.2501373291016,
+    "y": 617.7501220703125,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "3269563e.6fec5a",
+    "type": "get-resource",
+    "name": "get-resource NETWORK_MODEL",
+    "xml": "<get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key='SELECT * from NETWORK_MODEL WHERE customization_uuid = $network-topology-operation-input.network-information.onap-model-information.model-customization-uuid\n  and service_uuid = $network-topology-operation-input.service-information.onap-model-information.model-uuid'\n  pfx='network-model'>\n\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2974.183319091797,
+    "y": 1398.4285793304443,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "e762e9e8.c9a108",
+        "e2455f53.fb44"
+      ]
+    ]
+  },
+  {
+    "id": "2bd9bcfc.f16724",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`'No network model found for customization UUID ' \n    + $network-topology-operation-input.network-information.onap-model-information.model-customization-uuid +\n    ' and model-uuid ' + $network-topology-operation-input.service-information.onap-model-information.model-uuid`\" />\n",
+    "comments": "",
+    "x": 3468.6474609375,
+    "y": 1395.7260434627533,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "e762e9e8.c9a108",
+    "type": "not-found",
+    "name": "not-found",
+    "xml": "<outcome value='not-found'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3269.897472381592,
+    "y": 1389.0832498073578,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "2bd9bcfc.f16724"
+      ]
+    ]
+  },
+  {
+    "id": "e2455f53.fb44",
+    "type": "failure",
+    "name": "failure",
+    "xml": "<outcome value='failure'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3263.647472381592,
+    "y": 1421.5832498073578,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "2bd9bcfc.f16724"
+      ]
+    ]
+  },
+  {
+    "id": "ede139e4.89a198",
+    "type": "for",
+    "name": "for ngidx..service-data.network-instance-groups.network-instance-group[]",
+    "xml": "<for index='ngidx' start='0' end='`$service-data.network-instance-groups.network-instance-_length`' >\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3997.611541748047,
+    "y": 690.9445762634277,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "eac562d9.de601"
+      ]
+    ]
+  },
+  {
+    "id": "4f2fd133.4305b",
+    "type": "switchNode",
+    "name": "service-data.network-instance-groups.network-instance-group_length",
+    "xml": "<switch test='`$service-data.network-instance-groups.network-instance-group_length`'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3084.3256912231445,
+    "y": 652.0159721374512,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "501babe3.5319c4",
+        "e1e773cb.e5cf6"
+      ]
+    ]
+  },
+  {
+    "id": "501babe3.5319c4",
+    "type": "other",
+    "name": "outcome Null",
+    "xml": "<outcome value=''>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3449.575469970703,
+    "y": 654.0159454345703,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "87a76e41.abe4d"
+      ]
+    ]
+  },
+  {
+    "id": "e1e773cb.e5cf6",
+    "type": "other",
+    "name": "other",
+    "xml": "<outcome value='Other'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3429.575469970703,
+    "y": 689.0159454345703,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "3ab76fb1.f7b22"
+      ]
+    ]
+  },
+  {
+    "id": "eac562d9.de601",
+    "type": "switchNode",
+    "name": "switch network-instance-group-id found",
+    "xml": "<switch test=\"`$service-data.network-instance-groups.network-instance-group[$nidx].network-instance-group-id == $network-topology-operation-input.network-information.network-instance-group-id`\">\n\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 4445.54020690918,
+    "y": 690.6947593688965,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "7a0eb4db.f8074c"
+      ]
+    ]
+  },
+  {
+    "id": "7a0eb4db.f8074c",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 4691.99324798584,
+    "y": 691.5876178741455,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "363a104e.3bd6b"
+      ]
+    ]
+  },
+  {
+    "id": "598b024c.d866dc",
+    "type": "set",
+    "name": "set tmp.ngidx and ctx.network-instance-group-data",
+    "xml": "<set>\n<parameter name='tmp.ngidx' value='`$ngidx`' />\n<parameter name='ctx.network-instance-group-data.' value='`$service-data.network-instance-groups.network-instance-group[$ngidx].`' />\n",
+    "comments": "",
+    "x": 5134.525215148926,
+    "y": 691.3376426696777,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "3ab76fb1.f7b22",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "outputs": 1,
+    "x": 3630.845489501953,
+    "y": 690.5705108642578,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "ede139e4.89a198"
+      ]
+    ]
+  },
+  {
+    "id": "1d7d3883.7d3737",
+    "type": "block",
+    "name": "block",
+    "xml": "<block>\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 2734.3612670898438,
+    "y": 654.1945953369141,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "4f2fd133.4305b"
+      ]
+    ]
+  },
+  {
+    "id": "87a76e41.abe4d",
+    "type": "record",
+    "name": "record",
+    "xml": "<record plugin=\"com.att.sdnctl.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"GENERIC-RESOURCE-API.validate-network-input\"/>\n<parameter name=\"field3\" value=\"`$network-topology-operation-input.sdnc-request-header.svc-request-id`\"/>\n<parameter name=\"field4\" value=\"Network instance group id proveded but no network instance group exists that matches\"/>\n<parameter name=\"field5\" value=\"`$network-topology-operation-input.network-information.network-instance-group-id`\"/>\n\n\n\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3610.861358642578,
+    "y": 653.4445343017578,
+    "z": "df2e3233.9775f",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "363a104e.3bd6b",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "outputs": 1,
+    "x": 4840.611686706543,
+    "y": 691.444803237915,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "598b024c.d866dc"
+      ]
+    ]
+  },
+  {
+    "id": "6ba35582.02a89c",
+    "type": "other",
+    "name": "NULL",
+    "xml": "<outcome value=''>",
+    "comments": "",
+    "outputs": 1,
+    "x": 2531.314895629883,
+    "y": 1150.3426370620728,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "1cfe1346.d805fd"
+      ]
+    ]
+  },
+  {
+    "id": "8d6ac32a.9037",
+    "type": "other",
+    "name": "Other",
+    "xml": "<outcome value='Other'>",
+    "comments": "",
+    "outputs": 1,
+    "x": 2530.064929962158,
+    "y": 1322.009298324585,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "423b56dc.d5ebb8"
+      ]
+    ]
+  },
+  {
+    "id": "921bbed8.0d111",
+    "type": "get-resource",
+    "name": "get-resource SERVICE_MODEL",
+    "xml": "<get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key='SELECT * from SERVICE_MODEL WHERE service_uuid = $network-topology-operation-input.service-information.onap-model-information.model-uuid'\n  pfx='service-model'>\n\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2976.683303833008,
+    "y": 1321.4933519363403,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "79c59913.159718",
+        "efb4080a.682628"
+      ]
+    ]
+  },
+  {
+    "id": "860b68fa.33ca88",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`'No service model found for service UUID ' + $network-topology-operation-input.service-information.onap-model-information.model-uuid`\" />\n",
+    "comments": "",
+    "x": 3458.7666091918945,
+    "y": 1327.74343085289,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "79c59913.159718",
+    "type": "not-found",
+    "name": "not-found",
+    "xml": "<outcome value='not-found'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3260.016689300537,
+    "y": 1323.1006467342377,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "860b68fa.33ca88"
+      ]
+    ]
+  },
+  {
+    "id": "efb4080a.682628",
+    "type": "failure",
+    "name": "failure",
+    "xml": "<outcome value='failure'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3253.766689300537,
+    "y": 1355.6006467342377,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "860b68fa.33ca88"
+      ]
+    ]
+  },
+  {
+    "id": "366d9d85.e9d9b2",
+    "type": "get-resource",
+    "name": "get-resource NETWORK_MODEL",
+    "xml": "<get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key='SELECT * from NETWORK_MODEL WHERE customization_uuid = $network-topology-operation-input.network-information.onap-model-information.model-customization-uuid\n  and service_uuid = $service-data.service-information.onap-model-information.model-uuid'\n  pfx='network-model'>\n\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2976.8693084716797,
+    "y": 1223.1509647369385,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "910f20d1.bdd36",
+        "e2e9e038.3cb1b"
+      ]
+    ]
+  },
+  {
+    "id": "31c32b50.6432e4",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`'No network model found for customization UUID ' \n    + $network-topology-operation-input.network-information.onap-model-information.model-customization-uuid +\n    ' and model-uuid ' + $network-topology-operation-input.service-information.onap-model-information.model-uuid`\" />\n",
+    "comments": "",
+    "x": 3472.3335494995117,
+    "y": 1222.4483096599579,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "910f20d1.bdd36",
+    "type": "not-found",
+    "name": "not-found",
+    "xml": "<outcome value='not-found'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3273.5835609436035,
+    "y": 1215.8055160045624,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "31c32b50.6432e4"
+      ]
+    ]
+  },
+  {
+    "id": "e2e9e038.3cb1b",
+    "type": "failure",
+    "name": "failure",
+    "xml": "<outcome value='failure'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3268.58353805542,
+    "y": 1247.055515050888,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "31c32b50.6432e4"
+      ]
+    ]
+  },
+  {
+    "id": "a5b9cb21.07e728",
+    "type": "get-resource",
+    "name": "get-resource SERVICE_MODEL",
+    "xml": "<get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key='SELECT * from SERVICE_MODEL WHERE service_uuid = $service-data.service-information.onap-model-information.model-uuid'\n  pfx='service-model'>",
+    "comments": "",
+    "outputs": 1,
+    "x": 2975.369338989258,
+    "y": 1149.4655179977417,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "ad32be5d.fc0d2",
+        "726e59ae.b41088"
+      ]
+    ]
+  },
+  {
+    "id": "263ae4cc.79bc1c",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`'No service model found for service UUID ' + $network-topology-operation-input.service-information.onap-model-information.model-uuid`\" />\n",
+    "comments": "",
+    "x": 3462.4526977539062,
+    "y": 1154.4656970500946,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "ad32be5d.fc0d2",
+    "type": "not-found",
+    "name": "not-found",
+    "xml": "<outcome value='not-found'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3263.702777862549,
+    "y": 1149.8229129314423,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "263ae4cc.79bc1c"
+      ]
+    ]
+  },
+  {
+    "id": "726e59ae.b41088",
+    "type": "failure",
+    "name": "failure",
+    "xml": "<outcome value='failure'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3257.452777862549,
+    "y": 1182.3229129314423,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "263ae4cc.79bc1c"
+      ]
+    ]
+  },
+  {
+    "id": "1cfe1346.d805fd",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "outputs": 1,
+    "x": 2706.639144897461,
+    "y": 1149.555465221405,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "a5b9cb21.07e728",
+        "366d9d85.e9d9b2"
+      ]
+    ]
+  },
+  {
+    "id": "423b56dc.d5ebb8",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "outputs": 1,
+    "x": 2691.63924407959,
+    "y": 1320.8055248260498,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "921bbed8.0d111",
+        "3269563e.6fec5a"
+      ]
+    ]
+  },
+  {
+    "id": "f8a0e353.63b13",
+    "type": "other",
+    "name": "changeassign",
+    "xml": "<outcome value='changeassign'>",
+    "comments": "",
+    "outputs": 1,
+    "x": 787.000072479248,
+    "y": 687.0000247955322,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "4a52d531.9fe30c"
+      ]
+    ]
+  },
+  {
+    "id": "4a52d531.9fe30c",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "comments": "",
+    "outputs": 1,
+    "x": 972.285717010498,
+    "y": 686.4286289215088,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "60aa05f5.c569dc"
+      ]
+    ]
+  },
+  {
+    "id": "60aa05f5.c569dc",
+    "type": "switchNode",
+    "name": "switch request-action",
+    "xml": "<switch test='`$network-topology-operation-input.request-information.request-action`'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1164.2856559753418,
+    "y": 686.4286136627197,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "88893f96.826cb",
+        "b859c6e0.2898e8"
+      ]
+    ]
+  },
+  {
+    "id": "88893f96.826cb",
+    "type": "other",
+    "name": "CreateNetworkInstance",
+    "xml": "<outcome value='CreateNetworkInstance'>",
+    "comments": "",
+    "outputs": 1,
+    "x": 1444.2856559753418,
+    "y": 651.4286136627197,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "9c8d3fa9.f4234"
+      ]
+    ]
+  },
+  {
+    "id": "b859c6e0.2898e8",
+    "type": "other",
+    "name": "Other",
+    "xml": "<outcome value='Other'>",
+    "comments": "",
+    "outputs": 1,
+    "x": 1393.2856559753418,
+    "y": 695.4286136627197,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "73e64f7b.3bc52"
+      ]
+    ]
+  },
+  {
+    "id": "73e64f7b.3bc52",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"request-information.request-action is required to be CreateNetworkInstance for svc-action=changeassign\" />\n",
+    "comments": "",
+    "x": 1562.2856559753418,
+    "y": 695.4286136627197,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "9c8d3fa9.f4234",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "comments": "",
+    "outputs": 1,
+    "x": 1680.2856559753418,
+    "y": 650.4286136627197,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "dc0c345f.272208",
+        "12953ca4.f4d643",
+        "87ae2dd3.c6822",
+        "d8c0a4b6.4a38d8",
+        "77cf2c9e.63a064",
+        "7e651b21.c50284",
+        "6b264531.de0afc"
+      ]
+    ]
+  },
+  {
+    "id": "12953ca4.f4d643",
+    "type": "switchNode",
+    "name": "switch network-information.from-preload",
+    "xml": "<switch test='`$network-topology-operation-input.network-information.from-preload`'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2283.91650390625,
+    "y": 368.0000352859497,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "eb76cae7.f61f78"
+      ]
+    ]
+  },
+  {
+    "id": "eb76cae7.f61f78",
+    "type": "other",
+    "name": "NULL",
+    "xml": "<outcome value=''>",
+    "comments": "",
+    "outputs": 1,
+    "x": 2519.630813598633,
+    "y": 368.0000352859497,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "6e925a8f.fb9974"
+      ]
+    ]
+  },
+  {
+    "id": "6e925a8f.fb9974",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"network-information.from-preload is a required input\" />\n",
+    "comments": "",
+    "x": 2684.0594329833984,
+    "y": 366.0000352859497,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "2c777ab3.486276",
+    "type": "comment",
+    "name": "If service model uuid not passed in input, use from service-data",
+    "info": "",
+    "comments": "",
+    "x": 3072.7462768554688,
+    "y": 1110.2461557388306,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "14815eb6.fd5c91",
+    "type": "comment",
+    "name": "get network and service model using input",
+    "info": "",
+    "comments": "",
+    "x": 3000.246292114258,
+    "y": 1283.9961595535278,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "81763a92.4e5c78",
+    "type": "switchNode",
+    "name": "switch network-information.network-id",
+    "xml": "<switch test='`$network-topology-operation-input.network-information.network-id`'>\n\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2287.3358001708984,
+    "y": 421.6692581176758,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "c5a63b51.87b4f8",
+        "1214f71.156fe09"
+      ]
+    ]
+  },
+  {
+    "id": "c5a63b51.87b4f8",
+    "type": "other",
+    "name": "Other",
+    "xml": "<outcome value='Other'>",
+    "comments": "",
+    "outputs": 1,
+    "x": 2583.335750579834,
+    "y": 454.33596992492676,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "e775f46b.5160e8"
+      ]
+    ]
+  },
+  {
+    "id": "1214f71.156fe09",
+    "type": "other",
+    "name": "NULL",
+    "xml": "<outcome value=''>",
+    "comments": "",
+    "outputs": 1,
+    "x": 2581.0026473999023,
+    "y": 421.335844039917,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "ac694b16.08b998"
+      ]
+    ]
+  },
+  {
+    "id": "ac694b16.08b998",
+    "type": "returnSuccess",
+    "name": "return success",
+    "xml": "<return status='success'>\n<parameter name='' value='' />\n",
+    "comments": "",
+    "x": 2741.3358764648438,
+    "y": 418.335901260376,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "d81e00e0.1ff27",
+    "type": "for",
+    "name": "for nidx..service-data.networks.network[]",
+    "xml": "<for index='nidx' start='0' end='`$service-data.networks.network_length`' >\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3731.4471740722656,
+    "y": 493.780366897583,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "d0382bb1.c7c318"
+      ]
+    ]
+  },
+  {
+    "id": "6aa40d73.069df4",
+    "type": "switchNode",
+    "name": "switch service-data.networks.network_length",
+    "xml": "<switch test='`$service-data.networks.network_length`'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2991.161117553711,
+    "y": 456.3517246246338,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "1846ce0f.dd2142",
+        "3dcca8e2.fa0cf8"
+      ]
+    ]
+  },
+  {
+    "id": "1846ce0f.dd2142",
+    "type": "other",
+    "name": "outcome Null",
+    "xml": "<outcome value=''>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3280.161117553711,
+    "y": 458.35178565979004,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "6705bd82.d03014"
+      ]
+    ]
+  },
+  {
+    "id": "3dcca8e2.fa0cf8",
+    "type": "other",
+    "name": "other",
+    "xml": "<outcome value='Other'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3251.411331176758,
+    "y": 493.8518409729004,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "76bdfc6d.a268b4"
+      ]
+    ]
+  },
+  {
+    "id": "d0382bb1.c7c318",
+    "type": "switchNode",
+    "name": "switch networkid found",
+    "xml": "<switch test=\"`$service-data.networks.network[$nidx].network-id == $network-topology-operation-input.network-information.network-id`\">\n\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 4021.8757247924805,
+    "y": 493.03045082092285,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "799fd9f5.297828"
+      ]
+    ]
+  },
+  {
+    "id": "799fd9f5.297828",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 4210.828079223633,
+    "y": 493.923189163208,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "fa602e9.58fa5d"
+      ]
+    ]
+  },
+  {
+    "id": "b9b1e9e8.4baa78",
+    "type": "set",
+    "name": "set tmp.nidx and ctx.network-data",
+    "xml": "<set>\n<parameter name='tmp.nidx' value='`$nidx`' />\n<parameter name='network-data.' value='`$service-data.networks.network[$nidx].`' />\n",
+    "comments": "",
+    "x": 4653.360046386719,
+    "y": 493.67321395874023,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "76bdfc6d.a268b4",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "outputs": 1,
+    "x": 3452.681350708008,
+    "y": 495.4064064025879,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "d81e00e0.1ff27"
+      ]
+    ]
+  },
+  {
+    "id": "a4c75003.79847",
+    "type": "switchNode",
+    "name": "switch tmp.nidx ",
+    "xml": "<switch test=\"`$tmp.nidx`\">\n\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3649.748748779297,
+    "y": 569.7635736465454,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "46de02ac.b16e8c"
+      ]
+    ]
+  },
+  {
+    "id": "97b52b4a.465218",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"network-topology-operation-input.network-request-input.network-id not found in service-data\" />\n",
+    "comments": "",
+    "x": 4004.606025695801,
+    "y": 569.4778385162354,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "46de02ac.b16e8c",
+    "type": "outcome",
+    "name": "NULL",
+    "xml": "<outcome value=''>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3821.1772842407227,
+    "y": 568.3349590301514,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "97b52b4a.465218"
+      ]
+    ]
+  },
+  {
+    "id": "e775f46b.5160e8",
+    "type": "block",
+    "name": "block",
+    "xml": "<block>\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 2717.447006225586,
+    "y": 454.78037452697754,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "6aa40d73.069df4"
+      ]
+    ]
+  },
+  {
+    "id": "6705bd82.d03014",
+    "type": "record",
+    "name": "record",
+    "xml": "<record plugin=\"com.att.sdnctl.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"GENERIC-RESOURCE-API.validate-network-input\"/>\n<parameter name=\"field3\" value=\"`$network-topology-operation-input.sdnc-request-header.svc-request-id`\"/>\n<parameter name=\"field4\" value=\"Network id proveded but no network exists that matches\"/>\n<parameter name=\"field5\" value=\"`$network-topology-operation-input.network-information.network-id`\"/>\n\n\n\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3441.447006225586,
+    "y": 457.78037452697754,
+    "z": "df2e3233.9775f",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "fa602e9.58fa5d",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "outputs": 1,
+    "x": 4359.446517944336,
+    "y": 493.78037452697754,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "b9b1e9e8.4baa78"
+      ]
+    ]
+  },
+  {
+    "id": "f899095f.339638",
+    "type": "comment",
+    "name": "1806: Removed logic that requires service data to have network if network id is passed from mso on assign",
+    "info": "",
+    "comments": "",
+    "x": 3929.3360900878906,
+    "y": 531.3359460830688,
+    "z": "df2e3233.9775f",
+    "wires": []
+  },
+  {
+    "id": "985ba54f.3974a8",
+    "type": "outcome",
+    "name": "ActivateSOTNConnectivityInstance",
+    "xml": "<outcome value='ActivateSOTNConnectivityInstance'>",
+    "comments": "",
+    "outputs": 1,
+    "x": 1471.3333587646484,
+    "y": 494.00006198883057,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "694acc9b.b69aa4"
+      ]
+    ]
+  },
+  {
+    "id": "694acc9b.b69aa4",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "comments": "",
+    "outputs": 1,
+    "x": 1697.3333282470703,
+    "y": 494.00010776519775,
+    "z": "df2e3233.9775f",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "1c550262.882b2e",
+    "type": "outcome",
+    "name": "ActivateDCINetworkInstance",
+    "xml": "<outcome value='ActivateDCINetworkInstance'>",
+    "comments": "",
+    "outputs": 1,
+    "x": 1459.2497634887695,
+    "y": 529.9960916042328,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "15320fb4.9014c"
+      ]
+    ]
+  },
+  {
+    "id": "15320fb4.9014c",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "comments": "",
+    "outputs": 1,
+    "x": 1672.5559921264648,
+    "y": 529.0000257492065,
+    "z": "df2e3233.9775f",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "a630529b.bc37b",
+    "type": "outcome",
+    "name": "DeactivateSOTNConnectivityInstance",
+    "xml": "<outcome value='DeactivateSOTNConnectivityInstance'>",
+    "comments": "",
+    "outputs": 1,
+    "x": 1490.3333892822266,
+    "y": 786.0001420974731,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "ffb9085d.d34018"
+      ]
+    ]
+  },
+  {
+    "id": "ffb9085d.d34018",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "comments": "",
+    "outputs": 1,
+    "x": 1727.3333587646484,
+    "y": 786.0001878738403,
+    "z": "df2e3233.9775f",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "4893ca1b.86d634",
+    "type": "outcome",
+    "name": "DeActivateDCINetworkInstance",
+    "xml": "<outcome value='DeActivateDCINetworkInstance'>",
+    "comments": "",
+    "outputs": 1,
+    "x": 1472.5832214355469,
+    "y": 823.9961545467377,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "fce22d6a.e8a6b"
+      ]
+    ]
+  },
+  {
+    "id": "fce22d6a.e8a6b",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "comments": "",
+    "outputs": 1,
+    "x": 1715.5833053588867,
+    "y": 822.0274226665497,
+    "z": "df2e3233.9775f",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "dce79fa4.7fd85",
+    "type": "outcome",
+    "name": "ActivateSDWANConnectivityInstance",
+    "xml": "<outcome value='ActivateSDWANConnectivityInstance'>",
+    "comments": "",
+    "outputs": 1,
+    "x": 1476.003890991211,
+    "y": 454.7539072036743,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "a3491976.6ffbc8"
+      ]
+    ]
+  },
+  {
+    "id": "a3491976.6ffbc8",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "comments": "",
+    "outputs": 1,
+    "x": 1712.004020690918,
+    "y": 453.7539072036743,
+    "z": "df2e3233.9775f",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "10d3655a.b8cb0b",
+    "type": "outcome",
+    "name": "DeactivateSDWANConnectivityInstance",
+    "xml": "<outcome value='DeactivateSDWANConnectivityInstance'>",
+    "comments": "",
+    "outputs": 1,
+    "x": 1496.00390625,
+    "y": 745.75390625,
+    "z": "df2e3233.9775f",
+    "wires": [
+      [
+        "4660a007.84d7d"
+      ]
+    ]
+  },
+  {
+    "id": "4660a007.84d7d",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "comments": "",
+    "outputs": 1,
+    "x": 1747.00390625,
+    "y": 743.75390625,
+    "z": "df2e3233.9775f",
+    "wires": [
+      []
+    ]
+  }
+]

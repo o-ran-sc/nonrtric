@@ -1,0 +1,33 @@
+
+{  
+   "vnfList":[  
+      {  
+         "IpAddress":"1.160.10.240",
+         "HostName":"Vfmodule-vIMS",
+		 "Selected":false,
+		 "PortNo":"8282",
+		 "vnfType": "VimsClearwaterVsp..sproutScaling..module-1"
+      },
+      {  
+         "IpAddress":"1.160.10.241",
+         "HostName":"vDNS-vIMS",
+		 "Selected":false,
+		 "PortNo":"8080",
+		 "vnfType": "VimsClearwaterVsp..sproutScaling..module-1"
+      },
+      {  
+         "IpAddress":"1.160.10.242",
+         "HostName":"Vfmodule-F5",
+		 "Selected":false,
+		 "PortNo":"8285",
+		 "vnfType": "VimsClearwaterVsp..sproutScaling..module-1"
+      },
+       {  
+         "IpAddress":"1.160.10.243",
+         "HostName":"Vfmodule-F6",
+		 "Selected":false,
+		 "PortNo":"8286",
+		 "vnfType": "VimsClearwaterVsp..sproutScaling..module-1"
+      }
+   ]
+}

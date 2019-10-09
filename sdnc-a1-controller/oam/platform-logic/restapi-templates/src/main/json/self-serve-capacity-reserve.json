@@ -1,0 +1,22 @@
+{
+ 	"input": {
+ 		"capacity-reservation-information": {
+ 			"service-model": "${sscap.res-service-model}",
+ 			"reservation-entity-list": [{
+ 					"reservation-entity-id": "${sscap.res-entityid}",
+ 					"reservation-entity-type": "${sscap.res-entity-type}"
+ 				}
+			],
+ 			"reservation-target-list": [{
+ 					"reservation-target-type": "${sscap.res-target-type}",
+ 					"reservation-target-id": "${sscap.res-target-id}"
+ 			  }
+ 			],
+ 			"reservation-resource-list": [
+ 				{
+ 					"endpoint-position": "${sscap.res-endpoint-position}" 
+ 				}
+ 			]
+ 		}
+ 	}
+ }

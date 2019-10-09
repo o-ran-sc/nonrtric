@@ -1,0 +1,143 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='self-serve-vnf-unassign' mode='sync'>
+        <block atomic='true'>
+            <set>
+                <parameter name='ss.capability.execution-order[0]' value='mS-mac-address-assign' />
+                <parameter name='ss.capability.execution-order[1]' value='mac-address-assign' />
+                <parameter name='ss.capability.execution-order[2]' value='netbox-ip-assign' />
+                <parameter name='ss.capability.execution-order[3]' value='eipam-ip-assignment' />
+                <parameter name='ss.capability.execution-order[4]' value='mS-vlan-tag-assign' />
+                <parameter name='ss.capability.execution-order[5]' value='vlan-tag-assign' />
+                <parameter name='ss.capability.execution-order[6]' value='alts-license-assign' />
+                <parameter name='ss.capability.execution-order[7]' value='alts-entitlement-assign' />
+                <parameter name='ss.capability.execution-order[8]' value='generate-name' />
+                <parameter name='ss.capability.execution-order_length' value='9' />
+            </set>
+            <set>
+                <parameter name='ss.capability-type' value='vnf' />
+            </set>
+            <switch test='`$prop.controller.user`'>
+                <outcome value=''>
+                    <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                        <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                        <parameter name='contextPrefix' value='prop' />
+                    </execute>
+                </outcome>
+            </switch>
+            <for index='cidx' start='0' end='`$ss.capability.execution-order_length`' >
+                <set>
+                    <parameter name='ss.capability-name' value='`$ss.capability.execution-order[$cidx]`' />
+                    <!--
+ss.capability.execution-order[]
+-->
+                </set>
+                <set>
+                    <parameter name='ss.capability-action' value='unassign' />
+                </set>
+                <set>
+                    <parameter name='ss.capability-dg' value="`'self-serve-' + $ss.capability.execution-order[$cidx]`" />
+                </set>
+                <for index='pidx' start='0' end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param_length`' >
+                    <set>
+                        <parameter name='tmp.param.capability-name' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$pidx].resource-resolution-data.capability-name`' />
+                    </set>
+                    <switch test='`$ss.capability-name == $tmp.param.capability-name`'>
+                        <outcome value='true'>
+                            <block atomic='true'>
+                                <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$pidx].resource-resolution-data.status`'>
+                                    <outcome value='SUCCESS'>
+                                        <call module='GENERIC-RESOURCE-API' rpc='`$ss.capability-dg`' mode='sync' >
+                                            <outcome value='failure'>
+                                                <block atomic='true'>
+                                                    <set>
+                                                        <parameter name='vf.vnf-id'
+    value='`$service-data.vnfs.vnf[$vnf-index].vnf-id`' />
+                                                        <parameter name='vf.vnf-data.sdnc-request-header.'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.sdnc-request-header.`' />
+                                                        <parameter name='vf.vnf-data.request-information.'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.request-information.`' />
+                                                        <parameter name='vf.vnf-data.service-information.'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.service-information.`' />
+                                                        <parameter name='vf.vnf-data.vnf-information.'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-information.`' />
+                                                        <parameter name='vf.vnf-data.vnf-request-input.'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-request-input.`' />
+                                                        <parameter name='vf.vnf-data.vnf-request-input.vnf-input-parameters.'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-request-input.vnf-input-parameters.`' />
+                                                        <parameter name='vf.vnf-data.vnf-topology.'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.`' />
+                                                        <parameter name='vf.vnf-data.vnf-level-oper-status.'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-level-oper-status.`' />
+                                                    </set>
+                                                    <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                                                        <parameter name="source" value="`$prop.restapi.ss-vnf-assignments`"/>
+                                                        <parameter name="outputPath" value="tmp.ss-vnf-url"/>
+                                                        <parameter name="target" value="{service-instance-id}"/>
+                                                        <parameter name="replacement" value="`$service-data.vnfs.vnf[$vnf-index].vnf-data.service-information.service-instance-id`"/>
+                                                    </execute>
+                                                    <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                                                        <parameter name="source" value="`$tmp.ss-vnf-url`"/>
+                                                        <parameter name="outputPath" value="tmp.ss-vnf-url"/>
+                                                        <parameter name="target" value="{vnf-id}"/>
+                                                        <parameter name="replacement" value="`$service-data.vnfs.vnf[$vnf-index].vnf-id`"/>
+                                                    </execute>
+                                                    <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                                        <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.ss.vnf.templatefile`" />
+                                                        <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ss-vnf-url`' />
+                                                        <parameter name='restapiUser' value='`$prop.controller.user`' />
+                                                        <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                                                        <parameter name='format' value='json' />
+                                                        <parameter name='httpMethod' value='PUT' />
+                                                        <parameter name="responsePrefix" value="mdsal-ss-vnf" />
+                                                        <outcome value='failure'>
+                                                            <block atomic="true">
+                                                                <set>
+                                                                    <parameter name="error-message" value="Error persisting self-serve vnf assignments in MD-SAL during unassign" />
+                                                                </set>
+                                                            </block>
+                                                        </outcome>
+                                                        <outcome value='not-found'>
+                                                            <block atomic="true">
+                                                                <set>
+                                                                    <parameter name="error-message" value="Error persisting self-serve vnf assignments in MD-SAL during unassign" />
+                                                                </set>
+                                                            </block>
+                                                        </outcome>
+                                                    </execute>
+                                                    <return status='failure'>
+                                                        <parameter name='error-code' value='500' />
+                                                        <parameter name='error-message' value="`'Failed to unassign self-serve vnf assignments for ' + $ss.capability-dg + ' with error: ' + $error-message`" />
+                                                    </return>
+                                                </block>
+                                            </outcome>
+                                            <outcome value='success'>
+                                                <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                    <parameter name="logger" value="message-log"/>
+                                                    <parameter name="field1" value="`'DONE: ' + $ss.capability-dg`"/>
+                                                </record>
+                                            </outcome>
+                                        </call>
+                                    </outcome>
+                                    <outcome value='Other'>
+                                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                            <parameter name="logger" value="message-log"/>
+                                            <parameter name="field1" value="`'SS: resource-resolution-data.status: ' + $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$pidx].resource-resolution-data.status`"/>
+                                            <parameter name="field2" value="`'SS: ss.capability-name: ' + $ss.capability-name`"/>
+                                            <parameter name="field3" value="`'SS: tmp.param.capability-name: ' + $tmp.param.capability-name`"/>
+                                        </record>
+                                    </outcome>
+                                </switch>
+                                <break/>
+                            </block>
+                        </outcome>
+                    </switch>
+                </for>
+            </for>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >
+                <parameter name='filename' value='/var/tmp/ss-vnf-unassign.log' />
+            </execute>
+        </block>
+    </method>
+</service-logic>

@@ -1,0 +1,5 @@
+
+{
+  "userName": ${prop.sdncRestApi.thirdpartySdnc.user},
+  "password": ${prop.sdncRestApi.thirdpartySdnc.password}
+}

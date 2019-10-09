@@ -1,0 +1,1443 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='api-contrail-route-topology-operation-create' mode='sync'>
+        <block atomic="true">
+            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                <parameter name="logger" value="message-log"/>
+                <parameter name="field1" value="__TIMESTAMP__"/>
+                <parameter name="field2" value="GENERIC-RESOURCE-API.api-contrail-route-topology-operation-create"/>
+                <parameter name='field3' value='cto-api.parent-service-instance-id' />
+                <parameter name='field4' value='`$cto-api.parent-service-instance-id`' />
+                <parameter name='field5' value='cto-api.default-domain' />
+                <parameter name='field6' value='`$cto-api.default-domain`' />
+                <parameter name='field7' value='cto-api.port-mirror-configuration-instance-id' />
+                <parameter name='field8' value='`$cto-api.port-mirror-configuration-instance-id`' />
+                <parameter name='field9' value='cto-api.service-type' />
+                <parameter name='field10' value='`$cto-api.service-type`' />
+                <parameter name='field11' value='cto-api.source-network-role' />
+                <parameter name='field12' value='`$cto-api.source-network-fole`' />
+                <parameter name='field13' value='cto-api.collector-network-role' />
+                <parameter name='field14' value='`$cto-api.collector-network-4ole`' />
+                <parameter name='field15' value='cto-api.default-project' />
+                <parameter name='field16' value='`$cto-api.default-project`' />
+                <parameter name='field17' value='cto-api.cloud-region-id' />
+                <parameter name='field18' value='`$cto-api.cloud-region-id`' />
+                <parameter name='field19' value='cto-api.cloud-owner' />
+                <parameter name='field20' value='`$cto-api.cloud-owner`' />
+                <parameter name='field21' value='cto-api.isTest' />
+                <parameter name='field22' value='`$cto-api.isTest`' />
+                <parameter name='field23' value='cto-api.owning-entity' />
+                <parameter name='field24' value='`$cto-api.owning-entity`' />
+            </record>
+            <set>
+                <parameter name="ctotmp." value="" />
+                <parameter name="ar-request-information." value="" />
+                <parameter name="ar-created" value="" />
+                <parameter name="ar-aai-created" value="" />
+                <parameter name="np-aai-created" value="" />
+                <parameter name="contrail-created" value="" />
+            </set>
+            <set>
+                <parameter name="ctotmp.s-l3-network" value="" />
+                <parameter name="ctotmp.num-s-network" value="0" />
+                <parameter name="ctotmp.s-network-policy" value="" />
+                <parameter name="ctotmp.num-s-np" value="0" />
+                <parameter name="ctotmp.c-l3-network" value="" />
+                <parameter name="ctotmp.num-c-network" value="0" />
+                <parameter name="ctotmp.c-network-policy" value="" />
+                <parameter name="ctotmp.num-c-np" value="0" />
+                <parameter name="ctotmp.s-network-policy-list_length" value="0" />
+                <parameter name="ctotmp.c-network-policy-list_length" value="0" />
+                <parameter name="ctotmp.network-policy-id" value="" />
+                <parameter name="ctotmp.action" value="create" />
+            </set>
+            <call module='GENERIC-RESOURCE-API' rpc='validate-api-contrail-route-input' mode='sync' ></call>
+            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+      resource="custom-query"
+      key="format = 'resource'"
+      force="true"
+      local-only="false"
+      pfx="ctotmp.aai.source-network">
+                <parameter name="start[0]" value="`'/cloud-infrastructure/cloud-regions/cloud-region/' + $cto-api.cloud-owner + '/'  + $cto-api.cloud-region-id`" />
+                <parameter name="start_length" value="1" />
+                <parameter name="query" value="`'/query/network-name-fromNetwork-role?networkRole='  + $cto-api.source-network-role`" />
+                <outcome value='failure'>
+                    <block atomic="true">
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="API-contrail-route-topology-operation-create: Failed to get source network from aai" />
+                        </return>
+                    </block>
+                </outcome>
+                <outcome value='not-found'>
+                    <block atomic="true">
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="API-contrail-route-topology-operation-create: Source network not found in AAI" />
+                        </return>
+                    </block>
+                </outcome>
+            </save>
+            <for index='ctotmp.sidx' start='0' end='`$ctotmp.aai.source-network.results_length`' >
+                <block atomic="true">
+                    <switch test='`$ctotmp.aai.source-network.results[$ctotmp.sidx].network-policy.network-policy-id`'>
+                        <outcome value=''>
+                            <block atomic="true"></block>
+                        </outcome>
+                        <outcome value='Other'>
+                            <switch test='`$ctotmp.aai.source-network.results[$ctotmp.sidx].network-policy.network-policy-id`'>
+                                <outcome value=''>
+                                    <block atomic="true"></block>
+                                </outcome>
+                                <outcome value='Other'>
+                                    <block atomic="true">
+                                        <set>
+                                            <parameter name="ctotmp.s-network-policy-list[$ctotmp.num-s-np].network-policy-id" value="`$ctotmp.aai.source-network.results[$ctotmp.sidx].network-policy.network-policy-id`" />
+                                        </set>
+                                        <set>
+                                            <parameter name="ctotmp.num-s-np" value="`$ctotmp.num-s-np+1`" />
+                                        </set>
+                                        <set>
+                                            <parameter name="ctotmp.s-network-policy-list_length" value="`$ctotmp.num-s-np`" />
+                                        </set>
+                                    </block>
+                                </outcome>
+                            </switch>
+                        </outcome>
+                    </switch>
+                    <switch test='`$ctotmp.aai.source-network.results[$ctotmp.sidx].l3-network.network-id`'>
+                        <outcome value=''>
+                            <block atomic="true"></block>
+                        </outcome>
+                        <outcome value='Other'>
+                            <switch test='`$ctotmp.aai.source-network.results[$ctotmp.sidx].l3-network.network-id`'>
+                                <outcome value=''>
+                                    <block atomic="true"></block>
+                                </outcome>
+                                <outcome value='Other'>
+                                    <block atomic="true">
+                                        <set>
+                                            <parameter name="ctotmp.s-l3-network." value="`$ctotmp.aai.source-network.results[$ctotmp.sidx].l3-network.`" />
+                                            <parameter name="ctotmp.num-s-network" value="`$ctotmp.num-s-network+1`" />
+                                        </set>
+                                    </block>
+                                </outcome>
+                            </switch>
+                        </outcome>
+                    </switch>
+                </block>
+            </for>
+            <switch test='`$ctotmp.num-s-network`'>
+                <outcome value='0'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="API-contrail-route-topology-operation-create: Source network not found from aai" />
+                    </return>
+                </outcome>
+                <outcome value='1'>
+                    <set>
+                        <parameter name="ctotmp.source-network.network-id" value="`$ctotmp.s-l3-network.network-id`" />
+                    </set>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="API-contrail-route-topology-operation-create: Too many networks returned for source network from aai" />
+                    </return>
+                </outcome>
+            </switch>
+            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+      resource="custom-query"
+      key="format = 'resource'"
+      force="true"
+      local-only="false"
+      pfx="ctotmp.aai.collector-network">
+                <parameter name="start[0]" value="`'/cloud-infrastructure/cloud-regions/cloud-region/' + $cto-api.cloud-owner + '/'  + $cto-api.cloud-region-id`" />
+                <parameter name="start_length" value="1" />
+                <parameter name="query" value="`'/query/network-name-fromNetwork-role?networkRole='  + $cto-api.collector-network-role`" />
+                <outcome value='failure'>
+                    <block atomic="true">
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="API-contrail-route-topology-operation-create: Failed to get collector network from aai" />
+                        </return>
+                    </block>
+                </outcome>
+                <outcome value='not-found'>
+                    <block atomic="true">
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="API-contrail-route-topology-operation-create: Collector network not found in AAI" />
+                        </return>
+                    </block>
+                </outcome>
+            </save>
+            <for index='ctotmp.cidx' start='0' end='`$ctotmp.aai.collector-network.results_length`' >
+                <block atomic="true">
+                    <switch test='`$ctotmp.aai.collector-network.results[$ctotmp.cidx].l3-network.network-id`'>
+                        <outcome value=''>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="API-contrail-route-topology-operation-create: Collector network not found from aai" />
+                            </return>
+                        </outcome>
+                        <outcome value='Other'>
+                            <switch test='`$ctotmp.aai.collector-network.results[$ctotmp.cidx].l3-network.network-id`'>
+                                <outcome value=''>
+                                    <block atomic="true"></block>
+                                </outcome>
+                                <outcome value='Other'>
+                                    <block atomic="true">
+                                        <set>
+                                            <parameter name="ctotmp.c-l3-network." value="`$ctotmp.aai.collector-network.results[$ctotmp.cidx].l3-network.`" />
+                                            <parameter name="ctotmp.num-c-network" value="`$ctotmp.num-c-network+1`" />
+                                        </set>
+                                        <for index='ridx' start='0' end='`$ctotmp.aai.collector-network.results[$ctotmp.cidx].l3-network.relationship-list.relationship_length`' >
+                                            <switch test='`$ctotmp.aai.collector-network.results[$ctotmp.cidx].l3-network.relationship-list.relationship[$ridx].related-to`'>
+                                                <outcome value='service-instance'>
+                                                    <block atomic="true">
+                                                        <for index='rdidx' start='0' end='`$ctotmp.aai.collector-network.results[$ctotmp.cidx].l3-network.relationship-list.relationship[$ridx].relationship-data_length`' >
+                                                            <switch test='`$ctotmp.aai.collector-network.results[$ctotmp.cidx].l3-network.relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-key`'>
+                                                                <outcome value='service-instance.service-instance-id'>
+                                                                    <block atomic="true">
+                                                                        <set>
+                                                                            <parameter name="collector-service-instance-id" value="`$ctotmp.aai.collector-network.results[$ctotmp.cidx].l3-network.relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-value`" />
+                                                                        </set>
+                                                                    </block>
+                                                                </outcome>
+                                                            </switch>
+                                                        </for>
+                                                    </block>
+                                                </outcome>
+                                                <outcome value='network-policy'>
+                                                    <block atomic="true">
+                                                        <for index='rdidx' start='0' end='`$ctotmp.aai.collector-network.results[$ctotmp.cidx].l3-network.relationship-list.relationship[$ridx].relationship-data_length`' >
+                                                            <switch test='`$ctotmp.aai.collector-network.results[$ctotmp.cidx].l3-network.relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-key`'>
+                                                                <outcome value='network-policy.network-policy-id'>
+                                                                    <block atomic="true">
+                                                                        <set>
+                                                                            <parameter name="ctotmp.c-network-policy-list[$ctotmp.num-c-np].network-policy-id" value="`$ctotmp.aai.collector-network.results[$ctotmp.cidx].l3-network.relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-value`" />
+                                                                        </set>
+                                                                        <set>
+                                                                            <parameter name="ctotmp.num-c-np" value="`$ctotmp.num-c-np+1`" />
+                                                                        </set>
+                                                                        <set>
+                                                                            <parameter name="ctotmp.c-network-policy-list_length" value="`$ctotmp.num-c-np`" />
+                                                                        </set>
+                                                                    </block>
+                                                                </outcome>
+                                                            </switch>
+                                                        </for>
+                                                    </block>
+                                                </outcome>
+                                            </switch>
+                                        </for>
+                                    </block>
+                                </outcome>
+                            </switch>
+                        </outcome>
+                    </switch>
+                </block>
+            </for>
+            <switch test='`$ctotmp.num-c-network`'>
+                <outcome value='0'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="API-contrail-route-topology-operation-create: Collector network not found from aai" />
+                    </return>
+                </outcome>
+                <outcome value='1'>
+                    <set>
+                        <parameter name="ctotmp.dest-network.network-id" value="`$ctotmp.c-l3-network.network-id`" />
+                    </set>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="API-contrail-route-topology-operation-create: Too many networks returned for collector network from aai" />
+                    </return>
+                </outcome>
+            </switch>
+            <for index='ctotmp.spidx' start='0' end='`$ctotmp.s-network-policy-list_length`' >
+                <for index='ctotmp.cpidx' start='0' end='`$ctotmp.c-network-policy-list_length`' >
+                    <block atomic="true">
+                        <switch test='`$ctotmp.s-network-policy-list[$ctotmp.spidx].network-policy-id == $ctotmp.c-network-policy-list[$ctotmp.cpidx].network-policy-id`'>
+                            <outcome value='true'>
+                                <block atomic="true">
+                                    <set>
+                                        <parameter name="ctotmp.network-policy-id" value="`$ctotmp.s-network-policy-list[$ctotmp.spidx].network-policy-id`" />
+                                        <parameter name="ctotmp.existing-network-policy-found" value="true" />
+                                    </set>
+                                    <break/>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </block>
+                </for>
+            </for>
+            <switch test='`$ctotmp.network-policy-id`'>
+                <outcome value=''>
+                    <block atomic="true"></block>
+                </outcome>
+                <outcome value='Other'>
+                    <block atomic="true">
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="existing policy - error" />
+                        </return>
+                    </block>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='ar-request-information.source' value="SDNC" />
+            </set>
+            <set>
+                <parameter name='ar-contrail-route-request-input.source-network.network-role' value="`$cto-api.source-network-role`" />
+                <parameter name='ar-contrail-route-request-input.source-network.network-id' value="`$ctotmp.source-network.network-id`" />
+                <parameter name='ar-contrail-route-request-input.dest-network.network-role' value="`$cto-api.collector-network-role`" />
+                <parameter name='ar-contrail-route-request-input.dest-network.network-id' value="`$ctotmp.dest-network.network-id`" />
+            </set>
+            <call module='GENERIC-RESOURCE-API' rpc='generate-allottedresource-id' mode='sync' ></call>
+            <set>
+                <parameter name='ar-identifiers.allotted-resource-id' value="`$tmp.return.generate-allottedresource-id.id`" />
+                <parameter name='ar-identifiers.allotted-resource-type' value="contrail-route" />
+                <parameter name='ar-identifiers.parent-service-instance-id' value="`$cto-api.parent-service-instance-id`" />
+                <parameter name='ar-identifiers.consuming-service-instance-id' value="`$cto-api.service-instance-id` " />
+                <parameter name="tmp.ar.allotted-resource-id" value="`$tmp.return.generate-allottedresource-id.id`" />
+                <parameter name='tmp.ar.allotted-resource-type' value="contrail-route" />
+                <parameter name='tmp.ar.parent-service-instance-id' value="`$cto-api.parent-service-instance-id`" />
+                <!-- <parameter name='tmp.ar.contrail-applied-service-instance-id' value='' />  -->
+            </set>
+            <set>
+                <parameter name='tmp.ar.self-link' value="`'restconf/config/GENERIC-RESOURCE-API:contrail-route-allotted-resources/contrail-route-allotted-resource/'
+ + $tmp.ar.allotted-resource-id
+ + '/allotted-resource-data/contrail-route-topology/'` " />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                <parameter name='contextPrefix' value='prop' />
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$prop.restapi.cr-allottedresource`"/>
+                <parameter name="outputPath" value="tmp.ar-url"/>
+                <parameter name="target" value="{allotted-resource-id}"/>
+                <parameter name="replacement" value="`$tmp.ar.allotted-resource-id`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$prop.restapi.parent-provided-resource`"/>
+                <parameter name="outputPath" value="tmp.parent-ar-url"/>
+                <parameter name="target" value="{service-instance-id}"/>
+                <parameter name="replacement" value="`$cto-api.parent-service-instance-id`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$prop.restapi.network`"/>
+                <parameter name="outputPath" value="tmp.ar-parentnetwork-url"/>
+                <parameter name="target" value="{service-instance-id}"/>
+                <parameter name="replacement" value="`$cto-api.parent-service-instance-id`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='GET' />
+                <parameter name="responsePrefix" value="mdsal-ar" />
+                <outcome value='success'>
+                    <block atomic="true">
+                        <switch test='`$mdsal-ar.contrail-route-allotted-resource_length`'>
+                            <outcome value='1'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="Error: Existing contrail route allotted resource" />
+                                </return>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='Other'>
+                    <block atomic="true"></block>
+                </outcome>
+            </execute>
+            <set>
+                <parameter name='ar.allotted-resource-id' value="`$tmp.ar.allotted-resource-id` " />
+                <!--
+<parameter name='ar.allotted-resource-status.action' value="`$contrail-route-topology-operation-input.request-information.request-action` " /><parameter name='ar.allotted-resource-status.rpc-name' value="contrail-route-topology-operation" /><parameter name='ar.allotted-resource-status.rpc-action' value="`$contrail-route-topology-operation-input.sdnc-request-header.svc-action` " /><parameter name='ar.allotted-resource-data.allotted-resource-operation-information.request-information.' value="`$contrail-route-topology-operation-input.request-information.` " /><parameter name='ar.allotted-resource-data.allotted-resource-operation-information.sdnc-request-header.' value="`$contrail-route-topology-operation-input.sdnc-request-header.` " /><parameter name='ar.allotted-resource-data.allotted-resource-operation-information.service-information.' value="`$contrail-route-topology-operation-input.service-information.` " /><parameter name='ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.' value="`$contrail-route-topology-operation-input.allotted-resource-information.` " /><parameter name='ar.allotted-resource-data.allotted-resource-operation-information.contrail-route-request-input.' value="`$contrail-route-topology-operation-input.contrail-route-request-input.` " />
+-->
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$tmp.parent-ar-url`"/>
+                <parameter name="outputPath" value="tmp.parent-ar-url"/>
+                <parameter name="target" value="{allotted-resource-id}"/>
+                <parameter name="replacement" value="`$tmp.ar.allotted-resource-id`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$prop.restapi.network-provided-resource`"/>
+                <parameter name="outputPath" value="tmp.network-ar-url"/>
+                <parameter name="target" value="{service-instance-id}"/>
+                <parameter name="replacement" value="`$tmp.ar.parent-service-instance-id`"/>
+            </execute>
+            <block atomic='true'>
+                <set>
+                    <parameter name='tmp.ar-name' value='$source-network-name_$cloud-region-id_$source-network-role_$collector-network-role _policy_' />
+                </set>
+                <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                    <parameter name="source" value="`$tmp.ar-name`"/>
+                    <parameter name="outputPath" value="tmp.ar-name"/>
+                    <parameter name="target" value="$source-network-name"/>
+                    <parameter name="replacement" value="`$ctotmp.s-l3-network.network-name`"/>
+                </execute>
+                <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                    <parameter name="source" value="`$tmp.ar-name`"/>
+                    <parameter name="outputPath" value="tmp.ar-name"/>
+                    <parameter name="target" value="$cloud-region-id"/>
+                    <parameter name="replacement" value="`$cto-api.cloud-region-id`"/>
+                </execute>
+                <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                    <parameter name="source" value="`$tmp.ar-name`"/>
+                    <parameter name="outputPath" value="tmp.ar-name"/>
+                    <parameter name="target" value="$source-network-role"/>
+                    <parameter name="replacement" value="`$cto-api.source-network-role`"/>
+                </execute>
+                <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                    <parameter name="source" value="`$tmp.ar-name`"/>
+                    <parameter name="outputPath" value="tmp.ar-name"/>
+                    <parameter name="target" value="$collector-network-role"/>
+                    <parameter name="replacement" value="`$cto-api.collector-network-role`"/>
+                </execute>
+                <set>
+                    <parameter name='generate-unique-name-input.index-table-name' value='CONTRAIL_ROUTE_NAME_INDEX' />
+                    <parameter name='generate-unique-name-input.index-table-prefix-column' value='contrail_route_name_prefix' />
+                    <parameter name='generate-unique-name-input.name-table-type' value='CONTRAIL_ROUTE_INSTANCE' />
+                    <parameter name='generate-unique-name-input.prefix' value="`$tmp.ar-name`" />
+                    <parameter name='generate-unique-name-input.index-length' value='2' />
+                </set>
+                <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                    <parameter name="logger" value="message-log"/>
+                    <parameter name="field1" value="__TIMESTAMP__"/>
+                    <parameter name="field2" value="tmp.ar-name="/>
+                    <parameter name="field3" value="`$tmp.ar-name`"/>
+                    <parameter name="field4" value="generate-unique-name-input.prefix" />
+                    <parameter name="field5" value="`$generate-unique-name-input.prefix`" />
+                </record>
+                <call module='GENERIC-RESOURCE-API' rpc='generate-unique-name' mode='sync' >
+                    <outcome value='failure'>
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="`$generate-unique-name-output.error-message`" />
+                        </return>
+                    </outcome>
+                    <outcome value='success'>
+                        <set>
+                            <parameter name='tmp.ar-name' value='`$generate-unique-name-output.generated-name`' />
+                        </set>
+                    </outcome>
+                </call>
+                <set>
+                    <parameter name='ar-identifiers.allotted-resource-name' value='`$tmp.ar-name`' />
+                </set>
+            </block>
+            <set>
+                <parameter name='ar.allotted-resource-data.contrail-route-topology.allotted-resource-identifiers.' 
+value="`$ar-identifiers.`" />
+            </set>
+            <set>
+                <parameter name='ar-assignments.source-network.network-id' value="`$ctotmp.s-l3-network.network-id` " />
+                <parameter name='ar-assignments.source-network.network-role' value="`$cto-api.source-network-role` " />
+                <parameter name='ar-assignments.dest-network.network-id' value="`$ctotmp.c-l3-network.network-id` " />
+                <parameter name='ar-assignments.dest-network.network-role' value="`$cto-api.collector-network-role` " />
+            </set>
+            <set>
+                <parameter name='tmp.fq-name' value='$defaultDomain.$defaultProject.$sdncNetworkPolicy' />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$tmp.fq-name`"/>
+                <parameter name="outputPath" value="tmp.fq-name"/>
+                <parameter name="target" value="$defaultDomain"/>
+                <parameter name="replacement" value="`$cto-api.default-domain`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$tmp.fq-name`"/>
+                <parameter name="outputPath" value="tmp.fq-name"/>
+                <parameter name="target" value="$defaultProject"/>
+                <parameter name="replacement" value="`$cto-api.default-project`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$tmp.fq-name`"/>
+                <parameter name="outputPath" value="tmp.fq-name"/>
+                <parameter name="target" value="$sdncNetworkPolicy"/>
+                <parameter name="replacement" value="`$tmp.ar-name`"/>
+            </execute>
+            <set>
+                <parameter name='ar-assignments.fq-name' value="`$tmp.fq-name` " />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='setTime' >
+                <parameter name="outputPath" value="tmp.current-time" />
+            </execute>
+            <set>
+                <parameter name='ar.allotted-resource-data.allotted-resource-oper-status.order-status' value='Created' />
+                <parameter name='ar.allotted-resource-data.allotted-resource-oper-status.create-timestamp' value='`$tmp.current-time`' />
+            </set>
+            <switch test='`$cto-api.isTest`'>
+                <outcome value=''>
+                    <block atomic="true">
+                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                            <parameter name="logger" value="message-log"/>
+                            <parameter name="field1" value="__TIMESTAMP__"/>
+                            <parameter name="field2" value="GENERIC-RESOURCE-API.api-contrail-route-topology-operation-create"/>
+                            <parameter name='field3' value='network-policy' />
+                            <parameter name='field4' value='create' />
+                            <parameter name='field5' value='contrailResp' />
+                            <parameter name='field6' value='`$cto-api.default-domain`' />
+                            <parameter name='field7' value='`$ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.fq-name`' />
+                            <parameter name='field8' value='`$cto-api.default-project`' />
+                            <parameter name='field9' value='`$ctotmp.c-l3-network.contrail-network-fqdn`' />
+                            <parameter name='field10' value='`$ctotmp.s-l3-network.contrail-network-fqdn`' />
+                            <parameter name='field11' value='&lt;&gt;' />
+                            <parameter name='field12' value='`$cto-api.cloud-region-id`' />
+                        </record>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                            <parameter name='api-name' value='network-policy' />
+                            <parameter name='api-action' value='create' />
+                            <parameter name='resp-prefix' value='contrailResp' />
+                            <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                            <parameter name='policy-name' value='`$tmp.fq-name`' />
+                            <parameter name='default-project' value='`$cto-api.default-project`' />
+                            <!-- <parameter name='vipr-service-instance' value='`$ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.contrail-applied-service.contrail-fqdn`' /> -->
+                            <parameter name='dst-virtual-network' value='`$ctotmp.c-l3-network.contrail-network-fqdn`' />
+                            <parameter name='src-virtual-network' value='`$ctotmp.s-l3-network.contrail-network-fqdn`' />
+                            <parameter name='direction' value='&lt;&gt;' />
+                            <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                            <outcome value='success'>
+                                <block>
+                                    <set>
+                                        <parameter name="contrail-created" value="true" />
+                                    </set>
+                                </block>
+                            </outcome>
+                            <outcome value='failure'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="`'Failed to create policy in Contrail. '+ $contrailResp.resp-code + ':' +$contrailResp.resp-message `" />
+                                </return>
+                            </outcome>
+                        </execute>
+                        <set>
+                            <parameter name='ar-assignments.contrail-id' value="`$contrailResp.network-policy.uuid`" />
+                        </set>
+                    </block>
+                </outcome>
+                <outcome value='true'>
+                    <block atomic="true">
+                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                            <parameter name="logger" value="message-log"/>
+                            <parameter name="field1" value="__TIMESTAMP__"/>
+                            <parameter name="field2" value="GENERIC-RESOURCE-API.api-contrail-route-topology-operation-create"/>
+                            <parameter name='field3' value='network-policy' />
+                            <parameter name='field4' value='TESTcreate' />
+                            <parameter name='field5' value='contrailResp' />
+                            <parameter name='field6' value='`$cto-api.default-domain`' />
+                            <parameter name='field7' value='`$ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.fq-name`' />
+                            <parameter name='field8' value='`$cto-api.default-project`' />
+                            <parameter name='field10' value='`$ctotmp.c-l3-network.contrail-network-fqdn`' />
+                            <parameter name='field11' value='`$ctotmp.s-l3-network.contrail-network-fqdn`' />
+                            <parameter name='field12' value='&lt;&gt;' />
+                            <parameter name='field13' value='`$cto-api.cloud-region-id`' />
+                        </record>
+                        <set>
+                            <parameter name='ar-assignments.contrail-id' value="dummy12345" />
+                        </set>
+                    </block>
+                </outcome>
+                <outcome value='Other'>
+                    <block atomic="true">
+                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                            <parameter name="logger" value="message-log"/>
+                            <parameter name="field1" value="__TIMESTAMP__"/>
+                            <parameter name="field2" value="GENERIC-RESOURCE-API.api-contrail-route-topology-operation-create"/>
+                            <parameter name='field3' value='network-policy' />
+                            <parameter name='field4' value='create' />
+                            <parameter name='field5' value='contrailResp' />
+                            <parameter name='field6' value='`$cto-api.default-domain`' />
+                            <parameter name='field7' value='`$ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.fq-name`' />
+                            <parameter name='field8' value='`$cto-api.default-project`' />
+                            <parameter name='field9' value='`$ctotmp.c-l3-network.contrail-network-fqdn`' />
+                            <parameter name='field10' value='`$ctotmp.s-l3-network.contrail-network-fqdn`' />
+                            <parameter name='field11' value='&lt;&gt;' />
+                            <parameter name='field12' value='`$cto-api.cloud-region-id`' />
+                        </record>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                            <parameter name='api-name' value='network-policy' />
+                            <parameter name='api-action' value='create' />
+                            <parameter name='resp-prefix' value='contrailResp' />
+                            <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                            <parameter name='policy-name' value='`$tmp.fq-name`' />
+                            <parameter name='default-project' value='`$cto-api.default-project`' />
+                            <!-- <parameter name='vipr-service-instance' value='`$ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.contrail-applied-service.contrail-fqdn`' /> -->
+                            <parameter name='dst-virtual-network' value='`$ctotmp.c-l3-network.contrail-network-fqdn`' />
+                            <parameter name='src-virtual-network' value='`$ctotmp.s-l3-network.contrail-network-fqdn`' />
+                            <parameter name='direction' value='&lt;&gt;' />
+                            <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                            <outcome value='success'>
+                                <block>
+                                    <set>
+                                        <parameter name="contrail-created" value="true" />
+                                    </set>
+                                </block>
+                            </outcome>
+                            <outcome value='failure'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="`'Failed to create policy in Contrail. '+ $contrailResp.resp-code + ':' +$contrailResp.resp-message `" />
+                                </return>
+                            </outcome>
+                        </execute>
+                        <set>
+                            <parameter name='ar-assignments.contrail-id' value="`$contrailResp.network-policy.uuid`" />
+                        </set>
+                    </block>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.' 
+value="`$ar-assignments.`" />
+            </set>
+            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="network-policy" 
+		key="network-policy.network-policy-id = $ar-assignments.contrail-id" >
+                <!-- Create network-policy object -->
+                <parameter name="network-policy-id" value="`$ar-assignments.contrail-id`" />
+                <parameter name="network-policy-fqdn" value="`$ar-assignments.fq-name`" />
+                <outcome value='success'>
+                    <block>
+                        <set>
+                            <parameter name="np-aai-created" value="" />
+                        </set>
+                    </block>
+                </outcome>
+                <outcome value='failure'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="Failed to save network-policy in AAI"/>
+                        </set>
+                        <block>
+                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                <parameter name="logger" value="message-log"/>
+                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                <parameter name="field2" value="ROLLING BACK the create due to error"/>
+                            </record>
+                            <switch test='`$np-aai-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="network-policy" 
+		key="network-policy.network-policy-id = $ar-assignments.contrail-id" >
+                                            <outcome value='failure'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                        </delete>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <switch test='`$contrail-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                                            <parameter name='api-name' value='network-policy' />
+                                            <parameter name='api-action' value='delete' />
+                                            <parameter name='resp-prefix' value='contrailResp' />
+                                            <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                                            <parameter name='default-project' value='`$cto-api.default-project`' />
+                                            <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                                            <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                                            <outcome value='success'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                            <outcome value='failure'></outcome>
+                                        </execute>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <switch test='`$ar-aai-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="allotted-resource" 
+		key="customer.global-customer-id = $service-data.service-information.global-customer-id AND
+			service-subscription.service-type = $service-data.service-information.subscription-service-type AND
+			service-instance.service-instance-id = $service-data.service-information.service-instance-id AND
+			allotted-resource.id = $cto-api.contrail-route-allotted-resource-id">
+                                            <outcome value='failure'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                        </delete>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <switch test='`$ar-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                            <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.cr.templatefile`" />
+                                            <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />
+                                            <parameter name='restapiUser' value='`$prop.controller.user`' />
+                                            <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                                            <parameter name='format' value='json' />
+                                            <parameter name='httpMethod' value='DELETE' />
+                                            <parameter name="responsePrefix" value="mdsal-ar" />
+                                            <outcome value='failure'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                        </execute>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500'/>
+                                <parameter name='error-message' value="`'Error creating contrail route - ' + $tmp.error-message`"/>
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+                <outcome value='not-found'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="Failed to save network-policy in AAI"/>
+                        </set>
+                        <block>
+                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                <parameter name="logger" value="message-log"/>
+                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                <parameter name="field2" value="ROLLING BACK the create due to error"/>
+                            </record>
+                            <switch test='`$np-aai-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="network-policy" 
+		key="network-policy.network-policy-id = $ar-assignments.contrail-id" >
+                                            <outcome value='failure'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                        </delete>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <switch test='`$contrail-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                                            <parameter name='api-name' value='network-policy' />
+                                            <parameter name='api-action' value='delete' />
+                                            <parameter name='resp-prefix' value='contrailResp' />
+                                            <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                                            <parameter name='default-project' value='`$cto-api.default-project`' />
+                                            <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                                            <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                                            <outcome value='success'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                            <outcome value='failure'></outcome>
+                                        </execute>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <switch test='`$ar-aai-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="allotted-resource" 
+		key="customer.global-customer-id = $service-data.service-information.global-customer-id AND
+			service-subscription.service-type = $service-data.service-information.subscription-service-type AND
+			service-instance.service-instance-id = $service-data.service-information.service-instance-id AND
+			allotted-resource.id = $cto-api.contrail-route-allotted-resource-id">
+                                            <outcome value='failure'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                        </delete>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <switch test='`$ar-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                            <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.cr.templatefile`" />
+                                            <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />
+                                            <parameter name='restapiUser' value='`$prop.controller.user`' />
+                                            <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                                            <parameter name='format' value='json' />
+                                            <parameter name='httpMethod' value='DELETE' />
+                                            <parameter name="responsePrefix" value="mdsal-ar" />
+                                            <outcome value='failure'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                        </execute>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500'/>
+                                <parameter name='error-message' value="`'Error creating contrail route - ' + $tmp.error-message`"/>
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+            </save>
+            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="allotted-resource" 
+		key="customer.global-customer-id = $service-data.service-information.global-customer-id AND
+			service-subscription.service-type = $cto-api.service-type AND
+			service-instance.service-instance-id = $cto-api.parent-service-instance-id AND
+			allotted-resource.id = $tmp.ar.allotted-resource-id"
+        pfx='pfx' local-only='false' force='false'>
+                <parameter name="id" value="`$tmp.ar.allotted-resource-id`" />
+                <parameter name="description" value="`$tmp.ar.allotted-resource-type`" />
+                <parameter name="selflink" value="`$tmp.ar.self-link`" />
+                <parameter name="operational-status" value="out-of-service-path" />
+                <parameter name="order-status" value="Created" />
+                <outcome value='success'>
+                    <block>
+                        <set>
+                            <parameter name="ar-aai-created" value="" />
+                        </set>
+                    </block>
+                </outcome>
+                <outcome value='failure'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="Failed to save allotted resource in AAI"/>
+                        </set>
+                        <block>
+                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                <parameter name="logger" value="message-log"/>
+                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                <parameter name="field2" value="ROLLING BACK the create due to error"/>
+                            </record>
+                            <switch test='`$np-aai-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="network-policy" 
+		key="network-policy.network-policy-id = $ar-assignments.contrail-id" >
+                                            <outcome value='failure'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                        </delete>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <switch test='`$contrail-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                                            <parameter name='api-name' value='network-policy' />
+                                            <parameter name='api-action' value='delete' />
+                                            <parameter name='resp-prefix' value='contrailResp' />
+                                            <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                                            <parameter name='default-project' value='`$cto-api.default-project`' />
+                                            <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                                            <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                                            <outcome value='success'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                            <outcome value='failure'></outcome>
+                                        </execute>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <switch test='`$ar-aai-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="allotted-resource" 
+		key="customer.global-customer-id = $service-data.service-information.global-customer-id AND
+			service-subscription.service-type = $service-data.service-information.subscription-service-type AND
+			service-instance.service-instance-id = $service-data.service-information.service-instance-id AND
+			allotted-resource.id = $cto-api.contrail-route-allotted-resource-id">
+                                            <outcome value='failure'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                        </delete>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <switch test='`$ar-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                            <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.cr.templatefile`" />
+                                            <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />
+                                            <parameter name='restapiUser' value='`$prop.controller.user`' />
+                                            <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                                            <parameter name='format' value='json' />
+                                            <parameter name='httpMethod' value='DELETE' />
+                                            <parameter name="responsePrefix" value="mdsal-ar" />
+                                            <outcome value='failure'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                        </execute>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500'/>
+                                <parameter name='error-message' value="`'Error creating contrail route - ' + $tmp.error-message`"/>
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+                <outcome value='not-found'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="Failed to save allotted resource in AAI"/>
+                        </set>
+                        <block>
+                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                <parameter name="logger" value="message-log"/>
+                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                <parameter name="field2" value="ROLLING BACK the create due to error"/>
+                            </record>
+                            <switch test='`$np-aai-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="network-policy" 
+		key="network-policy.network-policy-id = $ar-assignments.contrail-id" >
+                                            <outcome value='failure'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                        </delete>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <switch test='`$contrail-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                                            <parameter name='api-name' value='network-policy' />
+                                            <parameter name='api-action' value='delete' />
+                                            <parameter name='resp-prefix' value='contrailResp' />
+                                            <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                                            <parameter name='default-project' value='`$cto-api.default-project`' />
+                                            <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                                            <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                                            <outcome value='success'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                            <outcome value='failure'></outcome>
+                                        </execute>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <switch test='`$ar-aai-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="allotted-resource" 
+		key="customer.global-customer-id = $service-data.service-information.global-customer-id AND
+			service-subscription.service-type = $service-data.service-information.subscription-service-type AND
+			service-instance.service-instance-id = $service-data.service-information.service-instance-id AND
+			allotted-resource.id = $cto-api.contrail-route-allotted-resource-id">
+                                            <outcome value='failure'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                        </delete>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <switch test='`$ar-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                            <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.cr.templatefile`" />
+                                            <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />
+                                            <parameter name='restapiUser' value='`$prop.controller.user`' />
+                                            <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                                            <parameter name='format' value='json' />
+                                            <parameter name='httpMethod' value='DELETE' />
+                                            <parameter name="responsePrefix" value="mdsal-ar" />
+                                            <outcome value='failure'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                        </execute>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500'/>
+                                <parameter name='error-message' value="`'Error creating contrail route - ' + $tmp.error-message`"/>
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+            </save>
+            <switch test='`$service-data.consumed-allotted-resources.consumed-allotted-resource_length`'>
+                <outcome value=''>
+                    <set>
+                        <parameter name='tmp.cidx' value="`0`" />
+                        <parameter name='service-data.consumed-allotted-resources.consumed-allotted-resource_length' value="1" />
+                    </set>
+                </outcome>
+                <outcome value='Other'>
+                    <block atomic="true">
+                        <for index='cidx' start='0' end='`$service-data.consumed-allotted-resources.consumed-allotted-resource_length`' >
+                            <switch test="`$service-data.consumed-allotted-resources.consumed-allotted-resource[$cidx].allotted-resource-id == $tmp.ar.allotted-resource-id`">
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <set>
+                                            <parameter name='tmp.cidx' value='`$cidx`' />
+                                            <parameter name='ctx.consumed-ar.' value='`$service-data.consumed-allotted-resources.consumed-allotted-resource[$cidx].`' />
+                                            <parameter name='tmp.found-cidx' value='true' />
+                                        </set>
+                                        <break/>
+                                    </block>
+                                </outcome>
+                            </switch>
+                        </for>
+                        <switch test='`$tmp.found-cidx`'>
+                            <outcome value='false'>
+                                <block atomic="true">
+                                    <set>
+                                        <parameter name='tmp.cidx' value='`$service-data.consumed-allotted-resources.consumed-allotted-resource_length`' />
+                                    </set>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='service-data.consumed-allotted-resources.consumed-allotted-resource[$tmp.cidx].allotted-resource-id' value="`$tmp.ar.allotted-resource-id` " />
+                <parameter name='service-data.consumed-allotted-resources.consumed-allotted-resource[$tmp.cidx].allotted-resource-type' value="`$tmp.ar.allotted-resource-type` " />
+                <parameter name='service-data.consumed-allotted-resources.consumed-allotted-resource[$tmp.cidx].allotted-resource-pointer' value="`$tmp.ar.self-link` " />
+                <parameter name='service-data.consumed-allotted-resources.consumed-allotted-resource_length' value='`$tmp.cidx + 1`' />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.parentsvc.templatefile`" />
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.parent-ar-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='PUT' />
+                <parameter name="responsePrefix" value="parent" />
+                <outcome value='success'>
+                    <block></block>
+                </outcome>
+                <outcome value='failure'>
+                    <block>
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="Error updating md-sal for contrail-route-allotted-resource"/>
+                        </set>
+                        <block>
+                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                <parameter name="logger" value="message-log"/>
+                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                <parameter name="field2" value="ROLLING BACK the create due to error"/>
+                            </record>
+                            <switch test='`$np-aai-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="network-policy" 
+		key="network-policy.network-policy-id = $ar-assignments.contrail-id" >
+                                            <outcome value='failure'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                        </delete>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <switch test='`$contrail-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                                            <parameter name='api-name' value='network-policy' />
+                                            <parameter name='api-action' value='delete' />
+                                            <parameter name='resp-prefix' value='contrailResp' />
+                                            <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                                            <parameter name='default-project' value='`$cto-api.default-project`' />
+                                            <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                                            <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                                            <outcome value='success'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                            <outcome value='failure'></outcome>
+                                        </execute>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <switch test='`$ar-aai-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="allotted-resource" 
+		key="customer.global-customer-id = $service-data.service-information.global-customer-id AND
+			service-subscription.service-type = $service-data.service-information.subscription-service-type AND
+			service-instance.service-instance-id = $service-data.service-information.service-instance-id AND
+			allotted-resource.id = $cto-api.contrail-route-allotted-resource-id">
+                                            <outcome value='failure'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                        </delete>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <switch test='`$ar-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                            <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.cr.templatefile`" />
+                                            <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />
+                                            <parameter name='restapiUser' value='`$prop.controller.user`' />
+                                            <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                                            <parameter name='format' value='json' />
+                                            <parameter name='httpMethod' value='DELETE' />
+                                            <parameter name="responsePrefix" value="mdsal-ar" />
+                                            <outcome value='failure'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                        </execute>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500'/>
+                                <parameter name='error-message' value="`'Error creating contrail route - ' + $tmp.error-message`"/>
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+                <outcome value='not-found'>
+                    <block>
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="Error updating md-sal for contrail-route-allotted-resource"/>
+                        </set>
+                        <block>
+                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                <parameter name="logger" value="message-log"/>
+                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                <parameter name="field2" value="ROLLING BACK the create due to error"/>
+                            </record>
+                            <switch test='`$np-aai-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="network-policy" 
+		key="network-policy.network-policy-id = $ar-assignments.contrail-id" >
+                                            <outcome value='failure'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                        </delete>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <switch test='`$contrail-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                                            <parameter name='api-name' value='network-policy' />
+                                            <parameter name='api-action' value='delete' />
+                                            <parameter name='resp-prefix' value='contrailResp' />
+                                            <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                                            <parameter name='default-project' value='`$cto-api.default-project`' />
+                                            <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                                            <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                                            <outcome value='success'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                            <outcome value='failure'></outcome>
+                                        </execute>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <switch test='`$ar-aai-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="allotted-resource" 
+		key="customer.global-customer-id = $service-data.service-information.global-customer-id AND
+			service-subscription.service-type = $service-data.service-information.subscription-service-type AND
+			service-instance.service-instance-id = $service-data.service-information.service-instance-id AND
+			allotted-resource.id = $cto-api.contrail-route-allotted-resource-id">
+                                            <outcome value='failure'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                        </delete>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <switch test='`$ar-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                            <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.cr.templatefile`" />
+                                            <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />
+                                            <parameter name='restapiUser' value='`$prop.controller.user`' />
+                                            <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                                            <parameter name='format' value='json' />
+                                            <parameter name='httpMethod' value='DELETE' />
+                                            <parameter name="responsePrefix" value="mdsal-ar" />
+                                            <outcome value='failure'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                        </execute>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500'/>
+                                <parameter name='error-message' value="`'Error creating contrail route - ' + $tmp.error-message`"/>
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.cr.templatefile`" />
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='PUT' />
+                <parameter name="responsePrefix" value="mdsal-ar" />
+                <outcome value='success'>
+                    <block>
+                        <set>
+                            <parameter name="ar-created" value="true" />
+                        </set>
+                    </block>
+                </outcome>
+                <outcome value='failure'>
+                    <block>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                            <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.parentsvc.templatefile`" />
+                            <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.parent-ar-url`' />
+                            <parameter name='restapiUser' value='`$prop.controller.user`' />
+                            <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                            <parameter name='format' value='json' />
+                            <parameter name='httpMethod' value='DELETE' />
+                            <parameter name="responsePrefix" value="parent" />
+                            <outcome value='success'>
+                                <block></block>
+                            </outcome>
+                            <outcome value='failure'>
+                                <block></block>
+                            </outcome>
+                            <outcome value='not-found'>
+                                <block></block>
+                            </outcome>
+                        </execute>
+                        <block>
+                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                <parameter name="logger" value="message-log"/>
+                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                <parameter name="field2" value="ROLLING BACK the create due to error"/>
+                            </record>
+                            <switch test='`$np-aai-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="network-policy" 
+		key="network-policy.network-policy-id = $ar-assignments.contrail-id" >
+                                            <outcome value='failure'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                        </delete>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <switch test='`$contrail-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                                            <parameter name='api-name' value='network-policy' />
+                                            <parameter name='api-action' value='delete' />
+                                            <parameter name='resp-prefix' value='contrailResp' />
+                                            <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                                            <parameter name='default-project' value='`$cto-api.default-project`' />
+                                            <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                                            <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                                            <outcome value='success'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                            <outcome value='failure'></outcome>
+                                        </execute>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <switch test='`$ar-aai-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="allotted-resource" 
+		key="customer.global-customer-id = $service-data.service-information.global-customer-id AND
+			service-subscription.service-type = $service-data.service-information.subscription-service-type AND
+			service-instance.service-instance-id = $service-data.service-information.service-instance-id AND
+			allotted-resource.id = $cto-api.contrail-route-allotted-resource-id">
+                                            <outcome value='failure'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                        </delete>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <switch test='`$ar-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                            <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.cr.templatefile`" />
+                                            <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />
+                                            <parameter name='restapiUser' value='`$prop.controller.user`' />
+                                            <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                                            <parameter name='format' value='json' />
+                                            <parameter name='httpMethod' value='DELETE' />
+                                            <parameter name="responsePrefix" value="mdsal-ar" />
+                                            <outcome value='failure'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                        </execute>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500'/>
+                                <parameter name='error-message' value="`'Error creating contrail route - ' + $tmp.error-message`"/>
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+                <outcome value='not-found'>
+                    <block>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                            <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.parentsvc.templatefile`" />
+                            <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.parent-ar-url`' />
+                            <parameter name='restapiUser' value='`$prop.controller.user`' />
+                            <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                            <parameter name='format' value='json' />
+                            <parameter name='httpMethod' value='DELETE' />
+                            <parameter name="responsePrefix" value="parent" />
+                            <outcome value='success'>
+                                <block></block>
+                            </outcome>
+                            <outcome value='failure'>
+                                <block></block>
+                            </outcome>
+                            <outcome value='not-found'>
+                                <block></block>
+                            </outcome>
+                        </execute>
+                        <block>
+                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                <parameter name="logger" value="message-log"/>
+                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                <parameter name="field2" value="ROLLING BACK the create due to error"/>
+                            </record>
+                            <switch test='`$np-aai-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="network-policy" 
+		key="network-policy.network-policy-id = $ar-assignments.contrail-id" >
+                                            <outcome value='failure'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                        </delete>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <switch test='`$contrail-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                                            <parameter name='api-name' value='network-policy' />
+                                            <parameter name='api-action' value='delete' />
+                                            <parameter name='resp-prefix' value='contrailResp' />
+                                            <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                                            <parameter name='default-project' value='`$cto-api.default-project`' />
+                                            <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                                            <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                                            <outcome value='success'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                            <outcome value='failure'></outcome>
+                                        </execute>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <switch test='`$ar-aai-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="allotted-resource" 
+		key="customer.global-customer-id = $service-data.service-information.global-customer-id AND
+			service-subscription.service-type = $service-data.service-information.subscription-service-type AND
+			service-instance.service-instance-id = $service-data.service-information.service-instance-id AND
+			allotted-resource.id = $cto-api.contrail-route-allotted-resource-id">
+                                            <outcome value='failure'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                        </delete>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <switch test='`$ar-created`'>
+                                <outcome value=''></outcome>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                            <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.cr.templatefile`" />
+                                            <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />
+                                            <parameter name='restapiUser' value='`$prop.controller.user`' />
+                                            <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                                            <parameter name='format' value='json' />
+                                            <parameter name='httpMethod' value='DELETE' />
+                                            <parameter name="responsePrefix" value="mdsal-ar" />
+                                            <outcome value='failure'></outcome>
+                                            <outcome value='not-found'></outcome>
+                                        </execute>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500'/>
+                                <parameter name='error-message' value="`'Error creating contrail route - ' + $tmp.error-message`"/>
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+            </execute>
+            <set>
+                <parameter name='cto-api.contrail-route-allotted-instance-id' value='`$tmp.ar.allotted-resource-id`' />
+            </set>
+            <set>
+                <parameter name='ctotmp.' value='' />
+            </set>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="`$error-message`" />
+            </return>
+        </block>
+    </method>
+</service-logic>

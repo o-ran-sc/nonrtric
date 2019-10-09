@@ -1,0 +1,569 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='getpathsegment-populate-from-vnfapi' mode='sync'>
+        <block atomic='true'>
+            <set>
+                <parameter name="serv-inst.api" value= ""/>
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                <parameter name='contextPrefix' value='prop' />
+                <outcome value='success'>
+                    <block>
+                        <record  plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                            <parameter name="logger" value="message-log"/>
+                            <parameter name="field1" value="__TIMESTAMP__"/>
+                            <parameter name="field2" value="LAINA: getpathsegment-populate-from-vnfapi: read properties file."/>
+                        </record>
+                    </block>
+                </outcome>
+                <outcome value='failure'>
+                    <block>
+                        <record  plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                            <parameter name="logger" value="message-log"/>
+                            <parameter name="field1" value="__TIMESTAMP__"/>
+                            <parameter name="field2" value="LAINA: getpathsegment-populate-from-vnfapi: Could not read properties file."/>
+                            <parameter name="field3" value='`$prop.restapi.pm.getpolicy.templatefile`'/>
+                        </record>
+                        <set>
+                            <parameter name="serv-inst.api" value= ""/>
+                            <parameter name="error-message" value="Could not read properties file" />
+                        </set>
+                    </block>
+                </outcome>
+            </execute>
+            <switch test='`$serv-inst.service-instance-id`'>
+                <outcome value=''>
+                    <block>
+                        <record  plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                            <parameter name="logger" value="message-log"/>
+                            <parameter name="field1" value="__TIMESTAMP__"/>
+                            <parameter name="field2" value="LAINA: getpathsegment-populate-from-vnfapi: input service-instance-id is not set"/>
+                        </record>
+                        <set>
+                            <parameter name="serv-inst.api" value= ""/>
+                            <parameter name="error-message" value="serv-inst.service-instance-id is not set" />
+                        </set>
+                    </block>
+                </outcome>
+            </switch>
+            <switch test='`$match-type`'>
+                <outcome value=''>
+                    <block>
+                        <record  plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                            <parameter name="logger" value="message-log"/>
+                            <parameter name="field1" value="__TIMESTAMP__"/>
+                            <parameter name="field2" value="LAINA: getpathsegment-populate-from-vnfapi: input match-type is not set"/>
+                        </record>
+                        <set>
+                            <parameter name="serv-inst.api" value= ""/>
+                            <parameter name="error-message" value="input match-type is not set" />
+                        </set>
+                    </block>
+                </outcome>
+            </switch>
+            <switch test='`$vnf-ids_length`'>
+                <outcome value=''>
+                    <block>
+                        <set>
+                            <parameter name="path-type" value= "COMPOSITE"/>
+                        </set>
+                        <record  plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                            <parameter name="logger" value="message-log"/>
+                            <parameter name="field1" value="__TIMESTAMP__"/>
+                            <parameter name="field2" value="LAINA: getpathsegment-populate-from-vnfapi: input vnf-ids_length is blank, this is a COMPOSITE path"/>
+                        </record>
+                    </block>
+                </outcome>
+                <outcome value='Other'>
+                    <block>
+                        <set>
+                            <parameter name="path-type" value= "SIMPLE"/>
+                        </set>
+                        <record  plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                            <parameter name="logger" value="message-log"/>
+                            <parameter name="field1" value="__TIMESTAMP__"/>
+                            <parameter name="field2" value="LAINA: getpathsegment-populate-from-vnfapi: input vnf-ids_length is NOT blank, this is a SIMPLE path"/>
+                        </record>
+                    </block>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name="vnfListIndex" value= "0"/>
+            </set>
+            <switch test='`$path-type`'>
+                <outcome value='SIMPLE'>
+                    <block>
+                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                            <parameter name="logger" value="message-log"/>
+                            <parameter name="field1" value="__TIMESTAMP__"/>
+                            <parameter name="field2" value="LAINA: getpathsegment-populate-from-vnfapi: Call AAI custom query vfModule-fromServiceInstance to get vf-module-ids"/>
+                        </record>
+                        <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+      resource="custom-query"
+      key="format = 'resource'"
+      force="true"
+      local-only="false"
+      pfx="tmp.AnAI-data.vf-module-ids">
+                            <parameter name="start[0]" value="`'/nodes/service-instances/service-instance?service-instance-id=' + $serv-inst.service-instance-id `" />
+                            <!--<parameter name="start[0]" value="`'/business/customers/customer/bgb-customer/service-subscriptions/service-subscription/bgb-service-type/service-instances' `" />-->
+                            <!--<parameter name="start[0]" value="`'/business/customers/customer/la-customer/service-subscriptions/service-subscription/la-service-type/service-instances' `" />-->
+                            <parameter name="start_length" value="1" />
+                            <parameter name="query" value="/query/vfModule-fromServiceInstance" />
+                            <!--<parameter name="query" value="/query/vnfs-fromServiceInstance" /> -->
+                            <outcome value='failure'>
+                                <block>
+                                    <set>
+                                        <parameter name="error-message" value="Failed call to AAI custom query: vfModule-fromServiceInstance" />
+                                        <parameter name="serv-inst.api" value= ""/>
+                                        <parameter name='tmp.vf-module-ids_length' value='0' />
+                                        <parameter name='tmp.vnf-instances_length' value='0' />
+                                    </set>
+                                </block>
+                            </outcome>
+                            <outcome value='not-found'>
+                                <block>
+                                    <set>
+                                        <parameter name="error-message" value="No vfModules returned from AAI: vfModule-fromService-instance" />
+                                        <parameter name="serv-inst.api" value= ""/>
+                                    </set>
+                                </block>
+                            </outcome>
+                            <outcome value='success'>
+                                <block>
+                                    <for index='vfModuleResultIndex' start='0' end='`$tmp.AnAI-data.vf-module-ids.results_length`' >
+                                        <set>
+                                            <parameter name="`'tmp.vf-module-ids[' + $vfModuleResultIndex + ']'`" value='`$tmp.AnAI-data.vf-module-ids.results[$vfModuleResultIndex].vf-module.vf-module-id`' />
+                                        </set>
+                                    </for>
+                                    <set>
+                                        <parameter name='tmp.vf-module-ids_length' value='`$tmp.AnAI-data.vf-module-ids.results_length`' />
+                                    </set>
+                                </block>
+                            </outcome>
+                        </save>
+                        <set>
+                            <parameter name="tmp.triplet-list_length" value= "0" />
+                            <parameter name="tmp.tripletListIndex" value= "0" />
+                            <parameter name="tmp.vnf-instances_length" value= "0" />
+                            <parameter name="tmp.vnfInstancesIndex" value= "0" />
+                            <parameter name="tmp.mdsal-error-encountered" value= "false"/>
+                        </set>
+                        <for index='vfModuleIndex' start='0' end='`$tmp.vf-module-ids_length`' >
+                            <block>
+                                <set>
+                                    <parameter name="tmp.vnf-url" value="`'/restconf/config/VNF-API:vnfs/vnf-list/' + $tmp.vf-module-ids[$vfModuleIndex]`" />
+                                </set>
+                                <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                    <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.vnf-url`' />
+                                    <parameter name='restapiUser' value='`$prop.controller.user`' />
+                                    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                                    <parameter name='format' value='json' />
+                                    <parameter name='httpMethod' value='GET' />
+                                    <parameter name="responsePrefix" value="vnf-mdsal" />
+                                    <outcome value='failure'>
+                                        <block>
+                                            <set>
+                                                <parameter name="error-message" value="Failed to read vnf info from MD-SAL" />
+                                                <parameter name="serv-inst.api" value= ""/>
+                                                <parameter name="tmp.mdsal-error-encountered" value= "true"/>
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                    <outcome value='not-found'>
+                                        <block>
+                                            <set>
+                                                <parameter name="error-message" value="Cannot find vnf info in MD-SAL" />
+                                                <parameter name="serv-inst.api" value= ""/>
+                                                <parameter name="tmp.mdsal-error-encountered" value= "true"/>
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                    <outcome value='success'>
+                                        <block>
+                                            <set>
+                                                <parameter name="`'tmp.vnf-instances[' + $tmp.vnfInstancesIndex + ']'`." value= '`$vnf-mdsal.vnf-list[0].`' />
+                                                <parameter name="genericVnfIdFound" value= 'false' />
+                                            </set>
+                                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                <parameter name="logger" value="message-log"/>
+                                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                                <parameter name="field2" value="LAINA: getpathsegment-populate-from-vnfapi: MDSAL vnf-instances vnf-id|generic-vnf-id: "/>
+                                                <parameter name="field3" value='`$tmp.vnf-instances[$tmp.vnfInstancesIndex].service-data.vnf-request-information.vnf-id`' />
+                                                <parameter name="field4" value='`$tmp.vnf-instances[$tmp.vnfInstancesIndex].service-data.vnf-request-information.generic-vnf-id`' />
+                                            </record>
+                                            <for index='tmp.tripletListIndex2' start='0' end='`$tmp.triplet-list_length`' >
+                                                <switch test='`$tmp.triplet-list[$tmp.tripletListIndex2].generic-vnf-id == $tmp.vnf-instances[$tmp.vnfInstancesIndex].service-data.vnf-request-information.generic-vnf-id`'>
+                                                    <outcome value='false'></outcome>
+                                                    <outcome value='true'>
+                                                        <set>
+                                                            <parameter name="genericVnfIdFound" value= 'true' />
+                                                        </set>
+                                                    </outcome>
+                                                </switch>
+                                            </for>
+                                            <switch test='`$genericVnfIdFound`'>
+                                                <outcome value='false'>
+                                                    <block>
+                                                        <set>
+                                                            <parameter name="`'tmp.triplet-list[' + $tmp.tripletListIndex + '].generic-vnf-id'`" value= '`$vnf-mdsal.vnf-list[0].service-data.vnf-request-information.generic-vnf-id`' />
+                                                            <parameter name="`'tmp.triplet-list[' + $tmp.tripletListIndex + '].vf-module-id'`" value= '`$tmp.vf-module-ids[$vfModuleIndex]`' />
+                                                            <parameter name="tmp.triplet-list_length" value= '`$tmp.triplet-list_length + 1`'/>
+                                                            <parameter name="tmp.tripletListIndex" value= '`$tmp.tripletListIndex + 1`'/>
+                                                        </set>
+                                                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                            <parameter name="logger" value="message-log"/>
+                                                            <parameter name="field1" value="__TIMESTAMP__"/>
+                                                            <parameter name="field2" value="LAINA: getpathsegment-populate-from-vnfapi: generic-vnf-id in NOT found in triplet-list, add it"/>
+                                                        </record>
+                                                    </block>
+                                                </outcome>
+                                                <outcome value='true'>
+                                                    <block>
+                                                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                            <parameter name="logger" value="message-log"/>
+                                                            <parameter name="field1" value="__TIMESTAMP__"/>
+                                                            <parameter name="field2" value="LAINA: getpathsegment-populate-from-vnfapi: generic-vnf-id is already in triplet-list, don't add it"/>
+                                                        </record>
+                                                    </block>
+                                                </outcome>
+                                            </switch>
+                                            <set>
+                                                <parameter name="tmp.vnfInstancesIndex" value= '`$tmp.vnfInstancesIndex + 1`'/>
+                                                <parameter name="tmp.vnf-instances_length" value= '`$tmp.vnf-instances_length + 1`'/>
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                </execute>
+                            </block>
+                        </for>
+                        <switch test='`$tmp.mdsal-error-encountered`'>
+                            <outcome value='false'>
+                                <block>
+                                    <for index='tmp.tripletListIndex' start='0' end='`$tmp.triplet-list_length`' >
+                                        <block>
+                                            <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="generic-vnf"
+        key="generic-vnf.vnf-id = $tmp.triplet-list[$tmp.tripletListIndex].generic-vnf-id"
+        pfx='aai.generic-vnf' local-only='false' >
+                                                <outcome value='success'>
+                                                    <switch test='`$aai.generic-vnf.model-customization-id`'>
+                                                        <outcome value=''>
+                                                            <block>
+                                                                <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                                    <parameter name="logger" value="message-log"/>
+                                                                    <parameter name="field1" value="__TIMESTAMP__"/>
+                                                                    <parameter name="field2" value="LAINA: getpathsegment-populate-from-vnfapi: model-customization-id is BLANK for vf-module-id|generic-vnf-id: "/>
+                                                                    <parameter name="field3" value='`$tmp.triplet-list[$tmp.tripletListIndex].vf-module-id`'/>
+                                                                    <parameter name="field4" value='`$tmp.triplet-list[$tmp.tripletListIndex].generic-vnf-id`'/>
+                                                                </record>
+                                                            </block>
+                                                        </outcome>
+                                                        <outcome value='Other'>
+                                                            <block>
+                                                                <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                                    <parameter name="logger" value="message-log"/>
+                                                                    <parameter name="field1" value="__TIMESTAMP__"/>
+                                                                    <parameter name="field2" value="LAINA: getpathsegment-populate-from-vnfapi: Set model-customization-id for vf-module-id|generic-vnf-id: "/>
+                                                                    <parameter name="field3" value='`$tmp.triplet-list[$tmp.tripletListIndex].vf-module-id`'/>
+                                                                    <parameter name="field4" value='`$tmp.triplet-list[$tmp.tripletListIndex].generic-vnf-id`'/>
+                                                                    <parameter name="field5" value='`$aai.generic-vnf.model-customization-id`'/>
+                                                                </record>
+                                                                <set>
+                                                                    <parameter name="`'tmp.triplet-list[' + $tmp.tripletListIndex + '].model-customization-id'`" value= '`$aai.generic-vnf.model-customization-id`' />
+                                                                </set>
+                                                            </block>
+                                                        </outcome>
+                                                    </switch>
+                                                </outcome>
+                                                <outcome value='not-found'>
+                                                    <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                        <parameter name="logger" value="message-log"/>
+                                                        <parameter name="field1" value="__TIMESTAMP__"/>
+                                                        <parameter name="field2" value="LAINA: getpathsegment-populate-from-vnfapi: generic-vnf not found in AAI for generic-vnf-id: "/>
+                                                        <parameter name="field4" value='`$tmp.triplet-list[$tmp.tripletListIndex].generic-vnf-id`'/>
+                                                    </record>
+                                                </outcome>
+                                                <outcome value='Other'>
+                                                    <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                        <parameter name="logger" value="message-log"/>
+                                                        <parameter name="field1" value="__TIMESTAMP__"/>
+                                                        <parameter name="field2" value="LAINA: getpathsegment-populate-from-vnfapi: unable to access AAI for generic-vnf-id: "/>
+                                                        <parameter name="field4" value='`$tmp.triplet-list[$tmp.tripletListIndex].generic-vnf-id`'/>
+                                                    </record>
+                                                </outcome>
+                                            </get-resource>
+                                        </block>
+                                    </for>
+                                </block>
+                            </outcome>
+                            <outcome value='true'>
+                                <block></block>
+                            </outcome>
+                        </switch>
+                        <block>
+                            <for index='tmp.tripletListIndex' start='0' end='`$tmp.triplet-list_length`' >
+                                <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                    <parameter name="logger" value="message-log"/>
+                                    <parameter name="field1" value="__TIMESTAMP__"/>
+                                    <parameter name="field2" value="LAINA: getpathsegment-populate-from-vnfapi: PRINT triplet-list | vf-module-id:generic-vnf-id:model-customization-id | "/>
+                                    <parameter name="field3" value='`$tmp.tripletListIndex`'/>
+                                    <parameter name="field4" value='`$tmp.triplet-list[$tmp.tripletListIndex].vf-module-id`'/>
+                                    <parameter name="field5" value='`$tmp.triplet-list[$tmp.tripletListIndex].generic-vnf-id`'/>
+                                    <parameter name="field6" value='`$tmp.triplet-list[$tmp.tripletListIndex].model-customization-id`'/>
+                                </record>
+                            </for>
+                        </block>
+                        <for index='vnfIdIndex' start='0' end='`$vnf-ids_length`' >
+                            <block>
+                                <for index='tmp.tripletListIndex' start='0' end='`$tmp.triplet-list_length`' >
+                                    <block>
+                                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                            <parameter name="logger" value="message-log"/>
+                                            <parameter name="field1" value="__TIMESTAMP__"/>
+                                            <parameter name="field2" value="LAINA: getpathsegment-populate-from-vnfapi: vnfIdIndex:id | tripletListIndex:model-customization-id | : "/>
+                                            <parameter name="field3" value='`$vnfIdIndex`'/>
+                                            <parameter name="field4" value='`$vnf-ids[$vnfIdIndex]`'/>
+                                            <parameter name="field5" value='`$tmp.tripletListIndex`'/>
+                                            <parameter name="field6" value='`$tmp.triplet-list[$tmp.tripletListIndex].model-customization-id`'/>
+                                        </record>
+                                        <switch test='`$vnf-ids[$vnfIdIndex] == $tmp.triplet-list[$tmp.tripletListIndex].model-customization-id`'>
+                                            <outcome value='true'>
+                                                <block>
+                                                    <for index='vnfInstanceIndex' start='0' end='`$tmp.vnf-instances_length`' >
+                                                        <block>
+                                                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                                <parameter name="logger" value="message-log"/>
+                                                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                                                <parameter name="field2" value="LAINA: getpathsegment-populate-from-vnfapi: vnfIdIndex:id | vnfInstanceIndex:id | : "/>
+                                                                <parameter name="field3" value='`$vnfIdIndex`'/>
+                                                                <parameter name="field4" value='`$vnf-ids[$vnfIdIndex]`'/>
+                                                                <parameter name="field5" value='`$vnfInstanceIndex`'/>
+                                                                <parameter name="field6" value='`$tmp.vnf-instances[$vnfInstanceIndex].service-data.vnf-request-information.vnf-id`'/>
+                                                            </record>
+                                                            <switch test='`$tmp.vnf-instances[$vnfInstanceIndex].service-data.vnf-request-information.vnf-id == $tmp.triplet-list[$tmp.tripletListIndex].vf-module-id`'>
+                                                                <outcome value='true'>
+                                                                    <block>
+                                                                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                                            <parameter name="logger" value="message-log"/>
+                                                                            <parameter name="field1" value="__TIMESTAMP__"/>
+                                                                            <parameter name="field2" value="LAINA: getpathsegment-populate-from-vnfapi: MATCH for vnf-instances.vnf-id and triplet-list.vf-module-id: "/>
+                                                                            <parameter name="field3" value='`$tmp.triplet-list[$tmp.tripletListIndex].vf-module-id`'/>
+                                                                        </record>
+                                                                        <switch test='`$tmp.vnf-instances[$vnfInstanceIndex].service-data.vnf-topology-information.vnf-assignments.vnf-networks_length > 0`'>
+                                                                            <outcome value='true'>
+                                                                                <for index='vnfNetworksIndex' start='0' end='`$tmp.vnf-instances[$vnfInstanceIndex].service-data.vnf-topology-information.vnf-assignments.vnf-networks_length`' >
+                                                                                    <block>
+                                                                                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                                                            <parameter name="logger" value="message-log"/>
+                                                                                            <parameter name="field1" value="__TIMESTAMP__"/>
+                                                                                            <parameter name="field2" value="LAINA: getpathsegment-populate-from-vnfapi: MATCH for vnf-id and vnf-instances for vnf-id: "/>
+                                                                                            <parameter name="field3" value='`$vnf-ids[$vnfIdIndex]`'/>
+                                                                                            <parameter name="field4" value='`$tmp.vnf-instances[$vnfInstanceIndex].service-data.vnf-topology-information.vnf-assignments.vnf-networks[$vnfnetworksIndex].`'/>
+                                                                                        </record>
+                                                                                        <set>
+                                                                                            <parameter name="serv-inst.vnf-list[$vnfListIndex].vnf-network-list[$vnfNetworksIndex].network-name" value= "`$tmp.vnf-instances[$vnfInstanceIndex].service-data.vnf-topology-information.vnf-assignments.vnf-networks[$vnfNetworksIndex].network-name`"/>
+                                                                                            <parameter name="serv-inst.vnf-list[$vnfListIndex].vnf-network-list[$vnfNetworksIndex].network-role" value= "`$tmp.vnf-instances[$vnfInstanceIndex].service-data.vnf-topology-information.vnf-assignments.vnf-networks[$vnfNetworksIndex].network-role`"/>
+                                                                                            <parameter name="serv-inst.vnf-list[$vnfListIndex].vnf-network-list[$vnfNetworksIndex].vf-module-id" value= "`$tmp.vnf-instances[$vnfInstanceIndex].service-data.vnf-request-information.vnf-id`"/>
+                                                                                            <parameter name="serv-inst.vnf-list[$vnfListIndex].vnf-network-list_length" value= '`$vnfNetworksIndex + 1`'/>
+                                                                                        </set>
+                                                                                    </block>
+                                                                                </for>
+                                                                            </outcome>
+                                                                            <outcome value='false'>
+                                                                                <block>
+                                                                                    <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                                                        <parameter name="logger" value="message-log"/>
+                                                                                        <parameter name="field1" value="__TIMESTAMP__"/>
+                                                                                        <parameter name="field2" value="LAINA: getpathsegment-populate-from-vnfapi: No vnf-networks found for vnf-id: "/>
+                                                                                        <parameter name="field3" value='`$tmp.vnf-instances[$vnfInstanceIndex].service-data.vnf-request-information.vnf-id`' />
+                                                                                    </record>
+                                                                                    <set>
+                                                                                        <parameter name='`tmp.vnf-instances[$vnfInstanceIndex].service-data.vnf-topology-information.vnf-assignments.vnf-networks_length' value="0" />
+                                                                                    </set>
+                                                                                </block>
+                                                                            </outcome>
+                                                                        </switch>
+                                                                        <set>
+                                                                            <parameter name="serv-inst.vnf-list[$vnfListIndex].vnf-id" value= "`$tmp.triplet-list[$tmp.tripletListIndex].generic-vnf-id`"/>
+                                                                        </set>
+                                                                        <set>
+                                                                            <parameter name="vnfListIndex" value= '`$vnfListIndex + 1`'/>
+                                                                        </set>
+                                                                    </block>
+                                                                </outcome>
+                                                                <outcome value='false'></outcome>
+                                                            </switch>
+                                                        </block>
+                                                    </for>
+                                                    <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                        <parameter name="logger" value="message-log"/>
+                                                        <parameter name="field1" value="__TIMESTAMP__"/>
+                                                        <parameter name="field2" value="LAINA: getpathsegment-populate-from-vnfapi: MATCH for input vnf-id and triplet-list.model-customizaiton-id: "/>
+                                                        <parameter name="field3" value='`$vnf-ids[$vnfIdIndex]`'/>
+                                                    </record>
+                                                </block>
+                                            </outcome>
+                                            <outcome value='false'></outcome>
+                                        </switch>
+                                    </block>
+                                </for>
+                            </block>
+                        </for>
+                    </block>
+                </outcome>
+                <outcome value='COMPOSITE'>
+                    <block>
+                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                            <parameter name="logger" value="message-log"/>
+                            <parameter name="field1" value="__TIMESTAMP__"/>
+                            <parameter name="field2" value="LAINA: getpathsegment-populate-from-vnfapi: Call AAI custom query vfModule-fromServiceInstance to get vf-module-ids"/>
+                        </record>
+                        <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+      resource="custom-query"
+      key="format = 'resource'"
+      force="true"
+      local-only="false"
+      pfx="tmp.AnAI-data.vf-module-ids">
+                            <parameter name="start[0]" value="`'/nodes/service-instances/service-instance?service-instance-id=' + $serv-inst.service-instance-id `" />
+                            <!--<parameter name="start[0]" value="`'/business/customers/customer/bgb-customer/service-subscriptions/service-subscription/bgb-service-type/service-instances' `" />-->
+                            <!--<parameter name="start[0]" value="`'/business/customers/customer/la-customer/service-subscriptions/service-subscription/la-service-type/service-instances' `" />-->
+                            <parameter name="start_length" value="1" />
+                            <parameter name="query" value="/query/vfModule-fromServiceInstance" />
+                            <!--<parameter name="query" value="/query/vnfs-fromServiceInstance" /> -->
+                            <outcome value='failure'>
+                                <block>
+                                    <set>
+                                        <parameter name="error-message" value="Failed call to AAI custom query: vfModule-fromServiceInstance" />
+                                        <parameter name="serv-inst.api" value= ""/>
+                                        <parameter name='tmp.vf-module-ids_length' value='0' />
+                                        <parameter name='tmp.vnf-instances_length' value='0' />
+                                    </set>
+                                </block>
+                            </outcome>
+                            <outcome value='not-found'>
+                                <block>
+                                    <set>
+                                        <parameter name="error-message" value="No vfModules returned from AAI: vfModule-fromService-instance" />
+                                        <parameter name="serv-inst.api" value= ""/>
+                                    </set>
+                                </block>
+                            </outcome>
+                            <outcome value='success'>
+                                <block>
+                                    <for index='vfModuleResultIndex' start='0' end='`$tmp.AnAI-data.vf-module-ids.results_length`' >
+                                        <set>
+                                            <parameter name="`'tmp.vf-module-ids[' + $vfModuleResultIndex + ']'`" value='`$tmp.AnAI-data.vf-module-ids.results[$vfModuleResultIndex].vf-module.vf-module-id`' />
+                                        </set>
+                                    </for>
+                                    <set>
+                                        <parameter name='tmp.vf-module-ids_length' value='`$tmp.AnAI-data.vf-module-ids.results_length`' />
+                                    </set>
+                                </block>
+                            </outcome>
+                        </save>
+                        <for index='vfModuleIndex' start='0' end='`$tmp.vf-module-ids_length`' >
+                            <block>
+                                <set>
+                                    <parameter name="tmp.vnf-url" value="`'/restconf/config/VNF-API:vnfs/vnf-list/' + $tmp.vf-module-ids[$vfModuleIndex]`" />
+                                </set>
+                                <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                    <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.vnf-url`' />
+                                    <parameter name='restapiUser' value='`$prop.controller.user`' />
+                                    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                                    <parameter name='format' value='json' />
+                                    <parameter name='httpMethod' value='GET' />
+                                    <parameter name="responsePrefix" value="vnf-mdsal" />
+                                    <outcome value='failure'>
+                                        <block atomic="true">
+                                            <set>
+                                                <parameter name="error-message" value="Failed to read vnf info from MD-SAL" />
+                                                <parameter name="serv-inst.api" value= ""/>
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                    <outcome value='not-found'>
+                                        <block atomic="true">
+                                            <set>
+                                                <parameter name="error-message" value="Cannot find vnf info in MD-SAL" />
+                                                <parameter name="serv-inst.api" value= ""/>
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                    <outcome value='success'>
+                                        <block>
+                                            <set>
+                                                <parameter name="`'tmp.vnf-instances[0]'`." value= '`$vnf-mdsal.vnf-list[0].`' />
+                                            </set>
+                                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                <parameter name="logger" value="message-log"/>
+                                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                                <parameter name="field2" value="LAINA: getpathsegment-populate-from-vnfapi: MDSAL vnf-instances vnf-id: "/>
+                                                <parameter name="field3" value='`$tmp.vnf-instances[0].service-data.vnf-request-information.vnf-id`' />
+                                            </record>
+                                        </block>
+                                    </outcome>
+                                </execute>
+                                <switch test='`$tmp.vnf-instances[0].service-data.vnf-topology-information.vnf-assignments.vnf-networks_length > 0`'>
+                                    <outcome value='true'>
+                                        <for index='vnfNetworksIndex' start='0' end='`$tmp.vnf-instances[0].service-data.vnf-topology-information.vnf-assignments.vnf-networks_length`' >
+                                            <block>
+                                                <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                    <parameter name="logger" value="message-log"/>
+                                                    <parameter name="field1" value="__TIMESTAMP__"/>
+                                                    <parameter name="field2" value="LAINA: getpathsegment-populate-from-vnfapi: copy vnf-instance data to output: "/>
+                                                    <parameter name="field3" value='`$tmp.vnf-instances[0].service-data.vnf-topology-information.vnf-assignments.vnf-networks[$vnfnetworksIndex].`'/>
+                                                </record>
+                                                <set>
+                                                    <parameter name="serv-inst.vnf-list[$vnfListIndex].vnf-network-list[$vnfNetworksIndex].network-name" value= "`$tmp.vnf-instances[0].service-data.vnf-topology-information.vnf-assignments.vnf-networks[$vnfNetworksIndex].network-name`"/>
+                                                    <parameter name="serv-inst.vnf-list[$vnfListIndex].vnf-network-list[$vnfNetworksIndex].network-role" value= "`$tmp.vnf-instances[0].service-data.vnf-topology-information.vnf-assignments.vnf-networks[$vnfNetworksIndex].network-role`"/>
+                                                    <parameter name="serv-inst.vnf-list[$vnfListIndex].vnf-network-list[$vnfNetworksIndex].vf-module-id" value= "`$tmp.vnf-instances[0].service-data.vnf-request-information.vnf-id`"/>
+                                                    <parameter name="serv-inst.vnf-list[$vnfListIndex].vnf-network-list_length" value= '`$vnfNetworksIndex + 1`'/>
+                                                </set>
+                                            </block>
+                                        </for>
+                                    </outcome>
+                                    <outcome value='false'>
+                                        <block>
+                                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                <parameter name="logger" value="message-log"/>
+                                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                                <parameter name="field2" value="LAINA: getpathsegment-populate-from-vnfapi: No vnf-networks found for vnf-id: "/>
+                                                <parameter name="field3" value='`$tmp.vnf-instances[0].service-data.vnf-request-information.vnf-id`' />
+                                            </record>
+                                            <set>
+                                                <parameter name='`tmp.vnf-instances[0].service-data.vnf-topology-information.vnf-assignments.vnf-networks_length' value="0" />
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                                <set>
+                                    <parameter name="serv-inst.vnf-list[$vnfListIndex].vnf-id" value= "`$vnf-mdsal.vnf-list[0].service-data.vnf-request-information.generic-vnf-id`"/>
+                                </set>
+                                <set>
+                                    <parameter name="vnfListIndex" value= '`$vnfListIndex + 1`'/>
+                                </set>
+                            </block>
+                        </for>
+                    </block>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name="serv-inst.service-instance-id" value= "`$serv-inst.service-instance-id`"/>
+                <parameter name="serv-inst.vnf-list_length" value= "`$vnfListIndex`"/>
+            </set>
+            <switch test='`$serv-inst.vnf-list_length > 0`'>
+                <outcome value='true'>
+                    <set>
+                        <parameter name="serv-inst.api" value= "VNF"/>
+                    </set>
+                </outcome>
+            </switch>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >
+                <parameter name='filename' value='/var/tmp/getpathsegment-populate-from-vnfapi-output.log' />
+            </execute>
+            <return status='success'></return>
+        </block>
+    </method>
+</service-logic>

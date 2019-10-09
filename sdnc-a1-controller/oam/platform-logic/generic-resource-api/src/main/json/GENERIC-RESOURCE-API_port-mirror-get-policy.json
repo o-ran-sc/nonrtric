@@ -1,0 +1,623 @@
+[
+    {
+        "id": "7c240df1.6781c4",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 110,
+        "y": 91.42857360839844,
+        "z": "aabede20.89a51",
+        "wires": [
+            [
+                "dedc83da.c4349"
+            ]
+        ]
+    },
+    {
+        "id": "dedc83da.c4349",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 223.85713577270508,
+        "y": 131.23811149597168,
+        "z": "aabede20.89a51",
+        "wires": [
+            [
+                "dfb24d0c.2db3f"
+            ]
+        ]
+    },
+    {
+        "id": "dfb24d0c.2db3f",
+        "type": "method",
+        "name": "method port-mirror-get-policy",
+        "xml": "<method rpc='port-mirror-get-policy' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 172.42862701416016,
+        "y": 172.42857360839844,
+        "z": "aabede20.89a51",
+        "wires": [
+            [
+                "4883d77b.032d28"
+            ]
+        ]
+    },
+    {
+        "id": "684506ac.6795f8",
+        "type": "comment",
+        "name": "port-mirror-get-policy",
+        "info": "",
+        "comments": "",
+        "x": 515.3210983276367,
+        "y": 34.40427303314209,
+        "z": "aabede20.89a51",
+        "wires": []
+    },
+    {
+        "id": "4883d77b.032d28",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 153.3333511352539,
+        "y": 478.09523010253906,
+        "z": "aabede20.89a51",
+        "wires": [
+            [
+                "f7d9a896.cf5de8",
+                "fb8923b4.bd56c",
+                "7801d204.937cbc",
+                "8913e0a1.253a",
+                "47b76e8a.2929c",
+                "2c07a59d.60025a",
+                "aa12e112.2f8bd"
+            ]
+        ]
+    },
+    {
+        "id": "fb8923b4.bd56c",
+        "type": "execute",
+        "name": "RestapiCallnode getConfig",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='templateFileName' value=\"`$prop.restapi.templateDir + '/' + $prop.restapi.pm.getpolicy.templatefile`\" />\n    <parameter name='restapiUrl' value=\"`$prop.policy-manager.url + '/pdp/api/getConfig'`\" />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='POST' />\n    <parameter name='responsePrefix' value=\"policy\" />    \n    <parameter name='customHttpHeaders'\n      value=\"`'Authorization=Basic ' + $prop.policy-manager.authorization + ',ClientAuth=Basic ' + $prop.policy-manager.clientauth + ',Environment=' + $prop.policy-manager.environment `\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 446.66664123535156,
+        "y": 298.09522438049316,
+        "z": "aabede20.89a51",
+        "wires": [
+            [
+                "827dce65.48224",
+                "9effab4f.242cd8"
+            ]
+        ]
+    },
+    {
+        "id": "827dce65.48224",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 653.8094863891602,
+        "y": 275.2381076812744,
+        "z": "aabede20.89a51",
+        "wires": [
+            [
+                "fb7ccb16.ee0298"
+            ]
+        ]
+    },
+    {
+        "id": "fb7ccb16.ee0298",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 817.523811340332,
+        "y": 275.1665835380554,
+        "z": "aabede20.89a51",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "9effab4f.242cd8",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 649.9470252990723,
+        "y": 323.16132068634033,
+        "z": "aabede20.89a51",
+        "wires": [
+            [
+                "17302ca7.ec4b13"
+            ]
+        ]
+    },
+    {
+        "id": "17302ca7.ec4b13",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value='Failed to get policy from Policy Manager' />\n",
+        "comments": "",
+        "x": 814.3809089660645,
+        "y": 322.8095302581787,
+        "z": "aabede20.89a51",
+        "wires": []
+    },
+    {
+        "id": "7801d204.937cbc",
+        "type": "execute",
+        "name": "convert json config to variables",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='jsonStringToCtx' >\n    <parameter name='source' value=\"policy.config\" />\n    <parameter name='outputPath' value=\"tmp.config-ctx\" />\n    <parameter name='isEscaped' value='false' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 453.0951156616211,
+        "y": 397.38094329833984,
+        "z": "aabede20.89a51",
+        "wires": [
+            [
+                "849bff9a.446d3",
+                "c6ca48ae.e5cc58"
+            ]
+        ]
+    },
+    {
+        "id": "849bff9a.446d3",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 660.2379608154297,
+        "y": 374.5238265991211,
+        "z": "aabede20.89a51",
+        "wires": [
+            [
+                "a0c3cf22.714c7"
+            ]
+        ]
+    },
+    {
+        "id": "a0c3cf22.714c7",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 823.9522857666016,
+        "y": 374.4523024559021,
+        "z": "aabede20.89a51",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c6ca48ae.e5cc58",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 656.3754997253418,
+        "y": 422.447039604187,
+        "z": "aabede20.89a51",
+        "wires": [
+            [
+                "e9ddad6b.d165b"
+            ]
+        ]
+    },
+    {
+        "id": "e9ddad6b.d165b",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value='Failed to convert config variable from PolicyManager' />\n",
+        "comments": "",
+        "x": 820.809383392334,
+        "y": 422.0952491760254,
+        "z": "aabede20.89a51",
+        "wires": []
+    },
+    {
+        "id": "f7d9a896.cf5de8",
+        "type": "set",
+        "name": "set tmp.policy-name",
+        "xml": "<set>\n<parameter name='tmp.policy-name' value='`$db.cap[0].policy-name`' />\n",
+        "comments": "",
+        "x": 426.66667429606105,
+        "y": 223.09524281819654,
+        "z": "aabede20.89a51",
+        "wires": []
+    },
+    {
+        "id": "f823c40b.99b648",
+        "type": "set",
+        "name": "set tmp.dest-p-interface from productionContext",
+        "xml": "<set>\n<parameter name='tmp.dest-p-interface' value='`$tmp.config-ctx.content.productionContext`' />\n",
+        "comments": "",
+        "x": 1268.750015258789,
+        "y": 578.4285373687744,
+        "z": "aabede20.89a51",
+        "wires": []
+    },
+    {
+        "id": "2c07a59d.60025a",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n",
+        "comments": "",
+        "x": 407.5000991821289,
+        "y": 850.1786298751831,
+        "z": "aabede20.89a51",
+        "wires": []
+    },
+    {
+        "id": "8913e0a1.253a",
+        "type": "switchNode",
+        "name": "switch lc-tenant-context",
+        "xml": "<switch test='`$tmp.lc-tenant-context`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 434.166690826416,
+        "y": 574.7618494033813,
+        "z": "aabede20.89a51",
+        "wires": [
+            [
+                "883f5bc7.851688",
+                "89d18dfc.fe3f9"
+            ]
+        ]
+    },
+    {
+        "id": "c7d91e4f.cd2b2",
+        "type": "set",
+        "name": "set tmp.dest-p-interface from testContext",
+        "xml": "<set>\n<parameter name='tmp.dest-p-interface' value='`$tmp.config-ctx.content.testContext`' />\n",
+        "comments": "",
+        "x": 1605.833396911621,
+        "y": 622.4285373687744,
+        "z": "aabede20.89a51",
+        "wires": []
+    },
+    {
+        "id": "6f1dcecb.0bf3e",
+        "type": "set",
+        "name": "set tmp.dest-p-interface from developmentContext",
+        "xml": "<set>\n<parameter name='tmp.dest-p-interface' value='`$tmp.config-ctx.content.developmentContext`' />\n",
+        "comments": "",
+        "x": 1999.1666564941406,
+        "y": 663.9285373687744,
+        "z": "aabede20.89a51",
+        "wires": []
+    },
+    {
+        "id": "d0335872.4a8e58",
+        "type": "set",
+        "name": "set tmp.dest-p-interface",
+        "xml": "<set>\n<parameter name='tmp.dest-p-interface' value='`$tmp.config-ctx.content.defaultContext`' />\n",
+        "comments": "",
+        "x": 2283.333282470703,
+        "y": 703.9286003112793,
+        "z": "aabede20.89a51",
+        "wires": []
+    },
+    {
+        "id": "e3391f9f.5f004",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"`'Unexpected tenant-context value of ' + $tmp.tenant-context`\" />\n",
+        "comments": "",
+        "x": 2252.0834007263184,
+        "y": 768.9285402297974,
+        "z": "aabede20.89a51",
+        "wires": []
+    },
+    {
+        "id": "47b76e8a.2929c",
+        "type": "switchNode",
+        "name": "switch tmp.dest-p-interface",
+        "xml": "<switch test='`$tmp.dest-p-interface`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 447.50000762939453,
+        "y": 791.8453493118286,
+        "z": "aabede20.89a51",
+        "wires": [
+            [
+                "fe95b2b0.257d8"
+            ]
+        ]
+    },
+    {
+        "id": "fe95b2b0.257d8",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 647.5000228881836,
+        "y": 791.8452577590942,
+        "z": "aabede20.89a51",
+        "wires": [
+            [
+                "a6b2a82a.01ec88"
+            ]
+        ]
+    },
+    {
+        "id": "a6b2a82a.01ec88",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"`'Unable to find p-interface in policy ' + tmp.policy-name`\" />\n",
+        "comments": "",
+        "x": 807.4999542236328,
+        "y": 791.8452672958374,
+        "z": "aabede20.89a51",
+        "wires": []
+    },
+    {
+        "id": "883f5bc7.851688",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 638.7500076293945,
+        "y": 533.9286003112793,
+        "z": "aabede20.89a51",
+        "wires": [
+            [
+                "5b6d06f7.787ce8"
+            ]
+        ]
+    },
+    {
+        "id": "5b6d06f7.787ce8",
+        "type": "set",
+        "name": "set tmp.dest-p-interface from defaultContext",
+        "xml": "<set>\n<parameter name='tmp.dest-p-interface' value='`$tmp.config-ctx.content.defaultContext`' />\n",
+        "comments": "",
+        "x": 881.25,
+        "y": 533.9285869598389,
+        "z": "aabede20.89a51",
+        "wires": []
+    },
+    {
+        "id": "aa12e112.2f8bd",
+        "type": "execute",
+        "name": "convert tenant-context to lower case",
+        "xml": "<execute plugin=\"org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils\" method=\"toLower\">\n\t<parameter name=\"source\" value=\"`$tmp.tenant-context`\" />\n\t<parameter name=\"outputPath\" value=\"tmp.lc-tenant-context\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 470.00000762939453,
+        "y": 475.00000762939453,
+        "z": "aabede20.89a51",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "89d18dfc.fe3f9",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 640.0000076293945,
+        "y": 617.5000095367432,
+        "z": "aabede20.89a51",
+        "wires": [
+            [
+                "d320e4c3.2e4e58"
+            ]
+        ]
+    },
+    {
+        "id": "d320e4c3.2e4e58",
+        "type": "execute",
+        "name": "lc-tenant-contains 'prod'",
+        "xml": "<execute plugin=\"org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils\" method=\"contains\" emitsOutcome='true'>\n\t<parameter name=\"source\" value=\"`$tmp.lc-tenant-context`\" />\n\t<parameter name=\"target\" value=\"prod\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 818.75,
+        "y": 617.5,
+        "z": "aabede20.89a51",
+        "wires": [
+            [
+                "92d9b5db.979da8",
+                "a5418501.6535b8"
+            ]
+        ]
+    },
+    {
+        "id": "92d9b5db.979da8",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1012.5,
+        "y": 578.75,
+        "z": "aabede20.89a51",
+        "wires": [
+            [
+                "f823c40b.99b648"
+            ]
+        ]
+    },
+    {
+        "id": "a5418501.6535b8",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1012.5000152587891,
+        "y": 657.5000095367432,
+        "z": "aabede20.89a51",
+        "wires": [
+            [
+                "21ec97e6.1cc748"
+            ]
+        ]
+    },
+    {
+        "id": "21ec97e6.1cc748",
+        "type": "execute",
+        "name": "lc-tenant-contains 'test'",
+        "xml": "<execute plugin=\"org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils\" method=\"contains\" emitsOutcome='true'>\n\t<parameter name=\"source\" value=\"`$tmp.lc-tenant-context`\" />\n\t<parameter name=\"target\" value=\"test\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1192.750015258789,
+        "y": 657.5000095367432,
+        "z": "aabede20.89a51",
+        "wires": [
+            [
+                "b12ce223.87118",
+                "17e1a4f2.79a74b"
+            ]
+        ]
+    },
+    {
+        "id": "b12ce223.87118",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1373.75,
+        "y": 622.5,
+        "z": "aabede20.89a51",
+        "wires": [
+            [
+                "c7d91e4f.cd2b2"
+            ]
+        ]
+    },
+    {
+        "id": "17e1a4f2.79a74b",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1375.0000190734863,
+        "y": 701.2500095367432,
+        "z": "aabede20.89a51",
+        "wires": [
+            [
+                "db100bb2.6b8818"
+            ]
+        ]
+    },
+    {
+        "id": "db100bb2.6b8818",
+        "type": "execute",
+        "name": "lc-tenant-contains 'dev'",
+        "xml": "<execute plugin=\"org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils\" method=\"contains\" emitsOutcome='true'>\n\t<parameter name=\"source\" value=\"`$tmp.lc-tenant-context`\" />\n\t<parameter name=\"target\" value=\"dev\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1550.666618347168,
+        "y": 701.3214712142944,
+        "z": "aabede20.89a51",
+        "wires": [
+            [
+                "6c48c803.9e2048",
+                "b666f52e.6438e8"
+            ]
+        ]
+    },
+    {
+        "id": "6c48c803.9e2048",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1731.666603088379,
+        "y": 665.0714626312256,
+        "z": "aabede20.89a51",
+        "wires": [
+            [
+                "6f1dcecb.0bf3e"
+            ]
+        ]
+    },
+    {
+        "id": "b666f52e.6438e8",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1732.9166526794434,
+        "y": 740.0714836120605,
+        "z": "aabede20.89a51",
+        "wires": [
+            [
+                "b7ae12df.bfc5b"
+            ]
+        ]
+    },
+    {
+        "id": "b7ae12df.bfc5b",
+        "type": "execute",
+        "name": "lc-tenant-contains 'default'",
+        "xml": "<execute plugin=\"org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils\" method=\"contains\" emitsOutcome='true'>\n\t<parameter name=\"source\" value=\"`$tmp.lc-tenant-context`\" />\n\t<parameter name=\"target\" value=\"default\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1915,
+        "y": 737.5,
+        "z": "aabede20.89a51",
+        "wires": [
+            [
+                "d449adab.fe626",
+                "e9137b95.e207f8"
+            ]
+        ]
+    },
+    {
+        "id": "d449adab.fe626",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2104.7499809265137,
+        "y": 706.2499914169312,
+        "z": "aabede20.89a51",
+        "wires": [
+            [
+                "d0335872.4a8e58"
+            ]
+        ]
+    },
+    {
+        "id": "e9137b95.e207f8",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2103.4999961853027,
+        "y": 771.2500009536743,
+        "z": "aabede20.89a51",
+        "wires": [
+            [
+                "e3391f9f.5f004"
+            ]
+        ]
+    }
+]

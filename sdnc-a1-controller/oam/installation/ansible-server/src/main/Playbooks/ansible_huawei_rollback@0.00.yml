@@ -1,0 +1,29 @@
+---
+- hosts: all
+  tasks:
+
+  - name: execute swFallback operation
+    shell: ./swm/swFallback --filter {{filter}}
+    ignore_errors: yes
+    register: fallback_result
+    
+  - name: write output to file
+    local_action: copy content="{{fallback_result.stdout}}" dest="{{inventory_dir}}/{{inventory_hostname}}_results.txt"
+    when: fallback_result.stdout != ""
+
+  - name: build error message
+    set_fact:
+      err_msg:
+        "reason": "{{fallback_result.stderr}}"
+        "result": "Failure"
+    when: fallback_result is failed and fallback_result.stdout == "" and fallback_result.stderr != ""
+
+  - name: write error message to file
+    local_action: copy content="{{err_msg}}" dest="{{inventory_dir}}/{{inventory_hostname}}_results.txt"
+    when: fallback_result is failed and fallback_result.stdout == "" and fallback_result.stderr != ""
+
+  - name: use result of swFallback as the result of Playbook
+    fail:
+      msg: "{{fallback_result.stderr}}"
+    when: fallback_result is failed
+

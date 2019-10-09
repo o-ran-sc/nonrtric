@@ -1,0 +1,84 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='bbs-internet-profile-network-topology-operation-delete-huawei' mode='sync'>
+        <block atomic="true">
+            <call module='GENERIC-RESOURCE-API' rpc='bbs-internet-profile-network-topology-operation-common-huawei' mode='sync' ></call>
+            <execute plugin="org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode" method="sendRequest">
+                <parameter name="templateFileName" value="`$prop.restapi.templateDir + '/bbs-internet-profile-operation.json'`" />
+                <parameter name="restapiUrl" value="`$prop.sdncRestApi.thirdpartySdnc.url + '/DeleteInternetProfileInstance'`" />
+                <parameter name="contentType" value="application/json"/>
+                <parameter name="httpMethod" value="post"/>
+                <parameter name="responsePrefix" value="service-result"/>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error failed to call DeleteInternetProfileInstance" />
+                    </return>
+                </outcome>
+                <outcome value='success'>
+                    <switch test="`$service-result.errors.error[0].error-message`">
+                        <outcome value='Other'>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="`'Error DeleteInternetProfileInstance return: '+$service-result.errors.error[0].error-message`" />
+                            </return>
+                        </outcome>
+                        <outcome value=''>
+                            <block></block>
+                        </outcome>
+                    </switch>
+                </outcome>
+            </execute>
+            <for silentFailure='false' index='rdidx' start='0' end="`$aai.service-instance.relationship-list.relationship[$ridx].relationship-data_length`" >
+                <block atomic='true'>
+                    <switch test='`$aai.service-instance.relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-key`'>
+                        <outcome value='generic-vnf.vnf-id'>
+                            <block atomic='true'>
+                                <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="generic-vnf" 
+		key="generic-vnf.vnf-id = $aai.service-instance.relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-value"
+        pfx='aai.generic-vnf' local-only='false' >
+                                    <outcome value='success'>
+                                        <block atomic='true'>
+                                            <switch test='`$aai.generic-vnf.vnf-type`'>
+                                                <outcome value='InternetProfile'>
+                                                    <set>
+                                                        <parameter name='prop.bbs.internetProfileVNFId' value='`$aai.generic-vnf.vnf-id`' />
+                                                    </set>
+                                                </outcome>
+                                            </switch>
+                                        </block>
+                                    </outcome>
+                                </get-resource>
+                            </block>
+                        </outcome>
+                    </switch>
+                </block>
+            </for>
+            <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="generic-vnf" 
+		key="generic-vnf.vnf-id = $prop.bbs.internetProfileVNFId">
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='error-code' value='' />
+                        <parameter name='error-message' value='' />
+                    </return>
+                </outcome>
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='error-code' value='' />
+                        <parameter name='error-message' value='' />
+                    </return>
+                </outcome>
+            </delete>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="`$error-message`" />
+            </return>
+        </block>
+    </method>
+</service-logic>

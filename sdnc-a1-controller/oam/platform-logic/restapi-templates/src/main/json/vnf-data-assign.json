@@ -1,0 +1,250 @@
+{
+	"vnf": [{
+		"vnf-id": ${vnf-topology-operation-input.vnf-information.vnf-id},
+		"vnf-data": {
+			"sdnc-request-header": {
+				"svc-request-id": ${vnf-data.sdnc-request-header.svc-request-id},
+				"svc-action": ${vnf-data.sdnc-request-header.svc-action},
+				"svc-notification-url": ${vnf-data.sdnc-request-header.svc-notification-url}
+			},
+			"request-information": {
+				"request-id": ${vnf-data.request-information.request-id},
+				"request-action": ${vnf-data.request-information.request-action},
+				"source": ${vnf-data.request-information.source},
+				"notification-url": ${vnf-data.request-information.notification-url},
+				"order-number": ${vnf-data.request-information.order-number},
+				"order-version": ${vnf-data.request-information.order-version}
+			},
+			"service-information": {
+				"service-id": ${vnf-data.service-information.service-id},
+				"subscription-service-type": ${vnf-data.service-information.subscription-service-type},
+				"onap-model-information": {
+					"model-invariant-uuid": ${vnf-data.service-information.onap-model-information.model-invariant-uuid},
+					"model-customization-uuid": ${vnf-data.service-information.onap-model-information.model-customization-uuid},
+					"model-uuid": ${vnf-data.service-information.onap-model-information.model-uuid},
+					"model-version": ${vnf-data.service-information.onap-model-information.model-version},
+					"model-name": ${vnf-data.service-information.onap-model-information.model-name}
+				},
+				"service-instance-id": ${vnf-data.service-information.service-instance-id},
+				"global-customer-id": ${vnf-data.service-information.global-customer-id},
+				"subscriber-name": ${vnf-data.service-information.subscriber-name}
+			},
+			"vnf-information": {
+				"vnf-id": ${vnf-data.vnf-information.vnf-id},
+				"vnf-type": ${vnf-data.vnf-information.vnf-type},
+				"vnf-name": ${vnf-data.vnf-information.vnf-name},
+				"onap-model-information": {
+					"model-invariant-uuid": ${vnf-data.vnf-information.onap-model-information.model-invariant-uuid},
+					"model-customization-uuid": ${vnf-data.vnf-information.onap-model-information.model-customization-uuid},
+					"model-uuid": ${vnf-data.vnf-information.onap-model-information.model-uuid},
+					"model-version": ${vnf-data.vnf-information.onap-model-information.model-version},
+					"model-name": ${vnf-data.vnf-information.onap-model-information.model-name}
+				}
+			},
+			"vnf-request-input": {
+				"request-version": ${vnf-data.vnf-request-input.request-version},
+				"vnf-name": ${vnf-data.vnf-request-input.vnf-name},
+				"tenant": ${vnf-data.vnf-request-input.tenant},
+				"aic-cloud-region": ${vnf-data.vnf-request-input.aic-cloud-region},
+				"cloud-owner": ${vnf-data.vnf-request-input.cloud-owner},
+				"aic-clli": ${vnf-data.vnf-request-input.aic-clli},
+				"vnf-networks": {
+					"vnf-network": [
+${repeat:vnf-data.vnf-request-input.vnf-networks.vnf-network_length:
+						{
+							"network-role": ${vnf-data.vnf-request-input.vnf-networks.vnf-network[${1}].network-role},
+							"network-name": ${vnf-data.vnf-request-input.vnf-networks.vnf-network[${1}].network-name},
+							"neutron-id": ${vnf-data.vnf-request-input.vnf-networks.vnf-network[${1}].neutron-id},
+							"network-id": ${vnf-data.vnf-request-input.vnf-networks.vnf-network[${1}].network-id},
+							"contrail-network-fqdn": ${vnf-data.vnf-request-input.vnf-networks.vnf-network[${1}].contrail-network-fqdn},
+							"subnets-data": {
+								"subnet-data": [
+${repeat:vnf-data.vnf-request-input.vnf-networks.vnf-network[${1}].subnets-data.subnet-data_length:
+									{
+										"sdnc-subnet-id": ${vnf-data.vnf-request-input.vnf-networks.vnf-network[${1}].subnets-data.subnet-data[${2}].sdnc-subnet-id},
+										"subnet-role": ${vnf-data.vnf-request-input.vnf-networks.vnf-network[${1}].subnets-data.subnet-data[${2}].subnet-role},
+										"subnet-name": ${vnf-data.vnf-request-input.vnf-networks.vnf-network[${1}].subnets-data.subnet-data[${2}].subnet-name},
+										"ip-version": ${vnf-data.vnf-request-input.vnf-networks.vnf-network[${1}].subnets-data.subnet-data[${2}].ip-version},
+										"subnet-id": ${vnf-data.vnf-request-input.vnf-networks.vnf-network[${1}].subnets-data.subnet-data[${2}].subnet-id},
+										"dhcp-enabled": ${vnf-data.vnf-request-input.vnf-networks.vnf-network[${1}].subnets-data.subnet-data[${2}].dhcp-enabled},
+										"network-start-address": ${vnf-data.vnf-request-input.vnf-networks.vnf-network[${1}].subnets-data.subnet-data[${2}].network-start-address},
+										"gateway-address": ${vnf-data.vnf-request-input.vnf-networks.vnf-network[${1}].subnets-data.subnet-data[${2}].gateway-address},
+										"cidr-mask": ${vnf-data.vnf-request-input.vnf-networks.vnf-network[${1}].subnets-data.subnet-data[${2}].cidr-mask}
+									},
+}
+								]
+							},
+							"is-trunked": ${vnf-data.vnf-request-input.vnf-networks.vnf-network[${1}].is-trunked},
+							"segmentation-id": ${vnf-data.vnf-request-input.vnf-networks.vnf-network[${1}].segmentation-id},
+							"related-networks": {
+								"related-network": [
+${repeat:vnf-data.vnf-request-input.vnf-networks.vnf-network[${1}].related-networks.related-network_length:
+									{
+										"network-id": ${vnf-data.vnf-request-input.vnf-networks.vnf-network[${1}].related-networks.related-network[${2}].network-id},
+										"network-role": ${vnf-data.vnf-request-input.vnf-networks.vnf-network[${1}].related-networks.related-network[${2}].network-role},
+										"vlan-tags": {
+											"vlan-interface": ${vnf-data.vnf-request-input.vnf-networks.vnf-network[${1}].related-networks.related-network[${2}].vlan-tags.vlan-interface},
+											"upper-tag-id": ${vnf-data.vnf-request-input.vnf-networks.vnf-network[${1}].related-networks.related-network[${2}].vlan-tags.upper-tag-id},
+											"lower-tag-id": ${vnf-data.vnf-request-input.vnf-networks.vnf-network[${1}].related-networks.related-network[${2}].vlan-tags.lower-tag-id},
+											"is-private": ${vnf-data.vnf-request-input.vnf-networks.vnf-network[${1}].related-networks.related-network[${2}].vlan-tags.is-private}
+										}
+									},
+}
+								]
+							},
+						},
+}
+					]
+				},
+				"vnf-network-instance-group-ids": [
+${repeat:vnf-data.vnf-request-input.vnf-network-instance-group-ids_length:
+					{
+						"vnf-network-instance-group-id": ${vnf-data.vnf-request-input.vnf-network-instance-group-ids[${1}].vnf-network-instance-group-id}
+					},
+}
+				],
+				"vnf-input-parameters": {
+					"param": [
+${repeat:vnf-data.vnf-request-input.vnf-input-parameters.param_length:
+						{
+							"name": ${vnf-data.vnf-request-input.vnf-input-parameters.param[${1}].name},
+							"value": ${vnf-data.vnf-request-input.vnf-input-parameters.param[${1}].value}
+						},
+}
+					]
+				}
+			},
+			"vnf-topology": {
+				"vnf-topology-identifier-structure": {
+					"vnf-id": ${vnf-data.vnf-topology.vnf-topology-identifier-structure.vnf-id},
+					"vnf-type": ${vnf-data.vnf-topology.vnf-topology-identifier-structure.vnf-type},
+					"nf-type": ${vnf-data.vnf-topology.vnf-topology-identifier-structure.nf-type},
+					"nf-role": ${vnf-data.vnf-topology.vnf-topology-identifier-structure.nf-role},
+					"nf-function": ${vnf-data.vnf-topology.vnf-topology-identifier-structure.nf-function},
+					"nf-code": ${vnf-data.vnf-topology.vnf-topology-identifier-structure.nf-code},
+					"vnf-name": ${vnf-data.vnf-topology.vnf-topology-identifier-structure.vnf-name},
+				},
+				"tenant": ${vnf-data.vnf-topology.tenant},
+				"aic-cloud-region": ${vnf-data.vnf-topology.aic-cloud-region},
+				"cloud-owner": ${vnf-data.vnf-topology.cloud-owner},
+				"aic-clli": ${vnf-data.vnf-topology.aic-clli},
+				"onap-model-information": {
+					"model-invariant-uuid": ${vnf-data.vnf-topology.onap-model-information.model-invariant-uuid},
+					"model-customization-uuid": ${vnf-data.vnf-topology.onap-model-information.model-customization-uuid},
+					"model-uuid": ${vnf-data.vnf-topology.onap-model-information.model-uuid},
+					"model-version": ${vnf-data.vnf-topology.onap-model-information.model-version},
+					"model-name": ${vnf-data.vnf-topology.onap-model-information.model-name},
+				},
+				"vnf-resource-assignments": {
+					"vnf-status": ${vnf-data.vnf-topology.vnf-resource-assignments.vnf-status},
+					"availability-zones": {
+						"availability-zone": [
+${repeat:vnf-data.vnf-topology.vnf-resource-assignments.availability-zones.availability-zone_length:
+							${vnf-data.vnf-topology.vnf-resource-assignments.availability-zones.availability-zone[${1}]},
+}
+						]
+					},
+					"vnf-networks": {
+						"vnf-network": [
+${repeat:vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network_length:
+							{
+								"network-role": ${vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[${1}].network-role},
+								"network-name": ${vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[${1}].network-name},
+								"neutron-id": ${vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[${1}].neutron-id},
+								"network-id": ${vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[${1}].network-id},
+								"contrail-network-fqdn": ${vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[${1}].contrail-network-fqdn},
+								"subnets-data": {
+									"subnet-data": [
+${repeat:vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[${1}].subnets-data.subnet-data_length:
+										{
+											"sdnc-subnet-id": ${vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[${1}].subnets-data.subnet-data[${2}].sdnc-subnet-id},
+											"subnet-role": ${vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[${1}].subnets-data.subnet-data[${2}].subnet-role},
+											"subnet-name": ${vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[${1}].subnets-data.subnet-data[${2}].subnet-name},
+											"ip-version": ${vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[${1}].subnets-data.subnet-data[${2}].ip-version},
+											"subnet-id": ${vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[${1}].subnets-data.subnet-data[${2}].subnet-id},
+											"dhcp-enabled": ${vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[${1}].subnets-data.subnet-data[${2}].dhcp-enabled},
+											"network-start-address": ${vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[${1}].subnets-data.subnet-data[${2}].network-start-address},
+											"gateway-address": ${vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[${1}].subnets-data.subnet-data[${2}].gateway-address},
+											"cidr-mask": ${vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[${1}].subnets-data.subnet-data[${2}].cidr-mask}
+										},
+}
+									]
+								},
+								"is-trunked": ${vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[${1}].is-trunked},
+								"segmentation-id": ${vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[${1}].segmentation-id},
+								"related-networks": {
+									"related-network": [
+${repeat:vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[${1}].related-networks.related-network_length:
+										{
+											"network-id": ${vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[${1}].related-networks.related-network[${2}].network-id},
+											"network-role": ${vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[${1}].related-networks.related-network[${2}].network-role},
+											"vlan-tags": {
+												"vlan-interface": ${vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[${1}].related-networks.related-network[${2}].vlan-tags.vlan-interface},
+												"upper-tag-id": ${vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[${1}].related-networks.related-network[${2}].vlan-tags.upper-tag-id},
+												"lower-tag-id": ${vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[${1}].related-networks.related-network[${2}].vlan-tags.lower-tag-id},
+												"is-private": ${vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[${1}].related-networks.related-network[${2}].vlan-tags.is-private}
+											}
+										},
+}
+									]
+								}
+							},
+}
+						]
+					}
+				},
+				"vnf-parameters-data": {
+					"param": [
+${repeat:vnf-data.vnf-topology.vnf-parameters-data.param_length:
+						{
+							"name": ${vnf-data.vnf-topology.vnf-parameters-data.param[${1}].name},
+							"value": ${vnf-data.vnf-topology.vnf-parameters-data.param[${1}].value}
+						},
+}
+					]
+				},
+				"sdnc-generated-cloud-resources": ${vnf-data.vnf-topology.sdnc-generated-cloud-resources},
+			},
+			"vnf-network-collections": {
+				"vnf-network-collection": [
+${repeat:vnf-data.vnf-network-collections.vnf-network-collection_length:
+					{
+						"network-instance-group-function": ${vnf-data.vnf-network-collections.vnf-network-collection[${1}].network-instance-group-function},
+						"network-instance-group-id": ${vnf-data.vnf-network-collections.vnf-network-collection[${1}].network-instance-group-id},
+						"network-collection-service-instance-id": ${vnf-data.vnf-network-collections.vnf-network-collection[${1}].network-collection-service-instance-id},
+						"network-collection-customization-uuid": ${vnf-data.vnf-network-collections.vnf-network-collection[${1}].network-collection-customization-uuid},
+						"networks": {
+							"network": [
+${repeat:vnf-data.vnf-network-collections.vnf-network-collection[${1}].networks.network_length:
+								{
+									"network-id": ${vnf-data.vnf-network-collections.vnf-network-collection[${1}].networks.network[${2}].network-id},
+									"neutron-network-id": ${vnf-data.vnf-network-collections.vnf-network-collection[${1}].networks.network[${2}].neutron-network-id}
+								},
+}
+							]
+						},
+						"vnf-floating-ip": {
+							"ip-addresses": {
+								"ipv4-address": ${vnf-data.vnf-network-collections.vnf-network-collection[${1}].vnf-floating-ip.ip-addresses.ipv4-address},
+								"ipv6-address": ${vnf-data.vnf-network-collections.vnf-network-collection[${1}].vnf-floating-ip.ip-addresses.ipv6-address},
+								"vipv4-address": ${vnf-data.vnf-network-collections.vnf-network-collection[${1}].vnf-floating-ip.ip-addresses.vipv4-address},
+								"vipv6-address": ${vnf-data.vnf-network-collections.vnf-network-collection[${1}].vnf-floating-ip.ip-addresses.vipv6-address}
+							}
+						}
+					},
+}
+				]
+			},
+			"vnf-level-oper-status": {
+				"order-status": ${vnf-data.vnf-level-oper-status.order-status},
+				"last-rpc-action": ${vnf-data.vnf-level-oper-status.last-rpc-action},
+				"last-action": ${vnf-data.vnf-level-oper-status.last-action},
+				"last-svc-request-id": ${vnf-data.vnf-level-oper-status.last-svc-request-id},
+				"last-order-status": ${vnf-data.vnf-level-oper-status.last-order-status},
+				"create-timestamp": ${vnf-data.vnf-level-oper-status.create-timestamp},
+				"modify-timestamp": ${vnf-data.vnf-level-oper-status.modify-timestamp}
+			}
+		}
+	}]
+}
+

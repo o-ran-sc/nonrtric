@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<service-logic xmlns="http://www.onap.org/sdnc/svclogic" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.onap.org/sdnc/svclogic ./svclogic.xsd" module="GENERIC-RESOURCE-API" version="${project.version}">
+  <method rpc="wan-connection-topology-operation-deactivate" mode="sync"> 
+    <block atomic="true">
+      <execute plugin="org.onap.ccsdk.sli.plugins.prop.PropertiesNode" method="readProperties"> 
+        <parameter name="fileName" value="%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties"/>  
+        <parameter name="contextPrefix" value="prop"/> 
+      </execute>
+      <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils" method="replace"> 
+        <parameter name="source" value="`$prop.network-provided-resource`"/>  
+        <parameter name="outputPath" value="tmp.services-url"/>  
+        <parameter name="target" value="{service-instance-id}"/>  
+        <parameter name="replacement" value="`$network-topology-operation-input.service-information.service-id`"/> 
+      </execute>
+      <execute plugin="org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode" method="sendRequest"> 
+        <parameter name="restapiUrl" value="`$prop.controller.url + $tmp.services-url`"/>  
+        <parameter name="restapiUser" value="`$prop.controller.user`"/>  
+        <parameter name="restapiPassword" value="`$prop.controller.pwd`"/>  
+        <parameter name="format" value="json"/>  
+        <parameter name="httpMethod" value="GET"/>  
+        <parameter name="responsePrefix" value="mdsal-psd"/>  
+        <outcome value="success"> 
+          <block></block>
+        </outcome>
+        <outcome value="Other"> 
+          <return status="failure"> 
+            <parameter name="ack-final" value="Y"/>  
+            <parameter name="error-code" value="404"/>  
+            <parameter name="error-message" value="Error: Parent service data not available"/> 
+          </return>
+        </outcome>
+      </execute>
+      <set> 
+        <parameter name="tmp.found-network-input" value="false"/>
+      </set>
+      <for index="pidx" start="0" end="`$mdsal-psd.service-data.networks.network_length`"> 
+        <switch test="`$mdsal-psd.service-data.networks.network[$pidx].network-id == $network-topology-operation-input.network-information.network-id`"> 
+          <outcome value="true"> 
+            <block atomic="true">
+              <set> 
+                <parameter name="tmp.pidx" value="`$pidx`"/>  
+                <parameter name="tmp.network." value="`$mdsal-psd.service-data.networks.network[$pidx].`"/>  
+                <parameter name="tmp.network-input-parameters" value="`$mdsal-psd.service-data.networks.network[$pidx].network-data.network-request-input.network-input-parameters`"/>  
+                <parameter name="tmp.found-network-input" value="true"/>
+              </set>
+            </block>
+          </outcome>
+        </switch>
+      </for>
+      <switch test="`$found-network-input`"> 
+        <outcome value="false"> 
+          <return status="failure"> 
+            <parameter name="ack-final" value="Y"/>  
+            <parameter name="error-code" value="404"/>  
+            <parameter name="error-message" value="Error: Network input parameters not found"/> 
+          </return>
+        </outcome>
+        <outcome value="true"> 
+          <block atomic="true">
+            <set> 
+              <parameter name="tmp.restapiUrl-found" value="false"/>  
+              <parameter name="tmp.restapiUser-found" value="false"/>  
+              <parameter name="tmp.restapiPassword-found" value="false"/>  
+              <parameter name="tmp.thirdPartyAdaptorRpc-found" value="false"/>  
+              <parameter name="tmp.actualId-found" value="false"/>
+            </set>
+            <for index="cidx" start="0" end="`$tmp.network.network-data.network-topology.network-parameters.network-parameter_length`"> 
+              <block> 
+                <switch test="`$tmp.network.network-data.network-topology.network-parameters.network-parameter[$cxid].network-parameter-name == 'restapiUrl-deactivate'`"> 
+                  <outcome value="true"> 
+                    <set> 
+                      <parameter name="tmp.restapiUrl" value="`$tmp.network.network-data.network-topology.network-parameters.network-parameter[$cxid].network-parameter-value`"/>  
+                      <parameter name="tmp.restapiUrl-found" value="true"/>
+                    </set>
+                  </outcome>
+                </switch>
+                <switch test="`$tmp.network.network-data.network-topology.network-parameters.network-parameter[$cxid].network-parameter-name == 'restapiUser'`"> 
+                  <outcome value="true"> 
+                    <set> 
+                      <parameter name="tmp.restapiUser" value="`$tmp.network.network-data.network-topology.network-parameters.network-parameter[$cxid].network-parameter-value`"/>  
+                      <parameter name="tmp.restapiUser-found" value="true"/>
+                    </set>
+                  </outcome>
+                </switch>
+                <switch test="`$tmp.network.network-data.network-topology.network-parameters.network-parameter[$cxid].network-parameter-name == 'restapiPassword'`"> 
+                  <outcome value="true"> 
+                    <set> 
+                      <parameter name="tmp.restapiPassword" value="`$tmp.network.network-data.network-topology.network-parameters.network-parameter[$cxid].network-parameter-value`"/>  
+                      <parameter name="tmp.restapiPassword-found" value="true"/>
+                    </set>
+                  </outcome>
+                </switch>
+                <switch test="`$tmp.network.network-data.network-topology.network-parameters.network-parameter[$cxid].network-parameter-name == 'actualId'`"> 
+                  <outcome value="true"> 
+                    <set> 
+                      <parameter name="tmp.actualId" value="`$tmp.network.network-data.network-topology.network-parameters.network-parameter[$cxid].network-parameter-value`"/>  
+                      <parameter name="tmp.actualId-found" value="true"/>
+                    </set>
+                  </outcome>
+                </switch>
+                <switch test="`$tmp.network.network-data.network-topology.network-parameters.network-parameter[$cxid].network-parameter-name == 'thirdPartyAdaptorRpc-deactivate'`"> 
+                  <outcome value="true"> 
+                    <set> 
+                      <parameter name="tmp.thirdPartyAdaptorRpc" value="`$tmp.network.network-data.network-topology.network-parameters.network-parameter[$cxid].network-parameter-value`"/>  
+                      <parameter name="tmp.thirdPartyAdaptorRpc-found" value="true"/>
+                    </set>
+                  </outcome>
+                </switch>
+              </block>
+            </for>
+            <switch test="`$tmp.thirdPartyAdaptorRpc-found == 'true'`"> 
+              <outcome value="true"> 
+                <call module="GENERIC-RESOURCE-API" rpc="`$tmp.thirdPartyAdaptorRpc`" mode="sync"> 
+                  <outcome value="success"> 
+                    <block></block>
+                  </outcome>
+                  <outcome value="failure"> 
+                    <return status="failure"> 
+                      <parameter name="ack-final" value="Y"/>  
+                      <parameter name="error-code" value="500"/>  
+                      <parameter name="error-message" value="`'Error calling ' + $tmp.thirdPartyAdaptorRpc`"/> 
+                    </return>
+                  </outcome>
+                  <outcome value="not-found"> 
+                    <return status="failure"> 
+                      <parameter name="ack-final" value="Y"/>  
+                      <parameter name="error-code" value="500"/>  
+                      <parameter name="error-message" value="`'Error calling ' + $tmp.thirdPartyAdaptorRpc`"/> 
+                    </return>
+                  </outcome>
+                </call>
+              </outcome>
+              <outcome value="false"> 
+                <switch test="`$tmp.restapiUrl-found == 'true'`"> 
+                  <outcome value="false"> 
+                    <return status="failure"> 
+                      <parameter name="ack-final" value="Y"/>  
+                      <parameter name="error-code" value="404"/>  
+                      <parameter name="error-message" value="Error: 3rd party controller restapiUrl not found"/> 
+                    </return>
+                  </outcome>
+                  <outcome value="true"> 
+                    <switch test="`$tmp.restapiUser-found == 'true'`"> 
+                      <outcome value="false"> 
+                        <return status="failure"> 
+                          <parameter name="ack-final" value="Y"/>  
+                          <parameter name="error-code" value="404"/>  
+                          <parameter name="error-message" value="Error: 3rd party controller restapiUser not found"/> 
+                        </return>
+                      </outcome>
+                      <outcome value="true"> 
+                        <switch test="`$tmp.restapiPassword-found == 'true'`"> 
+                          <outcome value="false"> 
+                            <return status="failure"> 
+                              <parameter name="ack-final" value="Y"/>  
+                              <parameter name="error-code" value="404"/>  
+                              <parameter name="error-message" value="Error: 3rd party controller restapiPassword not found"/> 
+                            </return>
+                          </outcome>
+                          <outcome value="true"> 
+                            <switch test="`$tmp.actualId-found == 'true'`"> 
+                              <outcome value="false"> 
+                                <return status="failure"> 
+                                  <parameter name="ack-final" value="Y"/>  
+                                  <parameter name="error-code" value="404"/>  
+                                  <parameter name="error-message" value="Error: Wan Connection actualId not found"/> 
+                                </return>
+                              </outcome>
+                              <outcome value="true"> 
+                                <execute plugin="org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode" method="sendRequest"> 
+                                  <parameter name="restapiUrl" value="`$tmp.restapiUrl + $tmp.actualId`"/>  
+                                  <parameter name="restapiUser" value="`$tmp.restapiUser`"/>  
+                                  <parameter name="restapiPassword" value="`$tmp.restapiPassword`"/>  
+                                  <parameter name="format" value="json"/>  
+                                  <parameter name="httpMethod" value="delete"/>
+                                  <outcome value="success"> 
+                                    <block></block>
+                                  </outcome>
+                                  <outcome value="failure"> 
+                                    <return status="failure"> 
+                                      <parameter name="ack-final" value="Y"/>  
+                                      <parameter name="error-code" value="500"/>  
+                                      <parameter name="error-message" value="`'Error calling ' + $tmp.restapiUrl`"/> 
+                                    </return>
+                                  </outcome>
+                                  <outcome value="not-found"> 
+                                    <return status="failure"> 
+                                      <parameter name="ack-final" value="Y"/>  
+                                      <parameter name="error-code" value="500"/>  
+                                      <parameter name="error-message" value="`'Error calling ' + $tmp.restapiUrl`"/> 
+                                    </return>
+                                  </outcome>
+                                </execute>
+                              </outcome>
+                            </switch>
+                          </outcome>
+                        </switch>
+                      </outcome>
+                    </switch>
+                  </outcome>
+                </switch>
+              </outcome>
+            </switch>
+          </block>
+        </outcome>
+      </switch>
+      <return status="success"> 
+        <parameter name="ack-final-indicator" value="Y"/>  
+        <parameter name="error-code" value="200"/>  
+        <parameter name="error-message" value="`$error-message`"/> 
+      </return>
+    </block>
+  </method>
+</service-logic>

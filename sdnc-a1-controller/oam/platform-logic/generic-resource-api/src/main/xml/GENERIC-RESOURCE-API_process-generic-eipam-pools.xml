@@ -1,0 +1,661 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <!--This DG relys on generate-FQPN to determine the key_names & key_values for all levels for the specified plan-name.-->
+    <method rpc="process-generic-eipam-pools" mode="sync">
+        <block atomic='true'>
+            <set>
+                <parameter name="tmp.eipam-error" value="false" />
+                <parameter name="tmp.create-v4-pool-flag" value="N" />
+                <parameter name="tmp.create-v6-pool-flag" value="N" />
+                <parameter name='eipam-ip-block.plans_length' value='0' />
+                <parameter name="eipam-pool.v4.pre-existing" value="false"/>
+                <parameter name="eipam-pool.v6.pre-existing" value="false"/>
+                <!-- <parameter name="tmp.network-id" value="`$tmp.l3-network.network-id`" /> -->
+                <parameter name="tmp.network-id" value="`$network-topology-operation-input.network-information.network-id`" />
+            </set>
+            <switch test='`$tmp.service-type`'>
+                <outcome value=''>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name="tmp.service-type" value="`$service-data.service-information.subscription-service-type`" />
+                        </set>
+                    </block>
+                </outcome>
+            </switch>
+            <switch test='`$tmp.network-instance-group-id`'>
+                <outcome value=''>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name="tmp.network-instance-group-id" value="`$network-topology-operation-input.network-request-input.network-instance-group-id`" />
+                        </set>
+                    </block>
+                </outcome>
+            </switch>
+            <switch test='`$generate-FQPN-input.network-name`'>
+                <outcome value=''>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name="generate-FQPN-input.network-name" value="`$network-topology-identifier-structure.network-name`" />
+                        </set>
+                    </block>
+                </outcome>
+            </switch>
+            <switch test='`$generate-FQPN-input.zone`'>
+                <outcome value=''>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name="generate-FQPN-input.zone" value="`$aai.cloud-region.cloud-zone`" />
+                        </set>
+                    </block>
+                </outcome>
+            </switch>
+            <switch test='`$generate-FQPN-input.network-collection`'>
+                <outcome value=''>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name="generate-FQPN-input.network-collection" value="`$aai-network-collection.collection-name`" />
+                        </set>
+                    </block>
+                </outcome>
+            </switch>
+            <switch test='`$generate-FQPN-input.aic-cloud-region`'>
+                <outcome value=''>
+                    <block atomic='true'>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                            <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                            <parameter name='contextPrefix' value='prop' />
+                        </execute>
+                        <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="cloud-region" 
+		key="cloud-region.cloud-owner = $prop.cloud-region.cloud-owner AND 
+		     cloud-region.cloud-region-id = $aai.cloud-region.cloud-region-id AND
+		     depth = '0'"
+        pfx='aai.cloud-region' >
+                            <outcome value='not-found'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="404" />
+                                    <parameter name="error-message" value="`'aic-cloud-region, '+ $generate-fqpn-input.aic-cloud-region + ' not found in AAI'`" />
+                                </return>
+                            </outcome>
+                            <outcome value='failure'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="Error retrieving cloud region from AAI" />
+                                </return>
+                            </outcome>
+                        </get-resource>
+                        <switch test='`$aai.cloud-region.relationship-list.relationship_length`'>
+                            <outcome value='0'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="cloud-region missing relationships in AAI" />
+                                </return>
+                            </outcome>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="cloud-region missing relationships in AAI" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <for index='ridx' start='0' end='`$aai.cloud-region.relationship-list.relationship_length`' >
+                            <for silentFailure='false' index='rdidx' start='0' end="`$aai.cloud-region.relationship-list.relationship[$ridx].relationship-data_length`" >
+                                <switch test='`$aai.cloud-region.relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-key`'>
+                                    <outcome value='complex.physical-location-id'>
+                                        <block atomic='true'>
+                                            <block>
+                                                <set>
+                                                    <parameter name='tmp.aic-clli' value='`$aai.cloud-region.relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-value`' />
+                                                </set>
+                                                <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='substring'>
+                                                    <parameter name='result' value='tmp.truncated.clli8' />
+                                                    <parameter name='string' value='`$tmp.aic-clli`' />
+                                                    <parameter name='begin-index' value='0' />
+                                                    <parameter name='end-index' value='8' />
+                                                </execute>
+                                                <set>
+                                                    <parameter name='generate-FQPN-input.location-clli8' value='`$tmp.truncated.clli8`' />
+                                                </set>
+                                            </block>
+                                            <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="complex" 
+		key="complex.physical-location-id = $aai.cloud-region.relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-value"
+    pfx='aai.complex' >
+                                                <outcome value='not-found'>
+                                                    <return status='failure'>
+                                                        <parameter name='ack-final' value='Y'/>
+                                                        <parameter name="error-code" value="500" />
+                                                        <parameter name="error-message" value="Complex not found in AAI" />
+                                                    </return>
+                                                </outcome>
+                                                <outcome value='failure'>
+                                                    <return status='failure'>
+                                                        <parameter name='ack-final' value='Y'/>
+                                                        <parameter name="error-code" value="500" />
+                                                        <parameter name="error-message" value="Error retrieving complex from AAI" />
+                                                    </return>
+                                                </outcome>
+                                            </get-resource>
+                                            <set>
+                                                <parameter name='generate-FQPN-input.complex-region' value='`$aai.complex.region`' />
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                            </for>
+                        </for>
+                        <set>
+                            <parameter name='generate-FQPN-input.aic-cloud-region' 
+	value='`$aai.cloud-region.cloud-region-id`' />
+                        </set>
+                    </block>
+                </outcome>
+            </switch>
+            <switch test='`$generate-FQPN-input.location-clli8`'>
+                <outcome value=''>
+                    <block atomic='true'>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                            <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                            <parameter name='contextPrefix' value='prop' />
+                        </execute>
+                        <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="cloud-region" 
+		key="cloud-region.cloud-owner = $prop.cloud-region.cloud-owner AND 
+		     cloud-region.cloud-region-id = $aai.cloud-region.cloud-region-id AND
+		     depth = '0'"
+        pfx='aai.cloud-region' >
+                            <outcome value='not-found'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="404" />
+                                    <parameter name="error-message" value="`'aic-cloud-region, '+ $generate-fqpn-input.aic-cloud-region + ' not found in AAI'`" />
+                                </return>
+                            </outcome>
+                            <outcome value='failure'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="Error retrieving cloud region from AAI" />
+                                </return>
+                            </outcome>
+                        </get-resource>
+                        <switch test='`$aai.cloud-region.relationship-list.relationship_length`'>
+                            <outcome value='0'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="cloud-region missing relationships in AAI" />
+                                </return>
+                            </outcome>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="cloud-region missing relationships in AAI" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <for index='ridx' start='0' end='`$aai.cloud-region.relationship-list.relationship_length`' >
+                            <for silentFailure='false' index='rdidx' start='0' end="`$aai.cloud-region.relationship-list.relationship[$ridx].relationship-data_length`" >
+                                <switch test='`$aai.cloud-region.relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-key`'>
+                                    <outcome value='complex.physical-location-id'>
+                                        <block atomic='true'>
+                                            <block>
+                                                <set>
+                                                    <parameter name='tmp.aic-clli' value='`$aai.cloud-region.relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-value`' />
+                                                </set>
+                                                <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='substring'>
+                                                    <parameter name='result' value='tmp.truncated.clli8' />
+                                                    <parameter name='string' value='`$tmp.aic-clli`' />
+                                                    <parameter name='begin-index' value='0' />
+                                                    <parameter name='end-index' value='8' />
+                                                </execute>
+                                                <set>
+                                                    <parameter name='generate-FQPN-input.location-clli8' value='`$tmp.truncated.clli8`' />
+                                                </set>
+                                            </block>
+                                            <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="complex" 
+		key="complex.physical-location-id = $aai.cloud-region.relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-value"
+    pfx='aai.complex' >
+                                                <outcome value='not-found'>
+                                                    <return status='failure'>
+                                                        <parameter name='ack-final' value='Y'/>
+                                                        <parameter name="error-code" value="500" />
+                                                        <parameter name="error-message" value="Complex not found in AAI" />
+                                                    </return>
+                                                </outcome>
+                                                <outcome value='failure'>
+                                                    <return status='failure'>
+                                                        <parameter name='ack-final' value='Y'/>
+                                                        <parameter name="error-code" value="500" />
+                                                        <parameter name="error-message" value="Error retrieving complex from AAI" />
+                                                    </return>
+                                                </outcome>
+                                            </get-resource>
+                                            <set>
+                                                <parameter name='generate-FQPN-input.complex-region' value='`$aai.complex.region`' />
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                            </for>
+                        </for>
+                        <set>
+                            <parameter name='generate-FQPN-input.aic-cloud-region' 
+	value='`$aai.cloud-region.cloud-region-id`' />
+                        </set>
+                    </block>
+                </outcome>
+            </switch>
+            <switch test='`$generate-FQPN-input.complex-region`'>
+                <outcome value=''>
+                    <block atomic='true'>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                            <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                            <parameter name='contextPrefix' value='prop' />
+                        </execute>
+                        <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="cloud-region" 
+		key="cloud-region.cloud-owner = $prop.cloud-region.cloud-owner AND 
+		     cloud-region.cloud-region-id = $aai.cloud-region.cloud-region-id AND
+		     depth = '0'"
+        pfx='aai.cloud-region' >
+                            <outcome value='not-found'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="404" />
+                                    <parameter name="error-message" value="`'aic-cloud-region, '+ $generate-fqpn-input.aic-cloud-region + ' not found in AAI'`" />
+                                </return>
+                            </outcome>
+                            <outcome value='failure'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="Error retrieving cloud region from AAI" />
+                                </return>
+                            </outcome>
+                        </get-resource>
+                        <switch test='`$aai.cloud-region.relationship-list.relationship_length`'>
+                            <outcome value='0'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="cloud-region missing relationships in AAI" />
+                                </return>
+                            </outcome>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="cloud-region missing relationships in AAI" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <for index='ridx' start='0' end='`$aai.cloud-region.relationship-list.relationship_length`' >
+                            <for silentFailure='false' index='rdidx' start='0' end="`$aai.cloud-region.relationship-list.relationship[$ridx].relationship-data_length`" >
+                                <switch test='`$aai.cloud-region.relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-key`'>
+                                    <outcome value='complex.physical-location-id'>
+                                        <block atomic='true'>
+                                            <block>
+                                                <set>
+                                                    <parameter name='tmp.aic-clli' value='`$aai.cloud-region.relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-value`' />
+                                                </set>
+                                                <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='substring'>
+                                                    <parameter name='result' value='tmp.truncated.clli8' />
+                                                    <parameter name='string' value='`$tmp.aic-clli`' />
+                                                    <parameter name='begin-index' value='0' />
+                                                    <parameter name='end-index' value='8' />
+                                                </execute>
+                                                <set>
+                                                    <parameter name='generate-FQPN-input.location-clli8' value='`$tmp.truncated.clli8`' />
+                                                </set>
+                                            </block>
+                                            <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="complex" 
+		key="complex.physical-location-id = $aai.cloud-region.relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-value"
+    pfx='aai.complex' >
+                                                <outcome value='not-found'>
+                                                    <return status='failure'>
+                                                        <parameter name='ack-final' value='Y'/>
+                                                        <parameter name="error-code" value="500" />
+                                                        <parameter name="error-message" value="Complex not found in AAI" />
+                                                    </return>
+                                                </outcome>
+                                                <outcome value='failure'>
+                                                    <return status='failure'>
+                                                        <parameter name='ack-final' value='Y'/>
+                                                        <parameter name="error-code" value="500" />
+                                                        <parameter name="error-message" value="Error retrieving complex from AAI" />
+                                                    </return>
+                                                </outcome>
+                                            </get-resource>
+                                            <set>
+                                                <parameter name='generate-FQPN-input.complex-region' value='`$aai.complex.region`' />
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                            </for>
+                        </for>
+                        <set>
+                            <parameter name='generate-FQPN-input.aic-cloud-region' 
+	value='`$aai.cloud-region.cloud-region-id`' />
+                        </set>
+                    </block>
+                </outcome>
+            </switch>
+            <switch test="`$network-model.use-ipv4`">
+                <outcome value='N'></outcome>
+                <outcome value='Y'>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name='generate-FQPN-input.plan-name' value='`$network-model.eipam-v4-address-plan`' />
+                        </set>
+                        <call module='GENERIC-RESOURCE-API' rpc='generate-FQPN' mode='sync' >
+                            <outcome value='failure'>
+                                <return status="failure">
+                                    <parameter name="ack-final" value="Y" />
+                                    <parameter name="error-code" value="500"/>
+                                    <parameter name="error-message" value="`'An error occured while generating FQPN: '+ $error-message`" />
+                                </return>
+                            </outcome>
+                        </call>
+                        <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                        <set>
+                            <parameter name="v4FQPN-output." value="generate-FQPN-output."/>
+                        </set>
+                    </block>
+                </outcome>
+                <outcome value=""></outcome>
+            </switch>
+            <switch test="`$network-model.use-ipv6`">
+                <outcome value='N'></outcome>
+                <outcome value='Y'>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name='generate-FQPN-input.plan-name' value='`$network-model.eipam-v6-address-plan`' />
+                        </set>
+                        <call module='GENERIC-RESOURCE-API' rpc='generate-FQPN' mode='sync' >
+                            <outcome value='failure'>
+                                <return status="failure">
+                                    <parameter name="ack-final" value="Y" />
+                                    <parameter name="error-code" value="500"/>
+                                    <parameter name="error-message" value="`'An error occured while generating FQPN: '+ $error-message`" />
+                                </return>
+                            </outcome>
+                        </call>
+                        <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                        <set>
+                            <parameter name="v6FQPN-output." value="generate-FQPN-output."/>
+                        </set>
+                    </block>
+                </outcome>
+                <outcome value=""></outcome>
+            </switch>
+            <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+            <set>
+                <parameter name="eipam-ip-block.subnet-size-override-v4" value="`$network-model.ipv4-cidr-mask`" />
+                <parameter name="eipam-ip-block.subnet-size-override-v6" value="`$network-model.ipv6-cidr-mask`" />
+            </set>
+            <switch test="`$network-topology-operation-input.network-request-input.network-input-parameters.param_length`">
+                <outcome value=''>
+                    <block></block>
+                </outcome>
+                <outcome value='Other'>
+                    <block>
+                        <for index='pidx' start='0' end='`$network-topology-operation-input.network-request-input.network-input-parameters.param_length`' >
+                            <block atomic="true">
+                                <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains'  emitsOutcome='true' >
+                                    <parameter name="source" value="`$network-topology-operation-input.network-request-input.network-input-parameters.param[$pidx].name`" />
+                                    <parameter name="target" value="network_assignments_ipv4_subnet_default_assignment_cidr_mask"/>
+                                    <outcome value='true'>
+                                        <set>
+                                            <parameter name='eipam-ip-block.subnet-size-override-v4' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$pidx].value`' />
+                                        </set>
+                                    </outcome>
+                                </execute>
+                                <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains'  emitsOutcome='true' >
+                                    <parameter name="source" value="`$network-topology-operation-input.network-request-input.network-input-parameters.param[$pidx].name`" />
+                                    <parameter name="target" value="network_assignments_ipv6_subnet_default_assignment_cidr_mask"/>
+                                    <outcome value='true'>
+                                        <set>
+                                            <parameter name='eipam-ip-block.subnet-size-override-v6' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$pidx].value`' />
+                                        </set>
+                                    </outcome>
+                                </execute>
+                            </block>
+                        </for>
+                    </block>
+                </outcome>
+            </switch>
+            <for index="l-idx" start="1" end="`$eipam-ip-block.getPlanTopologyResponse.TopologyDetails_length + 1`">
+                <block atomic='true'>
+                    <set>
+                        <parameter name='eipam-ip-block.entity-id' value='' />
+                        <parameter name='eipam-ip-block.ip-prefix' value='' />
+                        <parameter name='eipam-ip-block.mask' value='' />
+                        <parameter name="eipam-ip-block.level" value='`$l-idx`' />
+                        <parameter name='eipam-pool.v4.pre-existing' value='false' />
+                        <parameter name='eipam-pool.v6.pre-existing' value='false' />
+                    </set>
+                    <!--tmp.level should be set to 1-->
+                    <call module='GENERIC-RESOURCE-API' rpc='eipam-create-generic-pool' mode='sync' >
+                        <outcome value='failure'>
+                            <block atomic="true">
+                                <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                    <parameter name="logger" value="message-log"/>
+                                    <parameter name="field1" value="__TIMESTAMP__"/>
+                                    <parameter name="field2" value="GENERIC-RESOURCE-API.process-generic-eipam-pools:REQID"/>
+                                    <parameter name="field3" value="`$network-topology-operation-input.sdnc-request-header.svc-request-id`"/>
+                                    <parameter name="field4" value="Error creating pool for level"/>
+                                    <parameter name="field5" value="`$l-idx`"/>
+                                </record>
+                                <return status="failure">
+                                    <parameter name="tmp.eipam-error" value="true" />
+                                    <parameter name="error-code" value="500"/>
+                                    <parameter name="error-message" value="An error occured while creating pool" />
+                                </return>
+                            </block>
+                        </outcome>
+                        <outcome value='success'>
+                            <block atomic="true">
+                                <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                    <parameter name="logger" value="message-log"/>
+                                    <parameter name="field1" value="__TIMESTAMP__"/>
+                                    <parameter name="field2" value="GENERIC-RESOURCE-API.process-generic-eipam-pools:REQID"/>
+                                    <parameter name="field3" value="`$network-topology-operation-input.sdnc-request-header.svc-request-id`"/>
+                                    <parameter name="field4" value="`$l-idx`"/>
+                                    <parameter name="field5" value="`$eipam-pool.v4.pre-existing`"/>
+                                    <parameter name="field6" value="eipam-pool.v4.pre-existing"/>
+                                    <parameter name="field7" value="`$eipam-pool.v6.pre-existing`"/>
+                                    <parameter name="field8" value="tmp.create-v4-pool-flag" />
+                                    <parameter name="field9" value="`$tmp.create-v4-pool-flag`" />
+                                    <parameter name="field10" value="tmp.create-v6-pool-flag" />
+                                    <parameter name="field11" value="`$tmp.create-v6-pool-flag`" />
+                                    <parameter name="field12" value="Successful" />
+                                </record>
+                            </block>
+                        </outcome>
+                    </call>
+                    <switch test="`$tmp.allocate-subnet-flag`">
+                        <outcome value=""></outcome>
+                        <outcome value='N'>
+                            <block atomic='true'>
+                                <switch test="`$network-model.use-ipv4`">
+                                    <outcome value='N'></outcome>
+                                    <outcome value='Y'>
+                                        <block atomic='true'>
+                                            <get-resource
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="SELECT * from EIPAM_IP_SUBNETS s, EIPAM_IP_SUBNET_KEYS k WHERE s.plan_name = $network-model.eipam-v4-address-plan and s.entity_id = k.entity_id and k.level = $l-idx and k.key_value = $key-value ; "
+        pfx='tmp.eipam-subnet-row'>
+                                                <outcome value='success'>
+                                                    <block atomic="true">
+                                                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                            <parameter name="logger" value="message-log"/>
+                                                            <parameter name="field1" value="__TIMESTAMP__"/>
+                                                            <parameter name="field2" value="GENERIC-RESOURCE-API.process-eipam-pools:REQID"/>
+                                                            <parameter name="field3" value="`$network-topology-operation-input.sdnc-request-header.svc-request-id`"/>
+                                                            <parameter name="field4" value="Existing eipam-ip-block.ip-prefix for level:" />
+                                                            <parameter name="field5" value="`$l-idx`" />
+                                                            <parameter name="field6" value="Existing eipam-ip-block.mask for level:" />
+                                                            <parameter name="field7" value="`$tmp.eipam-subnet-row.prefix-length`"/>
+                                                            <parameter name="field8" value="ipv4"/>
+                                                            <parameter name="field9" value="`$tmp.eipam-subnet-row.ip-address`"/>
+                                                        </record>
+                                                        <set>
+                                                            <parameter name='tmp.l3-network.level1.v4.subnet.pre-existing' value='true' />
+                                                            <parameter name='tmp.l3-network.level1.v4.entity-id' value='`$tmp.eipam-row.entity-id`' />
+                                                            <parameter name='tmp.l3-network.level1.v4.ip-prefix' value='`$tmp.eipam-row.ip-address`' />
+                                                            <parameter name='tmp.l3-network.level1.v4.mask' value='`$tmp.eipam-row.prefix-length`' />
+                                                        </set>
+                                                    </block>
+                                                </outcome>
+                                                <outcome value="not-found">
+                                                    <block atomic='true'>
+                                                        <set>
+                                                            <parameter name='eipam-ip-block.entity-id' value='' />
+                                                            <parameter name='eipam-ip-block.ip-prefix' value='' />
+                                                            <parameter name='eipam-ip-block.mask' value='' />
+                                                            <parameter name="eipam-ip-block.allocate-version" value='ipv4' />
+                                                            <parameter name='eipam-ip-block.plans_length' value='0' />
+                                                        </set>
+                                                        <call module='GENERIC-RESOURCE-API' rpc='eipam-allocate-generic-subnet' mode='sync' >
+                                                            <outcome value='success'>
+                                                                <block atomic="true">
+                                                                    <set>
+                                                                        <parameter name='eipam-ip-block.v4.allocateSubnetResponse.' value='eipam-ip-block.allocateSubnetResponse.' />
+                                                                    </set>
+                                                                    <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                                        <parameter name="logger" value="message-log"/>
+                                                                        <parameter name="field1" value="__TIMESTAMP__"/>
+                                                                        <parameter name="field2" value="GENERIC-RESOURCE-API.process-eipam-pools:REQID"/>
+                                                                        <parameter name="field3" value="`$network-topology-operation-input.sdnc-request-header.svc-request-id`"/>
+                                                                        <parameter name="field4" value="eipam-ip-block.ip-prefix"/>
+                                                                        <parameter name="field5" value="`$eipam-ip-block.ip-prefix`"/>
+                                                                        <parameter name="field6" value="eipam-ip-block.mask"/>
+                                                                        <parameter name="field7" value="`$eipam-ip-block.v4.allocateSubnetResponse.Mask`"/>
+                                                                        <parameter name="field8" value="ipv4"/>
+                                                                        <parameter name="field9" value="`$l-idx`" />
+                                                                    </record>
+                                                                </block>
+                                                            </outcome>
+                                                            <outcome value='failure'>
+                                                                <block atomic="true">
+                                                                    <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                                        <parameter name="logger" value="message-log"/>
+                                                                        <parameter name="field1" value="__TIMESTAMP__"/>
+                                                                        <parameter name="field2" value="GENERIC-RESOURCE-API.process-eipam-pools:REQID"/>
+                                                                        <parameter name="field3" value="`$network-topology-operation-input.sdnc-request-header.svc-request-id`"/>
+                                                                        <parameter name="field4" value="Failed to allocate ipv4 subnet - failure from eipam-allocate-network-role-subnet"/>
+                                                                        <parameter name="field5" value="`$l-idx`" />
+                                                                    </record>
+                                                                </block>
+                                                            </outcome>
+                                                        </call>
+                                                    </block>
+                                                </outcome>
+                                            </get-resource>
+                                        </block>
+                                    </outcome>
+                                    <outcome value=""></outcome>
+                                </switch>
+                                <switch test="`$network-model.use-ipv6`">
+                                    <outcome value='N'></outcome>
+                                    <outcome value='Y'>
+                                        <block atomic='true'>
+                                            <get-resource
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="SELECT * from EIPAM_IP_SUBNETS s, EIPAM_IP_SUBNET_KEYS k WHERE s.plan_name = $network-model.eipam-v6-address-plan and s.entity_id = k.entity_id and k.level = $l-idx and k.key_value = $key-value ; "
+        pfx='tmp.eipam-subnet-row'>
+                                                <outcome value='success'>
+                                                    <block atomic="true">
+                                                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                            <parameter name="logger" value="message-log"/>
+                                                            <parameter name="field1" value="__TIMESTAMP__"/>
+                                                            <parameter name="field2" value="GENERIC-RESOURCE-API.process-eipam-pools:REQID"/>
+                                                            <parameter name="field3" value="`$network-topology-operation-input.sdnc-request-header.svc-request-id`"/>
+                                                            <parameter name="field4" value="Existing eipam-ip-block.ip-prefix for level:" />
+                                                            <parameter name="field5" value="`$l-idx`" />
+                                                            <parameter name="field6" value="Existing eipam-ip-block.mask for level:" />
+                                                            <parameter name="field7" value="`$tmp.eipam-subnet-row.prefix-length`"/>
+                                                            <parameter name="field8" value="ipv6"/>
+                                                            <parameter name="field9" value="`$tmp.eipam-subnet-row.ip-address`"/>
+                                                        </record>
+                                                        <set>
+                                                            <parameter name='tmp.l3-network.level1.v6.subnet.pre-existing' value='true' />
+                                                            <parameter name='tmp.l3-network.level1.v6.entity-id' value='`$tmp.eipam-row.entity-id`' />
+                                                            <parameter name='tmp.l3-network.level1.v6.ip-prefix' value='`$tmp.eipam-row.ip-address`' />
+                                                            <parameter name='tmp.l3-network.level1.v6.mask' value='`$tmp.eipam-row.prefix-length`' />
+                                                        </set>
+                                                    </block>
+                                                </outcome>
+                                                <outcome value="not-found">
+                                                    <block atomic='true'>
+                                                        <set>
+                                                            <parameter name='eipam-ip-block.entity-id' value='' />
+                                                            <parameter name='eipam-ip-block.ip-prefix' value='' />
+                                                            <parameter name='eipam-ip-block.mask' value='' />
+                                                            <parameter name="eipam-ip-block.allocate-version" value='ipv6' />
+                                                            <parameter name='eipam-ip-block.plans_length' value='0' />
+                                                        </set>
+                                                        <call module='GENERIC-RESOURCE-API' rpc='eipam-allocate-generic-subnet' mode='sync' >
+                                                            <outcome value='success'>
+                                                                <block atomic="true">
+                                                                    <set>
+                                                                        <parameter name='eipam-ip-block.v6.allocateSubnetResponse.' value='eipam-ip-block.allocateSubnetResponse.' />
+                                                                    </set>
+                                                                    <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                                        <parameter name="logger" value="message-log"/>
+                                                                        <parameter name="field1" value="__TIMESTAMP__"/>
+                                                                        <parameter name="field2" value="GENERIC-RESOURCE-API.process-eipam-pools:REQID"/>
+                                                                        <parameter name="field3" value="`$network-topology-operation-input.sdnc-request-header.svc-request-id`"/>
+                                                                        <parameter name="field4" value="eipam-ip-block.ip-prefix"/>
+                                                                        <parameter name="field5" value="`$eipam-ip-block.ip-prefix`"/>
+                                                                        <parameter name="field6" value="eipam-ip-block.mask"/>
+                                                                        <parameter name="field7" value="`$eipam-ip-block.v6.allocateSubnetResponse.Mask`"/>
+                                                                        <parameter name="field8" value="ipv6"/>
+                                                                        <parameter name="field9" value="`$l-idx`" />
+                                                                    </record>
+                                                                </block>
+                                                            </outcome>
+                                                            <outcome value='failure'>
+                                                                <block atomic="true">
+                                                                    <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                                        <parameter name="logger" value="message-log"/>
+                                                                        <parameter name="field1" value="__TIMESTAMP__"/>
+                                                                        <parameter name="field2" value="GENERIC-RESOURCE-API.process-eipam-pools:REQID"/>
+                                                                        <parameter name="field3" value="`$network-topology-operation-input.sdnc-request-header.svc-request-id`"/>
+                                                                        <parameter name="field4" value="Failed to allocate ipv6 subnet - failure from eipam-allocate-network-role-subnet"/>
+                                                                        <parameter name="field9" value="`$l-idx`" />
+                                                                    </record>
+                                                                </block>
+                                                            </outcome>
+                                                        </call>
+                                                    </block>
+                                                </outcome>
+                                            </get-resource>
+                                        </block>
+                                    </outcome>
+                                    <outcome value=""></outcome>
+                                </switch>
+                            </block>
+                        </outcome>
+                        <outcome value='Y'></outcome>
+                    </switch>
+                </block>
+            </for>
+            <return status='success'>
+                <parameter name="error-code" value="200" />
+            </return>
+        </block>
+    </method>
+</service-logic>

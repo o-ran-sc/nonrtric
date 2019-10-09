@@ -1,0 +1,70 @@
+   <div class="modal fade" 
+		id="l3sdn-vnf-fields-modal" tabindex="-1" role="dialog" 
+		aria-labelledby="l3sdn-vnf-fields-modal-label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">l3sdn-vnf-fields</h4>
+          </div>
+          <div class="modal-body">
+            <form role="form" action="" method="POST">
+              <div class="form-group">
+                <label for="availability_zone">availability_zone</label>
+                <input type="text" class="form-control" name="availability_zone" id="availability_zone">
+              </div>
+              <div class="form-group">
+                <label for="vnf_stack_id">vnf-stack-id</label>
+                <input type="text" class="form-control" name="vnf_stack_id" id="vnf_stack_id">
+              </div>
+              <div class="form-group">
+                <label for="vnf_name">vnf-name</label>
+                <input type="text" class="form-control" name="vnf_name" id="vnf_name">
+              </div>
+              <div class="form-group">
+                <label for="vnf_name2">vnf-name2</label>
+                <input type="text" class="form-control" name="vnf_name2" id="vnf_name2">
+              </div>
+              <div class="form-group">
+                <label for="vnf_type">vnf-type</label>
+                <input type="text" class="form-control" name="vnf_type" id="vnf_type">
+              </div>
+              <div class="form-group">
+                <label for="vnf_status">vnf-status</label>
+                <input type="text" class="form-control" name="vnf_status" id="vnf_status">
+              </div>
+              <div class="form-group">
+                <label for="vnf_id">vnf-id</label>
+                <input type="text" class="form-control" name="vnf_id" id="vnf_id">
+              </div>
+              <div class="form-group">
+                <label for="oam_network_name">oam-network-name</label>
+                <input type="text" class="form-control" name="oam_network_name" id="oam_network_name">
+              </div>
+              <div class="form-group">
+                <label for="aic_site_id">aic_site_id</label>
+                <input type="text" class="form-control" name="aic_site_id" id="aic_site_id">
+              </div>
+
+<!--
+              <div class="form-group">
+				<input type="hidden" name="uf_action" id="uf_action">
+                <button type="button" class="btn btn-primary" onclick="submit(this.form);">Submit</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+-->
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>
+
+<script type="text/javascript">
+function submit(form){
+	$('#l3sdn-vnf-fields-modal').modal('hide');
+	form.action = form.uf_action.value;
+	form.submit();
+	return;
+}
+</script>
+

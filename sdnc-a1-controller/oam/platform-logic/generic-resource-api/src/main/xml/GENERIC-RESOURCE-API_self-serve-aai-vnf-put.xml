@@ -1,0 +1,434 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='self-serve-aai-vnf-put' mode='sync'>
+        <block atomic="true">
+            <switch test='`$ss.capability-name`'>
+                <outcome value=''>
+                    <return status="failure">
+                        <parameter name="ack-final" value="Y" />
+                        <parameter name="error-code" value="500"/>
+                        <parameter name="error-message" value="ss.capability-name is null" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$ss.capability-action`'>
+                <outcome value=''>
+                    <return status="failure">
+                        <parameter name="ack-final" value="Y" />
+                        <parameter name="error-code" value="500"/>
+                        <parameter name="error-message" value="ss.capability-action is null" />
+                    </return>
+                </outcome>
+                <outcome value='assign'>
+                    <block atomic='true'>
+                        <for silentFailure='true' index="aidx" start="0" end="`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param_length`">
+                            <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$aidx].name`'>
+                                <outcome value='vnf_name'>
+                                    <set>
+                                        <parameter name='ss.param.vnf-name' value ='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$aidx].value`' />
+                                        <parameter name='ss.param.vnf-name-index' value='`$aidx`' />
+                                    </set>
+                                </outcome>
+                                <outcome value='vnf_id'>
+                                    <set>
+                                        <parameter name='ss.param.vnf-id' value ='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$aidx].value`' />
+                                        <parameter name='ss.param.vnf-id-index' value='`$aidx`' />
+                                    </set>
+                                </outcome>
+                                <outcome value='license-assignment-group-uuid'>
+                                    <set>
+                                        <parameter name='ss.param.license-assignment-group-uuid' value ='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$aidx].value`' />
+                                        <parameter name='ss.param.license-assignment-group-uuid-index' value='`$aidx`' />
+                                    </set>
+                                </outcome>
+                                <outcome value='entitlement-assignment-group-uuid'>
+                                    <set>
+                                        <parameter name='ss.param.entitlement-assignment-group-uuid' value ='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$aidx].value`' />
+                                        <parameter name='ss.param.entitlement-assignment-group-uuid-index' value='`$aidx`' />
+                                    </set>
+                                </outcome>
+                                <outcome value='aai-vnf-put'>
+                                    <set>
+                                        <parameter name='ss.param.aai-vnf-put-index' value='`$aidx`' />
+                                    </set>
+                                </outcome>
+                                <outcome value='license-key'>
+                                    <set>
+                                        <parameter name='ss.param.license-key' value ='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$aidx].value`' />
+                                        <parameter name='ss.param.license-key-index' value='`$aidx`' />
+                                    </set>
+                                </outcome>
+                                <outcome value='entitlement-key'>
+                                    <set>
+                                        <parameter name='ss.param.entitlement-key' value ='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$aidx].value`' />
+                                        <parameter name='ss.param.entitlement-key-index' value='`$aidx`' />
+                                    </set>
+                                </outcome>
+                            </switch>
+                        </for>
+                        <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+	resource="generic-vnf"
+		key="generic-vnf.vnf-id = $ss.param.vnf-id "
+	pfx="tmp.aai.vnf" >
+                            <outcome value='failure'>
+                                <block atomic='true'>
+                                    <set>
+                                        <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$ss.param.aai-vnf-put-index].resource-resolution-data.status' 
+	value='FAILED' />
+                                    </set>
+                                    <return status='failure'>
+                                        <parameter name='error-code' value='500' />
+                                        <parameter name='error-message' value="`'Encountered error to get generic-vnf with vnf-id=' + $ss.param.vnf-id + ' from AnAI'`" />
+                                    </return>
+                                </block>
+                            </outcome>
+                            <outcome value='not-found'>
+                                <block atomic='true'>
+                                    <set>
+                                        <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$ss.param.aai-vnf-put-index].resource-resolution-data.status' 
+	value='FAILED' />
+                                    </set>
+                                    <return status='failure'>
+                                        <parameter name='error-code' value='500' />
+                                        <parameter name='error-message' value="`'generic-vnf.vnf-name with vnf-id=' + $ss.param.vnf-id + ' not found in AAI'`" />
+                                    </return>
+                                </block>
+                            </outcome>
+                        </get-resource>
+                        <set>
+                            <parameter name="ss.selflink" 
+	value="`'restconf/config/GENERIC-RESOURCE-API:services/service/' + 
+	$service-data.vnfs.vnf[$vnf-index].vnf-data.service-information.service-instance-id + 
+	'/service-data/vnfs/vnf/' + 
+	$ss.param.vnf-id + 
+	'/vnf-data/vnf-topology/'`" />
+                        </set>
+                        <update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+	resource="generic-vnf"
+		key="generic-vnf.vnf-id = $ss.param.vnf-id " >
+                            <parameter name="vnf-name" value="`$ss.param.vnf-name`" />
+                            <parameter name="prov-status" value="PREPROV" />
+                            <parameter name="operational-status" value="out-of-service-path" />
+                            <parameter name="selflink" value="`$ss.selflink`" />
+                            <parameter name="model-customization-id" 
+	value="`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-information.onap-model-information.model-customization-uuid`" />
+                            <parameter name="model-invariant-id" 
+	value="`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-information.onap-model-information.model-invariant-uuid`" />
+                            <parameter name="model-version-id" 
+	value="`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-information.onap-model-information.model-uuid`" />
+                            <outcome value='failure'>
+                                <block atomic='true'>
+                                    <set>
+                                        <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$ss.param.aai-vnf-put-index].resource-resolution-data.status' 
+	value='FAILED' />
+                                    </set>
+                                    <return status='failure'>
+                                        <parameter name='error-code' value='500' />
+                                        <parameter name='error-message' value="`'Failed to update generic-vnf.vnf-name in AnAI with vnf-name=' + $ss.param.vnf-name`" />
+                                    </return>
+                                </block>
+                            </outcome>
+                            <outcome value='not-found'>
+                                <block atomic='true'>
+                                    <set>
+                                        <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$ss.param.aai-vnf-put-index].resource-resolution-data.status' 
+	value='FAILED' />
+                                    </set>
+                                    <return status='failure'>
+                                        <parameter name='error-code' value='500' />
+                                        <parameter name='error-message' value="`'generic-vnf with vnf-id =' + $ss.param.vnf-id + ' is not found in AAI'`" />
+                                    </return>
+                                </block>
+                            </outcome>
+                        </update>
+                        <switch test="`$ss.param.license-assignment-group-uuid != ''`">
+                            <outcome value='true'>
+                                <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >
+                                    <parameter name='source' value='`$ss.param.license-assignment-group-uuid`' />
+                                    <parameter name='target' value='$' />
+                                    <outcome value='true'>
+                                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                            <parameter name="logger" value="message-log"/>
+                                            <parameter name="field1" value="__TIMESTAMP__"/>
+                                            <parameter name="field2" value="`'ss.param.license-assignment-group-uuid = ' + $ss.param.license-assignment-group-uuid`"/>
+                                            <parameter name="field3" value="__SKIP saving license object in AnAI__"/>
+                                        </record>
+                                    </outcome>
+                                    <outcome value='false'>
+                                        <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+	resource="license"
+		key="license.group-uuid = $ss.param.license-assignment-group-uuid 
+		AND license.resource-uuid = $ss.param.license-key
+		AND generic-vnf.vnf-id = $ss.param.vnf-id" >
+                                            <parameter name="group-uuid" value='`$ss.param.license-assignment-group-uuid`' />
+                                            <parameter name="resource-uuid" value='`$ss.param.license-key`' />
+                                            <outcome value='failure'>
+                                                <block atomic='true'>
+                                                    <block>
+                                                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                            <parameter name="logger" value="message-log"/>
+                                                            <parameter name="field1" value="ROLLBACK generic-vnf update"/>
+                                                        </record>
+                                                        <set>
+                                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$ss.param.aai-vf-put-index].resource-resolution-data.status' 
+	value='FAILED' />
+                                                        </set>
+                                                        <update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+	resource="generic-vnf"
+		key="generic-vnf.vnf-id = $ss.param.vnf-id " >
+                                                            <parameter name="vnf-name" value='`$tmp.aai.vnf.vnf-anme`' />
+                                                            <outcome value='failure'>
+                                                                <set>
+                                                                    <parameter name='error-message' value="`$error-message + ' Failed to rollback generic-vnf update in AnAI. MANUAL ROLLBACK IS REQUIRED! '`" />
+                                                                </set>
+                                                            </outcome>
+                                                            <outcome value='not-found'>
+                                                                <set>
+                                                                    <parameter name='error-message' value="`$error-message + ' Failed to rollback generic-vnf update because generic-vnf with vnf-id = ' + $ss.param.vnf-id + ' is not found in AAI. MANUAL ROLLBACK IS REQUIRED! '`" />
+                                                                </set>
+                                                            </outcome>
+                                                            <outcome value='success'>
+                                                                <set>
+                                                                    <parameter name='error-message' value="`$error-message + ' Rollback of generic-vnf update completed. '`" />
+                                                                </set>
+                                                            </outcome>
+                                                        </update>
+                                                    </block>
+                                                    <return status='failure'>
+                                                        <parameter name='error-code' value='500' />
+                                                        <parameter name='error-message' value="`'Failed to save license with group-uuid = ' + $ss.param.license-assignment-group-uuid + ' AND license.resource-uuid = ' + $ss.param.license-key + ' in AA. ' + $error-message`" />
+                                                    </return>
+                                                </block>
+                                            </outcome>
+                                            <outcome value='not-found'>
+                                                <block atomic='true'>
+                                                    <block>
+                                                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                            <parameter name="logger" value="message-log"/>
+                                                            <parameter name="field1" value="ROLLBACK generic-vnf update"/>
+                                                        </record>
+                                                        <set>
+                                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$ss.param.aai-vf-put-index].resource-resolution-data.status' 
+	value='FAILED' />
+                                                        </set>
+                                                        <update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+	resource="generic-vnf"
+		key="generic-vnf.vnf-id = $ss.param.vnf-id " >
+                                                            <parameter name="vnf-name" value='`$tmp.aai.vnf.vnf-anme`' />
+                                                            <outcome value='failure'>
+                                                                <set>
+                                                                    <parameter name='error-message' value="`$error-message + ' Failed to rollback generic-vnf update in AnAI. MANUAL ROLLBACK IS REQUIRED! '`" />
+                                                                </set>
+                                                            </outcome>
+                                                            <outcome value='not-found'>
+                                                                <set>
+                                                                    <parameter name='error-message' value="`$error-message + ' Failed to rollback generic-vnf update because generic-vnf with vnf-id = ' + $ss.param.vnf-id + ' is not found in AAI. MANUAL ROLLBACK IS REQUIRED! '`" />
+                                                                </set>
+                                                            </outcome>
+                                                            <outcome value='success'>
+                                                                <set>
+                                                                    <parameter name='error-message' value="`$error-message + ' Rollback of generic-vnf update completed. '`" />
+                                                                </set>
+                                                            </outcome>
+                                                        </update>
+                                                    </block>
+                                                    <return status='failure'>
+                                                        <parameter name='error-code' value='500' />
+                                                        <parameter name='error-message' value="`'license with group-uuid = ' + $ss.param.license-assignment-group-uuid + ' AND license.resource-uuid = ' + $ss.param.license-key + ' is not found in AAI. ' + $error-message`" />
+                                                    </return>
+                                                </block>
+                                            </outcome>
+                                            <outcome value='success'>
+                                                <set>
+                                                    <parameter name='ss.license-updated' value='true' />
+                                                </set>
+                                            </outcome>
+                                        </save>
+                                    </outcome>
+                                </execute>
+                            </outcome>
+                        </switch>
+                        <switch test="`$ss.param.entitlement-assignment-group-uuid != ''`">
+                            <outcome value='true'>
+                                <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >
+                                    <parameter name='source' value='`$ss.param.entitlement-assignment-group-uuid`' />
+                                    <parameter name='target' value='$' />
+                                    <outcome value='true'>
+                                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                            <parameter name="logger" value="message-log"/>
+                                            <parameter name="field1" value="__TIMESTAMP__"/>
+                                            <parameter name="field2" value="`'ss.param.entitlement-assignment-group-uuid = ' + $ss.param.entitlement-assignment-group-uuid`"/>
+                                            <parameter name="field3" value="__SKIP saving entitlement object in AnAI__"/>
+                                        </record>
+                                    </outcome>
+                                    <outcome value='false'>
+                                        <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+	resource="entitlement"
+		key="entitlement.group-uuid = $ss.param.entitlement-assignment-group-uuid 
+		AND entitlement.resource-uuid = $ss.param.entitlement-key
+		AND generic-vnf.vnf-id = $ss.param.vnf-id" >
+                                            <parameter name="group-uuid" value='`$ss.param.entitlement-assignment-group-uuid`' />
+                                            <parameter name="resource-uuid" value='`$ss.param.entitlement-key`' />
+                                            <outcome value='failure'>
+                                                <block atomic='true'>
+                                                    <block>
+                                                        <block>
+                                                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                                <parameter name="logger" value="message-log"/>
+                                                                <parameter name="field1" value="ROLLBACK generic-vnf update"/>
+                                                            </record>
+                                                            <set>
+                                                                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$ss.param.aai-vf-put-index].resource-resolution-data.status' 
+	value='FAILED' />
+                                                            </set>
+                                                            <update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+	resource="generic-vnf"
+		key="generic-vnf.vnf-id = $ss.param.vnf-id " >
+                                                                <parameter name="vnf-name" value='`$tmp.aai.vnf.vnf-anme`' />
+                                                                <outcome value='failure'>
+                                                                    <set>
+                                                                        <parameter name='error-message' value="`$error-message + ' Failed to rollback generic-vnf update in AnAI. MANUAL ROLLBACK IS REQUIRED! '`" />
+                                                                    </set>
+                                                                </outcome>
+                                                                <outcome value='not-found'>
+                                                                    <set>
+                                                                        <parameter name='error-message' value="`$error-message + ' Failed to rollback generic-vnf update because generic-vnf with vnf-id = ' + $ss.param.vnf-id + ' is not found in AAI. MANUAL ROLLBACK IS REQUIRED! '`" />
+                                                                    </set>
+                                                                </outcome>
+                                                                <outcome value='success'>
+                                                                    <set>
+                                                                        <parameter name='error-message' value="`$error-message + ' Rollback of generic-vnf update completed. '`" />
+                                                                    </set>
+                                                                </outcome>
+                                                            </update>
+                                                        </block>
+                                                        <switch test="`$ss.license-updated`">
+                                                            <outcome value='true'>
+                                                                <block>
+                                                                    <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                                        <parameter name="logger" value="message-log"/>
+                                                                        <parameter name="field1" value="ROLLBACK license"/>
+                                                                    </record>
+                                                                    <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+	resource="license"
+		key="license.group-uuid = $ss.param.license-assignment-group-uuid 
+		AND license.resource-uuid = $ss.param.license-key" >
+                                                                        <outcome value='failure'>
+                                                                            <set>
+                                                                                <parameter name='error-message' value="`$error-message + ' Failed to rollback license with group-uuid = ' + $ss.param.license-assignment-group-uuid + ' AND license.resource-uuid = ' + $ss.param.license-key + ' in AAI. MANUAL ROLLBACK IS REQUIRED!'`" />
+                                                                            </set>
+                                                                        </outcome>
+                                                                        <outcome value='not-found'>
+                                                                            <set>
+                                                                                <parameter name='error-message' value="`$error-message + ' Failed to rollback license because license with group-uuid = ' + $ss.param.license-assignment-group-uuid + ' AND license.resource-uuid = ' + $ss.param.license-key + ' NOT FOUND in AAI. SILENT SUCCESS! '`" />
+                                                                            </set>
+                                                                        </outcome>
+                                                                        <outcome value='success'>
+                                                                            <set>
+                                                                                <parameter name='error-message' value="`$error-message + ' Rollback of license completed. '`" />
+                                                                            </set>
+                                                                        </outcome>
+                                                                    </delete>
+                                                                </block>
+                                                            </outcome>
+                                                        </switch>
+                                                    </block>
+                                                    <return status='failure'>
+                                                        <parameter name='error-code' value='500' />
+                                                        <parameter name='error-message' value="`'Failed to save entitlement with group-uuid = ' + $ss.param.entitlement-assignment-group-uuid + ' AND entitlement.resource-uuid = ' + $ss.param.entitlement-key + ' in AAI. ' + $error-message`" />
+                                                    </return>
+                                                </block>
+                                            </outcome>
+                                            <outcome value='not-found'>
+                                                <block atomic='true'>
+                                                    <block>
+                                                        <block>
+                                                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                                <parameter name="logger" value="message-log"/>
+                                                                <parameter name="field1" value="ROLLBACK generic-vnf update"/>
+                                                            </record>
+                                                            <set>
+                                                                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$ss.param.aai-vf-put-index].resource-resolution-data.status' 
+	value='FAILED' />
+                                                            </set>
+                                                            <update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+	resource="generic-vnf"
+		key="generic-vnf.vnf-id = $ss.param.vnf-id " >
+                                                                <parameter name="vnf-name" value='`$tmp.aai.vnf.vnf-anme`' />
+                                                                <outcome value='failure'>
+                                                                    <set>
+                                                                        <parameter name='error-message' value="`$error-message + ' Failed to rollback generic-vnf update in AnAI. MANUAL ROLLBACK IS REQUIRED! '`" />
+                                                                    </set>
+                                                                </outcome>
+                                                                <outcome value='not-found'>
+                                                                    <set>
+                                                                        <parameter name='error-message' value="`$error-message + ' Failed to rollback generic-vnf update because generic-vnf with vnf-id = ' + $ss.param.vnf-id + ' is not found in AAI. MANUAL ROLLBACK IS REQUIRED! '`" />
+                                                                    </set>
+                                                                </outcome>
+                                                                <outcome value='success'>
+                                                                    <set>
+                                                                        <parameter name='error-message' value="`$error-message + ' Rollback of generic-vnf update completed. '`" />
+                                                                    </set>
+                                                                </outcome>
+                                                            </update>
+                                                        </block>
+                                                        <switch test="`$ss.license-updated`">
+                                                            <outcome value='true'>
+                                                                <block>
+                                                                    <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                                        <parameter name="logger" value="message-log"/>
+                                                                        <parameter name="field1" value="ROLLBACK license"/>
+                                                                    </record>
+                                                                    <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+	resource="license"
+		key="license.group-uuid = $ss.param.license-assignment-group-uuid 
+		AND license.resource-uuid = $ss.param.license-key" >
+                                                                        <outcome value='failure'>
+                                                                            <set>
+                                                                                <parameter name='error-message' value="`$error-message + ' Failed to rollback license with group-uuid = ' + $ss.param.license-assignment-group-uuid + ' AND license.resource-uuid = ' + $ss.param.license-key + ' in AAI. MANUAL ROLLBACK IS REQUIRED!'`" />
+                                                                            </set>
+                                                                        </outcome>
+                                                                        <outcome value='not-found'>
+                                                                            <set>
+                                                                                <parameter name='error-message' value="`$error-message + ' Failed to rollback license because license with group-uuid = ' + $ss.param.license-assignment-group-uuid + ' AND license.resource-uuid = ' + $ss.param.license-key + ' NOT FOUND in AAI. SILENT SUCCESS! '`" />
+                                                                            </set>
+                                                                        </outcome>
+                                                                        <outcome value='success'>
+                                                                            <set>
+                                                                                <parameter name='error-message' value="`$error-message + ' Rollback of license completed. '`" />
+                                                                            </set>
+                                                                        </outcome>
+                                                                    </delete>
+                                                                </block>
+                                                            </outcome>
+                                                        </switch>
+                                                    </block>
+                                                    <return status='failure'>
+                                                        <parameter name='error-code' value='500' />
+                                                        <parameter name='error-message' value="`'entitlement with group-uuid = ' + $ss.param.entitlement-assignment-group-uuid + ' AND entitlement.resource-uuid = ' + $ss.param.entitlement-key + ' is not found in AAI. ' + $error-message`" />
+                                                    </return>
+                                                </block>
+                                            </outcome>
+                                        </save>
+                                    </outcome>
+                                </execute>
+                            </outcome>
+                        </switch>
+                        <set>
+                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$ss.param.aai-vnf-put-index].resource-resolution-data.status' 
+	value='SUCCESS' />
+                        </set>
+                    </block>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$ss.param.aai-vnf-put-index].value' 
+	value='SUCCESS' />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >
+                <parameter name='filename' value='/var/tmp/ss-aai-vnfput.log' />
+            </execute>
+        </block>
+    </method>
+</service-logic>

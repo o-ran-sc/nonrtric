@@ -1,0 +1,895 @@
+[
+  {
+    "id": "a907ba2f.81c9d8",
+    "type": "dgstart",
+    "name": "DGSTART",
+    "outputs": 1,
+    "x": 97,
+    "y": 49,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "46194736.3f09f8"
+      ]
+    ]
+  },
+  {
+    "id": "46194736.3f09f8",
+    "type": "service-logic",
+    "name": "GENERIC-RESOURCE-API ${project.version}",
+    "module": "GENERIC-RESOURCE-API",
+    "version": "${project.version}",
+    "comments": "",
+    "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+    "outputs": 1,
+    "x": 275.00000381469727,
+    "y": 114.0000171661377,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "5cc16d87.a8a744"
+      ]
+    ]
+  },
+  {
+    "id": "5cc16d87.a8a744",
+    "type": "method",
+    "name": "sdwan-get-site-param",
+    "xml": "<method rpc='sdwan-get-site-param' mode='sync'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 263.0001220703125,
+    "y": 202,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "2fcad45c.204f2c"
+      ]
+    ]
+  },
+  {
+    "id": "2fcad45c.204f2c",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 270.00001525878906,
+    "y": 288.0000581741333,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "a59bab93.b75108"
+      ]
+    ]
+  },
+  {
+    "id": "a59bab93.b75108",
+    "type": "for",
+    "name": "for each sdwan-get-request-input-param",
+    "xml": "<for index='idx' start='0' end='`$vnf-request-input.vnf-input-parameters.param_length`' >\n\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 306.6667785644531,
+    "y": 370.666654586792,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "e896db23.035228"
+      ]
+    ]
+  },
+  {
+    "id": "e896db23.035228",
+    "type": "block",
+    "name": "block",
+    "xml": "<block>\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 593.5003280639648,
+    "y": 288.00010204315186,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "17beedf5.3fa3a2",
+        "9658f5ce.551378",
+        "9f759735.d76cd8",
+        "9966cd8b.1697a",
+        "11d51c5.93463e4",
+        "8cb0a11.7bd686",
+        "5f3ab5eb.71688c",
+        "ca7858b9.e061c8",
+        "5ff23f08.f8215",
+        "5dd3c67.a478d38",
+        "4f1e9b40.0d5344",
+        "32f8d4e8.435a2c",
+        "3e3aefd6.843cc"
+      ]
+    ]
+  },
+  {
+    "id": "17beedf5.3fa3a2",
+    "type": "returnSuccess",
+    "name": "return success",
+    "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+    "comments": "",
+    "x": 795.001106262207,
+    "y": 721.0007653236389,
+    "z": "94b1afc3.a0dc",
+    "wires": []
+  },
+  {
+    "id": "9658f5ce.551378",
+    "type": "switchNode",
+    "name": "switch name",
+    "xml": "<switch test=\"`$vnf-request-input.vnf-input-parameters.param[$idx].name == 'name'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 813.0000381469727,
+    "y": 84.000075340271,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "1180c11c.4e5d3f"
+      ]
+    ]
+  },
+  {
+    "id": "1180c11c.4e5d3f",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 955.0000381469727,
+    "y": 85.000075340271,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "c4a1ef6b.cb92a"
+      ]
+    ]
+  },
+  {
+    "id": "c4a1ef6b.cb92a",
+    "type": "set",
+    "name": "set name",
+    "xml": "<set>\n<parameter name='prop.site.name' value='`$vnf-request-input.vnf-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 1089.0000381469727,
+    "y": 85.60008144378662,
+    "z": "94b1afc3.a0dc",
+    "wires": []
+  },
+  {
+    "id": "9f759735.d76cd8",
+    "type": "switchNode",
+    "name": "switch name",
+    "xml": "<switch test=\"`$vnf-request-input.vnf-input-parameters.param[$idx].name == 'name'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 809.0001449584961,
+    "y": 175.00003337860107,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "d7f5a60b.3b5968"
+      ]
+    ]
+  },
+  {
+    "id": "d7f5a60b.3b5968",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 987.0001583099365,
+    "y": 178.00003337860107,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "a9112d64.3441b"
+      ]
+    ]
+  },
+  {
+    "id": "a9112d64.3441b",
+    "type": "set",
+    "name": "set name",
+    "xml": "<set>\n<parameter name='prop.site.name' value='`$vnf-request-input.vnf-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 1134.0001678466797,
+    "y": 177.60002899169922,
+    "z": "94b1afc3.a0dc",
+    "wires": []
+  },
+  {
+    "id": "5dd3c67.a478d38",
+    "type": "switchNode",
+    "name": "switch type",
+    "xml": "<switch test=\"`$vnf-request-input.vnf-input-parameters.param[$idx].name == 'type'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 787.8958168029785,
+    "y": 472.9734830856323,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "abf743a3.45204"
+      ]
+    ]
+  },
+  {
+    "id": "59ff6271.db05ec",
+    "type": "set",
+    "name": "set type",
+    "xml": "<set>\n<parameter name='prop.site.type' value='`$vnf-request-input.vnf-input-parameters.param[$idx].value`' />\n<parameter name='prop.site.sdwan' value='true' />",
+    "comments": "",
+    "x": 1439.8958778381348,
+    "y": 526.5734176635742,
+    "z": "94b1afc3.a0dc",
+    "wires": []
+  },
+  {
+    "id": "4f1e9b40.0d5344",
+    "type": "switchNode",
+    "name": "switch role",
+    "xml": "<switch test=\"`$vnf-request-input.vnf-input-parameters.param[$idx].name == 'role'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 786.8955307006836,
+    "y": 580.9735260009766,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "30daf487.0dff4c"
+      ]
+    ]
+  },
+  {
+    "id": "30daf487.0dff4c",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 956.8955383300781,
+    "y": 590.9734888076782,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "685d8c42.5d6ca4"
+      ]
+    ]
+  },
+  {
+    "id": "9966cd8b.1697a",
+    "type": "switchNode",
+    "name": "switch location-name",
+    "xml": "<switch test=\"`$vnf-request-input.vnf-input-parameters.param[$idx].name == 'location-name'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 831.8953323364258,
+    "y": 216.9733419418335,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "cc9616ce.430f58"
+      ]
+    ]
+  },
+  {
+    "id": "cc9616ce.430f58",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 995.8955039978027,
+    "y": 216.9733428955078,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "ec0a2191.fba48"
+      ]
+    ]
+  },
+  {
+    "id": "ec0a2191.fba48",
+    "type": "set",
+    "name": "set location-name",
+    "xml": "<set>\n<parameter name='prop.site.location-name' value='`$vnf-request-input.vnf-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 1157.8955154418945,
+    "y": 216.5733995437622,
+    "z": "94b1afc3.a0dc",
+    "wires": []
+  },
+  {
+    "id": "11d51c5.93463e4",
+    "type": "switchNode",
+    "name": "switch address",
+    "xml": "<switch test=\"`$vnf-request-input.vnf-input-parameters.param[$idx].name == 'address'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 814.8953323364258,
+    "y": 252.97334575653076,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "c8c98295.92206"
+      ]
+    ]
+  },
+  {
+    "id": "c8c98295.92206",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 984.8951797485352,
+    "y": 260.97334480285645,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "c8183604.5bf978"
+      ]
+    ]
+  },
+  {
+    "id": "c8183604.5bf978",
+    "type": "set",
+    "name": "set location-address",
+    "xml": "<set>\n<parameter name='prop.site.location-address' value='`$vnf-request-input.vnf-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 1172.8953552246094,
+    "y": 256.57332038879395,
+    "z": "94b1afc3.a0dc",
+    "wires": []
+  },
+  {
+    "id": "8cb0a11.7bd686",
+    "type": "switchNode",
+    "name": "switch postcode",
+    "xml": "<switch test=\"`$vnf-request-input.vnf-input-parameters.param[$idx].name == 'postcode'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 815.8953323364258,
+    "y": 294.9733066558838,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "164b8673.bea07a"
+      ]
+    ]
+  },
+  {
+    "id": "164b8673.bea07a",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 980.8955039978027,
+    "y": 293.9733066558838,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "9880bf16.cc774"
+      ]
+    ]
+  },
+  {
+    "id": "9880bf16.cc774",
+    "type": "set",
+    "name": "set location-postcode",
+    "xml": "<set>\n<parameter name='prop.site.location-postcode' value='`$vnf-request-input.vnf-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 1167.8953552246094,
+    "y": 295.5733232498169,
+    "z": "94b1afc3.a0dc",
+    "wires": []
+  },
+  {
+    "id": "32f8d4e8.435a2c",
+    "type": "switchNode",
+    "name": "switch controlPoint",
+    "xml": "<switch test=\"`$vnf-request-input.vnf-input-parameters.param[$idx].name == 'controlPoint'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 805.7787551879883,
+    "y": 641.0003271102905,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "f9a2e4bf.e893d8"
+      ]
+    ]
+  },
+  {
+    "id": "f9a2e4bf.e893d8",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 967.778678894043,
+    "y": 637.0003499984741,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "8f9ebae3.f9c1f8"
+      ]
+    ]
+  },
+  {
+    "id": "cdec920f.b6fa4",
+    "type": "set",
+    "name": "set role",
+    "xml": "<set>\n<parameter name='prop.site.role' value='`$vnf-request-input.vnf-input-parameters.param[$idx].value`' />\n\n",
+    "comments": "",
+    "x": 1339.7788467407227,
+    "y": 565.0002994537354,
+    "z": "94b1afc3.a0dc",
+    "wires": []
+  },
+  {
+    "id": "f025176.9eb87e8",
+    "type": "set",
+    "name": "set controlPoint",
+    "xml": "<set>\n<parameter name='prop.site.controlPoint' value='`$vnf-request-input.vnf-input-parameters.param[$idx].value`' />\n\n",
+    "comments": "",
+    "x": 1713.7786865234375,
+    "y": 684.0004281997681,
+    "z": "94b1afc3.a0dc",
+    "wires": []
+  },
+  {
+    "id": "95df77a9.2015c8",
+    "type": "execute",
+    "name": "execute split roles",
+    "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >\n<parameter name=\"original_string\" value='`$prop.site.role`'/>\n<parameter name=\"regex\" value=\",\"/>\n<parameter name=\"ctx_memory_result_key\" value=\"prop.site.roles\"/>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1367.445053100586,
+    "y": 614.0001821517944,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "685d8c42.5d6ca4",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "outputs": 1,
+    "x": 1114.4451904296875,
+    "y": 594.0001821517944,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "cdec920f.b6fa4",
+        "95df77a9.2015c8"
+      ]
+    ]
+  },
+  {
+    "id": "2b1dae74.689ae2",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "comments": "",
+    "outputs": 1,
+    "x": 1531.4451026916504,
+    "y": 704.0001840591431,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "f025176.9eb87e8",
+        "9399b06c.d4d46"
+      ]
+    ]
+  },
+  {
+    "id": "9399b06c.d4d46",
+    "type": "execute",
+    "name": "execute split control points",
+    "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >\n<parameter name=\"original_string\" value='`$prop.site.controlPoint`'/>\n<parameter name=\"regex\" value=\",\"/>\n<parameter name=\"ctx_memory_result_key\" value=\"prop.site.controlpoints\"/>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1738.4451637268066,
+    "y": 736.0002880096436,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "5f3ab5eb.71688c",
+    "type": "switchNode",
+    "name": "switch latitude",
+    "xml": "<switch test=\"`$vnf-request-input.vnf-input-parameters.param[$idx].name == 'latitude'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 806.1116409301758,
+    "y": 339.00008392333984,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "17934d90.83f8b2"
+      ]
+    ]
+  },
+  {
+    "id": "17934d90.83f8b2",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 982.1114883422852,
+    "y": 334.00004291534424,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "c1cb3429.151d98"
+      ]
+    ]
+  },
+  {
+    "id": "c1cb3429.151d98",
+    "type": "set",
+    "name": "set location-latitude",
+    "xml": "<set>\n<parameter name='prop.site.location-latitude' value='`$vnf-request-input.vnf-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 1156.1114959716797,
+    "y": 332.60005950927734,
+    "z": "94b1afc3.a0dc",
+    "wires": []
+  },
+  {
+    "id": "ca7858b9.e061c8",
+    "type": "switchNode",
+    "name": "switch longitude",
+    "xml": "<switch test=\"`$vnf-request-input.vnf-input-parameters.param[$idx].name == 'longitude'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 809.1116409301758,
+    "y": 379.0001268386841,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "8f39dcfa.83f0e"
+      ]
+    ]
+  },
+  {
+    "id": "8f39dcfa.83f0e",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 981.1116485595703,
+    "y": 374.000168800354,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "257b4537.3c066a"
+      ]
+    ]
+  },
+  {
+    "id": "257b4537.3c066a",
+    "type": "set",
+    "name": "set location-longitude",
+    "xml": "<set>\n<parameter name='prop.site.location-longitude' value='`$vnf-request-input.vnf-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 1163.1115036010742,
+    "y": 377.60002040863037,
+    "z": "94b1afc3.a0dc",
+    "wires": []
+  },
+  {
+    "id": "44ed6e14.4ca7e",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 972.1116485595703,
+    "y": 424.00017166137695,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "e5a3e724.d41f08"
+      ]
+    ]
+  },
+  {
+    "id": "2490dffe.947e9",
+    "type": "set",
+    "name": "set emails",
+    "xml": "<set>\n<parameter name='prop.site.emails' value='`$vnf-request-input.vnf-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 1330.111343383789,
+    "y": 392.6000237464905,
+    "z": "94b1afc3.a0dc",
+    "wires": []
+  },
+  {
+    "id": "5ff23f08.f8215",
+    "type": "switchNode",
+    "name": "switch emails",
+    "xml": "<switch test=\"`$vnf-request-input.vnf-input-parameters.param[$idx].name == 'emails'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 799.1117172241211,
+    "y": 424.00017166137695,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "44ed6e14.4ca7e"
+      ]
+    ]
+  },
+  {
+    "id": "b15996ac.1ac678",
+    "type": "execute",
+    "name": "execute split emails",
+    "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >\n<parameter name=\"original_string\" value='`$prop.site.emails`'/>\n<parameter name=\"regex\" value=\",\"/>\n<parameter name=\"ctx_memory_result_key\" value=\"prop.site.email\"/>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1355.777687072754,
+    "y": 438.99992656707764,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "e5a3e724.d41f08",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "outputs": 1,
+    "x": 1134.1116561889648,
+    "y": 425.0000891685486,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "2490dffe.947e9",
+        "b15996ac.1ac678"
+      ]
+    ]
+  },
+  {
+    "id": "3e3aefd6.843cc",
+    "type": "switchNode",
+    "name": "switch description",
+    "xml": "<switch test=\"`$vnf-request-input.vnf-input-parameters.param[$idx].name == 'description'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 814,
+    "y": 129,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "2b975758.fb5fb8"
+      ]
+    ]
+  },
+  {
+    "id": "2b975758.fb5fb8",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 956,
+    "y": 130,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "d08aa9c0.911c88"
+      ]
+    ]
+  },
+  {
+    "id": "d08aa9c0.911c88",
+    "type": "set",
+    "name": "set description",
+    "xml": "<set>\n<parameter name='prop.site.description' value='`$vnf-request-input.vnf-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 1102.0000762939453,
+    "y": 130.60002994537354,
+    "z": "94b1afc3.a0dc",
+    "wires": []
+  },
+  {
+    "id": "e1339417.d483a8",
+    "type": "other",
+    "name": "outcome Null",
+    "xml": "<outcome value=''>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1329.00004196167,
+    "y": 478.00005531311035,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "9d513524.b6af68"
+      ]
+    ]
+  },
+  {
+    "id": "d2b9e663.ae14c8",
+    "type": "other",
+    "name": "other",
+    "xml": "<outcome value='Other'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1312.5003700256348,
+    "y": 526.0000152587891,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "59ff6271.db05ec"
+      ]
+    ]
+  },
+  {
+    "id": "abf743a3.45204",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 925.8956985473633,
+    "y": 472.97340202331543,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "b178377b.d61118"
+      ]
+    ]
+  },
+  {
+    "id": "b178377b.d61118",
+    "type": "block",
+    "name": "block",
+    "xml": "<block>\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 1042.0000305175781,
+    "y": 475.00001430511475,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "bb291d8b.bac3a"
+      ]
+    ]
+  },
+  {
+    "id": "bb291d8b.bac3a",
+    "type": "switchNode",
+    "name": "switch value",
+    "xml": "<switch test=\"`$vnf-request-input.vnf-input-parameters.param[$idx].value`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1172.0000343322754,
+    "y": 507.00001335144043,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "e1339417.d483a8",
+        "d2b9e663.ae14c8"
+      ]
+    ]
+  },
+  {
+    "id": "9d513524.b6af68",
+    "type": "block",
+    "name": "block",
+    "xml": "<block>\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 1468.0000457763672,
+    "y": 478.00001335144043,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "8f9ebae3.f9c1f8",
+    "type": "block",
+    "name": "block",
+    "xml": "<block>\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 1105,
+    "y": 650,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "c5f963e7.1c042"
+      ]
+    ]
+  },
+  {
+    "id": "c5f963e7.1c042",
+    "type": "switchNode",
+    "name": "switch value",
+    "xml": "<switch test=\"`$vnf-request-input.vnf-input-parameters.param[$idx].value`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1235.0000038146973,
+    "y": 681.9999990463257,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "50780dd0.f16eb4",
+        "cef68888.786a28"
+      ]
+    ]
+  },
+  {
+    "id": "50780dd0.f16eb4",
+    "type": "other",
+    "name": "outcome Null",
+    "xml": "<outcome value=''>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1392.0000114440918,
+    "y": 653.0000410079956,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "9c84c418.3907d8"
+      ]
+    ]
+  },
+  {
+    "id": "cef68888.786a28",
+    "type": "other",
+    "name": "other",
+    "xml": "<outcome value='Other'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1375.5003395080566,
+    "y": 701.0000009536743,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      [
+        "2b1dae74.689ae2"
+      ]
+    ]
+  },
+  {
+    "id": "9c84c418.3907d8",
+    "type": "block",
+    "name": "block",
+    "xml": "<block>\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 1531.000015258789,
+    "y": 652.9999990463257,
+    "z": "94b1afc3.a0dc",
+    "wires": [
+      []
+    ]
+  }
+]

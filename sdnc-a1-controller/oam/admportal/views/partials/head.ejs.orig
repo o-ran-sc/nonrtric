@@ -1,0 +1,13 @@
+<!DOCTYPE HTML>
+<meta charset="UTF-8">
+<title>SDN-C AdminPortal</title>
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="/stylesheets/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="/stylesheets/bootstrap-theme.min.css">
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="/javascripts/jquery.min.js"></script>
+<!-- Latest compiled and minified JavaScript -->
+<script src="/javascripts/bootstrap.min.js"></script>

@@ -1,0 +1,108 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='validate-generic-configuration-input' mode='sync'>
+        <block atomic="true">
+            <switch test='`$service-data.service-information.service-instance-id`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value="`'Service instance ' + $generic-configuration-topology-operation-input.service-information.service-instance-id + ' does not exist'`" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$generic-configuration-topology-operation-input.sdnc-request-header.svc-action`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="sdnc-request-header.svc-action is a required input" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$generic-configuration-topology-operation-input.sdnc-request-header.svc-request-id`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="sdnc-request-header.svc-request-id is a required input" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$generic-configuration-topology-operation-input.request-information.request-action`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="request-information.request-action is a required input" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$generic-configuration-topology-operation-input.sdnc-request-header.svc-action`'>
+                <outcome value='assign'>
+                    <switch test='`$generic-configuration-topology-operation-input.request-information.request-action`'>
+                        <outcome value='CreateGenericConfigurationInstance'>
+                            <block></block>
+                        </outcome>
+                        <outcome value='Other'>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="`'If svc-action is ' + $generic-configuration-topology-operation-input.sdnc-request-header.svc-action + ' then request-action must be CreateGenericConfigurationInstance'`" />
+                            </return>
+                        </outcome>
+                    </switch>
+                </outcome>
+                <outcome value='activate'>
+                    <switch test='`$generic-configuration-topology-operation-input.request-information.request-action`'>
+                        <outcome value='CreateGenericConfigurationInstance'>
+                            <block></block>
+                        </outcome>
+                        <outcome value='Other'>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="`'If svc-action is ' + $generic-configuration-topology-operation-input.sdnc-request-header.svc-action + ' then request-action must be CreateGenericConfigurationInstance'`" />
+                            </return>
+                        </outcome>
+                    </switch>
+                </outcome>
+                <outcome value='deactivate'>
+                    <switch test='`$generic-configuration-topology-operation-input.request-information.request-action`'>
+                        <outcome value='DeleteGenericConfigurationInstance'>
+                            <block></block>
+                        </outcome>
+                        <outcome value='Other'>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="`'If svc-action is ' + $generic-configuration-topology-operation-input.sdnc-request-header.svc-action + ' then request-action must be DeleteGenericConfigurationInstance'`" />
+                            </return>
+                        </outcome>
+                    </switch>
+                </outcome>
+                <outcome value='unassign'>
+                    <switch test='`$generic-configuration-topology-operation-input.request-information.request-action`'>
+                        <outcome value='DeleteGenericConfigurationInstance'>
+                            <block></block>
+                        </outcome>
+                        <outcome value='Other'>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="`'If svc-action is ' + $generic-configuration-topology-operation-input.sdnc-request-header.svc-action + ' then request-action must be DeleteGenericConfigurationInstance'`" />
+                            </return>
+                        </outcome>
+                    </switch>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`'Unsupported svc-action ' + $generic-configuration-topology-operation-input.sdnc-request-header.svc-action`" />
+                    </return>
+                </outcome>
+            </switch>
+        </block>
+    </method>
+</service-logic>

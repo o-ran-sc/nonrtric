@@ -1,0 +1,12 @@
+org.eclipse.core.resources.prefs
+.classpath
+.project
+.settings
+.idea
+.externalToolBuilders
+maven-eclipse.xml
+*.class
+target/
+MANIFEST.MF
+.DS_STORE
+.metadata

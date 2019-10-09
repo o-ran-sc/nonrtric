@@ -1,0 +1,17 @@
+{
+  "apps" :[
+		{
+			"name"	: "http_admportal",
+			"script" : "/opt/admportal/bin/www",
+			"out_file" : "/opt/admportal/logs/http_admportal.log",
+			"error_file" : "/opt/admportal/logs/error_http_admportal.log",
+			"cwd"        : "/opt/admportal",
+			"env": 
+			{
+                "NODE_ENV": "production",
+                "HTTP_PROTOCOL": "http:",
+                "CLASSPATH"     : "/opt/admportal/lib/GLCookieDecryption.jar:/opt/admportal/lib"
+            }
+	    }
+		]
+}

@@ -1,0 +1,472 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='generate-FQPN' mode='sync'>
+        <block atomic="true">
+            <switch test='`$generate-FQPN-input.plan-name`'>
+                <outcome value=''>
+                    <return status="failure">
+                        <parameter name="ack-final" value="Y" />
+                        <parameter name="error-code" value="500"/>
+                        <parameter name="error-message" value="generate-FQPN-input.plan-name is null" />
+                    </return>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='eipam-ip-block.plan-name' value='`$generate-FQPN-input.plan-name`' />
+            </set>
+            <set>
+                <parameter name='generate-FQPN-output.' value='' />
+            </set>
+            <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="getPlanTopology">
+                <outcome value='failure'>
+                    <return status="failure">
+                        <parameter name="ack-final" value="Y" />
+                        <parameter name="error-code" value="500"/>
+                        <parameter name="error-message" value="`'An error occured while getting Keyname and Keyvalue for address plan, '+ $eipam-ip-block.planName + ', from EIPAM'`" />
+                    </return>
+                </outcome>
+            </execute>
+            <switch test='`$eipam-ip-block.getPlanTopologyResponse.TopologyDetails_length`'>
+                <outcome value=''>
+                    <return status="failure">
+                        <parameter name="ack-final" value="Y" />
+                        <parameter name="error-code" value="500"/>
+                        <parameter name="error-message" value="eipam-ip-block.getPlanTopologyResponse.TopologyDetails is null" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.sdnc-generated-cloud-resources`'>
+                <outcome value='true'>
+                    <call module='GENERIC-RESOURCE-API' rpc='self-serve-generate-FQPN' mode='sync' ></call>
+                </outcome>
+                <outcome value='false'>
+                    <block atomic='true'>
+                        <for index="resp-index" start="0" end="`$eipam-ip-block.getPlanTopologyResponse.TopologyDetails_length`">
+                            <switch test='`$eipam-ip-block.plan-name == $eipam-ip-block.getPlanTopologyResponse.PlanName`'>
+                                <outcome value='false'>
+                                    <return status="failure">
+                                        <parameter name="ack-final" value="Y" />
+                                        <parameter name="error-code" value="500"/>
+                                        <parameter name="error-message" value="`'eipam response plan-name ['+ $eipam-ip-block.getPlanTopologyResponse.PlanName + ' is not the same as input '+$eipam-ip-block.planName`" />
+                                    </return>
+                                </outcome>
+                            </switch>
+                            <set>
+                                <parameter name='pool-index'
+   value='`$eipam-ip-block.getPlanTopologyResponse.TopologyDetails[$resp-index].Level - 1`' />
+                            </set>
+                            <set>
+                                <parameter name='tmp.final.key-value' value="" />
+                            </set>
+                            <set>
+                                <parameter name='tmp.getPlanTopologyResponse.key-name' 
+	value='`$eipam-ip-block.getPlanTopologyResponse.TopologyDetails[$resp-index].KeyName`' />
+                            </set>
+                            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >
+                                <parameter name="original_string" value="`$tmp.getPlanTopologyResponse.key-name`" />
+                                <parameter name="regex" value=":" />
+                                <parameter name="ctx_memory_result_key" value="tmp.split.key-name" />
+                            </execute>
+                            <for index="split-index" start="0" end="`$tmp.split.key-name_length`">
+                                <set>
+                                    <parameter name='tmp.eipam.key-name' 
+	value='`$tmp.split.key-name[$split-index]`' />
+                                </set>
+                                <block atomic='true'>
+                                    <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT key_value_source from ADDRESS_PLAN_POLICIES WHERE key_name = $tmp.eipam.key-name '
+  pfx='db.address-plan-policies'>
+                                        <outcome value='failure'>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="Error reading ADDRESS_PLAN_POLICIES table" />
+                                            </return>
+                                        </outcome>
+                                        <outcome value='not-found'>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="`'No ADDRESS_PLAN_POLICIES entry found for key_name = ' + $eipam-ip-block.getPlanTopologyResponse.TopologyDetails[$key-index].KeyName`" />
+                                            </return>
+                                        </outcome>
+                                    </get-resource>
+                                    <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT * from ROUTING_CHARACTERISTIC_MAPPING WHERE network_role = $generate-FQPN-input.network-role '
+  pfx='db.routing-characteristic_mapping[]'>
+                                        <outcome value='failure'>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="Error reading ROUTING_CHARACTERISTIC_MAPPING table" />
+                                            </return>
+                                        </outcome>
+                                        <outcome value='not-found'>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="`'No ROUTING_CHARACTERISTIC_MAPPING entry found for network_role = ' + $generate-FQPN-input.network-role`" />
+                                            </return>
+                                        </outcome>
+                                    </get-resource>
+                                    <set>
+                                        <parameter name='tmp.key-value' value='' />
+                                    </set>
+                                    <switch test='`$db.address-plan-policies.key-value-source`'>
+                                        <outcome value='AddressPlanPolicyDG-Routing_Characteristic'>
+                                            <block atomic="true">
+                                                <set>
+                                                    <parameter name='tmp.key-value' value='-1' />
+                                                </set>
+                                                <switch test='`$db.routing-characteristic_mapping_length &gt; 1`'>
+                                                    <outcome value='true'>
+                                                        <block>
+                                                            <for index="routing-index" start="0" end="`$db.routing-characteristic_mapping_length`">
+                                                                <switch test='`$db.routing-characteristic_mapping[$routing-index].vrf-name == $generate-FQPN-input.vrf-name`'>
+                                                                    <outcome value='true'>
+                                                                        <block atomic='true'>
+                                                                            <set>
+                                                                                <parameter name='tmp.key-value' value='`$db.routing-characteristic_mapping[$routing-index].routing-characteristic`' />
+                                                                            </set>
+                                                                            <return status='failure'></return>
+                                                                        </block>
+                                                                    </outcome>
+                                                                </switch>
+                                                            </for>
+                                                            <return status='success'></return>
+                                                        </block>
+                                                    </outcome>
+                                                    <outcome value='false'>
+                                                        <set>
+                                                            <parameter name='tmp.key-value' value='`$db.routing-characteristic_mapping[0].routing-characteristic`' />
+                                                        </set>
+                                                    </outcome>
+                                                </switch>
+                                                <switch test='`$tmp.key-value`'>
+                                                    <outcome value='-1'>
+                                                        <return status='failure'>
+                                                            <parameter name='ack-final' value='Y'/>
+                                                            <parameter name="error-code" value="500" />
+                                                            <parameter name="error-message" value="No matching ROUTING_CHARACTERISTIC_MAPPING.vrf-name found" />
+                                                        </return>
+                                                    </outcome>
+                                                </switch>
+                                            </block>
+                                        </outcome>
+                                        <outcome value='AddressPlanPolicyDG-Location_Clli8'>
+                                            <set>
+                                                <parameter name='tmp.key-value' value='`$generate-FQPN-input.location-clli8`' />
+                                            </set>
+                                        </outcome>
+                                        <outcome value='AddressPlanPolicyDG-Vrf_Name'>
+                                            <switch test='`$generate-FQPN-input.vrf-name`'>
+                                                <outcome value=''>
+                                                    <set>
+                                                        <parameter name='tmp.key-value' value='`$db.routing-characteristic_mapping[0].vrf-name`' />
+                                                    </set>
+                                                </outcome>
+                                            </switch>
+                                        </outcome>
+                                        <outcome value='cloud_region_id'>
+                                            <set>
+                                                <parameter name='tmp.key-value' value='`$generate-FQPN-input.aic-cloud-region`' />
+                                            </set>
+                                        </outcome>
+                                        <outcome value='AddressPlanPolicyDG-Complex_region'>
+                                            <set>
+                                                <parameter name='tmp.key-value' value='`$aai.complex.region`' />
+                                            </set>
+                                        </outcome>
+                                        <outcome value='AddressPlanPolicyDG-Network_Name'>
+                                            <set>
+                                                <parameter name='tmp.key-value' value='`$generate-FQPN-input.network-name`' />
+                                            </set>
+                                        </outcome>
+                                        <outcome value='AddressPlanPolicyDG-Subnet_Role'>
+                                            <switch test='`$generate-FQPN-input.subnet-role`' >
+                                                <outcome value=''>
+                                                    <set>
+                                                        <parameter name='tmp.key-value' value='STATIC' />
+                                                    </set>
+                                                </outcome>
+                                                <outcome value='Other'>
+                                                    <set>
+                                                        <parameter name='tmp.key-value' value='`$generate-FQPN-input.subnet-role`' />
+                                                    </set>
+                                                </outcome>
+                                            </switch>
+                                        </outcome>
+                                        <outcome value='AddressPlanPolicyDG-Network_Role'>
+                                            <set>
+                                                <parameter name='tmp.key-value' value='`$generate-FQPN-input.network-role`' />
+                                            </set>
+                                        </outcome>
+                                        <outcome value='AddressPlanPolicyDG-Network_Id'>
+                                            <set>
+                                                <parameter name='tmp.key-value' value='`$generate-FQPN-input.network-id`' />
+                                            </set>
+                                        </outcome>
+                                        <outcome value='AddressPlanPolicyDG-Network_Collection'>
+                                            <set>
+                                                <parameter name='tmp.key-value' value='`$generate-FQPN-input.network-collection`' />
+                                            </set>
+                                        </outcome>
+                                        <outcome value='AddressPlanPolicyDG-Zone'>
+                                            <set>
+                                                <parameter name='tmp.key-value' value='`$generate-FQPN-input.zone`' />
+                                            </set>
+                                        </outcome>
+                                        <outcome value='Other'>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="`'Unknown ADDRESS_PLAN_POLICIES: ' + $db.address-plan-policies.key-value-source`" />
+                                            </return>
+                                        </outcome>
+                                    </switch>
+                                </block>
+                                <switch test='`$split-index == 0`'>
+                                    <outcome value='true'>
+                                        <set>
+                                            <parameter name='tmp.final.key-value' value="`$tmp.key-value`" />
+                                        </set>
+                                    </outcome>
+                                    <outcome value='false'>
+                                        <set>
+                                            <parameter name='tmp.final.key-value' 
+	value="`$tmp.final.key-value + ':' + $tmp.key-value`" />
+                                        </set>
+                                    </outcome>
+                                </switch>
+                            </for>
+                            <set>
+                                <parameter name='generate-FQPN-output.pools[$pool-index].key-name'
+   value='`$tmp.getPlanTopologyResponse.key-name`' />
+                                <parameter name='generate-FQPN-output.pools[$pool-index].key-value'
+	value='`$tmp.final.key-value`' />
+                            </set>
+                        </for>
+                        <set>
+                            <parameter name='generate-FQPN-output.pools_length' 
+	value='`$eipam-ip-block.getPlanTopologyResponse.TopologyDetails_length`' />
+                        </set>
+                    </block>
+                </outcome>
+                <outcome value=''>
+                    <block atomic='true'>
+                        <for index="resp-index" start="0" end="`$eipam-ip-block.getPlanTopologyResponse.TopologyDetails_length`">
+                            <switch test='`$eipam-ip-block.plan-name == $eipam-ip-block.getPlanTopologyResponse.PlanName`'>
+                                <outcome value='false'>
+                                    <return status="failure">
+                                        <parameter name="ack-final" value="Y" />
+                                        <parameter name="error-code" value="500"/>
+                                        <parameter name="error-message" value="`'eipam response plan-name ['+ $eipam-ip-block.getPlanTopologyResponse.PlanName + ' is not the same as input '+$eipam-ip-block.planName`" />
+                                    </return>
+                                </outcome>
+                            </switch>
+                            <set>
+                                <parameter name='pool-index'
+   value='`$eipam-ip-block.getPlanTopologyResponse.TopologyDetails[$resp-index].Level - 1`' />
+                            </set>
+                            <set>
+                                <parameter name='tmp.final.key-value' value="" />
+                            </set>
+                            <set>
+                                <parameter name='tmp.getPlanTopologyResponse.key-name' 
+	value='`$eipam-ip-block.getPlanTopologyResponse.TopologyDetails[$resp-index].KeyName`' />
+                            </set>
+                            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >
+                                <parameter name="original_string" value="`$tmp.getPlanTopologyResponse.key-name`" />
+                                <parameter name="regex" value=":" />
+                                <parameter name="ctx_memory_result_key" value="tmp.split.key-name" />
+                            </execute>
+                            <for index="split-index" start="0" end="`$tmp.split.key-name_length`">
+                                <set>
+                                    <parameter name='tmp.eipam.key-name' 
+	value='`$tmp.split.key-name[$split-index]`' />
+                                </set>
+                                <block atomic='true'>
+                                    <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT key_value_source from ADDRESS_PLAN_POLICIES WHERE key_name = $tmp.eipam.key-name '
+  pfx='db.address-plan-policies'>
+                                        <outcome value='failure'>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="Error reading ADDRESS_PLAN_POLICIES table" />
+                                            </return>
+                                        </outcome>
+                                        <outcome value='not-found'>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="`'No ADDRESS_PLAN_POLICIES entry found for key_name = ' + $eipam-ip-block.getPlanTopologyResponse.TopologyDetails[$key-index].KeyName`" />
+                                            </return>
+                                        </outcome>
+                                    </get-resource>
+                                    <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT * from ROUTING_CHARACTERISTIC_MAPPING WHERE network_role = $generate-FQPN-input.network-role '
+  pfx='db.routing-characteristic_mapping[]'>
+                                        <outcome value='failure'>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="Error reading ROUTING_CHARACTERISTIC_MAPPING table" />
+                                            </return>
+                                        </outcome>
+                                        <outcome value='not-found'>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="`'No ROUTING_CHARACTERISTIC_MAPPING entry found for network_role = ' + $generate-FQPN-input.network-role`" />
+                                            </return>
+                                        </outcome>
+                                    </get-resource>
+                                    <set>
+                                        <parameter name='tmp.key-value' value='' />
+                                    </set>
+                                    <switch test='`$db.address-plan-policies.key-value-source`'>
+                                        <outcome value='AddressPlanPolicyDG-Routing_Characteristic'>
+                                            <block atomic="true">
+                                                <set>
+                                                    <parameter name='tmp.key-value' value='-1' />
+                                                </set>
+                                                <switch test='`$db.routing-characteristic_mapping_length &gt; 1`'>
+                                                    <outcome value='true'>
+                                                        <block>
+                                                            <for index="routing-index" start="0" end="`$db.routing-characteristic_mapping_length`">
+                                                                <switch test='`$db.routing-characteristic_mapping[$routing-index].vrf-name == $generate-FQPN-input.vrf-name`'>
+                                                                    <outcome value='true'>
+                                                                        <block atomic='true'>
+                                                                            <set>
+                                                                                <parameter name='tmp.key-value' value='`$db.routing-characteristic_mapping[$routing-index].routing-characteristic`' />
+                                                                            </set>
+                                                                            <return status='failure'></return>
+                                                                        </block>
+                                                                    </outcome>
+                                                                </switch>
+                                                            </for>
+                                                            <return status='success'></return>
+                                                        </block>
+                                                    </outcome>
+                                                    <outcome value='false'>
+                                                        <set>
+                                                            <parameter name='tmp.key-value' value='`$db.routing-characteristic_mapping[0].routing-characteristic`' />
+                                                        </set>
+                                                    </outcome>
+                                                </switch>
+                                                <switch test='`$tmp.key-value`'>
+                                                    <outcome value='-1'>
+                                                        <return status='failure'>
+                                                            <parameter name='ack-final' value='Y'/>
+                                                            <parameter name="error-code" value="500" />
+                                                            <parameter name="error-message" value="No matching ROUTING_CHARACTERISTIC_MAPPING.vrf-name found" />
+                                                        </return>
+                                                    </outcome>
+                                                </switch>
+                                            </block>
+                                        </outcome>
+                                        <outcome value='AddressPlanPolicyDG-Location_Clli8'>
+                                            <set>
+                                                <parameter name='tmp.key-value' value='`$generate-FQPN-input.location-clli8`' />
+                                            </set>
+                                        </outcome>
+                                        <outcome value='AddressPlanPolicyDG-Vrf_Name'>
+                                            <switch test='`$generate-FQPN-input.vrf-name`'>
+                                                <outcome value=''>
+                                                    <set>
+                                                        <parameter name='tmp.key-value' value='`$db.routing-characteristic_mapping[0].vrf-name`' />
+                                                    </set>
+                                                </outcome>
+                                            </switch>
+                                        </outcome>
+                                        <outcome value='cloud_region_id'>
+                                            <set>
+                                                <parameter name='tmp.key-value' value='`$generate-FQPN-input.aic-cloud-region`' />
+                                            </set>
+                                        </outcome>
+                                        <outcome value='AddressPlanPolicyDG-Complex_region'>
+                                            <set>
+                                                <parameter name='tmp.key-value' value='`$aai.complex.region`' />
+                                            </set>
+                                        </outcome>
+                                        <outcome value='AddressPlanPolicyDG-Network_Name'>
+                                            <set>
+                                                <parameter name='tmp.key-value' value='`$generate-FQPN-input.network-name`' />
+                                            </set>
+                                        </outcome>
+                                        <outcome value='AddressPlanPolicyDG-Subnet_Role'>
+                                            <switch test='`$generate-FQPN-input.subnet-role`' >
+                                                <outcome value=''>
+                                                    <set>
+                                                        <parameter name='tmp.key-value' value='STATIC' />
+                                                    </set>
+                                                </outcome>
+                                                <outcome value='Other'>
+                                                    <set>
+                                                        <parameter name='tmp.key-value' value='`$generate-FQPN-input.subnet-role`' />
+                                                    </set>
+                                                </outcome>
+                                            </switch>
+                                        </outcome>
+                                        <outcome value='AddressPlanPolicyDG-Network_Role'>
+                                            <set>
+                                                <parameter name='tmp.key-value' value='`$generate-FQPN-input.network-role`' />
+                                            </set>
+                                        </outcome>
+                                        <outcome value='AddressPlanPolicyDG-Network_Id'>
+                                            <set>
+                                                <parameter name='tmp.key-value' value='`$generate-FQPN-input.network-id`' />
+                                            </set>
+                                        </outcome>
+                                        <outcome value='AddressPlanPolicyDG-Network_Collection'>
+                                            <set>
+                                                <parameter name='tmp.key-value' value='`$generate-FQPN-input.network-collection`' />
+                                            </set>
+                                        </outcome>
+                                        <outcome value='AddressPlanPolicyDG-Zone'>
+                                            <set>
+                                                <parameter name='tmp.key-value' value='`$generate-FQPN-input.zone`' />
+                                            </set>
+                                        </outcome>
+                                        <outcome value='Other'>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="`'Unknown ADDRESS_PLAN_POLICIES: ' + $db.address-plan-policies.key-value-source`" />
+                                            </return>
+                                        </outcome>
+                                    </switch>
+                                </block>
+                                <switch test='`$split-index == 0`'>
+                                    <outcome value='true'>
+                                        <set>
+                                            <parameter name='tmp.final.key-value' value="`$tmp.key-value`" />
+                                        </set>
+                                    </outcome>
+                                    <outcome value='false'>
+                                        <set>
+                                            <parameter name='tmp.final.key-value' 
+	value="`$tmp.final.key-value + ':' + $tmp.key-value`" />
+                                        </set>
+                                    </outcome>
+                                </switch>
+                            </for>
+                            <set>
+                                <parameter name='generate-FQPN-output.pools[$pool-index].key-name'
+   value='`$tmp.getPlanTopologyResponse.key-name`' />
+                                <parameter name='generate-FQPN-output.pools[$pool-index].key-value'
+	value='`$tmp.final.key-value`' />
+                            </set>
+                        </for>
+                        <set>
+                            <parameter name='generate-FQPN-output.pools_length' 
+	value='`$eipam-ip-block.getPlanTopologyResponse.TopologyDetails_length`' />
+                        </set>
+                    </block>
+                </outcome>
+            </switch>
+        </block>
+    </method>
+</service-logic>

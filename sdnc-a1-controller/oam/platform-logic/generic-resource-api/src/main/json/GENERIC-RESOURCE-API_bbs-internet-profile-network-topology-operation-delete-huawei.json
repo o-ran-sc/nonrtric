@@ -1,0 +1,487 @@
+[
+    {
+        "id": "8393dc4.b00f62",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 100.00977325439453,
+        "y": 67.509765625,
+        "z": "633a4b5b.599dd4",
+        "wires": [
+            [
+                "a8de9e47.ef835"
+            ]
+        ]
+    },
+    {
+        "id": "a8de9e47.ef835",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 408.0094223022461,
+        "y": 67.50978755950928,
+        "z": "633a4b5b.599dd4",
+        "wires": [
+            [
+                "412ac3c4.59356c"
+            ]
+        ]
+    },
+    {
+        "id": "412ac3c4.59356c",
+        "type": "method",
+        "name": "method:bbs-internet-profile-network-topology-operation-delete-huawei",
+        "xml": "<method rpc='bbs-internet-profile-network-topology-operation-delete-huawei' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 406.00940704345703,
+        "y": 263.5098638534546,
+        "z": "633a4b5b.599dd4",
+        "wires": [
+            [
+                "d96b6a61.651aa8"
+            ]
+        ]
+    },
+    {
+        "id": "d96b6a61.651aa8",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 813.009635925293,
+        "y": 264.50982761383057,
+        "z": "633a4b5b.599dd4",
+        "wires": [
+            [
+                "ed43d6ea.1722d8",
+                "dc1e34e.cfd17c8",
+                "4bbf7971.41bc68",
+                "643f2b24.3a23e4",
+                "17c5a97a.f12a27"
+            ]
+        ]
+    },
+    {
+        "id": "ed43d6ea.1722d8",
+        "type": "execute",
+        "name": "execute:DeleteInternetProfileInstance",
+        "xml": "<execute plugin=\"org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode\" method=\"sendRequest\">\n    <parameter name=\"templateFileName\" value=\"`$prop.restapi.templateDir + '/bbs-internet-profile-operation.json'`\" />\n    <parameter name=\"restapiUrl\" value=\"`$prop.sdncRestApi.thirdpartySdnc.url + '/DeleteInternetProfileInstance'`\" />\n    <parameter name=\"contentType\" value=\"application/json\"/>\n    <parameter name=\"httpMethod\" value=\"post\"/>\n    <parameter name=\"responsePrefix\" value=\"service-result\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1201.6606979370117,
+        "y": 268.4706506729126,
+        "z": "633a4b5b.599dd4",
+        "wires": [
+            [
+                "1ac2698.caf4797",
+                "a7098526.9b3d78"
+            ]
+        ]
+    },
+    {
+        "id": "a7098526.9b3d78",
+        "type": "outcome",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1502.9936790466309,
+        "y": 268.4706506729126,
+        "z": "633a4b5b.599dd4",
+        "wires": [
+            [
+                "9700e544.024e48"
+            ]
+        ]
+    },
+    {
+        "id": "1ac2698.caf4797",
+        "type": "outcome",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1511.9935913085938,
+        "y": 343.47065258026123,
+        "z": "633a4b5b.599dd4",
+        "wires": [
+            [
+                "37607f24.53bf"
+            ]
+        ]
+    },
+    {
+        "id": "37607f24.53bf",
+        "type": "switchNode",
+        "name": "switch:service-result",
+        "xml": "<switch test=\"`$service-result.errors.error[0].error-message`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1747.0097122192383,
+        "y": 342.50994777679443,
+        "z": "633a4b5b.599dd4",
+        "wires": [
+            [
+                "563023ed.4ba30c",
+                "b0e164e3.f2a418"
+            ]
+        ]
+    },
+    {
+        "id": "9700e544.024e48",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='ack-final' value='Y'/>\n<parameter name=\"error-code\" value=\"500\" />\n<parameter name=\"error-message\" value=\"Error failed to call DeleteInternetProfileInstance\" />\n",
+        "comments": "",
+        "x": 2011.9272918701172,
+        "y": 268.76019859313965,
+        "z": "633a4b5b.599dd4",
+        "wires": []
+    },
+    {
+        "id": "563023ed.4ba30c",
+        "type": "outcome",
+        "name": "Other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1973.010051727295,
+        "y": 343.51004123687744,
+        "z": "633a4b5b.599dd4",
+        "wires": [
+            [
+                "55172168.37133"
+            ]
+        ]
+    },
+    {
+        "id": "b0e164e3.f2a418",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1983.0097579956055,
+        "y": 429.50990772247314,
+        "z": "633a4b5b.599dd4",
+        "wires": [
+            [
+                "fe385e37.9e9a5"
+            ]
+        ]
+    },
+    {
+        "id": "55172168.37133",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='ack-final' value='Y'/>\n<parameter name=\"error-code\" value=\"500\" />\n<parameter name=\"error-message\" value=\"`'Error DeleteInternetProfileInstance return: '+$service-result.errors.error[0].error-message`\" />\n\n",
+        "comments": "",
+        "x": 2159.509719848633,
+        "y": 343.50987815856934,
+        "z": "633a4b5b.599dd4",
+        "wires": []
+    },
+    {
+        "id": "fe385e37.9e9a5",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2141.1763877868652,
+        "y": 430.5098829269409,
+        "z": "633a4b5b.599dd4",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "dc1e34e.cfd17c8",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+        "comments": "",
+        "x": 1140.398536682129,
+        "y": 781.3988790512085,
+        "z": "633a4b5b.599dd4",
+        "wires": []
+    },
+    {
+        "id": "4bbf7971.41bc68",
+        "type": "call",
+        "name": "call:bbs-internet-profile-network-topology-operation-common-huawei",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='bbs-internet-profile-network-topology-operation-common-huawei' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1313.6766815185547,
+        "y": 184.50982093811035,
+        "z": "633a4b5b.599dd4",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "65346647.308a38",
+        "type": "comment",
+        "name": "fetch relationship-list",
+        "info": "",
+        "comments": "",
+        "x": 1150.1802520751953,
+        "y": 389.7358646392822,
+        "z": "633a4b5b.599dd4",
+        "wires": []
+    },
+    {
+        "id": "643f2b24.3a23e4",
+        "type": "for",
+        "name": "for relationship data",
+        "xml": "<for silentFailure='false' index='rdidx' start='0' end=\"`$aai.service-instance.relationship-list.relationship[$ridx].relationship-data_length`\" >",
+        "comments": "",
+        "outputs": 1,
+        "x": 1153.6527824401855,
+        "y": 443.4859027862549,
+        "z": "633a4b5b.599dd4",
+        "wires": [
+            [
+                "99905752.097928"
+            ]
+        ]
+    },
+    {
+        "id": "fb8a9592.251f98",
+        "type": "switchNode",
+        "name": "switch vnf-id",
+        "xml": "<switch test='`$aai.service-instance.relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-key`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1501.8748245239258,
+        "y": 443.15258836746216,
+        "z": "633a4b5b.599dd4",
+        "wires": [
+            [
+                "92d4d21b.2f71c"
+            ]
+        ]
+    },
+    {
+        "id": "92d4d21b.2f71c",
+        "type": "other",
+        "name": "generic-vnf.vnf-id",
+        "xml": "<outcome value='generic-vnf.vnf-id'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1675.0970458984375,
+        "y": 443.2636499404907,
+        "z": "633a4b5b.599dd4",
+        "wires": [
+            [
+                "8caf9fcc.5729f"
+            ]
+        ]
+    },
+    {
+        "id": "8caf9fcc.5729f",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1854.3192672729492,
+        "y": 511.0414514541626,
+        "z": "633a4b5b.599dd4",
+        "wires": [
+            [
+                "b3868d5c.48189"
+            ]
+        ]
+    },
+    {
+        "id": "b3868d5c.48189",
+        "type": "update",
+        "name": "get AAI generic-vnf",
+        "xml": "<get-resource plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\t\tresource=\"generic-vnf\" \n\t\tkey=\"generic-vnf.vnf-id = $aai.service-instance.relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-value\"\n        pfx='aai.generic-vnf' local-only='false' >",
+        "comments": "",
+        "outputs": 1,
+        "x": 2065.485954284668,
+        "y": 512.0414886474609,
+        "z": "633a4b5b.599dd4",
+        "wires": [
+            [
+                "df1dd418.bafea8"
+            ]
+        ]
+    },
+    {
+        "id": "df29b5c0.224818",
+        "type": "switchNode",
+        "name": "switch vnf-type",
+        "xml": "<switch test='`$aai.generic-vnf.vnf-type`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2636.7645721435547,
+        "y": 518.2636861801147,
+        "z": "633a4b5b.599dd4",
+        "wires": [
+            [
+                "859c71d2.e161e"
+            ]
+        ]
+    },
+    {
+        "id": "859c71d2.e161e",
+        "type": "other",
+        "name": "InternetProfile",
+        "xml": "<outcome value='InternetProfile'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2830.7643280029297,
+        "y": 512.2637157440186,
+        "z": "633a4b5b.599dd4",
+        "wires": [
+            [
+                "2d3afaef.f0ec06"
+            ]
+        ]
+    },
+    {
+        "id": "2d3afaef.f0ec06",
+        "type": "set",
+        "name": "set InternetProfile vnf-id",
+        "xml": "<set>\n<parameter name='prop.bbs.internetProfileVNFId' value='`$aai.generic-vnf.vnf-id`' />\n",
+        "comments": "",
+        "x": 3074.7638397216797,
+        "y": 510.26364040374756,
+        "z": "633a4b5b.599dd4",
+        "wires": []
+    },
+    {
+        "id": "485cf5c2.abf84c",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1334.2080688476562,
+        "y": 614.4025859832764,
+        "z": "633a4b5b.599dd4",
+        "wires": [
+            [
+                "a29bb2f2.980ac"
+            ]
+        ]
+    },
+    {
+        "id": "93da79ed.e4ae48",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1342.2080688476562,
+        "y": 674.4025859832764,
+        "z": "633a4b5b.599dd4",
+        "wires": [
+            [
+                "a29bb2f2.980ac"
+            ]
+        ]
+    },
+    {
+        "id": "a29bb2f2.980ac",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='' />\n<parameter name='error-message' value='' />\n",
+        "comments": "",
+        "x": 1550.2080688476562,
+        "y": 649.4025859832764,
+        "z": "633a4b5b.599dd4",
+        "wires": []
+    },
+    {
+        "id": "99905752.097928",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1337.0136337280273,
+        "y": 443.31922149658203,
+        "z": "633a4b5b.599dd4",
+        "wires": [
+            [
+                "fb8a9592.251f98"
+            ]
+        ]
+    },
+    {
+        "id": "75dc5fdd.d172c",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 2453.763717651367,
+        "y": 518.7636861801147,
+        "z": "633a4b5b.599dd4",
+        "wires": [
+            [
+                "df29b5c0.224818"
+            ]
+        ]
+    },
+    {
+        "id": "df1dd418.bafea8",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2251.208080291748,
+        "y": 511.4025754928589,
+        "z": "633a4b5b.599dd4",
+        "wires": [
+            [
+                "75dc5fdd.d172c"
+            ]
+        ]
+    },
+    {
+        "id": "17c5a97a.f12a27",
+        "type": "update",
+        "name": "deleteResourceAAI",
+        "xml": "<delete plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\t\tresource=\"generic-vnf\" \n\t\tkey=\"generic-vnf.vnf-id = $prop.bbs.internetProfileVNFId\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1144.170997619629,
+        "y": 614.4487934112549,
+        "z": "633a4b5b.599dd4",
+        "wires": [
+            [
+                "485cf5c2.abf84c",
+                "93da79ed.e4ae48"
+            ]
+        ]
+    },
+    {
+        "id": "63b45757.74e858",
+        "type": "comment",
+        "name": "delete AAI resource",
+        "info": "",
+        "comments": "",
+        "x": 1141.948844909668,
+        "y": 561.115478515625,
+        "z": "633a4b5b.599dd4",
+        "wires": []
+    }
+]

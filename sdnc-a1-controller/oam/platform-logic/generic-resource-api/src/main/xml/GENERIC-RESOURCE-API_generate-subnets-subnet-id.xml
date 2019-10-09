@@ -1,0 +1,66 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc="generate-subnets-subnet-id" mode="sync">
+        <block atomic="true">
+            <set>
+                <parameter name="tmp.local-variables.generate-subnets-subnet-id." value="" />
+                <parameter name="tmp.return.generate-subnets-subnet-id." value="" />
+            </set>
+            <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils" method="generateUUID" >
+                <parameter name="ctx-destination" value="tmp.return.generate-subnets-subnet-id.uuid" />
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <!-- Used to work around execute node bug -->
+                        <parameter name="execute_failure" value="false" />
+                        <!-- return parameters -->
+                        <parameter name="error-message.generate-l3network-network-id" value="An error occured while generating a UUID for L3-NETWORK." />
+                    </return>
+                </outcome>
+            </execute>
+            <for atomic="true" index="s" start="0" end="1" >
+                <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+	resource="subnet"
+		key="l3-network.network-id = $tmp.local.network-id 
+			AND subnet.subnet-id = $tmp.return.generate-subnets-subnet-id.uuid"
+		local-only="false"
+		pfx="tmp.local-variables.generate-subnets-subnet-id.SUBNETS" >
+                    <outcome value='success'>
+                        <block atomic='true'>
+                            <set>
+                                <parameter name="tmp.local-variables.generate-subnets-subnet-id.is-unique" value="0" />
+                            </set>
+                            <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils" method="generateUUID" >
+                                <parameter name="ctx-destination" value="tmp.return.generate-subnets-subnet-id.uuid" />
+                                <outcome value='failure'>
+                                    <return status="failure">
+                                        <!-- return parameters -->
+                                        <parameter name="error-message.generate-subnets-subnet-id" value="An error occured while generating a UUID for SUBNETS." />
+                                    </return>
+                                </outcome>
+                            </execute>
+                        </block>
+                    </outcome>
+                    <outcome value='not-found'>
+                        <block></block>
+                    </outcome>
+                    <outcome value='failure'>
+                        <return status="failure">
+                            <!-- return parameters -->
+                            <parameter name="error-message.generate-subnets-subnet-id" value="`'An error occured while checking if a generated subnets-subnet-id was unique. subnet-id = ' + $tmp.local-variables.generate-subnets-subnet-id.uuid`" />
+                        </return>
+                    </outcome>
+                    <outcome value="Other">
+                        <return status="failure">
+                            <!-- return parameters -->
+                            <parameter name="error-message.generate-subnets-subnet-id" value="`'An error occured while checking if a generated subnets-subnet-id was unique. subnet-id = ' + $tmp.local-variables.generate-subnets-subnet-id.uuid`" />
+                        </return>
+                    </outcome>
+                </get-resource>
+            </for>
+            <set>
+                <parameter name="tmp.local-variables.generate-subnets-subnet-id." value="" />
+            </set>
+        </block>
+    </method>
+</service-logic>

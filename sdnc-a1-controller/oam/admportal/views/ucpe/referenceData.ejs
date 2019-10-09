@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>SDN-C AdminPortal</title>
+<script class="init">
+    $(document).ready(function() {
+    $('#reference_data').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+
+</head>
+<body>
+
+<div class="well well-sm">
+<h3>uCPE Reference Data</h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+
+	<table id="reference_data" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+		  <th>REFERENCE_ID</th>
+		  <th>STATUS</th>
+          <th>FILENAME</th>
+          <th>ATTUID</th>
+          <th>DATE</th>
+		  <% if(priv == 'A'){ %>
+          <th>Action</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+		<% var i=0; retData.forEach( function(rowObj) { %>
+        <tr>
+            <td><%= rowObj.row.reference_id %></td>
+            <td><%= rowObj.row.status %></td>
+			<td>
+                <a data-toggle="collapse"
+                    href="#collapseExample<%= i %>" aria-expanded="false"
+                    aria-controls="collapseExample"><%= rowObj.row.filename %>
+                </a>
+                <div class="collapse" id="collapseExample<%= i %>">
+                    <div class="well">
+                        <pre><%= rowObj.filecontent %></pre>
+                    </div>
+                </div>
+           </td>
+            <td><%= rowObj.row.attuid %></td>
+            <td><%= rowObj.row.ts %></td>
+			<% if(priv == 'A' ) { %>
+            <td>
+			<% if ( rowObj.row.status == 'pending' ) { %>
+				<button type="button" class="btn btn-default btn-xs"
+            	onclick="importReferenceData('<%= rowObj.row.reference_id %>','<%= rowObj.row.status %>','<%= rowObj.row.filename %>','<%= rowObj.row.ts %>');">Import</button>
+			<% } %>
+				<button type="button" class="btn btn-default btn-xs"
+            	onclick="deleteReferenceData('<%= rowObj.row.reference_id %>','<%= rowObj.row.filename %>');">Delete</button>
+			</td>
+            <% } %>
+        </tr>
+		<% i++; }); %>
+      </tbody>
+    </table>
+
+	<% if(priv == 'A'){ %>
+	<div class="actions" style="padding:0px 25px;">
+	<form method="POST" action="/ucpe/uploadReferenceData" enctype="multipart/form-data">
+		<div class="form-group">
+    		<label for="dest">File input</label>
+    		<input name="filename" type="file" id="dest">
+    		<p class="help-block">Choose a file to upload.</p>
+  		</div>
+            <button type="button" class="btn btn-default"
+                onclick="uploadFile(this.form);">Upload File</button>
+	</form>
+	</div>
+	<% } %>
+</div>
+
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+<script type="text/javascript">
+
+function getVnfData(vnf_name,vnf_type,svc_request_id)
+{
+	location.assign("/mobility/viewVnfData?vnf_name=" + vnf_name + "&vnf_type=" + vnf_type );
+	return;
+}
+function importReferenceData(reference_id,status,filename,ts)
+{
+	var alertMessage = '';
+	if ( status != 'pending' )
+	{
+		bootbox.alert("Upload Status must be in 'pending' state.");
+		return;
+	}
+	if ( filename.substring(0,11) == 'ucpedevice_' ){
+        alertMessage = "Are you sure you want to import file:" + filename + " and replace the UCPE_MAPPED_SERVICE_PORT and UCPE_SERVICE_PORT tables?";
+	}else if ( filename.substring(0,14) == 'ucpeapilogins_' ){
+        alertMessage = "Are you sure you want to import file:" + filename + " and replace the UCPE_VNF_LOGINS, UCPE_PHYSICAL_DEVICE_LOGINS and UCPE_API_LOGINS tables?";
+	}else if ( filename.substring(0,17) == 'ucpenminterfaces_' ){
+        alertMessage = "Are you sure you want to import file:" + filename + " and replace the UCPE_VNF_NM_INTERFACES and UCPE_NM_INTERFACES tables?";
+	}else if ( filename.substring(0,15) == 'ucpephsservers_' ){
+        alertMessage = "Are you sure you want to import file:" + filename + " and replace the UCPE_PHS_SERVERS table?";
+	}else if ( filename.substring(0,15) == 'ucpencsservers_' ){
+        alertMessage = "Are you sure you want to import file:" + filename + " and replace the UCPE_CUSTOMER_NCS_SERVERS table?";
+	}else if ( filename.substring(0,15) == 'ucpevnfcatalog_' ){
+        alertMessage = "Are you sure you want to import file:" + filename + " and replace the UCPE_VNF_MODELS, UCPE_VNF_MODEL_SOFTWARE and UCPE_VNF_MODEL_FEATURES tables?";
+	}else if ( filename.substring(0,16) == 'ucpemcapservers_' ){
+        alertMessage = "Are you sure you want to import file:" + filename + " and replace the UCPE_MCAP_SERVERS table?";
+	}else if ( filename.substring(0,23) == 'ucpechainingtopologies_' ){
+        alertMessage = "Are you sure you want to import file:" + filename + " and replace the UCPE_CHAINING_TOPOLOGIES table?";
+	}else if ( filename.substring(0,16) == 'ucpevnfportinfo_' ){
+        alertMessage = "Are you sure you want to import file:" + filename + " and replace the UCPE_VNF_PORT and UCPE_MAP_TO_DEVICE tables?";
+	} else {
+		bootbox.alert('Invalid Filename in database: ' + filename);
+		return;
+	}
+	bootbox.confirm({
+        message: alertMessage,
+        callback: function(result) {
+            if ( result )
+            {
+				if ( filename.substring(0,11) == 'ucpedevice_' ){
+					location.assign("/ucpe/importUcpeDevices?id=" + reference_id + "&filename=" + filename + "&status=" + status);
+				}else if ( filename.substring(0,14) == 'ucpeapilogins_' ){
+					location.assign("/ucpe/importApiLogins?id=" + reference_id + "&filename=" + filename + "&status=" + status);
+				}else if ( filename.substring(0,17) == 'ucpenminterfaces_' ){
+					location.assign("/ucpe/importNmInterfaces?id=" + reference_id + "&filename=" + filename + "&status=" + status);
+				}else if ( filename.substring(0,15) == 'ucpephsservers_' ){
+					location.assign("/ucpe/importPhsServers?id=" + reference_id + "&filename=" + filename + "&status=" + status);
+				}else if ( filename.substring(0,15) == 'ucpencsservers_' ){
+					location.assign("/ucpe/importNcsServers?id=" + reference_id + "&filename=" + filename + "&status=" + status);
+				}else if ( filename.substring(0,15) == 'ucpevnfcatalog_' ){
+					location.assign("/ucpe/importVnfCatalog?id=" + reference_id + "&filename=" + filename + "&status=" + status);
+				}else if ( filename.substring(0,16) == 'ucpemcapservers_' ){
+					location.assign("/ucpe/importMcapServers?id=" + reference_id + "&filename=" + filename + "&status=" + status);
+				}else if ( filename.substring(0,23) == 'ucpechainingtopologies_' ){
+					location.assign("/ucpe/importChainTopo?id=" + reference_id + "&filename=" + filename + "&status=" + status);
+				}else if ( filename.substring(0,16) == 'ucpevnfportinfo_' ){
+					location.assign("/ucpe/importVnfPortInfo?id=" + reference_id + "&filename=" + filename + "&status=" + status);
+				} else {
+					bootbox.alert('Invalid Filename: ' + filename);
+					return;
+				}
+            }
+            return;
+        },
+        buttons: {
+            cancel: {
+                label: "Cancel"
+            },
+            confirm: {
+                label: "Yes"
+            }
+        }
+    });
+}
+
+function deleteReferenceData(reference_id,filename)
+{
+
+    bootbox.confirm({
+        message: "Are you sure you want to delete uploaded file [" + filename + "]? (This action will not effect the database.)",
+        callback: function(result) {
+            if ( result )
+            {
+				location.assign("/ucpe/deleteReferenceData?id=" + reference_id + "&filename=" + filename); 
+            }
+            return;
+        },
+        buttons: {
+            cancel: {
+                label: "Cancel"
+            },
+            confirm: {
+                label: "Yes"
+            }
+        }
+    });
+}
+
+</script>
+
+</body>
+</html>
+

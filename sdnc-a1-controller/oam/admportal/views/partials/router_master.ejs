@@ -1,0 +1,59 @@
+   <div class="modal fade" id="add_router_master" tabindex="-1" role="dialog" 
+		aria-labelledby="add_router_master_label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Add Router Master</h4>
+          </div>
+          <div class="modal-body">
+            <form name="addForm" role="form" action="/tunnel/addRouterMaster" method="POST">
+              <div class="form-group">
+                <label for="nf_crs_name">*CRS Name</label>
+                <input type="text" class="form-control" name="nf_crs_name" id="nf_crs_name" maxlength="20" placeholder="varchar(20)">
+              </div>
+              <div class="form-group">
+                <label for="nf_loopback_ip">Loopback IP</label>
+                <input type="text" class="form-control" name="nf_loopback_ip" id="nf_loopback_ip" maxlength="20" placeholder="varchar(20)">
+              </div>
+              <div class="form-group">
+				<input type="hidden" name="nf_action" id="nf_action">
+				<button type="button" class="btn btn-primary" onclick="saveRouterMaster(this.form);">Save</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>
+
+<div class="modal fade" id="update_router_master" tabindex="-1" role="dialog"
+        aria-labelledby="update_router_master_label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Update Router Master</h4>
+          </div>
+          <div class="modal-body">
+            <form role="form" action="/tunnel/updateRouterMaster" method="POST">
+			  <div class="form-group">
+                <label for="uf_crs_name">*CRS Name</label>
+                <input type="text" class="form-control" name="uf_crs_name" id="uf_crs_name" maxlength="20" placeholder="varchar(20)">
+              </div>
+              <div class="form-group">
+                <label for="uf_loopback_ip">Loopback IP</label>
+                <input type="text" class="form-control" name="uf_loopback_ip" id="uf_loopback_ip" maxlength="20" placeholder="varchar(20)">
+              </div>
+              <div class="form-group">
+                <input type="hidden" name="uf_action" id="uf_action">
+                <input type="hidden" name="uf_key_crs_name" id="uf_key_crs_name">
+                <button type="button" class="btn btn-primary" onclick="saveRouterMaster(this.form);">Save</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>
+

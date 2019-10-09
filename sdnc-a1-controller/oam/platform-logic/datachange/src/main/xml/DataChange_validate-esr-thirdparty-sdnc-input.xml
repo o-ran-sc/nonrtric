@@ -1,0 +1,49 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='DataChange' version='${project.version}'>
+    <method rpc='validate-esr-thirdparty-sdnc-input' mode='sync'>
+        <block atomic="true">
+            <switch test='`$data-change-notification-input.aai-event-trigger`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="data-change-notification-input.aai-event-trigger is a required input" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$data-change-notification-input.aai-node-type`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="data-change-notification-input.aai-node-type is a required input" />
+                    </return>
+                </outcome>
+            </switch>
+            <for index='idx' start='0' end='`$data-change-notification-input.key-data_length`' >
+                <block>
+                    <switch test="`$data-change-notification-input.key-data[$idx].key-name == 'service-url'`">
+                        <outcome value=''>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="data-change-notification-input.key-data.key-data.service-url is a required input" />
+                            </return>
+                        </outcome>
+                    </switch>
+                    <switch test="`$data-change-notification-input.key-data[$idx].key-name == 'user-name'`">
+                        <outcome value=''>
+                            <block></block>
+                        </outcome>
+                    </switch>
+                    <switch test="`$data-change-notification-input.key-data[$idx].key-name == 'password'`">
+                        <outcome value=''>
+                            <block></block>
+                        </outcome>
+                    </switch>
+                </block>
+            </for>
+        </block>
+    </method>
+</service-logic>

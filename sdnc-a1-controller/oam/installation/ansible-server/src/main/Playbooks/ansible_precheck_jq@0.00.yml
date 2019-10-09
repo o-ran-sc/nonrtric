@@ -1,0 +1,10 @@
+---
+- hosts: all
+  tasks:
+  - name: check jq is not installed
+    stat:
+      path: /usr/bin/jq
+    register: abc
+  - fail:
+      msg: "jq is already installed"
+    when: abc.stat.exists == true

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SDN-C Admin Portal</title>
+  </head>
+  <body>
+    <h1>SDN-C Admin Portal</h1>
+    <p>Welcome to SDN-C Admin Portal</p>
+<% if ( typeof loggedInAdmin != 'undefined') { %>
+    <p><%= loggedInAdmin.firstName %></p>
+<% } %>
+<% if ( typeof result != 'undefined') { %>
+    <p><%= result %></p>
+<% } %>
+<% if ( typeof errmsg != 'undefined') { %>
+    <p><%= errmsg %></p>
+<% } %>
+
+  </body>
+</html>

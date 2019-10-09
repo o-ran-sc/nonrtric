@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.onap.ccsdk.parent</groupId>
+		<artifactId>odlparent-lite</artifactId>
+		<version>1.4.3</version>
+        <relativePath/>
+	</parent>
+
+	<groupId>org.onap.sdnc.oam</groupId>
+	<artifactId>platform-logic-lcm</artifactId>
+	<version>1.7.3-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+    <name>sdnc-oam :: platform-logic :: ${project.artifactId}</name>
+	<description>Contains platform-level service logic for the LCM</description>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.6</version>
+				<executions>
+					<execution>
+						<id>copy-version</id>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals><!-- here the phase you need -->
+						<phase>validate</phase>
+						<configuration>
+							<outputDirectory>../target/svclogic/graphs/lcm</outputDirectory>
+							<resources>
+								<resource>
+									<directory>src/main/xml</directory>
+									<includes>
+										<include>**/*.xml</include>
+									</includes>
+									<filtering>true</filtering>
+								</resource>
+								<resource>
+									<directory>src/main/resources</directory>
+									<includes>
+										<include>graph.versions</include>
+									</includes>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

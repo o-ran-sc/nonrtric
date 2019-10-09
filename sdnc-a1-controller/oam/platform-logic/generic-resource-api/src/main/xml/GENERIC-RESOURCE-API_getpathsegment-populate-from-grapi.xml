@@ -1,0 +1,145 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='getpathsegment-populate-from-grapi' mode='sync'>
+        <block>
+            <switch test='`$vnf-ids_length`'>
+                <outcome value=''>
+                    <block>
+                        <for silentFailure='true' index='vnf-index' start='0' end='`$mdsal-service.service[0].service-data.vnfs.vnf_length`' >
+                            <block>
+                                <set>
+                                    <parameter name='vnf-network-list_length' value='0' />
+                                </set>
+                                <set>
+                                    <parameter name='vnf-ids-index' value='`$vnf-index`' />
+                                </set>
+                                <block>
+                                    <set>
+                                        <parameter name='serv-inst.vnf-list[$vnf-ids-index].vnf-id' value='`$mdsal-service.service[0].service-data.vnfs.vnf[$vnf-index].vnf-id`' />
+                                    </set>
+                                    <for silentFailure='true' index='vnf-network-index' start='0' end='`$mdsal-service.service[0].service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network_length`' >
+                                        <for silentFailure='true' index='vf-module-index' start='0' end='`$mdsal-service.service[0].service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module_length`' >
+                                            <for silentFailure='true' index='vm-index' start='0' end='`$mdsal-service.service[0].service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vms.vm_length`' >
+                                                <for silentFailure='true' index='vm-network-index' start='0' end='`$mdsal-service.service[0].service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[$vm-index].vm-networks.vm-network_length`' >
+                                                    <switch test='`$mdsal-service.service[0].service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].network-role
+  == $mdsal-service.service[0].service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[$vm-index].vm-networks.vm-network[$vm-network-index].network-role`'>
+                                                        <outcome value='true'>
+                                                            <block>
+                                                                <set>
+                                                                    <parameter name='serv-inst.vnf-list[$vnf-ids-index].vnf-network-list[$vnf-network-list_length].network-name'
+  value='`$mdsal-service.service[0].service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].network-name`' />
+                                                                    <parameter name='serv-inst.vnf-list[$vnf-ids-index].vnf-network-list[$vnf-network-list_length].network-role'
+  value='`$mdsal-service.service[0].service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].network-role`' />
+                                                                    <parameter name='serv-inst.vnf-list[$vnf-ids-index].vnf-network-list[$vnf-network-list_length].vf-module-id'
+  value='`$mdsal-service.service[0].service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-id`' />
+                                                                </set>
+                                                                <set>
+                                                                    <parameter name='vnf-network-list_length' value='`$vnf-network-list_length + 1`' />
+                                                                </set>
+                                                            </block>
+                                                        </outcome>
+                                                    </switch>
+                                                </for>
+                                            </for>
+                                        </for>
+                                    </for>
+                                    <set>
+                                        <parameter name='serv-inst.vnf-list[$vnf-ids-index].vnf-network-list_length' value='`$vnf-network-list_length`' />
+                                    </set>
+                                </block>
+                            </block>
+                        </for>
+                        <set>
+                            <parameter name='serv-inst.api' value='GR' />
+                        </set>
+                        <set>
+                            <parameter name='serv-inst.vnf-list_length'
+  value='`$mdsal-service.service[0].service-data.vnfs.vnf_length`' />
+                        </set>
+                    </block>
+                </outcome>
+                <outcome value='Other'>
+                    <block>
+                        <set>
+                            <parameter name='mismatch' value='false' />
+                        </set>
+                        <for silentFailure='true' index='vnf-ids-index' start='0' end='`$vnf-ids_length`' >
+                            <block>
+                                <set>
+                                    <parameter name='vnf-network-list_length' value='0' />
+                                </set>
+                                <for silentFailure='true' index='vnf-index' start='0' end='`$mdsal-service.service[0].service-data.vnfs.vnf_length`' >
+                                    <switch test='`$vnf-ids[$vnf-ids-index] == $mdsal-service.service[0].service-data.vnfs.vnf[$vnf-index].vnf-data.service-information.onap-model-information.model-customization-uuid`'>
+                                        <outcome value='true'>
+                                            <block>
+                                                <set>
+                                                    <parameter name='serv-inst.vnf-list[$vnf-ids-index].vnf-id' value='`$mdsal-service.service[0].service-data.vnfs.vnf[$vnf-index].vnf-id`' />
+                                                </set>
+                                                <for silentFailure='true' index='vnf-network-index' start='0' end='`$mdsal-service.service[0].service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network_length`' >
+                                                    <for silentFailure='true' index='vf-module-index' start='0' end='`$mdsal-service.service[0].service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module_length`' >
+                                                        <for silentFailure='true' index='vm-index' start='0' end='`$mdsal-service.service[0].service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vms.vm_length`' >
+                                                            <for silentFailure='true' index='vm-network-index' start='0' end='`$mdsal-service.service[0].service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[$vm-index].vm-networks.vm-network_length`' >
+                                                                <switch test='`$mdsal-service.service[0].service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].network-role
+  == $mdsal-service.service[0].service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[$vm-index].vm-networks.vm-network[$vm-network-index].network-role`'>
+                                                                    <outcome value='true'>
+                                                                        <block>
+                                                                            <set>
+                                                                                <parameter name='serv-inst.vnf-list[$vnf-ids-index].vnf-network-list[$vnf-network-list_length].network-name'
+  value='`$mdsal-service.service[0].service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].network-name`' />
+                                                                                <parameter name='serv-inst.vnf-list[$vnf-ids-index].vnf-network-list[$vnf-network-list_length].network-role'
+  value='`$mdsal-service.service[0].service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].network-role`' />
+                                                                                <parameter name='serv-inst.vnf-list[$vnf-ids-index].vnf-network-list[$vnf-network-list_length].vf-module-id'
+  value='`$mdsal-service.service[0].service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-id`' />
+                                                                            </set>
+                                                                            <set>
+                                                                                <parameter name='vnf-network-list_length' value='`$vnf-network-list_length + 1`' />
+                                                                            </set>
+                                                                        </block>
+                                                                    </outcome>
+                                                                </switch>
+                                                            </for>
+                                                        </for>
+                                                    </for>
+                                                </for>
+                                                <set>
+                                                    <parameter name='serv-inst.vnf-list[$vnf-ids-index].vnf-network-list_length' value='`$vnf-network-list_length`' />
+                                                </set>
+                                            </block>
+                                        </outcome>
+                                    </switch>
+                                </for>
+                                <switch test='`$vnf-network-list_length == 0`'>
+                                    <outcome value='true'>
+                                        <block>
+                                            <set>
+                                                <parameter name='matching-error' value="`'Unable to find VNF with customization UUID of ' + $vnf-ids[vnf-ids-index] + ' for service instance ' + $serv-inst.service-instance-id`" />
+                                            </set>
+                                            <set>
+                                                <parameter name='mismatch' value='true' />
+                                            </set>
+                                            <break/>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                            </block>
+                        </for>
+                        <switch test='`$mismatch`'>
+                            <outcome value='false'>
+                                <block>
+                                    <set>
+                                        <parameter name='serv-inst.api' value='GR' />
+                                    </set>
+                                    <set>
+                                        <parameter name='serv-inst.vnf-list_length'
+  value='`$mdsal-service.service[0].service-data.vnfs.vnf_length`' />
+                                    </set>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+            </switch>
+        </block>
+    </method>
+</service-logic>

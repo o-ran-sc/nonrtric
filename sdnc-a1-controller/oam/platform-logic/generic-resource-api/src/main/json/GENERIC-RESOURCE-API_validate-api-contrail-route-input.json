@@ -1,0 +1,953 @@
+[
+    {
+        "id": "f1bc4968.7eb2e8",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 208,
+        "y": 132,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "8aca300e.91f4e"
+            ]
+        ]
+    },
+    {
+        "id": "8aca300e.91f4e",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 364.28570556640625,
+        "y": 206.2381134033203,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "7a5ea63a.a2cda8"
+            ]
+        ]
+    },
+    {
+        "id": "7a5ea63a.a2cda8",
+        "type": "method",
+        "name": "validate-api-contrail-route-input",
+        "xml": "<method rpc='validate-api-contrail-route-input' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 366.0952911376953,
+        "y": 336.3333148956299,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "a3e57aeb.68b638"
+            ]
+        ]
+    },
+    {
+        "id": "a3e57aeb.68b638",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 377.7500457763672,
+        "y": 550.4434947967529,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "70a277f9.beb768",
+                "d5a23e44.43bc2"
+            ]
+        ]
+    },
+    {
+        "id": "fb69bbc.365af48",
+        "type": "comment",
+        "name": "validate-alloted-resource-input - CHANGELOG",
+        "info": "3/22: Initial release 2.0.0",
+        "comments": "",
+        "x": 221,
+        "y": 36,
+        "z": "7f8fbc25.a75d04",
+        "wires": []
+    },
+    {
+        "id": "70a277f9.beb768",
+        "type": "switchNode",
+        "name": "switch ctotmp.action",
+        "xml": "<switch test='`$ctotmp.action`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 609.3333282470703,
+        "y": 552.6666402816772,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "60e8940f.83314c",
+                "23d0b921.392b16",
+                "b3dc9943.238bb8",
+                "7c0852de.3fcb3c"
+            ]
+        ]
+    },
+    {
+        "id": "60e8940f.83314c",
+        "type": "other",
+        "name": "activate",
+        "xml": "<outcome value='activate'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 898.9999694824219,
+        "y": 579.0000305175781,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "d174cfd4.d100c"
+            ]
+        ]
+    },
+    {
+        "id": "23d0b921.392b16",
+        "type": "other",
+        "name": "deactivate",
+        "xml": "<outcome value='deactivate'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 905.9999694824219,
+        "y": 669.0000305175781,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "bbc754a5.64f958"
+            ]
+        ]
+    },
+    {
+        "id": "d174cfd4.d100c",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1091.6666259765625,
+        "y": 578.3333740234375,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "6d0bce1b.8e11c",
+                "17c97d5f.6df303",
+                "899f4ff1.d737a",
+                "3e76bc65.39b5e4",
+                "e0cf1856.9a7238",
+                "99a9e6d1.d9e268",
+                "d1859a98.35cd48"
+            ]
+        ]
+    },
+    {
+        "id": "bbc754a5.64f958",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1087.9999694824219,
+        "y": 668.0000305175781,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "6d0bce1b.8e11c",
+                "17c97d5f.6df303",
+                "899f4ff1.d737a",
+                "3e76bc65.39b5e4",
+                "e0cf1856.9a7238",
+                "99a9e6d1.d9e268",
+                "c0949b70.45f808",
+                "d1859a98.35cd48"
+            ]
+        ]
+    },
+    {
+        "id": "d5a23e44.43bc2",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+        "comments": "",
+        "x": 671.4999542236328,
+        "y": 983.4999923706055,
+        "z": "7f8fbc25.a75d04",
+        "wires": []
+    },
+    {
+        "id": "b3dc9943.238bb8",
+        "type": "other",
+        "name": "create",
+        "xml": "<outcome value='create'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 885.7777137756348,
+        "y": 476.90740871429443,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "da329004.96183"
+            ]
+        ]
+    },
+    {
+        "id": "da329004.96183",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1046.396713256836,
+        "y": 476.3359785079956,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "746df899.c59dc8",
+                "5e9ab833.5ba308",
+                "8b609f85.dc87b",
+                "7fd6bbeb.e7d544",
+                "6d0bce1b.8e11c",
+                "17c97d5f.6df303",
+                "899f4ff1.d737a",
+                "4ed6551b.a80e7c",
+                "a64a5a47.b66618",
+                "d1859a98.35cd48"
+            ]
+        ]
+    },
+    {
+        "id": "7c0852de.3fcb3c",
+        "type": "other",
+        "name": "delete",
+        "xml": "<outcome value='delete'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 899.111083984375,
+        "y": 753.5739946365356,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "3c247eb3.3c2862"
+            ]
+        ]
+    },
+    {
+        "id": "3c247eb3.3c2862",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1081.1111145019531,
+        "y": 749.5740175247192,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "6d0bce1b.8e11c",
+                "17c97d5f.6df303",
+                "899f4ff1.d737a",
+                "3e76bc65.39b5e4",
+                "c0949b70.45f808",
+                "9cb30997.5f1958",
+                "d1859a98.35cd48"
+            ]
+        ]
+    },
+    {
+        "id": "746df899.c59dc8",
+        "type": "switchNode",
+        "name": "switch parent-service-service-instance-id",
+        "xml": "<switch test='`$cto-api.parent-service-instance-id`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1641.3333358764648,
+        "y": 459.11104583740234,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "db1cef37.54c6d"
+            ]
+        ]
+    },
+    {
+        "id": "db1cef37.54c6d",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1877.0476989746094,
+        "y": 459.68245697021484,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "cd19ae4f.3105c"
+            ]
+        ]
+    },
+    {
+        "id": "cd19ae4f.3105c",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"API-contrail-route-topology-operation:cto-api.parent-service-instance-id is a required input\" />\n",
+        "comments": "",
+        "x": 2027.0476722717285,
+        "y": 458.682466506958,
+        "z": "7f8fbc25.a75d04",
+        "wires": []
+    },
+    {
+        "id": "5e9ab833.5ba308",
+        "type": "switchNode",
+        "name": "switch port-mirror-configuration-instance-id",
+        "xml": "<switch test='`$cto-api.port-mirror-configuration-instance-id`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1642.7619934082031,
+        "y": 502.53963470458984,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "2357aa6.4b7ea56"
+            ]
+        ]
+    },
+    {
+        "id": "2357aa6.4b7ea56",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1878.4763565063477,
+        "y": 501.11104583740234,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "c50f59ae.92c4b8"
+            ]
+        ]
+    },
+    {
+        "id": "c50f59ae.92c4b8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"API-contrail-route-topology-operation:cto-api.port-mirror-configuration-instance-id is a required input\" />\n",
+        "comments": "",
+        "x": 2028.4763298034668,
+        "y": 501.1110553741455,
+        "z": "7f8fbc25.a75d04",
+        "wires": []
+    },
+    {
+        "id": "8b609f85.dc87b",
+        "type": "switchNode",
+        "name": "switch source-network-role",
+        "xml": "<switch test='`$cto-api.source-network-role`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1596.7619934082031,
+        "y": 533.5396347045898,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "e36c99b7.fb8c18"
+            ]
+        ]
+    },
+    {
+        "id": "e36c99b7.fb8c18",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1880.4763565063477,
+        "y": 534.1110458374023,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "5d47c9d1.c26318"
+            ]
+        ]
+    },
+    {
+        "id": "5d47c9d1.c26318",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"API-contrail-route-topology-operation:cto-api.source-network-role is a required input\" />\n",
+        "comments": "",
+        "x": 2030.4763298034668,
+        "y": 534.1110553741455,
+        "z": "7f8fbc25.a75d04",
+        "wires": []
+    },
+    {
+        "id": "7fd6bbeb.e7d544",
+        "type": "switchNode",
+        "name": "switch collector-network-role",
+        "xml": "<switch test='`$cto-api.collector-network-role`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1599.7619934082031,
+        "y": 566.5396347045898,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "d98d448a.1ffca8"
+            ]
+        ]
+    },
+    {
+        "id": "d98d448a.1ffca8",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1878.4763565063477,
+        "y": 567.1110458374023,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "3c1831c7.902e3e"
+            ]
+        ]
+    },
+    {
+        "id": "3c1831c7.902e3e",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"API-contrail-route-topology-operation:cto-api.collector-network-role is a required input\" />\n",
+        "comments": "",
+        "x": 2028.4763298034668,
+        "y": 567.1110553741455,
+        "z": "7f8fbc25.a75d04",
+        "wires": []
+    },
+    {
+        "id": "6d0bce1b.8e11c",
+        "type": "switchNode",
+        "name": "switch default-domain",
+        "xml": "<switch test='`$cto-api.default-domain`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1577.7619934082031,
+        "y": 598.5396347045898,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "1e0b22d4.496f8d"
+            ]
+        ]
+    },
+    {
+        "id": "1e0b22d4.496f8d",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1880.4763565063477,
+        "y": 598.1110458374023,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "c7df5fb4.9bafa"
+            ]
+        ]
+    },
+    {
+        "id": "c7df5fb4.9bafa",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"API-contrail-route-topology-operation:cto-api.default-domain is a required input\" />\n",
+        "comments": "",
+        "x": 2030.4763298034668,
+        "y": 598.1110553741455,
+        "z": "7f8fbc25.a75d04",
+        "wires": []
+    },
+    {
+        "id": "17c97d5f.6df303",
+        "type": "switchNode",
+        "name": "switch default-project",
+        "xml": "<switch test='`$cto-api.default-project`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1576.7619934082031,
+        "y": 629.5396347045898,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "7e497852.cd0cb8"
+            ]
+        ]
+    },
+    {
+        "id": "7e497852.cd0cb8",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1879.4763565063477,
+        "y": 628.1110458374023,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "720feb4.330fa14"
+            ]
+        ]
+    },
+    {
+        "id": "720feb4.330fa14",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"API-contrail-route-topology-operation:cto-api.default-project is a required input\" />\n",
+        "comments": "",
+        "x": 2029.4763298034668,
+        "y": 628.1110553741455,
+        "z": "7f8fbc25.a75d04",
+        "wires": []
+    },
+    {
+        "id": "899f4ff1.d737a",
+        "type": "switchNode",
+        "name": "switch cloud-region-id",
+        "xml": "<switch test='`$cto-api.cloud-region-id`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1579.1905822753906,
+        "y": 660.5396347045898,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "b9d77553.37a388"
+            ]
+        ]
+    },
+    {
+        "id": "b9d77553.37a388",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1881.9049453735352,
+        "y": 659.1110458374023,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "193d6209.24a30e"
+            ]
+        ]
+    },
+    {
+        "id": "193d6209.24a30e",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"API-contrail-route-topology-operation:cto-api.cloud-region-id is a required input\" />\n",
+        "comments": "",
+        "x": 2031.9049186706543,
+        "y": 659.1110553741455,
+        "z": "7f8fbc25.a75d04",
+        "wires": []
+    },
+    {
+        "id": "a64a5a47.b66618",
+        "type": "switchNode",
+        "name": "switch service-type",
+        "xml": "<switch test='`$cto-api.service-type`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1574.7025146484375,
+        "y": 759.3134765625,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "5aa01389.f7fc2c"
+            ]
+        ]
+    },
+    {
+        "id": "5aa01389.f7fc2c",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1867.0835161209106,
+        "y": 751.134877204895,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "39bef0d0.1c841"
+            ]
+        ]
+    },
+    {
+        "id": "39bef0d0.1c841",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"API-contrail-route-topology-operation-create:cto-api.service-type is a required input\" />\n",
+        "comments": "",
+        "x": 2022.0834617614746,
+        "y": 749.4682312011719,
+        "z": "7f8fbc25.a75d04",
+        "wires": []
+    },
+    {
+        "id": "4ed6551b.a80e7c",
+        "type": "switchNode",
+        "name": "switch cloud-owner",
+        "xml": "<switch test='`$cto-api.cloud-owner`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1581.5119934082031,
+        "y": 691.7896347045898,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "c8ff9b61.c02c08"
+            ]
+        ]
+    },
+    {
+        "id": "c8ff9b61.c02c08",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1884.2263565063477,
+        "y": 690.3610458374023,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "57534b49.25a3e4"
+            ]
+        ]
+    },
+    {
+        "id": "57534b49.25a3e4",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"API-contrail-route-topology-operation-create:cto-api.cloud-owner is a required input\" />\n",
+        "comments": "",
+        "x": 2034.2263298034668,
+        "y": 690.3610553741455,
+        "z": "7f8fbc25.a75d04",
+        "wires": []
+    },
+    {
+        "id": "9ff30a23.e38e78",
+        "type": "switchNode",
+        "name": "switch tenant-id",
+        "xml": "<switch test='`$cto-api.tenant-id`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1566.428466796875,
+        "y": 724.8729248046875,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "579b2c5b.d15574"
+            ]
+        ]
+    },
+    {
+        "id": "579b2c5b.d15574",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1889.6666793823242,
+        "y": 722.1110782623291,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "2a985f25.af0b6"
+            ]
+        ]
+    },
+    {
+        "id": "2a985f25.af0b6",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"API-contrail-route-topology-operation-create:cto-api.tenant-id is a required input\" />\n",
+        "comments": "",
+        "x": 2039.6666526794434,
+        "y": 722.1110877990723,
+        "z": "7f8fbc25.a75d04",
+        "wires": []
+    },
+    {
+        "id": "3e76bc65.39b5e4",
+        "type": "switchNode",
+        "name": "switch contrail-route-allotted-resource-id",
+        "xml": "<switch test='`$cto-api.contrail-route-allotted-resource-id`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1644.9999084472656,
+        "y": 793.777717590332,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "8b673d0c.be5ff"
+            ]
+        ]
+    },
+    {
+        "id": "8b673d0c.be5ff",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1887.7142715454102,
+        "y": 793.3491287231445,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "95125998.9a3548"
+            ]
+        ]
+    },
+    {
+        "id": "95125998.9a3548",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"API-contrail-route-topology-operation:cto-api.src-contrail-network-fqdn is a required input\" />\n",
+        "comments": "",
+        "x": 2037.7142448425293,
+        "y": 793.3491382598877,
+        "z": "7f8fbc25.a75d04",
+        "wires": []
+    },
+    {
+        "id": "e0cf1856.9a7238",
+        "type": "switchNode",
+        "name": "switch src-contrail-network-fqdn",
+        "xml": "<switch test='`$cto-api.src-contrail-network-fqdn`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1614.9999084472656,
+        "y": 825.777717590332,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "3ae4e9a1.78d416"
+            ]
+        ]
+    },
+    {
+        "id": "3ae4e9a1.78d416",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1885.7142715454102,
+        "y": 827.3491287231445,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "3ee4d143.7a76ce"
+            ]
+        ]
+    },
+    {
+        "id": "3ee4d143.7a76ce",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"API-contrail-route-topology-operation:cto-api.src-contrail-network-fqdn is a required input\" />\n",
+        "comments": "",
+        "x": 2035.7142448425293,
+        "y": 827.3491382598877,
+        "z": "7f8fbc25.a75d04",
+        "wires": []
+    },
+    {
+        "id": "99a9e6d1.d9e268",
+        "type": "switchNode",
+        "name": "switch collector-contrail-network-fqdn",
+        "xml": "<switch test='`$cto-api.collector-contrail-network-fqdn`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1628.5712585449219,
+        "y": 855.3491287231445,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "a148e792.360c28"
+            ]
+        ]
+    },
+    {
+        "id": "a148e792.360c28",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1889.2856216430664,
+        "y": 860.920539855957,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "2d904442.622fdc"
+            ]
+        ]
+    },
+    {
+        "id": "2d904442.622fdc",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"API-contrail-route-topology-operation:cto-api.collector-contrail-network-fqdn is a required input\" />\n",
+        "comments": "",
+        "x": 2039.2855949401855,
+        "y": 860.9205493927002,
+        "z": "7f8fbc25.a75d04",
+        "wires": []
+    },
+    {
+        "id": "c0949b70.45f808",
+        "type": "switchNode",
+        "name": "switch rollback-flag",
+        "xml": "<switch test='`$cto-api.rollback-flag`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1576.9998321533203,
+        "y": 888.1110534667969,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "c90c40a7.83515"
+            ]
+        ]
+    },
+    {
+        "id": "c90c40a7.83515",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1883.7141952514648,
+        "y": 893.6824645996094,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "b1c00356.584ea"
+            ]
+        ]
+    },
+    {
+        "id": "b1c00356.584ea",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"API-contrail-route-topology-operation-create:cto-api.rollback-flag is a required input\" />\n",
+        "comments": "",
+        "x": 2033.714168548584,
+        "y": 893.6824741363525,
+        "z": "7f8fbc25.a75d04",
+        "wires": []
+    },
+    {
+        "id": "9cb30997.5f1958",
+        "type": "switchNode",
+        "name": "switch configuration-id",
+        "xml": "<switch test='`$cto-api.configuration-id`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1594.9044952392578,
+        "y": 926.7777996063232,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "48f0353.a6324cc"
+            ]
+        ]
+    },
+    {
+        "id": "48f0353.a6324cc",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1898.3331680297852,
+        "y": 926.6349124908447,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "829df7bb.e7d078"
+            ]
+        ]
+    },
+    {
+        "id": "829df7bb.e7d078",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"API-contrail-route-topology-operation-create:cto-api.configuration-id is a required input\" />\n",
+        "comments": "",
+        "x": 2054.0474853515625,
+        "y": 926.6349029541016,
+        "z": "7f8fbc25.a75d04",
+        "wires": []
+    },
+    {
+        "id": "d1859a98.35cd48",
+        "type": "switchNode",
+        "name": "switch owning-entity",
+        "xml": "<switch test='`$cto-api.owning-entity`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1597,
+        "y": 965,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "214c0b55.5d9c14"
+            ]
+        ]
+    },
+    {
+        "id": "214c0b55.5d9c14",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1900.4286727905273,
+        "y": 964.8571128845215,
+        "z": "7f8fbc25.a75d04",
+        "wires": [
+            [
+                "7b4b6c31.fa8b04"
+            ]
+        ]
+    },
+    {
+        "id": "7b4b6c31.fa8b04",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"API-contrail-route-topology-operation-create:cto-api.owning-entity is a required input\" />\n",
+        "comments": "",
+        "x": 2056.1429901123047,
+        "y": 964.8571033477783,
+        "z": "7f8fbc25.a75d04",
+        "wires": []
+    }
+]

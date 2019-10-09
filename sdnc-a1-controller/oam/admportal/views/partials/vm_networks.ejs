@@ -1,0 +1,57 @@
+   <div class="modal fade" id="add_vm_network" tabindex="-1" role="dialog" 
+		aria-labelledby="add_vm_network" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Add VM Network</h4>
+          </div>
+          <div class="modal-body">
+            <form name="addForm" role="form" action="/mobility/addVmNetwork" method="POST">
+              <div class="form-group">
+                <label for="nf_vnf_type">*VNF Type</label>
+                <input type="text" class="form-control" name="nf_vnf_type" id="nf_vnf_type" maxlength="200" placeholder="varchar(200)">
+              </div>
+              <div class="form-group">
+                <label for="nf_vm_type">*VM Type</label>
+                <input type="text" class="form-control" name="nf_vm_type" id="nf_vm_type" maxlength="45" placeholder="varchar(45)">
+              </div>
+              <div class="form-group">
+                <label for="nf_network_role">*NETWORK ROLE</label>
+                <input maxlength="45" type="text" class="form-control" name="nf_network_role" id="nf_network_role" placeholder="varchar(45)">
+              </div>
+              <div class="form-group">
+                <label for="nf_ip_count">IP COUNT</label>
+                <input maxlength="3" type="text" class="form-control" name="nf_ip_count" id="nf_ip_count" placeholder="int(11)">
+              </div>
+              <div class="form-group">
+                <label for="nf_assign_ips">ASSIGN IPS</label>
+                <select class="form-control" name="nf_assign_ips" id="nf_assign_ips">
+					<option>true</option>
+					<option>false</option>
+				</select>
+              </div>
+              <div class="form-group">
+                <label for="nf_assign_macs">ASSIGN MACS</label>
+                <select class="form-control" name="nf_assign_macs" id="nf_assign_macs">
+					<option>true</option>
+					<option>false</option>
+				</select>
+			  </div>
+              <div class="form-group">
+                <label for="nf_assign_floating_ip">ASSIGN FLOATING IP</label>
+                <select class="form-control" name="nf_assign_floating_ip" id="nf_assign_floating_ip">
+					<option>true</option>
+					<option>false</option>
+				</select>
+			  </div>
+              <div class="form-group">
+				<input type="hidden" name="nf_action" id="nf_action">
+				<button type="button" class="btn btn-primary" onclick="addVmNetwork(this.form);">Submit</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>

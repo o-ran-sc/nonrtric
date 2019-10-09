@@ -1,0 +1,445 @@
+[
+    {
+        "id": "2b8f0645.8e4dda",
+        "type": "comment",
+        "name": "POLICY-UPDATE-NOTIFY-OPERATION",
+        "info": "",
+        "comments": "",
+        "x": 538.3928527832031,
+        "y": 34.28571319580078,
+        "z": "c4ddb531.504de8",
+        "wires": []
+    },
+    {
+        "id": "640c5bf2.e2b254",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 110.14285278320312,
+        "y": 85.03571319580078,
+        "z": "c4ddb531.504de8",
+        "wires": [
+            [
+                "6371d353.9eabbc"
+            ]
+        ]
+    },
+    {
+        "id": "6371d353.9eabbc",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 224.46426391601562,
+        "y": 124.7023868560791,
+        "z": "c4ddb531.504de8",
+        "wires": [
+            [
+                "af806a5c.37c7f8"
+            ]
+        ]
+    },
+    {
+        "id": "af806a5c.37c7f8",
+        "type": "method",
+        "name": "method policy-update-notify-operation",
+        "xml": "<method rpc='policy-update-notify-operation' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 201,
+        "y": 165.0357151031494,
+        "z": "c4ddb531.504de8",
+        "wires": [
+            [
+                "59ff8d7a.32d3d4"
+            ]
+        ]
+    },
+    {
+        "id": "d17a989.54e5868",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"success\" />\n",
+        "comments": "",
+        "x": 325.04773712158203,
+        "y": 783.9882183074951,
+        "z": "c4ddb531.504de8",
+        "wires": []
+    },
+    {
+        "id": "3cfb5438.adb59c",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 665.2977752685547,
+        "y": 443.8095178604126,
+        "z": "c4ddb531.504de8",
+        "wires": [
+            [
+                "bbad0a81.e6a3e8",
+                "dadfe54.591ea18",
+                "5210aeb1.e5ac2",
+                "7d21e501.763d7c",
+                "4ca8d575.f2c99c",
+                "5d81f8f2.13ee78",
+                "9cb05511.ecfcc8",
+                "5bf6f09a.aa2a",
+                "4c9eba0e.d56fd4"
+            ]
+        ]
+    },
+    {
+        "id": "4c9eba0e.d56fd4",
+        "type": "execute",
+        "name": "RestapiCallnode getConfig",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='templateFileName' value=\"`$prop.restapi.templateDir + '/' + $prop.restapi.pm.getpolicy.templatefile`\" />\n    <parameter name='restapiUrl' value=\"`$prop.policy-manager.url + '/pdp/api/getConfig'`\" />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='POST' />\n    <parameter name='responsePrefix' value=\"policy\" />    \n    <parameter name='customHttpHeaders'\n      value=\"`'Authorization=Basic ' + $prop.policy-manager.authorization + ',ClientAuth=Basic ' + $prop.policy-manager.clientauth + ',Environment=' + $prop.policy-manager.environment `\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 936.9048233032227,
+        "y": 420.7142581939697,
+        "z": "c4ddb531.504de8",
+        "wires": [
+            [
+                "371b8aa7.b584d6",
+                "eb8e6d2.61e729"
+            ]
+        ]
+    },
+    {
+        "id": "bbad0a81.e6a3e8",
+        "type": "execute",
+        "name": "readProperties",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >\n    <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />\n    <parameter name='contextPrefix' value='prop' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 904.285774230957,
+        "y": 198.57144355773926,
+        "z": "c4ddb531.504de8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "371b8aa7.b584d6",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1144.0476684570312,
+        "y": 397.857141494751,
+        "z": "c4ddb531.504de8",
+        "wires": [
+            [
+                "bc023fa9.fe4ae"
+            ]
+        ]
+    },
+    {
+        "id": "bc023fa9.fe4ae",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1307.7619934082031,
+        "y": 397.785617351532,
+        "z": "c4ddb531.504de8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "eb8e6d2.61e729",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1140.1852073669434,
+        "y": 445.7803544998169,
+        "z": "c4ddb531.504de8",
+        "wires": [
+            [
+                "c447c4e0.dd61f8"
+            ]
+        ]
+    },
+    {
+        "id": "c447c4e0.dd61f8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value='Failed to get policy from Policy Manager' />\n",
+        "comments": "",
+        "x": 1304.6190910339355,
+        "y": 445.4285640716553,
+        "z": "c4ddb531.504de8",
+        "wires": []
+    },
+    {
+        "id": "5bf6f09a.aa2a",
+        "type": "execute",
+        "name": "execute Contrail API update network policy",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >\n<parameter name='api-name' value='network-policy' />\n<parameter name='api-action' value='update' />\n<parameter name='resp-prefix' value='contrailResp' />\n<parameter name='cloud-region-id' value='`$policy-splits[1]`' />\n<parameter name='update-network-policy-json' value='`$policy.config`' />",
+        "comments": "",
+        "outputs": 1,
+        "x": 973.8094635009766,
+        "y": 725.4761505126953,
+        "z": "c4ddb531.504de8",
+        "wires": [
+            [
+                "fca9fae0.1cd838",
+                "cadf6d1d.e304e"
+            ]
+        ]
+    },
+    {
+        "id": "fca9fae0.1cd838",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1226.6666412353516,
+        "y": 702.6189994812012,
+        "z": "c4ddb531.504de8",
+        "wires": [
+            [
+                "9b561741.693e18"
+            ]
+        ]
+    },
+    {
+        "id": "9b561741.693e18",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1390.3809661865234,
+        "y": 702.5474753379822,
+        "z": "c4ddb531.504de8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "cadf6d1d.e304e",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1222.8041801452637,
+        "y": 750.5422124862671,
+        "z": "c4ddb531.504de8",
+        "wires": [
+            [
+                "bc7e3f77.a2464"
+            ]
+        ]
+    },
+    {
+        "id": "bc7e3f77.a2464",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"`'Error updating Contrail: ' + $contrailResp.resp-message`\" />\n",
+        "comments": "",
+        "x": 1385.809440612793,
+        "y": 751.6189785003662,
+        "z": "c4ddb531.504de8",
+        "wires": []
+    },
+    {
+        "id": "50b08b49.336914",
+        "type": "switchNode",
+        "name": "switch update-type",
+        "xml": "<switch test='`$policy-update-notify-operation-input.update-type`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 334.99998474121094,
+        "y": 444.28569412231445,
+        "z": "c4ddb531.504de8",
+        "wires": [
+            [
+                "8100e6ab.3c2318"
+            ]
+        ]
+    },
+    {
+        "id": "59ff8d7a.32d3d4",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 123.33332824707031,
+        "y": 614.0476264953613,
+        "z": "c4ddb531.504de8",
+        "wires": [
+            [
+                "50b08b49.336914",
+                "d17a989.54e5868"
+            ]
+        ]
+    },
+    {
+        "id": "8100e6ab.3c2318",
+        "type": "outcome",
+        "name": "Update",
+        "xml": "<outcome value='Update'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 508.5714530944824,
+        "y": 443.8571300506592,
+        "z": "c4ddb531.504de8",
+        "wires": [
+            [
+                "3cfb5438.adb59c"
+            ]
+        ]
+    },
+    {
+        "id": "dadfe54.591ea18",
+        "type": "save",
+        "name": "insert to POLICY_UPDATE_NOTIFICATION",
+        "xml": "<save plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key=\"`$tmp.sql`\" pfx='pfx'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 992.8572158813477,
+        "y": 294.28569889068604,
+        "z": "c4ddb531.504de8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5210aeb1.e5ac2",
+        "type": "set",
+        "name": "set sql statement",
+        "xml": "<set>\n<parameter name='tmp.sql' value=\"`'insert into POLICY_UPDATE_NOTIFICATION (policy_name,version_id,update_type) values ( '\n+ ' $policy-update-notify-operation-input.policy-name , $policy-update-notify-operation-input.version-id , $policy-update-notify-operation-input.update-type )'`\" />\n\n",
+        "comments": "",
+        "x": 909.9999465942383,
+        "y": 245.71427249908447,
+        "z": "c4ddb531.504de8",
+        "wires": []
+    },
+    {
+        "id": "7d21e501.763d7c",
+        "type": "set",
+        "name": "set tmp.policy-name",
+        "xml": "<set>\n<parameter name='tmp.policy-name' value='`$policy-update-notify-operation-input.policy-name`' />\n",
+        "comments": "",
+        "x": 916.6665954589844,
+        "y": 343.33336639404297,
+        "z": "c4ddb531.504de8",
+        "wires": []
+    },
+    {
+        "id": "4ca8d575.f2c99c",
+        "type": "execute",
+        "name": "convert json config to variables",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='jsonStringToCtx' >\n    <parameter name='source' value=\"policy.config\" />\n    <parameter name='outputPath' value=\"tmp.config-ctx\" />\n    <parameter name='isEscaped' value='false' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 938.3333129882812,
+        "y": 520,
+        "z": "c4ddb531.504de8",
+        "wires": [
+            [
+                "215a8f00.3a1142",
+                "bf040853.679c08"
+            ]
+        ]
+    },
+    {
+        "id": "215a8f00.3a1142",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1145.4761581420898,
+        "y": 497.14288330078125,
+        "z": "c4ddb531.504de8",
+        "wires": [
+            [
+                "dc65e70.190b018"
+            ]
+        ]
+    },
+    {
+        "id": "dc65e70.190b018",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1309.1904830932617,
+        "y": 497.07135915756226,
+        "z": "c4ddb531.504de8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "bf040853.679c08",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1141.613697052002,
+        "y": 545.0660963058472,
+        "z": "c4ddb531.504de8",
+        "wires": [
+            [
+                "c3c3e9d5.9be4c8"
+            ]
+        ]
+    },
+    {
+        "id": "c3c3e9d5.9be4c8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value='Failed to convert config variable from PolicyManager' />\n",
+        "comments": "",
+        "x": 1306.0475807189941,
+        "y": 544.7143058776855,
+        "z": "c4ddb531.504de8",
+        "wires": []
+    },
+    {
+        "id": "5d81f8f2.13ee78",
+        "type": "set",
+        "name": "set policy-name",
+        "xml": "<set>\n<parameter name='policy-name' value='`$tmp.config-ctx.content.fq_name[2]`' />\n",
+        "comments": "",
+        "x": 888.3333282470703,
+        "y": 608.3333606719971,
+        "z": "c4ddb531.504de8",
+        "wires": []
+    },
+    {
+        "id": "9cb05511.ecfcc8",
+        "type": "execute",
+        "name": "execute split",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >\n    <parameter name=\"original_string\" value=\"`$policy-name`\" />\n    <parameter name=\"regex\" value=\"_\"/>\n    <parameter name=\"limit\" value=\"3\" />\n    <parameter name=\"ctx_memory_result_key\" value=\"policy-splits\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 876.9047546386719,
+        "y": 657.6190423965454,
+        "z": "c4ddb531.504de8",
+        "wires": [
+            []
+        ]
+    }
+]

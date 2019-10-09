@@ -1,0 +1,286 @@
+[{
+	"id": "c81f4d78.b1e6c",
+	"type": "dgstart",
+	"name": "DGSTART",
+	"outputs": 1,
+	"x": 100.01040649414062,
+	"y": 75.99999976158142,
+	"z": "b1682cba.152",
+	"wires": [
+		["64b261af.cf184"]
+	]
+}, {
+	"id": "64b261af.cf184",
+	"type": "service-logic",
+	"name": "GENERIC-RESOURCE-API ${project.version}",
+	"module": "GENERIC-RESOURCE-API",
+	"version": "${project.version}",
+	"comments": "",
+	"xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+	"outputs": 1,
+	"x": 312.0104103088379,
+	"y": 148.00001692771912,
+	"z": "b1682cba.152",
+	"wires": [
+		["c6b54419.3039a8"]
+	]
+}, {
+	"id": "c6b54419.3039a8",
+	"type": "method",
+	"name": "wan-connection-topology-operation-delete",
+	"xml": "<method rpc='wan-connection-topology-operation-delete' mode='sync'>\n",
+	"comments": "",
+	"outputs": 1,
+	"x": 300.0105285644531,
+	"y": 235.99999976158142,
+	"z": "b1682cba.152",
+	"wires": [
+		["f3a69c11.4cac9"]
+	]
+}, {
+	"id": "140a99be.e1cda6",
+	"type": "execute",
+	"name": "contains FC",
+	"xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' >\n    <parameter name=\"source\" value=\"`$network-topology-operation-input.network-information.onap-model-information.model-name`\"/>\n    <parameter name=\"target\" value=\"FC\"/>\n",
+	"comments": "",
+	"outputs": 1,
+	"x": 467.04176330566406,
+	"y": 511.031311750412,
+	"z": "b1682cba.152",
+	"wires": [
+		["df506b8a.806268", "5d821249.e9d6cc"]
+	]
+}, {
+	"id": "54dc8604.f2ccb8",
+	"type": "execute",
+	"name": "contains FD",
+	"xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' >\n    <parameter name=\"source\" value=\"`$network-topology-operation-input.network-information.onap-model-information.model-name`\"/>\n    <parameter name=\"target\" value=\"FD\"/>\n",
+	"comments": "",
+	"outputs": 1,
+	"x": 465.04168701171875,
+	"y": 589.0313127040863,
+	"z": "b1682cba.152",
+	"wires": [
+		["1ab6bc40.bffaf4", "7db0c17f.b059"]
+	]
+}, {
+	"id": "df506b8a.806268",
+	"type": "outcomeTrue",
+	"name": "true",
+	"xml": "<outcome value='true'>\n",
+	"comments": "",
+	"outputs": 1,
+	"x": 648.0417709350586,
+	"y": 513.0313451290131,
+	"z": "b1682cba.152",
+	"wires": [
+		["44c3101c.7b387"]
+	]
+}, {
+	"id": "1ab6bc40.bffaf4",
+	"type": "outcomeTrue",
+	"name": "true",
+	"xml": "<outcome value='true'>\n",
+	"comments": "",
+	"outputs": 1,
+	"x": 660.0417709350586,
+	"y": 591.0313451290131,
+	"z": "b1682cba.152",
+	"wires": [
+		["44c3101c.7b387"]
+	]
+}, {
+	"id": "5d821249.e9d6cc",
+	"type": "outcomeTrue",
+	"name": "false",
+	"xml": "<outcome value='false'>\n",
+	"comments": "",
+	"outputs": 1,
+	"x": 256.0416946411133,
+	"y": 592.0312840938568,
+	"z": "b1682cba.152",
+	"wires": [
+		["54dc8604.f2ccb8"]
+	]
+}, {
+	"id": "7f76e93c.a850f8",
+	"type": "execute",
+	"name": "execute Properties",
+	"xml": "<execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >\n    <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />\n    <parameter name='contextPrefix' value='prop' />\n",
+	"comments": "",
+	"outputs": 1,
+	"x": 491.010498046875,
+	"y": 356.00001883506775,
+	"z": "b1682cba.152",
+	"wires": [
+		[]
+	]
+}, {
+	"id": "f3a69c11.4cac9",
+	"type": "block",
+	"name": "block : atomic",
+	"xml": "<block atomic=\"true\">",
+	"atomic": "true",
+	"outputs": 1,
+	"x": 206.0104217529297,
+	"y": 335.99999594688416,
+	"z": "b1682cba.152",
+	"wires": [
+		["7f76e93c.a850f8", "99bcb143.6aec8", "30b4304f.e646c", "140a99be.e1cda6"]
+	]
+}, {
+	"id": "99bcb143.6aec8",
+	"type": "switchNode",
+	"name": "switch network-id",
+	"xml": "<switch test='`$network-topology-operation-input.network-information.network-id`'>\n",
+	"comments": "",
+	"outputs": 1,
+	"x": 491.0104293823242,
+	"y": 294.0000092983246,
+	"z": "b1682cba.152",
+	"wires": [
+		["57d76327.9c63cc", "d50b31e0.e314e"]
+	]
+}, {
+	"id": "57d76327.9c63cc",
+	"type": "outcome",
+	"name": "NULL",
+	"xml": "<outcome value=''>",
+	"comments": "",
+	"outputs": 1,
+	"x": 740.0105056762695,
+	"y": 233.00000929832458,
+	"z": "b1682cba.152",
+	"wires": [
+		["54153e4c.ec78c"]
+	]
+}, {
+	"id": "54153e4c.ec78c",
+	"type": "returnFailure",
+	"name": "return failure",
+	"xml": "<return status='failure'>\n<parameter name='error-code' value='' />\n<parameter name='error-message' value=\"An error occured while generation allotted resource ID\" />\n",
+	"comments": "",
+	"x": 1010.0105209350586,
+	"y": 234.99999809265137,
+	"z": "b1682cba.152",
+	"wires": []
+}, {
+	"id": "d50b31e0.e314e",
+	"type": "other",
+	"name": "other",
+	"xml": "<outcome value='Other'>\n",
+	"comments": "",
+	"outputs": 1,
+	"x": 737.5104026794434,
+	"y": 281.0000035762787,
+	"z": "b1682cba.152",
+	"wires": [
+		[]
+	]
+}, {
+	"id": "30b4304f.e646c",
+	"type": "returnSuccess",
+	"name": "return success",
+	"xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+	"comments": "",
+	"x": 192.01040649414062,
+	"y": 943.0000705718994,
+	"z": "b1682cba.152",
+	"wires": []
+}, {
+	"id": "65a3a6ee.c50208",
+	"type": "block",
+	"name": "block",
+	"xml": "<block>\n",
+	"atomic": "false",
+	"comments": "",
+	"outputs": 1,
+	"x": 258.01040267944336,
+	"y": 735.0001106262207,
+	"z": "b1682cba.152",
+	"wires": [
+		[]
+	]
+}, {
+	"id": "7db0c17f.b059",
+	"type": "outcomeTrue",
+	"name": "false",
+	"xml": "<outcome value='false'>\n",
+	"comments": "",
+	"outputs": 1,
+	"x": 261.04176330566406,
+	"y": 675.0314900875092,
+	"z": "b1682cba.152",
+	"wires": [
+		["65a3a6ee.c50208"]
+	]
+}, {
+	"id": "44c3101c.7b387",
+	"type": "block",
+	"name": "block : atomic",
+	"xml": "<block atomic=\"true\">",
+	"atomic": "true",
+	"outputs": 1,
+	"x": 843.010383605957,
+	"y": 542.1214942932129,
+	"z": "b1682cba.152",
+	"wires": [
+		["81240f98.0bd24", "51b098fe.5ee238", "e14455de.b9dcd8", "5e6ceda3.d49424", "629880b9.6f91a"]
+	]
+}, {
+	"id": "81240f98.0bd24",
+	"type": "delete",
+	"name": "delete wan connection in AAI",
+	"xml": "<delete plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" resource='connectivity' \n        key='connectivity.connectivity-id = $network-topology-operation-input.network-information.network-id'>\n",
+	"comments": "",
+	"outputs": 1,
+	"x": 1139.0104446411133,
+	"y": 492.1214962005615,
+	"z": "b1682cba.152",
+	"wires": [
+		[]
+	]
+}, {
+	"id": "51b098fe.5ee238",
+	"type": "set",
+	"name": "set new network length",
+	"xml": "<set>\n\t<parameter name=\"service-data.networks.network_length\" value=\"`$service-data.networks.network_length - 1`\"/>\n\n\t\n",
+	"comments": "",
+	"x": 1116.4549293518066,
+	"y": 556.0104026794434,
+	"z": "b1682cba.152",
+	"wires": []
+}, {
+	"id": "e14455de.b9dcd8",
+	"type": "set",
+	"name": "Remove networks from ServiceData",
+	"xml": "<set>\n\t<parameter name=\"service-data.networks.network[$tmp.nidx].\" value=\"\"/>\n\n",
+	"comments": "",
+	"x": 1147.0791816711426,
+	"y": 607.9783487319946,
+	"z": "b1682cba.152",
+	"wires": []
+}, {
+	"id": "5e6ceda3.d49424",
+	"type": "set",
+	"name": "set networkId and network-object-path",
+	"xml": "<set>\n<parameter name='networkId' value='`$network-topology-operation-input.network-information.network-id`' />\n<parameter name='service-object-path' value=\"`'restconf/config/GENERIC-RESOURCE-API:services/service/'\n + $network-topology-operation-input.service-information.service-instance-id\n + '/service-data/service-topology/'` \" />",
+	"comments": "",
+	"x": 1157.8222579956055,
+	"y": 678.5394926071167,
+	"z": "b1682cba.152",
+	"wires": []
+}, {
+	"id": "629880b9.6f91a",
+	"type": "record",
+	"name": "record",
+	"xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.FileRecorder\">\n<parameter name=\"file\" value=\"/opt/opendaylight/current/data/log/svclogic.log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"wan-connection-topology-operation-delete\"/>\n<parameter name=\"field3\" value=\"`$network-topology-operation-input.network-information.onap-model-information.model-name + ' delete'`\"/>\n",
+	"comments": "",
+	"outputs": 1,
+	"x": 1075.0103759765625,
+	"y": 423.34375,
+	"z": "b1682cba.152",
+	"wires": [
+		[]
+	]
+}]

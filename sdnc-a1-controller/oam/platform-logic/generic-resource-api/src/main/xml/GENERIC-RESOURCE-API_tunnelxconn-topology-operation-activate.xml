@@ -1,0 +1,133 @@
+<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'><method rpc='tunnelxconn-topology-operation-activate' mode='sync'>
+<block atomic="true"><set>
+<parameter name='tmp.ar.allotted-resource-id' value='`$tunnelxconn-topology-operation-input.allotted-resource-information.allotted-resource-id`' />
+<parameter name='tmp.ar.parent-service-instance-id' value='`$tunnelxconn-topology-operation-input.allotted-resource-information.parent-service-instance-id`' />
+<parameter name='tmp.ar.brg-vnf-id' value='`$tunnelxconn-topology-operation-input.allotted-resource-data.tunnelxconn-topology.tunnelxconn-assignments.tunnelxconn-vnf-id`' />
+
+
+</set><set>
+<parameter name='tmp.ar.self-link' value="`'restconf/config/GENERIC-RESOURCE-API:tunnelxconn-allotted-resources/tunnelxconn-allotted-resource/'
+ + $tmp.ar.allotted-resource-id
+ + '/allotted-resource-data/tunnelxconn-topology/'` " />
+
+</set><execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+    <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+    <parameter name='contextPrefix' value='prop' />
+</execute><execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+    <parameter name="source" value="`$prop.restapi.tx-allottedresource`"/>
+    <parameter name="outputPath" value="tmp.ar-url"/>
+    <parameter name="target" value="{allotted-resource-id}"/>
+    <parameter name="replacement" value="`$tmp.ar.allotted-resource-id`"/>
+</execute><execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+    <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />
+    <parameter name='restapiUser' value='`$prop.controller.user`' />
+    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+    <parameter name='format' value='json' />
+    <parameter name='httpMethod' value='GET' />
+    <parameter name="responsePrefix" value="mdsal-ar" />
+
+<outcome value='success'>
+<block atomic="true">
+<set>
+<parameter name='bk-tx-ar' value='$mdsal-ar.' />
+</set><switch test='`$mdsal-ar.tunnelxconn-allotted-resource_length`'>
+<outcome value='1'>
+<block atomic='true'>
+<set>
+<parameter name='tx-ar.' value='$mdsal-ar.tunnelxconn-allotted-resource[0].' />
+</set><switch test='`$tx-ar.allotted-resource-data.allotted-resource-oper-status.order-status`'>
+<outcome value='Created'>
+<block>
+</block></outcome><outcome value='Other'>
+<block>
+</block></outcome></switch><set>
+<parameter name='tx-ar.allotted-resource-data.allotted-resource-oper-status.last-action' value='`$tx-ar.allotted-resource-data.allotted-resource-operation-information.request-information.request-action`' />
+<parameter name='tx-ar.allotted-resource-data.allotted-resource-oper-status.last-rpc-action' value='`$tx-ar.allotted-resource-status.rpc-action`' />
+<parameter name='tx-ar.allotted-resource-data.allotted-resource-oper-status.last-svc-request-id' value='`$tx-ar.allotted-resource-data.allotted-resource-operation-information.sdnc-request-header.svc-request-id`' />
+
+</set></block></outcome></switch></block></outcome><outcome value='Other'>
+<block atomic="true">
+</block></outcome></execute><set>
+<parameter name='tx-ar.allotted-resource-id' value="`$tmp.ar.allotted-resource-id` " />
+<parameter name='tx-ar.allotted-resource-status.action' value="`$tunnelxconn-topology-operation-input.request-information.request-action` " />
+<parameter name='tx-ar.allotted-resource-status.rpc-name' value="tunnelxconn-topology-operation" />
+<parameter name='tx-ar.allotted-resource-status.rpc-action' value="`$tunnelxconn-topology-operation-input.sdnc-request-header.svc-action` " />
+<parameter name='tx-ar.allotted-resource-data.allotted-resource-operation-information.request-information.' value="`$tunnelxconn-topology-operation-input.request-information.` " />
+<parameter name='tx-ar.allotted-resource-data.allotted-resource-operation-information.sdnc-request-header.' value="`$tunnelxconn-topology-operation-input.sdnc-request-header.` " />
+<parameter name='tx-ar.allotted-resource-data.allotted-resource-operation-information.service-information.' value="`$tunnelxconn-topology-operation-input.service-information.` " />
+<parameter name='tx-ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.' value="`$tunnelxconn-topology-operation-input.allotted-resource-information.` " />
+<parameter name='tx-ar.allotted-resource-data.allotted-resource-operation-information.tunnelxconn-request-input.' value="`$tunnelxconn-topology-operation-input.tunnelxconn-request-input.` " /></set><execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='setTime' >
+    <parameter name="outputPath" value="tmp.current-time" />
+
+</execute><set>
+<parameter name='tx-ar.allotted-resource-data.allotted-resource-oper-status.order-status' value='Active' />
+<parameter name='tx-ar.allotted-resource-data.allotted-resource-oper-status.last-action' value='`$tunnelxconn-topology-operation-input.request-information.request-action`' />
+<parameter name='tx-ar.allotted-resource-data.allotted-resource-oper-status.last-rpc-action' value='`$tunnelxconn-topology-operation-input.sdnc-request-header.svc-action`' />
+<parameter name='tx-ar.allotted-resource-data.allotted-resource-oper-status.last-svc-request-id' value='`$tunnelxconn-topology-operation-input.sdnc-request-header.svc-request-id`' />
+<parameter name='tx-ar.allotted-resource-data.allotted-resource-oper-status.create-timestamp' value='`$tmp.current-time`' />
+</set><update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="allotted-resource" 
+		key="customer.global-customer-id = $tunnelxconn-topology-operation-input.service-information.global-customer-id AND
+			service-subscription.service-type = $tunnelxconn-topology-operation-input.service-information.subscription-service-type AND
+			service-instance.service-instance-id = $tunnelxconn-topology-operation-input.allotted-resource-information.parent-service-instance-id AND
+			allotted-resource.id = $tmp.ar.allotted-resource-id"
+        pfx='pfx' local-only='false' force='false'>
+	<parameter name="operational-status" value="in-service-path" />
+
+
+<!--
+
+<set>
+$tunnelxconn-topology-operation-input.service-information.global-customer-id
+$tunnelxconn-topology-operation-input.service-information.subscription-service-type
+
+		key="customer.global-customer-id = $service-data.service-information.global-customer-id AND
+			service-subscription.service-type = $service-data.service-information.subscription-service-type AND
+			service-instance.service-instance-id = $service-data.service-information.service-instance-id AND
+			allotted-resource.id = $tmp.ar.allotted-resource-id"
+			
+			$tunnelxconn-topology-operation-input.allotted-resource-information.parent-service-instance-id
+			
+--><outcome value='failure'>
+<return status='failure'>
+	<parameter name='ack-final' value='Y'/>
+	<parameter name="error-code" value="500" />
+    <parameter name="error-message" value="AAI failed" />
+</return></outcome><outcome value='not-found'>
+<return status='failure'>
+	<parameter name='ack-final' value='Y'/>
+	<parameter name="error-code" value="500" />
+    <parameter name="error-message" value="AAI failed" />
+</return></outcome></update><execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+    <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.tx.templatefile`" />
+    <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />
+    <parameter name='restapiUser' value='`$prop.controller.user`' />
+    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+    <parameter name='format' value='json' />
+    <parameter name='httpMethod' value='PUT' />
+    <parameter name="responsePrefix" value="mdsal-ar" />
+
+<outcome value='success'>
+<block>
+</block></outcome><outcome value='failure'>
+<return status='failure'>
+	<parameter name='ack-final' value='Y'/>
+	<parameter name="error-code" value="500" />
+    <parameter name="error-message" value="Error updating md-sal for tunnelxconn-allotted-resource" />
+</return></outcome><outcome value='not-found'>
+<return status='failure'>
+	<parameter name='ack-final' value='Y'/>
+	<parameter name="error-code" value="500" />
+    <parameter name="error-message" value="Error updating md-sal for tunnelxconn-allotted-resource" />
+</return></outcome></execute><set>
+<parameter name='allotted-resource-id' value='`$tmp.ar.allotted-resource-id`' />
+<parameter name='tunnelxconn-object-path' value="`$tmp.ar.self-link`"/>
+<parameter name='service-object-path' value="`'restconf/config/GENERIC-RESOURCE-API:services/service/'
+ + $tunnelxconn-topology-operation-input.service-information.service-instance-id
+ + '/service-data/service-topology/'`"/>
+ 
+</set><return status='success'>
+<parameter name="ack-final-indicator" value="Y" />
+<parameter name="error-code" value="200" />
+<parameter name="error-message" value="`$error-message`" />
+</return></block></method></service-logic>

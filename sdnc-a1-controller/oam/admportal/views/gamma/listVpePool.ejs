@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>SDN-C AdminPortal</title>
+
+<script class="init">
+    $(document).ready(function() {
+    $('#vpe_pool').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+
+</head>
+<body>
+
+<div class="well well-sm">
+<h3>VPE Pool</h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+	<table id="vpe_pool" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+          <th>AIC Site ID</th>
+          <th>VPE Name</th>
+          <th>Availability Zone</th>
+		  <th>IPV4 OAM Address</th>
+          <th>Loopback IPV4 Address</th>
+          <th>Prov Status</th>
+          <th>VLAN ID Outer</th>
+          <th>Vendor</th>
+          <th>Interface Name</th>
+          <th>Interface Speed</th>
+          <th>Interface Units</th>
+          <th>VPE UUID</th>
+          <th>VPE ID</th>
+		  <th>AS_NUMBER</th>
+          <th>Image Filename</th>
+		  <% if(priv == 'A'){ %>
+		  <th>Action</th>
+		  <% } %>
+        </tr>
+      </thead>
+      <tbody>
+      <% rows.forEach( function(row) { %> 
+        <tr>
+            <td><%= row.aic_site_id %></td>
+            <td><%= row.vpe_name %></td>
+            <td><%= row.availability_zone %></td>
+            <td><%= row.ipv4_oam_address %></td>
+            <td><%= row.loopback0_ipv4_address %></td>
+            <td><%= row.provisioning_status %></td>
+            <td><%= row.vlan_id_outer %></td>
+            <td><%= row.vendor %></td>
+            <td><%= row.physical_intf_name %></td>
+            <td><%= row.physical_intf_speed %></td>
+            <td><%= row.physical_intf_units %></td>
+            <td><%= row.vpe_uuid %></td>
+            <td><%= row.vpe_id %></td>
+            <td><%= row.as_number %></td>
+            <td><%= row.image_filename %></td>
+			<td>
+<!--
+				<form name="rowform">
+                <input type="hidden" name="rf_aic_site_id" id="rf_aic_site_id" value="<%= row.aic_site_id %>"</input>
+                <input type="hidden" name="rf_vpe_name" id="rf_vpe_name" value="<%= row.vpe_name %>"</input>
+                <input type="hidden" name="rf_availability_zone" id="rf_availability_zone" value="<%= row.availability_zone %>"</input>
+                </form>
+-->
+                <!-- <% var _attuid = row.attuid %> -->
+                <% if(priv == 'A') { %>
+					<button type="button" class="btn btn-default btn-xs"
+                    onclick="updateVpePool('<%=row.aic_site_id %>','<%=row.vpe_name %>', '<%=row.availability_zone %>','<%=row.provisioning_status %>','<%= row.ipv4_oam_address %>','<%= row.loopback0_ipv4_address %>','<%= row.vlan_id_outer %>','<%= row.vendor %>','<%= row.physical_intf_name %>','<%= row.physical_intf_speed %>','<%= row.physical_intf_units %>','<%= row.vpe_uuid %>','<%= row.vpe_id %>', '<%= row.image_filename %>', '<%= row.as_number %>' );">Update</button>
+					<button type="button" class="btn btn-default btn-xs"
+                    onclick="deleteVpePool('<%= row.vpe_name %>','<%=row.aic_site_id %>','<%= row.availability_zone %>');">Delete</button>
+                <% } %>
+            </td>
+        </tr>
+    <% }); %>
+      </tbody>
+    </table>
+
+<!--
+	<% if(priv == 'A'){ %>
+	<div class="actions" style="padding:0px 25px;">
+	<form method="POST" action="/gamma/uploadVpePool" enctype="multipart/form-data">
+		<div class="form-group">
+    		<label for="dest">File input</label>
+    		<input name="filename" type="file" id="dest">
+    		<p class="help-block">Choose a file to upload.</p>
+  		</div>
+		<% if(priv == 'A') { %>
+            <button type="button" class="btn btn-default"
+                onclick="uploadFile(this.form);">Upload File</button>
+        <% } else { %>
+            <button type="button" class="btn btn-default disabled"
+                onclick="uploadFile(this.form);">Upload File</button>
+        <% } %>
+	</form>
+	</div>
+	<% } %>
+-->
+</div>
+
+<% include ../partials/update_vpe_pool %>
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+<script type="text/javascript">
+function updateVpePool(aic_site_id,vpe_name,availability_zone,provisioning_status,ipv4_oam_address,loopback0_ipv4_address,vlan_id_outer,vendor,physical_intf_name,physical_intf_speed,physical_intf_units,vpe_uuid,vpe_id,image_filename, as_number) {
+
+    document.getElementById('uf_aic_site_id').value=aic_site_id;
+    document.getElementById('uf_vpe_name').value=vpe_name;
+    document.getElementById('uf_availability_zone').value=availability_zone;
+    document.getElementById('uf_provisioning_status').value=provisioning_status;
+    document.getElementById('uf_ipv4_oam_address').value=ipv4_oam_address;
+    document.getElementById('uf_loopback0_ipv4_address').value=loopback0_ipv4_address;
+    document.getElementById('uf_vlan_id_outer').value=vlan_id_outer;
+    document.getElementById('uf_vendor').value=vendor;
+    document.getElementById('uf_physical_intf_name').value=physical_intf_name;
+    document.getElementById('uf_physical_intf_speed').value=physical_intf_speed;
+    document.getElementById('uf_physical_intf_units').value=physical_intf_units;
+    document.getElementById('uf_vpe_uuid').value=vpe_uuid;
+    document.getElementById('uf_vpe_id').value=vpe_id;
+    document.getElementById('uf_as_number').value=as_number;
+    document.getElementById('uf_image_filename').value=image_filename;
+
+    document.getElementById('uf_key_availability_zone').value=availability_zone;
+    document.getElementById('uf_key_aic_site_id').value=aic_site_id;
+    document.getElementById('uf_key_vpe_name').value=vpe_name;
+    $('#update_vpe_pool_modal').modal('show');
+
+}
+function deleteVpePool(vpe_name,aic_site_id,availability_zone) {
+
+    bootbox.confirm({
+        message: "Are you sure you want to delete VPE [" + aic_site_id + "][" + vpe_name + "][" + availability_zone + "] ?",
+        callback: function(result) {
+            if ( result )
+            {
+                location.assign("/gamma/deleteVpePool?aic_site_id=" + aic_site_id + "&vpe_name=" + vpe_name + "&availability_zone=" + availability_zone);
+            }
+            return;
+        },
+        buttons: {
+            cancel: {
+                label: "Cancel"
+            },
+            confirm: {
+                label: "Yes"
+            }
+        }
+    });
+}
+
+</script>
+
+</body>
+</html>
+

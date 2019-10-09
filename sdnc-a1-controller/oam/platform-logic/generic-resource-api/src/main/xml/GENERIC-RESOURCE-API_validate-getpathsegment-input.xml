@@ -1,0 +1,107 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='validate-getpathsegment-input' mode='sync'>
+        <block atomic="true">
+            <switch test='`$getpathsegment-topology-operation-input.sdnc-request-header.svc-action`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="sdnc-request-header.svc-action is a required input" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$getpathsegment-topology-operation-input.sdnc-request-header.svc-request-id`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="sdnc-request-header.svc-request-id is a required input" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$getpathsegment-topology-operation-input.request-information.request-action`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="request-information.request-action is a required input" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$getpathsegment-topology-operation-input.service-information.onap-model-information.model-uuid`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="service-information.onap-model-information.model-uuid is a required input" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$getpathsegment-topology-operation-input.service-information.onap-model-information.model-invariant-uuid`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="service-information.onap-model-information.model-invariant-uuid is a required input" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$getpathsegment-topology-operation-input.sdnc-request-header.svc-action`'>
+                <outcome value='create'>
+                    <block atomic="true">
+                        <switch test='`$getpathsegment-topology-operation-input.request-information.request-action`'>
+                            <outcome value='CreateForwardingPathInstance'>
+                                <block></block>
+                            </outcome>
+                            <outcome value='Other'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="service-information.subscription-service-type is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT * from SERVICE_MODEL WHERE service_uuid = $getpathsegment-topology-operation-input.service-information.onap-model-information.model-uuid'
+  pfx='db.service-model'>
+                            <outcome value='failure'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="System error reading SERVICE_MODEL table" />
+                                </return>
+                            </outcome>
+                            <outcome value='not-found'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="`'No service model found for service UUID ' + $getpathsegment-topology-operation-input.service-information.onap-model-information.model-uuid`" />
+                                </return>
+                            </outcome>
+                        </get-resource>
+                        <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT * from SERVICE_MODEL WHERE invariant_uuid = $getpathsegment-topology-operation-input.service-information.onap-model-information.model-invariant-uuid'
+  pfx='db.service-model'>
+                            <outcome value='failure'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="System error reading SERVICE_MODEL table" />
+                                </return>
+                            </outcome>
+                            <outcome value='not-found'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="`'No service model found for invariant UUID ' + $getpathsegment-topology-operation-input.service-information.onap-model-information.model-invariant-uuid`" />
+                                </return>
+                            </outcome>
+                        </get-resource>
+                    </block>
+                </outcome>
+            </switch>
+        </block>
+    </method>
+</service-logic>

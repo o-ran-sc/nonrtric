@@ -1,0 +1,88 @@
+<div class="modal fade" id="add_max_server_speed" tabindex="-1" role="dialog"
+        aria-labelledby="add_max_server_speed_label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Add Max Server Speed</h4>
+          </div>
+          <div class="modal-body">
+            <form name="addForm" role="form" action="/resalloc/addMaxServerSpeed" method="POST">
+              <div class="form-group">
+                <label for="nf_server_model">*Server ModelName</label>
+                <input type="text" class="form-control" maxlength="50" name="nf_server_model" id="nf_server_model" placeholder="varchar(50)">
+              </div>
+              <div class="form-group">
+                <label for="nf_evc_count">*EVC Count</label>
+                <input type="text" class="form-control" maxlength="50" name="nf_evc_count" id="nf_evc_count" placeholder="smallint(6)">
+              </div>
+              <div class="form-group">
+                <label for="nf_max_speed">*Max Speed</label>
+                <input type="text" class="form-control" maxlength="100" name="nf_max_speed" id="nf_max_speed" placeholder="bigint(20)">
+              </div>
+              <div class="form-group">
+                <label for="nf_unit">*Unit</label>
+                <input type="text" class="form-control" maxlength="10" name="nf_unit" id="nf_unit" placeholder="varchar(10)">
+              </div>
+              <div class="form-group">
+                <label for="nf_description">Description</label>
+                <input type="text" class="form-control" maxlength="500" name="nf_description" id="nf_description" placeholder="varchar(500)">
+              </div>
+              <div class="form-group">
+                <input type="hidden" name="nf_action" id="nf_action">
+                <input type="hidden" name="nf_key_max_server_speed_id" id="nf_key_max_server_speed_id">
+                <button type="button" class="btn btn-primary" onclick="submitMaxServerSpeed(this.form);">Submit</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>
+
+
+   <div class="modal fade" id="update_max_server_speed" tabindex="-1" role="dialog" 
+		aria-labelledby="max_server_speed_label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Update Max Server Speed</h4>
+          </div>
+          <div class="modal-body">
+            <form name="updateForm" role="form" action="/resalloc/updateMaxServerSpeed" method="POST">
+              <div class="form-group">
+                <label for="uf_max_server_speed_id">*ID</label>
+                <input readonly type="text" class="form-control" name="uf_max_server_speed_id" id="uf_max_server_speed_id">
+              </div>
+              <div class="form-group">
+                <label for="uf_server_model">*Server Model</label>
+                <input type="text" class="form-control" maxlength="50" name="uf_server_model" id="uf_server_model" placeholder="varchar(50)">
+              </div>
+              <div class="form-group">
+                <label for="uf_evc_count">*EVC Count</label>
+                <input type="text" class="form-control" maxlength="50" name="uf_evc_count" id="uf_evc_count" placeholder="smallint(6)">
+              </div>
+              <div class="form-group">
+                <label for="uf_max_speed">*Max Speed</label>
+                <input type="text" class="form-control" maxlength="50" name="uf_max_speed" id="uf_max_speed" placeholder="bigint(20)">
+			  </div>
+              <div class="form-group">
+                <label for="uf_unit">*Unit</label>
+                <input type="text" class="form-control" maxlength="10" name="uf_unit" id="uf_unit" placeholder="varchar(10)">
+			  </div>
+              <div class="form-group">
+                <label for="uf_description">Description</label>
+                <input type="text" class="form-control" maxlength="500" name="uf_description" id="uf_description" placeholder="varchar(500)">
+              </div>
+              <div class="form-group">
+				<input type="hidden" name="uf_action" id="uf_action">
+				<input type="hidden" name="uf_key_max_server_speed_id" id="uf_key_max_server_speed_id">
+                <button type="button" class="btn btn-primary" onclick="submitMaxServerSpeed(this.form);">Submit</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>

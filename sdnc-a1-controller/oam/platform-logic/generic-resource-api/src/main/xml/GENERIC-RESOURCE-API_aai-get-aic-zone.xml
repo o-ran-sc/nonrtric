@@ -1,0 +1,124 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='aai-get-aic-zone' mode='sync'>
+        <block atomic="true">
+            <set>
+                <parameter name='aaiapi.output.cloud-zone' value='' />
+                <parameter name='aaiapi.output.complex-name' value='' />
+                <parameter name='aaiapi.output.aic-clli' value='' />
+            </set>
+            <switch test='`$aaiapi.input.cloud-owner`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error aaiapi.input.network-instance-group-id is NULL" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$aaiapi.input.cloud-region-id`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error aaiapi.input.network-instance-group-id is NULL" />
+                    </return>
+                </outcome>
+            </switch>
+            <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="cloud-region" 
+		key="cloud-region.cloud-owner = $aaiapi.input.cloud-owner AND 
+		     cloud-region.cloud-region-id = $aaiapi.input.cloud-region-id AND 
+		     depth = '0'"
+        pfx='aai.cloud-region' local-only='false' >
+                <outcome value='not-found'>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="Cloud region not found in AAI"/>
+                        </set>
+                        <return status='failure'>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="`$tmp.error-message`" />
+                        </return>
+                    </block>
+                </outcome>
+                <outcome value='failure'>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="Error retrieving cloud region from AAI"/>
+                        </set>
+                        <return status='failure'>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="`$tmp.error-message`" />
+                        </return>
+                    </block>
+                </outcome>
+            </get-resource>
+            <switch test='`$aai.cloud-region.relationship-list.relationship_length`'>
+                <outcome value='0'>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="Cloud region missing relationships in AAI"/>
+                        </set>
+                        <return status='failure'>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="`$tmp.error-message`" />
+                        </return>
+                    </block>
+                </outcome>
+                <outcome value=''>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="Cloud region missing relationships in AAI"/>
+                        </set>
+                        <return status='failure'>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="`$tmp.error-message`" />
+                        </return>
+                    </block>
+                </outcome>
+            </switch>
+            <for silentFailure='false' index='ridx' start='0' end="`$aai.cloud-region.relationship-list.relationship_length`" >
+                <for silentFailure='false' index='rdidx' start='0' end="`$aai.cloud-region.relationship-list.relationship[$ridx].relationship-data_length`" >
+                    <switch test='`$aai.cloud-region.relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-key`'>
+                        <outcome value='complex.physical-location-id'>
+                            <block atomic="true">
+                                <set>
+                                    <parameter name='tmp.complex-found' value='true' />
+                                </set>
+                                <set>
+                                    <parameter name='aaiapi.output.aic-clli' value='`$aai.complex.physical-location-id`' />
+                                </set>
+                                <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="complex" 
+		key="complex.physical-location-id = $aai.cloud-region.relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-value"
+        pfx='aai.complex' local-only='false' ></get-resource>
+                            </block>
+                        </outcome>
+                    </switch>
+                </for>
+            </for>
+            <switch test='`$tmp.complex-found`'>
+                <outcome value='false'>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="Complex not found in AAI"/>
+                        </set>
+                        <return status='failure'>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="`$tmp.error-message`" />
+                        </return>
+                    </block>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='aaiapi.output.cloud-zone' value='`$aai.cloud-region.cloud-zone`' />
+                <parameter name='aaiapi.output.complex-name' value='`$aai.cloud-region.complex-name`' />
+            </set>
+        </block>
+    </method>
+</service-logic>

@@ -1,0 +1,926 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='vf-module-generate-heat-parameters' mode='sync'>
+        <block atomic="true">
+            <set>
+                <parameter name='const.sub-int' value='subint' />
+                <parameter name='const.subnet-id' value='_subnet_id' />
+                <parameter name='const.v6-subnet-id' value='_v6_subnet_id' />
+                <parameter name='const.port' value='port' />
+                <parameter name='const.sub-int-count' value='_subintcount' />
+                <parameter name='const.vlan-ids' value='_vlan_ids' />
+                <parameter name='const.net-names' value='_net_names' />
+                <parameter name='const.net-ids' value='_net_ids' />
+                <parameter name='const.ip' value='_ip' />
+                <parameter name='const.v6-ip' value='_v6_ip' />
+                <parameter name='const.floating-ip' value='_floating_ip' />
+                <parameter name='const.floating-v6-ip' value='_floating_v6_ip' />
+                <parameter name='const.underscore' value='_' />
+            </set>
+            <set>
+                <parameter name='output-index' value='0' />
+            </set>
+            <for silentFailure='true' index='vm-type-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm_length`' >
+                <block>
+                    <for silentFailure='true' index='vm-name-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vm-name_length`' >
+                        <block>
+                            <set>
+                                <parameter name='tmp.vf-module-parameters.param[$output-index].name'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-type
+    + '_name_'
+    + $vm-name-index`" />
+                                <parameter name='tmp.vf-module-parameters.param[$output-index].value'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vm-name[$vm-name-index]`" />
+                            </set>
+                            <switch test='`$vm-name-index &gt; 0`'>
+                                <outcome value='true'>
+                                    <set>
+                                        <parameter name='cdl' value="`$cdl + ',' + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vm-name[$vm-name-index]`" />
+                                    </set>
+                                </outcome>
+                                <outcome value='false'>
+                                    <set>
+                                        <parameter name='cdl' value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vm-name[$vm-name-index]`" />
+                                    </set>
+                                </outcome>
+                            </switch>
+                            <set>
+                                <parameter name='output-index' value='`$output-index + 1`' />
+                            </set>
+                        </block>
+                    </for>
+                    <set>
+                        <parameter name='tmp.vf-module-parameters.param[$output-index].name'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-type
+    + '_names'`" />
+                        <parameter name='tmp.vf-module-parameters.param[$output-index].value'
+  value="`$cdl`" />
+                    </set>
+                    <set>
+                        <parameter name='output-index' value='`$output-index + 1`' />
+                    </set>
+                    <for silentFailure='true' index='network-role-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network_length`' >
+                        <block>
+                            <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].network-role-tag`'>
+                                <outcome value=''>
+                                    <set>
+                                        <parameter name='network-key' value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].network-role`' />
+                                    </set>
+                                </outcome>
+                                <outcome value='Other'>
+                                    <set>
+                                        <parameter name='network-key' value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].network-role-tag`' />
+                                    </set>
+                                </outcome>
+                            </switch>
+                            <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].floating-ips.floating-ip-v4`'>
+                                <outcome value=''>
+                                    <block></block>
+                                </outcome>
+                                <outcome value='Other'>
+                                    <block>
+                                        <set>
+                                            <parameter name='tmp.vf-module-parameters.param[$output-index].name'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-type
+    + $const.underscore
+    + $network-key
+    + $const.floating-ip`" />
+                                            <parameter name='tmp.vf-module-parameters.param[$output-index].value'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].floating-ips.floating-ip-v4`" />
+                                        </set>
+                                        <set>
+                                            <parameter name='output-index' value='`$output-index + 1`' />
+                                        </set>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].floating-ips.floating-ip-v6`'>
+                                <outcome value=''>
+                                    <block></block>
+                                </outcome>
+                                <outcome value='Other'>
+                                    <block>
+                                        <set>
+                                            <parameter name='tmp.vf-module-parameters.param[$output-index].name'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-type
+    + $const.underscore
+    + $network-key
+    + $const.floating-v6-ip`" />
+                                            <parameter name='tmp.vf-module-parameters.param[$output-index].value'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].floating-ips.floating-ip-v6`" />
+                                        </set>
+                                        <set>
+                                            <parameter name='output-index' value='`$output-index + 1`' />
+                                        </set>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].interface-route-prefixes.interface-route-prefix_length &gt; 0`'>
+                                <outcome value='true'>
+                                    <block>
+                                        <set>
+                                            <parameter name='cdl' value='[' />
+                                        </set>
+                                        <for index='interface-route-prefix-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].interface-route-prefixes.interface-route-prefix_length`' >
+                                            <block>
+                                                <switch test='`$interface-route-prefix-index &gt; 0`'>
+                                                    <outcome value='true'>
+                                                        <set>
+                                                            <parameter name='cdl' value="`$cdl + ','`" />
+                                                        </set>
+                                                    </outcome>
+                                                </switch>
+                                                <set>
+                                                    <parameter name='cdl' value="`$cdl
+  + '{\&quot;interface_route_table_routes_route_prefix\&quot;:\&quot;'
+  + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].interface-route-prefixes.interface-route-prefix[$interface-route-prefix-index]
+  + '\&quot;}'`" />
+                                                </set>
+                                            </block>
+                                        </for>
+                                        <set>
+                                            <parameter name='cdl' value="`$cdl + ']'`" />
+                                        </set>
+                                        <set>
+                                            <parameter name='tmp.vf-module-parameters.param[$output-index].name'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-type
+    + $const.underscore
+    + $network-key
+    + '_route_prefixes'`" />
+                                            <parameter name='tmp.vf-module-parameters.param[$output-index].value'
+  value="`$cdl`" />
+                                        </set>
+                                        <set>
+                                            <parameter name='output-index' value='`$output-index + 1`' />
+                                        </set>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <for silentFailure='true' index='address-family-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].network-information-items.network-information-item_length`' >
+                                <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].network-information-items.network-information-item[$address-family-index].ip-version`'>
+                                    <outcome value='ipv4'>
+                                        <block>
+                                            <for silentFailure='true' index='address-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].network-information-items.network-information-item[$address-family-index].network-ips.network-ip_length`' >
+                                                <block>
+                                                    <set>
+                                                        <parameter name='tmp.vf-module-parameters.param[$output-index].name'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-type
+    + $const.underscore
+    + $network-key
+    + $const.ip
+    + $const.underscore
+    + $address-index`" />
+                                                        <parameter name='tmp.vf-module-parameters.param[$output-index].value'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].network-information-items.network-information-item[$address-family-index].network-ips.network-ip[$address-index]`" />
+                                                    </set>
+                                                    <set>
+                                                        <parameter name='output-index' value='`$output-index + 1`' />
+                                                    </set>
+                                                    <switch test='`$address-index &gt; 0`'>
+                                                        <outcome value='true'>
+                                                            <set>
+                                                                <parameter name='cdl' value="`$cdl + ',' + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].network-information-items.network-information-item[$address-family-index].network-ips.network-ip[$address-index]`" />
+                                                            </set>
+                                                        </outcome>
+                                                        <outcome value='false'>
+                                                            <set>
+                                                                <parameter name='cdl' value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].network-information-items.network-information-item[$address-family-index].network-ips.network-ip[$address-index]`" />
+                                                            </set>
+                                                        </outcome>
+                                                    </switch>
+                                                </block>
+                                            </for>
+                                            <set>
+                                                <parameter name='tmp.vf-module-parameters.param[$output-index].name'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-type
+    + $const.underscore
+    + $network-key
+    + '_ips'`" />
+                                                <parameter name='tmp.vf-module-parameters.param[$output-index].value'
+  value="`$cdl`" />
+                                            </set>
+                                            <set>
+                                                <parameter name='output-index' value='`$output-index + 1`' />
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                    <outcome value='ipv6'>
+                                        <block>
+                                            <for silentFailure='true' index='address-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].network-information-items.network-information-item[$address-family-index].network-ips.network-ip_length`' >
+                                                <block>
+                                                    <set>
+                                                        <parameter name='tmp.vf-module-parameters.param[$output-index].name'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-type
+    + $const.underscore
+    + $network-key
+    + $const.v6-ip
+    + $const.underscore
+    + $address-index`" />
+                                                        <parameter name='tmp.vf-module-parameters.param[$output-index].value'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].network-information-items.network-information-item[$address-family-index].network-ips.network-ip[$address-index]`" />
+                                                    </set>
+                                                    <set>
+                                                        <parameter name='output-index' value='`$output-index + 1`' />
+                                                    </set>
+                                                    <switch test='`$address-index &gt; 0`'>
+                                                        <outcome value='true'>
+                                                            <set>
+                                                                <parameter name='cdl' value="`$cdl + ',' + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].network-information-items.network-information-item[$address-family-index].network-ips.network-ip[$address-index]`" />
+                                                            </set>
+                                                        </outcome>
+                                                        <outcome value='false'>
+                                                            <set>
+                                                                <parameter name='cdl' value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].network-information-items.network-information-item[$address-family-index].network-ips.network-ip[$address-index]`" />
+                                                            </set>
+                                                        </outcome>
+                                                    </switch>
+                                                </block>
+                                            </for>
+                                            <set>
+                                                <parameter name='tmp.vf-module-parameters.param[$output-index].name'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-type
+    + $const.underscore
+    + $network-key
+    + '_v6_ips'`" />
+                                                <parameter name='tmp.vf-module-parameters.param[$output-index].value'
+  value="`$cdl`" />
+                                            </set>
+                                            <set>
+                                                <parameter name='output-index' value='`$output-index + 1`' />
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                            </for>
+                            <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].related-networks.related-network_length &gt; 0`'>
+                                <outcome value='true'>
+                                    <block>
+                                        <set>
+                                            <parameter name='tmp.vf-module-parameters.param[$output-index].name'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-type
+    + $const.underscore
+    + $network-key
+    + '_vlan_filter'`" />
+                                            <parameter name='tmp.vf-module-parameters.param[$output-index].value'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].segmentation-id`" />
+                                        </set>
+                                        <set>
+                                            <parameter name='output-index' value='`$output-index + 1`' />
+                                        </set>
+                                        <set>
+                                            <parameter name='public-cdl' value='' />
+                                            <parameter name='private-cdl' value='' />
+                                            <parameter name='all-cdl' value='' />
+                                        </set>
+                                        <for silentFailure='true' index='related-network-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].related-networks.related-network_length`' >
+                                            <block>
+                                                <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].related-networks.related-network[$related-network-index].vlan-tags.is-private`'>
+                                                    <outcome value='true'>
+                                                        <switch test='`$private-cdl`'>
+                                                            <outcome value=''>
+                                                                <set>
+                                                                    <parameter name='private-cdl'
+  value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].related-networks.related-network[$related-network-index].vlan-tags.upper-tag-id`' />
+                                                                </set>
+                                                            </outcome>
+                                                            <outcome value='Other'>
+                                                                <set>
+                                                                    <parameter name='private-cdl'
+  value="',' + `$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].related-networks.related-network[$related-network-index].vlan-tags.upper-tag-id`" />
+                                                                </set>
+                                                            </outcome>
+                                                        </switch>
+                                                    </outcome>
+                                                    <outcome value='false'>
+                                                        <switch test='`$public-cdl`'>
+                                                            <outcome value=''>
+                                                                <set>
+                                                                    <parameter name='public-cdl'
+  value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].related-networks.related-network[$related-network-index].vlan-tags.upper-tag-id`' />
+                                                                </set>
+                                                            </outcome>
+                                                            <outcome value='Other'>
+                                                                <set>
+                                                                    <parameter name='public-cdl'
+  value="',' + `$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].related-networks.related-network[$related-network-index].vlan-tags.upper-tag-id`" />
+                                                                </set>
+                                                            </outcome>
+                                                        </switch>
+                                                    </outcome>
+                                                </switch>
+                                                <switch test='`$all-cdl`'>
+                                                    <outcome value=''>
+                                                        <set>
+                                                            <parameter name='all-cdl'
+  value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].related-networks.related-network[$related-network-index].vlan-tags.upper-tag-id`' />
+                                                        </set>
+                                                    </outcome>
+                                                    <outcome value='Other'>
+                                                        <set>
+                                                            <parameter name='all-cdl'
+  value="',' + `$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].related-networks.related-network[$related-network-index].vlan-tags.upper-tag-id`" />
+                                                        </set>
+                                                    </outcome>
+                                                </switch>
+                                            </block>
+                                        </for>
+                                        <switch test='`$private-cdl`'>
+                                            <outcome value=''>
+                                                <block></block>
+                                            </outcome>
+                                            <outcome value='Other'>
+                                                <block>
+                                                    <set>
+                                                        <parameter name='tmp.vf-module-parameters.param[$output-index].name'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-type
+    + $const.underscore
+    + $network-key
+    + '_private_vlans'`" />
+                                                        <parameter name='tmp.vf-module-parameters.param[$output-index].value'
+  value="`$private-cdl`" />
+                                                    </set>
+                                                    <set>
+                                                        <parameter name='output-index' value='`$output-index + 1`' />
+                                                    </set>
+                                                </block>
+                                            </outcome>
+                                        </switch>
+                                        <switch test='`$public-cdl`'>
+                                            <outcome value=''>
+                                                <block></block>
+                                            </outcome>
+                                            <outcome value='Other'>
+                                                <block>
+                                                    <set>
+                                                        <parameter name='tmp.vf-module-parameters.param[$output-index].name'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-type
+    + $const.underscore
+    + $network-key
+    + '_public_vlans'`" />
+                                                        <parameter name='tmp.vf-module-parameters.param[$output-index].value'
+  value="`$public-cdl`" />
+                                                    </set>
+                                                    <set>
+                                                        <parameter name='output-index' value='`$output-index + 1`' />
+                                                    </set>
+                                                </block>
+                                            </outcome>
+                                        </switch>
+                                        <set>
+                                            <parameter name='tmp.vf-module-parameters.param[$output-index].name'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-type
+    + $const.underscore
+    + $network-key
+    + '_guest_vlans'`" />
+                                            <parameter name='tmp.vf-module-parameters.param[$output-index].value'
+  value="`$all-cdl`" />
+                                        </set>
+                                        <set>
+                                            <parameter name='output-index' value='`$output-index + 1`' />
+                                        </set>
+                                    </block>
+                                </outcome>
+                            </switch>
+                        </block>
+                    </for>
+                    <for silentFailure='true' index='vnfc-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names_length`' >
+                        <block>
+                            <for silentFailure='true' index='vnfc-network-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data_length`' >
+                                <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-type`'>
+                                    <outcome value=''>
+                                        <block></block>
+                                    </outcome>
+                                    <outcome value='Other'>
+                                        <block>
+                                            <set>
+                                                <parameter name='port-index' value='0' />
+                                            </set>
+                                            <for silentFailure='true' index='vnfc-port-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-ports.vnfc-port_length`' >
+                                                <block>
+                                                    <set>
+                                                        <parameter name='tmp.vf-module-parameters.param[$output-index].name'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-type
+    + '_subint_'
+    + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-ports.vnfc-port[$vnfc-port-index].common-sub-interface-role
+    + '_port_'
+    + $port-index
+    + '_subintcount'`" />
+                                                        <parameter name='tmp.vf-module-parameters.param[$output-index].value'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-ports.vnfc-port[$vnfc-port-index].vnic-sub-interfaces.sub-interface-network-data_length`" />
+                                                    </set>
+                                                    <set>
+                                                        <parameter name='output-index' value='`$output-index + 1`' />
+                                                    </set>
+                                                    <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-ports.vnfc-port[$vnfc-port-index].vnic-sub-interfaces.sub-interface-network-data[0].floating-ips.floating-ip-v4`'>
+                                                        <outcome value=''>
+                                                            <block></block>
+                                                        </outcome>
+                                                        <outcome value='Other'>
+                                                            <block>
+                                                                <set>
+                                                                    <parameter name='tmp.vf-module-parameters.param[$output-index].name'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-type
+    + '_subint_'
+    + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-ports.vnfc-port[$vnfc-port-index].common-sub-interface-role
+    + '_port_'
+    + $port-index
+    + '_floating_ip'`" />
+                                                                    <parameter name='tmp.vf-module-parameters.param[$output-index].value'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-ports.vnfc-port[$vnfc-port-index].vnic-sub-interfaces.sub-interface-network-data[0].floating-ips.floating-ip-v4`" />
+                                                                </set>
+                                                                <set>
+                                                                    <parameter name='output-index' value='`$output-index + 1`' />
+                                                                </set>
+                                                            </block>
+                                                        </outcome>
+                                                    </switch>
+                                                    <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-ports.vnfc-port[$vnfc-port-index].vnic-sub-interfaces.sub-interface-network-data[0].floating-ips.floating-ip-v6`'>
+                                                        <outcome value=''>
+                                                            <block></block>
+                                                        </outcome>
+                                                        <outcome value='Other'>
+                                                            <block>
+                                                                <set>
+                                                                    <parameter name='tmp.vf-module-parameters.param[$output-index].name'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-type
+    + '_subint_'
+    + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-ports.vnfc-port[$vnfc-port-index].common-sub-interface-role
+    + '_port_'
+    + $port-index
+    + '_floating_v6_ip'`" />
+                                                                    <parameter name='tmp.vf-module-parameters.param[$output-index].value'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-ports.vnfc-port[$vnfc-port-index].vnic-sub-interfaces.sub-interface-network-data[0].floating-ips.floating-ip-v6`" />
+                                                                </set>
+                                                                <set>
+                                                                    <parameter name='output-index' value='`$output-index + 1`' />
+                                                                </set>
+                                                            </block>
+                                                        </outcome>
+                                                    </switch>
+                                                    <set>
+                                                        <parameter name='vlan-cdl' value='' />
+                                                        <parameter name='net-names-cdl' value='' />
+                                                        <parameter name='net-id-cdl' value='' />
+                                                        <parameter name='ipv4-ips-cdl' value='' />
+                                                        <parameter name='ipv6-ips-cdl' value='' />
+                                                    </set>
+                                                    <for silentFailure='true' index='vnic-sub-interface-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-ports.vnfc-port[$vnfc-port-index].vnic-sub-interfaces.sub-interface-network-data_length`' >
+                                                        <block>
+                                                            <switch test='`$vlan-cdl`'>
+                                                                <outcome value=''>
+                                                                    <set>
+                                                                        <parameter name='vlan-cdl' value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-ports.vnfc-port[$vnfc-port-index].vnic-sub-interfaces.sub-interface-network-data[$vnic-sub-interface-index].vlan-tag-id`' />
+                                                                    </set>
+                                                                </outcome>
+                                                                <outcome value='Other'>
+                                                                    <set>
+                                                                        <parameter name='vlan-cdl' value="`$vlan-cdl + ',' + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-ports.vnfc-port[$vnfc-port-index].vnic-sub-interfaces.sub-interface-network-data[$vnic-sub-interface-index].vlan-tag-id`" />
+                                                                    </set>
+                                                                </outcome>
+                                                            </switch>
+                                                            <switch test='`$net-names-cdl`'>
+                                                                <outcome value=''>
+                                                                    <set>
+                                                                        <parameter name='net-names-cdl' value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-ports.vnfc-port[$vnfc-port-index].vnic-sub-interfaces.sub-interface-network-data[$vnic-sub-interface-index].network-name`' />
+                                                                    </set>
+                                                                </outcome>
+                                                                <outcome value='Other'>
+                                                                    <set>
+                                                                        <parameter name='net-names-cdl' value="`$net-names-cdl + ',' + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-ports.vnfc-port[$vnfc-port-index].vnic-sub-interfaces.sub-interface-network-data[$vnic-sub-interface-index].network-name`" />
+                                                                    </set>
+                                                                </outcome>
+                                                            </switch>
+                                                            <switch test='`$net-id-cdl`'>
+                                                                <outcome value=''>
+                                                                    <set>
+                                                                        <parameter name='net-id-cdl' value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-ports.vnfc-port[$vnfc-port-index].vnic-sub-interfaces.sub-interface-network-data[$vnic-sub-interface-index].network-id`' />
+                                                                    </set>
+                                                                </outcome>
+                                                                <outcome value='Other'>
+                                                                    <set>
+                                                                        <parameter name='net-id-cdl' value="`$net-id-cdl + ',' + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-ports.vnfc-port[$vnfc-port-index].vnic-sub-interfaces.sub-interface-network-data[$vnic-sub-interface-index].network-id`" />
+                                                                    </set>
+                                                                </outcome>
+                                                            </switch>
+                                                            <for silentFailure='true' index='nii-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-ports.vnfc-port[$vnfc-port-index].vnic-sub-interfaces.sub-interface-network-data[$vnic-sub-interface-index].network-information-items.network-information-item_length`' >
+                                                                <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-ports.vnfc-port[$vnfc-port-index].vnic-sub-interfaces.sub-interface-network-data[$vnic-sub-interface-index].network-information-items.network-information-item[$nii-index].ip-version`'>
+                                                                    <outcome value='ipv4'>
+                                                                        <block>
+                                                                            <for silentFailure='true' index='ip-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-ports.vnfc-port[$vnfc-port-index].vnic-sub-interfaces.sub-interface-network-data[$vnic-sub-interface-index].network-information-items.network-information-item[$nii-index].network-ips.network-ip_length`' >
+                                                                                <block>
+                                                                                    <set>
+                                                                                        <parameter name='tmp.vf-module-parameters.param[$output-index].name'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-type
+    + $const.underscore
+    + $vnfc-network-index
+    + '_subint_'
+    + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-ports.vnfc-port[$vnfc-port-index].common-sub-interface-role
+    + '_port_'
+    + $port-index
+    + '_ip_'
+    + $ip-index`" />
+                                                                                        <parameter name='tmp.vf-module-parameters.param[$output-index].value'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-ports.vnfc-port[$vnfc-port-index].vnic-sub-interfaces.sub-interface-network-data[$vnic-sub-interface-index].network-information-items.network-information-item[$nii-index].network-ips.network-ip[$ip-index]`" />
+                                                                                    </set>
+                                                                                    <set>
+                                                                                        <parameter name='output-index' value='`$output-index + 1`' />
+                                                                                    </set>
+                                                                                </block>
+                                                                            </for>
+                                                                        </block>
+                                                                    </outcome>
+                                                                    <outcome value='ipv6'>
+                                                                        <block>
+                                                                            <for silentFailure='true' index='ip-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-ports.vnfc-port[$vnfc-port-index].vnic-sub-interfaces.sub-interface-network-data[$vnic-sub-interface-index].network-information-items.network-information-item[$nii-index].network-ips.network-ip_length`' >
+                                                                                <block>
+                                                                                    <set>
+                                                                                        <parameter name='tmp.vf-module-parameters.param[$output-index].name'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-type
+    + $const.underscore
+    + $vnfc-network-index
+    + '_subint_'
+    + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-ports.vnfc-port[$vnfc-port-index].common-sub-interface-role
+    + '_port_'
+    + $port-index
+    + '_v6_ip_'
+    + $ip-index`" />
+                                                                                        <parameter name='tmp.vf-module-parameters.param[$output-index].value'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-ports.vnfc-port[$vnfc-port-index].vnic-sub-interfaces.sub-interface-network-data[$vnic-sub-interface-index].network-information-items.network-information-item[$nii-index].network-ips.network-ip[$ip-index]`" />
+                                                                                    </set>
+                                                                                    <set>
+                                                                                        <parameter name='output-index' value='`$output-index + 1`' />
+                                                                                    </set>
+                                                                                </block>
+                                                                            </for>
+                                                                        </block>
+                                                                    </outcome>
+                                                                </switch>
+                                                            </for>
+                                                        </block>
+                                                    </for>
+                                                    <switch test='`$vlan-cdl`'>
+                                                        <outcome value=''>
+                                                            <block></block>
+                                                        </outcome>
+                                                        <outcome value='Other'>
+                                                            <block>
+                                                                <set>
+                                                                    <parameter name='tmp.vf-module-parameters.param[$output-index].name'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-type
+    + $const.underscore
+    + $vnfc-network-index
+    + '_subint_'
+    + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-ports.vnfc-port[$vnfc-port-index].common-sub-interface-role
+    + '_port_'
+    + $port-index
+    + '_vlan_ids'`" />
+                                                                    <parameter name='tmp.vf-module-parameters.param[$output-index].value'
+  value="`$vlan-cdl`" />
+                                                                </set>
+                                                                <set>
+                                                                    <parameter name='output-index' value='`$output-index + 1`' />
+                                                                </set>
+                                                            </block>
+                                                        </outcome>
+                                                    </switch>
+                                                    <switch test='`$net-names-cdl`'>
+                                                        <outcome value=''>
+                                                            <block></block>
+                                                        </outcome>
+                                                        <outcome value='Other'>
+                                                            <block>
+                                                                <set>
+                                                                    <parameter name='tmp.vf-module-parameters.param[$output-index].name'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-type
+    + $const.underscore
+    + $vnfc-network-index
+    + '_subint_'
+    + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-ports.vnfc-port[$vnfc-port-index].common-sub-interface-role
+    + '_port_'
+    + $port-index
+    + '_net_names'`" />
+                                                                    <parameter name='tmp.vf-module-parameters.param[$output-index].value'
+  value="`$net-names-cdl`" />
+                                                                </set>
+                                                                <set>
+                                                                    <parameter name='output-index' value='`$output-index + 1`' />
+                                                                </set>
+                                                            </block>
+                                                        </outcome>
+                                                    </switch>
+                                                    <switch test='`$net-id-cdl`'>
+                                                        <outcome value=''>
+                                                            <block></block>
+                                                        </outcome>
+                                                        <outcome value='Other'>
+                                                            <block>
+                                                                <set>
+                                                                    <parameter name='tmp.vf-module-parameters.param[$output-index].name'
+  value="`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-type
+    + $const.underscore
+    + $vnfc-network-index
+    + '_subint_'
+    + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vnfc-network-index].vnfc-ports.vnfc-port[$vnfc-port-index].common-sub-interface-role
+    + '_port_'
+    + $port-index
+    + '_net_ids'`" />
+                                                                    <parameter name='tmp.vf-module-parameters.param[$output-index].value'
+  value="`$net-id-cdl`" />
+                                                                </set>
+                                                                <set>
+                                                                    <parameter name='output-index' value='`$output-index + 1`' />
+                                                                </set>
+                                                            </block>
+                                                        </outcome>
+                                                    </switch>
+                                                    <set>
+                                                        <parameter name='port-index' value='`$port-index + 1`' />
+                                                    </set>
+                                                </block>
+                                            </for>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                            </for>
+                        </block>
+                    </for>
+                </block>
+            </for>
+            <for silentFailure='true' index='az-index' start='0' end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.availability-zones.availability-zone_length`' >
+                <block>
+                    <set>
+                        <parameter name='tmp.vf-module-parameters.param[$output-index].name'
+  value="`'availability_zone_'
+    + $az-index`" />
+                        <parameter name='tmp.vf-module-parameters.param[$output-index].value'
+  value="`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.availability-zones.availability-zone[$az-index]`" />
+                    </set>
+                    <set>
+                        <parameter name='output-index' value='`$output-index + 1`' />
+                    </set>
+                </block>
+            </for>
+            <for silentFailure='true' index='vnf-network-index' start='0' end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network_length`' >
+                <block>
+                    <set>
+                        <parameter name='network-key' value='' />
+                    </set>
+                    <set>
+                        <parameter name='network-role' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].network-role`' />
+                    </set>
+                    <for silentFailure='true' index='vm-type-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm_length`' >
+                        <block>
+                            <for silentFailure='true' index='network-role-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network_length`' >
+                                <switch test='`$network-role ==
+  $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].network-role`'>
+                                    <outcome value='true'>
+                                        <block>
+                                            <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].network-role-tag`'>
+                                                <outcome value=''>
+                                                    <set>
+                                                        <parameter name='network-key' value='`network-role`' />
+                                                    </set>
+                                                </outcome>
+                                                <outcome value='Other'>
+                                                    <set>
+                                                        <parameter name='network-key' value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].network-role-tag`' />
+                                                    </set>
+                                                </outcome>
+                                            </switch>
+                                            <break/>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                            </for>
+                            <switch test='`$network-key`'>
+                                <outcome value=''>
+                                    <block></block>
+                                </outcome>
+                                <outcome value='Other'>
+                                    <break/>
+                                </outcome>
+                            </switch>
+                        </block>
+                    </for>
+                    <switch test='`$network-key`'>
+                        <outcome value=''>
+                            <block></block>
+                        </outcome>
+                        <outcome value='Other'>
+                            <block>
+                                <set>
+                                    <parameter name='tmp.vf-module-parameters.param[$output-index].name'
+  value="`$network-key
+    + '_net_id'`" />
+                                    <parameter name='tmp.vf-module-parameters.param[$output-index].value'
+  value="`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].neutron-id`" />
+                                </set>
+                                <set>
+                                    <parameter name='output-index' value='`$output-index + 1`' />
+                                </set>
+                                <set>
+                                    <parameter name='tmp.vf-module-parameters.param[$output-index].name'
+  value="`$network-key
+    + '_net_name'`" />
+                                    <parameter name='tmp.vf-module-parameters.param[$output-index].value'
+  value="`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].network-name`" />
+                                </set>
+                                <set>
+                                    <parameter name='output-index' value='`$output-index + 1`' />
+                                </set>
+                                <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].contrail-network-fqdn`'>
+                                    <outcome value=''>
+                                        <block></block>
+                                    </outcome>
+                                    <outcome value='Other'>
+                                        <block>
+                                            <set>
+                                                <parameter name='tmp.vf-module-parameters.param[$output-index].name'
+  value="`$network-key
+    + '_net_fqdn'`" />
+                                                <parameter name='tmp.vf-module-parameters.param[$output-index].value'
+  value="`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].contrail-network-fqdn
+`" />
+                                            </set>
+                                            <set>
+                                                <parameter name='output-index' value='`$output-index + 1`' />
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                            </block>
+                        </outcome>
+                    </switch>
+                    <set>
+                        <parameter name='found-ipv4' value='false' />
+                        <parameter name='found-ipv6' value='false' />
+                    </set>
+                    <for silentFailure='true' index='subnet-index' start='0' end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].subnets-data.subnet-data_length`' >
+                        <block>
+                            <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].subnets-data.subnet-data[$subnet-index].ip-version`'>
+                                <outcome value='ipv4'>
+                                    <switch test='`$found-ipv4`'>
+                                        <outcome value='false'>
+                                            <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].subnets-data.subnet-data[$subnet-index].subnet-id`'>
+                                                <outcome value=''>
+                                                    <block></block>
+                                                </outcome>
+                                                <outcome value='Other'>
+                                                    <block>
+                                                        <set>
+                                                            <parameter name='tmp.vf-module-parameters.param[$output-index].name'
+  value="`$network-key
+    + $const.subnet-id`" />
+                                                            <parameter name='tmp.vf-module-parameters.param[$output-index].value'
+  value="`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].subnets-data.subnet-data[$subnet-index].subnet-id`" />
+                                                        </set>
+                                                        <set>
+                                                            <parameter name='output-index' value='`$output-index + 1`' />
+                                                        </set>
+                                                        <set>
+                                                            <parameter name='found-ipv4' value='true' />
+                                                        </set>
+                                                    </block>
+                                                </outcome>
+                                            </switch>
+                                        </outcome>
+                                    </switch>
+                                </outcome>
+                                <outcome value='ipv6'>
+                                    <switch test='`$found-ipv6`'>
+                                        <outcome value='false'>
+                                            <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].subnets-data.subnet-data[$subnet-index].subnet-id`'>
+                                                <outcome value=''>
+                                                    <block></block>
+                                                </outcome>
+                                                <outcome value='Other'>
+                                                    <block>
+                                                        <set>
+                                                            <parameter name='tmp.vf-module-parameters.param[$output-index].name'
+  value="`$network-key
+    + $const.v6-subnet-id`" />
+                                                            <parameter name='tmp.vf-module-parameters.param[$output-index].value'
+  value="`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].subnets-data.subnet-data[$subnet-index].subnet-id`" />
+                                                        </set>
+                                                        <set>
+                                                            <parameter name='output-index' value='`$output-index + 1`' />
+                                                        </set>
+                                                        <set>
+                                                            <parameter name='found-ipv6' value='true' />
+                                                        </set>
+                                                    </block>
+                                                </outcome>
+                                            </switch>
+                                        </outcome>
+                                    </switch>
+                                </outcome>
+                            </switch>
+                        </block>
+                    </for>
+                </block>
+            </for>
+            <block>
+                <switch test='`$tmp.vf-module-topology.vf-module-parameters.param_length`'>
+                    <outcome value='0'>
+                        <block></block>
+                    </outcome>
+                    <outcome value=''>
+                        <block></block>
+                    </outcome>
+                    <outcome value='Other'>
+                        <set>
+                            <parameter name='tmp.preload-parameters.' value='`$tmp.vf-module-topology.vf-module-parameters.`' />
+                        </set>
+                    </outcome>
+                </switch>
+                <set>
+                    <parameter name='tmp.vf-module-topology.vf-module-parameters.' value='`$tmp.vf-module-parameters.`' />
+                </set>
+                <for silentFailure='true' index='preload-index' start='0' end='`$tmp.preload-parameters.param_length`' >
+                    <block>
+                        <set>
+                            <parameter name='found-match' value='false' />
+                        </set>
+                        <for index='cur-index' start='0' end='`$output-index`' >
+                            <switch test='`$tmp.vf-module-topology.vf-module-parameters.param[$cur-index].name
+  == $tmp.preload-parameters.param[$preload-index].name`'>
+                                <outcome value='true'>
+                                    <block>
+                                        <set>
+                                            <parameter name='$tmp.vf-module-topology.vf-module-parameters.param[$cur-index].value' value='`$tmp.preload-parameters.param[$preload-index].value`' />
+                                        </set>
+                                        <set>
+                                            <parameter name='found-match' value='true' />
+                                        </set>
+                                        <break/>
+                                    </block>
+                                </outcome>
+                            </switch>
+                        </for>
+                        <switch test='`$found-match`'>
+                            <outcome value='false'>
+                                <block>
+                                    <set>
+                                        <parameter name='tmp.vf-module-topology.vf-module-parameters.param[$output-index].name'
+  value="`$tmp.preload-parameters.param[$preload-index].name`" />
+                                        <parameter name='tmp.vf-module-topology.vf-module-parameters.param[$output-index].value'
+  value="`$tmp.preload-parameters.param[$preload-index].value`" />
+                                    </set>
+                                    <set>
+                                        <parameter name='output-index' value='`$output-index + 1`' />
+                                    </set>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </block>
+                </for>
+                <for silentFailure='true' index='input-index' start='0' end='`$vf-module-topology-operation-input.vf-module-request-input.vf-module-input-parameters.param_length`' >
+                    <block>
+                        <set>
+                            <parameter name='found-match' value='false' />
+                        </set>
+                        <for index='cur-index' start='0' end='`$output-index`' >
+                            <switch test='`$tmp.vf-module-topology.vf-module-parameters.param[$cur-index].name
+  == $vf-module-topology-operation-input.vf-module-request-input.vf-module-input-parameters.param[$input-index].name`'>
+                                <outcome value='true'>
+                                    <block>
+                                        <set>
+                                            <parameter name='$tmp.vf-module-topology.vf-module-parameters.param[$cur-index].value'
+  value='`$vf-module-topology-operation-input.vf-module-request-input.vf-module-input-parameters.param[$input-index].value`' />
+                                        </set>
+                                        <set>
+                                            <parameter name='found-match' value='true' />
+                                        </set>
+                                        <break/>
+                                    </block>
+                                </outcome>
+                            </switch>
+                        </for>
+                        <switch test='`$found-match`'>
+                            <outcome value='false'>
+                                <block>
+                                    <set>
+                                        <parameter name='tmp.vf-module-topology.vf-module-parameters.param[$output-index].name'
+  value="`$vf-module-topology-operation-input.vf-module-request-input.vf-module-input-parameters.param[$input-index].name`" />
+                                        <parameter name='tmp.vf-module-topology.vf-module-parameters.param[$output-index].value'
+  value="`$vf-module-topology-operation-input.vf-module-request-input.vf-module-input-parameters.param[$input-index].value`" />
+                                    </set>
+                                    <set>
+                                        <parameter name='output-index' value='`$output-index + 1`' />
+                                    </set>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </block>
+                </for>
+                <set>
+                    <parameter name='$tmp.vf-module-topology.vf-module-parameters.param_length' value='`$output-index`' />
+                </set>
+                <set>
+                    <parameter name='tmp.vf-module-topology.sdnc-generated-cloud-resources' value='true' />
+                </set>
+            </block>
+        </block>
+    </method>
+</service-logic>

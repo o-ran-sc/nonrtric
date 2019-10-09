@@ -1,0 +1,2320 @@
+[
+    {
+        "id": "38ad5ef3.8fa5c2",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 137.00390625,
+        "y": 125.00390625,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "59b2f037.b79a4"
+            ]
+        ]
+    },
+    {
+        "id": "59b2f037.b79a4",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 349.00391006469727,
+        "y": 197.0039234161377,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "7aa0bfba.98463"
+            ]
+        ]
+    },
+    {
+        "id": "7aa0bfba.98463",
+        "type": "method",
+        "name": "wan-connection-topology-operation-activate",
+        "xml": "<method rpc='wan-connection-topology-operation-activate' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 337.0040283203125,
+        "y": 285.00390625,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "5fa21447.0f651c"
+            ]
+        ]
+    },
+    {
+        "id": "ac6656dd.35a3c8",
+        "type": "execute",
+        "name": "execute Properties",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >\n    <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />\n    <parameter name='contextPrefix' value='prop' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 587.0045166015625,
+        "y": 473.0041103363037,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5eafccd5.5cff74",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+        "comments": "",
+        "x": 890.0041275024414,
+        "y": 2205.004325866699,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "77d24866.f3a848",
+        "type": "block",
+        "name": "general-activate-block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 731.5041828155518,
+        "y": 1920.0041402578354,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "5eafccd5.5cff74",
+                "664ad94.da0ee28",
+                "4329fb4d.2499b4",
+                "d6f9dbf2.6a98d8"
+            ]
+        ]
+    },
+    {
+        "id": "4329fb4d.2499b4",
+        "type": "for",
+        "name": "for cxid..network-topology-operation-input.network-request-input.network-input-parameters.param[]",
+        "xml": "<for index='cxid' start='0' end='`$network-topology-operation-input.network-request-input.network-input-parameters.param_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1545.003984451294,
+        "y": 2037.0041707754135,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "a7a35b54.a22968"
+            ]
+        ]
+    },
+    {
+        "id": "d6f9dbf2.6a98d8",
+        "type": "execute",
+        "name": "execute RestApiCallNode Create wan-connection",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n<parameter name=\"templateFileName\" value=\"`$tmp.templateFileName`\" />\n<parameter name=\"restapiUrl\" value=\"`$prop.sdncRestApi.thirdpartySdnc.url + $tmp.restapiUrl`\" />\n<parameter name=\"restapiUser\" value=\"admin\" />\n<parameter name=\"restapiPassword\" value=\"admin\" />\n<parameter name=\"format\" value=\"json\"/>\n<parameter name=\"httpMethod\" value=\"post\"/>\n<parameter name=\"responsePrefix\" value=\"restApi-result\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1571.2540397644043,
+        "y": 2591.0043576955795,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "baab7187.80f6b",
+                "1ff9ce75.2238b2",
+                "2afc86f8.6d0eca"
+            ]
+        ]
+    },
+    {
+        "id": "6c80438c.95e70c",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1870.254409790039,
+        "y": 2141.0045127868652,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "5cacbb75.a9b194"
+            ]
+        ]
+    },
+    {
+        "id": "5cacbb75.a9b194",
+        "type": "set",
+        "name": "set tmp.templateFileName",
+        "xml": "<set>\n<parameter name='tmp.templateFileName' value=\"`$prop.restapi.templateDir + '/' + $network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].value`\" />\n<parameter name='tmp.templateFileName-found' value='true' />",
+        "comments": "",
+        "x": 2227.2544174194336,
+        "y": 2144.004379630089,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "664ad94.da0ee28",
+        "type": "set",
+        "name": "set paras flags",
+        "xml": "<set>\n<parameter name='tmp.restapiUrl-found' value='false' />\n<parameter name='tmp.restapiUser-found' value='false' />\n<parameter name='tmp.restapiPassword-found' value='false' />\n<parameter name='tmp.templateFileName-found' value='false' />\n<parameter name='tmp.thirdPartyAdaptorRpc-found' value='false' />",
+        "comments": "",
+        "x": 1332.0041522979736,
+        "y": 1952.0041679143906,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "2afc86f8.6d0eca",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1901.0104637145996,
+        "y": 2626.343449950218,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "c3e0d84f.772da8"
+            ]
+        ]
+    },
+    {
+        "id": "1ff9ce75.2238b2",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1892.010513305664,
+        "y": 2594.8434756994247,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "c3e0d84f.772da8"
+            ]
+        ]
+    },
+    {
+        "id": "baab7187.80f6b",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1895.7605514526367,
+        "y": 2565.200580574572,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "195471ac.565dfe"
+            ]
+        ]
+    },
+    {
+        "id": "c3e0d84f.772da8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`'Error calling ' + $tmp.restapiUrl`\" />\n",
+        "comments": "",
+        "x": 2058.7605781555176,
+        "y": 2611.593548178673,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "5fa21447.0f651c",
+        "type": "execute",
+        "name": "contains specification",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >\n    <parameter name=\"source\" value=\"`$network-topology-operation-input.network-information.onap-model-information.model-name`\"/>\n    <parameter name=\"target\" value=\"specification\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 234.00385665893555,
+        "y": 407.00773561000824,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "709657dc.92cf68",
+                "9f362f1a.3252f"
+            ]
+        ]
+    },
+    {
+        "id": "709657dc.92cf68",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 470.00389099121094,
+        "y": 405.00772750377655,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "a54c999.f509368"
+            ]
+        ]
+    },
+    {
+        "id": "9f362f1a.3252f",
+        "type": "outcomeTrue",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 173.00394439697266,
+        "y": 630.007900595665,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "34f92a60.a00a16"
+            ]
+        ]
+    },
+    {
+        "id": "43ec8f53.27728",
+        "type": "execute",
+        "name": "contains Fc",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >\n    <parameter name=\"source\" value=\"`$network-topology-operation-input.network-information.onap-model-information.model-name`\"/>\n    <parameter name=\"target\" value=\"Fc\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 504.00395584106445,
+        "y": 714.0078290700912,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "99a5ce.39d8fa3",
+                "9aeabbf6.e3e4e8"
+            ]
+        ]
+    },
+    {
+        "id": "9aeabbf6.e3e4e8",
+        "type": "outcomeTrue",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 149.00393295288086,
+        "y": 1062.0079015493393,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "3c9043b1.35740c"
+            ]
+        ]
+    },
+    {
+        "id": "3c9043b1.35740c",
+        "type": "execute",
+        "name": "contains Fd",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >\n    <parameter name=\"source\" value=\"`$network-topology-operation-input.network-information.onap-model-information.model-name`\"/>\n    <parameter name=\"target\" value=\"Fd\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 358.00392150878906,
+        "y": 1058.0078800916672,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "371cd5ef.c2eb7a",
+                "e569686f.faece8"
+            ]
+        ]
+    },
+    {
+        "id": "e569686f.faece8",
+        "type": "outcomeTrue",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 140.97263717651367,
+        "y": 1133.9765380620956,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "cbe73854.eea6a8"
+            ]
+        ]
+    },
+    {
+        "id": "cbe73854.eea6a8",
+        "type": "execute",
+        "name": "contains FcPort",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >\n    <parameter name=\"source\" value=\"`$network-topology-operation-input.network-information.onap-model-information.model-name`\"/>\n    <parameter name=\"target\" value=\"FcPort\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 349.97262954711914,
+        "y": 1130.9765666723251,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "8253886a.5043b8",
+                "aae3e74c.32cb78"
+            ]
+        ]
+    },
+    {
+        "id": "99a5ce.39d8fa3",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 686.0039596557617,
+        "y": 715.0078123807907,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "6cad7750.ad59e8"
+            ]
+        ]
+    },
+    {
+        "id": "371cd5ef.c2eb7a",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 930.0040893554688,
+        "y": 1060.008066534996,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "77d24866.f3a848"
+            ]
+        ]
+    },
+    {
+        "id": "8253886a.5043b8",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 544.972713470459,
+        "y": 1132.976599097252,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "19d89423.0a7e6c"
+            ]
+        ]
+    },
+    {
+        "id": "aae3e74c.32cb78",
+        "type": "outcomeTrue",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 102.00405883789062,
+        "y": 1375.0081828832626,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "7c4d10db.fc2b"
+            ]
+        ]
+    },
+    {
+        "id": "7c4d10db.fc2b",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 389.9727592468262,
+        "y": 1373.9769405126572,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "1370131a.38495d"
+            ]
+        ]
+    },
+    {
+        "id": "a54c999.f509368",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+        "comments": "",
+        "x": 734.0312538146973,
+        "y": 401.03510224819183,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "1370131a.38495d",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+        "comments": "",
+        "x": 597.0313987731934,
+        "y": 1371.0353931188583,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "19d89423.0a7e6c",
+        "type": "execute",
+        "name": "contains sitewan",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >\n    <parameter name=\"source\" value=\"`$network-topology-operation-input.network-information.onap-model-information.model-name`\"/>\n    <parameter name=\"target\" value=\"sitewan\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 738.0002174377441,
+        "y": 1134.004186987877,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "ba88f958.08aa68",
+                "38c06fa8.7d4cc"
+            ]
+        ]
+    },
+    {
+        "id": "ba88f958.08aa68",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 933.000301361084,
+        "y": 1136.0042194128036,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "77d24866.f3a848"
+            ]
+        ]
+    },
+    {
+        "id": "38c06fa8.7d4cc",
+        "type": "outcomeTrue",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 486.00010681152344,
+        "y": 1288.0040343999863,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "7c4d10db.fc2b"
+            ]
+        ]
+    },
+    {
+        "id": "d3d5931c.c4f83",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1396.754035949707,
+        "y": 901.0077877044678,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "3636527d.52348e"
+            ]
+        ]
+    },
+    {
+        "id": "8ea3d7d7.febac8",
+        "type": "outcomeTrue",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 925.7541236877441,
+        "y": 1003.0078510046005,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "77d24866.f3a848"
+            ]
+        ]
+    },
+    {
+        "id": "5e27888.9f8f978",
+        "type": "for",
+        "name": "for sIdx..service-data.networks.network[]",
+        "xml": "<for index='sIdx' start='0' end='`$service-data.networks.network_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2097.0320587158203,
+        "y": 662.035418510437,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "d2e8a0ee.5213c"
+            ]
+        ]
+    },
+    {
+        "id": "1d6c0cc0.95f1c3",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2506.0320625305176,
+        "y": 702.0355480909348,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "16926ebd.1ab8f1"
+            ]
+        ]
+    },
+    {
+        "id": "ee4ec835.0a0ae8",
+        "type": "set",
+        "name": "set tmp.pidx and tmp.network-input-parameters",
+        "xml": "<set>\n<parameter name='tmp.sotnFcPortList[`$sotnFcPortListLength`]' value='`$sIdx`' />",
+        "comments": "",
+        "x": 2955.6514015197754,
+        "y": 501.46492528915405,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "d2e8a0ee.5213c",
+        "type": "execute",
+        "name": "contains sotn",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >\n    <parameter name=\"source\" value=\"`$service-data.networks.network[$sIdx].network-data.network-information.onap-model-information.model-name`\"/>\n    <parameter name=\"target\" value=\"sotn\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2343.0319786071777,
+        "y": 703.0354298353195,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "1d6c0cc0.95f1c3"
+            ]
+        ]
+    },
+    {
+        "id": "16926ebd.1ab8f1",
+        "type": "execute",
+        "name": "contains FcPort",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >\n    <parameter name=\"source\" value=\"`$service-data.networks.network[$sIdx].network-data.network-information.onap-model-information.model-name`\"/>\n    <parameter name=\"target\" value=\"FcPort\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2347.031940460205,
+        "y": 757.0356148481369,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "2ec05a20.11a5f6"
+            ]
+        ]
+    },
+    {
+        "id": "34f92a60.a00a16",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 336.0313186645508,
+        "y": 632.0351232290268,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "43ec8f53.27728",
+                "ac6656dd.35a3c8"
+            ]
+        ]
+    },
+    {
+        "id": "2ec05a20.11a5f6",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2515.0318641662598,
+        "y": 754.0354546308517,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "6ea2fca7.3f57a4"
+            ]
+        ]
+    },
+    {
+        "id": "e089d5c4.b1a808",
+        "type": "block",
+        "name": "find-sotn-fc-port-block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1730.031837463379,
+        "y": 712.0354261398315,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "5e27888.9f8f978",
+                "df34ef29.a5514"
+            ]
+        ]
+    },
+    {
+        "id": "df34ef29.a5514",
+        "type": "set",
+        "name": "set sotnFcPortListLength",
+        "xml": "<set>\n<parameter name='sotnFcPortListLength' value='0' />",
+        "comments": "",
+        "x": 2013.031509399414,
+        "y": 569.0353946685791,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "6ea2fca7.3f57a4",
+        "type": "block",
+        "name": "find-OOF-input-block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 2393.5318031311035,
+        "y": 808.0353444814682,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "ee4ec835.0a0ae8",
+                "4b280a8d.8f4424"
+            ]
+        ]
+    },
+    {
+        "id": "4b280a8d.8f4424",
+        "type": "for",
+        "name": "for sIdx..network-input-parameters[]",
+        "xml": "<for index='paramIdx' start='0' end='`$service-data.networks.network[$sIdx].network-data.network-request-input.network-input-parameters.param_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2931.0315895080566,
+        "y": 553.0354828834534,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "85f3cbde.7dcb88"
+            ]
+        ]
+    },
+    {
+        "id": "85f3cbde.7dcb88",
+        "type": "execute",
+        "name": "contains address",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >\n    <parameter name=\"source\" value=\"`$service-data.networks.network[$sIdx].network-data.network-request-input.network-input-parameters.param[$paramIdx].name`\"/>\n    <parameter name=\"target\" value=\"address\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2899.5314979553223,
+        "y": 606.0353150367737,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "31f133f3.99bbfc"
+            ]
+        ]
+    },
+    {
+        "id": "31f133f3.99bbfc",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3081.5316200256348,
+        "y": 606.0353150367737,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "9b1feb51.adf0c8"
+            ]
+        ]
+    },
+    {
+        "id": "67728772.5b2df8",
+        "type": "set",
+        "name": "set sotnFcPortAddress",
+        "xml": "<set>\n<parameter name='sotnFcPortAddress' value='`$service-data.networks.network[$sIdx].network-data.network-request-input.network-input-parameters.param[$paramIdx].value`' />",
+        "comments": "",
+        "x": 3139.5330810546875,
+        "y": 719.0357418060303,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "9b1feb51.adf0c8",
+        "type": "block",
+        "name": "get-OOF-input-block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 2948.531650543213,
+        "y": 664.0354866981506,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "67728772.5b2df8",
+                "23bb424d.0bfdfe"
+            ]
+        ]
+    },
+    {
+        "id": "f6db23cd.84a15",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3164.0326957702637,
+        "y": 841.0352597236633,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "3bfbe626.42a93a"
+            ]
+        ]
+    },
+    {
+        "id": "23bb424d.0bfdfe",
+        "type": "execute",
+        "name": "execute RestApiCallNode - get access Tp from OSS",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='restapiUrl' value=\"`$prop.oss.url + '/oss/inventory?location=' + $sotnFcPortAddress`\"/>\n    <parameter name='format' value='json' />\n    <parameter name='customHttpHeaders' value=\"X-FromAppId=MSO\" />\n    <parameter name='httpMethod' value='GET' />\n    <parameter name=\"responsePrefix\" value=\"temp.oss.accessTPs\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3261.0316200256348,
+        "y": 778.0351929664612,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "f6db23cd.84a15"
+            ]
+        ]
+    },
+    {
+        "id": "3bfbe626.42a93a",
+        "type": "switchNode",
+        "name": "switch temp.oss.accessTPs_length",
+        "xml": "<switch test=\"`$temp.oss.accessTPs_length`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3460.0318031311035,
+        "y": 840.0351700782776,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "62442e7c.6f486"
+            ]
+        ]
+    },
+    {
+        "id": "62442e7c.6f486",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3724.533073425293,
+        "y": 839.0354471206665,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "29a2d036.e5fea"
+            ]
+        ]
+    },
+    {
+        "id": "2ce2f873.7ccbc8",
+        "type": "set",
+        "name": "set temp.accessTPs_length",
+        "xml": "<set>\n<parameter name='temp.accessTPs_length' value='`$temp.accessTPs_length + $temp.oss.accessTPs_length`' />\n\n",
+        "comments": "",
+        "x": 3670.032699584961,
+        "y": 1105.031608581543,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "29a2d036.e5fea",
+        "type": "block",
+        "name": "copy-accessTPs-block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 3324.7810668945312,
+        "y": 928.0308704376221,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "2ce2f873.7ccbc8",
+                "b0f47160.ab83c",
+                "7275b121.376d5"
+            ]
+        ]
+    },
+    {
+        "id": "b0f47160.ab83c",
+        "type": "switchNode",
+        "name": "switch temp.accessTPs_length",
+        "xml": "<switch test='`$temp.accessTPs_length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3708.531021118164,
+        "y": 930.030707359314,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "e57f314e.d692f",
+                "7eb00f9f.b7ba5"
+            ]
+        ]
+    },
+    {
+        "id": "e57f314e.d692f",
+        "type": "other",
+        "name": "Null",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3934.5308723449707,
+        "y": 905.0306348800659,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "d1909b4c.2dada8"
+            ]
+        ]
+    },
+    {
+        "id": "d1909b4c.2dada8",
+        "type": "set",
+        "name": "set tp_length",
+        "xml": "<set>\n<parameter name='tp_length' value='0' />",
+        "comments": "",
+        "x": 4121.030708312988,
+        "y": 903.0306406314485,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "7eb00f9f.b7ba5",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3930.5308380126953,
+        "y": 960.0306806564331,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "666d9674.3fd3a8"
+            ]
+        ]
+    },
+    {
+        "id": "666d9674.3fd3a8",
+        "type": "set",
+        "name": "set tp_length",
+        "xml": "<set>\n<parameter name='tp_length' value='`$temp.accessTPs_length`' />",
+        "comments": "",
+        "x": 4119.280776977539,
+        "y": 960.030665397644,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "7275b121.376d5",
+        "type": "for",
+        "name": "for each existing temp.oss.accessTPs",
+        "xml": "<for index='idx' start='0' end='`$temp.oss.accessTPs_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3710.281463623047,
+        "y": 1028.0308122634888,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "f2dec21b.c72d"
+            ]
+        ]
+    },
+    {
+        "id": "f2dec21b.c72d",
+        "type": "set",
+        "name": "set temp.accessTPs",
+        "xml": "<set>\n<parameter name='`temp.accessTPs[$idx + $tp_length].`' value='`$temp.oss.accessTPs[$idx].`' />",
+        "comments": "",
+        "x": 4078.2813568115234,
+        "y": 1029.0309600830078,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "3636527d.52348e",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1544.0314102172852,
+        "y": 896.0351066589355,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "e089d5c4.b1a808",
+                "aa30b2cc.32af1"
+            ]
+        ]
+    },
+    {
+        "id": "3a7071f1.30ce3e",
+        "type": "execute",
+        "name": "execute RestApiCallNode getPath from OOF",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n<parameter name=\"templateFileName\" value=\"`$prop.restapi.templateDir + '/' + $prop.restapi.oof-getpath.templatefile`\" />\n<parameter name=\"restapiUrl\" value=\"`$prop.restapi.connection-oof-url`\" />\n<parameter name=\"restapiUser\" value=\"`$prop.oof.user`\" />\n<parameter name=\"restapiPassword\" value=\"`$prop.oof.password`\" />\n<parameter name=\"format\" value=\"json\"/>\n<parameter name=\"httpMethod\" value=\"post\"/>\n<parameter name=\"responsePrefix\" value=\"oof\"/>\n<parameter name=\"trustStoreFileName\" value=\"/opt/onap/sdnc/data/stores/truststore.openecomp.client.jks\"/>\n<parameter name=\"trustStorePassword\" value=\"adminadmin\"/>\n<parameter name=\"keyStoreFileName\" value=\"/opt/onap/sdnc/data/stores/sdnc.p12\"/>\n<parameter name=\"keyStorePassword\" value=\"adminadmin\"/>\n<parameter name='customHttpHeaders' value=\"`'X-ACCESS-TOKEN=' + $prop.sdncRestApi.token_id`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1548.5318412780762,
+        "y": 1610.0354380607605,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "13c8c509.8dd28b",
+                "d0803760.a3cf48"
+            ]
+        ]
+    },
+    {
+        "id": "d0803760.a3cf48",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1877.531494140625,
+        "y": 1590.035505771637,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "13c8c509.8dd28b",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1878.5317077636719,
+        "y": 1641.035415172577,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "647a1bd3.ca5bb4"
+            ]
+        ]
+    },
+    {
+        "id": "aa30b2cc.32af1",
+        "type": "switchNode",
+        "name": "switch temp.accessTPs_length",
+        "xml": "<switch test=\"`$temp.accessTPs_length >= 2`\">\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1610.531307220459,
+        "y": 1105.0352524518967,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "dd0c2e67.02d53"
+            ]
+        ]
+    },
+    {
+        "id": "dd0c2e67.02d53",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1842.0316047668457,
+        "y": 1104.0350989103317,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "975483b1.3fe1f"
+            ]
+        ]
+    },
+    {
+        "id": "975483b1.3fe1f",
+        "type": "block",
+        "name": "call-oof-block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1586.0312538146973,
+        "y": 1241.0351589918137,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "3a7071f1.30ce3e",
+                "f56f577d.f30698",
+                "faa82de3.2bc5b"
+            ]
+        ]
+    },
+    {
+        "id": "f56f577d.f30698",
+        "type": "set",
+        "name": "set oof input",
+        "xml": "<set>\n<parameter name='prop.connection-attachment.access-topology-id' value='`$temp.accessTPs[0].access-topology-id`' />\n<parameter name='prop.connection-attachment.access-client-id' value='`$temp.accessTPs[0].access-client-id`' />\n<parameter name='prop.connection-attachment.access-provider-id' value='`$temp.accessTPs[0].access-provider-id`' />\n<parameter name='prop.connection-attachment.access-node-id' value='`$temp.accessTPs[0].access-node-id`' />\n<parameter name='prop.connection-attachment.access-ltp-id' value='`$temp.accessTPs[0].access-ltp-id`' />\n<parameter name='prop.remote.connection-attachment.access-topology-id' value='`$temp.accessTPs[1].access-topology-id`' />\n<parameter name='prop.remote.connection-attachment.access-client-id' value='`$temp.accessTPs[1].access-client-id`' />\n<parameter name='prop.remote.connection-attachment.access-provider-id' value='`$temp.accessTPs[1].access-provider-id`' />\n<parameter name='prop.remote.connection-attachment.access-node-id' value='`$temp.accessTPs[1].access-node-id`' />\n<parameter name='prop.remote.connection-attachment.access-ltp-id' value='`$temp.accessTPs[1].access-ltp-id`' />",
+        "comments": "",
+        "x": 2102.5313720703125,
+        "y": 1111.03515625,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "577d8def.47c664",
+        "type": "execute",
+        "name": "execute RestApiCallNode Create Sotn connectivity Service",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n<parameter name=\"templateFileName\" value=\"`$prop.restapi.templateDir + '/sotn-api-ConnectivityService.json'`\" />\n<parameter name=\"restapiUrl\" value=\"`$prop.sdncRestApi.thirdpartySdnc.url + '/restconf/operations/ZTE-API-ConnectivityService:create-connectivity-service'`\" />\n<parameter name=\"restapiUser\" value=\"`$prop.sdncRestApi.thirdpartySdnc.user`\" />\n<parameter name=\"restapiPassword\" value=\"`$prop.sdncRestApi.thirdpartySdnc.password`\" />\n<parameter name=\"format\" value=\"json\"/>\n<parameter name=\"httpMethod\" value=\"patch\"/>\n<parameter name=\"responsePrefix\" value=\"vpn-result\"/>\n<parameter name=\"trustStoreFileName\" value=\"/opt/onap/sdnc/data/stores/truststore.openecomp.client.jks\"/>\n<parameter name=\"trustStorePassword\" value=\"adminadmin\"/>\n<parameter name=\"keyStoreFileName\" value=\"/opt/onap/sdnc/data/stores/sdnc.p12\"/>\n<parameter name=\"keyStorePassword\" value=\"adminadmin\"/>\n<parameter name='customHttpHeaders' value=\"`'X-ACCESS-TOKEN=' + $prop.sdncRestApi.token_id`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 2601.666748046875,
+        "y": 1967.0040283203125,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "ee1d8114.03821",
+                "b2f48c23.dba01"
+            ]
+        ]
+    },
+    {
+        "id": "ee1d8114.03821",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2939.6665649414062,
+        "y": 1997.0041117668152,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "225012e1.339dde"
+            ]
+        ]
+    },
+    {
+        "id": "225012e1.339dde",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 3087.6665649414062,
+        "y": 1995.0039896965027,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e1714d35.f44de",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error executing Create vpn rest api\" />\n",
+        "comments": "",
+        "x": 3069.6665954589844,
+        "y": 1942.0040497779846,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "b2f48c23.dba01",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2930.66650390625,
+        "y": 1942.0040497779846,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "e1714d35.f44de"
+            ]
+        ]
+    },
+    {
+        "id": "647a1bd3.ca5bb4",
+        "type": "for",
+        "name": "for vidx..oof.vpns_length[]",
+        "xml": "<for index='vidx' start='0' end='`$oof.vpns_length`' >",
+        "comments": "",
+        "outputs": 1,
+        "x": 2179.670364379883,
+        "y": 1655.5075135231018,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "b3bf31fb.d8cd7"
+            ]
+        ]
+    },
+    {
+        "id": "b3bf31fb.d8cd7",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2292.787727355957,
+        "y": 1755.3475284576416,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "5cceda35.f10fe4",
+                "c8f650af.4d42d",
+                "577d8def.47c664",
+                "588a3880.b8be48"
+            ]
+        ]
+    },
+    {
+        "id": "25bd092e.03a776",
+        "type": "set",
+        "name": "set controller data",
+        "xml": "<set>\n<parameter name='prop.sdncRestApi.thirdpartySdnc.url' value=\"`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].service-url`\" />\n<parameter name='prop.sdncRestApi.thirdpartySdnc.user' value=\"`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].user-name`\" />\n<parameter name='prop.sdncRestApi.thirdpartySdnc.password' value=\"`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].password`\" />\n",
+        "comments": "",
+        "x": 2934.232391357422,
+        "y": 1819.6807208061218,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "c8f650af.4d42d",
+        "type": "get-resource",
+        "name": "get-resource esr-thirdparty-sdnc",
+        "xml": "<get-resource plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\t\tresource=\"esr-thirdparty-sdnc\" \n\t\tkey=\"esr-thirdparty-sdnc.thirdparty-sdnc-id = $tmp.thirdparty-sdnc-id AND \n\t\t     depth = '1'\"\n        pfx='tmp.aai.esr-thirdparty-sdnc' local-only='false' >\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2550.7322998046875,
+        "y": 1856.6806602478027,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "379812a3.1c00ce",
+                "18c2cc8d.f57b93",
+                "2e629d58.9a59a2"
+            ]
+        ]
+    },
+    {
+        "id": "379812a3.1c00ce",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2770.732234954834,
+        "y": 1820.6806292533875,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "25bd092e.03a776"
+            ]
+        ]
+    },
+    {
+        "id": "18c2cc8d.f57b93",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2780.223175048828,
+        "y": 1861.254635334015,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "e998ff2.0c21a"
+            ]
+        ]
+    },
+    {
+        "id": "2e629d58.9a59a2",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2775.55615234375,
+        "y": 1897.5879483222961,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "809ff6c0.f2acc8"
+            ]
+        ]
+    },
+    {
+        "id": "e998ff2.0c21a",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`'An error occurred while querying esr-thirdparty-sdnc from AnAI with thirdparty-sdnc-id = ' + $tmp.thirdparty-sdnc-id`\" />\n\n",
+        "comments": "",
+        "x": 2926.7945251464844,
+        "y": 1857.5404620170593,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "809ff6c0.f2acc8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`'Unexpected error occurred while querying esr-thirdparty-sdnc from AnAI with thirdparty-sdnc-id = ' + $tmp.thirdparty-sdnc-id`\" />\n\n",
+        "comments": "",
+        "x": 2930.3287963867188,
+        "y": 1899.027096271515,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "5cceda35.f10fe4",
+        "type": "get-resource",
+        "name": "get-resource pnf",
+        "xml": "<get-resource plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\t\tresource=\"pnf\" \n\t\tkey=\"pnf.pnf-name = $oof.vpn.access-node-id \n\t\tAND depth = '0'\"\n        pfx='tmp.aai.pnf' local-only='false' >\n\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2496.232192993164,
+        "y": 1765.6803040504456,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "12b22620.806b0a",
+                "e580af57.c7b0e",
+                "63b978e1.8d23a8"
+            ]
+        ]
+    },
+    {
+        "id": "12b22620.806b0a",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2678.2322387695312,
+        "y": 1710.680414199829,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "402a3c95.e18ff4"
+            ]
+        ]
+    },
+    {
+        "id": "e580af57.c7b0e",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2678.7231407165527,
+        "y": 1748.2545108795166,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "57284c52.e22c64"
+            ]
+        ]
+    },
+    {
+        "id": "63b978e1.8d23a8",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2670.05615234375,
+        "y": 1781.5878858566284,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "28728857.9fb6a8"
+            ]
+        ]
+    },
+    {
+        "id": "57284c52.e22c64",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`'An error occurred while querying pnf from AnAI with pnf-name = ' + $prop.connection-attachement.access-node-id`\" />\n\n",
+        "comments": "",
+        "x": 2826.294765472412,
+        "y": 1747.5403995513916,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "28728857.9fb6a8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`'Unexpected error occurred while querying pnf from AnAI with pnf-name = ' + $prop.connection-attachement.access-node-id`\" />\n\n",
+        "comments": "",
+        "x": 2823.8287963867188,
+        "y": 1781.0270338058472,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "402a3c95.e18ff4",
+        "type": "set",
+        "name": "set tmp.thirdparty-sdnc-id",
+        "xml": "<set>\n<parameter name='tmp.thirdparty-sdnc-id' value=\"`$tmp.aai.pnf.relationship-list.relationship[0].relationship-data[0].relationship-value`\" />\n",
+        "comments": "",
+        "x": 2863.2322387695312,
+        "y": 1709.6805362701416,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "588a3880.b8be48",
+        "type": "set",
+        "name": "set oof.vpn",
+        "xml": "<set>\n<parameter name='oof.vpn.' value='`$oof.vpns[$vidx].`' />",
+        "comments": "",
+        "x": 2488.2321853637695,
+        "y": 1654.7913761138916,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "8a37fd2a.9df7f",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1880.5312957763672,
+        "y": 2102.034999847412,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "9292d8c4.9a2c38"
+            ]
+        ]
+    },
+    {
+        "id": "9292d8c4.9a2c38",
+        "type": "get-resource",
+        "name": "get-resource esr-thirdparty-sdnc",
+        "xml": "<get-resource plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\t\tresource=\"esr-thirdparty-sdnc\" \n\t\tkey=\"esr-thirdparty-sdnc.thirdparty-sdnc-id = `$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].value` AND \n\t\t     depth = '1'\"\n        pfx='tmp.aai.esr-thirdparty-sdnc' local-only='false' >\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2255.532169342041,
+        "y": 2096.0348600149155,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "ffb94613.95e098",
+                "565c3562.84041c",
+                "bd93f6c9.548798"
+            ]
+        ]
+    },
+    {
+        "id": "ffb94613.95e098",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2517.5319747924805,
+        "y": 2040.0346721410751,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "2126da98.7396c6"
+            ]
+        ]
+    },
+    {
+        "id": "2126da98.7396c6",
+        "type": "set",
+        "name": "set controller data",
+        "xml": "<set>\n<parameter name='prop.thirdpartySdnc-found' value='true' />\n<parameter name='prop.sdncRestApi.thirdpartySdnc.url' value=\"`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].service-url`\" />\n<parameter name='prop.sdncRestApi.thirdpartySdnc.user' value=\"`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].user-name`\" />\n<parameter name='prop.sdncRestApi.thirdpartySdnc.password' value=\"`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].password`\" />\n",
+        "comments": "",
+        "x": 2715.0320358276367,
+        "y": 2028.0346721410751,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "565c3562.84041c",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2549.0228385925293,
+        "y": 2088.608775496483,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "e073491.0a8bcb8"
+            ]
+        ]
+    },
+    {
+        "id": "bd93f6c9.548798",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2544.3558464050293,
+        "y": 2129.942088484764,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "e073491.0a8bcb8"
+            ]
+        ]
+    },
+    {
+        "id": "e073491.0a8bcb8",
+        "type": "set",
+        "name": "set controller data",
+        "xml": "<set>\n<parameter name='prop.thirdpartySdnc-found' value='false' />\n",
+        "comments": "",
+        "x": 2756.0312538146973,
+        "y": 2107.034858107567,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "f71b9c09.8160d",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1885.5313873291016,
+        "y": 2187.034938812256,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "781d667a.48d338"
+            ]
+        ]
+    },
+    {
+        "id": "781d667a.48d338",
+        "type": "set",
+        "name": "set tmp.restapiUrl-found",
+        "xml": "<set>\n<parameter name='tmp.restapiUrl' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].value`' />\n<parameter name='tmp.restapiUrl-found' value='true' />",
+        "comments": "",
+        "x": 2218.531301498413,
+        "y": 2191.0349324941635,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "3a7b6aa5.045bc6",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2347.00390625,
+        "y": 1235.00390625,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "6e2071a4.92462",
+                "df7041a6.51331",
+                "dbdc0ae8.393328",
+                "aaa5c23.8b2364",
+                "b1db26a.6449ed8",
+                "4c08e6d0.e790e8",
+                "18a93c3.067c1c4",
+                "15c976cc.7eedd9",
+                "2cbc8da1.8ed692",
+                "2804ce8b.3d5072"
+            ]
+        ]
+    },
+    {
+        "id": "6e2071a4.92462",
+        "type": "switchNode",
+        "name": "switch name",
+        "xml": "<switch test=\"`$tmp.network-input-parameters.param[$paidx].name == 'name'`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2569.0038528442383,
+        "y": 1033.0039868354797,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "2381365f.5b11aa"
+            ]
+        ]
+    },
+    {
+        "id": "2381365f.5b11aa",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2756.0038528442383,
+        "y": 1029.0039868354797,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "279f5f0f.a7e29"
+            ]
+        ]
+    },
+    {
+        "id": "279f5f0f.a7e29",
+        "type": "set",
+        "name": "set name",
+        "xml": "<set>\n<parameter name='template.name' value='`$tmp.network-input-parameters.param[$paidx].value`' />\n",
+        "comments": "",
+        "x": 2924.0038528442383,
+        "y": 1029.6039929389954,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "df7041a6.51331",
+        "type": "switchNode",
+        "name": "switch service-type",
+        "xml": "<switch test=\"`$tmp.network-input-parameters.param[$paidx].name == 'service-type'`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2586.514045715332,
+        "y": 1094.0039267539978,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "391cf8f6.e35b68"
+            ]
+        ]
+    },
+    {
+        "id": "391cf8f6.e35b68",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2773.514045715332,
+        "y": 1090.0039267539978,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "963b6a75.854958"
+            ]
+        ]
+    },
+    {
+        "id": "963b6a75.854958",
+        "type": "set",
+        "name": "set service-type",
+        "xml": "<set>\n<parameter name='template.service-type' value='`$tmp.network-input-parameters.param[$paidx].value`' />\n",
+        "comments": "",
+        "x": 2941.514045715332,
+        "y": 1090.6039328575134,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "dbdc0ae8.393328",
+        "type": "switchNode",
+        "name": "switch total-size",
+        "xml": "<switch test=\"`$tmp.network-input-parameters.param[$paidx].name == 'total-size'`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2579.9766235351562,
+        "y": 1150.476727962494,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "b077f122.4fbd2"
+            ]
+        ]
+    },
+    {
+        "id": "b077f122.4fbd2",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2766.9766235351562,
+        "y": 1146.476727962494,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "ebbae5da.7a9fe8"
+            ]
+        ]
+    },
+    {
+        "id": "ebbae5da.7a9fe8",
+        "type": "set",
+        "name": "set total-size",
+        "xml": "<set>\n<parameter name='template.total-size' value='`$tmp.network-input-parameters.param[$paidx].value`' />\n",
+        "comments": "",
+        "x": 2934.9766235351562,
+        "y": 1147.0767340660095,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "aaa5c23.8b2364",
+        "type": "switchNode",
+        "name": "switch pir",
+        "xml": "<switch test=\"`$tmp.network-input-parameters.param[$paidx].name == 'pir'`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2557.976722717285,
+        "y": 1199.4767670631409,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "dd36a279.f0f0b"
+            ]
+        ]
+    },
+    {
+        "id": "dd36a279.f0f0b",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2744.976722717285,
+        "y": 1195.4767670631409,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "d7a0fe6d.faa06"
+            ]
+        ]
+    },
+    {
+        "id": "d7a0fe6d.faa06",
+        "type": "set",
+        "name": "set pir",
+        "xml": "<set>\n<parameter name='template.pir' value='`$tmp.network-input-parameters.param[$paidx].value`' />\n",
+        "comments": "",
+        "x": 2912.976722717285,
+        "y": 1196.0767731666565,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "b1db26a.6449ed8",
+        "type": "switchNode",
+        "name": "switch cbs",
+        "xml": "<switch test=\"`$tmp.network-input-parameters.param[$paidx].name == 'cbs'`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2558.9767570495605,
+        "y": 1250.4766917228699,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "f5a3f275.f1642"
+            ]
+        ]
+    },
+    {
+        "id": "f5a3f275.f1642",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2745.9767570495605,
+        "y": 1246.4766917228699,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "cec40dd1.40cb9"
+            ]
+        ]
+    },
+    {
+        "id": "cec40dd1.40cb9",
+        "type": "set",
+        "name": "set cbs",
+        "xml": "<set>\n<parameter name='template.cbs' value='`$tmp.network-input-parameters.param[$paidx].value`' />\n",
+        "comments": "",
+        "x": 2913.9767570495605,
+        "y": 1247.0766978263855,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "4c08e6d0.e790e8",
+        "type": "switchNode",
+        "name": "switch pbs",
+        "xml": "<switch test=\"`$tmp.network-input-parameters.param[$paidx].name == 'pbs'`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2554.9767570495605,
+        "y": 1305.4766917228699,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "883541e9.99bd6"
+            ]
+        ]
+    },
+    {
+        "id": "883541e9.99bd6",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2741.9767570495605,
+        "y": 1301.4766917228699,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "a988d120.b2aea"
+            ]
+        ]
+    },
+    {
+        "id": "a988d120.b2aea",
+        "type": "set",
+        "name": "set pbs",
+        "xml": "<set>\n<parameter name='template.pbs' value='`$tmp.network-input-parameters.param[$paidx].value`' />\n",
+        "comments": "",
+        "x": 2909.9767570495605,
+        "y": 1302.0766978263855,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "18a93c3.067c1c4",
+        "type": "switchNode",
+        "name": "switch couplingFlag",
+        "xml": "<switch test=\"`$tmp.network-input-parameters.param[$paidx].name == 'couplingFlag'`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2584.976905822754,
+        "y": 1361.4766936302185,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "980d8b86.bee918"
+            ]
+        ]
+    },
+    {
+        "id": "980d8b86.bee918",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2771.976905822754,
+        "y": 1357.4766936302185,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "51fcb9b3.05a2a8"
+            ]
+        ]
+    },
+    {
+        "id": "51fcb9b3.05a2a8",
+        "type": "set",
+        "name": "set couplingFlag",
+        "xml": "<set>\n<parameter name='template.couplingFlag' value='`$tmp.network-input-parameters.param[$paidx].value`' />\n",
+        "comments": "",
+        "x": 2939.976905822754,
+        "y": 1358.0766997337341,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "15c976cc.7eedd9",
+        "type": "switchNode",
+        "name": "switch colorAware",
+        "xml": "<switch test=\"`$tmp.network-input-parameters.param[$paidx].name == 'colorAware'`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2578.976905822754,
+        "y": 1407.4766936302185,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "fc32dc8f.1306d"
+            ]
+        ]
+    },
+    {
+        "id": "fc32dc8f.1306d",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2765.976905822754,
+        "y": 1403.4766936302185,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "767980d9.60391"
+            ]
+        ]
+    },
+    {
+        "id": "767980d9.60391",
+        "type": "set",
+        "name": "set colorAware",
+        "xml": "<set>\n<parameter name='template.colorAware' value='`$tmp.network-input-parameters.param[$paidx].value`' />\n",
+        "comments": "",
+        "x": 2933.976905822754,
+        "y": 1404.0766997337341,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "2804ce8b.3d5072",
+        "type": "switchNode",
+        "name": "switch diversity-policy",
+        "xml": "<switch test=\"`$tmp.network-input-parameters.param[$paidx].name == 'diversity-policy'`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2586.9771461486816,
+        "y": 1498.476758480072,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "fc3e428f.e47a2"
+            ]
+        ]
+    },
+    {
+        "id": "fc3e428f.e47a2",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2773.9771461486816,
+        "y": 1494.476758480072,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "f817158c.79da68"
+            ]
+        ]
+    },
+    {
+        "id": "f817158c.79da68",
+        "type": "set",
+        "name": "set diversity-policy",
+        "xml": "<set>\n<parameter name='template.diversity-policy' value='`$tmp.network-input-parameters.param[$paidx].value`' />\n",
+        "comments": "",
+        "x": 2941.9771461486816,
+        "y": 1495.0767645835876,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "2cbc8da1.8ed692",
+        "type": "switchNode",
+        "name": "switch route-objective-function",
+        "xml": "<switch test=\"`$tmp.network-input-parameters.param[$paidx].name == 'route-objective-function'`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2615.9770545959473,
+        "y": 1447.476758480072,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "3c9d002d.c7368"
+            ]
+        ]
+    },
+    {
+        "id": "3c9d002d.c7368",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2802.9770545959473,
+        "y": 1443.476758480072,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "4b04be90.c9dfb"
+            ]
+        ]
+    },
+    {
+        "id": "4b04be90.c9dfb",
+        "type": "set",
+        "name": "set route-objective-function",
+        "xml": "<set>\n<parameter name='template.route-objective-function' value='`$tmp.network-input-parameters.param[$paidx].value`' />\n",
+        "comments": "",
+        "x": 2970.9770545959473,
+        "y": 1444.0767645835876,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "faa82de3.2bc5b",
+        "type": "for",
+        "name": "for paidx..tmp.network-input-parameters.param_length[]",
+        "xml": "<for index='paidx' start='0' end='`$tmp.network-input-parameters.param_length`' >",
+        "comments": "",
+        "outputs": 1,
+        "x": 2067.1394424438477,
+        "y": 1365.472831249237,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "3a7b6aa5.045bc6"
+            ]
+        ]
+    },
+    {
+        "id": "cd3fb1b6.a548f",
+        "type": "set",
+        "name": "set param",
+        "xml": "<set>\n<parameter name='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].name`' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].value`' />",
+        "comments": "",
+        "x": 1343.7539405822754,
+        "y": 2286.0039920806885,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "6cad7750.ad59e8",
+        "type": "block",
+        "name": "find-sotn-fc-port-block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 924.5040130615234,
+        "y": 660.0039396286011,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "4bb0f260.939b6c",
+                "f63464b.235d598",
+                "53964d8b.013054"
+            ]
+        ]
+    },
+    {
+        "id": "4bb0f260.939b6c",
+        "type": "for",
+        "name": "for aidx..network-topology-operation-input.network-request-input.network-input-parameters.param[]",
+        "xml": "<for index='aidx' start='0' end='`$network-topology-operation-input.network-request-input.network-input-parameters.param_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1000.2539672851562,
+        "y": 817.003984451294,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "b8e2888d.7baee8"
+            ]
+        ]
+    },
+    {
+        "id": "b8e2888d.7baee8",
+        "type": "execute",
+        "name": "contains fcport",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >\n    <parameter name=\"source\" value=\"`$network-topology-operation-input.network-request-input.network-input-parameters.param[$aidx].name`\"/>\n    <parameter name=\"target\" value=\"fcport\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 859.5039291381836,
+        "y": 871.0041389465332,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "d22970d4.90a5"
+            ]
+        ]
+    },
+    {
+        "id": "d22970d4.90a5",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1035.2539176940918,
+        "y": 872.0039710998535,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "fb11f9b4.228c58"
+            ]
+        ]
+    },
+    {
+        "id": "fb11f9b4.228c58",
+        "type": "set",
+        "name": "set needOof",
+        "xml": "<set>\n<parameter name='needOof' value='true' />",
+        "comments": "",
+        "x": 1205.253921508789,
+        "y": 869.0039577484131,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "f63464b.235d598",
+        "type": "set",
+        "name": "set needOof",
+        "xml": "<set>\n<parameter name='needOof' value='false' />",
+        "comments": "",
+        "x": 734.2539672851562,
+        "y": 768.0040035247803,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "53964d8b.013054",
+        "type": "switchNode",
+        "name": "switch needOof",
+        "xml": "<switch test=\"`$needOof`\">\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 719.2539215087891,
+        "y": 924.0039577484131,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "8ea3d7d7.febac8",
+                "d3d5931c.c4f83"
+            ]
+        ]
+    },
+    {
+        "id": "2b21902e.55dd5",
+        "type": "execute",
+        "name": "contains thirdPartySdncId",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >\n    <parameter name=\"source\" value=\"`$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].name`\"/>\n    <parameter name=\"target\" value=\"thirdPartySdncId\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1576.2581024169922,
+        "y": 2093.0041122436523,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "8a37fd2a.9df7f",
+                "3916c6e2.e1777a"
+            ]
+        ]
+    },
+    {
+        "id": "2e03ec55.fb6014",
+        "type": "execute",
+        "name": "contains templateFileName",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >\n    <parameter name=\"source\" value=\"`$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].name`\"/>\n    <parameter name=\"target\" value=\"templateFileName\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1579.258041381836,
+        "y": 2137.0038986206055,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "6c80438c.95e70c",
+                "6f6408d0.757528"
+            ]
+        ]
+    },
+    {
+        "id": "f3f5a797.4cdaf8",
+        "type": "execute",
+        "name": "contains restapiUrl",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >\n    <parameter name=\"source\" value=\"`$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].name`\"/>\n    <parameter name=\"target\" value=\"restapiUrl\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1549.2579727172852,
+        "y": 2186.00399017334,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "f71b9c09.8160d"
+            ]
+        ]
+    },
+    {
+        "id": "3916c6e2.e1777a",
+        "type": "outcomeTrue",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1383.50390625,
+        "y": 2141.00390625,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "2e03ec55.fb6014"
+            ]
+        ]
+    },
+    {
+        "id": "6f6408d0.757528",
+        "type": "outcomeTrue",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1372.50390625,
+        "y": 2191.00390625,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "f3f5a797.4cdaf8"
+            ]
+        ]
+    },
+    {
+        "id": "a7a35b54.a22968",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1197.7539596557617,
+        "y": 2105.0040531158447,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "2b21902e.55dd5",
+                "cd3fb1b6.a548f"
+            ]
+        ]
+    },
+    {
+        "id": "195471ac.565dfe",
+        "type": "for",
+        "name": "for sIdx..service-data.networks.network[]",
+        "xml": "<for index='sIdx' start='0' end='`$service-data.networks.network_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2247.503921508789,
+        "y": 2561.00390625,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "530203c3.a5f1bc"
+            ]
+        ]
+    },
+    {
+        "id": "530203c3.a5f1bc",
+        "type": "switchNode",
+        "name": "switch svc-action",
+        "xml": "<switch test='`$service-data.networks.network[$sIdx].network-id == $network-topology-operation-input.network-information.network-id`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2538.7542724609375,
+        "y": 2556.00390625,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "d85c868.33ef678"
+            ]
+        ]
+    },
+    {
+        "id": "d85c868.33ef678",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2705.5048484802246,
+        "y": 2554.003936767578,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "bd6349d8.0c5b08"
+            ]
+        ]
+    },
+    {
+        "id": "30dc6201.193a2e",
+        "type": "set",
+        "name": "set localServiceId",
+        "xml": "<set>\n<parameter name='`$service-data.networks.network[$sIdx].network-data.network-request-input.network-input-parameters.param[$paraIndx].name`' value='localServiceId' />\n<parameter name='`$service-data.networks.network[$sIdx].network-data.network-request-input.network-input-parameters.param[$paraIndx].value`' value='`$restApi-result.output.service.uuid`' />",
+        "comments": "",
+        "x": 3060.0043029785156,
+        "y": 2577.003936767578,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "e46941d6.14145",
+        "type": "set",
+        "name": "set paraIndx",
+        "xml": "<set>\n<parameter name='paraIndx' value='`$service-data.networks.network[$sIdx].network-data.network-request-input.network-input-parameters.param_length`' />",
+        "comments": "",
+        "x": 3058.5040550231934,
+        "y": 2510.0040283203125,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": []
+    },
+    {
+        "id": "bd6349d8.0c5b08",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 2860.503936767578,
+        "y": 2544.0039978027344,
+        "z": "bf8d58e2.6e6ac8",
+        "wires": [
+            [
+                "e46941d6.14145",
+                "30dc6201.193a2e"
+            ]
+        ]
+    }
+]

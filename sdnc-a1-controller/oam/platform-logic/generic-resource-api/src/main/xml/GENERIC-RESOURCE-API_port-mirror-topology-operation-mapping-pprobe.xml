@@ -1,0 +1,108 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='port-mirror-topology-operation-mapping-pprobe' mode='sync'>
+        <block atomic="true">
+            <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="l-interfaces" 
+		key="pnf.pnf-name = $tmp.dest-pnf-name AND 
+		     p-interface.interface-name = $tmp.dest-p-interface AND depth='all'"
+        pfx='aai.pnf.p-interface' local-only='false' >
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Destination L-Interfaces are not set for the Destination PNF" />
+                    </return>
+                </outcome>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error retrieving l-interfaces from AAI" />
+                    </return>
+                </outcome>
+            </get-resource>
+            <switch test='`$aai.pnf.p-interface.l-interface_length &gt; 0`'>
+                <outcome value='false'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Destination L-Interface is not set for the Destination PNF" />
+                    </return>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='tmp.found-one' value='false' />
+            </set>
+            <for index='idx' start='0' end='`$aai.pnf.p-interface.l-interface_length`' >
+                <switch test='`$aai.pnf.p-interface.l-interface[$idx].l3-interface-ipv4-address-list[0].l3-interface-ipv4-address`'>
+                    <outcome value=''>
+                        <switch test='`$aai.pnf.p-interface.l-interface[$idx].l3-interface-ipv6-address-list[0].l3-interface-ipv6-address`'>
+                            <outcome value=''>
+                                <block></block>
+                            </outcome>
+                            <outcome value='Other'>
+                                <block atomic="true">
+                                    <set>
+                                        <parameter name='tmp.found-one' value='true' />
+                                    </set>
+                                    <break/>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </outcome>
+                    <outcome value='Other'>
+                        <block atomic="true">
+                            <set>
+                                <parameter name='tmp.found-one' value='true' />
+                            </set>
+                            <break/>
+                        </block>
+                    </outcome>
+                </switch>
+            </for>
+            <switch test='`$tmp.found-one`'>
+                <outcome value='false'>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value='Destination Port IP Address is not set for the Destination PNF' />
+                    </return>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='map-idx' value='0' />
+            </set>
+            <for silentFailure='true' index='vnfc-so-idx' start='0' end='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object_length`' >
+                <for silentFailure='true' index='vnic-s-idx' start='0' end='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-so-idx].vnics.vnic_length`' >
+                    <block atomic="true">
+                        <set>
+                            <parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].source-port-id'
+  value='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-so-idx].vnics.vnic[$vnic-s-idx].vnic-port-id`' />
+                            <parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].source-port-name'
+  value='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-so-idx].vnics.vnic[$vnic-s-idx].vnic-port-name`' />
+                            <parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].source-vserver-id'
+  value='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-so-idx].vserver-id`' />
+                            <parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].dest-port-id'
+  value='`$aai.pnf.p-interface.l-interface[$idx].interface-id`' />
+                            <parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].dest-port-name'
+  value='`$aai.pnf.p-interface.l-interface[$idx].interface-name`' />
+                            <parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].dest-ip-addresses.ip-addresses.ipv4-address'
+  value='`$aai.pnf.p-interface.l-interface[$idx].l3-interface-ipv4-address-list[0].l3-interface-ipv4-address`' />
+                            <parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].dest-ip-addresses.ip-addresses.ipv6-address'
+  value='`$aai.pnf.p-interface.l-interface[$idx].l3-interface-ipv6-address-list[0].l3-interface-ipv6-address`' />
+                        </set>
+                        <set>
+                            <parameter name='map-idx' value='`$map-idx + 1`' />
+                        </set>
+                    </block>
+                </for>
+            </for>
+            <set>
+                <parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map_length'
+  value='`$map-idx`' />
+            </set>
+            <return status='success'></return>
+        </block>
+    </method>
+</service-logic>

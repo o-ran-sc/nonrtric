@@ -1,0 +1,85 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='self-serve-vf-module-forking-logic' mode='sync'>
+        <block atomic="true">
+            <set>
+                <parameter name='tmp.exist.sdnc-model-name' value='false' />
+                <parameter name='tmp.exist.vf_module_label' value='false' />
+            </set>
+            <switch test="`$vf-module-topology-operation-input.vf-module-request-input.vf-module-input-parameters.param_length`">
+                <outcome value=''>
+                    <set>
+                        <parameter name='vf-module-topology-operation-input.vf-module-request-input.vf-module-input-parameters.param_length' value='0' />
+                    </set>
+                </outcome>
+            </switch>
+            <for silentFailure='true' index='p' start='0' end='`$vf-module-topology-operation-input.vf-module-request-input.vf-module-input-parameters.param_length`' >
+                <switch test="`$vf-module-topology-operation-input.vf-module-request-input.vf-module-input-parameters.param[$p].name`">
+                    <outcome value='sdnc_model_name'>
+                        <set>
+                            <parameter name='tmp.exist.sdnc-model-name' value='true' />
+                        </set>
+                    </outcome>
+                    <outcome value='vf_module_label'>
+                        <set>
+                            <parameter name='tmp.exist.vf_module_label' value='true' />
+                        </set>
+                    </outcome>
+                </switch>
+            </for>
+            <switch test="`$tmp.exist.sdnc-model-name == 'true' and $tmp.exist.vf_module_label == 'true'`">
+                <outcome value='true'>
+                    <set>
+                        <parameter name='ss.self-serve-flag' value='true' />
+                    </set>
+                </outcome>
+                <outcome value='false'>
+                    <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT sdnc_model_name from VF_MODEL 
+  	WHERE customization_uuid = $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-information.onap-model-information.model-customization-uuid 
+  	AND sdnc_model_name is not null'
+  pfx='db.vf-model-name'>
+                        <outcome value='failure'>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="Error reading VF_MODEL table to determine self-serve forking criteria" />
+                            </return>
+                        </outcome>
+                        <outcome value='success'>
+                            <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT vf_module_label from VF_MODULE_MODEL 
+  	WHERE vf_customization_uuid = $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-information.onap-model-information.model-customization-uuid
+  	AND vf_module_label is not null '
+  pfx='db.vf-module-label'>
+                                <outcome value='success'>
+                                    <set>
+                                        <parameter name='ss.self-serve-flag' value='true' />
+                                    </set>
+                                </outcome>
+                                <outcome value='failure'>
+                                    <return status='failure'>
+                                        <parameter name='ack-final' value='Y'/>
+                                        <parameter name="error-code" value="500" />
+                                        <parameter name="error-message" value="Error reading VF_MODULE_MODEL table to determine self-serve forking criteria" />
+                                    </return>
+                                </outcome>
+                                <outcome value='not-found'>
+                                    <set>
+                                        <parameter name='ss.self-serve-flag' value='false' />
+                                    </set>
+                                </outcome>
+                            </get-resource>
+                        </outcome>
+                        <outcome value='not-found'>
+                            <set>
+                                <parameter name='ss.self-serve-flag' value='false' />
+                            </set>
+                        </outcome>
+                    </get-resource>
+                </outcome>
+            </switch>
+        </block>
+    </method>
+</service-logic>

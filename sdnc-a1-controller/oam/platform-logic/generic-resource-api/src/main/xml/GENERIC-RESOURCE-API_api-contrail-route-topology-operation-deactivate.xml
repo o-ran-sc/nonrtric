@@ -1,0 +1,618 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='api-contrail-route-topology-operation-deactivate' mode='sync'>
+        <block atomic="true">
+            <call module='GENERIC-RESOURCE-API' rpc='validate-api-contrail-route-input' mode='sync' ></call>
+            <set>
+                <parameter name='tmp.ar.allotted-resource-id' value='`$cto-api.contrail-route-allotted-resource-id`' />
+                <parameter name='tmp.ar.parent-service-instance-id' value='`$cto-api.parent-service-instance-id`' />
+            </set>
+            <set>
+                <parameter name='tmp.ar.self-link' value="`'restconf/config/GENERIC-RESOURCE-API:contrail-route-allotted-resources/contrail-route-allotted-resource/'
+ + $tmp.ar.allotted-resource-id
+ + '/allotted-resource-data/contrail-route-topology/'` " />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                <parameter name='contextPrefix' value='prop' />
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$prop.restapi.cr-allottedresource`"/>
+                <parameter name="outputPath" value="tmp.ar-url"/>
+                <parameter name="target" value="{allotted-resource-id}"/>
+                <parameter name="replacement" value="`$tmp.ar.allotted-resource-id`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='GET' />
+                <parameter name="responsePrefix" value="mdsal-ar" />
+                <outcome value='success'>
+                    <block atomic="true">
+                        <switch test='`$mdsal-ar.contrail-route-allotted-resource_length`'>
+                            <outcome value='1'>
+                                <block atomic='true'>
+                                    <set>
+                                        <parameter name='bk-cr-ar' value='$mdsal-ar.' />
+                                    </set>
+                                    <set>
+                                        <parameter name='ar.' value='$mdsal-ar.contrail-route-allotted-resource[0].' />
+                                    </set>
+                                    <switch test='`$ar.allotted-resource-data.allotted-resource-oper-status.order-status`'>
+                                        <outcome value='Active'>
+                                            <block></block>
+                                        </outcome>
+                                        <outcome value='Other'>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" 
+    value="`'Existing contrail-route-allotted-resource with order status of ' + $ar.allotted-resource-data.allotted-resource-oper-status.order-status + '.'`" />
+                                            </return>
+                                        </outcome>
+                                    </switch>
+                                </block>
+                            </outcome>
+                            <outcome value='Other'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="404" />
+                                    <parameter name="error-message" value="Error: Contrail Route not found" />
+                                </return>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='Other'>
+                    <block atomic="true">
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="404" />
+                            <parameter name="error-message" value="Error: Contrail Route not found" />
+                        </return>
+                    </block>
+                </outcome>
+            </execute>
+            <set>
+                <parameter name='ar-assignments.' value="`$ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.`" />
+            </set>
+            <switch test='`$ar-assignments.source-network.network-id`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error activating contrail route.  Source network not found" />
+                    </return>
+                </outcome>
+                <outcome value='Other'>
+                    <block></block>
+                </outcome>
+            </switch>
+            <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+		key="l3-network.network-id = $ar-assignments.source-network.network-id" 
+		local-only="false" 
+		pfx="aai.src-network">
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`'Error retrieving source network with network-id=' + $ar-assignments.source-network.network-id + ' from AnAI'`" />
+                    </return>
+                </outcome>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`'Error retrieving source network with network-id=' + $ar-assignments.source-network.network-id + ' from AnAI'`" />
+                    </return>
+                </outcome>
+                <outcome value='success'>
+                    <block atomic="true"></block>
+                </outcome>
+            </get-resource>
+            <set>
+                <parameter name='cloud-region-id' value='`$tmp.ar.cloud-region-id`' />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split'>
+                <parameter name='ctx_memory_result_key' value='virtual-network-fqdn-split' />
+                <parameter name='original_string' value='`$aai.src-network.contrail-network-fqdn`' />
+                <parameter name='regex' value=':' />
+            </execute>
+            <switch test='`$virtual-network-fqdn-split_length`'>
+                <outcome value='0'>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value='Unable to determine network fq-name from contrail fqdn' />
+                    </return>
+                </outcome>
+                <outcome value='Other'>
+                    <set>
+                        <parameter name='src-virtual-network-fqname' value='`$virtual-network-fqdn-split[$virtual-network-fqdn-split_length - 1]`' />
+                    </set>
+                </outcome>
+            </switch>
+            <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                <parameter name='api-name' value='fqname-to-uuid' />
+                <parameter name='api-action' value='get' />
+                <parameter name='resp-prefix' value='uuidresp' />
+                <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                <parameter name='default-project' value='`$cto-api.default-project`' />
+                <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                <parameter name='fqname-type' value='virtual-network' />
+                <parameter name='policy-name' value='`$src-virtual-network-fqname`' />
+                <outcome value='success'>
+                    <block></block>
+                </outcome>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Failed to find network uuid for Contrail to source network" />
+                    </return>
+                </outcome>
+            </execute>
+            <set>
+                <parameter name='src-uuid' value='`$uuidresp.uuid`' />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                <parameter name='api-name' value='network-policy' />
+                <parameter name='api-action' value='remove' />
+                <parameter name='resp-prefix' value='contrailResp' />
+                <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                <parameter name='default-project' value='`$cto-api.default-project`' />
+                <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                <parameter name='contrail-network-policy-fq-name' value='`$ar-assignments.fq-name`' />
+                <parameter name='contrail-virtual-network-id' value='`$uuidresp.uuid`' />
+                <outcome value='success'>
+                    <block></block>
+                </outcome>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Failed to remove policy in Contrail from source network" />
+                    </return>
+                </outcome>
+            </execute>
+            <switch test='`$ar-assignments.dest-network.network-id`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error activating contrail route.  Dest network not found" />
+                    </return>
+                </outcome>
+                <outcome value='Other'>
+                    <block></block>
+                </outcome>
+            </switch>
+            <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+		key="l3-network.network-id = $ar-assignments.dest-network.network-id" 
+		local-only="false" 
+		pfx="aai.dest-network">
+                <outcome value='not-found'>
+                    <block>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                            <parameter name='api-name' value='network-policy' />
+                            <parameter name='api-action' value='remove' />
+                            <parameter name='resp-prefix' value='contrailResp' />
+                            <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                            <parameter name='default-project' value='`$cto-api.default-project`' />
+                            <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                            <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                            <parameter name='contrail-network-policy-fq-name' value='`$ar-assignments.fq-name`' />
+                            <parameter name='contrail-virtual-network-id' value='`$src-uuid`' />
+                            <outcome value='Other'>
+                                <block></block>
+                            </outcome>
+                        </execute>
+                        <return status='failure'>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="`'Error retrieving destination network with network-id=' + $ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.source-network.network-id + ' from AnAI'`" />
+                        </return>
+                    </block>
+                </outcome>
+                <outcome value='failure'>
+                    <block>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                            <parameter name='api-name' value='network-policy' />
+                            <parameter name='api-action' value='remove' />
+                            <parameter name='resp-prefix' value='contrailResp' />
+                            <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                            <parameter name='default-project' value='`$cto-api.default-project`' />
+                            <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                            <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                            <parameter name='contrail-network-policy-fq-name' value='`$ar-assignments.fq-name`' />
+                            <parameter name='contrail-virtual-network-id' value='`$src-uuid`' />
+                            <outcome value='Other'>
+                                <block></block>
+                            </outcome>
+                        </execute>
+                        <return status='failure'>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="`'Error retrieving destination network with network-id=' + $ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.source-network.network-id + ' from AnAI'`" />
+                        </return>
+                    </block>
+                </outcome>
+                <outcome value='success'>
+                    <block atomic="true"></block>
+                </outcome>
+            </get-resource>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split'>
+                <parameter name='ctx_memory_result_key' value='virtual-network-fqdn-split' />
+                <parameter name='original_string' value='`$aai.dest-network.contrail-network-fqdn`' />
+                <parameter name='regex' value=':' />
+            </execute>
+            <switch test='`$virtual-network-fqdn-split_length`'>
+                <outcome value='0'>
+                    <block>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                            <parameter name='api-name' value='network-policy' />
+                            <parameter name='api-action' value='remove' />
+                            <parameter name='resp-prefix' value='contrailResp' />
+                            <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                            <parameter name='default-project' value='`$cto-api.default-project`' />
+                            <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                            <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                            <parameter name='contrail-network-policy-fq-name' value='`$ar-assignments.fq-name`' />
+                            <parameter name='contrail-virtual-network-id' value='`$src-uuid`' />
+                            <outcome value='Other'>
+                                <block></block>
+                            </outcome>
+                        </execute>
+                        <return status='failure'>
+                            <parameter name='error-code' value='500' />
+                            <parameter name='error-message' value='Unable to determine network fq-name from contrail fqdn' />
+                        </return>
+                    </block>
+                </outcome>
+                <outcome value='Other'>
+                    <set>
+                        <parameter name='dest-virtual-network-fqname' value='`$virtual-network-fqdn-split[$virtual-network-fqdn-split_length - 1]`' />
+                        <parameter name='dest-default-project' value='`$virtual-network-fqdn-split[$virtual-network-fqdn-split_length - 2]`' />
+                    </set>
+                </outcome>
+            </switch>
+            <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                <parameter name='api-name' value='fqname-to-uuid' />
+                <parameter name='api-action' value='get' />
+                <parameter name='resp-prefix' value='uuidresp' />
+                <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                <parameter name='default-project' value='`$dest-default-project`' />
+                <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                <parameter name='fqname-type' value='virtual-network' />
+                <parameter name='policy-name' value='`$dest-virtual-network-fqname`' />
+                <outcome value='success'>
+                    <block></block>
+                </outcome>
+                <outcome value='failure'>
+                    <block>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                            <parameter name='api-name' value='network-policy' />
+                            <parameter name='api-action' value='remove' />
+                            <parameter name='resp-prefix' value='contrailResp' />
+                            <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                            <parameter name='default-project' value='`$cto-api.default-project`' />
+                            <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                            <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                            <parameter name='contrail-network-policy-fq-name' value='`$ar-assignments.fq-name`' />
+                            <parameter name='contrail-virtual-network-id' value='`$src-uuid`' />
+                            <outcome value='Other'>
+                                <block></block>
+                            </outcome>
+                        </execute>
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="Failed to find network uuid for Contrail to destination network" />
+                        </return>
+                    </block>
+                </outcome>
+            </execute>
+            <set>
+                <parameter name='dest-uuid' value='`$uuidresp.uuid`' />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                <parameter name='api-name' value='network-policy' />
+                <parameter name='api-action' value='remove' />
+                <parameter name='resp-prefix' value='contrailResp' />
+                <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                <parameter name='default-project' value='`$cto-api.default-project`' />
+                <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                <parameter name='contrail-network-policy-fq-name' value='`$ar-assignments.fq-name`' />
+                <parameter name='contrail-virtual-network-id' value='`$uuidresp.uuid`' />
+                <outcome value='success'>
+                    <block></block>
+                </outcome>
+                <outcome value='failure'>
+                    <block>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                            <parameter name='api-name' value='network-policy' />
+                            <parameter name='api-action' value='remove' />
+                            <parameter name='resp-prefix' value='contrailResp' />
+                            <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                            <parameter name='default-project' value='`$cto-api.default-project`' />
+                            <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                            <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                            <parameter name='contrail-network-policy-fq-name' value='`$ar-assignments.fq-name`' />
+                            <parameter name='contrail-virtual-network-id' value='`$src-uuid`' />
+                            <outcome value='Other'>
+                                <block></block>
+                            </outcome>
+                        </execute>
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="Failed to remove policy in Contrail from dest network" />
+                        </return>
+                    </block>
+                </outcome>
+            </execute>
+            <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="network-policy:relationship-list" 
+	key="network-policy.network-policy-id = $ar-assignments.contrail-id and related-to = 'l3-network' " >
+                <outcome value='failure'>
+                    <block>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                            <parameter name='api-name' value='network-policy' />
+                            <parameter name='api-action' value='remove' />
+                            <parameter name='resp-prefix' value='contrailResp' />
+                            <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                            <parameter name='default-project' value='`$cto-api.default-project`' />
+                            <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                            <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                            <parameter name='contrail-network-policy-fq-name' value='`$ar-assignments.fq-name`' />
+                            <parameter name='contrail-virtual-network-id' value='`$src-uuid`' />
+                            <outcome value='Other'>
+                                <block></block>
+                            </outcome>
+                        </execute>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                            <parameter name='api-name' value='network-policy' />
+                            <parameter name='api-action' value='remove' />
+                            <parameter name='resp-prefix' value='contrailResp' />
+                            <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                            <parameter name='default-project' value='`$cto-api.default-project`' />
+                            <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                            <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                            <parameter name='contrail-network-policy-fq-name' value='`$ar-assignments.fq-name`' />
+                            <parameter name='contrail-virtual-network-id' value='`$dest-uuid`' />
+                            <outcome value='Other'>
+                                <block></block>
+                            </outcome>
+                        </execute>
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="Failed to save network policy in AAI" />
+                        </return>
+                    </block>
+                </outcome>
+                <outcome value='not-found'>
+                    <block>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                            <parameter name='api-name' value='network-policy' />
+                            <parameter name='api-action' value='remove' />
+                            <parameter name='resp-prefix' value='contrailResp' />
+                            <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                            <parameter name='default-project' value='`$cto-api.default-project`' />
+                            <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                            <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                            <parameter name='contrail-network-policy-fq-name' value='`$ar-assignments.fq-name`' />
+                            <parameter name='contrail-virtual-network-id' value='`$src-uuid`' />
+                            <outcome value='Other'>
+                                <block></block>
+                            </outcome>
+                        </execute>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                            <parameter name='api-name' value='network-policy' />
+                            <parameter name='api-action' value='remove' />
+                            <parameter name='resp-prefix' value='contrailResp' />
+                            <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                            <parameter name='default-project' value='`$cto-api.default-project`' />
+                            <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                            <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                            <parameter name='contrail-network-policy-fq-name' value='`$ar-assignments.fq-name`' />
+                            <parameter name='contrail-virtual-network-id' value='`$dest-uuid`' />
+                            <outcome value='Other'>
+                                <block></block>
+                            </outcome>
+                        </execute>
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="Failed to save network policy in AAI" />
+                        </return>
+                    </block>
+                </outcome>
+            </delete>
+            <update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="allotted-resource" 
+		key="customer.global-customer-id = $service-data.service-information.global-customer-id AND
+			service-subscription.service-type = $service-data.service-information.subscription-service-type AND
+			service-instance.service-instance-id = $ar.allotted-resource-data.contrail-route-topology.allotted-resource-identifiers.parent-service-instance-id AND
+			allotted-resource.id = $tmp.ar.allotted-resource-id"
+        pfx='pfx' local-only='false' force='false'>
+                <parameter name="operational-status" value="out-of-service-path" />
+                <parameter name="orchestration-status" value="deactivated" />
+                <outcome value='failure'>
+                    <block>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                            <parameter name='api-name' value='network-policy' />
+                            <parameter name='api-action' value='remove' />
+                            <parameter name='resp-prefix' value='contrailResp' />
+                            <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                            <parameter name='default-project' value='`$cto-api.default-project`' />
+                            <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                            <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                            <parameter name='contrail-network-policy-fq-name' value='`$ar-assignments.fq-name`' />
+                            <parameter name='contrail-virtual-network-id' value='`$src-uuid`' />
+                            <outcome value='Other'>
+                                <block></block>
+                            </outcome>
+                        </execute>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                            <parameter name='api-name' value='network-policy' />
+                            <parameter name='api-action' value='remove' />
+                            <parameter name='resp-prefix' value='contrailResp' />
+                            <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                            <parameter name='default-project' value='`$cto-api.default-project`' />
+                            <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                            <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                            <parameter name='contrail-network-policy-fq-name' value='`$ar-assignments.fq-name`' />
+                            <parameter name='contrail-virtual-network-id' value='`$dest-uuid`' />
+                            <outcome value='Other'>
+                                <block></block>
+                            </outcome>
+                        </execute>
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="AAI failed" />
+                        </return>
+                    </block>
+                </outcome>
+                <outcome value='not-found'>
+                    <block>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                            <parameter name='api-name' value='network-policy' />
+                            <parameter name='api-action' value='remove' />
+                            <parameter name='resp-prefix' value='contrailResp' />
+                            <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                            <parameter name='default-project' value='`$cto-api.default-project`' />
+                            <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                            <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                            <parameter name='contrail-network-policy-fq-name' value='`$ar-assignments.fq-name`' />
+                            <parameter name='contrail-virtual-network-id' value='`$src-uuid`' />
+                            <outcome value='Other'>
+                                <block></block>
+                            </outcome>
+                        </execute>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                            <parameter name='api-name' value='network-policy' />
+                            <parameter name='api-action' value='remove' />
+                            <parameter name='resp-prefix' value='contrailResp' />
+                            <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                            <parameter name='default-project' value='`$cto-api.default-project`' />
+                            <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                            <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                            <parameter name='contrail-network-policy-fq-name' value='`$ar-assignments.fq-name`' />
+                            <parameter name='contrail-virtual-network-id' value='`$dest-uuid`' />
+                            <outcome value='Other'>
+                                <block></block>
+                            </outcome>
+                        </execute>
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="AAI failed" />
+                        </return>
+                    </block>
+                </outcome>
+            </update>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='setTime' >
+                <parameter name="outputPath" value="tmp.current-time" />
+            </execute>
+            <set>
+                <parameter name='ar.allotted-resource-data.allotted-resource-oper-status.order-status' value='PendingDelete' />
+                <parameter name='ar.allotted-resource-data.allotted-resource-oper-status.create-timestamp' value='`$tmp.current-time`' />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.cr.templatefile`" />
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='PUT' />
+                <parameter name="responsePrefix" value="mdsal-ar" />
+                <outcome value='success'>
+                    <block></block>
+                </outcome>
+                <outcome value='failure'>
+                    <block>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                            <parameter name='api-name' value='network-policy' />
+                            <parameter name='api-action' value='remove' />
+                            <parameter name='resp-prefix' value='contrailResp' />
+                            <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                            <parameter name='default-project' value='`$cto-api.default-project`' />
+                            <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                            <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                            <parameter name='contrail-network-policy-fq-name' value='`$ar-assignments.fq-name`' />
+                            <parameter name='contrail-virtual-network-id' value='`$src-uuid`' />
+                            <outcome value='Other'>
+                                <block></block>
+                            </outcome>
+                        </execute>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                            <parameter name='api-name' value='network-policy' />
+                            <parameter name='api-action' value='remove' />
+                            <parameter name='resp-prefix' value='contrailResp' />
+                            <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                            <parameter name='default-project' value='`$cto-api.default-project`' />
+                            <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                            <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                            <parameter name='contrail-network-policy-fq-name' value='`$ar-assignments.fq-name`' />
+                            <parameter name='contrail-virtual-network-id' value='`$dest-uuid`' />
+                            <outcome value='Other'>
+                                <block></block>
+                            </outcome>
+                        </execute>
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="Error updating md-sal for contrail-route-allotted-resource" />
+                        </return>
+                    </block>
+                </outcome>
+                <outcome value='not-found'>
+                    <block>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                            <parameter name='api-name' value='network-policy' />
+                            <parameter name='api-action' value='remove' />
+                            <parameter name='resp-prefix' value='contrailResp' />
+                            <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                            <parameter name='default-project' value='`$cto-api.default-project`' />
+                            <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                            <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                            <parameter name='contrail-network-policy-fq-name' value='`$ar-assignments.fq-name`' />
+                            <parameter name='contrail-virtual-network-id' value='`$src-uuid`' />
+                            <outcome value='Other'>
+                                <block></block>
+                            </outcome>
+                        </execute>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                            <parameter name='api-name' value='network-policy' />
+                            <parameter name='api-action' value='remove' />
+                            <parameter name='resp-prefix' value='contrailResp' />
+                            <parameter name='cloud-region-id' value='`$cto-api.cloud-region-id`' />
+                            <parameter name='default-project' value='`$cto-api.default-project`' />
+                            <parameter name='default-domain' value='`$cto-api.default-domain`' />
+                            <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                            <parameter name='contrail-network-policy-fq-name' value='`$ar-assignments.fq-name`' />
+                            <parameter name='contrail-virtual-network-id' value='`$dest-uuid`' />
+                            <outcome value='Other'>
+                                <block></block>
+                            </outcome>
+                        </execute>
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="Error updating md-sal for contrail-route-allotted-resource" />
+                        </return>
+                    </block>
+                </outcome>
+            </execute>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="`$error-message`" />
+            </return>
+        </block>
+    </method>
+</service-logic>

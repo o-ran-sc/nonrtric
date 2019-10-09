@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <title>SDN-C AdminPortal</title>
+</head>
+
+<body>
+
+<div class="actions" style="padding:0px 25px;">
+<h2>User Trace</h2>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+        if (result.code.length > 0) {
+            if ( result.code == 'success' ) { %>
+                <div class='alert alert-success' role='alert'><%=result.msg %></div>
+            <% } else { %>
+                <div class='alert alert-danger' role='danger'><%=result.msg %></div>
+            <% } %>
+        <% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+    <div class="actions" style="padding:15px 0px;">
+
+    </div>
+    <div class="content">
+     <table class="table table-hover">
+      <thead>
+        <tr>
+		  <th>Date</th>
+          <th>ATTUID</th>
+		  <th>Action</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+    <% if (rows)  {
+         rows.forEach(function(row) { %>
+			<tr>
+            	<td><%= row.date %></td> 
+            	<td><%= row.attuid %></td> 
+            	<td><%= row.action %></td> 
+            	<td><%= row.description %></td> 
+			</tr>
+    <% }); }; %>
+      </tbody>
+    </table>
+   </div>
+
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+    
+</body>
+</html>
+

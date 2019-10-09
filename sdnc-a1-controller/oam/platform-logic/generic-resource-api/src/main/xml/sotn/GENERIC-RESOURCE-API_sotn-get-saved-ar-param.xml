@@ -1,0 +1,73 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+   <method rpc='sotn-get-saved-ar-param' mode='sync'>
+      <block atomic="true">
+         <for index='idx' start='0' end='`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param_length`' >
+            <block>
+               <switch test="`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].name == 'sotnVpnName'`">
+                  <outcome value='true'>
+                     <set>
+                        <parameter name='prop.connection-attachment.sotnVpnName' value='`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].value`' />
+                     </set>
+                  </outcome>
+               </switch>
+               <switch test="`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].name == 'access-provider-id'`">
+                  <outcome value='true'>
+                     <set>
+                        <parameter name='prop.connection-attachment.access-provider-id' value='`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].value`' />
+                     </set>
+                  </outcome>
+               </switch>
+               <switch test="`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].name == 'access-client-id'`">
+                  <outcome value='true'>
+                     <set>
+                        <parameter name='prop.connection-attachment.access-client-id' value='`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].value`' />
+                     </set>
+                  </outcome>
+               </switch>
+               <switch test="`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].name == 'access-topology-id'`">
+                  <outcome value='true'>
+                     <set>
+                        <parameter name='prop.connection-attachment.access-topology-id' value='`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].value`' />
+                     </set>
+                  </outcome>
+               </switch>
+               <switch test="`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].name == 'access-node-id'`">
+                  <outcome value='true'>
+                     <set>
+                        <parameter name='prop.connection-attachment.access-node-id' value='`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].value`' />
+                     </set>
+                  </outcome>
+               </switch>
+               <switch test="`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].name == 'access-ltp-id'`">
+                  <outcome value='true'>
+                     <set>
+                        <parameter name='prop.connection-attachment.access-ltp-id' value='`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].value`' />
+                     </set>
+                  </outcome>
+               </switch>
+               <switch test="`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].name == 'clientSignal'`">
+                  <outcome value='true'>
+                     <set>
+                        <parameter name='prop.connection-attachment.clientSignal' value='`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].value`' />
+                     </set>
+                  </outcome>
+               </switch>
+               <switch test="`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].name == 'cVLAN'`">
+                  <outcome value='true'>
+                     <set>
+                        <parameter name='prop.connection-attachment.cVLAN' value='`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].value`' />
+                     </set>
+                  </outcome>
+               </switch>
+               <return status='success'>
+                  <parameter name="ack-final-indicator" value="Y" />
+                  <parameter name="error-code" value="200" />
+                  <parameter name="error-message" value="`$error-message`" />
+               </return>
+            </block>
+         </for>
+      </block>
+   </method>
+</service-logic>

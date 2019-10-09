@@ -1,0 +1,180 @@
+[
+    {
+        "id": "1be7c5d.ad3cd3a",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 186.2630157470703,
+        "y": 83.76301574707031,
+        "z": "9c4d3573.f087a8",
+        "wires": [
+            [
+                "7fd0368c.d911a8"
+            ]
+        ]
+    },
+    {
+        "id": "3bd2ce4a.136122",
+        "type": "method",
+        "name": "method send-so-response",
+        "xml": "<method rpc='send-so-response' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 331.2749328613281,
+        "y": 148.46936988830566,
+        "z": "9c4d3573.f087a8",
+        "wires": [
+            [
+                "10c7b604.2a55ba"
+            ]
+        ]
+    },
+    {
+        "id": "7fd0368c.d911a8",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 448.50121307373047,
+        "y": 83.9535083770752,
+        "z": "9c4d3573.f087a8",
+        "wires": [
+            [
+                "3bd2ce4a.136122"
+            ]
+        ]
+    },
+    {
+        "id": "af9d7c89.15796",
+        "type": "execute",
+        "name": "execute RestApiCallNode - POST ack-final to SO",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='templateFileName' value=\"`$prop.restapi.templateDir + '/' + 'so-response.json'`\" />\n    <parameter name='restapiUrl' value=\"`$so.notification-url`\" />\n    <parameter name='restapiUser' value='`$prop.so.user`' />\n    <parameter name='restapiPassword' value='`$prop.so.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='POST' />\n    <parameter name=\"responsePrefix\" value=\"soResponse-vnf-assign\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 788.8093566894531,
+        "y": 293.73350286483765,
+        "z": "9c4d3573.f087a8",
+        "wires": [
+            [
+                "d61676da.12fe28",
+                "87d46700.e01758"
+            ]
+        ]
+    },
+    {
+        "id": "d61676da.12fe28",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1075.700740814209,
+        "y": 270.31422758102417,
+        "z": "9c4d3573.f087a8",
+        "wires": [
+            [
+                "7e23e4c2.43ac6c"
+            ]
+        ]
+    },
+    {
+        "id": "deb0a632.ae9ed8",
+        "type": "configure",
+        "name": "set error-message",
+        "xml": "<set>\n<parameter name=\"error-message\" value=\"`'Error sending SO response. ' + $error-message`\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1529.511962890625,
+        "y": 247.45922470092773,
+        "z": "9c4d3573.f087a8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "87d46700.e01758",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1087.0593032836914,
+        "y": 317.4833388328552,
+        "z": "9c4d3573.f087a8",
+        "wires": [
+            [
+                "7e23e4c2.43ac6c"
+            ]
+        ]
+    },
+    {
+        "id": "10c7b604.2a55ba",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 469.0129928588867,
+        "y": 263.7629699707031,
+        "z": "9c4d3573.f087a8",
+        "wires": [
+            [
+                "af9d7c89.15796",
+                "aa7b88f3.7101b8"
+            ]
+        ]
+    },
+    {
+        "id": "aa7b88f3.7101b8",
+        "type": "set",
+        "name": "set so.response-message",
+        "xml": "<set>\n<parameter name=\"so.response-message\" value=\"`$error-message`\" />",
+        "comments": "",
+        "x": 715.0130081176758,
+        "y": 243.7629656791687,
+        "z": "9c4d3573.f087a8",
+        "wires": []
+    },
+    {
+        "id": "5b71151b.49bd3c",
+        "type": "comment",
+        "name": "Caller must set all the params required for SO response",
+        "info": "so.ack-final-indicator\nso.notification-url\nso.response-code\nso.response-message\nso.svc-request-id\nso.service-instance-id\nso.service-type",
+        "comments": "",
+        "x": 937.5130081176758,
+        "y": 152.51301765441895,
+        "z": "9c4d3573.f087a8",
+        "wires": []
+    },
+    {
+        "id": "535d0ddc.6a9ff4",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+        "comments": "",
+        "x": 1510.096477508545,
+        "y": 317.67168045043945,
+        "z": "9c4d3573.f087a8",
+        "wires": []
+    },
+    {
+        "id": "7e23e4c2.43ac6c",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1303.762939453125,
+        "y": 288.76298904418945,
+        "z": "9c4d3573.f087a8",
+        "wires": [
+            [
+                "deb0a632.ae9ed8",
+                "535d0ddc.6a9ff4"
+            ]
+        ]
+    }
+]

@@ -1,0 +1,17 @@
+---
+- hosts: all
+  tasks:
+  - name: add fd.io repository
+    lineinfile:
+      path: /etc/apt/sources.list.d/99fd.io.list
+      state: present
+      create: yes
+      regexp: 'fd.io.stable.1707'
+      line: 'deb [trusted=yes] https://nexus.fd.io/content/repositories/fd.io.stable.1707.ubuntu.xenial.main/ ./'
+    become: true
+  - name: upgrade vpp software
+    apt:
+      name: vpp
+      state: latest
+      update_cache: yes
+    become: true

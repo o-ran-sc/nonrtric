@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+    <Properties>
+        <Property name="LOG_PATTERN">
+            %d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${hostName} --- [%15.15t] %-40.40c{1.} : %m%n%ex
+        </Property>
+    </Properties>
+    <Appenders>
+        
+        <!-- <Console name="ConsoleAppender" target="SYSTEM_OUT" follow="true">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+        </Console> -->
+        
+	        <!-- Rolling File Appender -->
+	<RollingFile name="FileAppender" fileName="logs/sdnc_report_api.log" 
+	             filePattern="logs/sdnc_report_api-%d{yyyy-MM-dd}-%i.log">
+	    <PatternLayout>
+	        <Pattern>${LOG_PATTERN}</Pattern>
+	    </PatternLayout>
+	    <Policies>
+	        <SizeBasedTriggeringPolicy size="10MB" />
+	    </Policies>
+	    <DefaultRolloverStrategy max="10"/>
+	</RollingFile>
+        
+    </Appenders>
+    
+    <Loggers>
+        <Logger name="com.onap.sdnc.reports" level="debug" additivity="false">
+            <AppenderRef ref="FileAppender" />
+        </Logger>
+ 
+	 	<Root level="debug">
+	            <!-- <AppenderRef ref="ConsoleAppender" /> -->
+	            <AppenderRef ref="FileAppender"/>
+	   </Root>
+    </Loggers>
+</Configuration>

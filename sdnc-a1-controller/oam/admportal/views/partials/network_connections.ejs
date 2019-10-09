@@ -1,0 +1,66 @@
+   <div class="modal fade" 
+		id="network-connections-modal" tabindex="-1" role="dialog" 
+		aria-labelledby="network-connections-modal-label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">network-connections</h4>
+          </div>
+          <div class="modal-body">
+            <form role="form" action="" method="POST">
+              <div class="form-group">
+                <label for="stack_id">stack-id</label>
+                <input type="text" class="form-control" name="stack_id" id="stack_id">
+              </div>
+              <div class="form-group">
+                <label for="net_status">net-status</label>
+                <input type="text" class="form-control" name="net_status" id="net_status">
+              </div>
+              <div class="form-group">
+                <label for="connection_type">connection-type</label>
+                <input type="text" class="form-control" name="connection_type" id="connection_type">
+              </div>
+              <div class="form-group">
+                <label for="provider_network">provider-network</label>
+                <input type="text" class="form-control" name="provider_network" id="provider_network">
+              </div>
+              <div class="form-group">
+                <label for="interface_id">interface-id</label>
+                <input type="text" class="form-control" name="interface_id" id="interface_id">
+              </div>
+              <div class="form-group">
+                <label for="vlan">vlan</label>
+                <input type="text" class="form-control" name="vlan" id="vlan">
+              </div>
+              <div class="form-group">
+                <label for="port_group_name">port-group-name</label>
+                <input type="text" class="form-control" name="port_group_name" id="port_group_name">
+              </div>
+              <div class="form-group">
+                <label for="neutron_network_id">neutron-network-id</label>
+                <input type="text" class="form-control" name="neutron_network_id" id="neutron_network_id">
+              </div>
+
+<!--
+              <div class="form-group">
+				<input type="hidden" name="uf_action" id="uf_action">
+                <button type="button" class="btn btn-primary" onclick="submit(this.form);">Submit</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+-->
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>
+
+<script type="text/javascript">
+function submit(form){
+	$('#network-connections-modal').modal('hide');
+	form.action = form.uf_action.value;
+	form.submit();
+	return;
+}
+</script>
+

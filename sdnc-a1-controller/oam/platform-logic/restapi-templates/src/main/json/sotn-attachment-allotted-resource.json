@@ -1,0 +1,171 @@
+{
+    "connection-attachment-allotted-resource": [{
+        "allotted-resource-id": ${connection-attachment-ar.allotted-resource-id},
+        "allotted-resource-data": {
+            "allotted-resource-operation-information": {
+                "allotted-resource-information": {
+                    "allotted-resource-id": ${connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.allotted-resource-id},
+                    "allotted-resource-type": ${connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.allotted-resource-type},
+                    "parent-service-instance-id": ${connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.parent-service-instance-id},
+                    "onap-model-information": {
+                        "model-invariant-uuid": ${connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.onap-model-information.model-invariant-uuid},
+                        "model-customization-uuid": ${connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.onap-model-information.model-customization-uuid},
+                        "model-uuid": ${connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.onap-model-information.model-uuid},
+                        "model-version": ${connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.onap-model-information.model-version}
+                    }
+                },
+                "sdnc-request-header": {
+                    "svc-request-id": ${connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.sdnc-request-header.svc-request-id},
+                    "svc-action": ${connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.sdnc-request-header.svc-action}
+                },
+                "request-information": {
+                    "request-id": ${connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.request-information.request-id},
+                    "source": ${connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.request-information.source},
+                    "order-version": ${connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.request-information.order-version},
+                    "order-number": ${connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.request-information.order-number},
+                    "notification-url": ${connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.request-information.notification-url},
+                    "request-action": ${connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.request-information.request-action}
+                },
+                "connection-attachment-request-input": {
+                    "param": [
+                        {
+                            "name": "sotnVpnName",
+                            "value": ${prop.connection-attachment.sotnVpnName}
+                        },
+                        {
+                            "name": "access-provider-id",
+                            "value": ${prop.connection-attachment.access-provider-id}
+                        },
+                        {
+                            "name": "access-client-id",
+                            "value": ${prop.connection-attachment.access-client-id}
+                        },
+                        {
+                            "name": "access-topology-id",
+                            "value": ${prop.connection-attachment.access-topology-id}
+                        },
+                        {
+                            "name": "access-node-id",
+                            "value": ${prop.connection-attachment.access-node-id}
+                        },
+                        {
+                            "name": "access-ltp-id",
+                            "value": ${prop.connection-attachment.access-ltp-id}
+                        },
+                        {
+                            "name": "clientSignal",
+                            "value": ${prop.connection-attachment.clientSignal}
+                        },
+                        {
+                            "name": "cVLAN",
+                            "value": ${prop.connection-attachment.cVLAN}
+                        }
+                    ]
+                }
+            },
+            "connection-attachment-topology": {
+                "allotted-resource-identifiers": {
+                    "consuming-service-instance-id": ${connection-attachment-ar.allotted-resource-data.connection-attachment-topology.allotted-resource-identifiers.consuming-service-instance-id},
+                    "allotted-resource-name": ${connection-attachment-ar.allotted-resource-data.connection-attachment-topology.allotted-resource-identifiers.allotted-resource-name},
+                    "allotted-resource-id": ${connection-attachment-ar.allotted-resource-data.connection-attachment-topology.allotted-resource-identifiers.allotted-resource-id},
+                    "parent-service-instance-id": ${connection-attachment-ar.allotted-resource-data.connection-attachment-topology.allotted-resource-identifiers.parent-service-instance-id},
+                    "allotted-resource-type": ${connection-attachment-ar.allotted-resource-data.connection-attachment-topology.allotted-resource-identifiers.allotted-resource-type}
+                },
+                "onap-model-information": {
+                    "model-invariant-uuid": ${connection-attachment-ar.allotted-resource-data.connection-attachment-topology.onap-model-information.model-invariant-uuid},
+                    "model-customization-uuid": ${connection-attachment-ar.allotted-resource-data.connection-attachment-topology.onap-model-information.model-customization-uuid},
+                    "model-uuid": ${connection-attachment-ar.allotted-resource-data.connection-attachment-topology.onap-model-information.model-uuid},
+                    "model-version": ${connection-attachment-ar.allotted-resource-data.connection-attachment-topology.onap-model-information.model-version}
+                },
+                "connection-attachment-parameters": {
+                    "param": [
+                        {
+                            "name": "sotnVpnName",
+                            "value": ${prop.connection-attachment.sotnVpnName}
+                        },
+                        {
+                            "name": "access-provider-id",
+                            "value": ${prop.connection-attachment.access-provider-id}
+                        },
+                        {
+                            "name": "access-client-id",
+                            "value": ${prop.connection-attachment.access-client-id}
+                        },
+                        {
+                            "name": "access-topology-id",
+                            "value": ${prop.connection-attachment.access-topology-id}
+                        },
+                        {
+                            "name": "access-node-id",
+                            "value": ${prop.connection-attachment.access-node-id}
+                        },
+                        {
+                            "name": "access-ltp-id",
+                            "value": ${prop.connection-attachment.access-ltp-id}
+                        },
+                        {
+                            "name": "clientSignal",
+                            "value": ${prop.connection-attachment.clientSignal}
+                        },
+                        {
+                            "name": "cVLAN",
+                            "value": ${prop.connection-attachment.cVLAN}
+                        }
+                    ]
+                }
+            },
+            "connection-attachment-parameters": {
+                "param": [
+                    {
+                        "name": "sotnVpnName",
+                        "value": ${prop.connection-attachment.sotnVpnName}
+                    },
+                    {
+                        "name": "access-provider-id",
+                        "value": ${prop.connection-attachment.access-provider-id}
+                    },
+                    {
+                        "name": "access-client-id",
+                        "value": ${prop.connection-attachment.access-client-id}
+                    },
+                    {
+                        "name": "access-topology-id",
+                        "value": ${prop.connection-attachment.access-topology-id}
+                    },
+                    {
+                        "name": "access-node-id",
+                        "value": ${prop.connection-attachment.access-node-id}
+                    },
+                    {
+                        "name": "access-ltp-id",
+                        "value": ${prop.connection-attachment.access-ltp-id}
+                    },
+                    {
+                        "name": "clientSignal",
+                        "value": ${prop.connection-attachment.clientSignal}
+                    },
+                    {
+                        "name": "cVLAN",
+                        "value": ${prop.connection-attachment.cVLAN}
+                    }
+                ]
+            },
+            "allotted-resource-oper-status": {
+                "last-action": ${connection-attachment-ar.allotted-resource-data.allotted-resource-oper-status.last-action},
+                "modify-timestamp": ${connection-attachment-ar.allotted-resource-data.allotted-resource-oper-status.modify-timestamp},
+                "last-order-status": ${connection-attachment-ar.allotted-resource-data.allotted-resource-oper-status.last-order-status},
+                "create-timestamp": ${connection-attachment-ar.allotted-resource-data.allotted-resource-oper-status.create-timestamp},
+                "order-status": ${connection-attachment-ar.allotted-resource-data.allotted-resource-oper-status.order-status},
+                "last-rpc-action": ${connection-attachment-ar.allotted-resource-data.allotted-resource-oper-status.last-rpc-action},
+                "last-svc-request-id": ${connection-attachment-ar.allotted-resource-data.allotted-resource-oper-status.last-svc-request-id}
+            },
+        },
+        "allotted-resource-status" : {
+            "action": ${connection-attachment-ar.allotted-resource-status.action},
+            "rpc-name": ${connection-attachment-ar.allotted-resource-status.rpc-name},
+            "rpc-action": ${connection-attachment-ar.allotted-resource-status.rpc-action}
+        }
+    }]
+}
+
+

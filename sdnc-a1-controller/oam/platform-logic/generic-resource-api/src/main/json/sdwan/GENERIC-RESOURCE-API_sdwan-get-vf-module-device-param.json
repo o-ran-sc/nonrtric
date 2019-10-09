@@ -1,0 +1,551 @@
+[
+    {
+        "id": "cffdc2c4.fbdbf",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 124.01041412353516,
+        "y": 57.99999976158142,
+        "z": "620142f.05634bc",
+        "wires": [
+            [
+                "b4bfaafb.0f71e8"
+            ]
+        ]
+    },
+    {
+        "id": "b4bfaafb.0f71e8",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 269.0104179382324,
+        "y": 139.00001692771912,
+        "z": "620142f.05634bc",
+        "wires": [
+            [
+                "453e787d.b31d18"
+            ]
+        ]
+    },
+    {
+        "id": "453e787d.b31d18",
+        "type": "method",
+        "name": "sdwan-get-vf-module-device-param",
+        "xml": "<method rpc='sdwan-get-vf-module-device-param' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 257.01053619384766,
+        "y": 226.99999976158142,
+        "z": "620142f.05634bc",
+        "wires": [
+            [
+                "28aec5b3.3630fa"
+            ]
+        ]
+    },
+    {
+        "id": "28aec5b3.3630fa",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 264.0104293823242,
+        "y": 313.0000579357147,
+        "z": "620142f.05634bc",
+        "wires": [
+            [
+                "3c4212a4.68f13e"
+            ]
+        ]
+    },
+    {
+        "id": "3c4212a4.68f13e",
+        "type": "for",
+        "name": "for each sdwan-get-request-input-param",
+        "xml": "<for index=\"idx\" start=\"0\" end=\"`$vf-module-request-input.vf-module-input-parameters.param_length`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 300.6771926879883,
+        "y": 395.6666543483734,
+        "z": "620142f.05634bc",
+        "wires": [
+            [
+                "bf653357.54774"
+            ]
+        ]
+    },
+    {
+        "id": "bf653357.54774",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 559.0047302246094,
+        "y": 391.99431586265564,
+        "z": "620142f.05634bc",
+        "wires": [
+            [
+                "41b4a385.e5d2ec",
+                "1fe1f918.e55d47",
+                "bf373c84.0e6f1",
+                "8b025989.63feb8",
+                "2357be34.a97902",
+                "9db880c0.bf8f7",
+                "7eec8f37.33efd",
+                "467b2b94.aa5c94",
+                "3fbeca93.ab4dc6",
+                "d5cf0127.78745",
+                "7b1c3978.61d7b8"
+            ]
+        ]
+    },
+    {
+        "id": "41b4a385.e5d2ec",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+        "comments": "",
+        "x": 766.5053482055664,
+        "y": 683.9948885440826,
+        "z": "620142f.05634bc",
+        "wires": []
+    },
+    {
+        "id": "bf373c84.0e6f1",
+        "type": "switchNode",
+        "name": "switch name",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'name'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 794.5044364929199,
+        "y": 236.9942991733551,
+        "z": "620142f.05634bc",
+        "wires": [
+            [
+                "6a620d2a.597874"
+            ]
+        ]
+    },
+    {
+        "id": "6a620d2a.597874",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 936.5044364929199,
+        "y": 237.9942991733551,
+        "z": "620142f.05634bc",
+        "wires": [
+            [
+                "f9812259.af716"
+            ]
+        ]
+    },
+    {
+        "id": "f9812259.af716",
+        "type": "set",
+        "name": "set name",
+        "xml": "<set>\n<parameter name='prop.device.name' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1070.50443649292,
+        "y": 238.59430527687073,
+        "z": "620142f.05634bc",
+        "wires": []
+    },
+    {
+        "id": "1fe1f918.e55d47",
+        "type": "switchNode",
+        "name": "switch esn",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'esn'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 787.3441820144653,
+        "y": 273.99423813819885,
+        "z": "620142f.05634bc",
+        "wires": [
+            [
+                "fec66c31.4ec21"
+            ]
+        ]
+    },
+    {
+        "id": "fec66c31.4ec21",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 931.3441820144653,
+        "y": 273.99423813819885,
+        "z": "620142f.05634bc",
+        "wires": [
+            [
+                "b1b392a1.773ab"
+            ]
+        ]
+    },
+    {
+        "id": "b1b392a1.773ab",
+        "type": "set",
+        "name": "set esn",
+        "xml": "<set>\n<parameter name='prop.device.esn' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1051.6775560379028,
+        "y": 273.45541977882385,
+        "z": "620142f.05634bc",
+        "wires": []
+    },
+    {
+        "id": "8b025989.63feb8",
+        "type": "switchNode",
+        "name": "switch type",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'type'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 775.3996019363403,
+        "y": 348.9571897983551,
+        "z": "620142f.05634bc",
+        "wires": [
+            [
+                "d5158afa.ab5d38"
+            ]
+        ]
+    },
+    {
+        "id": "2357be34.a97902",
+        "type": "switchNode",
+        "name": "switch systemIp",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'systemIp'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 775.3996601104736,
+        "y": 440.9572069644928,
+        "z": "620142f.05634bc",
+        "wires": [
+            [
+                "4fbf3414.5b4b2c"
+            ]
+        ]
+    },
+    {
+        "id": "d5158afa.ab5d38",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 921.3996019363403,
+        "y": 348.9571897983551,
+        "z": "620142f.05634bc",
+        "wires": [
+            [
+                "937f18ca.e72f08"
+            ]
+        ]
+    },
+    {
+        "id": "937f18ca.e72f08",
+        "type": "set",
+        "name": "set type",
+        "xml": "<set>\n<parameter name='prop.device.deviceModel' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1052.3996019363403,
+        "y": 348.5571959018707,
+        "z": "620142f.05634bc",
+        "wires": []
+    },
+    {
+        "id": "4fbf3414.5b4b2c",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 921.3996601104736,
+        "y": 437.9572069644928,
+        "z": "620142f.05634bc",
+        "wires": [
+            [
+                "99d3dc8a.8d686"
+            ]
+        ]
+    },
+    {
+        "id": "99d3dc8a.8d686",
+        "type": "set",
+        "name": "set systemIp",
+        "xml": "<set>\n<parameter name='prop.device.systemIP' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1064.3996601104736,
+        "y": 436.5572130680084,
+        "z": "620142f.05634bc",
+        "wires": []
+    },
+    {
+        "id": "64458164.edc05",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 931.3996601104736,
+        "y": 473.9572069644928,
+        "z": "620142f.05634bc",
+        "wires": [
+            [
+                "780d1304.68cfdc"
+            ]
+        ]
+    },
+    {
+        "id": "9db880c0.bf8f7",
+        "type": "switchNode",
+        "name": "switch description",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'description'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 777.3996601104736,
+        "y": 476.9572069644928,
+        "z": "620142f.05634bc",
+        "wires": [
+            [
+                "64458164.edc05"
+            ]
+        ]
+    },
+    {
+        "id": "780d1304.68cfdc",
+        "type": "set",
+        "name": "set description",
+        "xml": "<set>\n<parameter name='prop.device.description' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1074.3996601104736,
+        "y": 472.5572130680084,
+        "z": "620142f.05634bc",
+        "wires": []
+    },
+    {
+        "id": "7eec8f37.33efd",
+        "type": "switchNode",
+        "name": "switch vendor",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'vendor'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 764.7329454421997,
+        "y": 523.9572412967682,
+        "z": "620142f.05634bc",
+        "wires": [
+            [
+                "3ba9d87b.54e468"
+            ]
+        ]
+    },
+    {
+        "id": "3ba9d87b.54e468",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 932.7329034805298,
+        "y": 520.9571821689606,
+        "z": "620142f.05634bc",
+        "wires": [
+            [
+                "b42adfe3.2b292"
+            ]
+        ]
+    },
+    {
+        "id": "b42adfe3.2b292",
+        "type": "set",
+        "name": "set vendor",
+        "xml": "<set>\n<parameter name='prop.device.vendor' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1075.7329034805298,
+        "y": 519.5571882724762,
+        "z": "620142f.05634bc",
+        "wires": []
+    },
+    {
+        "id": "467b2b94.aa5c94",
+        "type": "switchNode",
+        "name": "switch class",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'class'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 788.5044021606445,
+        "y": 310.99424386024475,
+        "z": "620142f.05634bc",
+        "wires": [
+            [
+                "1374fbc3.377814"
+            ]
+        ]
+    },
+    {
+        "id": "1374fbc3.377814",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 932.5044021606445,
+        "y": 310.99424386024475,
+        "z": "620142f.05634bc",
+        "wires": [
+            [
+                "65bf8c61.fb2dd4"
+            ]
+        ]
+    },
+    {
+        "id": "65bf8c61.fb2dd4",
+        "type": "set",
+        "name": "set class",
+        "xml": "<set>\n<parameter name='prop.device.class' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1052.837776184082,
+        "y": 310.45542550086975,
+        "z": "620142f.05634bc",
+        "wires": []
+    },
+    {
+        "id": "3fbeca93.ab4dc6",
+        "type": "switchNode",
+        "name": "switch version",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'version'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 786.5044021606445,
+        "y": 394.99424386024475,
+        "z": "620142f.05634bc",
+        "wires": [
+            [
+                "e80bbd64.2da17"
+            ]
+        ]
+    },
+    {
+        "id": "e80bbd64.2da17",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 932.5044021606445,
+        "y": 391.99424386024475,
+        "z": "620142f.05634bc",
+        "wires": [
+            [
+                "ae63bef3.fee2"
+            ]
+        ]
+    },
+    {
+        "id": "ae63bef3.fee2",
+        "type": "set",
+        "name": "set version",
+        "xml": "<set>\n<parameter name='prop.device.version' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1075.5044021606445,
+        "y": 390.5942499637604,
+        "z": "620142f.05634bc",
+        "wires": []
+    },
+    {
+        "id": "d5cf0127.78745",
+        "type": "switchNode",
+        "name": "switch deviceId",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'deviceId'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 778.5044708251953,
+        "y": 570.9942924976349,
+        "z": "620142f.05634bc",
+        "wires": [
+            [
+                "e706a464.a35a88"
+            ]
+        ]
+    },
+    {
+        "id": "e706a464.a35a88",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 934.5045585632324,
+        "y": 566.9943373203278,
+        "z": "620142f.05634bc",
+        "wires": [
+            [
+                "27f4849e.3602dc"
+            ]
+        ]
+    },
+    {
+        "id": "27f4849e.3602dc",
+        "type": "set",
+        "name": "set deviceId",
+        "xml": "<set>\n<parameter name='prop.device.deviceId' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1072.838306427002,
+        "y": 555.4554731845856,
+        "z": "620142f.05634bc",
+        "wires": []
+    },
+    {
+        "id": "7b1c3978.61d7b8",
+        "type": "switchNode",
+        "name": "switch sdncCreate",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'sdncCreate'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 773.5044250488281,
+        "y": 616.9942548274994,
+        "z": "620142f.05634bc",
+        "wires": [
+            [
+                "2dbb36e3.798f8a"
+            ]
+        ]
+    },
+    {
+        "id": "2dbb36e3.798f8a",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 938.5044860839844,
+        "y": 613.9943158626556,
+        "z": "620142f.05634bc",
+        "wires": [
+            [
+                "a093edec.c8fe5"
+            ]
+        ]
+    },
+    {
+        "id": "a093edec.c8fe5",
+        "type": "set",
+        "name": "set sdncCreate",
+        "xml": "<set>\n<parameter name='prop.device.sdncCreate' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1087.8382263183594,
+        "y": 612.4554364681244,
+        "z": "620142f.05634bc",
+        "wires": []
+    }
+]

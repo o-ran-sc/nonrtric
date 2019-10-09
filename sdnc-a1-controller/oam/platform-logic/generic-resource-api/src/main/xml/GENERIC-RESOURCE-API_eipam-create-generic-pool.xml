@@ -1,0 +1,901 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='eipam-create-generic-pool' mode='sync'>
+        <block atomic='true'>
+            <set>
+                <parameter name="tmp.eipam-error" value="false" />
+                <parameter name="tmp.create-v4-pool-flag" value="N" />
+                <parameter name="tmp.create-v6-pool-flag" value="N" />
+                <parameter name='eipam-ip-block.plans_length' value='0' />
+                <parameter name="eipam-pool.v4.pre-existing" value="N"/>
+                <parameter name="eipam-pool.v6.pre-existing" value="N"/>
+                <parameter name="level" value="`$eipam-ip-block.level - 1`" />
+            </set>
+            <switch test="`$tmp.allocate-subnet-flag`">
+                <outcome value="">
+                    <block atomic='true'>
+                        <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                        <set>
+                            <parameter name="tmp.allocate-subnet-flag" value="Y"/>
+                        </set>
+                    </block>
+                </outcome>
+                <outcome value='Y'></outcome>
+                <outcome value='N'></outcome>
+            </switch>
+            <switch test="`$network-model.use-ipv4`">
+                <outcome value='Y'>
+                    <block atomic='true'>
+                        <get-resource
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="SELECT * FROM EIPAM_IP_POOLS where plan_name = $network-model.eipam-v4-address-plan and level = $eipam-ip-block.level and key_value = $v4FQPN-output.pools[$level].key-value ;"
+        pfx='tmp.eipam-pool-row'>
+                            <outcome value='failure'>
+                                <return status="failure">
+                                    <parameter name="tmp.eipam-error" value="true" />
+                                    <parameter name="error-code" value="500"/>
+                                    <parameter name="error-message" value="Query to DB table EIPAM_IP_POOLS failed." />
+                                </return>
+                            </outcome>
+                            <outcome value='success'>
+                                <block atomic='true'>
+                                    <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                        <parameter name="logger" value="message-log"/>
+                                        <parameter name="field1" value="__TIMESTAMP__"/>
+                                        <parameter name="field2" value="network-topology-operation"/>
+                                        <parameter name="field3" value="eipam-create-generic-pool"/>
+                                        <parameter name="field4" value="`$network-model.eipam-v4-address-plan`"/>
+                                        <parameter name="field5" value="`$v4FQPN-output.pools[$eipam-ip-block.level - 1].key-value`"/>
+                                        <parameter name="field6" value="Level already exists, SKIP."/>
+                                        <parameter name="field7" value="`$eipam-ip-block.level`"/>
+                                        <parameter name="field8" value="`$tmp.eipam-pool-row.pool-id`"/>
+                                    </record>
+                                    <set>
+                                        <parameter name="eipam-pool.v4.pre-existing" value="Y"/>
+                                    </set>
+                                </block>
+                            </outcome>
+                            <outcome value="not-found">
+                                <switch test="`$l-idx`">
+                                    <outcome value='1'>
+                                        <block atomic='true'>
+                                            <switch test="`$tmp.qip-pool`">
+                                                <outcome value=""></outcome>
+                                                <outcome value='Other'>
+                                                    <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                    <set>
+                                                        <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].parent-pool" value="`$tmp.qip-pool`"/>
+                                                        <parameter name="tmp.v4-qip-pool" value="`$tmp.qip-pool`" />
+                                                    </set>
+                                                </outcome>
+                                            </switch>
+                                            <switch test="`$tmp.skip-first-level`">
+                                                <outcome value='Y'></outcome>
+                                                <outcome value="">
+                                                    <block atomic='true'>
+                                                        <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                        <set>
+                                                            <parameter name="network-topology-identifier-structure.eipam-v4-address-plan" value="`$network-model.eipam-v4-address-plan`"/>
+                                                            <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].plan-name" value="`$network-model.eipam-v4-address-plan`"/>
+                                                            <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].requests_length" value="1"/>
+                                                            <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].allocate-subnet-flag" value="`$tmp.allocate-subnet-flag`"/>
+                                                            <!-- Number of Pool Levels -->
+                                                            <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools_length" value="`$eipam-ip-block.level`"/>
+                                                        </set>
+                                                        <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                        <set>
+                                                            <parameter name="tmp.create-v4-pool-flag" value="Y" />
+                                                        </set>
+                                                        <for index="l4-idx" start="0" end="`$eipam-ip-block.level`">
+                                                            <block atomic='true'>
+                                                                <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                                <set>
+                                                                    <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools[$l4-idx].key-name" value="`$v4FQPN-output.pools[$l4-idx].key-name`"/>
+                                                                    <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools[$l4-idx].key-value" value="`$v4FQPN-output.pools[$l4-idx].key-value`"/>
+                                                                </set>
+                                                                <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                                    <parameter name="logger" value="message-log"/>
+                                                                    <parameter name="field1" value="__TIMESTAMP__"/>
+                                                                    <parameter name="field2" value="network-topology-operation"/>
+                                                                    <parameter name="field3" value="eipam-create-generic-pool"/>
+                                                                    <parameter name="field4" value="`$eipam-ip-block.plans[$eipam-ip-block.plans_length].plan-name`"/>
+                                                                    <parameter name="field5" value="`$eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools[$l4-idx].key-name`"/>
+                                                                    <parameter name="field6" value="`$eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools[$l4-idx].key-value`"/>
+                                                                </record>
+                                                            </block>
+                                                        </for>
+                                                        <set>
+                                                            <parameter name="eipam-ip-block.plans_length" value="`$eipam-ip-block.plans_length + 1`" />
+                                                        </set>
+                                                    </block>
+                                                </outcome>
+                                                <outcome value='N'>
+                                                    <block atomic='true'>
+                                                        <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                        <set>
+                                                            <parameter name="network-topology-identifier-structure.eipam-v4-address-plan" value="`$network-model.eipam-v4-address-plan`"/>
+                                                            <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].plan-name" value="`$network-model.eipam-v4-address-plan`"/>
+                                                            <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].requests_length" value="1"/>
+                                                            <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].allocate-subnet-flag" value="`$tmp.allocate-subnet-flag`"/>
+                                                            <!-- Number of Pool Levels -->
+                                                            <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools_length" value="`$eipam-ip-block.level`"/>
+                                                        </set>
+                                                        <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                        <set>
+                                                            <parameter name="tmp.create-v4-pool-flag" value="Y" />
+                                                        </set>
+                                                        <for index="l4-idx" start="0" end="`$eipam-ip-block.level`">
+                                                            <block atomic='true'>
+                                                                <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                                <set>
+                                                                    <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools[$l4-idx].key-name" value="`$v4FQPN-output.pools[$l4-idx].key-name`"/>
+                                                                    <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools[$l4-idx].key-value" value="`$v4FQPN-output.pools[$l4-idx].key-value`"/>
+                                                                </set>
+                                                                <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                                    <parameter name="logger" value="message-log"/>
+                                                                    <parameter name="field1" value="__TIMESTAMP__"/>
+                                                                    <parameter name="field2" value="network-topology-operation"/>
+                                                                    <parameter name="field3" value="eipam-create-generic-pool"/>
+                                                                    <parameter name="field4" value="`$eipam-ip-block.plans[$eipam-ip-block.plans_length].plan-name`"/>
+                                                                    <parameter name="field5" value="`$eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools[$l4-idx].key-name`"/>
+                                                                    <parameter name="field6" value="`$eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools[$l4-idx].key-value`"/>
+                                                                </record>
+                                                            </block>
+                                                        </for>
+                                                        <set>
+                                                            <parameter name="eipam-ip-block.plans_length" value="`$eipam-ip-block.plans_length + 1`" />
+                                                        </set>
+                                                    </block>
+                                                </outcome>
+                                            </switch>
+                                        </block>
+                                    </outcome>
+                                    <outcome value=''>
+                                        <return status="failure">
+                                            <parameter name="tmp.eipam-error" value="true" />
+                                            <parameter name="error-code" value="500"/>
+                                            <parameter name="error-message" value="Please set the eipam-ip-block.level for appropriate EIPAM request." />
+                                        </return>
+                                    </outcome>
+                                    <outcome value='Other'>
+                                        <block atomic='true'>
+                                            <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                            <set>
+                                                <parameter name="network-topology-identifier-structure.eipam-v4-address-plan" value="`$network-model.eipam-v4-address-plan`"/>
+                                                <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].plan-name" value="`$network-model.eipam-v4-address-plan`"/>
+                                                <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].requests_length" value="1"/>
+                                                <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].allocate-subnet-flag" value="`$tmp.allocate-subnet-flag`"/>
+                                                <!-- Number of Pool Levels -->
+                                                <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools_length" value="`$eipam-ip-block.level`"/>
+                                            </set>
+                                            <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                            <set>
+                                                <parameter name="tmp.create-v4-pool-flag" value="Y" />
+                                            </set>
+                                            <for index="l4-idx" start="0" end="`$eipam-ip-block.level`">
+                                                <block atomic='true'>
+                                                    <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                    <set>
+                                                        <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools[$l4-idx].key-name" value="`$v4FQPN-output.pools[$l4-idx].key-name`"/>
+                                                        <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools[$l4-idx].key-value" value="`$v4FQPN-output.pools[$l4-idx].key-value`"/>
+                                                    </set>
+                                                    <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                        <parameter name="logger" value="message-log"/>
+                                                        <parameter name="field1" value="__TIMESTAMP__"/>
+                                                        <parameter name="field2" value="network-topology-operation"/>
+                                                        <parameter name="field3" value="eipam-create-generic-pool"/>
+                                                        <parameter name="field4" value="`$eipam-ip-block.plans[$eipam-ip-block.plans_length].plan-name`"/>
+                                                        <parameter name="field5" value="`$eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools[$l4-idx].key-name`"/>
+                                                        <parameter name="field6" value="`$eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools[$l4-idx].key-value`"/>
+                                                    </record>
+                                                </block>
+                                            </for>
+                                            <set>
+                                                <parameter name="eipam-ip-block.plans_length" value="`$eipam-ip-block.plans_length + 1`" />
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                            </outcome>
+                        </get-resource>
+                    </block>
+                </outcome>
+                <outcome value=""></outcome>
+                <outcome value='N'></outcome>
+            </switch>
+            <switch test="`$network-model.use-ipv6`">
+                <outcome value='Y'>
+                    <block atomic='true'>
+                        <get-resource
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="SELECT * FROM EIPAM_IP_POOLS where plan_name = $network-model.eipam-v6-address-plan and level = $eipam-ip-block.level and key_value = $v6FQPN-output.pools[$level].key-value ;"
+        pfx='tmp.eipam-pool-row'>
+                            <outcome value='failure'>
+                                <return status="failure">
+                                    <parameter name="tmp.eipam-error" value="true" />
+                                    <parameter name="error-code" value="500"/>
+                                    <parameter name="error-message" value="Query to DB table EIPAM_IP_POOLS failed." />
+                                </return>
+                            </outcome>
+                            <outcome value='success'>
+                                <block atomic='true'>
+                                    <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                        <parameter name="logger" value="message-log"/>
+                                        <parameter name="field1" value="__TIMESTAMP__"/>
+                                        <parameter name="field2" value="network-topology-operation"/>
+                                        <parameter name="field3" value="eipam-create-generic-pool"/>
+                                        <parameter name="field4" value="`$network-model.eipam-v6-address-plan`"/>
+                                        <parameter name="field5" value="`$v6FQPN-output.pools[$eipam-ip-block.level - 1].key-value`"/>
+                                        <parameter name="field6" value="Level already exists, SKIP."/>
+                                        <parameter name="field7" value="`$eipam-ip-block.level`"/>
+                                        <parameter name="field8" value="`$tmp.eipam-pool-row.pool-id`"/>
+                                    </record>
+                                    <set>
+                                        <parameter name="eipam-pool.v6.pre-existing" value="Y"/>
+                                    </set>
+                                </block>
+                            </outcome>
+                            <outcome value="not-found">
+                                <switch test="`$l-idx`">
+                                    <outcome value='1'>
+                                        <block atomic='true'>
+                                            <switch test="`$tmp.qip-pool`">
+                                                <outcome value=""></outcome>
+                                                <outcome value='Other'>
+                                                    <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                    <set>
+                                                        <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].parent-pool" value="`$tmp.qip-pool`"/>
+                                                        <parameter name="tmp.v6-qip-pool" value="`$tmp.qip-pool`" />
+                                                    </set>
+                                                </outcome>
+                                            </switch>
+                                            <switch test="`$tmp.skip-first-level`">
+                                                <outcome value='Y'></outcome>
+                                                <outcome value="">
+                                                    <block atomic='true'>
+                                                        <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                        <set>
+                                                            <parameter name="network-topology-identifier-structure.eipam-v6-address-plan" value="`$network-model.eipam-v6-address-plan`"/>
+                                                            <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].plan-name" value="`$network-model.eipam-v6-address-plan`"/>
+                                                            <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].requests_length" value="1"/>
+                                                            <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].allocate-subnet-flag" value="`$tmp.allocate-subnet-flag`"/>
+                                                            <!-- Number of Pool Levels -->
+                                                            <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools_length" value="`$eipam-ip-block.level`"/>
+                                                        </set>
+                                                        <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                        <set>
+                                                            <parameter name="tmp.create-v6-pool-flag" value="Y" />
+                                                        </set>
+                                                        <for index="l6-idx" start="0" end="`$eipam-ip-block.level`">
+                                                            <block atomic='true'>
+                                                                <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                                <set>
+                                                                    <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools[$l6-idx].key-name" value="`$v6FQPN-output.pools[$l6-idx].key-name`"/>
+                                                                    <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools[$l6-idx].key-value" value="`$v6FQPN-output.pools[$l6-idx].key-value`"/>
+                                                                </set>
+                                                                <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                                    <parameter name="logger" value="message-log"/>
+                                                                    <parameter name="field1" value="__TIMESTAMP__"/>
+                                                                    <parameter name="field2" value="network-topology-operation"/>
+                                                                    <parameter name="field3" value="eipam-create-generic-pool"/>
+                                                                    <parameter name="field4" value="`$eipam-ip-block.plans[$eipam-ip-block.plans_length].plan-name`"/>
+                                                                    <parameter name="field5" value="`$eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools[$l6-idx].key-name`"/>
+                                                                    <parameter name="field6" value="`$eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools[$l6-idx].key-value`"/>
+                                                                    <parameter name="field7" value="`$l6-idx`"/>
+                                                                </record>
+                                                            </block>
+                                                        </for>
+                                                        <set>
+                                                            <parameter name="eipam-ip-block.plans_length" value="`$eipam-ip-block.plans_length + 1`" />
+                                                        </set>
+                                                    </block>
+                                                </outcome>
+                                                <outcome value='N'>
+                                                    <block atomic='true'>
+                                                        <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                        <set>
+                                                            <parameter name="network-topology-identifier-structure.eipam-v6-address-plan" value="`$network-model.eipam-v6-address-plan`"/>
+                                                            <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].plan-name" value="`$network-model.eipam-v6-address-plan`"/>
+                                                            <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].requests_length" value="1"/>
+                                                            <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].allocate-subnet-flag" value="`$tmp.allocate-subnet-flag`"/>
+                                                            <!-- Number of Pool Levels -->
+                                                            <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools_length" value="`$eipam-ip-block.level`"/>
+                                                        </set>
+                                                        <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                        <set>
+                                                            <parameter name="tmp.create-v6-pool-flag" value="Y" />
+                                                        </set>
+                                                        <for index="l6-idx" start="0" end="`$eipam-ip-block.level`">
+                                                            <block atomic='true'>
+                                                                <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                                <set>
+                                                                    <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools[$l6-idx].key-name" value="`$v6FQPN-output.pools[$l6-idx].key-name`"/>
+                                                                    <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools[$l6-idx].key-value" value="`$v6FQPN-output.pools[$l6-idx].key-value`"/>
+                                                                </set>
+                                                                <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                                    <parameter name="logger" value="message-log"/>
+                                                                    <parameter name="field1" value="__TIMESTAMP__"/>
+                                                                    <parameter name="field2" value="network-topology-operation"/>
+                                                                    <parameter name="field3" value="eipam-create-generic-pool"/>
+                                                                    <parameter name="field4" value="`$eipam-ip-block.plans[$eipam-ip-block.plans_length].plan-name`"/>
+                                                                    <parameter name="field5" value="`$eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools[$l6-idx].key-name`"/>
+                                                                    <parameter name="field6" value="`$eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools[$l6-idx].key-value`"/>
+                                                                    <parameter name="field7" value="`$l6-idx`"/>
+                                                                </record>
+                                                            </block>
+                                                        </for>
+                                                        <set>
+                                                            <parameter name="eipam-ip-block.plans_length" value="`$eipam-ip-block.plans_length + 1`" />
+                                                        </set>
+                                                    </block>
+                                                </outcome>
+                                            </switch>
+                                        </block>
+                                    </outcome>
+                                    <outcome value=''>
+                                        <return status="failure">
+                                            <parameter name="tmp.eipam-error" value="true" />
+                                            <parameter name="error-code" value="500"/>
+                                            <parameter name="error-message" value="Please set the eipam-ip-block.level for appropriate EIPAM request." />
+                                        </return>
+                                    </outcome>
+                                    <outcome value='Other'>
+                                        <block atomic='true'>
+                                            <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                            <set>
+                                                <parameter name="network-topology-identifier-structure.eipam-v6-address-plan" value="`$network-model.eipam-v6-address-plan`"/>
+                                                <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].plan-name" value="`$network-model.eipam-v6-address-plan`"/>
+                                                <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].requests_length" value="1"/>
+                                                <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].allocate-subnet-flag" value="`$tmp.allocate-subnet-flag`"/>
+                                                <!-- Number of Pool Levels -->
+                                                <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools_length" value="`$eipam-ip-block.level`"/>
+                                            </set>
+                                            <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                            <set>
+                                                <parameter name="tmp.create-v6-pool-flag" value="Y" />
+                                            </set>
+                                            <for index="l6-idx" start="0" end="`$eipam-ip-block.level`">
+                                                <block atomic='true'>
+                                                    <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                    <set>
+                                                        <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools[$l6-idx].key-name" value="`$v6FQPN-output.pools[$l6-idx].key-name`"/>
+                                                        <parameter name="eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools[$l6-idx].key-value" value="`$v6FQPN-output.pools[$l6-idx].key-value`"/>
+                                                    </set>
+                                                    <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                        <parameter name="logger" value="message-log"/>
+                                                        <parameter name="field1" value="__TIMESTAMP__"/>
+                                                        <parameter name="field2" value="network-topology-operation"/>
+                                                        <parameter name="field3" value="eipam-create-generic-pool"/>
+                                                        <parameter name="field4" value="`$eipam-ip-block.plans[$eipam-ip-block.plans_length].plan-name`"/>
+                                                        <parameter name="field5" value="`$eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools[$l6-idx].key-name`"/>
+                                                        <parameter name="field6" value="`$eipam-ip-block.plans[$eipam-ip-block.plans_length].requests[0].pools[$l6-idx].key-value`"/>
+                                                        <parameter name="field7" value="`$l6-idx`"/>
+                                                    </record>
+                                                </block>
+                                            </for>
+                                            <set>
+                                                <parameter name="eipam-ip-block.plans_length" value="`$eipam-ip-block.plans_length + 1`" />
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                            </outcome>
+                        </get-resource>
+                    </block>
+                </outcome>
+                <outcome value=""></outcome>
+                <outcome value='N'></outcome>
+            </switch>
+            <switch test="`$tmp.create-v4-pool-flag`">
+                <outcome value='Y'>
+                    <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                    <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="createPool">
+                        <outcome value='success'></outcome>
+                        <outcome value='failure'>
+                            <return status="failure">
+                                <parameter name="tmp.eipam-error" value="true" />
+                                <parameter name="error-code" value="500"/>
+                                <parameter name="error-message" value="An error occured while creating pool in EIPAM." />
+                            </return>
+                        </outcome>
+                    </execute>
+                </outcome>
+                <outcome value='N'>
+                    <switch test="`$tmp.create-v6-pool-flag`">
+                        <outcome value='Y'>
+                            <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                            <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="createPool">
+                                <outcome value='success'></outcome>
+                                <outcome value='failure'>
+                                    <return status="failure">
+                                        <parameter name="tmp.eipam-error" value="true" />
+                                        <parameter name="error-code" value="500"/>
+                                        <parameter name="error-message" value="An error occured while creating pool in EIPAM." />
+                                    </return>
+                                </outcome>
+                            </execute>
+                        </outcome>
+                    </switch>
+                </outcome>
+            </switch>
+            <switch test="`$network-model.use-ipv4`">
+                <outcome value='Y'>
+                    <block atomic='true'>
+                        <switch test="`$eipam-pool.v4.pre-existing`">
+                            <outcome value='N'>
+                                <block atomic='true'>
+                                    <set>
+                                        <parameter name="key-name" value="`$v4FQPN-output.pools[$eipam-ip-block.level - 1].key-name`" />
+                                        <parameter name="key-value" value="`$v4FQPN-output.pools[$eipam-ip-block.level - 1].key-value`" />
+                                    </set>
+                                    <switch test="`$eipam-ip-block.level`">
+                                        <outcome value='1'>
+                                            <block atomic='true'>
+                                                <set>
+                                                    <parameter name="parent_pool" value="`$tmp.v4-qip-pool`" />
+                                                    <parameter name="level" value="`$eipam-ip-block.level - 1`" />
+                                                </set>
+                                            </block>
+                                        </outcome>
+                                        <outcome value='Other'>
+                                            <block atomic='true'>
+                                                <set>
+                                                    <parameter name="parent_pool" value="`$v4FQPN-output.pools[$eipam-ip-block.level - 2].key-value`" />
+                                                    <parameter name="level" value="`$eipam-ip-block.level - 1`" />
+                                                </set>
+                                            </block>
+                                        </outcome>
+                                    </switch>
+                                    <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                        <parameter name="logger" value="message-log"/>
+                                        <parameter name="field1" value="__TIMESTAMP__"/>
+                                        <parameter name="field2" value="network-topology-operation"/>
+                                        <parameter name="field3" value="eipam-create-generic-pool"/>
+                                        <parameter name="field4" value="`$network-model.eipam-v4-address-plan`"/>
+                                        <parameter name="field5" value="`$key-name`"/>
+                                        <parameter name="field6" value="`$key-value`"/>
+                                        <parameter name="field7" value="`$tmp.network_instance_group_id`"/>
+                                        <parameter name="field8" value="`$eipam-ip-block.level`"/>
+                                        <parameter name="field9" value="`$network-model.network-role`"/>
+                                        <parameter name="field10" value="`$tmp.network-id`"/>
+                                        <parameter name="field11" value="Saving to EIPAM_IP_POOLS table."/>
+                                    </record>
+                                    <switch test="`$network-instance-group-data.subnet-assignment-policy.subnet-use`">
+                                        <outcome value='shared'>
+                                            <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_POOLS
+             SET
+             key_name = $key-name ,
+             key_value = $key-value ,
+             level = $eipam-ip-block.level ,
+             plan_name = $network-model.eipam-v4-address-plan ,
+             address_family = $network-model.ipv4-ip-version ,
+             parent_pool = $parent_pool ,
+             service_instance_id = $network-topology-operation-input.service-information.service-instance-id ,
+             network_id = $tmp.network-id ,
+             network_instance_group_id = $tmp.network-instance-group-id ; "
+    force='true'
+        pfx='pfx.eipam-v4pool-row'>
+                                                <outcome value='failure'>
+                                                    <return status='failure'>
+                                                        <parameter name='error-code' value='500' />
+                                                        <parameter name='error-message' value='failed to update EIPAM_IP_POOLS .' />
+                                                    </return>
+                                                </outcome>
+                                            </save>
+                                        </outcome>
+                                        <outcome value='Other'>
+                                            <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_POOLS
+             SET
+             key_name = $key-name ,
+             key_value = $key-value ,
+             level = $eipam-ip-block.level ,
+             plan_name = $network-model.eipam-v4-address-plan ,
+             address_family = $network-model.ipv4-ip-version ,
+             parent_pool = $parent_pool ,
+             service_instance_id = $network-topology-operation-input.service-information.service-instance-id ,
+             network_id = $tmp.network-id ; "
+    force='true'
+        pfx='pfx.eipam-v4pool-row'>
+                                                <outcome value='failure'>
+                                                    <return status='failure'>
+                                                        <parameter name='error-code' value='500' />
+                                                        <parameter name='error-message' value='failed to update EIPAM_IP_POOLS .' />
+                                                    </return>
+                                                </outcome>
+                                            </save>
+                                        </outcome>
+                                        <outcome value=''>
+                                            <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_POOLS
+             SET
+             key_name = $key-name ,
+             key_value = $key-value ,
+             level = $eipam-ip-block.level ,
+             plan_name = $network-model.eipam-v4-address-plan ,
+             address_family = $network-model.ipv4-ip-version ,
+             parent_pool = $parent_pool ,
+             service_instance_id = $network-topology-operation-input.service-information.service-instance-id ,
+             network_id = $tmp.network-id ; "
+    force='true'
+        pfx='pfx.eipam-v4pool-row'>
+                                                <outcome value='failure'>
+                                                    <return status='failure'>
+                                                        <parameter name='error-code' value='500' />
+                                                        <parameter name='error-message' value='failed to update EIPAM_IP_POOLS .' />
+                                                    </return>
+                                                </outcome>
+                                            </save>
+                                        </outcome>
+                                    </switch>
+                                    <switch test="`$eipam-ip-block.level == $eipam-ip-block.getPlanTopologyResponse.TopologyDetails_length`">
+                                        <outcome value='true'>
+                                            <block atomic='true'>
+                                                <switch test="`$tmp.allocate-subnet-flag`">
+                                                    <outcome value='Y'>
+                                                        <block atomic='true'>
+                                                            <for index="i" start="0" end="`$eipam-ip-block.createPoolResponse.CreatePoolPlans.CreatePoolPlan_length`">
+                                                                <block atomic='true'>
+                                                                    <switch test="`$network-model.eipam-v4-address-plan == $eipam-ip-block.createPoolResponse.CreatePoolPlans.CreatePoolPlan[$i].PlanName`">
+                                                                        <outcome value='true'>
+                                                                            <block atomic='true'>
+                                                                                <set>
+                                                                                    <parameter name="index_found" value="true" />
+                                                                                </set>
+                                                                                <break/>
+                                                                            </block>
+                                                                        </outcome>
+                                                                    </switch>
+                                                                </block>
+                                                            </for>
+                                                            <switch test="`$index_found`">
+                                                                <outcome value='true'>
+                                                                    <block atomic='true'>
+                                                                        <get-resource
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="SELECT * FROM EIPAM_IP_POOLS where plan_name = $network-model.eipam-v4-address-plan and level = $eipam-ip-block.level and key_value = $v4FQPN-output.pools[$level].key-value ;"
+        pfx='tmp.eipam-pool-row'>
+                                                                            <outcome value='failure'>
+                                                                                <return status="failure">
+                                                                                    <parameter name="tmp.eipam-error" value="true" />
+                                                                                    <parameter name="error-code" value="500"/>
+                                                                                    <parameter name="error-message" value="Query to DB table EIPAM_IP_POOLS failed." />
+                                                                                </return>
+                                                                            </outcome>
+                                                                            <outcome value='success'>
+                                                                                <block atomic='true'>
+                                                                                    <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNETS
+             SET
+             entity_id = $eipam-ip-block.createPoolResponse.CreatePoolPlans.CreatePoolPlan[$i].PoolItem.IPDataBlock.IpamPoolAllocId ,
+             service_type = $tmp.service-type ,
+             ip_address = $eipam-ip-block.createPoolResponse.CreatePoolPlans.CreatePoolPlan[$i].PoolItem.IPDataBlock.IPAddress ,
+             prefix_length = $eipam-ip-block.createPoolResponse.CreatePoolPlans.CreatePoolPlan[$i].PoolItem.IPDataBlock.Mask ,
+             plan_name = $network-model.eipam-v4-address-plan ,
+             status = 'ALLOCATED' ,
+             pool_id = $tmp.eipam-pool-row.pool-id ,
+             address_family = $network-model.ipv4-ip-version ,
+             network_id = $tmp.network-id ; "
+    force='true'
+        pfx='pfx.eipam-subnet-row'>
+                                                                                        <outcome value='failure'>
+                                                                                            <return status='failure'>
+                                                                                                <parameter name='error-code' value='500' />
+                                                                                                <parameter name='error-message' value='failed to update EIPAM_IP_SUBNETS .' />
+                                                                                            </return>
+                                                                                        </outcome>
+                                                                                        <outcome value='success'></outcome>
+                                                                                    </save>
+                                                                                    <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNET_KEYS
+             SET
+             entity_id = $eipam-ip-block.createPoolResponse.CreatePoolPlans.CreatePoolPlan[$i].PoolItem.IPDataBlock.IpamPoolAllocId ,
+             key_name = $key-name ,
+             key_value = $key-value ,
+             level = $eipam-ip-block.level ; "
+    force='true'
+        pfx='pfx.eipam-v4subnet-key-row'>
+                                                                                        <outcome value='success'></outcome>
+                                                                                        <outcome value='failure'>
+                                                                                            <return status='failure'>
+                                                                                                <parameter name='error-code' value='500' />
+                                                                                                <parameter name='error-message' value='failed to update EIPAM_IP_SUBNET_KEYS .' />
+                                                                                            </return>
+                                                                                        </outcome>
+                                                                                    </save>
+                                                                                </block>
+                                                                            </outcome>
+                                                                            <outcome value="not-found">
+                                                                                <return status="failure">
+                                                                                    <parameter name="tmp.eipam-error" value="true" />
+                                                                                    <parameter name="error-code" value="500"/>
+                                                                                    <parameter name="error-message" value="Query to DB table EIPAM_IP_POOLS failed." />
+                                                                                </return>
+                                                                            </outcome>
+                                                                        </get-resource>
+                                                                    </block>
+                                                                </outcome>
+                                                                <outcome value='Other'>
+                                                                    <return status='failure'>
+                                                                        <parameter name='error-code' value='500' />
+                                                                        <parameter name='error-message' value='failed to find plan name in CreatePoolResponse.' />
+                                                                    </return>
+                                                                </outcome>
+                                                                <outcome value=''>
+                                                                    <return status='failure'>
+                                                                        <parameter name='error-code' value='500' />
+                                                                        <parameter name='error-message' value='failed to find plan name in CreatePoolResponse.' />
+                                                                    </return>
+                                                                </outcome>
+                                                            </switch>
+                                                        </block>
+                                                    </outcome>
+                                                    <outcome value='N'></outcome>
+                                                </switch>
+                                            </block>
+                                        </outcome>
+                                    </switch>
+                                </block>
+                            </outcome>
+                            <outcome value='Y'></outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value=""></outcome>
+                <outcome value='N'></outcome>
+            </switch>
+            <switch test="`$network-model.use-ipv6`">
+                <outcome value='Y'>
+                    <block atomic='true'>
+                        <switch test="`$eipam-pool.v6.pre-existing`">
+                            <outcome value='N'>
+                                <block atomic='true'>
+                                    <set>
+                                        <parameter name="key-name" value="`$v6FQPN-output.pools[$eipam-ip-block.level - 1].key-name`" />
+                                        <parameter name="key-value" value="`$v6FQPN-output.pools[$eipam-ip-block.level - 1].key-value`" />
+                                    </set>
+                                    <switch test="`$eipam-ip-block.level`">
+                                        <outcome value='1'>
+                                            <set>
+                                                <parameter name="parent_pool" value="`$tmp.v6-qip-pool`" />
+                                                <parameter name="level" value="`$eipam-ip-block.level - 1`" />
+                                            </set>
+                                        </outcome>
+                                        <outcome value='Other'>
+                                            <set>
+                                                <parameter name="parent_pool" value="`$v6FQPN-output.pools[$eipam-ip-block.level - 2].key-value`" />
+                                                <parameter name="level" value="`$eipam-ip-block.level - 1`" />
+                                            </set>
+                                        </outcome>
+                                    </switch>
+                                    <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                        <parameter name="logger" value="message-log"/>
+                                        <parameter name="field1" value="__TIMESTAMP__"/>
+                                        <parameter name="field2" value="network-topology-operation"/>
+                                        <parameter name="field3" value="eipam-create-network-role-pool"/>
+                                        <parameter name="field4" value="`$network-model.eipam-v6-address-plan`"/>
+                                        <parameter name="field5" value="`$v6FQPN-output.pools[$level].key-name`"/>
+                                        <parameter name="field6" value="`$v6FQPN-output.pools[$level].key-value`"/>
+                                        <parameter name="field7" value="`$tmp.network_instance_group_id`"/>
+                                        <parameter name="field8" value="`$eipam-ip-block.level`"/>
+                                        <parameter name="field9" value="`$network-model.network-role`"/>
+                                        <parameter name="field10" value="`$tmp.network-id`"/>
+                                        <parameter name="field11" value="Saving to EIPAM_IP_POOLS table."/>
+                                    </record>
+                                    <switch test="`$network-instance-group-data.subnet-assignment-policy.subnet-use`">
+                                        <outcome value='shared'>
+                                            <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_POOLS
+             SET
+             key_name = $v6FQPN-output.pools[$level].key-name ,
+             key_value = $v6FQPN-output.pools[$level].key-value ,
+             level = $eipam-ip-block.level ,
+             plan_name = $network-model.eipam-v6-address-plan ,
+             address_family = $network-model.ipv6-ip-version ,
+             parent_pool = $parent_pool ,
+             service_instance_id = $network-topology-operation-input.service-information.service-instance-id ,
+             network_id = $tmp.network-id ,
+             network_instance_group_id = $tmp.network-instance-group-id ; "
+    force='true'
+        pfx='pfx.eipam-v6pool-row'>
+                                                <outcome value='failure'>
+                                                    <return status='failure'>
+                                                        <parameter name='error-code' value='500' />
+                                                        <parameter name='error-message' value='failed to update EIPAM_IP_POOLS .' />
+                                                    </return>
+                                                </outcome>
+                                            </save>
+                                        </outcome>
+                                        <outcome value='Other'>
+                                            <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_POOLS
+             SET
+             key_name = $v6FQPN-output.pools[$level].key-name ,
+             key_value = $v6FQPN-output.pools[$level].key-value ,
+             level = $eipam-ip-block.level ,
+             plan_name = $network-model.eipam-v6-address-plan ,
+             address_family = $network-model.ipv6-ip-version ,
+             parent_pool = $parent_pool ,
+             service_instance_id = $network-topology-operation-input.service-information.service-instance-id ,
+             network_id = $tmp.network-id ; "
+    force='true'
+        pfx='pfx.eipam-v6pool-row'>
+                                                <outcome value='failure'>
+                                                    <return status='failure'>
+                                                        <parameter name='error-code' value='500' />
+                                                        <parameter name='error-message' value='failed to update EIPAM_IP_POOLS .' />
+                                                    </return>
+                                                </outcome>
+                                            </save>
+                                        </outcome>
+                                        <outcome value=''>
+                                            <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_POOLS
+             SET
+             key_name = $v6FQPN-output.pools[$level].key-name ,
+             key_value = $v6FQPN-output.pools[$level].key-value ,
+             level = $eipam-ip-block.level ,
+             plan_name = $network-model.eipam-v6-address-plan ,
+             address_family = $network-model.ipv6-ip-version ,
+             parent_pool = $parent_pool ,
+             service_instance_id = $network-topology-operation-input.service-information.service-instance-id ,
+             network_id = $tmp.network-id ; "
+    force='true'
+        pfx='pfx.eipam-v6pool-row'>
+                                                <outcome value='failure'>
+                                                    <return status='failure'>
+                                                        <parameter name='error-code' value='500' />
+                                                        <parameter name='error-message' value='failed to update EIPAM_IP_POOLS .' />
+                                                    </return>
+                                                </outcome>
+                                            </save>
+                                        </outcome>
+                                    </switch>
+                                    <switch test="`$eipam-ip-block.level == $eipam-ip-block.getPlanTopologyResponse.TopologyDetails_length`">
+                                        <outcome value='true'>
+                                            <block atomic='true'>
+                                                <switch test="`$tmp.allocate-subnet-flag`">
+                                                    <outcome value='Y'>
+                                                        <block atomic='true'>
+                                                            <for index="i" start="0" end="`$eipam-ip-block.createPoolResponse.CreatePoolPlans.CreatePoolPlan_length`">
+                                                                <block atomic='true'>
+                                                                    <switch test="`$network-model.eipam-v6-address-plan == $eipam-ip-block.createPoolResponse.CreatePoolPlans.CreatePoolPlan[$i].PlanName`">
+                                                                        <outcome value='true'>
+                                                                            <block atomic='true'>
+                                                                                <set>
+                                                                                    <parameter name="index_found" value="true" />
+                                                                                </set>
+                                                                                <break/>
+                                                                            </block>
+                                                                        </outcome>
+                                                                    </switch>
+                                                                </block>
+                                                            </for>
+                                                            <switch test="`$index_found`">
+                                                                <outcome value='true'>
+                                                                    <block atomic='true'>
+                                                                        <get-resource
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="SELECT * FROM EIPAM_IP_POOLS where plan_name = $network-model.eipam-v6-address-plan and level = $eipam-ip-block.level and key_value = $v6FQPN-output.pools[$level].key-value ;"
+        pfx='tmp.eipam-pool-row'>
+                                                                            <outcome value='failure'>
+                                                                                <return status="failure">
+                                                                                    <parameter name="tmp.eipam-error" value="true" />
+                                                                                    <parameter name="error-code" value="500"/>
+                                                                                    <parameter name="error-message" value="Query to DB table EIPAM_IP_POOLS failed." />
+                                                                                </return>
+                                                                            </outcome>
+                                                                            <outcome value='success'>
+                                                                                <block atomic='true'>
+                                                                                    <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNETS
+             SET
+             entity_id = $eipam-ip-block.createPoolResponse.CreatePoolPlans.CreatePoolPlan[$i].PoolItem.IPDataBlock.IpamPoolAllocId ,
+             service_type = $tmp.service-type ,
+             ip_address = $eipam-ip-block.createPoolResponse.CreatePoolPlans.CreatePoolPlan[$i].PoolItem.IPDataBlock.IPAddress ,
+             prefix_length = $eipam-ip-block.createPoolResponse.CreatePoolPlans.CreatePoolPlan[$i].PoolItem.IPDataBlock.Mask ,
+             plan_name = $network-model.eipam-v6-address-plan ,
+             status = 'ALLOCATED' ,
+             pool_id = $tmp.eipam-pool-row.pool-id ,
+             address_family = $network-model.ipv6-ip-version ,
+             network_id = $tmp.network-id ; "
+    force='true'
+        pfx='pfx.eipam-subnet-row'>
+                                                                                        <outcome value='failure'>
+                                                                                            <return status='failure'>
+                                                                                                <parameter name='error-code' value='500' />
+                                                                                                <parameter name='error-message' value='failed to update EIPAM_IP_SUBNETS .' />
+                                                                                            </return>
+                                                                                        </outcome>
+                                                                                        <outcome value='success'></outcome>
+                                                                                    </save>
+                                                                                    <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNET_KEYS
+             SET
+             entity_id = $eipam-ip-block.createPoolResponse.CreatePoolPlans.CreatePoolPlan[$i].PoolItem.IPDataBlock.IpamPoolAllocId ,
+             key_name = $key-name ,
+             key_value = $key-value ,
+             level = $eipam-ip-block.level ; "
+    force='true'
+        pfx='pfx.eipam-v4subnet-key-row'>
+                                                                                        <outcome value='success'></outcome>
+                                                                                        <outcome value='failure'>
+                                                                                            <return status='failure'>
+                                                                                                <parameter name='error-code' value='500' />
+                                                                                                <parameter name='error-message' value='failed to update EIPAM_IP_SUBNET_KEYS .' />
+                                                                                            </return>
+                                                                                        </outcome>
+                                                                                    </save>
+                                                                                </block>
+                                                                            </outcome>
+                                                                            <outcome value="not-found">
+                                                                                <return status="failure">
+                                                                                    <parameter name="tmp.eipam-error" value="true" />
+                                                                                    <parameter name="error-code" value="500"/>
+                                                                                    <parameter name="error-message" value="Query to DB table EIPAM_IP_POOLS failed." />
+                                                                                </return>
+                                                                            </outcome>
+                                                                        </get-resource>
+                                                                    </block>
+                                                                </outcome>
+                                                                <outcome value='Other'>
+                                                                    <return status='failure'>
+                                                                        <parameter name='error-code' value='500' />
+                                                                        <parameter name='error-message' value='failed to find plan name in CreatePoolResponse.' />
+                                                                    </return>
+                                                                </outcome>
+                                                                <outcome value=''>
+                                                                    <return status='failure'>
+                                                                        <parameter name='error-code' value='500' />
+                                                                        <parameter name='error-message' value='failed to find plan name in CreatePoolResponse.' />
+                                                                    </return>
+                                                                </outcome>
+                                                            </switch>
+                                                        </block>
+                                                    </outcome>
+                                                    <outcome value='N'></outcome>
+                                                </switch>
+                                            </block>
+                                        </outcome>
+                                    </switch>
+                                </block>
+                            </outcome>
+                            <outcome value='Y'></outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value=""></outcome>
+                <outcome value='N'></outcome>
+            </switch>
+            <return status='success'>
+                <parameter name="error-code" value="200" />
+            </return>
+        </block>
+    </method>
+</service-logic>

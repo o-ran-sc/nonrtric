@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.onap.ccsdk.parent</groupId>
+        <artifactId>odlparent-lite</artifactId>
+        <version>1.4.3</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>org.onap.sdnc.northbound</groupId>
+    <artifactId>generic-resource-api-features</artifactId>
+    <version>1.7.3-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>sdnc-northbound :: generic-resource-api :: ${project.artifactId}</name>
+
+    <modules>
+        <module>sdnc-generic-resource-api</module>
+        <module>features-generic-resource-api</module>
+    </modules>
+</project>

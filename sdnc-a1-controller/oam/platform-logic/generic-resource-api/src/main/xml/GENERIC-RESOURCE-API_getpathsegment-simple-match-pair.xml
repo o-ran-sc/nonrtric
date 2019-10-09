@@ -1,0 +1,125 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='getpathsegment-simple-match-pair' mode='sync'>
+        <for index='serv-insts-index' start='0' end='`$serv-insts_length`' >
+            <switch test='`$serv-insts[$serv-insts-index].vnf-list_length`'>
+                <outcome value=''>
+                    <block>
+                        <set>
+                            <parameter name='error-message' value="`'Matching VNFs were not found in service instance '
+  + $serv-insts[$serv-insts-index].service-instance-id`" />
+                        </set>
+                    </block>
+                </outcome>
+                <outcome value='0'>
+                    <block>
+                        <set>
+                            <parameter name='error-message' value="`'Matching VNFs were not found in service instance '
+  + $serv-insts[$serv-insts-index].service-instance-id`" />
+                        </set>
+                    </block>
+                </outcome>
+                <outcome value='Other'>
+                    <block>
+                        <set>
+                            <parameter name='matched-all-vnfs' value='true' />
+                        </set>
+                        <set>
+                            <parameter name='serv-insts[$serv-insts-index].path-segments_length' value='0' />
+                        </set>
+                        <for index='left-vnf-index' start='0' end='`$serv-insts[$serv-insts-index].vnf-list_length - 1`' >
+                            <block>
+                                <set>
+                                    <parameter name='found-match' value='false' />
+                                </set>
+                                <set>
+                                    <parameter name='right-vnf-index' value='`$left-vnf-index + 1`' />
+                                </set>
+                                <switch test='`$match-type`'>
+                                    <outcome value='network-name'>
+                                        <for index='left-vnf-network-index' start='0' end='`$serv-insts[$serv-insts-index].vnf-list[$left-vnf-index].vnf-network-list_length`' >
+                                            <block>
+                                                <for index='right-vnf-network-index' start='0' end='`$serv-insts[$serv-insts-index].vnf-list[$right-vnf-index].vnf-network-list_length`' >
+                                                    <switch test='`( $serv-insts[$serv-insts-index].vnf-list[$left-vnf-index].vnf-network-list[$left-vnf-network-index].network-name
+    == $serv-insts[$serv-insts-index].vnf-list[$right-vnf-index].vnf-network-list[$right-vnf-network-index].network-name )
+   and 
+    ( $serv-insts[$serv-insts-index].vnf-list[$left-vnf-index].vnf-network-list[$left-vnf-network-index].network-role
+    == $serv-insts[$serv-insts-index].vnf-list[$right-vnf-index].vnf-network-list[$right-vnf-network-index].network-role )`'>
+                                                        <outcome value='true'>
+                                                            <switch test="`$serv-insts[$serv-insts-index].vnf-list[$vnf-index].vnf-network-list[$vnf-network-index].network-name == 'oam'`">
+                                                                <outcome value='false'>
+                                                                    <block>
+                                                                        <set>
+                                                                            <parameter name='ps-index' value='`$serv-insts[$serv-insts-index].path-segments_length`' />
+                                                                        </set>
+                                                                        <set>
+                                                                            <parameter name='serv-insts[$serv-insts-index].path-segments[$ps-index].segment-id' value='`$ps-index + 1`' />
+                                                                            <parameter name='serv-insts[$serv-insts-index].path-segments[$ps-index].left-service-instance-id'
+  value='`$serv-insts[$serv-insts-index].service-instance-id`' />
+                                                                            <parameter name='serv-insts[$serv-insts-index].path-segments[$ps-index].left-vnf-instance-id'
+  value='`$serv-insts[$serv-insts-index].vnf-list[$left-vnf-index].vnf-id`' />
+                                                                            <parameter name='serv-insts[$serv-insts-index].path-segments[$ps-index].left-vf-module-id'
+  value='`$serv-insts[$serv-insts-index].vnf-list[$left-vnf-index].vnf-network-list[$left-vnf-network-index].vf-module-id`' />
+                                                                            <parameter name='serv-insts[$serv-insts-index].path-segments[$ps-index].right-service-instance-id'
+  value='`$serv-insts[$serv-insts-index].service-instance-id`' />
+                                                                            <parameter name='serv-insts[$serv-insts-index].path-segments[$ps-index].right-vnf-instance-id'
+  value='`$serv-insts[$serv-insts-index].vnf-list[$right-vnf-index].vnf-id`' />
+                                                                            <parameter name='serv-insts[$serv-insts-index].path-segments[$ps-index].right-vf-module-id'
+  value='`$serv-insts[$serv-insts-index].vnf-list[$right-vnf-index].vnf-network-list[$right-vnf-network-index].vf-module-id`' />
+                                                                            <parameter name='serv-insts[$serv-insts-index].path-segments[$ps-index].network-name'
+  value='`$serv-insts[$serv-insts-index].vnf-list[$left-vnf-index].vnf-network-list[$left-vnf-network-index].network-name`' />
+                                                                            <parameter name='serv-insts[$serv-insts-index].path-segments[$ps-index].network-role'
+  value='`$serv-insts[$serv-insts-index].vnf-list[$left-vnf-index].vnf-network-list[$left-vnf-network-index].network-role`' />
+                                                                            <parameter name='serv-insts[$serv-insts-index].path-segments_length'
+  value='`$serv-insts[$serv-insts-index].path-segments_length + 1`' />
+                                                                        </set>
+                                                                        <set>
+                                                                            <parameter name='found-match' value='true' />
+                                                                        </set>
+                                                                        <break/>
+                                                                    </block>
+                                                                </outcome>
+                                                            </switch>
+                                                        </outcome>
+                                                    </switch>
+                                                </for>
+                                                <switch test="`$found-match`">
+                                                    <outcome value='true'>
+                                                        <break/>
+                                                    </outcome>
+                                                </switch>
+                                            </block>
+                                        </for>
+                                    </outcome>
+                                </switch>
+                                <switch test="`$found-match`">
+                                    <outcome value='false'>
+                                        <block>
+                                            <set>
+                                                <parameter name='matched-all-vnfs' value='false' />
+                                            </set>
+                                            <break/>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                            </block>
+                        </for>
+                        <switch test="`$matched-all-vnfs`">
+                            <outcome value='false'>
+                                <block>
+                                    <set>
+                                        <parameter name='matching-error' value="`'Not able to find matches for all vnfs of service instance ' + $serv-insts[$serv-insts-index].service-instance-id`" />
+                                    </set>
+                                    <set>
+                                        <parameter name='serv-insts[$serv-insts-index].path-segments.' value='' />
+                                    </set>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+            </switch>
+        </for>
+    </method>
+</service-logic>

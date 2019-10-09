@@ -1,0 +1,71 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='pnf-topology-operation-assign' mode='sync'>
+        <block atomic="true">
+            <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                <parameter name='contextPrefix' value='prop' />
+            </execute>
+            <switch test='`$pnf-topology-operation-input.pnf-request-input.cloud-owner`'>
+                <outcome value=''>
+                    <block></block>
+                </outcome>
+                <outcome value='Other'>
+                    <set>
+                        <parameter name='prop.cloud-region.cloud-owner' value='`$pnf-topology-operation-input.pnf-request-input.cloud-owner`' />
+                    </set>
+                </outcome>
+            </switch>
+            <switch test='`$pnf-topology-operation-input.request-information.request-action`'>
+                <outcome value='CreatePnfInstance'>
+                    <block></block>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="If svc-action is 'assign' then request-action must be 'CreatePnfInstance'" />
+                    </return>
+                </outcome>
+            </switch>
+            <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT * from VF_MODEL WHERE customization_uuid = $pnf-topology-operation-input.pnf-details.onap-model-information.model-customization-uuid'
+  pfx='db.vf-model'>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error reading VF_MODEL table" />
+                    </return>
+                </outcome>
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`'No model found for VF customization UUID ' + $pnf-topology-operation-input.pnf-details.onap-model-information.model-customization-uuid`" />
+                    </return>
+                </outcome>
+            </get-resource>
+            <block atomic="true">
+                <call module='GENERIC-RESOURCE-API' rpc='self-serve-pnf-assign' mode='sync' >
+                    <outcome value='failure'>
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="`'Failed to create self-serve assignment for pnf with pnf-id=' + $pnf-topology-operation-input.pnf-details.pnf-id + ' with error: ' + $error-message`" />
+                        </return>
+                    </outcome>
+                </call>
+                <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >
+                    <parameter name='filename' value='/var/tmp/ss-pnf-assign.log' />
+                </execute>
+                <return status='success'>
+                    <parameter name="ack-final-indicator" value="Y" />
+                    <parameter name="error-code" value="200" />
+                    <parameter name="error-message" value="`$error-message`" />
+                </return>
+            </block>
+        </block>
+    </method>
+</service-logic>

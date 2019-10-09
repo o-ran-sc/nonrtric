@@ -1,0 +1,43 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='DataChange' version='${project.version}'>
+    <method rpc='sotn-notification-handler' mode='sync'>
+        <block atomic="true">
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >
+                <parameter name="original_string" value='`$notification.push-change-update.datastore-changes.yang-patch.edit[0].target`'/>
+                <parameter name="regex" value="/"/>
+                <parameter name="ctx_memory_result_key" value="yang-nodes"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >
+                <parameter name="original_string" value='`$yang-nodes[$yang-nodes_length -1]`'/>
+                <parameter name="regex" value="="/>
+                <parameter name="ctx_memory_result_key" value="last-node"/>
+                <outcome value='success'>
+                    <block>
+                        <switch test='`$last-node[0]`'>
+                            <outcome value='ietf-network-topology:termination-point'>
+                                <block atomic="true">
+                                    <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >
+                                        <parameter name="original_string" value='`$yang-nodes[$yang-nodes_length -2]`'/>
+                                        <parameter name="regex" value="="/>
+                                        <parameter name="ctx_memory_result_key" value="node-prefix"/>
+                                    </execute>
+                                    <set>
+                                        <parameter name='unique-ltpId' value="`'nodeId-' + $node-prefix[$node-prefix_length -1] + '-ltpId-' + $last-node[$last-node_length -1]`" />
+                                    </set>
+                                    <update plugin='org.onap.ccsdk.sli.adaptors.aai.AAIService' resource='p-interface' 
+      key='pnf.pnf-name = $node.node-id
+      AND p-interface.interface-name = $unique-ltpId' >
+                                        <parameter name='interface-name' value='`$unique-ltpId`' />
+                                        <parameter name='operational-status' value='`$notification.push-change-update.datastore-changes.yang-patch.edit[0].value.termination-point[0].te.oper-status`' />
+                                    </update>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='failure'></outcome>
+            </execute>
+        </block>
+    </method>
+</service-logic>

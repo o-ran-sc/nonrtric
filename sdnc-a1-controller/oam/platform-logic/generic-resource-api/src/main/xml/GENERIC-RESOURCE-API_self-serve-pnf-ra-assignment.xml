@@ -1,0 +1,235 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='self-serve-pnf-ra-assignment' mode='sync'>
+        <block atomic="true">
+            <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils" method="generateUUID" >
+                <parameter name="ctx-destination" value="tmp.return.generate.pnf-se-serv-uuid" />
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="generateUUID is failed" />
+                    </return>
+                </outcome>
+            </execute>
+            <set>
+                <parameter name="cds" value="execution-service_process."/>
+                <parameter name="`$cds + 'commonHeader.requestId'`" value="`$tmp.return.generate.pnf-se-serv-uuid`"/>
+                <parameter name="resource-type" value="`$pnf-topology-operation-input.pnf-details.pnf-type`" />
+                <parameter name="`$cds + 'commonHeader.subRequestId'`" value="`$pnf-topology-operation-input.pnf-details.pnf-id`" />
+                <parameter name="`$cds + 'actionIdentifiers.actionName'`" value="resource-assignment"/>
+                <parameter name="responsePrefix" value="raAssign" />
+                <parameter name="`$cds + 'isNonAppend'`" value="true"/>
+                <parameter name="`$cds + 'commonHeader.originatorId'`" value="SDNC_DG"/>
+                <parameter name="`$cds + 'actionIdentifiers.mode'`" value="sync"/>
+            </set>
+            <switch test='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param_length`'>
+                <outcome value=''>
+                    <set>
+                        <parameter name='highnum' value='0' />
+                        <parameter name='prehighnum' value='0'/>
+                    </set>
+                </outcome>
+                <outcome value='Other'>
+                    <set>
+                        <parameter name='highnum' value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param_length`' />
+                        <parameter name='prehighnum' value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param_length`' />
+                    </set>
+                </outcome>
+            </switch>
+            <for silentFailure='true' index='i' start='0' end='`$pnf-topology-operation-input.pnf-request-input.pnf-input-parameters.param_length`' >
+                <block atomic="true">
+                    <switch test='`$pnf-topology-operation-input.pnf-request-input.pnf-input-parameters.param[$i].name`'>
+                        <outcome value='sdnc_model_name'>
+                            <set>
+                                <parameter name='tmp.sdnc-model-name' value='`$pnf-topology-operation-input.pnf-request-input.pnf-input-parameters.param[$i].value`' />
+                            </set>
+                        </outcome>
+                        <outcome value='sdnc_model_version'>
+                            <set>
+                                <parameter name='tmp.sdnc-model-version' value='`$pnf-topology-operation-input.pnf-request-input.pnf-input-parameters.param[$i].value`' />
+                            </set>
+                        </outcome>
+                        <outcome value='sdnc_artifact_name'>
+                            <set>
+                                <parameter name='tmp.sdnc-artifact-name' value='`$pnf-topology-operation-input.pnf-request-input.pnf-input-parameters.param[$i].value`' />
+                            </set>
+                        </outcome>
+                        <outcome value='Other'>
+                            <set>
+                                <parameter name="tmp.config-name-value-other-payload" value="`$tmp.config-name-value-other-payload + '&quot;' + $pnf-topology-operation-input.pnf-request-input.pnf-input-parameters.param[$i].name + '&quot;:&quot;' + $pnf-topology-operation-input.pnf-request-input.pnf-input-parameters.param[$i].value + '&quot;,'`"/>
+                            </set>
+                        </outcome>
+                    </switch>
+                </block>
+            </for>
+            <switch test="`$tmp.sdnc-model-name == '' or $tmp.sdnc-model-version == '' or $tmp.sdnc-artifact-name == ''`">
+                <outcome value='true'>
+                    <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT * from VF_MODEL WHERE customization_uuid = $pnf-topology-operation-input.pnf-details.onap-model-information.model-customization-uuid'
+  pfx='db1.vf-model'>
+                        <outcome value='failure'>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="Error reading VF_MODEL table" />
+                            </return>
+                        </outcome>
+                        <outcome value='not-found'>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="`'No VF_MODEL found where customization_uuid = ' + $pnf-topology-operation-input.pnf-details.onap-model-information.model-customization-uuid`" />
+                            </return>
+                        </outcome>
+                        <outcome value='success'>
+                            <set>
+                                <parameter name='tmp.sdnc-model-name' value='`$db1.vf-model.sdnc-model-name`' />
+                                <parameter name='tmp.sdnc-model-version' value='`$db1.vf-model.sdnc-model-version`' />
+                                <parameter name='tmp.sdnc-artifact-name' value='`$db1.vf-model.sdnc-artifact-name`' />
+                            </set>
+                        </outcome>
+                    </get-resource>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name="tmp.config-name-value-payload4" value="`$tmp.config-name-value-other-payload + '&quot;service-instance-id&quot;:&quot;' + $pnf-topology-operation-input.service-information.service-instance-id   + '&quot;,'`"/>
+                <parameter name="tmp.config-name-value-payload5" value="`$tmp.config-name-value-payload4 + '&quot;pnf-model-customization-uuid&quot;:&quot;' + $pnf-topology-operation-input.pnf-details.onap-model-information.model-customization-uuid + '&quot;,'`"/>
+                <parameter name="tmp.config-name-value-payload6" value="`$tmp.config-name-value-payload5 + '&quot;pnf-id&quot;:&quot;' + $pnf-topology-operation-input.pnf-details.pnf-id + '&quot;,'`"/>
+                <parameter name="tmp.config-name-value-payload7" value="`$tmp.config-name-value-payload6 + '&quot;aic-cloud-region&quot;:&quot;' + $pnf-topology-operation-input.pnf-request-input.aic-cloud-region + '&quot;'`"/>
+            </set>
+            <set>
+                <parameter name="tmp.json-payload" value="`'{' + $tmp.config-name-value-payload7 + '}'`" />
+                <parameter name="`$cds + 'actionIdentifiers.blueprintName'`" value='`$tmp.sdnc-model-name`' />
+                <parameter name="`$cds + 'actionIdentifiers.blueprintVersion'`" value='`$tmp.sdnc-model-version`' />
+                <parameter name="`$cds + 'payload.resource-assignment-request.template-prefix[0]'`" value='`$tmp.sdnc-artifact-name`' />
+                <parameter name="`$cds + 'payload.resource-assignment-request.resource-assignment-properties'`" value='`$tmp.json-payload`' />
+            </set>
+            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                <parameter name="logger" value="message-log"/>
+                <parameter name="field1" value="BEFORE BlueprintProcessingClient"/>
+            </record>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restconfapicall.RestconfApiCallNode' method='sendRequest' >
+                <parameter name='restapiUrl' value="`$prop.cds.url + '/api/v1/execution-service/process'`" />
+                <parameter name='restapiUser' value='`$prop.cds.user`' />
+                <parameter name='restapiPassword' value='`$prop.cds.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='POST' />
+                <parameter name='dirPath' value="/opt/onap/sdnc/restconfapi/yang" />
+                <parameter name="responsePrefix" value="`$responsePrefix`" />
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error from BlueprintProcessingClient" />
+                    </return>
+                </outcome>
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error from BlueprintProcessingClient" />
+                    </return>
+                </outcome>
+            </execute>
+            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                <parameter name="logger" value="message-log"/>
+                <parameter name="field1" value="AFTER BlueprintProcessingClient"/>
+            </record>
+            <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils" method="jsonStringToCtx">
+                <parameter name="source" value="`'raAssign.payload.resource-assignment-response.meshed-template.' + $tmp.sdnc-artifact-name`" />
+                <parameter name="outputPath" value="jsonContextPrefix" />
+                <parameter name="isEscaped" value="false" />
+            </execute>
+            <for silentFailure='true'  index='i' start='0' end='`$jsonContextPrefix.resource-accumulator-resolved-data_length`' >
+                <block atomic="true">
+                    <set>
+                        <parameter name='tmp.mso.param.found' value='false' />
+                    </set>
+                    <switch test='`$prehighnum &gt; 0`'>
+                        <outcome value='true'>
+                            <for silentFailure='true' index='cnt' start='0' end='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param_length`' >
+                                <switch test='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$cnt].name == $jsonContextPrefix.resource-accumulator-resolved-data[$i].param-name`'>
+                                    <outcome value='true'>
+                                        <set>
+                                            <parameter name='`service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$cnt].value`' value='`$jsonContextPrefix.resource-accumulator-resolved-data[$i].param-value`'/>
+                                            <parameter name='tmp.mso.param.found' value='true' />
+                                        </set>
+                                    </outcome>
+                                </switch>
+                            </for>
+                        </outcome>
+                    </switch>
+                    <switch test='`$tmp.mso.param.found`'>
+                        <outcome value='false'>
+                            <block atomic='true'>
+                                <set>
+                                    <parameter name='`service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$highnum].name`' value='`$jsonContextPrefix.resource-accumulator-resolved-data[$i].param-name`'/>
+                                    <parameter name='`service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$highnum].value`' value='`$jsonContextPrefix.resource-accumulator-resolved-data[$i].param-value`'/>
+                                    <parameter name='`service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$highnum].resource-resolution-data.capability-name`' value='RA Resolved'/>
+                                    <parameter name='`service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$highnum].resource-resolution-data.status`' value='SUCCESS'/>
+                                </set>
+                                <set>
+                                    <parameter name='highnum' value='`$highnum + 1`' />
+                                </set>
+                            </block>
+                        </outcome>
+                    </switch>
+                </block>
+            </for>
+            <for silentFailure='true' index='i' start='0' end='`$jsonContextPrefix.capability-data_length`' >
+                <for silentFailure='true' index='j' start='0' end='`$jsonContextPrefix.capability-data[$i].key-mapping_length`' >
+                    <for silentFailure='true' index='l' start='0' end='`$jsonContextPrefix.capability-data[$i].key-mapping[$j].output-key-mapping_length`' >
+                        <block atomic="true">
+                            <set>
+                                <parameter name='`service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$highnum].name`' value='`$jsonContextPrefix.capability-data[$i].key-mapping[$j].output-key-mapping[$l].resource-name`'/>
+                                <parameter name='`service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$highnum].value`' value='`$jsonContextPrefix.capability-data[$i].key-mapping[$j].output-key-mapping[$l].resource-value`'/>
+                                <parameter name='`service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$highnum].resource-resolution-data.capability-name`' value='`$jsonContextPrefix.capability-data[$i].capability-name`'/>
+                                <parameter name='`service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$highnum].resource-resolution-data.status`' value='PENDING'/>
+                                <parameter name='num' value='0' />
+                            </set>
+                            <switch test="`$jsonContextPrefix.capability-data[$i].key-mapping[$j].payload_length == ''`">
+                                <outcome value='true'></outcome>
+                                <outcome value='false'>
+                                    <for silentFailure='true' index='k' start='0' end='`$jsonContextPrefix.capability-data[$i].key-mapping[$j].payload_length`' >
+                                        <block atomic="true">
+                                            <set>
+                                                <parameter name='`service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$highnum].resource-resolution-data.resource-key[$num].name`' value='`$jsonContextPrefix.capability-data[$i].key-mapping[$j].payload[$k].param-name`'/>
+                                                <parameter name='`service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$highnum].resource-resolution-data.resource-key[$num].value`' value='`$jsonContextPrefix.capability-data[$i].key-mapping[$j].payload[$k].param-value`'/>
+                                            </set>
+                                            <set>
+                                                <parameter name='`service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$highnum].resource-resolution-data.resource-key_length`' value='`$num + 1`'/>
+                                            </set>
+                                            <set>
+                                                <parameter name='num' value='`$num + 1`' />
+                                            </set>
+                                        </block>
+                                    </for>
+                                </outcome>
+                            </switch>
+                            <set>
+                                <parameter name='`service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param_length`' value='`$highnum + 1`'/>
+                            </set>
+                            <set>
+                                <parameter name='highnum' value='`$highnum + 1`' />
+                            </set>
+                        </block>
+                    </for>
+                </for>
+            </for>
+            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                <parameter name="logger" value="message-log"/>
+                <parameter name="field1" value="DONE: pnf-ra-assignment"/>
+            </record>
+            <set>
+                <parameter name='pathname' 
+	value="`'/var/tmp/ss-pnf-ra-assignment-' + 
+	$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-details.pnf-id + '.log'`" />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >
+                <parameter name='filename' value='`$pathname`' />
+            </execute>
+        </block>
+    </method>
+</service-logic>

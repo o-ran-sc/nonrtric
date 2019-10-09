@@ -1,0 +1,27 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='DataChange' version='${project.version}'>
+    <method rpc='data-change-notification' mode='sync'>
+        <block atomic="true">
+            <switch test='`$data-change-notification-input.aai-node-type`'>
+                <outcome value='esr-thirdparty-sdnc'>
+                    <block atomic="true">
+                        <call module='DataChange' rpc='esr-thirdparty-sdnc' mode='sync' ></call>
+                    </block>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="AAI node type not supported" />
+                    </return>
+                </outcome>
+            </switch>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="`$error-message`" />
+            </return>
+        </block>
+    </method>
+</service-logic>

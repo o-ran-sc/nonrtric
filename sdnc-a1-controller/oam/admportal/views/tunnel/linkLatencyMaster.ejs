@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<% include ../partials/head %>
+<% include ../partials/header %>
+<script type="text/javascript" src="/javascripts/admportal.js" async></script>
+<title>SDNC-MLC AdminPortal</title>
+
+
+<script class="init"> 
+	$(document).ready(function() {
+    $('#linkLatencyMaster').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+</head>
+
+<body>
+
+<div class="well well-sm">
+<h3>Link Latency Master</h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+
+	<% if(priv == 'A'){ %>
+        <div class="actions" style="padding:15px 0px;">
+            <button class="btn btn-primary btn-md" data-toggle="modal" data-target="#add_link_latency_master">Add Link Latency</button>
+        </div>
+    <% } %>
+
+	<table id="linkLatencyMaster" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+		  <th>*Src CRS Name</th>
+		  <th>*Dest CRS Name</th>
+          <th>*Bundle Name</th>
+		  <th>*Latency</th>
+		  <th>*Intra Inter SNRC</th>
+          <th>*Final Latency</th>
+          <th>*Augmentable</th>
+		   <% if(priv == 'A'){ %>
+          <th>Action</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+      <% rows.forEach( function(row) { %> 
+        <tr>
+            <td><%= row.source_crs_name %></td>
+            <td><%= row.destination_crs_name %></td>
+            <td><%= row.bundle_name %></td>
+            <td><%= row.latency %></td>
+            <td><%= row.intra_inter_snrc %></td>
+            <td><%= row.final_latency %></td>
+            <td><%= row.augmentable %></td>
+			<% if(priv == 'A') { %>
+            <td>
+				<button type="button" class="btn btn-default btn-xs" onclick="updateLinkLatencyMaster('<%= row.source_crs_name %>', '<%= row.destination_crs_name %>', '<%= row.bundle_name %>', '<%= row.latency %>', '<%= row.intra_inter_snrc %>', '<%= row.final_latency %>', '<%= row.augmentable %>');">Update</button>
+                <button type="button" class="btn btn-default btn-xs" onclick="deleteLinkLatencyMaster('<%= row.source_crs_name %>','<%= row.destination_crs_name %>','<%= row.bundle_name %>');">Delete</button>
+            </td>
+            <% } %>
+        </tr>
+    <% }); %>
+      </tbody>
+    </table>
+
+    <% if(priv == 'A'){ %>
+    <div class="actions" style="padding:0px 25px;">
+        <form method="POST" action="/tunnel/uploadLinkLatencyMaster" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="dest">File input</label>
+            <input name="filename" type="file" id="dest">
+            <p class="help-block">Choose a file to upload.</p>
+        </div>
+        <button type="button" class="btn btn-default" onclick="uploadFile(this.form);">Upload File</button>
+        </form>
+    </div>
+    <% } %>
+
+</div>
+
+<% include ../partials/link_latency_master %>
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+<script type="text/javascript">
+function submitLinkLatencyMaster(form)
+{
+    var errorMsg='';
+    var source_crs_name = '';
+    var destination_crs_name = '';
+	var bundle_name = '';
+	var latency = '';
+	var intra_inter_snrc = '';
+    var final_latency = '';
+    var augmentable = '';
+
+    if ( form.name == 'addForm' )
+    {
+		source_crs_name = form.nf_source_crs_name;
+		destination_crs_name = form.nf_destination_crs_name;
+		bundle_name = form.nf_bundle_name;
+		latency = form.nf_latency;
+		intra_inter_snrc = form.nf_intra_inter_snrc;
+        final_latency = form.nf_final_latency;
+        augmentable = form.nf_augmentable;
+    }
+    else
+    {
+		source_crs_name = form.uf_source_crs_name;
+		destination_crs_name = form.uf_destination_crs_name;
+		bundle_name = form.uf_bundle_name;
+		latency = form.uf_latency;
+		intra_inter_snrc = form.uf_intra_inter_snrc;
+        final_latency = form.uf_final_latency;
+        augmentable = form.uf_augmentable;
+    }
+
+    if ( (source_crs_name.value == null) || (source_crs_name.value == "") || isblank(source_crs_name.value) )
+    {
+        errorMsg += 'Source CRS Name is required.<br>';
+    }
+    if ( (destination_crs_name.value == null) || (destination_crs_name.value == "") || isblank(destination_crs_name.value) )
+    {
+        errorMsg += 'Destination CRS Name is required.<br>';
+    }
+    if ( (bundle_name.value == null) || (bundle_name.value == "") || isblank(bundle_name.value) )
+    {
+        errorMsg += 'Bundle Name is required.<br>';
+    }
+    if ( (latency.value == null) || (latency.value == "") || isblank(latency.value) )
+    {
+        errorMsg += 'Latency is required.<br>';
+    }
+    if ( (intra_inter_snrc.value == null) || (intra_inter_snrc.value == "") || isblank(intra_inter_snrc.value) )
+    {
+        errorMsg += 'Intra Inter SNRC is required.<br>';
+    }
+    if ( (final_latency.value == null) || (final_latency.value == "") || isblank(final_latency.value) )
+    {
+        errorMsg += 'Final Latency is required.<br>';
+    }
+    if ( (augmentable.value == null) || (augmentable.value == "") || isblank(augmentable.value) )
+    {
+        errorMsg += 'Augmentable is required.<br>';
+    }
+    if( errorMsg.length > 0 ) {
+        bootbox.alert(errorMsg);
+        return;
+    }
+
+    if (augmentable.value != 'Y' && augmentable.value != 'N'){
+        bootbox.alert('Augmentable must be Y or N');
+        return;
+    }
+
+    form.submit();
+}
+
+function updateLinkLatencyMaster(source_crs_name,destination_crs_name,bundle_name,latency,intra_inter_snrc,final_latency,augmentable) {
+
+    document.getElementById('uf_source_crs_name').value=source_crs_name;
+    document.getElementById('uf_destination_crs_name').value=destination_crs_name;
+    document.getElementById('uf_bundle_name').value=bundle_name;
+    document.getElementById('uf_latency').value=latency;
+    document.getElementById('uf_intra_inter_snrc').value=intra_inter_snrc;
+    document.getElementById('uf_final_latency').value=final_latency;
+    document.getElementById('uf_augmentable').value=augmentable;
+
+    document.getElementById('uf_key_source_crs_name').value=source_crs_name;
+    document.getElementById('uf_key_destination_crs_name').value=destination_crs_name;
+    document.getElementById('uf_key_bundle_name').value=bundle_name;
+
+    $('#update_link_latency_master').modal('show');
+}
+
+function deleteLinkLatencyMaster(source_crs_name,destination_crs_name,bundle_name) {
+
+	var url_string = encodeURI("/tunnel/deleteLinkLatencyMaster?source_crs_name=" + source_crs_name
+            + "&destination_crs_name=" + destination_crs_name
+            + "&bundle_name=" + bundle_name);
+
+    bootbox.confirm({
+        message: "Are you sure you want to delete this Link Latency entry? [" + source_crs_name + ":" + destination_crs_name + ":" + bundle_name + "]",
+        callback: function(result) {
+            if ( result )
+            {
+				location.assign(url_string);
+            }
+            return;
+        },
+        buttons: {
+            cancel: {
+                label: "Cancel"
+            },
+            confirm: {
+                label: "Yes"
+            }
+        }
+    });
+}
+
+</script>
+
+</body>
+</html>
+

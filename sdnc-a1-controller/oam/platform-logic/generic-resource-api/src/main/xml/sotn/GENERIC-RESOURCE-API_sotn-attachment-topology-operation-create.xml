@@ -1,0 +1,304 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='sotn-attachment-topology-operation-create' mode='sync'>
+        <block atomic="true">
+            <switch test='`$connection-attachment-topology-operation-input.allotted-resource-information.allotted-resource-id`'>
+                <outcome value=''>
+                    <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='generateUUID' >
+                        <parameter name="ctx-destination" value="tmp.ar.allotted-resource-id"/>
+                        <outcome value='failure'>
+                            <return status='failure'>
+                                <parameter name='error-code' value='' />
+                                <parameter name='error-message' value="An error occured while generation allotted resource ID" />
+                            </return>
+                        </outcome>
+                    </execute>
+                </outcome>
+                <outcome value='Other'>
+                    <set>
+                        <parameter name='tmp.ar.allotted-resource-id' value='`$connection-attachment-topology-operation-input.allotted-resource-information.allotted-resource-id`' />
+                    </set>
+                </outcome>
+            </switch>
+            <switch test='`$connection-attachment-topology-operation-input.allotted-resource-information.allotted-resource-type`'>
+                <outcome value=''>
+                    <set>
+                        <parameter name='tmp.ar.allotted-resource-type' value="SOTNAttachmentInstance" />
+                    </set>
+                </outcome>
+                <outcome value='Other'>
+                    <set>
+                        <parameter name='tmp.ar.allotted-resource-type' value='`$connection-attachment-topology-operation-input.allotted-resource-information.allotted-resource-type`' />
+                    </set>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='tmp.ar.self-link' value="`'restconf/config/GENERIC-RESOURCE-API:connection-attachment-allotted-resources/connection-attachment-allotted-resource/'
+ + $tmp.ar.allotted-resource-id
+ + '/allotted-resource-data/connection-attachment-topology/'` " />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                <parameter name='contextPrefix' value='prop' />
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$prop.restapi.connection-attachment-allottedresource`"/>
+                <parameter name="outputPath" value="tmp.ar-url"/>
+                <parameter name="target" value="{allotted-resource-id}"/>
+                <parameter name="replacement" value="`$tmp.ar.allotted-resource-id`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='GET' />
+                <parameter name="responsePrefix" value="mdsal-ar" />
+                <outcome value='failure'>
+                    <block></block>
+                </outcome>
+                <outcome value='success'>
+                    <block atomic="true">
+                        <switch test='`$mdsal-ar.connection-attachment-allotted-resource_length`'>
+                            <outcome value='1'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="Error: Existing connection attachment allotted resource" />
+                                </return>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+            </execute>
+            <switch test='`$service-data.consumed-allotted-resources.consumed-allotted-resource_length`'>
+                <outcome value=''>
+                    <set>
+                        <parameter name='tmp.cidx' value="`0`" />
+                        <parameter name='service-data.consumed-allotted-resources.consumed-allotted-resource_length' value="1" />
+                    </set>
+                </outcome>
+                <outcome value='Other'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name='tmp.found-cidx' value="`false`" />
+                        </set>
+                        <for index='cidx' start='0' end='`$service-data.consumed-allotted-resources.consumed-allotted-resource_length`' >
+                            <switch test="`$service-data.consumed-allotted-resources.consumed-allotted-resource[$cidx].allotted-resource-id == $tmp.ar.allotted-resource-id`">
+                                <outcome value='true'>
+                                    <return status='failure'>
+                                        <parameter name='ack-final' value='Y'/>
+                                        <parameter name="error-code" value="500" />
+                                        <parameter name="error-message" value="Error updating md-sal for connection-attachment-allotted-resource as cosumed allotted resource already exists." />
+                                    </return>
+                                </outcome>
+                            </switch>
+                        </for>
+                        <switch test='`$tmp.found-cidx`'>
+                            <outcome value='false'>
+                                <block atomic="true">
+                                    <set>
+                                        <parameter name='tmp.cidx' value='`$service-data.consumed-allotted-resources.consumed-allotted-resource_length`' />
+                                    </set>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='service-data.consumed-allotted-resources.consumed-allotted-resource[$tmp.cidx].allotted-resource-id' value="`$tmp.ar.allotted-resource-id` " />
+                <parameter name='service-data.consumed-allotted-resources.consumed-allotted-resource[$tmp.cidx].allotted-resource-type' value="`$connection-attachment-topology-operation-input.allotted-resource-information.allotted-resource-type` " />
+                <parameter name='service-data.consumed-allotted-resources.consumed-allotted-resource[$tmp.cidx].allotted-resource-pointer' value="`$tmp.ar.self-link` " />
+                <parameter name='service-data.consumed-allotted-resources.consumed-allotted-resource_length' value='`$tmp.cidx + 1`' />
+            </set>
+            <set>
+                <parameter name='tmp.ar.parent-service-instance-id' value="`$connection-attachment-topology-operation-input.allotted-resource-information.parent-service-instance-id` " />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$prop.restapi.parent-provided-resource`"/>
+                <parameter name="outputPath" value="tmp.parent-ar-url"/>
+                <parameter name="target" value="{service-instance-id}"/>
+                <parameter name="replacement" value="`$tmp.ar.parent-service-instance-id`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$tmp.parent-ar-url`"/>
+                <parameter name="outputPath" value="tmp.parent-ar-url"/>
+                <parameter name="target" value="{allotted-resource-id}"/>
+                <parameter name="replacement" value="`$tmp.ar.allotted-resource-id`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.parentsvc.templatefile`" />
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.parent-ar-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='PUT' />
+                <parameter name="responsePrefix" value="parent" />
+                <outcome value='success'>
+                    <block></block>
+                </outcome>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error updating md-sal for connection-attachment-allotted-resource" />
+                    </return>
+                </outcome>
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error updating md-sal for connection-attachment-allotted-resource" />
+                    </return>
+                </outcome>
+            </execute>
+            <set>
+                <parameter name='connection-attachment-ar.allotted-resource-id' value="`$tmp.ar.allotted-resource-id` " />
+                <parameter name='connection-attachment-ar.allotted-resource-status.action' value="`$connection-attachment-topology-operation-input.request-information.request-action` " />
+                <parameter name='connection-attachment-ar.allotted-resource-status.rpc-name' value="connection-attachment-topology-operation" />
+                <parameter name='connection-attachment-ar.allotted-resource-status.rpc-action' value="`$connection-attachment-topology-operation-input.sdnc-request-header.svc-action` " />
+                <parameter name='connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.request-information.' value="`$connection-attachment-topology-operation-input.request-information.` " />
+                <parameter name='connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.sdnc-request-header.' value="`$connection-attachment-topology-operation-input.sdnc-request-header.` " />
+                <parameter name='connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.service-information.' value="`$connection-attachment-topology-operation-input.service-information.` " />
+                <parameter name='connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.' value="`$connection-attachment-topology-operation-input.allotted-resource-information.` " />
+                <parameter name='connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.' value="`$connection-attachment-topology-operation-input.connection-attachment-request-input.` " />
+            </set>
+            <set>
+                <parameter name='connection-attachment-ar-identifiers.consuming-service-instance-id' value="`$connection-attachment-topology-operation-input.service-information.service-instance-id` " />
+                <parameter name='connection-attachment-ar-identifiers.parent-service-instance-id' value="`$connection-attachment-topology-operation-input.allotted-resource-information.parent-service-instance-id` " />
+                <parameter name='connection-attachment-ar-identifiers.allotted-resource-type' value="`$connection-attachment-topology-operation-input.allotted-resource-information.allotted-resource-type` " />
+                <parameter name='connection-attachment-ar-identifiers.allotted-resource-id' value="`$tmp.ar.allotted-resource-id` " />
+            </set>
+            <set>
+                <parameter name='connection-attachment-ar.allotted-resource-data.connection-attachment-topology.allotted-resource-identifiers.' 
+value="`$connection-attachment-ar-identifiers.`" />
+            </set>
+            <set>
+                <parameter name='connection-attachment-ar.allotted-resource-data.connection-attachment-topology.onap-model-information.' value="`$connection-attachment-topology-operation-input.allotted-resource-information.onap-model-information.` " />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='setTime' >
+                <parameter name="outputPath" value="tmp.current-time" />
+            </execute>
+            <set>
+                <parameter name='connection-attachment-ar.allotted-resource-data.allotted-resource-oper-status.order-status' value='Created' />
+                <parameter name='connection-attachment-ar.allotted-resource-data.allotted-resource-oper-status.last-action' value='`$connection-attachment-topology-operation-input.request-information.request-action`' />
+                <parameter name='connection-attachment-ar.allotted-resource-data.allotted-resource-oper-status.last-rpc-action' value='`$connection-attachment-topology-operation-input.sdnc-request-header.svc-action`' />
+                <parameter name='connection-attachment-ar.allotted-resource-data.allotted-resource-oper-status.last-svc-request-id' value='`$connection-attachment-topology-operation-input.sdnc-request-header.svc-request-id`' />
+                <parameter name='connection-attachment-ar.allotted-resource-data.allotted-resource-oper-status.create-timestamp' value='`$tmp.current-time`' />
+            </set>
+            <block atomic="true">
+                <for index='i' start='0' end='`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param_length`' >
+                    <block atomic="true">
+                        <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >
+                            <parameter name="original_string" value='`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$i].name`'/>
+                            <parameter name="regex" value="_"/>
+                            <parameter name="ctx_memory_result_key" value="param-prefix"/>
+                        </execute>
+                        <set>
+                            <parameter name="`connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$i].name`" value='`$param-prefix[$param-prefix_length -1]`'/>
+                        </set>
+                    </block>
+                </for>
+                <call module='GENERIC-RESOURCE-API' rpc='sotn-get-saved-ar-param' mode='sync' ></call>
+            </block>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.sotn-attachment.templatefile`" />
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='PUT' />
+                <parameter name="responsePrefix" value="mdsal-ar" />
+                <outcome value='success'>
+                    <block></block>
+                </outcome>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error updating md-sal for connection-attachment-allotted-resource" />
+                    </return>
+                </outcome>
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error updating md-sal for connection-attachment-allotted-resource" />
+                    </return>
+                </outcome>
+            </execute>
+            <set>
+                <parameter name='allotted-resource-id' value='`$tmp.ar.allotted-resource-id`' />
+                <parameter name='connection-attachment-object-path' value="`$tmp.ar.self-link`"/>
+                <parameter name='service-object-path' value="`'restconf/config/GENERIC-RESOURCE-API:services/service/'
+ + $connection-attachment-topology-operation-input.service-information.service-instance-id
+ + '/service-data/service-topology/'`"/>
+            </set>
+            <save plugin='org.onap.ccsdk.sli.adaptors.aai.AAIService' resource='allotted-resource' 
+      key='customer.global-customer-id = $connection-attachment-topology-operation-input.service-information.global-customer-id AND
+			service-subscription.service-type = $connection-attachment-topology-operation-input.service-information.subscription-service-type AND
+			service-instance.service-instance-id = $connection-attachment-topology-operation-input.service-information.service-instance-id AND
+			allotted-resource.id = $tmp.ar.allotted-resource-id' >
+                <parameter name="id" value="`$tmp.ar.allotted-resource-id`" />
+                <parameter name="name" value="`$prop.connection-attachment.sotnVpnName`" />
+                <parameter name="access-provider-id" value="`$prop.connection-attachment.access-provider-id`" />
+                <parameter name="access-client-id" value="`$prop.connection-attachment.access-client-id`" />
+                <parameter name="access-topology-id" value="`$prop.connection-attachment.access-topology-id`" />
+                <parameter name="access-node-id" value="`$prop.connection-attachment.access-node-id`" />
+                <parameter name="access-ltp-id" value="`$prop.connection-attachment.access-ltp-id`" />
+                <parameter name="cvlan" value="`$prop.connection-attachment.cVLAN`" />
+                <parameter name="vpn-name" value="`$prop.connection-attachment.sotnVpnName`" />
+                <parameter name="selflink" value="`$tmp.ar.self-link`" />
+                <parameter name="model-invariant-id" value="`$connection-attachment-topology-operation-input.allotted-resource-information.onap-model-information.model-invariant-uuid`" />
+                <parameter name="model-version-id" value="`$connection-attachment-topology-operation-input.allotted-resource-information.onap-model-information.model-uuid`" />
+                <parameter name="operational-status" value="Created" />
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="AAI failed" />
+                    </return>
+                </outcome>
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="AAI failed" />
+                    </return>
+                </outcome>
+            </save>
+            <set>
+                <parameter name='src-ltpId' value="`'nodeId-' + $prop.connection-attachment.access-node-id + '-ltpId-' + $prop.connection-attachment.access-ltp-id`" />
+            </set>
+            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="allotted-resource:relationship-list" 
+		key="customer.global-customer-id = $connection-attachment-topology-operation-input.service-information.global-customer-id AND
+			service-subscription.service-type = $connection-attachment-topology-operation-input.service-information.subscription-service-type AND
+			service-instance.service-instance-id = $connection-attachment-topology-operation-input.service-information.service-instance-id AND
+			allotted-resource.id = $tmp.ar.allotted-resource-id" 
+      force="true" pfx="tmp.AnAI-data">
+                <parameter name="relationship-list.relationship[0].related-to" value="p-interface" />
+                <parameter name="relationship-list.relationship[0].related-link" value="`'/network/pnfs/pnf/' + $prop.connection-attachment.access-node-id + '/p-interfaces/p-interface/' + $src-ltpId`" />
+                <parameter name="relationship-list.relationship[0].relationship-data[0].relationship-key" value="p-interface.interface-name" />
+                <parameter name="relationship-list.relationship[0].relationship-data[0].relationship-value" value="`$src-ltpId`" />
+            </save>
+            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" resource="service-instance:relationship-list" 
+		key="customer.global-customer-id = $connection-attachment-topology-operation-input.service-information.global-customer-id AND
+			service-subscription.service-type = $connection-attachment-topology-operation-input.service-information.subscription-service-type AND
+			service-instance.service-instance-id = $connection-attachment-topology-operation-input.allotted-resource-information.parent-service-instance-id" 
+      force="true" pfx="tmp.AnAI-data">
+                <parameter name="relationship-list.relationship[0].related-to" value="allotted-resource" />
+                <parameter name="relationship-list.relationship[0].related-link" value="`'/business/customers/customer/' + $connection-attachment-topology-operation-input.service-information.global-customer-id + '/service-subscriptions/service-subscription/' + $connection-attachment-topology-operation-input.service-information.subscription-service-type + '/service-instances/service-instance/' + $connection-attachment-topology-operation-input.service-information.service-instance-id + '/allotted-resources/allotted-resource/' + $tmp.ar.allotted-resource-id`" />
+                <parameter name="relationship-list.relationship[0].relationship-data[0].relationship-key" value="allotted-resource.id" />
+                <parameter name="relationship-list.relationship[0].relationship-data[0].relationship-value" value="`$tmp.ar.allotted-resource-id`" />
+            </save>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="`$error-message`" />
+            </return>
+        </block>
+    </method>
+</service-logic>

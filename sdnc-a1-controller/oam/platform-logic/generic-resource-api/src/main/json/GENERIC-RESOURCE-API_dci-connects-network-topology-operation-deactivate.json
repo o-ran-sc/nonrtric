@@ -1,0 +1,814 @@
+[
+  {
+    "id": "afc82ce2.121c78",
+    "type": "dgstart",
+    "name": "DGSTART",
+    "outputs": 1,
+    "x": 79,
+    "y": 77,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "db617858.b4ddb"
+      ]
+    ]
+  },
+  {
+    "id": "db617858.b4ddb",
+    "type": "service-logic",
+    "name": "GENERIC-RESOURCE-API ${project.version}",
+    "module": "GENERIC-RESOURCE-API",
+    "version": "${project.version}",
+    "comments": "",
+    "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+    "outputs": 1,
+    "x": 340,
+    "y": 148,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "bb132476.9ca4e"
+      ]
+    ]
+  },
+  {
+    "id": "bb132476.9ca4e",
+    "type": "method",
+    "name": "method dci-connects-network-topology-operation-deactivate",
+    "xml": "<method rpc='dci-connects-network-topology-operation-deactivate' mode='sync'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 230,
+    "y": 233,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "2a9be4c6.eb14b4"
+      ]
+    ]
+  },
+  {
+    "id": "2a9be4c6.eb14b4",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "outputs": 1,
+    "x": 565.0000152587891,
+    "y": 233.00000953674316,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "ab306509.d7099",
+        "d2dfa358.504c58",
+        "a8a63952.1bc7f8",
+        "57931680.a91588",
+        "4204819e.38435",
+        "82e8e8d7.c3425",
+        "c09f45a3.c220d8"
+      ]
+    ]
+  },
+  {
+    "id": "ab306509.d7099",
+    "type": "call",
+    "name": "call GENERIC-RESOURCE-API:validate-network-input-parameters",
+    "xml": "<call module='GENERIC-RESOURCE-API' rpc='validate-network-input-parameters' mode='sync' >\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 900,
+    "y": 102,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "d2dfa358.504c58",
+    "type": "returnSuccess",
+    "name": "return success",
+    "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+    "comments": "",
+    "x": 774,
+    "y": 995,
+    "z": "5a5462f8.9bc3ac",
+    "wires": []
+  },
+  {
+    "id": "ae004639.5a1a9",
+    "type": "block",
+    "name": "block : sendRequest",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "comments": "",
+    "outputs": 1,
+    "x": 961.5000305175781,
+    "y": 576.5156650543213,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "ca9f4012.a368f",
+        "6f0aecce.06e20c",
+        "29bbe40.27fea1c",
+        "1ce08181.681226"
+      ]
+    ]
+  },
+  {
+    "id": "4509fe22.e5801",
+    "type": "success",
+    "name": "success",
+    "xml": "<outcome value='success'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1493.999927520752,
+    "y": 373.51519107818604,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "fd4a0bd2.51c28"
+      ]
+    ]
+  },
+  {
+    "id": "72b32ace.1dce64",
+    "type": "not-found",
+    "name": "not-found",
+    "xml": "<outcome value='not-found'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1500.999927520752,
+    "y": 411.51519107818604,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "6310ff1e.a9757"
+      ]
+    ]
+  },
+  {
+    "id": "3dd8b536.d8d3e2",
+    "type": "other",
+    "name": "other",
+    "xml": "<outcome value='Other'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1492.999927520752,
+    "y": 453.51519107818604,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "bf2176dd.c8fbf8"
+      ]
+    ]
+  },
+  {
+    "id": "6310ff1e.a9757",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n<parameter name='error-code' value='' />\n<parameter name='error-message' value='' />\n",
+    "comments": "",
+    "x": 1657.999927520752,
+    "y": 415.51519107818604,
+    "z": "5a5462f8.9bc3ac",
+    "wires": []
+  },
+  {
+    "id": "bf2176dd.c8fbf8",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n<parameter name='error-code' value='' />\n<parameter name='error-message' value='' />\n",
+    "comments": "",
+    "x": 1650.999927520752,
+    "y": 462.51519107818604,
+    "z": "5a5462f8.9bc3ac",
+    "wires": []
+  },
+  {
+    "id": "ca9f4012.a368f",
+    "type": "get-resource",
+    "name": "get-resource esr-thirdparty-sdnc",
+    "xml": "<get-resource plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\t\tresource=\"esr-thirdparty-sdnc\" \n\t\tkey=\"esr-thirdparty-sdnc.thirdparty-sdnc-id = $prop.dci-connects.id AND \n\t\t     depth = '1'\"\n        pfx='tmp.aai.esr-thirdparty-sdnc' local-only='false' >\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1270.000015258789,
+    "y": 420.51519799232483,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "4509fe22.e5801",
+        "72b32ace.1dce64",
+        "3dd8b536.d8d3e2"
+      ]
+    ]
+  },
+  {
+    "id": "fd4a0bd2.51c28",
+    "type": "set",
+    "name": "set controller data",
+    "xml": "<set>\n<parameter name='prop.sdncRestApi.thirdpartySdnc.url' value=\"`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].service-url`\" />\n<parameter name='prop.sdncRestApi.thirdpartySdnc.user' value=\"`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].user-name`\" />\n<parameter name='prop.sdncRestApi.thirdpartySdnc.password' value=\"`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].password`\" />\n<parameter name='prop.sdncRestApi.thirdpartySdnc.vendor' value=\"`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].vendor`\" />\n\n",
+    "comments": "",
+    "x": 1673.4998779296875,
+    "y": 366.01513671875,
+    "z": "5a5462f8.9bc3ac",
+    "wires": []
+  },
+  {
+    "id": "270eaaaf.6d8a76",
+    "type": "execute",
+    "name": "execute RestApiCallNode De-Activate Vxlan Tunnel",
+    "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n<parameter name=\"restapiUrl\" value=\"`$prop.sdncRestApi.thirdpartySdnc.url + '/v2.0/l3-dci-connects/' + $prop.dci-connects.id`\"/>\n<parameter name=\"restapiUser\" value=\"`$prop.sdncRestApi.thirdpartySdnc.user`\"/>\n<parameter name=\"restapiPassword\" value=\"`$prop.sdncRestApi.thirdpartySdnc.password`\"/>\n<parameter name=\"format\" value=\"json\"/>\n<parameter name=\"httpMethod\" value=\"delete\"/>\n<parameter name=\"responsePrefix\" value=\"restapi-result\"/>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2097.500289916992,
+    "y": 566.5156259536743,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "108e039c.2a2694",
+    "type": "switchNode",
+    "name": "switch tunnelType",
+    "xml": "<switch test=\"`$prop.dci-connects.tunnelType`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1560.4997482299805,
+    "y": 591.01513671875,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "b27ecfa7.2e204",
+        "70cba102.5a4918"
+      ]
+    ]
+  },
+  {
+    "id": "b27ecfa7.2e204",
+    "type": "outcomeTrue",
+    "name": "L3-DCI",
+    "xml": "<outcome value='L3-DCI'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1773.4998779296875,
+    "y": 571.01513671875,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "270eaaaf.6d8a76"
+      ]
+    ]
+  },
+  {
+    "id": "70cba102.5a4918",
+    "type": "outcomeTrue",
+    "name": "L2-DCI",
+    "xml": "<outcome value='L2-DCI'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1771.499698638916,
+    "y": 643.01513671875,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "a70a8740.35415"
+      ]
+    ]
+  },
+  {
+    "id": "a70a8740.35415",
+    "type": "execute",
+    "name": "execute RestApiCallNode De-Activate Vxlan Tunnel",
+    "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n<parameter name=\"restapiUrl\" value=\"`$prop.sdncRestApi.thirdpartySdnc.url + '/v2.0/l2-dci-connects/' + $prop.dci-connects.id`\"/>\n<parameter name=\"restapiUser\" value=\"`$prop.sdncRestApi.thirdpartySdnc.user`\"/>\n<parameter name=\"restapiPassword\" value=\"`$prop.sdncRestApi.thirdpartySdnc.password`\"/>\n<parameter name=\"format\" value=\"json\"/>\n<parameter name=\"httpMethod\" value=\"delete\"/>\n<parameter name=\"responsePrefix\" value=\"restapi-result\"/>",
+    "comments": "",
+    "outputs": 1,
+    "x": 2091.500244140625,
+    "y": 643.5155620574951,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "b6e2380b.22053",
+    "type": "for",
+    "name": "for each network-input-parameters",
+    "xml": "<for index='idx' start='0' end='`$service-data.networks.network[$tmp.nidx].network-data.network-request-input.network-input-parameters.param_length`' >\n\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1023.9999847412109,
+    "y": 177.51563167572021,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "93278f1f.6117c"
+      ]
+    ]
+  },
+  {
+    "id": "6f0aecce.06e20c",
+    "type": "record",
+    "name": "record",
+    "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"dci-network-topology-operation-deactivate\"/>\n<parameter name=\"field3\" value=\"dci-connects.id\" />\n<parameter name=\"field4\" value=\"`$prop.dci-connects.id`\"/>\n<parameter name=\"field5\" value=\"dci-connects.tunnelType\" />\n<parameter name=\"field6\" value=\"`$prop.dci-connects.tunnelType`\"/>\n<parameter name=\"field7\" value=\"dci-connects.tunnelType\" />\n<parameter name=\"field8\" value=\"`$prop.dci-connects.tunnelType`\"/>\n<parameter name=\"field9\" value=\"sdncRestApi.thirdpartySdnc.url\"/>\n<parameter name=\"field10\" value=\"`$prop.sdncRestApi.thirdpartySdnc.url`\"/>",
+    "comments": "",
+    "outputs": 1,
+    "x": 1207.3333740234375,
+    "y": 529,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "93278f1f.6117c",
+    "type": "block",
+    "name": "block",
+    "xml": "<block>\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 1257.3334274291992,
+    "y": 177.00000762939453,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "98a85984.08bf9",
+        "c01c858f.6535f"
+      ]
+    ]
+  },
+  {
+    "id": "98a85984.08bf9",
+    "type": "switchNode",
+    "name": "switch site1_id",
+    "xml": "<switch test=\"`$service-data.networks.network[$tmp.nidx].network-data.network-request-input.network-input-parameters.param[$idx].name == 'site1_id'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1463.6666374206543,
+    "y": 146.00000381469727,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "931a8fd9.57dc4"
+      ]
+    ]
+  },
+  {
+    "id": "931a8fd9.57dc4",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1664.666732788086,
+    "y": 145.00000286102295,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "bf8602b7.a89dd"
+      ]
+    ]
+  },
+  {
+    "id": "bf8602b7.a89dd",
+    "type": "set",
+    "name": "set id",
+    "xml": "<set>\n<parameter name='prop.dci-connects.id' value='`$service-data.networks.network[$tmp.nidx].network-data.network-request-input.network-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 1838.3330841064453,
+    "y": 144.66654777526855,
+    "z": "5a5462f8.9bc3ac",
+    "wires": []
+  },
+  {
+    "id": "c01c858f.6535f",
+    "type": "switchNode",
+    "name": "switch tunnelType",
+    "xml": "<switch test=\"`$service-data.networks.network[$tmp.nidx].network-data.network-request-input.network-input-parameters.param[$idx].name == 'tunnelType'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1473.6667175292969,
+    "y": 199.00000977516174,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "21e6cd01.99ffda"
+      ]
+    ]
+  },
+  {
+    "id": "21e6cd01.99ffda",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1679.6667175292969,
+    "y": 199.00000977516174,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "4b7be50f.b4ead4"
+      ]
+    ]
+  },
+  {
+    "id": "4b7be50f.b4ead4",
+    "type": "set",
+    "name": "set tunnelType",
+    "xml": "<set>\n<parameter name='prop.dci-connects.tunnelType' value='`$service-data.networks.network[$tmp.nidx].network-data.network-request-input.network-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 1848.6668167114258,
+    "y": 199.0000250339508,
+    "z": "5a5462f8.9bc3ac",
+    "wires": []
+  },
+  {
+    "id": "a8a63952.1bc7f8",
+    "type": "block",
+    "name": "block : executeSite1",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "comments": "",
+    "outputs": 1,
+    "x": 753.3333358764648,
+    "y": 178.66666412353516,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "b6e2380b.22053",
+        "ae004639.5a1a9"
+      ]
+    ]
+  },
+  {
+    "id": "e321a5f2.fe2e3",
+    "type": "for",
+    "name": "for each network-input-parameters",
+    "xml": "<for index='idx' start='0' end='`$service-data.networks.network[$tmp.nidx].network-data.network-request-input.network-input-parameters.param_length`' >\n\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1029.0000686645508,
+    "y": 283.66663551330566,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "d37e272b.ea0298"
+      ]
+    ]
+  },
+  {
+    "id": "d37e272b.ea0298",
+    "type": "block",
+    "name": "block",
+    "xml": "<block>\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 1257.3334350585938,
+    "y": 286.15101146698,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "d847cda0.0460f"
+      ]
+    ]
+  },
+  {
+    "id": "d847cda0.0460f",
+    "type": "switchNode",
+    "name": "switch site2_id",
+    "xml": "<switch test=\"`$service-data.networks.network[$tmp.nidx].network-data.network-request-input.network-input-parameters.param[$idx].name == 'site2_id'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1458.3333854675293,
+    "y": 286.15099716186523,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "7ed96e02.76a578"
+      ]
+    ]
+  },
+  {
+    "id": "7ed96e02.76a578",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1659.333480834961,
+    "y": 285.1509962081909,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "d7f24acd.dc28e"
+      ]
+    ]
+  },
+  {
+    "id": "d7f24acd.dc28e",
+    "type": "set",
+    "name": "set id",
+    "xml": "<set>\n<parameter name='prop.dci-connects.id' value='`$service-data.networks.network[$tmp.nidx].network-data.network-request-input.network-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 1832.9998321533203,
+    "y": 284.8175411224365,
+    "z": "5a5462f8.9bc3ac",
+    "wires": []
+  },
+  {
+    "id": "57931680.a91588",
+    "type": "block",
+    "name": "block : executeSite1",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "comments": "",
+    "outputs": 1,
+    "x": 753.3333435058594,
+    "y": 287.8176679611206,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "e321a5f2.fe2e3",
+        "ae004639.5a1a9"
+      ]
+    ]
+  },
+  {
+    "id": "85aea54b.a8d68",
+    "type": "comment",
+    "name": "TODO",
+    "info": "Currently deactivate does deletion too, later divide in two phases.",
+    "comments": "",
+    "x": 687.3333358764648,
+    "y": 41,
+    "z": "5a5462f8.9bc3ac",
+    "wires": []
+  },
+  {
+    "id": "4204819e.38435",
+    "type": "delete",
+    "name": "delete underlay configuration in AAI",
+    "xml": "<delete plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" resource='configuration' \n        key='configuration.configuration-id = $network-topology-operation-input.network-information.network-id'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 847,
+    "y": 636,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "29bbe40.27fea1c",
+    "type": "execute",
+    "name": "execute Properties",
+    "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >\n    <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />\n    <parameter name='contextPrefix' value='prop' />\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1242,
+    "y": 477,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "1ce08181.681226",
+    "type": "switchNode",
+    "name": "switch vendor",
+    "xml": "<switch test=\"`$prop.sdncRestApi.thirdpartySdnc.vendor`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1198,
+    "y": 591,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "d96f0afb.72174"
+      ]
+    ]
+  },
+  {
+    "id": "d96f0afb.72174",
+    "type": "outcomeTrue",
+    "name": "SPTN",
+    "xml": "<outcome value='SPTN'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1373,
+    "y": 591,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "108e039c.2a2694"
+      ]
+    ]
+  },
+  {
+    "id": "b44d2822.3215d8",
+    "type": "comment",
+    "name": "Remove network from service data",
+    "info": "",
+    "comments": "",
+    "x": 863.0000610351562,
+    "y": 696.9999389648438,
+    "z": "5a5462f8.9bc3ac",
+    "wires": []
+  },
+  {
+    "id": "82e8e8d7.c3425",
+    "type": "switchNode",
+    "name": "switch $service-data.networks.network_length",
+    "xml": "<switch test='`$service-data.networks.network_length`'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 878.7658081054688,
+    "y": 740.0079956054688,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "dba62b53.9a3ec",
+        "57166c95.83901c"
+      ]
+    ]
+  },
+  {
+    "id": "c09f45a3.c220d8",
+    "type": "set",
+    "name": "set output to api handler",
+    "xml": "<set>\n<parameter name='networkId' value='`$network-topology-operation-input.network-information.network-id`' />\n<parameter name='service-object-path' value=\"`'restconf/config/GENERIC-RESOURCE-API:services/service/'\n + $network-topology-operation-input.service-information.service-instance-id\n + '/service-data/service-topology/'` \" />\n \n",
+    "comments": "",
+    "x": 814.7658081054688,
+    "y": 886.0079956054688,
+    "z": "5a5462f8.9bc3ac",
+    "wires": []
+  },
+  {
+    "id": "500bd365.2cd4bc",
+    "type": "comment",
+    "name": "If only one remove all networks",
+    "info": "",
+    "comments": "",
+    "x": 1253.1837692260742,
+    "y": 701.267255783081,
+    "z": "5a5462f8.9bc3ac",
+    "wires": []
+  },
+  {
+    "id": "dba62b53.9a3ec",
+    "type": "outcome",
+    "name": "1",
+    "xml": "<outcome value='1'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1181.8134078979492,
+    "y": 736.674482345581,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "9f9202f3.6e105"
+      ]
+    ]
+  },
+  {
+    "id": "9f9202f3.6e105",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "outputs": 1,
+    "x": 1361.1467208862305,
+    "y": 737.3782787322998,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "f066bd89.a6c2e8",
+        "c6b689fd.992278"
+      ]
+    ]
+  },
+  {
+    "id": "57166c95.83901c",
+    "type": "other",
+    "name": "other",
+    "xml": "<outcome value='Other'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1148.1943588256836,
+    "y": 889.0078001022339,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "3d590d9a.bcff9a"
+      ]
+    ]
+  },
+  {
+    "id": "3d590d9a.bcff9a",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "outputs": 1,
+    "x": 1370.194236755371,
+    "y": 889.0078001022339,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "5a71292a.6b8408",
+        "d3de161f.966088",
+        "963a7919.b37fb8",
+        "227d053b.c1572a"
+      ]
+    ]
+  },
+  {
+    "id": "f066bd89.a6c2e8",
+    "type": "set",
+    "name": "Remove networks",
+    "xml": "<set>\n\t<parameter name=\"service-data.networks.\" value=\"\"/>\n\n",
+    "comments": "",
+    "x": 1611.432273864746,
+    "y": 740.3413572311401,
+    "z": "5a5462f8.9bc3ac",
+    "wires": []
+  },
+  {
+    "id": "c6b689fd.992278",
+    "type": "set",
+    "name": "set new network length",
+    "xml": "<set>\n\t<parameter name=\"service-data.networks.network_length\" value=\"0\"/>\n\n\t\n",
+    "comments": "",
+    "x": 1627.7656478881836,
+    "y": 775.045015335083,
+    "z": "5a5462f8.9bc3ac",
+    "wires": []
+  },
+  {
+    "id": "227d053b.c1572a",
+    "type": "set",
+    "name": "Set new network length",
+    "xml": "<set>\n\t<parameter name=\"tmp.new_length\" value=\"`$service-data.networks.network_length - 1`\"/>\n\t\n\t\n",
+    "comments": "",
+    "x": 1633.8979721069336,
+    "y": 826.2671995162964,
+    "z": "5a5462f8.9bc3ac",
+    "wires": []
+  },
+  {
+    "id": "5a71292a.6b8408",
+    "type": "for",
+    "name": "for snidx..service-data.networks.network[]",
+    "xml": "<for silentFailure='true' index='snidx' start='`$tmp.nidx + 1`' end='`$service-data.networks.network_length`' >\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1682.603172302246,
+    "y": 878.5711545944214,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      [
+        "ccdd9c9d.183f1"
+      ]
+    ]
+  },
+  {
+    "id": "963a7919.b37fb8",
+    "type": "set",
+    "name": "set new network length",
+    "xml": "<set>\n\t<parameter name=\"service-data.networks.network_length\" value=\"`$service-data.networks.network_length - 1`\"/>\n\n\t\n",
+    "comments": "",
+    "x": 1641.0620422363281,
+    "y": 922.3414134979248,
+    "z": "5a5462f8.9bc3ac",
+    "wires": []
+  },
+  {
+    "id": "d3de161f.966088",
+    "type": "set",
+    "name": "Remove networks",
+    "xml": "<set>\n\t<parameter name=\"service-data.networks.network[$tmp.new_length].\" value=\"\"/>\n\n",
+    "comments": "",
+    "x": 1620.9085083007812,
+    "y": 960.3093585968018,
+    "z": "5a5462f8.9bc3ac",
+    "wires": []
+  },
+  {
+    "id": "ccdd9c9d.183f1",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "comments": "",
+    "outputs": 1,
+    "x": 1971.1941833496094,
+    "y": 888.007833480835,
+    "z": "5a5462f8.9bc3ac",
+    "wires": [
+      []
+    ]
+  }
+]

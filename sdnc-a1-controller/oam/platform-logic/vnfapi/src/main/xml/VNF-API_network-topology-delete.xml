@@ -1,0 +1,75 @@
+<!--
+  ============LICENSE_START=======================================================
+  openECOMP : SDN-C
+  ================================================================================
+  Copyright (C) 2017 AT&T Intellectual Property. All rights
+  						reserved.
+  ================================================================================
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+       http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  ============LICENSE_END=========================================================
+  -->
+
+<service-logic xmlns="http://www.onap.org/sdnc/svclogic"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.onap.org/sdnc/svclogic ./svclogic.xsd" module='VNF-API' version='${project.version}'><method rpc="network-topology-delete" mode="sync"><block atomic="true">
+<switch test="`$network-topology-operation-input.network-request-information.network-id`"><outcome value='Other'><get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+    resource="l3-network"
+        key="l3-network.network-id = $network-topology-operation-input.network-request-information.network-id"
+        pfx="tmp.AnAI.l3network">
+<outcome value='failure'>
+<return status='failure'>
+    <parameter name='error-code' value='400'/>
+    <parameter name='error-message' value="Failed to query AAI by network-id"/></return></outcome><outcome value='not-found'>
+<return status="success">
+    <parameter name="networkId" value="`$network-topology-operation-input.network-request-information.network-id` not found" />
+    <parameter name="error-code" value="200" /></return></outcome><outcome value='success'>
+<block atomic="true"><delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+    resource="l3-network"
+        key="l3-network.network-id = $tmp.AnAI.l3network.network-id" ></delete><set>
+<parameter name="ack-final" value="Y"/></set><return status='success'>
+    <parameter name="networkId" value="`$tmp.AnAI.l3network.network-id`" />
+    <parameter name="error-code" value="200" /></return></block></outcome></get-resource></outcome><outcome value='0'><switch test="`$network-topology-operation-input.network-request-information.network-name`"><outcome value=''><return status='failure'>
+    <parameter name='error-code' value='400'/>
+    <parameter name='error-message' value="DisconnectNetworkRequest requires  network-id or network-name "/></return></outcome><outcome value='Other'><get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+    resource="l3-network"
+        key="l3-network.network-name = $network-topology-operation-input.network-request-information.network-name"
+        pfx="tmp.AnAI.l3network">
+<outcome value='failure'>
+<return status='failure'>
+    <parameter name='error-code' value='400'/>
+    <parameter name='error-message' value="Failed to query AAI by network-name"/></return></outcome><outcome value='not-found'>
+<return status="success">
+    <parameter name="augmentation" value="`$network-topology-operation-input.network-request-information.network-name` not found" />
+    <parameter name="error-code" value="200" /></return></outcome><outcome value='success'>
+<block atomic="true"><delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+    resource="l3-network"
+        key="l3-network.network-id = $tmp.AnAI.l3network.network-id" ></delete><set>
+<parameter name="ack-final" value="Y"/></set><return status='success'>
+    <parameter name="networkId" value="`$tmp.AnAI.l3network.network-id`" />
+    <parameter name="error-code" value="200" /></return></block></outcome></get-resource></outcome></switch></outcome><outcome value=''><switch test="`$network-topology-operation-input.network-request-information.network-name`"><outcome value=''><return status='failure'>
+    <parameter name='error-code' value='400'/>
+    <parameter name='error-message' value="DisconnectNetworkRequest requires  network-id or network-name "/></return></outcome><outcome value='Other'><get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+    resource="l3-network"
+        key="l3-network.network-name = $network-topology-operation-input.network-request-information.network-name"
+        pfx="tmp.AnAI.l3network">
+<outcome value='failure'>
+<return status='failure'>
+    <parameter name='error-code' value='400'/>
+    <parameter name='error-message' value="Failed to query AAI by network-name"/></return></outcome><outcome value='not-found'>
+<return status="success">
+    <parameter name="augmentation" value="`$network-topology-operation-input.network-request-information.network-name` not found" />
+    <parameter name="error-code" value="200" /></return></outcome><outcome value='success'>
+<block atomic="true"><delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+    resource="l3-network"
+        key="l3-network.network-id = $tmp.AnAI.l3network.network-id" ></delete><set>
+<parameter name="ack-final" value="Y"/></set><return status='success'>
+    <parameter name="networkId" value="`$tmp.AnAI.l3network.network-id`" />
+    <parameter name="error-code" value="200" /></return></block></outcome></get-resource></outcome></switch></outcome></switch></block></method></service-logic>

@@ -1,0 +1,400 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='self-serve-pnf-assign' mode='sync'>
+        <block atomic='true'>
+            <set>
+                <parameter name='is-new-pnf' value='true' />
+            </set>
+            <switch test='`$service-data.pnfs.pnf_length`'>
+                <outcome value=''>
+                    <block>
+                        <set>
+                            <parameter name='pnf-index' value='0' />
+                        </set>
+                        <set>
+                            <parameter name='service-data.pnfs.pnf_length' value='1' />
+                        </set>
+                    </block>
+                </outcome>
+                <outcome value='0'>
+                    <block>
+                        <set>
+                            <parameter name='pnf-index' value='0' />
+                        </set>
+                        <set>
+                            <parameter name='service-data.pnfs.pnf_length' value='1' />
+                        </set>
+                    </block>
+                </outcome>
+                <outcome value='Other'>
+                    <block>
+                        <for index='idx' start='0' end='`$service-data.pnfs.pnf_length`' >
+                            <switch test='`$pf-topology-operation-input.pnf-details.pnf-id == $service-data.pnfs.pnf[$idx].pnf-id`'>
+                                <outcome value='true'>
+                                    <block>
+                                        <set>
+                                            <parameter name='is-new-pnf' value='false' />
+                                        </set>
+                                        <set>
+                                            <parameter name='pnf-index' value='`$idx`' />
+                                        </set>
+                                        <break/>
+                                    </block>
+                                </outcome>
+                            </switch>
+                        </for>
+                        <switch test='`$is-new-pnf`'>
+                            <outcome value='true'>
+                                <block>
+                                    <set>
+                                        <parameter name='pnf-index' value='`$service-data.pnfs.pnf_length`' />
+                                    </set>
+                                    <set>
+                                        <parameter name='service-data.pnfs.pnf_length' value='`$service-data.pnfs.pnf_length + 1`' />
+                                    </set>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+            </switch>
+            <switch test='`$is-new-pnf`'>
+                <outcome value='true'>
+                    <block>
+                        <set>
+                            <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-topology-identifier-structure.pnf-id'
+ value='`$pnf-topology-operation-input.pnf-details.pnf-id`' />
+                            <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-topology-identifier-structure.pnf-type'
+ value='`$pnf-topology-operation-input.pnf-details.pnf-type`' />
+                            <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.tenant'
+ value='`$pnf-topology-operation-input.pnf-request-input.tenant`' />
+                            <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.aic-cloud-region'
+ value='`$pnf-topology-operation-input.pnf-request-input.aic-cloud-region`' />
+                        </set>
+                        <set>
+                            <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-id'
+   value='`$pnf-topology-operation-input.pnf-details.pnf-id`' />
+                        </set>
+                        <switch test='`$pnf-topology-operation-input.pnf-details.onap-model-information.model-invariant-uuid`'>
+                            <outcome value=''>
+                                <set>
+                                    <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.onap-model-information.model-invariant-uuid'
+  value='`$db.pnf-model.invariant-uuid`' />
+                                </set>
+                            </outcome>
+                            <outcome value='Other'>
+                                <set>
+                                    <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.onap-model-information.model-invariant-uuid'
+  value='`$pnf-topology-operation-input.pnf-details.onap-model-information.model-invariant-uuid`' />
+                                </set>
+                            </outcome>
+                        </switch>
+                        <switch test='`$pnf-topology-operation-input.pnf-details.onap-model-information.model-uuid`'>
+                            <outcome value=''>
+                                <set>
+                                    <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.onap-model-information.model-uuid'
+  value='`$db.pnf-model.uuid`' />
+                                </set>
+                            </outcome>
+                            <outcome value='Other'>
+                                <set>
+                                    <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.onap-model-information.model-uuid'
+  value='`$pnf-topology-operation-input.pnf-details.onap-model-information.model-uuid`' />
+                                </set>
+                            </outcome>
+                        </switch>
+                        <switch test='`$pnf-topology-operation-input.pnf-details.onap-model-information.model-version`'>
+                            <outcome value=''>
+                                <set>
+                                    <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.onap-model-information.model-version'
+  value='`$db.pnf-model.version`' />
+                                </set>
+                            </outcome>
+                            <outcome value='Other'>
+                                <set>
+                                    <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.onap-model-information.model-version'
+  value='`$pnf-topology-operation-input.pnf-details.onap-model-information.model-version`' />
+                                </set>
+                            </outcome>
+                        </switch>
+                        <switch test='`$pnf-topology-operation-input.pnf-details.onap-model-information.model-name`'>
+                            <outcome value=''>
+                                <set>
+                                    <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.onap-model-information.model-name'
+  value='`$db.pnf-model.name`' />
+                                </set>
+                            </outcome>
+                            <outcome value='Other'>
+                                <set>
+                                    <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.onap-model-information.model-name'
+  value='`$pnf-topology-operation-input.pnf-details.onap-model-information.model-name`' />
+                                </set>
+                            </outcome>
+                        </switch>
+                        <set>
+                            <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.onap-model-information.model-customization-uuid' 
+  value='`$pnf-topology-operation-input.pnf-details.onap-model-information.model-customization-uuid`' />
+                        </set>
+                        <set>
+                            <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.sdnc-request-header.'
+        value='$pnf-topology-operation-input.sdnc-request-header.' />
+                            <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.request-information.'
+        value='$pnf-topology-operation-input.request-information.' />
+                            <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.service-information.'
+        value='$pnf-topology-operation-input.service-information.' />
+                            <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-details.'
+        value='$pnf-topology-operation-input.pnf-details.' />
+                            <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-request-input.'
+        value='$pnf-topology-operation-input.pnf-request-input.' />
+                        </set>
+                        <set>
+                            <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-level-oper-status.order-status' value='PendingCreate' />
+                            <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-level-oper-status.last-rpc-action' value='`$pnf-topology-operation-input.sdnc-request-header.svc-action`' />
+                            <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-level-oper-status.last-action' value='`$pnf-topology-operation-input.request-information.request-action`' />
+                        </set>
+                    </block>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='ss.capability.execution-order[0]' value='aai-get' />
+                <parameter name='ss.capability.execution-order[1]' value='generate-name' />
+                <parameter name='ss.capability.execution-order[2]' value='alts-entitlement-assign' />
+                <parameter name='ss.capability.execution-order[3]' value='alts-license-assign' />
+                <parameter name='ss.capability.execution-order[4]' value='vlan-tag-assign' />
+                <parameter name='ss.capability.execution-order[5]' value='mS-vlan-tag-assign' />
+                <parameter name='ss.capability.execution-order[6]' value='eipam-ip-assignment' />
+                <parameter name='ss.capability.execution-order[7]' value='eipam-create-pool' />
+                <parameter name='ss.capability.execution-order[8]' value='netbox-ip-assign' />
+                <parameter name='ss.capability.execution-order[9]' value='mac-address-assign' />
+                <parameter name='ss.capability.execution-order[10]' value='mS-mac-address-assign' />
+                <parameter name='ss.capability.execution-order[11]' value='create-vpe-pool' />
+                <parameter name='ss.capability.execution-order[12]' value='unresolved-composite-data' />
+                <parameter name='ss.capability.execution-order[13]' value='aai-pnf-put' />
+                <parameter name='ss.capability.execution-order_length' value='14' />
+            </set>
+            <set>
+                <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.sdnc-generated-cloud-resources' value='true' />
+            </set>
+            <set>
+                <parameter name='ss.capability-type' value='pnf' />
+            </set>
+            <switch test='`$prop.controller.user`'>
+                <outcome value=''>
+                    <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                        <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                        <parameter name='contextPrefix' value='prop' />
+                    </execute>
+                </outcome>
+            </switch>
+            <switch test='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param_length`'>
+                <outcome value=''>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.'
+  value='pnf-topology-operation-input.pnf-request-input.pnf-input-parameters.' />
+                        </set>
+                        <call module='GENERIC-RESOURCE-API' rpc='self-serve-pnf-ra-assignment' mode='sync' >
+                            <outcome value='failure'>
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value="`'Failed to get RA assignments: ' + $error-message`" />
+                                </return>
+                            </outcome>
+                        </call>
+                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                            <parameter name="logger" value="message-log"/>
+                            <parameter name="field1" value="DONE with pnf-ra-assigment"/>
+                        </record>
+                    </block>
+                </outcome>
+            </switch>
+            <for index='cidx' start='0' end='`$ss.capability.execution-order_length`' >
+                <set>
+                    <parameter name='ss.capability-name' value='`$ss.capability.execution-order[$cidx]`' />
+                    <!--
+ss.capability.execution-order[]
+-->
+                </set>
+                <set>
+                    <parameter name='ss.capability-action' value='assign' />
+                </set>
+                <set>
+                    <parameter name='ss.capability-dg' value="`'self-serve-' + $ss.capability.execution-order[$cidx]`" />
+                </set>
+                <for index='pidx' start='0' end='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param_length`' >
+                    <set>
+                        <parameter name='tmp.param.capability-name' 
+  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$pidx].resource-resolution-data.capability-name`' />
+                    </set>
+                    <switch test='`$ss.capability-name == $tmp.param.capability-name`'>
+                        <outcome value='true'>
+                            <block atomic='true'>
+                                <switch test='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$pidx].resource-resolution-data.status`'>
+                                    <outcome value='PENDING'>
+                                        <call module='GENERIC-RESOURCE-API' rpc='`$ss.capability-dg`' mode='sync' >
+                                            <outcome value='failure'>
+                                                <block atomic='true'>
+                                                    <set>
+                                                        <parameter name='pf.pnf-id'
+    value='`$service-data.pnfs.pnf[$pnf-index].pnf-id`' />
+                                                        <parameter name='pf.pnf-data.sdnc-request-header.'
+  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.sdnc-request-header.`' />
+                                                        <parameter name='pf.pnf-data.request-information.'
+  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.request-information.`' />
+                                                        <parameter name='pf.pnf-data.service-information.'
+  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.service-information.`' />
+                                                        <parameter name='pf.pnf-data.pnf-details.'
+  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-details.`' />
+                                                        <parameter name='pf.pnf-data.pnf-topology.'
+  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.`' />
+                                                        <parameter name='pf.pnf-data.pnf-level-oper-status.'
+  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-level-oper-status.`' />
+                                                        <parameter name='pf.pnf-data.pnf-request-input.pnf-input-parameters.'
+  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-request-input.pnf-input-parameters.`' />
+                                                        <parameter name='pf.pnf-data.pnf-request-input.request-version'
+  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-request-input.request-version`' />
+                                                        <parameter name='pf.pnf-data.pnf-request-input.pnf-name'
+  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-request-input.pnf-name`' />
+                                                        <parameter name='pf.pnf-data.pnf-request-input.tenant'
+  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-request-input.tenant`' />
+                                                        <parameter name='pf.pnf-data.pnf-request-input.aic-cloud-region'
+  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-request-input.aic-cloud-region`' />
+                                                        <parameter name='pf.pnf-data.pnf-request-input.aic-clli'
+  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-request-input.aic-clli`' />
+                                                    </set>
+                                                    <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                                                        <parameter name="source" value="`$prop.restapi.ss-pnf-assignments`"/>
+                                                        <parameter name="outputPath" value="tmp.ss-pnf-url"/>
+                                                        <parameter name="target" value="{service-instance-id}"/>
+                                                        <parameter name="replacement" value="`$service-data.pnfs.pnf[$pnf-index].pnf-data.service-information.service-instance-id`"/>
+                                                    </execute>
+                                                    <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                                                        <parameter name="source" value="`$tmp.ss-pnf-url`"/>
+                                                        <parameter name="outputPath" value="tmp.ss-pnf-url"/>
+                                                        <parameter name="target" value="{pnf-id}"/>
+                                                        <parameter name="replacement" value="`$service-data.pnfs.pnf[$pnf-index].pnf-id`"/>
+                                                    </execute>
+                                                    <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                                        <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.ss.pnf.templatefile`" />
+                                                        <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ss-pnf-url`' />
+                                                        <parameter name='restapiUser' value='`$prop.controller.user`' />
+                                                        <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                                                        <parameter name='format' value='json' />
+                                                        <parameter name='httpMethod' value='PUT' />
+                                                        <parameter name="responsePrefix" value="mdsal-ss-pnf" />
+                                                        <outcome value='failure'>
+                                                            <set>
+                                                                <parameter name="error-message" value="Failed to persist self-serve pnf assignments during assign in MD-SAL" />
+                                                            </set>
+                                                        </outcome>
+                                                        <outcome value='not-found'>
+                                                            <set>
+                                                                <parameter name="error-message" value="Failed to persist self-serve pnf assignments during assign in MD-SAL" />
+                                                            </set>
+                                                        </outcome>
+                                                    </execute>
+                                                    <return status='failure'>
+                                                        <parameter name='error-code' value='500' />
+                                                        <parameter name='error-message' value="`'Encountered error from capability: '+ $ss.capability-dg + ', with error: '+ $error-message`" />
+                                                    </return>
+                                                </block>
+                                            </outcome>
+                                            <outcome value='success'>
+                                                <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                    <parameter name="logger" value="message-log"/>
+                                                    <parameter name="field1" value="`'EXECUTION DONE: ' + $ss.capability-dg`"/>
+                                                </record>
+                                            </outcome>
+                                        </call>
+                                    </outcome>
+                                    <outcome value='FAILED'>
+                                        <call module='GENERIC-RESOURCE-API' rpc='`$ss.capability-dg`' mode='sync' >
+                                            <outcome value='failure'>
+                                                <block atomic='true'>
+                                                    <set>
+                                                        <parameter name='pf.pnf-id'
+    value='`$service-data.pnfs.pnf[$pnf-index].pnf-id`' />
+                                                        <parameter name='pf.pnf-data.sdnc-request-header.'
+  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.sdnc-request-header.`' />
+                                                        <parameter name='pf.pnf-data.request-information.'
+  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.request-information.`' />
+                                                        <parameter name='pf.pnf-data.service-information.'
+  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.service-information.`' />
+                                                        <parameter name='pf.pnf-data.pnf-details.'
+  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-details.`' />
+                                                        <parameter name='pf.pnf-data.pnf-topology.'
+  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.`' />
+                                                        <parameter name='pf.pnf-data.pnf-level-oper-status.'
+  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-level-oper-status.`' />
+                                                        <parameter name='pf.pnf-data.pnf-request-input.pnf-input-parameters.'
+  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-request-input.pnf-input-parameters.`' />
+                                                        <parameter name='pf.pnf-data.pnf-request-input.request-version'
+  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-request-input.request-version`' />
+                                                        <parameter name='pf.pnf-data.pnf-request-input.pnf-name'
+  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-request-input.pnf-name`' />
+                                                        <parameter name='pf.pnf-data.pnf-request-input.tenant'
+  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-request-input.tenant`' />
+                                                        <parameter name='pf.pnf-data.pnf-request-input.aic-cloud-region'
+  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-request-input.aic-cloud-region`' />
+                                                        <parameter name='pf.pnf-data.pnf-request-input.aic-clli'
+  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-request-input.aic-clli`' />
+                                                    </set>
+                                                    <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                                                        <parameter name="source" value="`$prop.restapi.ss-pnf-assignments`"/>
+                                                        <parameter name="outputPath" value="tmp.ss-pnf-url"/>
+                                                        <parameter name="target" value="{service-instance-id}"/>
+                                                        <parameter name="replacement" value="`$service-data.pnfs.pnf[$pnf-index].pnf-data.service-information.service-instance-id`"/>
+                                                    </execute>
+                                                    <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                                                        <parameter name="source" value="`$tmp.ss-pnf-url`"/>
+                                                        <parameter name="outputPath" value="tmp.ss-pnf-url"/>
+                                                        <parameter name="target" value="{pnf-id}"/>
+                                                        <parameter name="replacement" value="`$service-data.pnfs.pnf[$pnf-index].pnf-id`"/>
+                                                    </execute>
+                                                    <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                                        <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.ss.pnf.templatefile`" />
+                                                        <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ss-pnf-url`' />
+                                                        <parameter name='restapiUser' value='`$prop.controller.user`' />
+                                                        <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                                                        <parameter name='format' value='json' />
+                                                        <parameter name='httpMethod' value='PUT' />
+                                                        <parameter name="responsePrefix" value="mdsal-ss-pnf" />
+                                                        <outcome value='failure'>
+                                                            <set>
+                                                                <parameter name="error-message" value="Failed to persist self-serve pnf assignments during assign in MD-SAL" />
+                                                            </set>
+                                                        </outcome>
+                                                        <outcome value='not-found'>
+                                                            <set>
+                                                                <parameter name="error-message" value="Failed to persist self-serve pnf assignments during assign in MD-SAL" />
+                                                            </set>
+                                                        </outcome>
+                                                    </execute>
+                                                    <return status='failure'>
+                                                        <parameter name='error-code' value='500' />
+                                                        <parameter name='error-message' value="`'Encountered error from capability: '+ $ss.capability-dg + ', with error: '+ $error-message`" />
+                                                    </return>
+                                                </block>
+                                            </outcome>
+                                            <outcome value='success'>
+                                                <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                    <parameter name="logger" value="message-log"/>
+                                                    <parameter name="field1" value="`'EXECUTION DONE: ' + $ss.capability-dg`"/>
+                                                </record>
+                                            </outcome>
+                                        </call>
+                                    </outcome>
+                                </switch>
+                                <break/>
+                            </block>
+                        </outcome>
+                    </switch>
+                </for>
+            </for>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >
+                <parameter name='filename' value='/var/tmp/ss-pnf-assign.log' />
+            </execute>
+        </block>
+    </method>
+</service-logic>

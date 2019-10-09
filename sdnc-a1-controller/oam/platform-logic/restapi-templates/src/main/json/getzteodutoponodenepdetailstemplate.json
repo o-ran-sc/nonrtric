@@ -1,0 +1,6 @@
+
+{
+  "input":{
+     "node-edge-point-id":${prop.zte.odutopo.node.nep.uuid}
+  }
+}

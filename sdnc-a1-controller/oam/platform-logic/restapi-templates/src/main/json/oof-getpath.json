@@ -1,0 +1,17 @@
+{
+    "srcPort": {
+        "src-access-topology-id": ${prop.connection-attachment.access-topology-id},
+        "src-access-client-id": ${prop.connection-attachment.access-client-id},
+        "src-access-provider-id": ${prop.connection-attachment.access-provider-id},
+        "src-access-node-id": ${prop.connection-attachment.access-node-id},
+        "src-access-ltp-id": ${prop.connection-attachment.access-ltp-id}
+    },
+    "dstPort": {
+        "dst-access-topology-id": ${prop.remote.connection-attachment.access-topology-id},
+        "dst-access-client-id": ${prop.remote.connection-attachment.access-client-id},
+        "dst-access-provider-id": ${prop.remote.connection-attachment.access-provider-id},
+        "dst-access-node-id": ${prop.remote.connection-attachment.access-node-id},
+        "dst-access-ltp-id": ${prop.remote.connection-attachment.access-ltp-id}
+    }
+}
+

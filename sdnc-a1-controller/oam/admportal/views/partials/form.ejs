@@ -1,0 +1,55 @@
+   <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="myModalLabel">New Request</h4>
+          </div>
+          <div class="modal-body">
+            <form id="addEntry" role="form" action="svc-topology-operation">
+              <!--
+              <div class="form-group">
+                <label for="svc-request-id">svc-request-id</label>
+                <input type="text" class="form-control" name="svc-request-id" id="svc-request-id" value="req-0001">
+              </div>
+              -->
+              <div class="form-group">
+                <label for="svc-instance-id">svc-instance-id</label>
+                <input type="text" class="form-control" name="svc-instance-id" id="svc-instance-id" value="siid-0001">
+              </div>
+              <div class="form-group">
+                <label for="svc-vnf-type">svc-vnf-type</label>
+                <select class="form-control" name="svc-vnf-type" id="svc-vnf-type">
+                    <option value=vce>"vce"</option>
+                    <option value=Unknown>"Unknown"</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="svc-action">svc-action</label>
+                <select class="form-control" name="svc-action" id="svc-action">
+                    <option value=reserve>"reserve"</option>
+                    <option value=create>"create"</option>
+                    <option value=activate>"activate"</option>
+                    <option value=query>"query"</option>
+                    <option value=update>"update"</option>
+                    <option value=delete>"delete"</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="svc-notification-url">svc-notification-url</label>
+                <input type="text" class="form-control" name="svc-notification-url" id="svc-notification-url" value="">
+              </div>
+              <div class="form-group">
+                <label for="desc">svc-aic-site-id</label>
+                <input type="text" class="form-control" name="svc-aic-site-id" id="svc-aic-site-id" value="att-0001">
+              </div>
+              <div class="form-group">
+                <button type="submit" class="btn btn-primary">Save</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>
+

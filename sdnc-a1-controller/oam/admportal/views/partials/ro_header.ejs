@@ -1,0 +1,43 @@
+<!-- views/partials/header.ejs -->
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+
+
+		<div class="navbar-header">
+            <a class="navbar-brand" href="#">&nbsp;SDN-C AdminPortal</a>
+    	</div>
+
+        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-default navbar-btn" disabled>SLA</button>
+
+			<div class="btn-group" role="group">
+      			<button disabled type="button" class="btn btn-default navbar-btn dropdown-toggle" 
+					data-toggle="dropdown" aria-expanded="false">Table Initialization <span class="caret"></span></button>
+      			<ul class="dropdown-menu" role="menu">
+        			<li><a href="/gamma/getAicSite">AIC Site</a></li>
+        			<li><a href="/gamma/getAicSwitch">AIC Switch</a></li>
+        			<li><a href="/gamma/getAicAvailZone">AIC Availability Zone</a></li>
+        			<li><a href="/gamma/getVlanPool">VLAN_ID Pool</a></li>
+        			<li><a href="/gamma/getVpePool">VPE Pool</a></li>
+        			<li><a href="/gamma/getVplspePool">VPLSPE Pool</a></li>
+        			<!-- <li class="divider"></li> -->
+      			</ul>
+    		</div>
+
+            <button type="button" class="btn btn-default navbar-btn" disabled>Interfaces</button>
+            <button type="button" class="btn btn-default navbar-btn" disabled>VMs</button>
+            <button disabled type="button" class="btn btn-default navbar-btn"
+				onclick="location.assign('/odl/listWklst');">Worklist Orders</button>
+            <button type="button" class="btn btn-default navbar-btn" disabled>Connections</button>
+            <button type="button" class="btn btn-default navbar-btn" disabled>VNFs</button>
+            <button type="button" class="btn btn-default navbar-btn" disabled>VLANs</button>
+            <button disabled type="button" class="btn btn-default navbar-btn"
+				onclick="location.assign('/user/listUsers');">User Admin</button>
+            <button disabled type="button" class="btn btn-default navbar-btn"
+				onclick="location.assign('/logout');">Logout</button>
+        </div>
+        </div>
+    </div>
+</nav>

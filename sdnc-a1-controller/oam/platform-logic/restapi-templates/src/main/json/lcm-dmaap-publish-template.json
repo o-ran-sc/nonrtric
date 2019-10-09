@@ -1,0 +1,28 @@
+{
+    "version": ${lcm-dmaap.version},
+    "cambria.partition": ${lcm-dmaap.partition},
+    "correlation-id": ${lcm-dmaap.correlation-id},
+    "rpc-name": ${lcm-dmaap.rpc-name},
+    "type": ${lcm-dmaap.type},
+    "body": {
+        "output": {
+            "common-header": {
+                "api-ver": ${lcm-dmaap.api-ver},
+                "flags": {
+                    "ttl": ${lcm-dmaap.flags.ttl},
+                    "force": ${lcm-dmaap.flags.force},
+                    "mode": ${lcm-dmaap.flags.mode}
+                },
+                "originator-id": ${lcm-dmaap.originator-id},
+                "request-id": ${lcm-dmaap.request-id},
+                "sub-request-id": ${lcm-dmaap.sub-request-id},
+                "timestamp": ${lcm-dmaap.timestamp}
+            },
+            "payload": ${lcm-dmaap.payload},
+            "status": {
+                "code": ${lcm-dmaap.status.code},
+                "message": ${lcm-dmaap.status.message}
+            }
+        }
+    }
+}

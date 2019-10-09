@@ -1,0 +1,1157 @@
+[
+    {
+        "id": "ed114b7a.f75b18",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 1352.22216796875,
+        "y": 72.41365623474121,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "983246b.2a205b8"
+            ]
+        ]
+    },
+    {
+        "id": "983246b.2a205b8",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 1464.6507263183594,
+        "y": 112.65176677703857,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "823dc8cd.dd6d58"
+            ]
+        ]
+    },
+    {
+        "id": "823dc8cd.dd6d58",
+        "type": "method",
+        "name": "method service-topology-operation-assign",
+        "xml": "<method rpc='service-topology-operation-assign' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1452.3650741577148,
+        "y": 152.41365432739258,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "f7c5ffc6.e6b88"
+            ]
+        ]
+    },
+    {
+        "id": "9697023a.bcbfc",
+        "type": "comment",
+        "name": "service-topology-operation-assign",
+        "info": "",
+        "comments": "",
+        "x": 1746.567024230957,
+        "y": 20,
+        "z": "7a783ca6.163ee4",
+        "wires": []
+    },
+    {
+        "id": "f7c5ffc6.e6b88",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1469.0792922973633,
+        "y": 743.1756019592285,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "3b97fcb6.4ecbb4",
+                "4deb90b3.ddf1b",
+                "4cc6f60e.e6e328",
+                "a6b363c6.539e",
+                "7331194a.880a78",
+                "cf878be6.433098",
+                "116637a7.bf8608",
+                "be564011.84b1f",
+                "1f9303e8.465f3c",
+                "155d1e57.3f9452"
+            ]
+        ]
+    },
+    {
+        "id": "3b97fcb6.4ecbb4",
+        "type": "switchNode",
+        "name": "switch request-action",
+        "xml": "<switch test='`$service-topology-operation-input.request-information.request-action`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1751.4602813720703,
+        "y": 254.127947807312,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "7361817e.f466d",
+                "f1851772.f51898"
+            ]
+        ]
+    },
+    {
+        "id": "7361817e.f466d",
+        "type": "outcome",
+        "name": "CreateServiceInstance",
+        "xml": "<outcome value='CreateServiceInstance'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1988.6030960083008,
+        "y": 228.4136562347412,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "7ff4cffa.a03ca"
+            ]
+        ]
+    },
+    {
+        "id": "f1851772.f51898",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1938.6031188964844,
+        "y": 272.46129512786865,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "6b8abbcc.8abe04"
+            ]
+        ]
+    },
+    {
+        "id": "7ff4cffa.a03ca",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2167.1745529174805,
+        "y": 228.41369152069092,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6b8abbcc.8abe04",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"If svc-action is 'assign' then request-action must be 'CreateServiceInstance'\" />\n",
+        "comments": "",
+        "x": 2145.9840660095215,
+        "y": 272.46130657196045,
+        "z": "7a783ca6.163ee4",
+        "wires": []
+    },
+    {
+        "id": "4deb90b3.ddf1b",
+        "type": "get-resource",
+        "name": "get-resource SERVICE_MODEL",
+        "xml": "<get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key='SELECT * from SERVICE_MODEL WHERE service_uuid = $service-topology-operation-input.service-information.onap-model-information.model-uuid'\n  pfx='db.service-model'>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1788.007797241211,
+        "y": 477.2232360839844,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "10dea27a.48091e",
+                "d11d8917.44be58"
+            ]
+        ]
+    },
+    {
+        "id": "6349641.a52799c",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`'No model found for service UUID ' + $service-topology-operation-input.service-information.onap-model-information.model-uuid`\" />\n",
+        "comments": "",
+        "x": 2178.0077476501465,
+        "y": 500.65173530578613,
+        "z": "7a783ca6.163ee4",
+        "wires": []
+    },
+    {
+        "id": "4cc6f60e.e6e328",
+        "type": "switchNode",
+        "name": "switch input service-instance-name",
+        "xml": "<switch test='`$service-topology-operation-input.service-request-input.service-instance-name`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1783.9839706420898,
+        "y": 876.3898258209229,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "ad3069cf.d72968",
+                "928867c5.6bc8b8"
+            ]
+        ]
+    },
+    {
+        "id": "ad3069cf.d72968",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2018.0076293945312,
+        "y": 688.8898077011108,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "39cb4b5a.a62424"
+            ]
+        ]
+    },
+    {
+        "id": "38149fb4.8ccca",
+        "type": "switchNode",
+        "name": "switch ecomp-naming",
+        "xml": "<switch test='`$db.service-model.ecomp-naming`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2395.86515045166,
+        "y": 591.2708940505981,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "5712a731.e45c98",
+                "4c3eb89c.769a68",
+                "66aec164.b4d93"
+            ]
+        ]
+    },
+    {
+        "id": "39cb4b5a.a62424",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2163.7221298217773,
+        "y": 688.8899250030518,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "38149fb4.8ccca",
+                "2de9537d.ce5a3c"
+            ]
+        ]
+    },
+    {
+        "id": "4c3eb89c.769a68",
+        "type": "outcome",
+        "name": "N",
+        "xml": "<outcome value='N'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2582.2935371398926,
+        "y": 591.7470207214355,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "83b1cfed.045bb"
+            ]
+        ]
+    },
+    {
+        "id": "83b1cfed.045bb",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"No service-instance-name was received but ecomp-naming is not Y\" />\n",
+        "comments": "",
+        "x": 2736.5793228149414,
+        "y": 610.3184652328491,
+        "z": "7a783ca6.163ee4",
+        "wires": []
+    },
+    {
+        "id": "5712a731.e45c98",
+        "type": "outcome",
+        "name": "Y",
+        "xml": "<outcome value='Y'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2582.293529510498,
+        "y": 550.3184747695923,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "1659b650.b537fa"
+            ]
+        ]
+    },
+    {
+        "id": "66aec164.b4d93",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2582.2934761047363,
+        "y": 634.6041526794434,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "83b1cfed.045bb"
+            ]
+        ]
+    },
+    {
+        "id": "1659b650.b537fa",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2719.4364471435547,
+        "y": 550.4613418579102,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "928867c5.6bc8b8",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2000.5793342590332,
+        "y": 1085.1755352020264,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "a4b27acf.1f5e18"
+            ]
+        ]
+    },
+    {
+        "id": "d6c60ea4.5874b",
+        "type": "set",
+        "name": "set tmp.service-instance-name",
+        "xml": "<set>\n<parameter name='tmp.service-instance-name' value=\"`$service-topology-operation-input.service-request-input.service-instance-name`\" />\n",
+        "comments": "",
+        "x": 2953.7221908569336,
+        "y": 1134.0327558517456,
+        "z": "7a783ca6.163ee4",
+        "wires": []
+    },
+    {
+        "id": "a6b363c6.539e",
+        "type": "update",
+        "name": "update AAI service instance",
+        "xml": "<update plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\t\tresource=\"service-instance\" \n\t\tkey=\"customer.global-customer-id = $service-topology-operation-input.service-information.global-customer-id AND\n\t\t\tservice-subscription.service-type = $service-topology-operation-input.service-information.subscription-service-type AND\n\t\t\tservice-instance.service-instance-id = $service-topology-operation-input.service-information.service-instance-id\"\n        pfx='pfx' local-only='false' force='false'>\n\t<parameter name=\"service-instance-name\" value=\"`$tmp.service-instance-name`\" />\n\t<parameter name=\"selflink\" value=\"`$service-object-path`\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1762.531753540039,
+        "y": 1341.3660259246826,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "4545106b.1b452",
+                "96982434.ffc468"
+            ]
+        ]
+    },
+    {
+        "id": "4545106b.1b452",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1974.2936210632324,
+        "y": 1316.6041803359985,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "454a1467.66c43c"
+            ]
+        ]
+    },
+    {
+        "id": "a9649c95.7bd9",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Failure calling AAI to update the service instance\" />\n",
+        "comments": "",
+        "x": 2321.4364166259766,
+        "y": 1315.175682067871,
+        "z": "7a783ca6.163ee4",
+        "wires": []
+    },
+    {
+        "id": "1f9303e8.465f3c",
+        "type": "set",
+        "name": "set service-level-oper-status to Created",
+        "xml": "<set>\n<parameter name='service-data.service-level-oper-status.order-status' value='Created' />\n<parameter name='service-data.service-level-oper-status.last-rpc-action' value='assign' />\n<parameter name='service-data.service-level-oper-status.last-action' value='CreateServiceInstance' />\n",
+        "comments": "",
+        "x": 1796.3888473510742,
+        "y": 1622.91353225708,
+        "z": "7a783ca6.163ee4",
+        "wires": []
+    },
+    {
+        "id": "be564011.84b1f",
+        "type": "set",
+        "name": "set service-object-path",
+        "xml": "<set>\n<parameter name='service-object-path'\n value=\"`'restconf/config/GENERIC-RESOURCE-API:services/service/'\n + $service-topology-operation-input.service-information.service-instance-id\n + '/service-data/service-topology/'`\"/>\n",
+        "comments": "",
+        "x": 1748.4839096069336,
+        "y": 1177.318284034729,
+        "z": "7a783ca6.163ee4",
+        "wires": []
+    },
+    {
+        "id": "c4d228ca.69a5b8",
+        "type": "switchNode",
+        "name": "switch order-status",
+        "xml": "<switch test='`$service-data.service-level-oper-status.order-status`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1744.6030769348145,
+        "y": 365.0804195404053,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "db73c544.13ae08",
+                "53c75a45.113554",
+                "b305520d.c4aaf"
+            ]
+        ]
+    },
+    {
+        "id": "db73c544.13ae08",
+        "type": "outcome",
+        "name": "Created",
+        "xml": "<outcome value='Created'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1940.5555267333984,
+        "y": 364.74701595306396,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "cbf2a27.30d166"
+            ]
+        ]
+    },
+    {
+        "id": "cbf2a27.30d166",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"The requested service already exists\" />\n",
+        "comments": "",
+        "x": 2142.698356628418,
+        "y": 364.3185501098633,
+        "z": "7a783ca6.163ee4",
+        "wires": []
+    },
+    {
+        "id": "7331194a.880a78",
+        "type": "set",
+        "name": "set service-topology identifiers",
+        "xml": "<set>\n<parameter name='service-data.service-topology.service-topology-identifier.service-instance-id'\n  value='`$service-topology-operation-input.service-information.service-instance-id`' />\n<parameter name='service-data.service-topology.service-topology-identifier.service-type'\n  value='`$service-topology-operation-input.service-information.subscription-service-type`' />\n<parameter name='service-data.service-topology.service-topology-identifier.service-instance-name'\n  value='`$tmp.service-instance-name`' />\n<parameter name='service-data.service-topology.service-topology-identifier.global-customer-id'\n  value='`$service-topology-operation-input.service-information.global-customer-id`' />\n",
+        "comments": "",
+        "x": 1769.507968902588,
+        "y": 1433.9849061965942,
+        "z": "7a783ca6.163ee4",
+        "wires": []
+    },
+    {
+        "id": "f0cb971e.9a6bb8",
+        "type": "for",
+        "name": "for each service-input-parameters",
+        "xml": "<for index='idx' start='0' end='`$service-topology-operation-input.service-request-input.service-input-parameters.param_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2202.174503326416,
+        "y": 1580.6519136428833,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "cc455e9f.b2dcb"
+            ]
+        ]
+    },
+    {
+        "id": "cc455e9f.b2dcb",
+        "type": "set",
+        "name": "set parameter name/value",
+        "xml": "<set>\n<parameter name='service-data.service-topology.service-parameters[$idx].service-parameter-name'\n  value='`$service-topology-operation-input.service-request-input.service-input-parameters.param[$idx].name`' />\n<parameter name='service-data.service-topology.service-parameters[$idx].service-parameter-value'\n  value='`$service-topology-operation-input.service-request-input.service-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 2483.6029663085938,
+        "y": 1580.6518602371216,
+        "z": "7a783ca6.163ee4",
+        "wires": []
+    },
+    {
+        "id": "cf878be6.433098",
+        "type": "switchNode",
+        "name": "switch input parameter length",
+        "xml": "<switch test='`$service-topology-operation-input.service-request-input.service-input-parameters.param_length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1766.9840774536133,
+        "y": 1553.032633781433,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "19f64235.4f36ee",
+                "9db57bb8.52cdc8"
+            ]
+        ]
+    },
+    {
+        "id": "19f64235.4f36ee",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1979.888656616211,
+        "y": 1529.2232675552368,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "5fbb5b14.363894"
+            ]
+        ]
+    },
+    {
+        "id": "5fbb5b14.363894",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2118.460048675537,
+        "y": 1529.2232503890991,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "9db57bb8.52cdc8",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1978.4600677490234,
+        "y": 1580.6518564224243,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "f0cb971e.9a6bb8"
+            ]
+        ]
+    },
+    {
+        "id": "116637a7.bf8608",
+        "type": "set",
+        "name": "set service-topology onap-model-information",
+        "xml": "<set>\n<parameter name='service-data.service-topology.onap-model-information.'\n  value='`$service-topology-operation-input.service-information.onap-model-information.`' />\n",
+        "comments": "",
+        "x": 1812.365089416504,
+        "y": 1482.5563163757324,
+        "z": "7a783ca6.163ee4",
+        "wires": []
+    },
+    {
+        "id": "96982434.ffc468",
+        "type": "failure",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1980.6030502319336,
+        "y": 1365.1755981445312,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "e3f492c3.6e0a5"
+            ]
+        ]
+    },
+    {
+        "id": "cc899e97.23141",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"The service instance does not exist in AAI\" />\n",
+        "comments": "",
+        "x": 2319.650577545166,
+        "y": 1363.651912689209,
+        "z": "7a783ca6.163ee4",
+        "wires": []
+    },
+    {
+        "id": "69ce2ba.144d5d4",
+        "type": "call",
+        "name": "call GENERIC-RESOURCE-API:generate-unique-name",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='generate-unique-name' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3054.269729614258,
+        "y": 740.3183941841125,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "1766b7bb.cff678",
+                "29d42e71.3312e2"
+            ]
+        ]
+    },
+    {
+        "id": "1766b7bb.cff678",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3331.4125328063965,
+        "y": 713.8899273872375,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "8e4917db.c56bf8"
+            ]
+        ]
+    },
+    {
+        "id": "29d42e71.3312e2",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3336.1742782592773,
+        "y": 759.2708382606506,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "4d990495.1c092c"
+            ]
+        ]
+    },
+    {
+        "id": "2e79f822.688378",
+        "type": "set",
+        "name": "set variables for generating unique name",
+        "xml": "<set>\n<parameter name='generate-unique-name-input.action' value='ASSIGN' />\n<parameter name='generate-unique-name-input.context-id' value='`$service-topology-operation-input.service-information.service-instance-id`' />\n<parameter name='generate-unique-name-input.index-table-name' value='SERVICE_INSTANCE_NAME_INDEX' />\n<parameter name='generate-unique-name-input.index-table-prefix-column' value='service_instance_name_prefix' />\n<parameter name='generate-unique-name-input.name-table-type' value='SERVICE_INSTANCE' />\n<parameter name='generate-unique-name-input.prefix' value=\"`$db.service-model.service-instance-name-prefix + '_'`\" />\n",
+        "comments": "",
+        "x": 3009.2699813842773,
+        "y": 691.4137139320374,
+        "z": "7a783ca6.163ee4",
+        "wires": []
+    },
+    {
+        "id": "4d990495.1c092c",
+        "type": "set",
+        "name": "set tmp.service-instance-name to generated name",
+        "xml": "<set>\n<parameter name='tmp.service-instance-name' value='`$generate-unique-name-output.generated-name`' />\n",
+        "comments": "",
+        "x": 3603.0786743164062,
+        "y": 759.746913433075,
+        "z": "7a783ca6.163ee4",
+        "wires": []
+    },
+    {
+        "id": "8e4917db.c56bf8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`$generate-unique-name-output.error-message`\" />\n",
+        "comments": "",
+        "x": 3484.9839935302734,
+        "y": 713.3184370994568,
+        "z": "7a783ca6.163ee4",
+        "wires": []
+    },
+    {
+        "id": "a4b27acf.1f5e18",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2148.5078620910645,
+        "y": 1083.8422222137451,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "663b2c60.a3fbe4",
+                "e58b759e.fa9038"
+            ]
+        ]
+    },
+    {
+        "id": "e58b759e.fa9038",
+        "type": "call",
+        "name": "call GENERIC-RESOURCE-API:generate-unique-name",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='generate-unique-name' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2448.5079498291016,
+        "y": 1108.5088710784912,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "92c339a8.616968",
+                "c4fd2567.a5a888"
+            ]
+        ]
+    },
+    {
+        "id": "92c339a8.616968",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2729.936420440674,
+        "y": 1083.2708559036255,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "4a49ebd1.d51d64"
+            ]
+        ]
+    },
+    {
+        "id": "c4fd2567.a5a888",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2732.9840545654297,
+        "y": 1134.937665939331,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "d6c60ea4.5874b"
+            ]
+        ]
+    },
+    {
+        "id": "663b2c60.a3fbe4",
+        "type": "set",
+        "name": "set variables for generating unique name",
+        "xml": "<set>\n<parameter name='generate-unique-name-input.name-table-type' value='SERVICE_INSTANCE' />\n<parameter name='generate-unique-name-input.supplied-name' value='`$service-topology-operation-input.service-request-input.service-instance-name`' />\n<parameter name='generate-unique-name-input.service-instance-id' value='`$service-topology-operation-input.service-information.service-instance-id`' />",
+        "comments": "",
+        "x": 2406.841323852539,
+        "y": 1060.1755771636963,
+        "z": "7a783ca6.163ee4",
+        "wires": []
+    },
+    {
+        "id": "4a49ebd1.d51d64",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`$generate-unique-name-output.error-message`\" />\n",
+        "comments": "",
+        "x": 2897.7935333251953,
+        "y": 1082.6993675231934,
+        "z": "7a783ca6.163ee4",
+        "wires": []
+    },
+    {
+        "id": "10dea27a.48091e",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2004.5077819824219,
+        "y": 457.17555046081543,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "e6798aa7.071568"
+            ]
+        ]
+    },
+    {
+        "id": "d11d8917.44be58",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2013.0792121887207,
+        "y": 500.4612636566162,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "6349641.a52799c"
+            ]
+        ]
+    },
+    {
+        "id": "e6798aa7.071568",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error reading SERVICE_MODEL table\" />\n",
+        "comments": "",
+        "x": 2177.364948272705,
+        "y": 455.7469940185547,
+        "z": "7a783ca6.163ee4",
+        "wires": []
+    },
+    {
+        "id": "53c75a45.113554",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1938.5554504394531,
+        "y": 320.08033752441406,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "f1200e41.32e3"
+            ]
+        ]
+    },
+    {
+        "id": "b305520d.c4aaf",
+        "type": "other",
+        "name": "PendingDelete",
+        "xml": "<outcome value='PendingDelete'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1961.2221794128418,
+        "y": 408.7469959259033,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "62b73505.87e2cc"
+            ]
+        ]
+    },
+    {
+        "id": "62b73505.87e2cc",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"The requested service is pending deletion\" />\n",
+        "comments": "",
+        "x": 2143.555477142334,
+        "y": 408.7470064163208,
+        "z": "7a783ca6.163ee4",
+        "wires": []
+    },
+    {
+        "id": "f1200e41.32e3",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2125.2221603393555,
+        "y": 319.0803565979004,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2de9537d.ce5a3c",
+        "type": "switchNode",
+        "name": "switch naming-policy",
+        "xml": "<switch test='`$db.service-model.naming-policy`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2395.079200744629,
+        "y": 786.6993713378906,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "2684edf5.753852",
+                "18f39428.236a8c"
+            ]
+        ]
+    },
+    {
+        "id": "2684edf5.753852",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2583.650665283203,
+        "y": 720.9850654602051,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "26dd020.844b9fe"
+            ]
+        ]
+    },
+    {
+        "id": "18f39428.236a8c",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2583.6508350372314,
+        "y": 852.4137172698975,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "555fed1d.539e64"
+            ]
+        ]
+    },
+    {
+        "id": "155d1e57.3f9452",
+        "type": "set",
+        "name": "set tmp.service-instance-name to NULL",
+        "xml": "<set>\n<parameter name='tmp.service-instance-name' value='' />\n",
+        "comments": "",
+        "x": 1807.9364624023438,
+        "y": 588.1279144287109,
+        "z": "7a783ca6.163ee4",
+        "wires": []
+    },
+    {
+        "id": "26dd020.844b9fe",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2736.5079345703125,
+        "y": 719.5565319061279,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "2e79f822.688378",
+                "69ce2ba.144d5d4"
+            ]
+        ]
+    },
+    {
+        "id": "d9662f9c.d46e6",
+        "type": "call",
+        "name": "call GENERIC-RESOURCE-API:naming-policy-generate-name",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3072.222442626953,
+        "y": 892.4137988090515,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "a9acf59.3d9a608",
+                "ab2b1e84.df443"
+            ]
+        ]
+    },
+    {
+        "id": "555fed1d.539e64",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2736.507957458496,
+        "y": 852.4137344360352,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "9be34e30.19b1f",
+                "d9662f9c.d46e6",
+                "ff3c0c0e.8833f"
+            ]
+        ]
+    },
+    {
+        "id": "9be34e30.19b1f",
+        "type": "set",
+        "name": "set variables for generating name",
+        "xml": "<set>\n<parameter name='naming-policy-generate-name-input.policy-instance-name' value='`$db.service-model.naming-policy`' />\n<parameter name='naming-policy-generate-name-input.naming-type' value='SERVICE' />\n<parameter name='naming-policy-generate-name-input.context-id' value='`$service-topology-operation-input.service-information.service-instance-id`' />\n<parameter name='naming-policy-generate-name-input.query-parameter' value='`$db.service-model.service-uuid`' />\n<parameter name='naming-policy-generate-name-input.action' value='ASSIGN' />\n",
+        "comments": "",
+        "x": 2982.2223587036133,
+        "y": 846.6994528770447,
+        "z": "7a783ca6.163ee4",
+        "wires": []
+    },
+    {
+        "id": "bc6ccae5.e3b088",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Unable to generate service name\" />\n",
+        "comments": "",
+        "x": 3530.793434688023,
+        "y": 868.2707086290632,
+        "z": "7a783ca6.163ee4",
+        "wires": []
+    },
+    {
+        "id": "441302c7.f518bc",
+        "type": "set",
+        "name": "set tmp.service-instance-name to generated name",
+        "xml": "<set>\n<parameter name='tmp.service-instance-name' value='`$naming-policy-generate-name-output.service-name`' />\n",
+        "comments": "",
+        "x": 3646.650796890259,
+        "y": 915.4135360717773,
+        "z": "7a783ca6.163ee4",
+        "wires": []
+    },
+    {
+        "id": "ff3c0c0e.8833f",
+        "type": "set",
+        "name": "set generated-via-policy to true",
+        "xml": "<set>\n<parameter name='generated-via-policy' value='true' />\n",
+        "comments": "",
+        "x": 2973.6509399414062,
+        "y": 800.9851069450378,
+        "z": "7a783ca6.163ee4",
+        "wires": []
+    },
+    {
+        "id": "3a82772.0b3ff88",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2326.5079345703125,
+        "y": 1247.270830154419,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "c71638eb.a196b8",
+                "b10a109b.8b814"
+            ]
+        ]
+    },
+    {
+        "id": "b10a109b.8b814",
+        "type": "call",
+        "name": "call GENERIC-RESOURCE-API:naming-policy-generate-name",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2650.7936401367188,
+        "y": 1273.8423614501953,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c71638eb.a196b8",
+        "type": "set",
+        "name": "set variables for deleting name",
+        "xml": "<set>\n<parameter name='naming-policy-generate-name-input.naming-type' value='SERVICE' />\n<parameter name='naming-policy-generate-name-input.context-id' value='`$service-topology-operation-input.service-information.service-instance-id`' />\n<parameter name='naming-policy-generate-name-input.action' value='DELETE' />\n",
+        "comments": "",
+        "x": 2552.2222595214844,
+        "y": 1226.6994323730469,
+        "z": "7a783ca6.163ee4",
+        "wires": []
+    },
+    {
+        "id": "454a1467.66c43c",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2133.650749206543,
+        "y": 1316.699363708496,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "a9649c95.7bd9",
+                "3a82772.0b3ff88"
+            ]
+        ]
+    },
+    {
+        "id": "e3f492c3.6e0a5",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2132.2221603393555,
+        "y": 1365.270746231079,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "cc899e97.23141",
+                "3a82772.0b3ff88"
+            ]
+        ]
+    },
+    {
+        "id": "a9acf59.3d9a608",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3376.031801223755,
+        "y": 915.7469577789307,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "441302c7.f518bc"
+            ]
+        ]
+    },
+    {
+        "id": "ab2b1e84.df443",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3373.17427444458,
+        "y": 868.17555809021,
+        "z": "7a783ca6.163ee4",
+        "wires": [
+            [
+                "bc6ccae5.e3b088"
+            ]
+        ]
+    },
+    {
+        "id": "9f9d847c.b86d18",
+        "type": "comment",
+        "name": "check removed with US622450",
+        "info": "",
+        "comments": "",
+        "x": 1623.8888397216797,
+        "y": 317.4136587778727,
+        "z": "7a783ca6.163ee4",
+        "wires": []
+    }
+]

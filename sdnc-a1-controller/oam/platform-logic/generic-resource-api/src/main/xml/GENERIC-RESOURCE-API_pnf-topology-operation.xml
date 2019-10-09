@@ -1,0 +1,38 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='pnf-topology-operation' mode='sync'>
+        <block atomic="true">
+            <call module='GENERIC-RESOURCE-API' rpc='validate-pnf-input' mode='sync' ></call>
+            <switch test='`$pnf-topology-operation-input.sdnc-request-header.svc-action`'>
+                <outcome value='assign'>
+                    <call module='GENERIC-RESOURCE-API' rpc='pnf-topology-operation-assign' mode='sync' ></call>
+                </outcome>
+                <outcome value='activate'>
+                    <call module='GENERIC-RESOURCE-API' rpc='pnf-topology-operation-activate' mode='sync' ></call>
+                </outcome>
+                <outcome value='deactivate'>
+                    <call module='GENERIC-RESOURCE-API' rpc='pnf-topology-operation-deactivate' mode='sync' ></call>
+                </outcome>
+                <outcome value='unassign'>
+                    <call module='GENERIC-RESOURCE-API' rpc='pnf-topology-operation-unassign' mode='sync' ></call>
+                </outcome>
+                <outcome value='changeassign'>
+                    <call module='GENERIC-RESOURCE-API' rpc='pnf-topology-operation-changeassign' mode='sync' ></call>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`$pnf-topology-operation-input.sdnc-request-header.svc-action + ' is not a valid svc-action'`" />
+                    </return>
+                </outcome>
+            </switch>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="`$error-message`" />
+            </return>
+        </block>
+    </method>
+</service-logic>

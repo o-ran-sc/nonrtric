@@ -1,0 +1,55 @@
+<!-- views/partials/header.ejs -->
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+
+		<div class="navbar-header">
+            <a class="navbar-brand" href="#">&nbsp;SDN-C AdminPortal</a>
+        </div>
+
+        <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+
+        <div class="btn-group" role="group">
+            <button type="button" class="btn btn-default navbar-btn"
+				onclick="location.assign('/sla/listSLA');">SLA</button>
+
+<div class="btn-group">
+      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">Default <span class="caret"></span></button>
+      <ul class="dropdown-menu" role="menu">
+        <li><a href="#">Action</a></li>
+        <li><a href="#">Another action</a></li>
+        <li><a href="#">Something else here</a></li>
+        <li class="divider"></li>
+        <li><a href="#">Separated link</a></li>
+      </ul>
+    </div>
+
+            <button type="button" class="btn btn-default navbar-btn">Interfaces</button>
+            <button type="button" class="btn btn-default navbar-btn">VMs</button>
+            <button type="button" class="btn btn-default navbar-btn"
+				onclick="location.assign('/odl/listWklst');">Worklist Orders</button>
+            <button type="button" class="btn btn-default navbar-btn">Connections</button>
+            <button type="button" class="btn btn-default navbar-btn">VNFs</button>
+            <button type="button" class="btn btn-default navbar-btn">VLANs</button>
+            <button type="button" class="btn btn-default navbar-btn"
+				onclick="location.assign('/user/listUsers');">User Admin</button>
+            <button type="button" class="btn btn-default navbar-btn navbar-btn"
+				onclick="location.assign('/logout');">Logout</button>
+			<!-- <p class="btn-toolbar" role="group">ar3165 | Al Rotundo</p> -->
+        </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Single button -->
+<div class="btn-group">
+  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+    Action <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu" role="menu">
+    <li><a href="#">Action</a></li>
+    <li><a href="#">Another action</a></li>
+    <li><a href="#">Something else here</a></li>
+    <li class="divider"></li>
+    <li><a href="#">Separated link</a></li>
+  </ul>
+</div>

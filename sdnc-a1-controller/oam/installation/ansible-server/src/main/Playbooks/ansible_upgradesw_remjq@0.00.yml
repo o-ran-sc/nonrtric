@@ -1,0 +1,9 @@
+---
+- hosts: all
+  tasks:
+  - name: remove jq package
+    apt:
+      name: jq
+      state: absent
+      update_cache: yes
+    become: true

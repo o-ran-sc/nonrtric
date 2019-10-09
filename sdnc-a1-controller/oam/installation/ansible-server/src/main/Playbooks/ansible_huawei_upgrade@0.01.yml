@@ -1,0 +1,190 @@
+---
+- hosts: all
+  tasks:
+
+  - name: compatible with parameter targetSwVersion
+    set_fact:
+      sw_to_be_downloaded: "{{targetSwVersion}}"
+    when: targetSwVersion is defined
+
+  - name: support new parameter swToBeDownloaded
+    set_fact:
+      sw_to_be_downloaded: "{{swToBeDownloaded}}"
+    when: swToBeDownloaded is defined
+
+  - name: compatible with parameter pnfId
+    set_fact:
+      ne_identifier: "{{pnfId}}"
+    when: pnfId is defined
+
+  - name: support new parameter neIdentifier
+    set_fact:
+      ne_identifier: "{{neIdentifier}}"
+    when: neIdentifier is defined
+
+  - name: support new parameter swToBeInstalled
+    set_fact:
+      sw_to_be_installed: "{{swToBeInstalled}}"
+    when: swToBeInstalled is defined
+
+  - name: check if swToBeInstalled is empty
+    fail:
+    when: swToBeInstalled is defined and sw_to_be_installed | length == 0
+
+  - name: support new parameter swVersionToBeActivated
+    set_fact:
+      sw_version_to_be_activated: "{{swVersionToBeActivated}}"
+    when: swVersionToBeActivated is defined
+
+  - name: execute downloadNESw operation
+    shell: ./swm/downloadNESw --swToBeDownloaded {{sw_to_be_downloaded}} --neIdentifier {{ne_identifier}}
+    ignore_errors: yes
+    register: download_result
+
+  - name: build error message for downloadNESw
+    set_fact:
+      download_err_msg:
+        "reason": "downloadNESw failure"
+        "result": "Failure"
+    when: download_result is failed
+
+  - name: write error message to file for downloadNESw
+    local_action: copy content="{{download_err_msg}}" dest="{{inventory_dir}}/{{inventory_hostname}}_results.txt"
+    when: download_result is failed
+
+  - name: use result of downloadNESw as the result of Playbook
+    fail:
+      msg: "{{download_err_msg}}"
+    when: download_result is failed
+
+  - name: parse response of downloadNESw
+    set_fact:
+      download_response: "{{ download_result.stdout | from_json }}"
+    when: swToBeInstalled is not defined
+
+  - name: fetch file of Notification notifyDownloadNESwStatusChanged
+    fetch:
+      dest: "{{inventory_dir}}"
+      src: "/tmp/notifyDownloadNESwStatusChanged-{{download_response.downloadProcessId}}"
+    when: swToBeInstalled is not defined
+
+  - name: read contents of Notification notifyDownloadNESwStatusChanged
+    set_fact:
+      download_notification: "{{ lookup('file', '{{inventory_dir}}/{{inventory_hostname}}/tmp/notifyDownloadNESwStatusChanged-{{download_response.downloadProcessId}}') | from_json }}"
+    when: swToBeInstalled is not defined
+
+  - name: delete file of Notification notifyDownloadNESwStatusChanged
+    local_action: file path="{{inventory_dir}}/{{inventory_hostname}}/tmp/notifyDownloadNESwStatusChanged-{{download_response.downloadProcessId}}" state=absent
+    when: swToBeInstalled is not defined
+
+  - name: set downloadedNESwInfo
+    set_fact:
+      downloaded_ne_sw_info: "{{ download_notification.downloadedNESwInfo }}"
+    when: swToBeInstalled is not defined
+
+  - name: execute installNESw operation
+    shell: ./swm/installNESw --swToBeInstalled {{item}} --neIdentifier {{ne_identifier}}
+    ignore_errors: yes
+    register: install_result
+    with_items: "{{ downloaded_ne_sw_info | default([]) }}"
+
+  - name: execute installNESw operation using new parameter
+    shell: ./swm/installNESw --swToBeInstalled {{item}} --neIdentifier {{ne_identifier}}
+    ignore_errors: yes
+    register: install_result_new
+    with_items: "{{ sw_to_be_installed | default([]) }}"
+
+  - name: unify install result
+    set_fact:
+      install_result: "{{ install_result_new }}"
+    when: swToBeInstalled is defined
+
+  - name: build error message for installNESw
+    set_fact:
+      install_err_msg:
+        "reason": "installNESw failure"
+        "result": "Failure"
+    when: install_result is failed
+
+  - name: write error message to file for installNESw
+    local_action: copy content="{{install_err_msg}}" dest="{{inventory_dir}}/{{inventory_hostname}}_results.txt"
+    when: install_result is failed
+
+  - name: use result of installNESw as the result of Playbook
+    fail:
+      msg: "{{install_err_msg}}"
+    when: install_result is failed
+
+  - name: set install results list
+    set_fact:
+      install_results_list: "{{ install_result.results }}"
+    when: swVersionToBeActivated is not defined
+
+  - name: parse responses of all the installNESws
+    set_fact:
+      install_responses: "{{ install_responses | default([]) + [item.stdout | from_json] }}"
+    with_items: "{{ install_results_list | default([]) }}"
+
+  - name: fetch files of all the Notifications notifyInstallNESwStatusChanged
+    fetch:
+      dest: "{{inventory_dir}}"
+      src: "/tmp/notifyInstallNESwStatusChanged-{{item.installProcessId}}"
+    with_items: "{{ install_responses | default([]) }}"
+
+  - name: read contents of all the Notifications notifyInstallNESwStatusChanged
+    set_fact:
+      install_notifications: "{{ install_notifications | default([]) + [lookup('file', '{{inventory_dir}}/{{inventory_hostname}}/tmp/notifyInstallNESwStatusChanged-{{item.installProcessId}}') | from_json] }}"
+    with_items: "{{ install_responses | default([]) }}"
+
+  - name: delete files of all the Notifications notifyInstallNESwStatusChanged
+    local_action: file path="{{inventory_dir}}/{{inventory_hostname}}/tmp/notifyInstallNESwStatusChanged-{{item.installProcessId}}" state=absent
+    with_items: "{{ install_responses | default([]) }}"
+
+  - name: parse all the installed NE SW info
+    set_fact:
+      installed_ne_sw_info: "{{ installed_ne_sw_info | default([]) + item.installedNESwInfo }}"
+    with_items: "{{ install_notifications | default([]) }}"
+
+  - name: execute activateNESw operation
+    shell: ./swm/activateNESw --swVersionToBeActivated {{item}} --neIdentifier {{ne_identifier}}
+    ignore_errors: yes
+    register: activate_result
+    with_items: "{{ installed_ne_sw_info | default([]) }}"
+
+  - name: execute activateNESw operation using new parameter
+    shell: ./swm/activateNESw --swVersionToBeActivated {{sw_version_to_be_activated}} --neIdentifier {{ne_identifier}}
+    ignore_errors: yes
+    register: activate_result_new
+    when: swVersionToBeActivated is defined
+
+  - name: unify activate result
+    set_fact:
+      activate_result: "{{ activate_result_new }}"
+    when: swVersionToBeActivated is defined
+
+  - name: build error message for activateNESw
+    set_fact:
+      activate_err_msg:
+        "reason": "activateNESw failure"
+        "result": "Failure"
+    when: activate_result is failed
+
+  - name: write error message to file for activateNESw
+    local_action: copy content="{{activate_err_msg}}" dest="{{inventory_dir}}/{{inventory_hostname}}_results.txt"
+    when: activate_result is failed
+
+  - name: use result of activateNESw as the result of Playbook
+    fail:
+      msg: "{{activate_err_msg}}"
+    when: activate_result is failed
+
+  - name: build success message for activateNESw
+    set_fact:
+      activate_success_msg:
+        "result": "Success"
+    when: activate_result is not failed
+
+  - name: write success message to file for activateNESw
+    local_action: copy content="{{activate_success_msg}}" dest="{{inventory_dir}}/{{inventory_hostname}}_results.txt"
+    when: activate_result is not failed
+

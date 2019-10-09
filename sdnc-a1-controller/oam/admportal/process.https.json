@@ -1,0 +1,17 @@
+{
+  "apps" :[
+		{
+			"name"	: "admportal8443",
+			"script" : "/opt/admportal/bin/wwwssl",
+			"out_file" : "/opt/admportal/logs/admportal8443.log",
+			"error_file" : "/opt/admportal/logs/error_admportal8443.log",
+			"cwd"        : "/opt/admportal",
+			"env": 
+			{ 
+				"NODE_ENV": "production",
+				"HTTP_PROTOCOL": "https:",
+			 	"CLASSPATH"     : "/opt/admportal/lib/GLCookieDecryption.jar:/opt/admportal/lib"
+			}
+	    }
+		]
+}

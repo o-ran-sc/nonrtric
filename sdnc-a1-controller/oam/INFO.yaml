@@ -1,0 +1,52 @@
+---
+project: 'sdnc-oam'
+project_creation_date: '2017-02-14'
+project_category: ''
+lifecycle_state: 'Incubation'
+project_lead: &onap_sdnc_ptl
+    name: 'Dan Timoney'
+    email: 'dtimoney@att.com'
+    id: 'djtimoney'
+    company: 'ATT'
+    timezone: 'America/New York'
+primary_contact: *onap_sdnc_ptl
+issue_tracking:
+    type: 'jira'
+    url: 'https://jira.onap.org/projects/SDNC'
+    key: 'SDNC'
+mailing_list:
+    type: 'groups.io'
+    url: 'lists.onap.org'
+    tag: '<[vid]>'
+realtime_discussion: ''
+meetings:
+    - type: 'zoom'
+      agenda: 'https://wiki.onap.org/display/DW/Software+Defined+Network+Controller+Project'
+      url: 'https://wiki.onap.org/display/DW/Software+Defined+Network+Controller+Project#SoftwareDefinedNetworkControllerProject-Meetings'
+      server: 'n/a'
+      channel: 'n/a'
+      repeats: 'weekly'
+      time: '13:00 UTC'
+repositories:
+    - 'sdnc/adaptors'
+    - 'sdnc/apps'
+    - 'sdnc/northbound'
+    - 'sdnc/oam'
+committers:
+    - <<: *onap_sdnc_ptl
+    - name: 'Prabhuram Somasundaram'
+      email: 'ps7551@att.com'
+      company: 'ATT'
+      id: 'Prabhu_Ram'
+      timezone: ''
+    - name: 'David Stilwell'
+      email: 'stilwelld@att.com'
+      company: 'ATT'
+      id: 'stilwelld'
+      timezone: ''
+tsc:
+    approval: 'https://lists.onap.org/pipermail/onap-tsc'
+    changes:
+        - type: 'Deletion'
+          name: 'Ryan Goulding'
+          link: 'https://lists.onap.org/g/onap-tsc/message/4261'

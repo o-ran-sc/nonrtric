@@ -1,0 +1,39 @@
+<!-- Defines how we build the .zip file which is our distribution. -->
+
+<assembly
+	xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
+	<id>bin</id>
+
+	<formats>
+		<format>zip</format>
+	</formats>
+
+	<!--  we want "system" and related files right at the root level
+		  as this file is suppose to be unzip on top of a karaf
+		  distro. -->
+	<includeBaseDirectory>false</includeBaseDirectory>
+
+	<fileSets>
+		<fileSet>
+			<directory>target/stage/</directory>
+			<outputDirectory>${application.name}</outputDirectory>
+			<fileMode>755</fileMode>
+			<includes>
+				<include>*.sh</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<directory>target/stage/</directory>
+			<outputDirectory>${application.name}</outputDirectory>
+			<fileMode>644</fileMode>
+			<excludes>
+				<exclude>*.sh</exclude>
+			</excludes>
+		</fileSet>
+	</fileSets>
+
+
+
+</assembly>

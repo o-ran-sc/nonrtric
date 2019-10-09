@@ -1,0 +1,109 @@
+<div class="modal fade" id="add_link_master" tabindex="-1" role="dialog"
+                aria-labelledby="add_link_master_label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Add Link Master</h4>
+      </div>
+      <div class="modal-body">
+      <form name="addForm" role="form" action="/tunnel/addLinkMaster" method="POST">
+          <div class="form-group">
+              <label for="nf_link_interface_ip">*Link Interface IP</label>
+              <input type="text" class="form-control" name="nf_link_interface_ip" id="nf_link_interface_ip" maxlength="20" placeholder="varchar(20)">
+          </div>
+          <div class="form-group">
+              <label for="nf_source_crs_name">*Source CRS Name</label>
+              <input type="text" class="form-control" name="nf_source_crs_name" id="nf_source_crs_name" maxlength="20" placeholder="varchar(20)">
+          </div>
+          <div class="form-group">
+              <label for="nf_destination_crs_name">*Destination CRS Name</label>
+              <input type="text" class="form-control" name="nf_destination_crs_name" id="nf_destination_crs_name" maxlength="20" placeholder="varchar(20)">
+          </div>
+          <div class="form-group">
+              <label for="nf_link_speed">Link Speed</label>
+              <input type="text" class="form-control" name="nf_link_speed" id="nf_link_speed" maxlength="11" placeholder="int(11)">
+          </div>
+          <div class="form-group">
+              <label for="nf_default_cost">Default Cost</label>
+              <input type="text" class="form-control" name="nf_default_cost" id="nf_default_cost" maxlength="11" placeholder="int(11)">
+          </div>
+          <div class="form-group">
+              <label for="nf_bundle_name">Bundle Name</label>
+              <input type="text" class="form-control" name="nf_bundle_name" id="nf_bundle_name" maxlength="20" placeholder="varchar(20)">
+          </div>
+          <div class="form-group">
+              <label for="nf_shutdown">Shutdown</label>
+              <select class="form-control" name="nf_shutdown" id="nf_shutdown">
+                    <option value='N'>False</option>
+                    <option value='Y'>True</option>
+              </select>
+          </div>
+
+          <div class="form-group">
+                <input type="hidden" name="nf_action" id="nf_action">
+                <button type="button" class="btn btn-primary" onclick="saveLinkMaster(this.form);">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          </div>
+       </form>
+       </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="update_link_master" tabindex="-1" role="dialog"
+        aria-labelledby="update_link_master_label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Update Link Master</h4>
+      </div>
+      <div class="modal-body">
+      <form role="form" action="/tunnel/updateLinkMaster" method="POST">
+      <div class="form-group">
+          <label for="uf_link_interface_ip">*Link Interface IP</label>
+          <input type="text" class="form-control" name="uf_link_interface_ip" id="uf_link_interface_ip" maxlength="20" placeholder="varchar(20)">
+      </div>
+      <div class="form-group">
+          <label for="uf_source_crs_name">*Source CRS Name</label>
+          <input type="text" class="form-control" name="uf_source_crs_name" id="uf_source_crs_name" maxlength="20" placeholder="varchar(20)">
+      </div>
+      <div class="form-group">
+          <label for="uf_destination_crs_name">*Destination CRS Name</label>
+          <input type="text" class="form-control" name="uf_destination_crs_name" id="uf_destination_crs_name" maxlength="20" placeholder="varchar(20)">
+      </div>
+      <div class="form-group">
+          <label for="uf_link_speed">Link Speed</label>
+          <input type="text" class="form-control" name="uf_link_speed" id="uf_link_speed" maxlength="11" placeholder="int(11)">
+      </div>
+      <div class="form-group">
+          <label for="uf_default_cost">Default Cost</label>
+          <input type="text" class="form-control" name="uf_default_cost" id="uf_default_cost" maxlength="11" placeholder="int(11)">
+      </div>
+      <div class="form-group">
+        <label for="uf_bundle_name">Bundle Name</label>
+        <input type="text" class="form-control" name="uf_bundle_name" id="uf_bundle_name" maxlength="20" placeholder="varchar(20)">
+      </div>
+
+      <div class="form-group">
+          <label for="uf_shutdown">Shutdown</label>
+          <select class="form-control" name="uf_shutdown" id="uf_shutdown">
+                <option value='N'>False</option>
+                <option value='Y'>True</option>
+          </select>
+      </div>
+
+
+      <div class="form-group">
+            <input type="hidden" name="uf_action" id="uf_action">
+            <input type="hidden" name="uf_key_link_interface_ip" id="uf_key_link_interface_ip">
+            <button type="button" class="btn btn-primary" onclick="saveLinkMaster(this.form);">Save</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+      </form>
+      </div>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,9 @@
+{
+    "sites": [
+        {
+            "id": ${prop.site.siteId}            
+        }
+    ]
+}
+
+

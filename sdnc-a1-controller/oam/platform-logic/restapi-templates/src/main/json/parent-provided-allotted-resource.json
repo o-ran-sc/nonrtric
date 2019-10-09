@@ -1,0 +1,9 @@
+{
+  "provided-allotted-resource": [
+    {
+      "allotted-resource-id": ${tmp.ar.allotted-resource-id},
+      "allotted-resource-pointer": ${tmp.ar.self-link},
+      "allotted-resource-type": ${tmp.ar.allotted-resource-type}
+    }
+  ]
+}

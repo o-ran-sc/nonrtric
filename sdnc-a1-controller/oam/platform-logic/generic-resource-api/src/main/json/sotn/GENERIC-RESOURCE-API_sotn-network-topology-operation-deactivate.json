@@ -1,0 +1,185 @@
+[
+  {
+    "id": "3ac27f10.3a8f4",
+    "type": "dgstart",
+    "name": "DGSTART",
+    "outputs": 1,
+    "x": 201,
+    "y": 111,
+    "z": "4bc69b52.b6d424",
+    "wires": [
+      [
+        "a4d35571.5a50a8"
+      ]
+    ]
+  },
+  {
+    "id": "a4d35571.5a50a8",
+    "type": "service-logic",
+    "name": "GENERIC-RESOURCE-API ${project.version}",
+    "module": "GENERIC-RESOURCE-API",
+    "version": "${project.version}",
+    "comments": "",
+    "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+    "outputs": 1,
+    "x": 357.00000381469727,
+    "y": 202.00002193450928,
+    "z": "4bc69b52.b6d424",
+    "wires": [
+      [
+        "227b9b33.0bedd4"
+      ]
+    ]
+  },
+  {
+    "id": "227b9b33.0bedd4",
+    "type": "method",
+    "name": "method sotn-network-topology-operation-deactivate",
+    "xml": "<method rpc='sotn-network-topology-operation-deactivate' mode='sync'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 345.0001220703125,
+    "y": 290.0000047683716,
+    "z": "4bc69b52.b6d424",
+    "wires": [
+      [
+        "5e6e65c4.2242fc"
+      ]
+    ]
+  },
+  {
+    "id": "5e6e65c4.2242fc",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 568.0000762939453,
+    "y": 362.00007820129395,
+    "z": "4bc69b52.b6d424",
+    "wires": [
+      [
+        "d2ec6450.70e238",
+        "e44a5ce1.2a6d1",
+        "ae274e39.92bc9",
+        "368c52e1.6b342e",
+        "1101140b.a4b22c",
+        "2730f4e7.d0214c",
+        "96a05e1e.a91ab",
+        "9cbc0828.b45c18"
+      ]
+    ]
+  },
+  {
+    "id": "d2ec6450.70e238",
+    "type": "call",
+    "name": "call GENERIC-RESOURCE-API:validate-sotn-network-input-parameters",
+    "xml": "<call module='GENERIC-RESOURCE-API' rpc='validate-sotn-network-input-parameters' mode='sync' >\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 999.6111450195312,
+    "y": 110.33334350585938,
+    "z": "4bc69b52.b6d424",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "e44a5ce1.2a6d1",
+    "type": "record",
+    "name": "record",
+    "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.FileRecorder\">\n<parameter name=\"file\" value=\"/opt/opendaylight/current/data/log/svclogic.log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"sotn-network-topology-operation-activate\"/>\n<parameter name=\"field3\" value=\"SOTN-Deactivate\"/>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 804.03125,
+    "y": 153.36459636688232,
+    "z": "4bc69b52.b6d424",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "1101140b.a4b22c",
+    "type": "set",
+    "name": "set networkId and network-object-path",
+    "xml": "<set>\n<parameter name='networkId' value='`$network-topology-operation-input.network-information.network-id`' />\n<parameter name=\"network-object-path\" value=\"`'restconf/config/GENERIC-RESOURCE-API:services/service/'  + $network-topology-operation-input.service-information.service-instance-id  + '/service-data/networks/network/'  + $network-topology-operation-input.network-information.network-id  + '/network-data/'` \" />",
+    "comments": "",
+    "x": 897.0313110351562,
+    "y": 340.9000244140625,
+    "z": "4bc69b52.b6d424",
+    "wires": []
+  },
+  {
+    "id": "9cbc0828.b45c18",
+    "type": "returnSuccess",
+    "name": "return success",
+    "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+    "comments": "",
+    "x": 816.8091011047363,
+    "y": 531.4554576873779,
+    "z": "4bc69b52.b6d424",
+    "wires": []
+  },
+  {
+    "id": "2730f4e7.d0214c",
+    "type": "set",
+    "name": "set network-level-oper-status",
+    "xml": "<set>\n<parameter name='service-data.networks.network[$tmp.nidx].network-data.network-level-oper-status.order-status' value='PendingDelete' />\n<parameter name='service-data.networks.network[$tmp.nidx].network-data.network-level-oper-status.last-rpc-action' value='`$network-topology-operation-input.sdnc-request-header.svc-action`' />\n<parameter name='service-data.networks.network[$tmp.nidx].network-data.network-level-oper-status.last-action' value='`$network-topology-operation-input.request-information.request-action`' />",
+    "comments": "",
+    "x": 861.9202156066895,
+    "y": 403.12221240997314,
+    "z": "4bc69b52.b6d424",
+    "wires": []
+  },
+  {
+    "id": "ae274e39.92bc9",
+    "type": "execute",
+    "name": "execute Properties",
+    "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >\n    <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />\n    <parameter name='contextPrefix' value='prop' />\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 836.3333549499512,
+    "y": 206.36463260650635,
+    "z": "4bc69b52.b6d424",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "96a05e1e.a91ab",
+    "type": "update",
+    "name": "update SOTN Connectivity status to AAI",
+    "xml": "<update plugin='org.onap.ccsdk.sli.adaptors.aai.AAIService' resource='connectivity' \n      key='connectivity.connectivity-id = $network-topology-operation-input.network-information.network-id' >\n<parameter name='connectivity-id' value='`$network-topology-operation-input.network-information.network-id`' />\n<parameter name='operational-status' value='PendingDelete' />",
+    "comments": "",
+    "outputs": 1,
+    "x": 896.1387977600098,
+    "y": 462.82540130615234,
+    "z": "4bc69b52.b6d424",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "368c52e1.6b342e",
+    "type": "set",
+    "name": "set network in service-data",
+    "xml": "<set>\n<parameter name='service-data.networks.network[$tmp.nidx].network-data.sdnc-request-header.' value='`$network-topology-operation-input.sdnc-request-header.`' />\n<parameter name='service-data.networks.network[$tmp.nidx].network-data.request-information.' value='`$network-topology-operation-input.request-information.`' />\n<parameter name='service-data.networks.network[$tmp.nidx].network-data.service-information.' value='`$network-topology-operation-input.service-information.`' />\n<parameter name='service-data.networks.network[$tmp.nidx].network-data.network-information.' value='`$network-topology-operation-input.network-information.`' />",
+    "comments": "",
+    "x": 858.475772857666,
+    "y": 273.6777973175049,
+    "z": "4bc69b52.b6d424",
+    "wires": []
+  },
+  {
+    "id": "44f3a46.f2f575c",
+    "type": "comment",
+    "name": "TODO MP2MP",
+    "info": "Current implementation is for P2P connectivity\nFor MP2MP connectivity in future DG needs to be modified",
+    "comments": "",
+    "x": 1083.5069007873535,
+    "y": 196.6180238723755,
+    "z": "4bc69b52.b6d424",
+    "wires": []
+  }
+]

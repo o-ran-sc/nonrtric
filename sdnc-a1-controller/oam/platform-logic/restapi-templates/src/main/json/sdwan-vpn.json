@@ -1,0 +1,13 @@
+{
+    "vpns": [
+        {
+            "name": ${prop.name},
+            "id": ${prop.vpnId},
+            "siteIds": [
+                ${repeat:prop.siteIds_length:
+                 ${prop.siteIds[${1}]},
+                 }
+            ]
+        }
+    ]
+}

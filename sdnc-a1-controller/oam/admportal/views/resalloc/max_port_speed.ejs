@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>SDN-C AdminPortal</title>
+<script class="init">
+    $(document).ready(function() {
+    $('#max_port_speed').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+
+</head>
+<body>
+
+<div class="well well-sm">
+<h3>Max Port Speed</h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+
+	<% if (priv == 'A'){ %>
+		<div class="actions" style="padding:15px 0px;">
+    	<button class="btn btn-primary" data-toggle="modal" data-target="#add_max_port_speed">
+      	Add Max Port Speed
+    	</button>
+		</div>
+	<% } %>
+
+	<table id="max_port_speed" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+		  <th>*ID</th>
+          <th>*Image File Name</th>
+		  <th>*End Point Position</th>
+          <th>*Interface Name</th>
+          <th>*Max Speed</th>
+          <th>*Unit</th>
+		   <% if(priv == 'A'){ %>
+          <th>Action</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+      <% rows.forEach( function(row) { %> 
+        <tr>
+            <td><%= row.max_port_speed_id %></td>
+            <td><%= row.image_file_name %></td>
+            <td><%= row.end_point_position %></td>
+            <td><%= row.interface_name %></td>
+            <td><%= row.max_speed %></td>
+            <td><%= row.unit %></td>
+			<% if(priv == 'A') { %>
+            <td>
+				<button type="button" class="btn btn-default btn-xs"
+                    onclick="updateMaxPortSpeed('<%=row.max_port_speed_id %>','<%= row.image_file_name %>','<%= row.end_point_position %>','<%= row.interface_name %>','<%= row.max_speed %>','<%= row.unit %>');">Update</button>
+				<button type="button" class="btn btn-default btn-xs"
+                   onclick="deleteMaxPortSpeed('<%= row.max_port_speed_id %>');">Delete</button>
+            </td>
+            <% } %>
+
+        </tr>
+    <% }); %>
+      </tbody>
+    </table>
+
+</div>
+
+<% include ../partials/max_port_speed %>
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+<script type="text/javascript">
+function submitMaxPortSpeed(form)
+{
+    var errorMsg='';
+	var image_file_name = '';
+	var end_point_position = '';
+	var interface_name = '';
+	var max_speed = '';
+	var unit = '';
+
+    if ( form.name == 'addForm' )
+    {
+		image_file_name = form.nf_image_file_name;
+		end_point_position = form.nf_end_point_position;
+		interface_name = form.nf_interface_name;
+		max_speed = form.nf_max_speed;
+		unit = form.nf_unit;
+    }
+    else
+    {
+		image_file_name = form.uf_image_file_name;
+		end_point_position = form.uf_end_point_position;
+		interface_name = form.uf_interface_name;
+		max_speed = form.uf_max_speed;
+		unit = form.uf_unit;
+    }
+
+
+    if ( (image_file_name.value == null) || (image_file_name.value == "") || isblank(image_file_name.value) )
+    {
+        errorMsg += 'Image File Name is required.<br>';
+    }
+    if ( (end_point_position.value == null) || (end_point_position.value == "") || isblank(end_point_position.value) )
+    {
+        errorMsg += 'End Point Position is required.<br>';
+    }
+    if ( (interface_name.value == null) || (interface_name.value == "") || isblank(interface_name.value) ){
+        errorMsg += 'Interface Name is required.<br>';
+    }
+    if ( (max_speed.value == null) || (max_speed.value == "") || isblank(max_speed.value) ){
+        errorMsg += 'Max Speed is required.<br>';
+    }
+    if ( (unit.value == null) || (unit.value == "") || isblank(unit.value) ){
+        errorMsg += 'Unit is required.<br>';
+    }
+    if( errorMsg.length > 0 ) {
+        bootbox.alert(errorMsg);
+        return;
+    }
+
+	if ( !isDigit(max_speed.value) )
+    {
+        bootbox.alert('Max Speed must be a number.');
+        return;
+    }
+
+    form.submit();
+}
+
+function updateMaxPortSpeed(max_port_speed_id,image_file_name,end_point_position,interface_name,max_speed,unit) {
+
+    document.getElementById('uf_max_port_speed_id').value=max_port_speed_id;
+    document.getElementById('uf_image_file_name').value=image_file_name;
+    document.getElementById('uf_end_point_position').value=end_point_position;
+    document.getElementById('uf_interface_name').value=interface_name;
+    document.getElementById('uf_max_speed').value=max_speed;
+    document.getElementById('uf_unit').value=unit;
+
+    document.getElementById('uf_key_max_port_speed_id').value=max_port_speed_id;
+
+    $('#update_max_port_speed').modal('show');
+}
+
+function deleteMaxPortSpeed(max_port_speed_id) {
+
+    bootbox.confirm({
+        message: "Are you sure you want to delete MAX_PORT_SPEED [" + max_port_speed_id + "]",
+        callback: function(result) {
+            if ( result )
+            {
+				location.assign("/resalloc/deleteMaxPortSpeed?max_port_speed_id=" + max_port_speed_id);
+            }
+            return;
+        },
+        buttons: {
+            cancel: {
+                label: "Cancel"
+            },
+            confirm: {
+                label: "Yes"
+            }
+        }
+    });
+}
+
+</script>
+
+</body>
+</html>
+

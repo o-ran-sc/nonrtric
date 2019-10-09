@@ -1,0 +1,437 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='create-route-target-and-vpn-binding' mode='sync'>
+        <block atomic="true">
+            <switch test='`$rt.aic-zone`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error missing parameters to create-local-route-target" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$rt.resource`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error missing parameters to create-local-route-target" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$rt.resource-value`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error missing parameters to create-local-route-target" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$rt.network-name`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error missing parameters to create-local-route-target" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$rt.service-instance-id`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error missing parameters to create-local-route-target" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$rt.network-instance-group-id`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error missing parameters to create-local-route-target" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$rt.network-id`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error missing parameters to create-local-route-target" />
+                    </return>
+                </outcome>
+            </switch>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$prop.restapi.network-instance-group-vpn-binding`"/>
+                <parameter name="outputPath" value="tmp.vpn-binding-url"/>
+                <parameter name="target" value="{service-instance-id}"/>
+                <parameter name="replacement" value="`$rt.service-instance-id`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$tmp.vpn-binding-url`"/>
+                <parameter name="outputPath" value="tmp.vpn-binding-url"/>
+                <parameter name="target" value="{network-instance-group-id}"/>
+                <parameter name="replacement" value="`$rt.network-instance-group-id`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$tmp.vpn-binding-url`"/>
+                <parameter name="outputPath" value="tmp.vpn-binding-url"/>
+                <parameter name="target" value="{network-id}"/>
+                <parameter name="replacement" value="`$rt.network-id`"/>
+            </execute>
+            <set>
+                <parameter name="get-data-from-policy-input.policy-instance-name" value="`$get-complex-resource-service-model-output.vpn-binding-policy`" />
+            </set>
+            <call module='GENERIC-RESOURCE-API' rpc='get-data-from-policy' mode='sync' ></call>
+            <set>
+                <parameter name="vpn-binding.vpn-name" value="`$rt.network-name`" />
+                <parameter name="vpn-binding.asn" value="`$get-data-from-policy-output.asn`" />
+                <parameter name="vpn-binding.route-target-role" value="`$get-data-from-policy-output.route-target-role`" />
+                <parameter name="vpn-binding.aic-zone" value="`$rt.aic-zone`" />
+                <parameter name="vpn-binding.route-target-category" value="local" />
+                <parameter name="vpn-binding.resource" value="`$rt.resource`" />
+                <parameter name="vpn-binding.resource-value" value="`$rt.resource-value`" />
+            </set>
+            <call module='GENERIC-RESOURCE-API' rpc='generate-vpn-binding-id' mode='sync' ></call>
+            <set>
+                <parameter name='vpn-binding.vpn-binding-id' value='`$tmp.return.generate-vpn-binding-id.uuid`' />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$tmp.vpn-binding-url`"/>
+                <parameter name="outputPath" value="tmp.vpn-binding-url"/>
+                <parameter name="target" value="{vpn-binding-id}"/>
+                <parameter name="replacement" value="`$vpn-binding.vpn-binding-id`"/>
+            </execute>
+            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="vpn-binding" 
+		key="vpn-binding.vpn-id = $vpn-binding.vpn-binding-id" >
+                <parameter name="vpn-id" value="`$vpn-binding.vpn-binding-id`" />
+                <parameter name="vpn-name" value="`$vpn-binding.vpn-name`" />
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error creating vpn-binding in AAI" />
+                    </return>
+                </outcome>
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error creating vpn-binding in AAI" />
+                    </return>
+                </outcome>
+            </save>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='restapiUrl' value='`$prop.rt.microservice.url + $prop.restapi.mS.allocateRT`' />
+                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.rtmS.allocateRT.templatefile`" />
+                <parameter name='restapiUser' value='`$prop.rt.mS.user`' />
+                <parameter name='restapiPassword' value='`$prop.rt.mS.pwd`' />
+                <parameter name='customHttpHeaders' value='x-UserId=SDNCP' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='POST' />
+                <parameter name="responsePrefix" value="msRT" />
+                <outcome value='success'>
+                    <block atomic="true">
+                        <switch test='`$msRT.responseCode`'>
+                            <outcome value='200'></outcome>
+                            <outcome value='Other'>
+                                <block>
+                                    <set>
+                                        <parameter name="error-code" value="500"/>
+                                        <parameter name="tmp.error-message" value="`'Error: calling allocate resource microservice - responseCode: ' + $msRT.responseCode + ' responseMsg: ' + $msRT.responseMessage + ' allocateRouteTargetStatus: ' + $msRT.allocateRouteTargetStatus `"/>
+                                    </set>
+                                    <block atomic='true'>
+                                        <switch test="`$vpn-binding.global-route-target != ''`">
+                                            <outcome value='true'>
+                                                <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                                    <parameter name='restapiUrl' value='`$prop.rt.microservice.url + $prop.restapi.mS.releaseRT`' />
+                                                    <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.rtmS.allocateRT.templatefile`" />
+                                                    <parameter name='restapiUser' value='`$prop.rt.mS.user`' />
+                                                    <parameter name='restapiPassword' value='`$prop.rt.mS.pwd`' />
+                                                    <parameter name='customHttpHeaders' value='x-UserId=SDNCP' />
+                                                    <parameter name='format' value='json' />
+                                                    <parameter name='httpMethod' value='POST' />
+                                                    <parameter name="responsePrefix" value="msRT" />
+                                                </execute>
+                                            </outcome>
+                                        </switch>
+                                        <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="vpn-binding" 
+	key="vpn-id = $rt.vpn-id"></delete>
+                                        <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                            <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.network-instance-group-vpn-binding.templatefile`" />
+                                            <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.vpn-binding-url`' />
+                                            <parameter name='restapiUser' value='`$prop.controller.user`' />
+                                            <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                                            <parameter name='format' value='json' />
+                                            <parameter name='httpMethod' value='DELETE' />
+                                            <parameter name="responsePrefix" value="mdsal-vpn-binding" />
+                                            <outcome value='failure'>
+                                                <block></block>
+                                            </outcome>
+                                            <outcome value='not-found'>
+                                                <block></block>
+                                            </outcome>
+                                        </execute>
+                                        <return status='failure'>
+                                            <parameter name='error-code' value='500'/>
+                                            <parameter name='error-message' value="`'Error writing to vpn binding - ' + $tmp.error-message`"/>
+                                        </return>
+                                    </block>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='Other'>
+                    <block>
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="Error: calling allocate resource microservice"/>
+                        </set>
+                        <block atomic='true'>
+                            <switch test="`$vpn-binding.global-route-target != ''`">
+                                <outcome value='true'>
+                                    <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                        <parameter name='restapiUrl' value='`$prop.rt.microservice.url + $prop.restapi.mS.releaseRT`' />
+                                        <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.rtmS.allocateRT.templatefile`" />
+                                        <parameter name='restapiUser' value='`$prop.rt.mS.user`' />
+                                        <parameter name='restapiPassword' value='`$prop.rt.mS.pwd`' />
+                                        <parameter name='customHttpHeaders' value='x-UserId=SDNCP' />
+                                        <parameter name='format' value='json' />
+                                        <parameter name='httpMethod' value='POST' />
+                                        <parameter name="responsePrefix" value="msRT" />
+                                    </execute>
+                                </outcome>
+                            </switch>
+                            <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="vpn-binding" 
+	key="vpn-id = $rt.vpn-id"></delete>
+                            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.network-instance-group-vpn-binding.templatefile`" />
+                                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.vpn-binding-url`' />
+                                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                                <parameter name='format' value='json' />
+                                <parameter name='httpMethod' value='DELETE' />
+                                <parameter name="responsePrefix" value="mdsal-vpn-binding" />
+                                <outcome value='failure'>
+                                    <block></block>
+                                </outcome>
+                                <outcome value='not-found'>
+                                    <block></block>
+                                </outcome>
+                            </execute>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500'/>
+                                <parameter name='error-message' value="`'Error writing to vpn binding - ' + $tmp.error-message`"/>
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+            </execute>
+            <set>
+                <parameter name="vpn-binding.global-route-target" value="`$msRT.routeTargetID`" />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.network-instance-group-vpn-binding.templatefile`" />
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.vpn-binding-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='PUT' />
+                <parameter name="responsePrefix" value="mdsal-vpn-binding" />
+                <outcome value='failure'>
+                    <block>
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="Error: failed to save vpn-binding in md-sal" />
+                        </set>
+                        <block atomic='true'>
+                            <switch test="`$vpn-binding.global-route-target != ''`">
+                                <outcome value='true'>
+                                    <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                        <parameter name='restapiUrl' value='`$prop.rt.microservice.url + $prop.restapi.mS.releaseRT`' />
+                                        <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.rtmS.allocateRT.templatefile`" />
+                                        <parameter name='restapiUser' value='`$prop.rt.mS.user`' />
+                                        <parameter name='restapiPassword' value='`$prop.rt.mS.pwd`' />
+                                        <parameter name='customHttpHeaders' value='x-UserId=SDNCP' />
+                                        <parameter name='format' value='json' />
+                                        <parameter name='httpMethod' value='POST' />
+                                        <parameter name="responsePrefix" value="msRT" />
+                                    </execute>
+                                </outcome>
+                            </switch>
+                            <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="vpn-binding" 
+	key="vpn-id = $rt.vpn-id"></delete>
+                            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.network-instance-group-vpn-binding.templatefile`" />
+                                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.vpn-binding-url`' />
+                                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                                <parameter name='format' value='json' />
+                                <parameter name='httpMethod' value='DELETE' />
+                                <parameter name="responsePrefix" value="mdsal-vpn-binding" />
+                                <outcome value='failure'>
+                                    <block></block>
+                                </outcome>
+                                <outcome value='not-found'>
+                                    <block></block>
+                                </outcome>
+                            </execute>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500'/>
+                                <parameter name='error-message' value="`'Error writing to vpn binding - ' + $tmp.error-message`"/>
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+                <outcome value='not-found'>
+                    <block>
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="Error: failed to save vpn-binding in md-sal" />
+                        </set>
+                        <block atomic='true'>
+                            <switch test="`$vpn-binding.global-route-target != ''`">
+                                <outcome value='true'>
+                                    <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                        <parameter name='restapiUrl' value='`$prop.rt.microservice.url + $prop.restapi.mS.releaseRT`' />
+                                        <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.rtmS.allocateRT.templatefile`" />
+                                        <parameter name='restapiUser' value='`$prop.rt.mS.user`' />
+                                        <parameter name='restapiPassword' value='`$prop.rt.mS.pwd`' />
+                                        <parameter name='customHttpHeaders' value='x-UserId=SDNCP' />
+                                        <parameter name='format' value='json' />
+                                        <parameter name='httpMethod' value='POST' />
+                                        <parameter name="responsePrefix" value="msRT" />
+                                    </execute>
+                                </outcome>
+                            </switch>
+                            <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="vpn-binding" 
+	key="vpn-id = $rt.vpn-id"></delete>
+                            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.network-instance-group-vpn-binding.templatefile`" />
+                                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.vpn-binding-url`' />
+                                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                                <parameter name='format' value='json' />
+                                <parameter name='httpMethod' value='DELETE' />
+                                <parameter name="responsePrefix" value="mdsal-vpn-binding" />
+                                <outcome value='failure'>
+                                    <block></block>
+                                </outcome>
+                                <outcome value='not-found'>
+                                    <block></block>
+                                </outcome>
+                            </execute>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500'/>
+                                <parameter name='error-message' value="`'Error writing to vpn binding - ' + $tmp.error-message`"/>
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+            </execute>
+            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="route-target" 
+		key="vpn-binding.vpn-binding-id = $vpn-binding.vpn-binding-id 
+			AND route-target.global-route-target = $vpn-binding.global-route-target
+			AND route-target.route-target-role = $vpn-binding.route-target-role" >
+                <!-- Create route-target object -->
+                <parameter name="global-route-target" value="`$vpn-binding.global-route-target`" />
+                <parameter name="route-target-role" value="`$vpn-binding.route-target-role`" />
+                <outcome value='failure'>
+                    <block>
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="Error: failed to save route target in AAI"/>
+                        </set>
+                        <block atomic='true'>
+                            <switch test="`$vpn-binding.global-route-target != ''`">
+                                <outcome value='true'>
+                                    <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                        <parameter name='restapiUrl' value='`$prop.rt.microservice.url + $prop.restapi.mS.releaseRT`' />
+                                        <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.rtmS.allocateRT.templatefile`" />
+                                        <parameter name='restapiUser' value='`$prop.rt.mS.user`' />
+                                        <parameter name='restapiPassword' value='`$prop.rt.mS.pwd`' />
+                                        <parameter name='customHttpHeaders' value='x-UserId=SDNCP' />
+                                        <parameter name='format' value='json' />
+                                        <parameter name='httpMethod' value='POST' />
+                                        <parameter name="responsePrefix" value="msRT" />
+                                    </execute>
+                                </outcome>
+                            </switch>
+                            <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="vpn-binding" 
+	key="vpn-id = $rt.vpn-id"></delete>
+                            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.network-instance-group-vpn-binding.templatefile`" />
+                                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.vpn-binding-url`' />
+                                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                                <parameter name='format' value='json' />
+                                <parameter name='httpMethod' value='DELETE' />
+                                <parameter name="responsePrefix" value="mdsal-vpn-binding" />
+                                <outcome value='failure'>
+                                    <block></block>
+                                </outcome>
+                                <outcome value='not-found'>
+                                    <block></block>
+                                </outcome>
+                            </execute>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500'/>
+                                <parameter name='error-message' value="`'Error writing to vpn binding - ' + $tmp.error-message`"/>
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+                <outcome value='not-found'>
+                    <block>
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="Error: failed to save route target in AAI"/>
+                        </set>
+                        <block atomic='true'>
+                            <switch test="`$vpn-binding.global-route-target != ''`">
+                                <outcome value='true'>
+                                    <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                        <parameter name='restapiUrl' value='`$prop.rt.microservice.url + $prop.restapi.mS.releaseRT`' />
+                                        <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.rtmS.allocateRT.templatefile`" />
+                                        <parameter name='restapiUser' value='`$prop.rt.mS.user`' />
+                                        <parameter name='restapiPassword' value='`$prop.rt.mS.pwd`' />
+                                        <parameter name='customHttpHeaders' value='x-UserId=SDNCP' />
+                                        <parameter name='format' value='json' />
+                                        <parameter name='httpMethod' value='POST' />
+                                        <parameter name="responsePrefix" value="msRT" />
+                                    </execute>
+                                </outcome>
+                            </switch>
+                            <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="vpn-binding" 
+	key="vpn-id = $rt.vpn-id"></delete>
+                            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.network-instance-group-vpn-binding.templatefile`" />
+                                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.vpn-binding-url`' />
+                                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                                <parameter name='format' value='json' />
+                                <parameter name='httpMethod' value='DELETE' />
+                                <parameter name="responsePrefix" value="mdsal-vpn-binding" />
+                                <outcome value='failure'>
+                                    <block></block>
+                                </outcome>
+                                <outcome value='not-found'>
+                                    <block></block>
+                                </outcome>
+                            </execute>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500'/>
+                                <parameter name='error-message' value="`'Error writing to vpn binding - ' + $tmp.error-message`"/>
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+            </save>
+        </block>
+    </method>
+</service-logic>

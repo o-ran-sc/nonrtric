@@ -1,0 +1,570 @@
+[
+    {
+        "id": "e84a6e75.7c345",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 132.85714721679688,
+        "y": 68.57142639160156,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            [
+                "4527f9c9.e3cd68"
+            ]
+        ]
+    },
+    {
+        "id": "6453a3c7.280b9c",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 176.5833511352539,
+        "y": 187.34921646118164,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            [
+                "fc2411fd.005e",
+                "872fa153.cd35d",
+                "f5aecca9.cfab2",
+                "4c8375f7.09675c",
+                "22afbf75.056c9"
+            ]
+        ]
+    },
+    {
+        "id": "b25c9a05.1ca608",
+        "type": "method",
+        "name": "method self-serve-pnf-unassign",
+        "xml": "<method rpc='self-serve-pnf-unassign' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 249.61905670166016,
+        "y": 123.27778148651123,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            [
+                "6453a3c7.280b9c"
+            ]
+        ]
+    },
+    {
+        "id": "4527f9c9.e3cd68",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 408.09534454345703,
+        "y": 68.76191902160645,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            [
+                "b25c9a05.1ca608"
+            ]
+        ]
+    },
+    {
+        "id": "faba8e11.68d2e",
+        "type": "for",
+        "name": "foreach pnf-parameters-data.param[]",
+        "xml": "<for index='pidx' start='0' end='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 759.6074600219727,
+        "y": 466.13098526000977,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            [
+                "68408564.24a50c",
+                "cd2b5b6f.2c7078"
+            ]
+        ]
+    },
+    {
+        "id": "e627cf9e.6ca29",
+        "type": "switchNode",
+        "name": "switch resource-resolution-data.status",
+        "xml": "<switch test='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$pidx].resource-resolution-data.status`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1058.702751159668,
+        "y": 688.4048819541931,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            [
+                "e6eea7fe.4b8c68",
+                "3be3a692.94995a"
+            ]
+        ]
+    },
+    {
+        "id": "e6eea7fe.4b8c68",
+        "type": "other",
+        "name": "SUCCESS",
+        "xml": "<outcome value='SUCCESS'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1334.0957527160645,
+        "y": 689.1191372871399,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            [
+                "cf5d615a.583c3"
+            ]
+        ]
+    },
+    {
+        "id": "fc2411fd.005e",
+        "type": "for",
+        "name": "foreach capability-order[]",
+        "xml": "<for index='cidx' start='0' end='`$ss.capability.execution-order_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 423.75013732910156,
+        "y": 394.89280796051025,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            [
+                "6774b97f.65aee8",
+                "18fcc384.942cfc",
+                "faba8e11.68d2e",
+                "c928b244.dc93e"
+            ]
+        ]
+    },
+    {
+        "id": "68408564.24a50c",
+        "type": "switchNode",
+        "name": "switch param capability-name == execution",
+        "xml": "<switch test='`$ss.capability-name == $tmp.param.capability-name`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1115.500373840332,
+        "y": 509.8571147918701,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            [
+                "a9b07f86.fdf0f"
+            ]
+        ]
+    },
+    {
+        "id": "a9b07f86.fdf0f",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1379.000373840332,
+        "y": 510.1071147918701,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            [
+                "11abb6d0.a113e9"
+            ]
+        ]
+    },
+    {
+        "id": "cf5d615a.583c3",
+        "type": "call",
+        "name": "call ss.capability-dg",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='`$ss.capability-dg`' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1539.214485168457,
+        "y": 688.8809885978699,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            [
+                "5b6648e.97c05b8",
+                "45f1640.54b3e9c"
+            ]
+        ]
+    },
+    {
+        "id": "6774b97f.65aee8",
+        "type": "set",
+        "name": "ss.capability-name",
+        "xml": "<set>\n<parameter name='ss.capability-name' value='`$ss.capability.execution-order[$cidx]`' />\n\n<!--\nss.capability.execution-order[]\n-->\n",
+        "comments": "",
+        "x": 696.9643096923828,
+        "y": 326.9881229400635,
+        "z": "90deaa5f.ba0df8",
+        "wires": []
+    },
+    {
+        "id": "cd2b5b6f.2c7078",
+        "type": "set",
+        "name": "tmp.param.capability-name",
+        "xml": "<set>\n<parameter name='tmp.param.capability-name' value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$pidx].resource-resolution-data.capability-name`' />\n",
+        "comments": "",
+        "x": 1064.8573989868164,
+        "y": 464.4643249511719,
+        "z": "90deaa5f.ba0df8",
+        "wires": []
+    },
+    {
+        "id": "18fcc384.942cfc",
+        "type": "set",
+        "name": "set ss.capability.action = unassign",
+        "xml": "<set>\n<parameter name='ss.capability-action' value='unassign' />\n",
+        "comments": "",
+        "x": 752.2498931884766,
+        "y": 368.19042587280273,
+        "z": "90deaa5f.ba0df8",
+        "wires": []
+    },
+    {
+        "id": "5b6648e.97c05b8",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1724.1069946289062,
+        "y": 688.8810496330261,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            [
+                "46832d95.2ea054"
+            ]
+        ]
+    },
+    {
+        "id": "c928b244.dc93e",
+        "type": "set",
+        "name": "set capability-dg",
+        "xml": "<set>\n<parameter name='ss.capability-dg' value=\"`'self-serve-' + $ss.capability.execution-order[$cidx]`\" />\n",
+        "comments": "",
+        "x": 696.678581237793,
+        "y": 417.0833396911621,
+        "z": "90deaa5f.ba0df8",
+        "wires": []
+    },
+    {
+        "id": "86e9d18c.321b6",
+        "type": "execute",
+        "name": "generate ss-pnf url replace service-instance-id",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$prop.restapi.ss-pnf-assignments`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.ss-pnf-url\"/>\n    <parameter name=\"target\" value=\"{service-instance-id}\"/>\n    <parameter name=\"replacement\" value=\"`$service-data.pnfs.pnf[$pnf-index].pnf-data.service-information.service-instance-id`\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2206.9643783569336,
+        "y": 742.7627749443054,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "39d788f3.585018",
+        "type": "execute",
+        "name": "execute RestApiCallNode - PUT pnf",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='templateFileName' value=\"`$prop.restapi.templateDir + '/' + $prop.restapi.ss.pnf.templatefile`\" />\n    <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ss-pnf-url`' />\n    <parameter name='restapiUser' value='`$prop.controller.user`' />\n    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='PUT' />\n    <parameter name=\"responsePrefix\" value=\"mdsal-ss-pnf\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2176.4286727905273,
+        "y": 845.619996547699,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            [
+                "deb7d997.4e8ea8",
+                "bc2a882f.2a5f98"
+            ]
+        ]
+    },
+    {
+        "id": "deb7d997.4e8ea8",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2451.0223388671875,
+        "y": 899.6181502342224,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            [
+                "829e8ec3.e8ef3"
+            ]
+        ]
+    },
+    {
+        "id": "bc2a882f.2a5f98",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2443.450973510742,
+        "y": 846.118170261383,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            [
+                "829e8ec3.e8ef3"
+            ]
+        ]
+    },
+    {
+        "id": "829e8ec3.e8ef3",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2645.583297729492,
+        "y": 845.7624249458313,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            [
+                "1ed7e952.806f17"
+            ]
+        ]
+    },
+    {
+        "id": "1ed7e952.806f17",
+        "type": "configure",
+        "name": "set error-message",
+        "xml": "<set>\n<parameter name=\"error-message\" value=\"Error persisting self-serve pnf assignments in MD-SAL during unassign\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2863.8690643310547,
+        "y": 845.9052882194519,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "485950a5.fe099",
+        "type": "set",
+        "name": "set vf data for restapi-call-node",
+        "xml": "<set>\n<parameter name='vf.pnf-id'\n    value='`$service-data.pnfs.pnf[$pnf-index].pnf-id`' />\n<parameter name='vf.pnf-data.sdnc-request-header.'\n  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.sdnc-request-header.`' />\n<parameter name='vf.pnf-data.request-information.'\n  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.request-information.`' />\n<parameter name='vf.pnf-data.service-information.'\n  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.service-information.`' />\n<parameter name='vf.pnf-data.pnf-information.'\n  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-details.`' />\n<parameter name='vf.pnf-data.pnf-request-input.'\n  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-request-input.`' />\n<parameter name='vf.pnf-data.pnf-request-input.pnf-input-parameters.'\n  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-request-input.pnf-input-parameters.`' />\n<parameter name='vf.pnf-data.pnf-topology.'\n  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.`' />\n<parameter name='vf.pnf-data.pnf-level-oper-status.'\n  value='`$service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-level-oper-status.`' />",
+        "comments": "",
+        "x": 2159.416679382324,
+        "y": 688.8572869300842,
+        "z": "90deaa5f.ba0df8",
+        "wires": []
+    },
+    {
+        "id": "c967833c.6fc58",
+        "type": "execute",
+        "name": "generate ss-pnf url - replace pnf-id",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$tmp.ss-pnf-url`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.ss-pnf-url\"/>\n    <parameter name=\"target\" value=\"{pnf-id}\"/>\n    <parameter name=\"replacement\" value=\"`$service-data.pnfs.pnf[$pnf-index].pnf-id`\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2171.25008392334,
+        "y": 793.5715432167053,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "46832d95.2ea054",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1885.059669494629,
+        "y": 688.6191611289978,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            [
+                "86e9d18c.321b6",
+                "39d788f3.585018",
+                "485950a5.fe099",
+                "c967833c.6fc58",
+                "9293681d.2140f8"
+            ]
+        ]
+    },
+    {
+        "id": "9293681d.2140f8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"`'Failed to unassign self-serve pnf assignments for ' + $ss.capability-dg + ' with error: ' + $error-message`\" />\n",
+        "comments": "",
+        "x": 2105.9646377563477,
+        "y": 973.3929445743561,
+        "z": "90deaa5f.ba0df8",
+        "wires": []
+    },
+    {
+        "id": "4c8375f7.09675c",
+        "type": "execute",
+        "name": "printContext",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >\n<parameter name='filename' value='/var/tmp/ss-pnf-unassign.log' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 373.4050750732422,
+        "y": 1227.4882678985596,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "872fa153.cd35d",
+        "type": "set",
+        "name": "set ss.capability.execution-order[]",
+        "xml": "<set>\n<parameter name='ss.capability.execution-order[0]' value='mS-mac-address-assign' />\n<parameter name='ss.capability.execution-order[1]' value='mac-address-assign' />\n<parameter name='ss.capability.execution-order[2]' value='netbox-ip-assign' />\n<parameter name='ss.capability.execution-order[3]' value='eipam-ip-assignment' />\n<parameter name='ss.capability.execution-order[4]' value='mS-vlan-tag-assign' />\n<parameter name='ss.capability.execution-order[5]' value='vlan-tag-assign' />\n<parameter name='ss.capability.execution-order[6]' value='alts-license-assign' />\n<parameter name='ss.capability.execution-order[7]' value='alts-entitlement-assign' />\n<parameter name='ss.capability.execution-order[8]' value='generate-name' />\n<parameter name='ss.capability.execution-order_length' value='9' />",
+        "comments": "",
+        "x": 456.10718536376953,
+        "y": 187.57143020629883,
+        "z": "90deaa5f.ba0df8",
+        "wires": []
+    },
+    {
+        "id": "f5aecca9.cfab2",
+        "type": "set",
+        "name": "set ss.capability-type = pnf",
+        "xml": "<set>\n<parameter name='ss.capability-type' value='pnf' />\n",
+        "comments": "",
+        "x": 435.7142868041992,
+        "y": 227.14286041259766,
+        "z": "90deaa5f.ba0df8",
+        "wires": []
+    },
+    {
+        "id": "3be3a692.94995a",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1324.4166145324707,
+        "y": 756.3690571784973,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            [
+                "d0d9cea4.27793"
+            ]
+        ]
+    },
+    {
+        "id": "d0d9cea4.27793",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"`'SS: resource-resolution-data.status: ' + $service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-parameters-data.param[$pidx].resource-resolution-data.status`\"/>\n<parameter name=\"field2\" value=\"`'SS: ss.capability-name: ' + $ss.capability-name`\"/>\n<parameter name=\"field3\" value=\"`'SS: tmp.param.capability-name: ' + $tmp.param.capability-name`\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1472.523796081543,
+        "y": 756.4047627449036,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "11abb6d0.a113e9",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 774.2856826782227,
+        "y": 688.5237755775452,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            [
+                "b6cd64d4.f1fee8",
+                "e627cf9e.6ca29"
+            ]
+        ]
+    },
+    {
+        "id": "b6cd64d4.f1fee8",
+        "type": "break",
+        "name": "break",
+        "xml": "<break>\n",
+        "comments": "",
+        "x": 952.7143249511719,
+        "y": 1121.095314025879,
+        "z": "90deaa5f.ba0df8",
+        "wires": []
+    },
+    {
+        "id": "45f1640.54b3e9c",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1751.607177734375,
+        "y": 874.8214378356934,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            [
+                "7721b9be.729b18"
+            ]
+        ]
+    },
+    {
+        "id": "7721b9be.729b18",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"`'DONE: ' + $ss.capability-dg`\"/>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1895.357177734375,
+        "y": 873.5714378356934,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d136ccb4.7926b",
+        "type": "execute",
+        "name": "execute PropertiesNode",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >\n    <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />\n    <parameter name='contextPrefix' value='prop' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 844.8572213309153,
+        "y": 273.85714394705644,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "22afbf75.056c9",
+        "type": "switchNode",
+        "name": "switch prop.controller.user",
+        "xml": "<switch test='`$prop.controller.user`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 433.5714569091797,
+        "y": 274.28576469421387,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            [
+                "720caa44.b3ae14"
+            ]
+        ]
+    },
+    {
+        "id": "720caa44.b3ae14",
+        "type": "failure",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 633.4285523550852,
+        "y": 273.85717923300615,
+        "z": "90deaa5f.ba0df8",
+        "wires": [
+            [
+                "d136ccb4.7926b"
+            ]
+        ]
+    }
+]

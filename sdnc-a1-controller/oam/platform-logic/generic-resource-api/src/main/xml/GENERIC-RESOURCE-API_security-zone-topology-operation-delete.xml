@@ -1,0 +1,130 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='security-zone-topology-operation-delete' mode='sync'>
+        <block atomic="true">
+            <set>
+                <parameter name='tmp.ar.allotted-resource-id' value='`$security-zone-topology-operation-input.allotted-resource-information.allotted-resource-id`' />
+                <parameter name='tmp.ar.parent-service-instance-id' value='`$security-zone-topology-operation-input.allotted-resource-information.parent-service-instance-id`' />
+                <parameter name='tmp.ar.sz-vnf-id' value='`$security-zone-topology-operation-input.allotted-resource-data.security-zone-topology.security-zone-assignments.security-zone-vnf-id`' />
+            </set>
+            <set>
+                <parameter name='tmp.ar.self-link' value="`'restconf/config/GENERIC-RESOURCE-API:security-zone-allotted-resources/security-zone-allotted-resource/'
+ + $tmp.ar.allotted-resource-id
+ + '/allotted-resource-data/security-zone-topology/'` " />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                <parameter name='contextPrefix' value='prop' />
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$prop.restapi.sz-allottedresource`"/>
+                <parameter name="outputPath" value="tmp.ar-url"/>
+                <parameter name="target" value="{allotted-resource-id}"/>
+                <parameter name="replacement" value="`$tmp.ar.allotted-resource-id`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='GET' />
+                <parameter name="responsePrefix" value="mdsal-ar" />
+                <outcome value='success'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name='bk-sz-ar' value='$mdsal-ar.' />
+                        </set>
+                        <switch test='`$mdsal-ar.security-zone-allotted-resource_length`'>
+                            <outcome value='1'>
+                                <block atomic='true'>
+                                    <set>
+                                        <parameter name='sz-ar.' value='$mdsal-ar.security-zone-allotted-resource[0].' />
+                                    </set>
+                                    <switch test='`$sz-ar.allotted-resource-data.allotted-resource-oper-status.order-status`'>
+                                        <outcome value='Created'>
+                                            <block></block>
+                                        </outcome>
+                                        <outcome value='Other'>
+                                            <block></block>
+                                        </outcome>
+                                    </switch>
+                                    <set>
+                                        <parameter name='sz-ar.allotted-resource-data.allotted-resource-oper-status.last-action' value='`$sz-ar.allotted-resource-data.allotted-resource-operation-information.request-information.request-action`' />
+                                        <parameter name='sz-ar.allotted-resource-data.allotted-resource-oper-status.last-rpc-action' value='`$sz-ar.allotted-resource-status.rpc-action`' />
+                                        <parameter name='sz-ar.allotted-resource-data.allotted-resource-oper-status.last-svc-request-id' value='`$sz-ar.allotted-resource-data.allotted-resource-operation-information.sdnc-request-header.svc-request-id`' />
+                                    </set>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='Other'>
+                    <block atomic="true"></block>
+                </outcome>
+            </execute>
+            <set>
+                <parameter name='sz-ar.allotted-resource-id' value="`$tmp.ar.allotted-resource-id` " />
+                <parameter name='sz-ar.allotted-resource-status.action' value="`$security-zone-topology-operation-input.request-information.request-action` " />
+                <parameter name='sz-ar.allotted-resource-status.rpc-name' value="security-zone-topology-operation" />
+                <parameter name='sz-ar.allotted-resource-status.rpc-action' value="`$security-zone-topology-operation-input.sdnc-request-header.svc-action` " />
+                <parameter name='sz-ar.allotted-resource-data.allotted-resource-operation-information.request-information.' value="`$security-zone-topology-operation-input.request-information.` " />
+                <parameter name='sz-ar.allotted-resource-data.allotted-resource-operation-information.sdnc-request-header.' value="`$security-zone-topology-operation-input.sdnc-request-header.` " />
+                <parameter name='sz-ar.allotted-resource-data.allotted-resource-operation-information.service-information.' value="`$security-zone-topology-operation-input.service-information.` " />
+                <parameter name='sz-ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.' value="`$security-zone-topology-operation-input.allotted-resource-information.` " />
+                <parameter name='sz-ar.allotted-resource-data.allotted-resource-operation-information.security-zone-request-input.' value="`$security-zone-topology-operation-input.security-zone-request-input.` " />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='setTime' >
+                <parameter name="outputPath" value="tmp.current-time" />
+            </execute>
+            <set>
+                <parameter name='sz-ar.allotted-resource-data.allotted-resource-oper-status.order-status' value='PendingDelete' />
+                <parameter name='sz-ar.allotted-resource-data.allotted-resource-oper-status.last-action' value='`$security-zone-topology-operation-input.request-information.request-action`' />
+                <parameter name='sz-ar.allotted-resource-data.allotted-resource-oper-status.last-rpc-action' value='`$security-zone-topology-operation-input.sdnc-request-header.svc-action`' />
+                <parameter name='sz-ar.allotted-resource-data.allotted-resource-oper-status.last-svc-request-id' value='`$security-zone-topology-operation-input.sdnc-request-header.svc-request-id`' />
+                <parameter name='sz-ar.allotted-resource-data.allotted-resource-oper-status.create-timestamp' value='`$tmp.current-time`' />
+            </set>
+            <set>
+                <parameter name='sz-ar-assignments.' value="" />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.sz.templatefile`" />
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='PUT' />
+                <parameter name="responsePrefix" value="mdsal-ar" />
+                <outcome value='success'>
+                    <block></block>
+                </outcome>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error updating md-sal for security-zone-allotted-resource" />
+                    </return>
+                </outcome>
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error updating md-sal for security-zone-allotted-resource" />
+                    </return>
+                </outcome>
+            </execute>
+            <set>
+                <parameter name='allotted-resource-id' value='`$tmp.ar.allotted-resource-id`' />
+                <parameter name='security-zone-object-path' value="`$tmp.ar.self-link`"/>
+                <parameter name='service-object-path' value="`'restconf/config/GENERIC-RESOURCE-API:services/service/'
+ + $security-zone-topology-operation-input.service-information.service-instance-id
+ + '/service-data/service-topology/'`"/>
+            </set>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="`$error-message`" />
+            </return>
+        </block>
+    </method>
+</service-logic>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>SDN-C AdminPortal</title>
+<script class="init">
+    $(document).ready(function() {
+    $('#vnf_profile').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+
+</head>
+<body>
+
+<div class="well well-sm">
+<h3>VNF Profile </h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+
+	<% if (priv == 'A'){ %>
+	<div class="actions" style="padding:15px 0px;">
+    <button class="btn btn-primary btn-md" data-toggle="modal" data-target="#add_vnf_profile">
+      Add VNF Profile
+    </button>
+	</div>
+	<% } %>
+
+	<table id="vnf_profile" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+		  <th>*VNF_TYPE</th>
+		  <th>AVAILABILITY_ZONE_COUNT</th>
+		  <th>EQUIPMENT_ROLE</th>
+		  <% if(priv == 'A'){ %>
+          <th>Action</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+		<% rows.forEach( function(row) { %>
+        <tr>
+            <td><%= row.vnf_type %></td>
+            <td><%= row.availability_zone_count %></td>
+            <td><%= row.equipment_role %></td>
+			<% if(priv == 'A' ) { %>
+            <td>
+				<button type="button" class="btn btn-default btn-xs"
+                   onclick="deleteVnfProfile('<%= row.vnf_type %>');">Delete</button>
+            </td>
+            <% } %>
+        </tr>
+		<% }); %>
+      </tbody>
+    </table>
+
+	<% if(priv == 'A'){ %>
+	<div class="actions" style="padding:0px 25px;">
+	<form method="POST" action="/mobility/uploadVnfProfile" enctype="multipart/form-data">
+		<input type="hidden" name="_csrf" value="<%= privilege.csrfToken %>" />
+		<div class="form-group">
+    		<label for="dest">File input</label>
+    		<input name="filename" type="file" id="dest">
+    		<p class="help-block">Choose a file to upload.</p>
+  		</div>
+        <button type="button" class="btn btn-default"
+                onclick="uploadFile(this.form);">Upload File</button>
+	</form>
+	</div>
+	<% } %>
+</div>
+
+<% include ../partials/vnf_profile %>
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+<script type="text/javascript">
+
+function addVnfProfile(form)
+{
+	var errorMsg='';
+	var vnf_type='';
+	var availability_zone_count='';
+	var equipment_role='';
+
+	if ( form.name == 'addForm' )
+	{
+		vnf_type = form.nf_vnf_type;
+		availability_zone_count = form.nf_availability_zone_count;
+		equipment_role = form.nf_equipment_role;
+	}
+
+	if ( (vnf_type.value == null) || (vnf_type.value == "") || isblank(vnf_type.value) )
+	{
+		errorMsg += 'VNF Type is required.<br>';
+	}
+	if ( (availability_zone_count.value == null) || (availability_zone_count.value == "") || isblank(availability_zone_count.value) )
+	{
+		errorMsg += 'Availability Zone Count is a required field.<br>';
+	}
+	if ( (equipment_role.value == null) || (equipment_role.value == "") || isblank(equipment_role.value) )
+	{
+		errorMsg += 'Equipment Role is a required field.<br>';
+	}
+	if( errorMsg.length > 0 ) {
+		bootbox.alert(errorMsg);
+		return;
+	}
+	if ( availability_zone_count.value.length > 0 && !isDigit(availability_zone_count.value) )
+    {
+        bootbox.alert('Availability Zone Count must be a number.');
+        return;
+    }
+	form.submit();
+}
+
+function deleteVnfProfile(vnf_type) {
+
+    bootbox.confirm({
+        message: "Are you sure you want to delete VNF_PROFILE [" + vnf_type + "]",
+        callback: function(result) {
+            if ( result )
+            {
+				location.assign("/mobility/deleteVnfProfile?vnf_type=" + vnf_type);
+
+            }
+            return;
+        },
+        buttons: {
+            cancel: {
+                label: "Cancel"
+            },
+            confirm: {
+                label: "Yes"
+            }
+        }
+    });
+}
+
+</script>
+
+</body>
+</html>
+

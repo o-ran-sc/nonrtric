@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<% include ../partials/head %>
+<% include ../partials/header %>
+<script type="text/javascript" src="/javascripts/admportal.js" async></script>
+<title>SDN-FC AdminPortal</title>
+<script class="init">
+    $(document).ready(function() {
+    $('#viewTables').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+</head>
+
+<body>
+
+<div class="well well-sm">
+<h3>View Database Tables
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) {
+            if ( result.code == 'success' ) { %>
+                <div class='alert alert-success' role='alert'>
+                <%
+                for ( x in result.msg ){ %>
+                    <div><%= result.msg[x] %></div>
+                <% } %>
+                </div>
+            <% } else { %>
+                <div class='alert alert-danger' role='danger'>
+                <%
+                for ( x in result.msg ){ %>
+                    <div><%= result.msg[x] %></div>
+                <% } %>
+                </div>
+            <% } %>
+        <% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+<!-- Single button -->
+<nav class="navbar navbar-default">
+<div class="container-fluid">
+<div class="navbar-header">
+
+<div class="btn-group">
+  <button type="button" class="btn btn-primary dropdown-toggle navbar-btn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Table <span class="caret"></span>
+  </button>
+    <ul class="dropdown-menu" role="menu">
+    <% for ( var i in vtables ){ %>
+		<li><a href="/sdnfc/getTables?tableName=<%= vtables[i] %>"><%= vtables[i] %></a></li>
+	<% } %>
+    </ul>
+</div>
+</div>
+</div>
+</nav>
+
+<% if (displayTable) { %>
+<div class="container-fluid">
+    <table id="viewTables" class="table table-hover table-condensed">
+    <caption class="text-primary"><%= fields[0].table %></caption>
+    <thead>
+    <tr>
+	<% fields.forEach( function(field) { %>
+        <th><%= field.name %></th>
+        <% }); %>
+    </tr>
+    </thead>
+
+	<tbody>
+    <% for ( var x in rows ){ %>
+    <tr>
+        <% for ( var j in rows[x] ){ %>
+        <td><%= rows[x][j] %></td>
+        <% } %>
+    </tr>
+    <% } %>
+    </tbody>
+    </table>
+</div>
+<% } %>
+
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+</body>
+</html>
+

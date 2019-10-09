@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
+           odl:use-default-for-reference-types="true">
+
+
+    <bean id="vnftools" class="org.onap.sdnc.vnftools.VnfTools" />
+    <service ref="vnftools" interface="org.onap.sdnc.vnftools.VnfTools" />
+
+</blueprint>

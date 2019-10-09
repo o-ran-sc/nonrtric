@@ -1,0 +1,75 @@
+<!--
+  ============LICENSE_START=======================================================
+  openECOMP : SDN-C
+  ================================================================================
+  Copyright (C) 2017 AT&T Intellectual Property. All rights
+  						reserved.
+  ================================================================================
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+       http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  ============LICENSE_END=========================================================
+  -->
+
+<service-logic xmlns="http://www.onap.org/sdnc/svclogic"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.onap.org/sdnc/svclogic ./svclogic.xsd" module='VNF-API' version='${project.version}'><method rpc="network-topology-rollback" mode="sync"><block atomic="true"><get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+    resource="l3-network"
+        key="l3-network.network-id = $network-topology-operation-input.network-request-information.network-id"
+        pfx="tmp.AnAI.l3network">
+<outcome value='not-found'>
+<return status='failure'>
+    <parameter name="error-code" value="404" />
+    <parameter name="error-message" value="`'l3-network not found in AnAI with network-id = ' + $network-topology-operation-input.network-request-information.network-id`" /></return></outcome><outcome value='failure'>
+<return status='failure'>
+    <parameter name="error-code" value="500" />
+    <parameter name="error-message" value="`'An error occurred while querying l3-network from AnAI with network-id = ' + $network-topology-operation-input.network-request-information.network-id`" /></return></outcome></get-resource><switch test="`$tmp.AnAI.l3network.orchestration-status`"><outcome value='pending-create'>
+<delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+    resource="l3-network"
+        key="l3-network.network-id = $network-topology-operation-input.network-request-information.network-id" ><outcome value='failure'>
+<return status='failure'>
+    <parameter name='error-code' value='500'/>
+    <parameter name='error-message' value="`'Failed to delete l3-network from AAI with network-id = ' + $network-topology-operation-input.network-request-information.network-id`"/></return></outcome></delete></outcome><outcome value='pending-delete'>
+<update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+    resource="l3-network"
+        key="l3-network.network-id = $network-topology-operation-input.network-request-information.network-id" >
+<parameter name="orchestration-status" value="active" /><outcome value='failure'>
+<return status='failure'>
+    <parameter name='error-code' value='500'/>
+    <parameter name='error-message' value="`'Failed to update l3-netework orchestration-status in AnAI for network-id = ' + $network-topology-operation-input.network-request-information.network-id`"/></return></outcome></update></outcome><outcome value='pending-update'>
+<block atomic="true">
+<switch test="`$tmp.AnAI.l3network.subnets.subnet_length`"><outcome value=''><set>
+<parameter name="tmp.AnAI.l3network.subnets.subnet_length" value="0" />
+</set></outcome></switch><for index="i" start="0" end="`$tmp.AnAI.l3network.subnets.subnet_length`">
+<switch test="`$tmp.AnAI.l3network.subnets.subnet[$i].orchestration-status`"><outcome value='pending-create'>
+<delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+    resource="subnet"
+        key="l3-network.network-id = $network-topology-operation-input.network-request-information.network-id
+            AND subnet.subnet-id = $tmp.AnAI.l3network.subnets.subnet[$i].subnet-id" ><outcome value='failure'>
+<return status='failure'>
+    <parameter name="error-code" value="500" />
+    <parameter name="error-message" value="`'Failed to rollback to delete subnet from AnAI with subnet-id = ' + $tmp.AnAI.l3network.subnets.subnet[$i].subnet-id + ' and network-id = ' + $network-topology-operation-input.network-request-information.network-id`" /></return></outcome></delete></outcome><outcome value='pending-delete'>
+<update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+    resource="subnet"
+        key="l3-network.network-id = $network-topology-operation-input.network-request-information.network-id
+            AND subnet.subnet-id = $tmp.AnAI.l3network.subnets.subnet[$i].subnet-id" >
+    <parameter name="orchestration-status" value="active" />
+        <outcome value='failure'>
+<return status='failure'>
+    <parameter name="error-code" value="500" />
+    <parameter name="error-message" value="`'Failed to rollback subnet orchestration-status from AnAI with subnet-id = ' + $tmp.AnAI.l3network.subnets.subnet[$i].subnet-id + ' and network-id = ' + $network-topology-operation-input.network-request-information.network-id`" /></return></outcome></update></outcome></switch></for><update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+    resource="l3-network"
+        key="l3-network.network-id = $network-topology-operation-input.network-request-information.network-id" >
+<parameter name="orchestration-status" value="active" /><outcome value='failure'>
+<return status='failure'>
+    <parameter name='error-code' value='500'/>
+    <parameter name='error-message' value="`'Failed to rollback l3-netework orchestration-status in AnAI for network-id = ' + $network-topology-operation-input.network-request-information.network-id`"/></return></outcome></update></block></outcome></switch><set>
+<parameter name="ack-final" value="Y"/></set><return status="success">
+    <parameter name="networkId" value="`$network-topology-operation-input.network-request-information.network-id`" />
+    <parameter name="error-code" value="200" /></return></block></method></service-logic>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>SDN-C AdminPortal</title>
+<script class="init">
+    $(document).ready(function() {
+    $('#vlan_id_pool').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+
+</head>
+<body>
+
+<div class="well well-sm">
+<h3>NoD VLAN ID POOL</h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){ 
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+<div class="container-fluid">
+	<table id="vlan_id_pool" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+          <th>AIC Site ID</th>
+          <th>Purpose</th>
+		  <th>VLAN ID</th>
+	      <th>VLPSPE Name</th>
+	  	  <th>Availability Zone</th>
+          <th>Status</th>
+          <th>Svc Instance ID</th>
+		  <% if(priv == 'A'){ %>
+		  <th>Action</th>
+		  <% } %>
+        </tr>
+      </thead>
+      <tbody>
+      <% rows.forEach( function(row) { %> 
+        <tr>
+            <td><%= row.aic_site_id %></td>
+            <td><%= row.purpose %></td>
+            <td><%= row.vlan_id %></td>
+            <td><%= row.vplspe_name %></td>
+            <td><%= row.availability_zone %></td>
+            <td><%= row.status %></td>
+            <td><%= row.svc_instance_id %></td>
+			<% if(priv == 'A') { %>
+            <td>
+				 <button type="button" class="btn btn-default btn-xs"
+                 	onclick="updateVlanPool('<%=row.aic_site_id %>','<%= row.availability_zone %>',
+						'<%= row.purpose %>','<%= row.vlan_id %>','<%= row.status %>',
+						'<%= row.svc_instance_id %>','<%= row.vplspe_name %>');">Update</button>
+				 <button type="button" class="btn btn-default btn-xs"
+                 	onclick="deleteVlanPool('<%=row.aic_site_id %>', '<%= row.purpose %>', 
+						'<%= row.vlan_id %>');">Delete</button>
+            </td>
+            <% } %>
+        </tr>
+    <% }); %>
+      </tbody>
+    </table>
+
+<!--
+	<% if(priv == 'A'){ %>
+	<div class="actions" style="padding:0px 25px;">
+	<form method="POST" action="/gamma/uploadVLAN" enctype="multipart/form-data">
+		<div class="form-group">
+    		<label for="dest">File input</label>
+    		<input name="filename" type="file" id="dest">
+    		<p class="help-block">Choose a file to upload.</p>
+  		</div>
+		<% if(priv == 'A') { %>
+            <button type="button" class="btn btn-default"
+                onclick="uploadFile(this.form);">Upload File</button>
+        <% } else { %>
+            <button type="button" class="btn btn-default disabled"
+                onclick="uploadFile(this.form);">Upload File</button>
+        <% } %>
+	</form>
+	</div>
+	<% } %>
+-->
+</div>
+
+<% include ../partials/update_vlan_id_pool %>
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+<script type="text/javascript">
+function updateVlanPool(aic_site_id,availability_zone,purpose,vlan_id,status,svc_instance_id,vplspe_name) {
+
+    document.getElementById('uf_aic_site_id').value=aic_site_id;
+    document.getElementById('uf_availability_zone').value=availability_zone
+    document.getElementById('uf_purpose').value=purpose;
+    document.getElementById('uf_vlan_id').value=vlan_id;
+    document.getElementById('uf_status').value=status;
+    document.getElementById('uf_svc_instance_id').value=svc_instance_id;
+    document.getElementById('uf_vplspe_name').value=vplspe_name;
+
+    document.getElementById('uf_key_aic_site_id').value=aic_site_id;
+    document.getElementById('uf_key_purpose').value=purpose;
+    document.getElementById('uf_key_vlan_id').value=vlan_id;
+    $('#update_vlan_id_pool_modal').modal('show');
+}
+
+function deleteVlanPool(aic_site_id,purpose,vlan_id) {
+
+    bootbox.confirm({
+        message: "Are you sure you want to delete VLAN Id [" + aic_site_id + "][" + purpose + "][" + vlan_id + "] ?",
+        callback: function(result) {
+            if ( result )
+            {
+                location.assign("/gamma/deleteVlanPool?aic_site_id=" + aic_site_id + "&purpose=" + purpose + "&vlan_id=" + vlan_id);
+            }
+            return;
+        },
+        buttons: {
+            cancel: {
+                label: "Cancel"
+            },
+            confirm: {
+                label: "Yes"
+            }
+        }
+    });
+}
+</script>
+
+</body>
+</html>
+

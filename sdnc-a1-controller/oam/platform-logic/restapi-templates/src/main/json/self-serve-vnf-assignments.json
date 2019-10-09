@@ -1,0 +1,112 @@
+{
+    "vnf": [{
+        "vnf-id": ${vf.vnf-id},
+        "vnf-data": {
+            "sdnc-request-header": {
+                "svc-request-id": ${vf.vnf-data.sdnc-request-header.svc-request-id},
+                "svc-action": ${vf.vnf-data.sdnc-request-header.svc-action},
+                "svc-notification-url": ${vf.vnf-data.sdnc-request-header.svc-notification-url}
+            },
+            "request-information": {
+                "request-id": ${vf.vnf-data.request-information.request-id},
+                "request-action": ${vf.vnf-data.request-information.request-action},
+                "source": ${vf.vnf-data.request-information.source},
+                "notification-url": ${vf.vnf-data.request-information.notification-url},
+                "order-number": ${vf.vnf-data.request-information.order-number},
+                "order-version": ${vf.vnf-data.request-information.order-version}
+            },
+            "service-information": {
+                "service-id": ${vf.vnf-data.service-information.service-id},
+                "subscription-service-type": ${vf.vnf-data.service-information.subscription-service-type},
+                "onap-model-information": {
+                    "model-invariant-uuid": ${vf.vnf-data.service-information.onap-model-information.model-invariant-uuid},
+                    "model-customization-uuid": ${vf.vnf-data.service-information.onap-model-information.model-customization-uuid},
+                    "model-uuid": ${vf.vnf-data.service-information.onap-model-information.model-uuid},
+                    "model-version": ${vf.vnf-data.service-information.onap-model-information.model-version},
+                    "model-name": ${vf.vnf-data.service-information.onap-model-information.model-name}
+                },
+                "service-instance-id": ${vf.vnf-data.service-information.service-instance-id},
+                "global-customer-id": ${vf.vnf-data.service-information.global-customer-id},
+                "subscriber-name": ${vf.vnf-data.service-information.subscriber-name}
+            },
+            "vnf-information": {
+                "vnf-id": ${vf.vnf-data.vnf-information.vnf-id},
+                "vnf-type": ${vf.vnf-data.vnf-information.vnf-type},
+                "vnf-name": ${vf.vnf-data.vnf-information.vnf-name},
+                "onap-model-information": {
+                    "model-invariant-uuid": ${vf.vnf-data.vnf-information.onap-model-information.model-invariant-uuid},
+                    "model-customization-uuid": ${vf.vnf-data.vnf-information.onap-model-information.model-customization-uuid},
+                    "model-uuid": ${vf.vnf-data.vnf-information.onap-model-information.model-uuid},
+                    "model-version": ${vf.vnf-data.vnf-information.onap-model-information.model-version},
+                    "model-name": ${vf.vnf-data.vnf-information.onap-model-information.model-name}
+                }
+            },
+            "vnf-request-input": {
+                "request-version": ${vf.vnf-data.vnf-request-input.request-version},
+                "vnf-name": ${vf.vnf-data.vnf-request-input.vnf-name},
+                "tenant": ${vf.vnf-data.vnf-request-input.tenant},
+                "aic-cloud-region": ${vf.vnf-data.vnf-request-input.aic-cloud-region},
+                "aic-clli": ${vf.vnf-data.vnf-request-input.aic-clli},
+                "vnf-input-parameters": {
+                    "param": [
+        ${repeat:vf.vnf-data.vnf-request-input.vnf-input-parameters.param_length:
+                        {
+                            "name": ${vf.vnf-data.vnf-request-input.vnf-input-parameters.param[${1}].name},
+                            "value": ${vf.vnf-data.vnf-request-input.vnf-input-parameters.param[${1}].value}
+                        },
+        }
+                    ]
+                }
+            },
+            "vnf-topology": {
+                "vnf-topology-identifier-structure": {
+                    "vnf-id": ${vf.vnf-data.vnf-topology.vnf-topology-identifier-structure.vnf-id},
+                    "vnf-name": ${vf.vnf-data.vnf-topology.vnf-topology-identifier-structure.vnf-name},
+                    "vnf-type": ${vf.vnf-data.vnf-topology.vnf-topology-identifier-structure.vnf-type}
+                },
+                "onap-model-information": {
+                    "model-invariant-uuid": ${vf.vnf-data.vnf-topology.onap-model-information.model-invariant-uuid},
+                    "model-customization-uuid": ${vf.vnf-data.vnf-topology.onap-model-information.model-customization-uuid},
+                    "model-uuid": ${vf.vnf-data.vnf-topology.onap-model-information.model-uuid},
+                    "model-version": ${vf.vnf-data.vnf-topology.onap-model-information.model-version},
+                    "model-name": ${vf.vnf-data.vnf-topology.onap-model-information.model-name}
+                },
+                "vnf-parameters-data": {
+                    "param": [
+        ${repeat:vf.vnf-data.vnf-topology.vnf-parameters-data.param_length:
+                        {
+                            "name": ${vf.vnf-data.vnf-topology.vnf-parameters-data.param[${1}].name},
+                            "value": ${vf.vnf-data.vnf-topology.vnf-parameters-data.param[${1}].value},
+                            "resource-resolution-data": {
+                                "resource-key": [
+                ${repeat:vf.vnf-data.vnf-topology.vnf-parameters-data.param[${1}].resource-resolution-data.resource-key_length:
+                                    {
+                                        "name": ${vf.vnf-data.vnf-topology.vnf-parameters-data.param[${1}].resource-resolution-data.resource-key[${2}].name},
+                                        "value": ${vf.vnf-data.vnf-topology.vnf-parameters-data.param[${1}].resource-resolution-data.resource-key[${2}].value}
+                                    },
+                }
+                                ],
+                                "status": ${vf.vnf-data.vnf-topology.vnf-parameters-data.param[${1}].resource-resolution-data.status},
+                                "capability-name": ${vf.vnf-data.vnf-topology.vnf-parameters-data.param[${1}].resource-resolution-data.capability-name}
+                            },
+                        },
+        }
+                    ]
+                },
+                "tenant": ${vf.vnf-data.vnf-topology.tenant},
+                "aic-cloud-region": ${vf.vnf-data.vnf-topology.aic-cloud-region},
+                "aic-clli": ${vf.vnf-data.vnf-topology.aic-clli}
+                "sdnc-generated-cloud-resources": ${vf.vnf-data.vnf-topology.sdnc-generated-cloud-resources}
+            },
+            "vnf-level-oper-status": {
+                "order-status": ${vf.vnf-data.vnf-level-oper-status.order-status},
+                "last-rpc-action": ${vf.vnf-data.vnf-level-oper-status.last-rpc-action},
+                "last-action": ${vf.vnf-data.vnf-level-oper-status.last-action},
+                "last-svc-request-id": ${vf.vnf-data.vnf-level-oper-status.last-svc-request-id},
+                "last-order-status": ${vf.vnf-data.vnf-level-oper-status.last-order-status},
+                "create-timestamp": ${vf.vnf-data.vnf-level-oper-status.create-timestamp},
+                "modify-timestamp": ${vf.vnf-data.vnf-level-oper-status.modify-timestamp}
+            }
+        }
+    }]
+}

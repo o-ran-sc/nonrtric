@@ -1,0 +1,2174 @@
+[
+  {
+    "id": "9a2121f0.ab226",
+    "type": "dgstart",
+    "name": "DGSTART",
+    "outputs": 1,
+    "x": 94.03125,
+    "y": 32.03125,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "28432de4.829522"
+      ]
+    ]
+  },
+  {
+    "id": "28432de4.829522",
+    "type": "service-logic",
+    "name": "GENERIC-RESOURCE-API ${project.version}",
+    "module": "GENERIC-RESOURCE-API",
+    "version": "${project.version}",
+    "comments": "",
+    "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+    "outputs": 1,
+    "x": 310.53125,
+    "y": 94.53125,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "7b6afe55.703bf"
+      ]
+    ]
+  },
+  {
+    "id": "7b6afe55.703bf",
+    "type": "method",
+    "name": "method dci-connects-network-topology-operation-activate",
+    "xml": "<method rpc='dci-connects-network-topology-operation-activate' mode='sync'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 218.53128051757812,
+    "y": 189.53123474121094,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "7aac1d87.9d5a54"
+      ]
+    ]
+  },
+  {
+    "id": "7aac1d87.9d5a54",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "outputs": 1,
+    "x": 516.3645935058594,
+    "y": 197.3645782470703,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "cb7a0f33.08841",
+        "41001981.644338",
+        "d0276d0c.b633e",
+        "3620f5be.990eda",
+        "2b8696d6.909b7a"
+      ]
+    ]
+  },
+  {
+    "id": "41001981.644338",
+    "type": "call",
+    "name": "call GENERIC-RESOURCE-API:validate-network-input-parameters",
+    "xml": "<call module='GENERIC-RESOURCE-API' rpc='validate-network-input-parameters' mode='sync' >\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 906.3645935058594,
+    "y": 62.36457824707031,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "fbe61431.dcd008",
+    "type": "for",
+    "name": "for each network-input-parameters",
+    "xml": "<for index='idx' start='0' end='`$network-topology-operation-input.network-request-input.network-input-parameters.param_length`' >\n\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1424.3648834228516,
+    "y": 335.364639043808,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "bde6b624.723588"
+      ]
+    ]
+  },
+  {
+    "id": "bde6b624.723588",
+    "type": "block",
+    "name": "block",
+    "xml": "<block>\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 1671.3647918701172,
+    "y": 333.36460852622986,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "98af934f.de5ca",
+        "3f901ccb.13f7e4",
+        "fd071c4f.c5a93",
+        "3bc28b07.5abd24",
+        "d7ef4fd8.01b03",
+        "23f59b17.2b7104",
+        "ac8abe82.f1ed7",
+        "abada83e.899ad8",
+        "8275a286.575d3"
+      ]
+    ]
+  },
+  {
+    "id": "98af934f.de5ca",
+    "type": "switchNode",
+    "name": "switch id",
+    "xml": "<switch test=\"`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].name == 'site1_id'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2158.36515045166,
+    "y": 209.36472511291504,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "e685ff47.0f8c6"
+      ]
+    ]
+  },
+  {
+    "id": "3f901ccb.13f7e4",
+    "type": "switchNode",
+    "name": "switch description",
+    "xml": "<switch test=\"`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].name == 'site1_description'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2186.36515045166,
+    "y": 263.3647108078003,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "92cb9e5c.495d"
+      ]
+    ]
+  },
+  {
+    "id": "fd071c4f.c5a93",
+    "type": "switchNode",
+    "name": "switch routerId",
+    "xml": "<switch test=\"`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].name == 'site1_routerId'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2175.3649368286133,
+    "y": 394.364670753479,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "611f6a53.2c5e34"
+      ]
+    ]
+  },
+  {
+    "id": "3bc28b07.5abd24",
+    "type": "switchNode",
+    "name": "switch importRT1",
+    "xml": "<switch test=\"`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].name == 'site1_importRT1'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2183.6506729125977,
+    "y": 455.6504240036011,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "375c46a9.18d9fa"
+      ]
+    ]
+  },
+  {
+    "id": "d7ef4fd8.01b03",
+    "type": "switchNode",
+    "name": "switch exportRT1",
+    "xml": "<switch test=\"`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].name == 'site1_exportRT1'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2184.650733947754,
+    "y": 519.6503947973251,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "7f0820af.096cd"
+      ]
+    ]
+  },
+  {
+    "id": "23f59b17.2b7104",
+    "type": "switchNode",
+    "name": "switch vni",
+    "xml": "<switch test=\"`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].name == 'site1_vni'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2155.650703430176,
+    "y": 582.650426864624,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "4089b1ef.cda1c"
+      ]
+    ]
+  },
+  {
+    "id": "e685ff47.0f8c6",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2373.36515045166,
+    "y": 208.36472511291504,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "51bd251c.e4250c"
+      ]
+    ]
+  },
+  {
+    "id": "92cb9e5c.495d",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2384.36515045166,
+    "y": 263.3647108078003,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "22a14741.398828"
+      ]
+    ]
+  },
+  {
+    "id": "611f6a53.2c5e34",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2380.3649368286133,
+    "y": 393.364670753479,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "41aaa6a9.d85078"
+      ]
+    ]
+  },
+  {
+    "id": "375c46a9.18d9fa",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2385.6506729125977,
+    "y": 454.6504240036011,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "df1889e8.640458"
+      ]
+    ]
+  },
+  {
+    "id": "7f0820af.096cd",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2380.650733947754,
+    "y": 516.6503947973251,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "c98004ad.61e968"
+      ]
+    ]
+  },
+  {
+    "id": "4089b1ef.cda1c",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2361.650703430176,
+    "y": 582.650426864624,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "66980c68.e238a4"
+      ]
+    ]
+  },
+  {
+    "id": "22a14741.398828",
+    "type": "set",
+    "name": "set description",
+    "xml": "<set>\n<parameter name='prop.dci-connects.description' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 2566.36515045166,
+    "y": 256.3647108078003,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "41aaa6a9.d85078",
+    "type": "set",
+    "name": "set router_id",
+    "xml": "<set>\n<parameter name='prop.dci-connects.router_id' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 2571.3651580810547,
+    "y": 386.3647575378418,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "66980c68.e238a4",
+    "type": "set",
+    "name": "set vni",
+    "xml": "<set>\n<parameter name='prop.dci-connects.vni' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 2531.650703430176,
+    "y": 574.650426864624,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "cb7a0f33.08841",
+    "type": "returnSuccess",
+    "name": "return success",
+    "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+    "comments": "",
+    "x": 739.6504211425781,
+    "y": 1160.0789794921875,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "ac8abe82.f1ed7",
+    "type": "switchNode",
+    "name": "switch name",
+    "xml": "<switch test=\"`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].name == 'name'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2169.5316848754883,
+    "y": 150.53135681152344,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "893c0950.32cf08"
+      ]
+    ]
+  },
+  {
+    "id": "893c0950.32cf08",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2367.5316848754883,
+    "y": 150.53135681152344,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "96a16277.d8925"
+      ]
+    ]
+  },
+  {
+    "id": "96a16277.d8925",
+    "type": "set",
+    "name": "set name",
+    "xml": "<set>\n<parameter name='prop.dci-connects.name' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 2549.5316848754883,
+    "y": 143.53135681152344,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "abada83e.899ad8",
+    "type": "switchNode",
+    "name": "switch networkName",
+    "xml": "<switch test=\"`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].name == 'site1_networkName'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2193.0314712524414,
+    "y": 329.5312967300415,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "1782d68.c5bab2a"
+      ]
+    ]
+  },
+  {
+    "id": "1782d68.c5bab2a",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2391.0314712524414,
+    "y": 329.5312967300415,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "c20d9d61.613f4"
+      ]
+    ]
+  },
+  {
+    "id": "d0276d0c.b633e",
+    "type": "block",
+    "name": "block : execute",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "comments": "",
+    "outputs": 1,
+    "x": 740.0311813354492,
+    "y": 570.5312957763672,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "c757fa0f.e50b68",
+        "72f61efd.b156e",
+        "4214f6f2.3f8798"
+      ]
+    ]
+  },
+  {
+    "id": "c757fa0f.e50b68",
+    "type": "block",
+    "name": "block : executeSite1",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "comments": "",
+    "outputs": 1,
+    "x": 1032.5312423706055,
+    "y": 395.0312719345093,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "fbe61431.dcd008",
+        "5ae98389.5ebcac"
+      ]
+    ]
+  },
+  {
+    "id": "72f61efd.b156e",
+    "type": "block",
+    "name": "block : executeSite2",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "comments": "",
+    "outputs": 1,
+    "x": 1049.5312881469727,
+    "y": 911.0312547683716,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "9f956db.3ed2b9",
+        "5ae98389.5ebcac"
+      ]
+    ]
+  },
+  {
+    "id": "f0009f7e.40e02",
+    "type": "switchNode",
+    "name": "switch id",
+    "xml": "<switch test=\"`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].name == 'site2_id'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2144.031494140625,
+    "y": 730.0311889648438,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "f550858e.14e1d8"
+      ]
+    ]
+  },
+  {
+    "id": "5318cc5a.897f04",
+    "type": "switchNode",
+    "name": "switch description",
+    "xml": "<switch test=\"`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].name == 'site2_description'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2168.0318450927734,
+    "y": 789.031195640564,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "bcd540c3.4e804",
+        "69713a16.fbae84"
+      ]
+    ]
+  },
+  {
+    "id": "3b3ae1d4.d5835e",
+    "type": "switchNode",
+    "name": "switch routerId",
+    "xml": "<switch test=\"`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].name == 'site2_routerId'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2177.031234741211,
+    "y": 985.0311613082886,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "f75e99a8.64ed88"
+      ]
+    ]
+  },
+  {
+    "id": "3ceece62.09ddd2",
+    "type": "switchNode",
+    "name": "switch importRT1",
+    "xml": "<switch test=\"`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].name == 'site2_importRT1'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2185.3169708251953,
+    "y": 1046.3169145584106,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "2cfb39ee.eacf86"
+      ]
+    ]
+  },
+  {
+    "id": "8c9a50d3.0bead",
+    "type": "switchNode",
+    "name": "switch exportRT1",
+    "xml": "<switch test=\"`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].name == 'site2_exportRT1'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2186.3170318603516,
+    "y": 1110.3168853521347,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "ff36bc65.60ac5"
+      ]
+    ]
+  },
+  {
+    "id": "db4a0111.c3372",
+    "type": "switchNode",
+    "name": "switch vni",
+    "xml": "<switch test=\"`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].name == 'site2_vni'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2157.3170013427734,
+    "y": 1173.3169174194336,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "1ba16f6b.433171"
+      ]
+    ]
+  },
+  {
+    "id": "f550858e.14e1d8",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2359.031494140625,
+    "y": 729.0311889648438,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "5c56e96c.6b3588"
+      ]
+    ]
+  },
+  {
+    "id": "bcd540c3.4e804",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2366.0318450927734,
+    "y": 789.031195640564,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "cd16655c.572058"
+      ]
+    ]
+  },
+  {
+    "id": "f75e99a8.64ed88",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2382.031234741211,
+    "y": 984.0311613082886,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "b3528ffb.5fd92"
+      ]
+    ]
+  },
+  {
+    "id": "2cfb39ee.eacf86",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2387.3169708251953,
+    "y": 1045.3169145584106,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "d44c3f36.87166"
+      ]
+    ]
+  },
+  {
+    "id": "ff36bc65.60ac5",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2382.3170318603516,
+    "y": 1107.3168853521347,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "84652cfb.a0fe1"
+      ]
+    ]
+  },
+  {
+    "id": "1ba16f6b.433171",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2363.3170013427734,
+    "y": 1173.3169174194336,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "cdec65b1.3e8048"
+      ]
+    ]
+  },
+  {
+    "id": "cd16655c.572058",
+    "type": "set",
+    "name": "set description",
+    "xml": "<set>\n<parameter name='prop.dci-connects.description' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 2548.0318450927734,
+    "y": 782.031195640564,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "b3528ffb.5fd92",
+    "type": "set",
+    "name": "set router_id",
+    "xml": "<set>\n<parameter name='prop.dci-connects.router_id' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 2573.0314559936523,
+    "y": 977.0312480926514,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "cdec65b1.3e8048",
+    "type": "set",
+    "name": "set vni",
+    "xml": "<set>\n<parameter name='prop.dci-connects.vni' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 2533.3170013427734,
+    "y": 1165.3169174194336,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "d1df56cb.2256f8",
+    "type": "switchNode",
+    "name": "switch networkName",
+    "xml": "<switch test=\"`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].name == 'site2_networkName'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2194.697769165039,
+    "y": 920.1977872848511,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "ef73c349.6fa5"
+      ]
+    ]
+  },
+  {
+    "id": "ef73c349.6fa5",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2392.697769165039,
+    "y": 920.1977872848511,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "7381f4dc.54e1ac"
+      ]
+    ]
+  },
+  {
+    "id": "4dae1658.981438",
+    "type": "block",
+    "name": "block",
+    "xml": "<block>\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 1663.0309448242188,
+    "y": 852.0311467647552,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "f0009f7e.40e02",
+        "5318cc5a.897f04",
+        "3b3ae1d4.d5835e",
+        "3ceece62.09ddd2",
+        "8c9a50d3.0bead",
+        "db4a0111.c3372",
+        "d1df56cb.2256f8"
+      ]
+    ]
+  },
+  {
+    "id": "9f956db.3ed2b9",
+    "type": "for",
+    "name": "for each network-input-parameters",
+    "xml": "<for index='idx' start='0' end='`$network-topology-operation-input.network-request-input.network-input-parameters.param_length`' >\n\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1416.0310363769531,
+    "y": 854.0311772823334,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "4dae1658.981438"
+      ]
+    ]
+  },
+  {
+    "id": "51bd251c.e4250c",
+    "type": "set",
+    "name": "set id",
+    "xml": "<set>\n<parameter name='prop.dci-connects.id' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 2555.0315322875977,
+    "y": 202.03127479553223,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "8275a286.575d3",
+    "type": "switchNode",
+    "name": "switch tunnelType",
+    "xml": "<switch test=\"`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].name == 'tunnelType'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2174.53125,
+    "y": 652.0311889648438,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "c5076cc8.20e47"
+      ]
+    ]
+  },
+  {
+    "id": "c5076cc8.20e47",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2380.53125,
+    "y": 652.0311889648438,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "5e2bf82e.5cd788"
+      ]
+    ]
+  },
+  {
+    "id": "5e2bf82e.5cd788",
+    "type": "set",
+    "name": "set tunnelType",
+    "xml": "<set>\n<parameter name='prop.dci-connects.tunnelType' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 2550.53125,
+    "y": 644.0311889648438,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "5ae98389.5ebcac",
+    "type": "block",
+    "name": "block : sendRequest",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "comments": "",
+    "outputs": 1,
+    "x": 1328.5312690734863,
+    "y": 1411.5311946868896,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "a53eb6d0.3cb4d8",
+        "e89ebf4b.24d8a",
+        "a95dc9c7.507158",
+        "1c2a13ea.e2fe74"
+      ]
+    ]
+  },
+  {
+    "id": "f8e23e01.428c6",
+    "type": "execute",
+    "name": "execute RestApiCallNode Activate Vxlan Tunnel",
+    "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n<parameter name=\"templateFileName\" value=\"`$prop.restapi.templateDir +'/l3-dci-connects-template.json'`\"/>\n<parameter name=\"restapiUrl\" value=\"`$prop.sdncRestApi.thirdpartySdnc.url +'/v2.0/l3-dci-connects'`\"/>\n<parameter name=\"restapiUser\" value=\"`$prop.sdncRestApi.thirdpartySdnc.user`\"/>\n<parameter name=\"restapiPassword\" value=\"`$prop.sdncRestApi.thirdpartySdnc.password`\"/>\n<parameter name=\"format\" value=\"json\"/>\n<parameter name=\"httpMethod\" value=\"post\"/>\n<parameter name=\"responsePrefix\" value=\"restapi-result\"/>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2453.531494140625,
+    "y": 1411.5311279296875,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "947732ea.1c0d1",
+    "type": "success",
+    "name": "success",
+    "xml": "<outcome value='success'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1815.0312271118164,
+    "y": 1182.530781507492,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "67b5c3a4.c5440c"
+      ]
+    ]
+  },
+  {
+    "id": "cddd83e6.c6954",
+    "type": "not-found",
+    "name": "not-found",
+    "xml": "<outcome value='not-found'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1822.0312271118164,
+    "y": 1220.530781507492,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "3ae7115c.f7ed0e"
+      ]
+    ]
+  },
+  {
+    "id": "38e02e05.9540d2",
+    "type": "other",
+    "name": "other",
+    "xml": "<outcome value='Other'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1814.0312271118164,
+    "y": 1262.530781507492,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "9970d5b0.48c8b8"
+      ]
+    ]
+  },
+  {
+    "id": "3ae7115c.f7ed0e",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n<parameter name='error-code' value='' />\n<parameter name='error-message' value='' />\n",
+    "comments": "",
+    "x": 1979.0312271118164,
+    "y": 1224.530781507492,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "9970d5b0.48c8b8",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n<parameter name='error-code' value='' />\n<parameter name='error-message' value='' />\n",
+    "comments": "",
+    "x": 1972.0312271118164,
+    "y": 1271.530781507492,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "e89ebf4b.24d8a",
+    "type": "get-resource",
+    "name": "get-resource esr-thirdparty-sdnc",
+    "xml": "<get-resource plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\t\tresource=\"esr-thirdparty-sdnc\" \n\t\tkey=\"esr-thirdparty-sdnc.thirdparty-sdnc-id = $prop.dci-connects.id AND \n\t\t     depth = '1'\"\n        pfx='tmp.aai.esr-thirdparty-sdnc' local-only='false' >\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1596.262107849121,
+    "y": 1221.8385467529297,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "947732ea.1c0d1",
+        "cddd83e6.c6954",
+        "38e02e05.9540d2"
+      ]
+    ]
+  },
+  {
+    "id": "67b5c3a4.c5440c",
+    "type": "set",
+    "name": "set controller data",
+    "xml": "<set>\n<parameter name='prop.sdncRestApi.thirdpartySdnc.url' value=\"`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].service-url`\" />\n<parameter name='prop.sdncRestApi.thirdpartySdnc.user' value=\"`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].user-name`\" />\n<parameter name='prop.sdncRestApi.thirdpartySdnc.password' value=\"`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].password`\" />\n<parameter name='prop.sdncRestApi.thirdpartySdnc.vendor' value=\"`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].vendor`\" />\n\n",
+    "comments": "",
+    "x": 1989.5311584472656,
+    "y": 1179.03076171875,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "720459ea.25c288",
+    "type": "switchNode",
+    "name": "switch tunnelType",
+    "xml": "<switch test=\"`$prop.dci-connects.tunnelType`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1916.5309524536133,
+    "y": 1436.0306386947632,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "2c9d3dbe.0640c2",
+        "d7544d3a.90015"
+      ]
+    ]
+  },
+  {
+    "id": "2c9d3dbe.0640c2",
+    "type": "outcomeTrue",
+    "name": "L3-DCI",
+    "xml": "<outcome value='L3-DCI'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2129.5310821533203,
+    "y": 1416.0306386947632,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "f8e23e01.428c6"
+      ]
+    ]
+  },
+  {
+    "id": "d7544d3a.90015",
+    "type": "outcomeTrue",
+    "name": "L2-DCI",
+    "xml": "<outcome value='L2-DCI'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2127.530902862549,
+    "y": 1488.0306386947632,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "8027a9ed.03b1a8"
+      ]
+    ]
+  },
+  {
+    "id": "5c56e96c.6b3588",
+    "type": "set",
+    "name": "set id",
+    "xml": "<set>\n<parameter name='prop.dci-connects.id' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 2533.031467437744,
+    "y": 724.0312414169312,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "8027a9ed.03b1a8",
+    "type": "execute",
+    "name": "execute RestApiCallNode Activate Vxlan Tunnel",
+    "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n<parameter name=\"templateFileName\" value=\"`$prop.restapi.templateDir +'/l2-dci-connects-template.json'`\"/>\n<parameter name=\"restapiUrl\" value=\"`$prop.sdncRestApi.thirdpartySdnc.url +'/v2.0/l2-dci-connects'`\"/>\n<parameter name=\"restapiUser\" value=\"`$prop.sdncRestApi.thirdpartySdnc.user`\"/>\n<parameter name=\"restapiPassword\" value=\"`$prop.sdncRestApi.thirdpartySdnc.password`\"/>\n<parameter name=\"format\" value=\"json\"/>\n<parameter name=\"httpMethod\" value=\"post\"/>\n<parameter name=\"responsePrefix\" value=\"restapi-result\"/>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2447.531448364258,
+    "y": 1488.5310640335083,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "69713a16.fbae84",
+    "type": "outcomeTrue",
+    "name": "false",
+    "xml": "<outcome value='false'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2364.531425476074,
+    "y": 848.0312252044678,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "4372b9a3.950648"
+      ]
+    ]
+  },
+  {
+    "id": "4372b9a3.950648",
+    "type": "set",
+    "name": "set description",
+    "xml": "<set>\n<parameter name='prop.dci-connects.description' value='' />\n",
+    "comments": "",
+    "x": 2545.531494140625,
+    "y": 843.0311660766602,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "df1889e8.640458",
+    "type": "block",
+    "name": "block setEvpnIrts",
+    "xml": "<block atomic=\"true\">\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 2567.531005859375,
+    "y": 456.5468463897705,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "6f2e130.94e59ec",
+        "dd92c777.cb7518"
+      ]
+    ]
+  },
+  {
+    "id": "6f2e130.94e59ec",
+    "type": "set",
+    "name": "set evpn_irts",
+    "xml": "<set>\n<parameter name='tmp.dci-connects.evpn_irts.original' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 2813.531005859375,
+    "y": 407.5468463897705,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "dd92c777.cb7518",
+    "type": "execute",
+    "name": "split evpn_irts",
+    "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >\n<parameter name=\"original_string\" value='`$tmp.dci-connects.evpn_irts.original`'/>\n<parameter name=\"regex\" value=',' />\n<parameter name=\"ctx_memory_result_key\" value=\"tmp.dci-connects.evpn_irts\"/>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2842.531005859375,
+    "y": 459.5468463897705,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "2467a20d.97d24e",
+        "f753e447.178ff8"
+      ]
+    ]
+  },
+  {
+    "id": "f753e447.178ff8",
+    "type": "failure",
+    "name": "success",
+    "xml": "<outcome value='success'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3059.531005859375,
+    "y": 385.5468463897705,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "3fe74247.2b4ffe"
+      ]
+    ]
+  },
+  {
+    "id": "2467a20d.97d24e",
+    "type": "failure",
+    "name": "failure",
+    "xml": "<outcome value='failure'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3060.531005859375,
+    "y": 451.5468463897705,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "c9fb1d3f.bb93"
+      ]
+    ]
+  },
+  {
+    "id": "c9fb1d3f.bb93",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n<parameter name='error-code' value='' />\n<parameter name='error-message' value=\"An error occured while splitting sna1_route\" />\n",
+    "comments": "",
+    "x": 3241.531005859375,
+    "y": 449.5468463897705,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "2b124117.491c4e",
+    "type": "set",
+    "name": "set evpn_erts",
+    "xml": "<set>\n<parameter name='tmp.dci-connects.evpn_erts.original' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 2810.031005859375,
+    "y": 550.0468769073486,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "2298df8c.6d9c9",
+    "type": "execute",
+    "name": "split evpn_erts",
+    "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >\n<parameter name=\"original_string\" value='`$tmp.dci-connects.evpn_erts.original`'/>\n<parameter name=\"regex\" value=',' />\n<parameter name=\"ctx_memory_result_key\" value=\"tmp.dci-connects.evpn_erts\"/>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2839.031005859375,
+    "y": 602.0468769073486,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "644f6742.689668",
+        "6d20d2f8.9ddb2c"
+      ]
+    ]
+  },
+  {
+    "id": "6d20d2f8.9ddb2c",
+    "type": "failure",
+    "name": "success",
+    "xml": "<outcome value='success'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3056.031005859375,
+    "y": 528.0468769073486,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "2e47e496.1bceac"
+      ]
+    ]
+  },
+  {
+    "id": "644f6742.689668",
+    "type": "failure",
+    "name": "failure",
+    "xml": "<outcome value='failure'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3057.031005859375,
+    "y": 594.0468769073486,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "6a2fcced.68d914"
+      ]
+    ]
+  },
+  {
+    "id": "6a2fcced.68d914",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n<parameter name='error-code' value='' />\n<parameter name='error-message' value=\"An error occured while splitting sna1_route\" />\n",
+    "comments": "",
+    "x": 3238.031005859375,
+    "y": 592.0468769073486,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "c98004ad.61e968",
+    "type": "block",
+    "name": "block setEvpnErts",
+    "xml": "<block atomic=\"true\">\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 2561.0308990478516,
+    "y": 512.0469341278076,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "2b124117.491c4e",
+        "2298df8c.6d9c9"
+      ]
+    ]
+  },
+  {
+    "id": "3fe74247.2b4ffe",
+    "type": "for",
+    "name": "for each evpn_irts",
+    "xml": "<for index='idx' start='0' end='`$tmp.dci-connects.evpn_irts_length`' >\n\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3262.0311698913574,
+    "y": 385.0468864440918,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "c4293a61.68fc98"
+      ]
+    ]
+  },
+  {
+    "id": "c4293a61.68fc98",
+    "type": "set",
+    "name": "set evpn_irt",
+    "xml": "<set>\n<parameter name='prop.dci-connects.evpn_irts[$idx]' value='`$tmp.dci-connects.evpn_irts[$idx]`' />\n",
+    "comments": "",
+    "x": 3474.0316619873047,
+    "y": 385.0470390319824,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "2e47e496.1bceac",
+    "type": "for",
+    "name": "for each evpn_erts",
+    "xml": "<for index='idx' start='0' end='`$tmp.dci-connects.evpn_erts_length`' >\n\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3255.531005859375,
+    "y": 524.0468769073486,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "13b1522d.393f1e"
+      ]
+    ]
+  },
+  {
+    "id": "13b1522d.393f1e",
+    "type": "set",
+    "name": "set evpn_ert",
+    "xml": "<set>\n<parameter name='prop.dci-connects.evpn_erts[$idx]' value='`$tmp.dci-connects.evpn_erts[$idx]`' />\n",
+    "comments": "",
+    "x": 3467.5314979553223,
+    "y": 524.0470294952393,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "30d90f98.fb133",
+    "type": "set",
+    "name": "set evpn_irts",
+    "xml": "<set>\n<parameter name='tmp.dci-connects.evpn_irts.original' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 2826.531005859375,
+    "y": 990.5468158721924,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "abdf511f.438e3",
+    "type": "execute",
+    "name": "split evpn_irts",
+    "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >\n<parameter name=\"original_string\" value='`$tmp.dci-connects.evpn_irts.original`'/>\n<parameter name=\"regex\" value=',' />\n<parameter name=\"ctx_memory_result_key\" value=\"tmp.dci-connects.evpn_irts\"/>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2855.531005859375,
+    "y": 1042.5468158721924,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "8434219c.36d76",
+        "ff7f5f04.46946"
+      ]
+    ]
+  },
+  {
+    "id": "ff7f5f04.46946",
+    "type": "failure",
+    "name": "success",
+    "xml": "<outcome value='success'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3072.531005859375,
+    "y": 968.5468158721924,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "b7596a0e.6a9b38"
+      ]
+    ]
+  },
+  {
+    "id": "8434219c.36d76",
+    "type": "failure",
+    "name": "failure",
+    "xml": "<outcome value='failure'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3073.531005859375,
+    "y": 1034.5468158721924,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "e270c137.7edb"
+      ]
+    ]
+  },
+  {
+    "id": "e270c137.7edb",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n<parameter name='error-code' value='' />\n<parameter name='error-message' value=\"An error occured while splitting sna1_route\" />\n",
+    "comments": "",
+    "x": 3254.531005859375,
+    "y": 1032.5468158721924,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "9085479c.4438e8",
+    "type": "set",
+    "name": "set evpn_erts",
+    "xml": "<set>\n<parameter name='tmp.dci-connects.evpn_erts.original' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 2823.031005859375,
+    "y": 1133.0468463897705,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "945a19b0.56e0a8",
+    "type": "execute",
+    "name": "split evpn_erts",
+    "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >\n<parameter name=\"original_string\" value='`$tmp.dci-connects.evpn_erts.original`'/>\n<parameter name=\"regex\" value=',' />\n<parameter name=\"ctx_memory_result_key\" value=\"tmp.dci-connects.evpn_erts\"/>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2852.031005859375,
+    "y": 1185.0468463897705,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "b9f0a76f.ce7bd8",
+        "993c331f.449f2"
+      ]
+    ]
+  },
+  {
+    "id": "993c331f.449f2",
+    "type": "failure",
+    "name": "success",
+    "xml": "<outcome value='success'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3069.031005859375,
+    "y": 1111.0468463897705,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "1e3e4911.a9b5d7"
+      ]
+    ]
+  },
+  {
+    "id": "b9f0a76f.ce7bd8",
+    "type": "failure",
+    "name": "failure",
+    "xml": "<outcome value='failure'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3070.031005859375,
+    "y": 1177.0468463897705,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "6a46228c.def50c"
+      ]
+    ]
+  },
+  {
+    "id": "6a46228c.def50c",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n<parameter name='error-code' value='' />\n<parameter name='error-message' value=\"An error occured while splitting sna1_route\" />\n",
+    "comments": "",
+    "x": 3251.031005859375,
+    "y": 1175.0468463897705,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "b7596a0e.6a9b38",
+    "type": "for",
+    "name": "for each evpn_irts",
+    "xml": "<for index='idx' start='0' end='`$tmp.dci-connects.evpn_irts_length`' >\n\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3275.0311698913574,
+    "y": 968.0468559265137,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "485e43f2.9860dc"
+      ]
+    ]
+  },
+  {
+    "id": "485e43f2.9860dc",
+    "type": "set",
+    "name": "set evpn_irt",
+    "xml": "<set>\n<parameter name='prop.dci-connects.evpn_irts[$idx]' value='`$tmp.dci-connects.evpn_irts[$idx]`' />\n",
+    "comments": "",
+    "x": 3487.0316619873047,
+    "y": 968.0470085144043,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "1e3e4911.a9b5d7",
+    "type": "for",
+    "name": "for each evpn_erts",
+    "xml": "<for index='idx' start='0' end='`$tmp.dci-connects.evpn_erts_length`' >\n\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3268.531005859375,
+    "y": 1107.0468463897705,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "d21b6ff7.014f7"
+      ]
+    ]
+  },
+  {
+    "id": "d21b6ff7.014f7",
+    "type": "set",
+    "name": "set evpn_ert",
+    "xml": "<set>\n<parameter name='prop.dci-connects.evpn_erts[$idx]' value='`$tmp.dci-connects.evpn_erts[$idx]`' />\n",
+    "comments": "",
+    "x": 3480.5314979553223,
+    "y": 1107.0469989776611,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "d44c3f36.87166",
+    "type": "block",
+    "name": "block setEvpnIrts",
+    "xml": "<block atomic=\"true\">\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 2580.531005859375,
+    "y": 1039.5468158721924,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "30d90f98.fb133",
+        "abdf511f.438e3"
+      ]
+    ]
+  },
+  {
+    "id": "84652cfb.a0fe1",
+    "type": "block",
+    "name": "block setEvpnErts",
+    "xml": "<block atomic=\"true\">\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 2574.0308990478516,
+    "y": 1095.0469036102295,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "9085479c.4438e8",
+        "945a19b0.56e0a8"
+      ]
+    ]
+  },
+  {
+    "id": "13bf54d6.a265ab",
+    "type": "execute",
+    "name": "execute generate-overlay-network-id",
+    "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='generateUUID' >\n<parameter name=\"ctx-destination\" value=\"prop.dci.network-id\"/>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1385.6979598999023,
+    "y": 1575.3646783828735,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "1268eeda.0db0e1",
+    "type": "switchNode",
+    "name": "switch service-data.networks_length",
+    "xml": "<switch test='`$service-data.networks.network_length`'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1377.6979751586914,
+    "y": 1645.3646847009659,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "625ef991.1b4c98",
+        "2a48f9bb.070696"
+      ]
+    ]
+  },
+  {
+    "id": "625ef991.1b4c98",
+    "type": "other",
+    "name": "Null",
+    "xml": "<outcome value=''>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1651.5075454711914,
+    "y": 1614.3170772790909,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "889ad7c.f2f9c28"
+      ]
+    ]
+  },
+  {
+    "id": "2a48f9bb.070696",
+    "type": "other",
+    "name": "other",
+    "xml": "<outcome value='Other'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1646.3647232055664,
+    "y": 1660.0313717126846,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "ce12c01b.cd317"
+      ]
+    ]
+  },
+  {
+    "id": "889ad7c.f2f9c28",
+    "type": "set",
+    "name": "set nidx",
+    "xml": "<set>\n<parameter name='nidx' value='0' />\n",
+    "comments": "",
+    "x": 1804.5075454711914,
+    "y": 1613.8884884119034,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "ce12c01b.cd317",
+    "type": "set",
+    "name": "set nidx",
+    "xml": "<set>\n<parameter name='nidx' value='`$service-data.networks.network_length`' />\n",
+    "comments": "",
+    "x": 1805.936134338379,
+    "y": 1658.8885494470596,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "98adcf74.8b144",
+    "type": "set",
+    "name": "set network in service-data",
+    "xml": "<set>\n<parameter name=\"service-data.networks.network[$nidx].network-id\" value='`$prop.dci.network-id`' />\n<parameter name='service-data.networks.network[$nidx].network-data.sdnc-request-header.' value='`$network-topology-operation-input.sdnc-request-header.`' />\n<parameter name='service-data.networks.network[$nidx].network-data.request-information.' value='`$network-topology-operation-input.request-information.`' />\n<parameter name='service-data.networks.network[$nidx].network-data.service-information.' value='`$network-topology-operation-input.service-information.`' />\n<parameter name='service-data.networks.network[$nidx].network-data.network-information.' value='`$network-topology-operation-input.network-information.`' />\n<parameter name='service-data.networks.network[$nidx].network-data.network-request-input.' value='`$network-topology-operation-input.network-request-input.`' />\n<parameter name=\"service-data.networks.network_length\" value='`$nidx+1`' />\n<parameter name='service-data.networks.network[$nidx].network-data.network-level-oper-status.order-status' value='Created' />\n<parameter name='service-data.networks.network[$nidx].network-data.network-level-oper-status.last-rpc-action' value='`$network-topology-operation-input.sdnc-request-header.svc-action`' />\n<parameter name='service-data.networks.network[$nidx].network-data.network-level-oper-status.last-action' value='`$network-topology-operation-input.request-information.request-action`' />\n\n\n",
+    "comments": "",
+    "x": 1349.6979598999023,
+    "y": 1717.3646869659424,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "4214f6f2.3f8798",
+    "type": "block",
+    "name": "block : saveNetworkData",
+    "xml": "<block atomic=\"true\">",
+    "atomic": "true",
+    "comments": "",
+    "outputs": 1,
+    "x": 1046.0312118530273,
+    "y": 1556.6978778839111,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "13bf54d6.a265ab",
+        "1268eeda.0db0e1",
+        "98adcf74.8b144",
+        "ae6337fc.2f77b8"
+      ]
+    ]
+  },
+  {
+    "id": "ae6337fc.2f77b8",
+    "type": "set",
+    "name": "set networkId and network-object-path",
+    "xml": "<set>\n<parameter name='networkId' value='`$prop.dci.network-id`' />\n<parameter name=\"network-object-path\" value=\"`'restconf/config/GENERIC-RESOURCE-API:services/service/'  + $network-topology-operation-input.service-information.service-instance-id  + '/service-data/networks/network/'  + $prop.dci.network-id  + '/network-data/'` \" />",
+    "comments": "",
+    "x": 1382.0312118530273,
+    "y": 1787.0312519073486,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "a53eb6d0.3cb4d8",
+    "type": "record",
+    "name": "record",
+    "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"dci-network-topology-operation-activate\"/>\n<parameter name=\"field3\" value=\"dci-connects.name\"/>\n<parameter name=\"field4\" value=\"`$prop.dci-connects.name`\" />\n<parameter name=\"field5\" value=\"dci-connects.id\"/>\n<parameter name=\"field6\" value=\"`$prop.dci-connects.id`\"/>\n<parameter name=\"field7\" value=\"dci-connects.tunnelType\" />\n<parameter name=\"field8\" value=\"`$prop.dci-connects.tunnelType`\"/>\n<parameter name=\"field9\" value=\"sdncRestApi.thirdpartySdnc.url\"/>\n<parameter name=\"field10\" value=\"`$prop.sdncRestApi.thirdpartySdnc.url`\"/>",
+    "comments": "",
+    "outputs": 1,
+    "x": 1555.364990234375,
+    "y": 1366.697998046875,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "7f7ca562.d8259c",
+    "type": "comment",
+    "name": "TODO",
+    "info": "Currently activate is done without assignment, later divide in two phases.",
+    "comments": "",
+    "x": 1341.0312118530273,
+    "y": 49.69791603088379,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "7381f4dc.54e1ac",
+    "type": "block",
+    "name": "block setLocalNetworks",
+    "xml": "<block atomic=\"true\">\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 2563.531280517578,
+    "y": 919.03125,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "f13c2833.8ad168",
+        "e68592dd.37654"
+      ]
+    ]
+  },
+  {
+    "id": "f13c2833.8ad168",
+    "type": "set",
+    "name": "set local_networks",
+    "xml": "<set>\n<parameter name='tmp.dci-connects.local_networks.original' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 2766.531280517578,
+    "y": 854.03125,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "e68592dd.37654",
+    "type": "execute",
+    "name": "split local_networks",
+    "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >\n<parameter name=\"original_string\" value='`$tmp.dci-connects.local_networks.original`'/>\n<parameter name=\"regex\" value=',' />\n<parameter name=\"ctx_memory_result_key\" value=\"tmp.dci-connects.local_networks\"/>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2795.531280517578,
+    "y": 906.03125,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "18c32d19.cddf83",
+        "717aba8a.7e5bd4"
+      ]
+    ]
+  },
+  {
+    "id": "18c32d19.cddf83",
+    "type": "failure",
+    "name": "success",
+    "xml": "<outcome value='success'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2992.531280517578,
+    "y": 841.03125,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "2bac9803.b022f8"
+      ]
+    ]
+  },
+  {
+    "id": "717aba8a.7e5bd4",
+    "type": "failure",
+    "name": "failure",
+    "xml": "<outcome value='failure'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2993.531280517578,
+    "y": 907.03125,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "9f287993.deeca8"
+      ]
+    ]
+  },
+  {
+    "id": "9f287993.deeca8",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n<parameter name='error-code' value='' />\n<parameter name='error-message' value=\"An error occured while splitting sna1_route\" />\n",
+    "comments": "",
+    "x": 3174.531280517578,
+    "y": 905.03125,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "2bac9803.b022f8",
+    "type": "for",
+    "name": "for each local_networks",
+    "xml": "<for index='idx' start='0' end='`$tmp.dci-connects.local_networks_length`' >\n\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3195.0314445495605,
+    "y": 840.5312900543213,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "b98f501.86efdb"
+      ]
+    ]
+  },
+  {
+    "id": "b98f501.86efdb",
+    "type": "get-resource",
+    "name": "get-resource l3-network",
+    "xml": "<get-resource plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\t\tresource=\"l3-network\" \n\t\tkey=\"l3-network.network-name = $tmp.dci-connects.local_networks[$idx] AND \n\t\t     depth = '0'\"\n        pfx='tmp.aai.l3-network' local-only='false' >\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3467.531280517578,
+    "y": 839.03125,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "ff920bc5.185188",
+        "56d15342.77268c",
+        "718e79ef.506a28"
+      ]
+    ]
+  },
+  {
+    "id": "ff920bc5.185188",
+    "type": "success",
+    "name": "success",
+    "xml": "<outcome value='success'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3686.3003997802734,
+    "y": 799.7234847545624,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "2dfe1ab5.29ac36"
+      ]
+    ]
+  },
+  {
+    "id": "56d15342.77268c",
+    "type": "not-found",
+    "name": "not-found",
+    "xml": "<outcome value='not-found'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3693.3003997802734,
+    "y": 837.7234847545624,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "c8973361.4dcf1"
+      ]
+    ]
+  },
+  {
+    "id": "718e79ef.506a28",
+    "type": "other",
+    "name": "other",
+    "xml": "<outcome value='Other'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3685.3003997802734,
+    "y": 879.7234847545624,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "965b4a77.b56118"
+      ]
+    ]
+  },
+  {
+    "id": "c8973361.4dcf1",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n<parameter name='error-code' value='' />\n<parameter name='error-message' value='' />\n",
+    "comments": "",
+    "x": 3850.3003997802734,
+    "y": 841.7234847545624,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "965b4a77.b56118",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n<parameter name='error-code' value='' />\n<parameter name='error-message' value='' />\n",
+    "comments": "",
+    "x": 3843.3003997802734,
+    "y": 888.7234847545624,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "2dfe1ab5.29ac36",
+    "type": "set",
+    "name": "set network-id",
+    "xml": "<set>\n<parameter name='prop.dci-connects.local_networks[$idx]' value=\"`$tmp.aai.l3-network.network-id`\" />\n",
+    "comments": "",
+    "x": 3860.8003311157227,
+    "y": 796.2234649658203,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "3620f5be.990eda",
+    "type": "save",
+    "name": "save overlay configuration in AAI",
+    "xml": "<save plugin='org.onap.ccsdk.sli.adaptors.aai.AAIService' resource='configuration' \n      key='configuration.configuration-id = $prop.dci.network-id' >\n<parameter name='configuration-id' value='`$prop.dci.network-id`' />\n<parameter name='configuration-type' value='overlay' />\n<parameter name='configuration-sub-type' value='VPN-DCI' />\n<parameter name='orchestration-status' value='Created' />\n<parameter name='operational-status' value='Created' />\n<parameter name='model-customization-id' value='`$prop.dci.network-id`' />\n<parameter name='configuration-selflink' value=\"`'restconf/config/GENERIC-RESOURCE-API:services/service/'  + $network-topology-operation-input.service-information.service-instance-id  + '/service-data/networks/network/'  + $prop.dci.network-id  + '/network-data/'` \" />\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 845.53125,
+    "y": 993.03125,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "2b8696d6.909b7a",
+    "type": "save",
+    "name": "save service relationship in AAI",
+    "xml": "<save plugin='org.onap.ccsdk.sli.adaptors.aai.AAIService' resource='service-instance:relationship-list' \n      key='service-instance.service-instance-id = $service-data.service-information.service-instance-id \n         AND customer.global-customer-id = $service-data.networks.network[$nidx].network-data.service-information.global-customer-id \n         AND service-subscription.service-type = $service-data.networks.network[$nidx].network-data.service-information.subscription-service-type' \n      force=\"true\" pfx=\"tmp.AnAI-data\">\n<parameter name=\"relationship-list.relationship[0].related-to\" value=\"configuration\" />\n<parameter name=\"relationship-list.relationship[0].related-link\" value=\"`'/network/configurations/configuration/' + $prop.dci.network-id`\" />\n<parameter name=\"relationship-list.relationship[0].relationship-data[0].relationship-key\" value=\"configuration.configuration-id\" />\n<parameter name=\"relationship-list.relationship[0].relationship-data[0].relationship-value\" value=\"`$prop.dci.network-id`\" />",
+    "comments": "",
+    "outputs": 1,
+    "x": 803.5312805175781,
+    "y": 1072.03125,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "c20d9d61.613f4",
+    "type": "block",
+    "name": "block setLocalNetworks",
+    "xml": "<block atomic=\"true\">\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 2594.03125,
+    "y": 326.03125,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "e8def7b2.2fbf88",
+        "8e1e86c2.e5c6e8"
+      ]
+    ]
+  },
+  {
+    "id": "e8def7b2.2fbf88",
+    "type": "set",
+    "name": "set local_networks",
+    "xml": "<set>\n<parameter name='tmp.dci-connects.local_networks.original' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 2797.03125,
+    "y": 261.03125,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "8e1e86c2.e5c6e8",
+    "type": "execute",
+    "name": "split local_networks",
+    "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >\n<parameter name=\"original_string\" value='`$tmp.dci-connects.local_networks.original`'/>\n<parameter name=\"regex\" value=',' />\n<parameter name=\"ctx_memory_result_key\" value=\"tmp.dci-connects.local_networks\"/>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 2826.03125,
+    "y": 313.03125,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "79bfda71.3cba44",
+        "385c2789.bb9748"
+      ]
+    ]
+  },
+  {
+    "id": "79bfda71.3cba44",
+    "type": "failure",
+    "name": "success",
+    "xml": "<outcome value='success'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3023.03125,
+    "y": 248.03125,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "4e5e1e98.3ee33"
+      ]
+    ]
+  },
+  {
+    "id": "385c2789.bb9748",
+    "type": "failure",
+    "name": "failure",
+    "xml": "<outcome value='failure'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3024.03125,
+    "y": 314.03125,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "31b680e7.4204f"
+      ]
+    ]
+  },
+  {
+    "id": "31b680e7.4204f",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n<parameter name='error-code' value='' />\n<parameter name='error-message' value=\"An error occured while splitting sna1_route\" />\n",
+    "comments": "",
+    "x": 3205.03125,
+    "y": 312.03125,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "4e5e1e98.3ee33",
+    "type": "for",
+    "name": "for each local_networks",
+    "xml": "<for index='idx' start='0' end='`$tmp.dci-connects.local_networks_length`' >\n\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3225.5314140319824,
+    "y": 247.5312900543213,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "92921b5e.2aea28"
+      ]
+    ]
+  },
+  {
+    "id": "92921b5e.2aea28",
+    "type": "get-resource",
+    "name": "get-resource l3-network",
+    "xml": "<get-resource plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\t\tresource=\"l3-network\" \n\t\tkey=\"l3-network.network-name = $tmp.dci-connects.local_networks[$idx] AND \n\t\t     depth = '0'\"\n        pfx='tmp.aai.l3-network' local-only='false' >\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3498.03125,
+    "y": 246.03125,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "7f44a5cd.ed61ec",
+        "94e571af.d5d5a",
+        "396567f.b05f898"
+      ]
+    ]
+  },
+  {
+    "id": "396567f.b05f898",
+    "type": "other",
+    "name": "other",
+    "xml": "<outcome value='Other'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3715.8003692626953,
+    "y": 286.7234847545624,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "4b36101d.3eb74"
+      ]
+    ]
+  },
+  {
+    "id": "94e571af.d5d5a",
+    "type": "not-found",
+    "name": "not-found",
+    "xml": "<outcome value='not-found'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3723.8003692626953,
+    "y": 244.72348475456238,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "4dd39096.a8b53"
+      ]
+    ]
+  },
+  {
+    "id": "7f44a5cd.ed61ec",
+    "type": "success",
+    "name": "success",
+    "xml": "<outcome value='success'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 3716.8003692626953,
+    "y": 206.72348475456238,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "f52617f1.8bd0b8"
+      ]
+    ]
+  },
+  {
+    "id": "f52617f1.8bd0b8",
+    "type": "set",
+    "name": "set network-id",
+    "xml": "<set>\n<parameter name='prop.dci-connects.local_networks[$idx]' value=\"`$tmp.aai.l3-network.network-id`\" />\n",
+    "comments": "",
+    "x": 3891.3003005981445,
+    "y": 203.2234649658203,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "4dd39096.a8b53",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n<parameter name='error-code' value='' />\n<parameter name='error-message' value='' />\n",
+    "comments": "",
+    "x": 3880.8003692626953,
+    "y": 248.72348475456238,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "4b36101d.3eb74",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n<parameter name='error-code' value='' />\n<parameter name='error-message' value='' />\n",
+    "comments": "",
+    "x": 3873.8003692626953,
+    "y": 295.7234847545624,
+    "z": "da02cf5f.ae6f3",
+    "wires": []
+  },
+  {
+    "id": "a95dc9c7.507158",
+    "type": "execute",
+    "name": "execute Properties",
+    "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >\n    <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />\n    <parameter name='contextPrefix' value='prop' />\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1579,
+    "y": 1297,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "1c2a13ea.e2fe74",
+    "type": "switchNode",
+    "name": "switch vendor",
+    "xml": "<switch test=\"`$prop.sdncRestApi.thirdpartySdnc.vendor`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1585,
+    "y": 1436,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "5a0c70a7.9c1048"
+      ]
+    ]
+  },
+  {
+    "id": "5a0c70a7.9c1048",
+    "type": "outcomeTrue",
+    "name": "SPTN",
+    "xml": "<outcome value='SPTN'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1739,
+    "y": 1438,
+    "z": "da02cf5f.ae6f3",
+    "wires": [
+      [
+        "720459ea.25c288"
+      ]
+    ]
+  }
+]

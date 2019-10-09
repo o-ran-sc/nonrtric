@@ -1,0 +1,1097 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='network-topology-operation-assign-vlantagging-instancegroup' mode='sync'>
+        <block atomic="true">
+            <switch test="`$tmp.nidx`">
+                <outcome value=''>
+                    <switch test='`$service-data.networks.network_length`'>
+                        <outcome value=''>
+                            <set>
+                                <parameter name='nidx' value='0' />
+                                <parameter name='nidx_len' value='1'/>
+                            </set>
+                        </outcome>
+                        <outcome value='Other'>
+                            <set>
+                                <parameter name='nidx' value='`$service-data.networks.network_length`' />
+                                <parameter name='nidx_len' value='`$service-data.networks.network_length + 1`' />
+                            </set>
+                        </outcome>
+                    </switch>
+                </outcome>
+                <outcome value='Other'>
+                    <set>
+                        <parameter name='nidx' value='`$tmp.nidx`' />
+                        <parameter name='nidx_len' value='`$service-data.networks.network_length`' />
+                    </set>
+                </outcome>
+            </switch>
+            <switch test="`$tmp.ngidx`">
+                <outcome value=''>
+                    <switch test='`$service-data.network-instance-groups.network-instance-group_len`'>
+                        <outcome value=''>
+                            <set>
+                                <parameter name='ngidx' value='0' />
+                                <parameter name='ngidx_len' value='1'/>
+                                <parameter name="ngnidx" value='0' />
+                                <parameter name="nig.preexists" value="false"/>
+                                <parameter name="nig.first-network" value="true"/>
+                                <parameter name="nig.networks.network_len" value="1" />
+                            </set>
+                        </outcome>
+                        <outcome value='Other'>
+                            <set>
+                                <parameter name='ngidx' value='`$service-data.network-instance-groups.network-instance-group_length`' />
+                                <parameter name='ngidx_len' value='`$service-data.network-instance-groups.network-instance-group_length + 1`' />
+                                <parameter name="nig.preexists" value="false"/>
+                                <parameter name="ngnidx" value='0' />
+                                <parameter name="nig.first-network" value="true"/>
+                                <parameter name="nig.networks.network_len" value="1" />
+                            </set>
+                        </outcome>
+                    </switch>
+                </outcome>
+                <outcome value='Other'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name='ngidx' value='`$tmp.ngidx`' />
+                            <parameter name='ngidx_len' value='`$service-data.network-instance-groups.network-instance-group_length`' />
+                            <parameter name="nig.preexists" value="false"/>
+                        </set>
+                        <switch test='`$ctx.network-instance-group-data.networks.network_len`'>
+                            <outcome value=''>
+                                <block atomic='true'>
+                                    <set>
+                                        <parameter name="nig.first-network" value="true" />
+                                        <parameter name="ngnidx" value="0" />
+                                        <parameter name="nig.networks.network_len" value="1" />
+                                    </set>
+                                </block>
+                            </outcome>
+                            <outcome value='0'>
+                                <block atomic='true'>
+                                    <set>
+                                        <parameter name="nig.first-network" value="true" />
+                                        <parameter name="ngnidx" value="0" />
+                                        <parameter name="nig.networks.network_len" value="1" />
+                                    </set>
+                                </block>
+                            </outcome>
+                            <outcome value='Other'>
+                                <block atomic='true'>
+                                    <set>
+                                        <parameter name="nig." value="`$ctx.network-instance-group-data.`" />
+                                    </set>
+                                    <set>
+                                        <parameter name="nig.first-network" value="false" />
+                                        <parameter name="ngnidx" value="`$ctx.network-instance-group-data.networks.network_length`" />
+                                        <parameter name="nig.networks.network_len" value="`$ctx.network-instance-group-data.networks.network_length + 1`" />
+                                        <parameter name="nig." value="`$ctx.network-instance-group-data.`" />
+                                    </set>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name="tmp.error-message" value=""/>
+                <parameter name="tmp.l3-network.network-instance-group-id" value="`$network-topology-operation-input.network-request-input.network-instance-group-id`" />
+                <parameter name='tmp.l3-network.network-type' value="`$network-model.network-type`" />
+                <parameter name='tmp.l3-network.network-role' value="`$network-model.network-role`" />
+                <parameter name='tmp.l3-network.network-technology' value="`$network-model.network-technology`" />
+            </set>
+            <set>
+                <parameter name='service-data.networks.network[$nidx].network-data.sdnc-request-header.' value='`$network-topology-operation-input.sdnc-request-header.`' />
+                <parameter name='service-data.networks.network[$nidx].network-data.request-information.' value='`$network-topology-operation-input.request-information.`' />
+                <parameter name='service-data.networks.network[$nidx].network-data.service-information.' value='`$network-topology-operation-input.service-information.`' />
+                <parameter name='service-data.networks.network[$nidx].network-data.network-information.' value='`$network-topology-operation-input.network-information.`' />
+                <parameter name='service-data.networks.network[$nidx].network-data.network-request-input.' value='`$network-topology-operation-input.network-request-input.`' />
+                <parameter name='service-data.networks.network[$nidx].network-id' value='`$tmp.l3-network.network-id`' />
+            </set>
+            <set>
+                <parameter name='tmp.l3-network.model-invariant-id' value="`$network-topology-operation-input.network-information.onap-model-information.model-invariant-uuid`" />
+                <parameter name='tmp.l3-network.model-version-id' value="`$network-topology-operation-input.network-information.onap-model-information.model-version`" />
+                <parameter name='tmp.l3-network.model-customization-id' value="`$network-topology-operation-input.network-information.onap-model-information.model-customization-uuid`" />
+                <parameter name='s-onap-model-information.model-invariant-uuid' value='`$service-model.invariant-uuid`' />
+                <parameter name='s-onap-model-information.model-version' value='`$service-model.version`' />
+                <parameter name='s-onap-model-information.model-uuid' value='`$service-model.service-uuid`' />
+                <parameter name='s-onap-model-information.model-name' value='`$service-model.name`' />
+                <parameter name='n-onap-model-information.model-invariant-uuid' value='`$network-model.invariant-uuid`' />
+                <parameter name='n-onap-model-information.model-version' value='`$network-model.version`' />
+                <parameter name='n-onap-model-information.model-uuid' value='`$network-model.uuid`' />
+                <parameter name='n-onap-model-information.model-name' value='`$network-model.name`' />
+            </set>
+            <set>
+                <parameter name='service-data.networks.network[$nidx]..network-data.service-information.onap-model-information.' value="`$s-onap-model-information.`" />
+                <parameter name='service-data.networks.network[$nidx]..network-data.network-information.onap-model-information.' value="`$n-onap-model-information.`" />
+            </set>
+            <set>
+                <parameter name='tmp.l3-network.network-type' value="`$network-model.network-type`" />
+                <parameter name='tmp.l3-network.network-role' value="`$network-model.network-role`" />
+                <parameter name='tmp.l3-network.network-technology' value="`$network-model.network-technology`" />
+                <parameter name='tmp.l3-network.is-bound-to-vpn' value="`$network-model.is-bound-to-vpn`" />
+                <parameter name='tmp.l3-network.orchestration-status' value="PendingCreate" />
+                <parameter name='tmp.l3-network.model-invariant-id' value="`$network-topology-operation-input.network-information.onap-model-information.model-invariant-uuid`" />
+                <parameter name='tmp.l3-network.model-version-id' value="`$network-topology-operation-input.network-information.onap-model-information.model-version`" />
+                <parameter name='tmp.l3-network.model-customization-id' value="`$network-topology-operation-input.network-information.onap-model-information.model-customization-uuid`" />
+                <parameter name='tmp.l3-network.is-provider-network' value="`$network-model.is-provider-network`" />
+                <parameter name='tmp.l3-network.is-shared-network' value="`$network-model.is-shared-network`" />
+                <parameter name='tmp.l3-network.is-external-network' value="`$network-model.is-external-network`" />
+                <parameter name='tmp.l3-network.eipam-v6-address-plan' value="`$network-model.eipam-v6-address-plan`" />
+                <parameter name='tmp.l3-network.eipam-v4-address-plan' value="`$network-model.eipam-v4-address-plan`" />
+                <parameter name='tmp.l3-network.service-id' value="`$service-data.service-information.service-id`" />
+                <parameter name='tmp.l3-network.self-link' value="`'restconf/config/GENERIC-RESOURCE-API:services/service/'
+ + $network-topology-operation-input.service-information.service-instance-id
+ + '/service-data/networks/network/'
+ + $tmp.l3-network.network-id
+ + '/network-data/network-topology/'` " />
+            </set>
+            <switch test='`$network-model.is-provider-network`'>
+                <outcome value='Y'>
+                    <set>
+                        <parameter name='tmp.l3-network.physical-network-name' value="`$network-model.physical-network-name`" />
+                        <parameter name='tmp.l3-network.is-provider-network-boolean' value='true' />
+                    </set>
+                </outcome>
+                <outcome value='Other'>
+                    <set>
+                        <parameter name='tmp.l3-network.physical-network-name' value="" />
+                        <parameter name='tmp.l3-network.is-provider-network-boolean' value='false' />
+                    </set>
+                </outcome>
+            </switch>
+            <switch test='`$network-model.is-shared-network`'>
+                <outcome value='Y'>
+                    <set>
+                        <parameter name='tmp.l3-network.is-shared-network-boolean' value='true' />
+                    </set>
+                </outcome>
+                <outcome value='Other'>
+                    <set>
+                        <parameter name='tmp.l3-network.is-shared-network-boolean' value='false' />
+                    </set>
+                </outcome>
+            </switch>
+            <switch test='`$network-model.is-external-network`'>
+                <outcome value='Y'>
+                    <set>
+                        <parameter name='tmp.l3-network.is-external-network-boolean' value='true' />
+                    </set>
+                </outcome>
+                <outcome value='Other'>
+                    <set>
+                        <parameter name='tmp.l3-network.is-external-network-boolean' value='false' />
+                    </set>
+                </outcome>
+            </switch>
+            <switch test='`$network-model.is-bound-to-vpn`'>
+                <outcome value='Y'>
+                    <set>
+                        <parameter name='tmp.l3-network.is-bound-to-vpn-boolean' value='true' />
+                    </set>
+                </outcome>
+                <outcome value='Other'>
+                    <set>
+                        <parameter name='tmp.l3-network.is-bound-to-vpn-boolean' value='false' />
+                    </set>
+                </outcome>
+            </switch>
+            <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+		key="l3-network.network-id = $tmp.l3-network.network-id" 
+		local-only="false" 
+		pfx="aai.l3-network">
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="'Error searching for l3-network with network-id =' + $tmp.l3-network.network-id + 'from AnAI.  Network should be created by MSO'" />
+                    </return>
+                </outcome>
+                <outcome value='not-found'></outcome>
+            </get-resource>
+            <set>
+                <parameter name='aaiapi.input.network-instance-group-id' value="`$tmp.l3-network.network-instance-group-id`" />
+            </set>
+            <call module='GENERIC-RESOURCE-API' rpc='aai-get-network-instance-group' mode='sync' ></call>
+            <set>
+                <parameter name="get-complex-resource-service-model-input.customization-uuid" value="`$aaiapi.output.collection-customization-uuid`"/>
+            </set>
+            <call module='GENERIC-RESOURCE-API' rpc='get-complex-resource-service-model' mode='sync' ></call>
+            <set>
+                <parameter name="nig.network-instance-group-id" value="`$tmp.l3-network.network-instance-group-id`"/>
+                <parameter name="nig.network-instance-group-function" value="`$aaiapi.output.collection-function`"/>
+                <parameter name="nig.service-instance-id" value="`$network-topology-operation-input.service-information.service-instance-id`"/>
+            </set>
+            <set>
+                <parameter name='nig.networks.network[$ngnidx].network-id' value="`$tmp.l3-network.network-id`" />
+            </set>
+            <set>
+                <parameter name="get-data-from-policy-input.policy-instance-name" value="`$get-complex-resource-service-model-output.subnet-assignment-policy`" />
+            </set>
+            <call module='GENERIC-RESOURCE-API' rpc='get-data-from-policy' mode='sync' ></call>
+            <set>
+                <parameter name="nig.subnet-assignment-policy.subnet-use" value="`$get-data-from-policy-output.ip-assignment`" />
+            </set>
+            <set>
+                <parameter name='naming-policy-generate-name-input.policy-instance-name' value='`$get-complex-resource-service-model-output.network-naming-policy`' />
+                <parameter name='naming-policy-generate-name-input.context-id' value='`$tmp.l3-network.network-id`' />
+                <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                <parameter name='naming-policy-generate-name-input.action' value='ASSIGN' />
+                <parameter name='naming-policy-generate-name-input.query-parameter' value='`$network-model.customization-uuid`' />
+            </set>
+            <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+            <set>
+                <parameter name='tmp.l3-network.network-name' value='`$naming-policy-generate-name-output.network-name`' />
+            </set>
+            <set>
+                <parameter name='network-topology.network-topology-identifier-structure.network-id' value="`$tmp.l3-network.network-id`" />
+                <parameter name='network-topology.network-topology-identifier-structure.network-name' value="`$tmp.l3-network.network-name`" />
+                <parameter name='network-topology.network-topology-identifier-structure.network-instance-group-id' value="`$tmp.l3-network.network-instance-group-id`" />
+                <parameter name='network-topology.network-topology-identifier-structure.network-type' value="`$tmp.l3-network.network-type`" />
+                <parameter name='network-topology.network-topology-identifier-structure.network-role' value="`$tmp.l3-network.network-role`" />
+                <parameter name='network-topology.network-topology-identifier-structure.network-technology' value="`$tmp.l3-network.network-technology`" />
+                <parameter name='network-topology.region-identifier.tenant' value="`$network-topology-operation-input.network-request-input.tenant`" />
+                <parameter name='network-topology.region-identifier.aic-cloud-region' value="`$network-topology-operation-input.network-request-input.aic-cloud-region`" />
+                <parameter name='network-topology.region-identifier.aic-clli' value="`$network-topology-operation-input.network-request-input.aic-clli`" />
+                <parameter name='network-topology.onap-model-information.' value="`$network-topology-operation-input.network-information.onap-model-information.`" />
+                <parameter name='network-topology.network-parameters.' value="`$network-topology-operation-input.network-request-input.network-input-parameters.`" />
+                <parameter name='nig.network.network-id' value="`$tmp.l3-network.network-id`" />
+            </set>
+            <set>
+                <parameter name="aaiapi.input.cloud-owner" value="`$prop.cloud-region.cloud-owner`" />
+                <parameter name="aaiapi.input.cloud-region-id" value="`$network-topology-operation-input.network-request-input.aic-cloud-region`" />
+            </set>
+            <call module='GENERIC-RESOURCE-API' rpc='aai-get-aic-zone' mode='sync' ></call>
+            <set>
+                <parameter name='network-topology.region-identifier.aic-clli' value="`$aaiapi.output.aic-clli`" />
+            </set>
+            <set>
+                <parameter name="nig.cloud-zone" value="`$aaiapi.output.cloud-zone`" />
+                <parameter name="rt.aic-zone" value="`$aaiapi.output.cloud-zone`" />
+                <parameter name="rt.resource" value="NetworkID" />
+                <parameter name="rt.resource-value" value="`$tmp.l3-network.network-id`" />
+                <parameter name="rt.network-name" value="`$tmp.l3-network.network-name`" />
+                <parameter name="rt.service-instance-id" value="`$network-topology-operation-input.service-information.service-instance-id`" />
+                <parameter name="rt.network-instance-group-id" value="`$tmp.l3-network.network-instance-group-id`" />
+            </set>
+            <call module='GENERIC-RESOURCE-API' rpc='create-route-target-and-vpn-binding' mode='sync' ></call>
+            <set>
+                <parameter name='nig.vpn-bindings.id' value="`$vpn-binding.vpn-binding-id`" />
+                <parameter name='nig.vpn-bindings.global-route-target' value="`$vpn-binding.global-route-target`" />
+                <parameter name='nig.vpn-bindings.aic-zone' value="`$aaiapi.output.cloud-zone`" />
+                <parameter name='nig.vpn-bindings.route-target-role' value="`$vpn-binding.route-target-role`" />
+            </set>
+            <switch test='`$nig.subnet-assignment-policy.subnet-use`'>
+                <outcome value=''>
+                    <block atomic="true">
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="Subnet use not set"/>
+                        </set>
+                        <switch test='`$tmp.nig-preexists`'>
+                            <outcome value='true'>
+                                <block atomic='true'></block>
+                            </outcome>
+                            <outcome value='false'>
+                                <block atomic='true'>
+                                    <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                        <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.nig-url`' />
+                                        <parameter name='restapiUser' value='`$prop.controller.user`' />
+                                        <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                                        <parameter name='format' value='json' />
+                                        <parameter name='httpMethod' value='DELETE' />
+                                        <parameter name="responsePrefix" value="mdsal-nig" />
+                                        <outcome value='success'>
+                                            <block atomic="true"></block>
+                                        </outcome>
+                                        <outcome value='Other'>
+                                            <block atomic="true"></block>
+                                        </outcome>
+                                    </execute>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='unique'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name="tmp.skip-first-level" value="Y"/>
+                            <parameter name="tmp.allocate-subnet-flag" value="Y"/>
+                            <parameter name="generate-FQPN-input.aic-cloud-region" value="`$aai.cloud-region.cloud-region-id`" />
+                            <parameter name="generate-FQPN-input.network-name" value="`$network-topology.network-topology-identifier-structure.network-name`" />
+                            <parameter name="generate-FQPN-input.network-role" value="`$network-topology.network-topology-identifier-structure.network-role`" />
+                            <parameter name="generate-FQPN-input.network-collection" value="`$aaiapi.output.collection-name`" />
+                            <parameter name="generate-FQPN-input.network-id" value="`$network-topology.network-topology-identifier-structure.network-id`" />
+                            <parameter name="tmp.network-id" value="`network-topology.network-topology-identifier-structure.network-id`" />
+                            <parameter name="tmp.network-instance-group-id" value="`$network-topology.network-topology-identifier-structure.network-instance-group-id`" />
+                            <!-- the following are not set by calling dg
+generate-FQPN-input.subnet-role
+generate-FQPN-input.zone
+generate-FQPN-input.equipment
+-->
+                            <!-- network model is already in contect memory -->
+                            <!-- aai.cloud-region.cloud-region-id  is already in contect memory -->
+                        </set>
+                        <call module='GENERIC-RESOURCE-API' rpc='process-generic-eipam-pools' mode='sync' >
+                            <outcome value='failure'>
+                                <return status="failure">
+                                    <parameter name="ack-final" value="Y" />
+                                    <parameter name="error-code" value="500"/>
+                                    <parameter name="error-message" value="`'Error from process-generic-eipam-pools, ' + $error-message`" />
+                                </return>
+                            </outcome>
+                        </call>
+                        <switch test="`$network-model.eipam-v4-address-plan != ''`">
+                            <outcome value='true'>
+                                <block atomic='true'>
+                                    <set>
+                                        <parameter name="network-topology.network-identifier-structure.eipam-v4-address-plan" value="`$network-model.eipam-v4-address-plan`" />
+                                    </set>
+                                    <for silentFailure='true' index='eidx' start='0' end='`$eipam-ip-block.createPoolResponse.CreatePoolPlans_length`' >
+                                        <switch test="`$eipam-ip-block.createPoolResponse.CreatePoolPlans[$eidx].CreatePoolPlan.PlanName == $network-model.eipam-v4-address-plan`">
+                                            <outcome value='true'>
+                                                <block atomic='true'>
+                                                    <set>
+                                                        <parameter name="v4.ip-prefix" value="`$eipam-ip-block.createPoolResponse.CreatePoolPlans[$eidx].CreatePoolPlan.IPDataBlock.IPAddress`"/>
+                                                        <parameter name="v4.mask" value="`$eipam-ip-block.createPoolResponse.CreatePoolPlans[$eidx].CreatePoolPlan.IPDataBlock.Mask`"/>
+                                                        <parameter name="v4.entity-id" value="`$eipam-ip-block.createPoolResponse.CreatePoolPlans[$eidx].CreatePoolPlan.IPDataBlock.IpamPoolAllocId`"/>
+                                                    </set>
+                                                </block>
+                                            </outcome>
+                                        </switch>
+                                    </for>
+                                </block>
+                            </outcome>
+                        </switch>
+                        <switch test="`$network-model.eipam-v6-address-plan != ''`">
+                            <outcome value='true'>
+                                <block atomic='true'>
+                                    <set>
+                                        <parameter name="network-topology.network-identifier-structure.eipam-v6-address-plan" value="`$network-model.eipam-v4-address-plan`" />
+                                    </set>
+                                    <for silentFailure='true' index='eidx' start='0' end='`$eipam-ip-block.createPoolResponse.CreatePoolPlans_length`' >
+                                        <switch test="`$eipam-ip-block.createPoolResponse.CreatePoolPlans[$eidx].CreatePoolPlan.PlanName == $network-model.eipam-v6-address-plan`">
+                                            <outcome value='true'>
+                                                <block atomic='true'>
+                                                    <set>
+                                                        <parameter name="v6.ip-prefix" value="`$eipam-ip-block.createPoolResponse.CreatePoolPlans[$eidx].CreatePoolPlan.IPDataBlock.IPAddress`"/>
+                                                        <parameter name="v6.mask" value="`$eipam-ip-block.createPoolResponse.CreatePoolPlans[$eidx].CreatePoolPlan.IPDataBlock.Mask`"/>
+                                                        <parameter name="v6.entity-id" value="`$eipam-ip-block.createPoolResponse.CreatePoolPlans[$eidx].CreatePoolPlan.IPDataBlock.IpamPoolAllocId`"/>
+                                                    </set>
+                                                </block>
+                                            </outcome>
+                                        </switch>
+                                    </for>
+                                </block>
+                            </outcome>
+                        </switch>
+                        <!--tmp.level should be set to 1-->
+                        <call module='GENERIC-RESOURCE-API' rpc='create-l3-subnet' mode='sync' ></call>
+                        <switch test='`$tmp.l3-network.service-id`'>
+                            <outcome value=''>
+                                <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+		key="l3-network.network-id = $tmp.l3-network.network-id" >
+                                    <!-- Create l3-network object -->
+                                    <parameter name="network-id" value="`$tmp.l3-network.network-id`" />
+                                    <parameter name="network-name" value="`$tmp.l3-network.network-name`" />
+                                    <parameter name="network-type" value="`$network-model.network-type`" />
+                                    <parameter name="network-role" value="`$network-model.network-role`" />
+                                    <parameter name="network-technology" value="`$network-model.network-technology`" />
+                                    <parameter name="is-bound-to-vpn" value="`$tmp.l3-network.is-bound-to-vpn-boolean`" />
+                                    <parameter name="tenant-id" value="`$network-topology-operation-input.network-request-information.tenant`" />
+                                    <parameter name="model-invariant-id" value="`$network-model.invariant_uuid`" />
+                                    <parameter name="model-version" value="`$network-model.version`" />
+                                    <parameter name="model-customization-id" value="`$network-model.customization-id`" />
+                                    <parameter name="physical-network-name" value="`$network-model.physical-network-name`" />
+                                    <parameter name="is-provider-network" value="`$tmp.l3-network.is-provider-network-boolean`" />
+                                    <parameter name="is-shared-network" value="`$tmp.l3-network.is-shared-network-boolean`" />
+                                    <parameter name="is-external-network" value="`$tmp.l3-network.is-external-network-boolean`" />
+                                    <parameter name="selflink" value="`$tmp.l3-network.self-link`" />
+                                    <parameter name="operational-status" value="out-of-service-path" />
+                                    <outcome value='failure'>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="`'Failed to save l3-network in AAI for network-id = ' + $tmp.l3-network.network-id`" />
+                                        </return>
+                                    </outcome>
+                                    <outcome value='not-found'>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="`'Failed to save l3-network in AAI for network-id = ' + $tmp.l3-network.network-id`" />
+                                        </return>
+                                    </outcome>
+                                </save>
+                            </outcome>
+                            <outcome value='Other'>
+                                <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+		key="l3-network.network-id = $tmp.l3-network.network-id" >
+                                    <!-- Create l3-network object -->
+                                    <parameter name="network-id" value="`$tmp.l3-network.network-id`" />
+                                    <parameter name="network-name" value="`$tmp.l3-network.network-name`" />
+                                    <parameter name="network-type" value="`$network-model.network-type`" />
+                                    <parameter name="network-role" value="`$network-model.network-role`" />
+                                    <parameter name="network-technology" value="`$network-model.network-technology`" />
+                                    <parameter name="is-bound-to-vpn" value="`$tmp.l3-network.is-bound-to-vpn-boolean`" />
+                                    <parameter name="tenant-id" value="`$network-topology-operation-input.network-request-information.tenant`" />
+                                    <parameter name="model-invariant-id" value="`$network-model.invariant_uuid`" />
+                                    <parameter name="model-version" value="`$network-model.version`" />
+                                    <parameter name="model-customization-id" value="`$network-model.customization-id`" />
+                                    <parameter name="physical-network-name" value="`$network-model.physical-network-name`" />
+                                    <parameter name="is-provider-network" value="`$tmp.l3-network.is-provider-network-boolean`" />
+                                    <parameter name="is-shared-network" value="`$tmp.l3-network.is-shared-network-boolean`" />
+                                    <parameter name="is-external-network" value="`$tmp.l3-network.is-external-network-boolean`" />
+                                    <parameter name="selflink" value="`$tmp.l3-network.self-link`" />
+                                    <parameter name="service-id" value="`$tmp.l3-network.service-id`" />
+                                    <parameter name="operational-status" value="out-of-service-path" />
+                                    <outcome value='failure'>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="`'Failed to save l3-network in AAI for network-id = ' + $tmp.l3-network.network-id`" />
+                                        </return>
+                                    </outcome>
+                                    <outcome value='not-found'>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="`'Failed to save l3-network in AAI for network-id = ' + $tmp.l3-network.network-id`" />
+                                        </return>
+                                    </outcome>
+                                </save>
+                            </outcome>
+                        </switch>
+                        <set>
+                            <parameter name="msidx" value="`$nig.subnets_length`" />
+                        </set>
+                        <for index='sidx' start='0' end='`$tmp.l3-network.subnet_length`' >
+                            <block atomic="true">
+                                <set>
+                                    <parameter name="tmp.subnet-id" value="`$tmp.l3-network.subnet[$sidx].subnet-id`"/>
+                                </set>
+                                <switch test='`$tmp.l3-network.subnet[$sidx].dhcp-enabled`'>
+                                    <outcome value='true'>
+                                        <block atomic="true">
+                                            <switch test='`$tmp.l3-network.subnet[$sidx].gateway-address`'>
+                                                <outcome value=''>
+                                                    <block atomic='true'>
+                                                        <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="subnet" 
+		key="l3-network.network-id = $tmp.l3-network.network-id 
+			AND subnet.subnet-id = $tmp.subnet-id" >
+                                                            <!-- Create l3-network object -->
+                                                            <parameter name="network-id" value="`$tmp.l3-network.network-id`" />
+                                                            <parameter name="subnet-id" value="`$tmp.l3-network.subnet[$sidx].subnet-id`" />
+                                                            <parameter name="subnet-name" value="`$tmp.l3-network.subnet[$sidx].subnet-name`" />
+                                                            <parameter name="network-start-address" value="`$tmp.l3-network.subnet[$sidx].network-start-address`" />
+                                                            <parameter name="cidr-mask" value="`$tmp.l3-network.subnet[$sidx].cidr-mask`" />
+                                                            <parameter name="ip-version" value="`$tmp.l3-network.subnet[$sidx].ip-version`" />
+                                                            <parameter name="dhcp-start" value="`$tmp.l3-network.subnet[$sidx].dhcp-start`" />
+                                                            <parameter name="dhcp-end" value="`$tmp.l3-network.subnet[$sidx].dhcp-end`" />
+                                                            <parameter name="dhcp-enabled" value="`$tmp.l3-network.subnet[$sidx].dhcp-enabled`" />
+                                                            <parameter name="orchestration-status" value="PendingCreate" />
+                                                            <outcome value='failure'>
+                                                                <block atomic='true'>
+                                                                    <set>
+                                                                        <parameter name="error-code" value="500"/>
+                                                                        <parameter name="tmp.error-message" value="`'An error occurred while saving subnet relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                                                    </set>
+                                                                </block>
+                                                            </outcome>
+                                                            <outcome value='not-found'>
+                                                                <block atomic='true'>
+                                                                    <set>
+                                                                        <parameter name="error-code" value="500"/>
+                                                                        <parameter name="tmp.error-message" value="`'An error occurred while saving subnet relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                                                    </set>
+                                                                </block>
+                                                            </outcome>
+                                                        </save>
+                                                    </block>
+                                                </outcome>
+                                                <outcome value='Other'>
+                                                    <block atomic='true'>
+                                                        <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="subnet" 
+		key="l3-network.network-id = $tmp.l3-network.network-id 
+			AND subnet.subnet-id = $tmp.subnet-id" >
+                                                            <!-- Create l3-network object -->
+                                                            <parameter name="network-id" value="`$tmp.l3-network.network-id`" />
+                                                            <parameter name="subnet-id" value="`$tmp.l3-network.subnet[$sidx].subnet-id`" />
+                                                            <parameter name="subnet-name" value="`$tmp.l3-network.subnet[$sidx].subnet-name`" />
+                                                            <parameter name="gateway-address" value="`$tmp.l3-network.subnet[$sidx].gateway-address`" />
+                                                            <parameter name="network-start-address" value="`$tmp.l3-network.subnet[$sidx].network-start-address`" />
+                                                            <parameter name="cidr-mask" value="`$tmp.l3-network.subnet[$sidx].cidr-mask`" />
+                                                            <parameter name="ip-version" value="`$tmp.l3-network.subnet[$sidx].ip-version`" />
+                                                            <parameter name="dhcp-start" value="`$tmp.l3-network.subnet[$sidx].dhcp-start`" />
+                                                            <parameter name="dhcp-end" value="`$tmp.l3-network.subnet[$sidx].dhcp-end`" />
+                                                            <parameter name="dhcp-enabled" value="`$tmp.l3-network.subnet[$sidx].dhcp-enabled`" />
+                                                            <parameter name="orchestration-status" value="PendingCreate" />
+                                                            <outcome value='failure'>
+                                                                <block atomic='true'>
+                                                                    <set>
+                                                                        <parameter name="error-code" value="500"/>
+                                                                        <parameter name="tmp.error-message" value="`'An error occurred while saving subnet relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                                                    </set>
+                                                                </block>
+                                                            </outcome>
+                                                            <outcome value='not-found'>
+                                                                <block atomic='true'>
+                                                                    <set>
+                                                                        <parameter name="error-code" value="500"/>
+                                                                        <parameter name="tmp.error-message" value="`'An error occurred while saving subnet relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                                                    </set>
+                                                                </block>
+                                                            </outcome>
+                                                        </save>
+                                                    </block>
+                                                </outcome>
+                                            </switch>
+                                        </block>
+                                    </outcome>
+                                    <outcome value='false'>
+                                        <block atomic="true">
+                                            <switch test='`$tmp.l3-network.subnet[$sidx].gateway-address`'>
+                                                <outcome value=''>
+                                                    <block atomic='true'>
+                                                        <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="subnet" 
+		key="l3-network.network-id = $tmp.l3-network.network-id 
+			AND subnet.subnet-id = $tmp.subnet-id" >
+                                                            <!-- Create l3-network object -->
+                                                            <parameter name="network-id" value="`$tmp.l3-network.network-id`" />
+                                                            <parameter name="subnet-id" value="`$tmp.l3-network.subnet[$sidx].subnet-id`" />
+                                                            <parameter name="subnet-name" value="`$tmp.l3-network.subnet[$sidx].subnet-name`" />
+                                                            <parameter name="network-start-address" value="`$tmp.l3-network.subnet[$sidx].network-start-address`" />
+                                                            <parameter name="cidr-mask" value="`$tmp.l3-network.subnet[$sidx].cidr-mask`" />
+                                                            <parameter name="ip-version" value="`$tmp.l3-network.subnet[$sidx].ip-version`" />
+                                                            <parameter name="dhcp-enabled" value="`$tmp.l3-network.subnet[$sidx].dhcp-enabled`" />
+                                                            <parameter name="orchestration-status" value="PendingCreate" />
+                                                            <outcome value='failure'>
+                                                                <block atomic='true'>
+                                                                    <set>
+                                                                        <parameter name="error-code" value="500"/>
+                                                                        <parameter name="tmp.error-message" value="`'An error occurred while saving subnet relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                                                    </set>
+                                                                </block>
+                                                            </outcome>
+                                                            <outcome value='not-found'>
+                                                                <block atomic='true'>
+                                                                    <set>
+                                                                        <parameter name="error-code" value="500"/>
+                                                                        <parameter name="tmp.error-message" value="`'An error occurred while saving subnet relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                                                    </set>
+                                                                </block>
+                                                            </outcome>
+                                                        </save>
+                                                    </block>
+                                                </outcome>
+                                                <outcome value='Other'>
+                                                    <block atomic='true'>
+                                                        <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="subnet" 
+		key="l3-network.network-id = $tmp.l3-network.network-id 
+			AND subnet.subnet-id = $tmp.subnet-id" >
+                                                            <!-- Create l3-network object -->
+                                                            <parameter name="network-id" value="`$tmp.l3-network.network-id`" />
+                                                            <parameter name="subnet-id" value="`$tmp.l3-network.subnet[$sidx].subnet-id`" />
+                                                            <parameter name="subnet-name" value="`$tmp.l3-network.subnet[$sidx].subnet-name`" />
+                                                            <parameter name="gateway-address" value="`$tmp.l3-network.subnet[$sidx].gateway-address`" />
+                                                            <parameter name="network-start-address" value="`$tmp.l3-network.subnet[$sidx].network-start-address`" />
+                                                            <parameter name="cidr-mask" value="`$tmp.l3-network.subnet[$sidx].cidr-mask`" />
+                                                            <parameter name="ip-version" value="`$tmp.l3-network.subnet[$sidx].ip-version`" />
+                                                            <parameter name="dhcp-enabled" value="`$tmp.l3-network.subnet[$sidx].dhcp-enabled`" />
+                                                            <parameter name="orchestration-status" value="PendingCreate" />
+                                                            <outcome value='failure'>
+                                                                <block atomic='true'>
+                                                                    <set>
+                                                                        <parameter name="error-code" value="500"/>
+                                                                        <parameter name="tmp.error-message" value="`'An error occurred while saving subnet relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                                                    </set>
+                                                                </block>
+                                                            </outcome>
+                                                            <outcome value='not-found'>
+                                                                <block atomic='true'>
+                                                                    <set>
+                                                                        <parameter name="error-code" value="500"/>
+                                                                        <parameter name="tmp.error-message" value="`'An error occurred while saving subnet relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                                                    </set>
+                                                                </block>
+                                                            </outcome>
+                                                        </save>
+                                                    </block>
+                                                </outcome>
+                                            </switch>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                                <set>
+                                    <parameter name="nig.subnets[$msidx].start-address" value="`$tmp.l3-network.subnet[$sidx].network-start-address`" />
+                                    <parameter name="nig.subnets[$msidx].subnet-id" value="`$tmp.l3-network.subnet[$sidx].subnet-id`" />
+                                    <parameter name="nig.subnets[$msidx].subnet-name" value="`$tmp.l3-network.subnet[$sidx].subnet-name`" />
+                                    <parameter name="nig.subnets[$msidx].gateway-address" value="`$tmp.l3-network.subnet[$sidx].gateway-address`" />
+                                    <parameter name="nig.subnets[$msidx].cidr-mask" value="`$tmp.l3-network.subnet[$sidx].cidr-mask`" />
+                                    <parameter name="nig.subnets[$msidx].ip-version" value="`$tmp.l3-network.subnet[$sidx].ip-version`" />
+                                    <parameter name="nig.subnets[$msidx].dhcp-start-address" value="`$tmp.l3-network.subnet[$sidx].dhcp-start`" />
+                                    <parameter name="nig.subnets[$msidx].dhcp-end-address" value="`$tmp.l3-network.subnet[$sidx].dhcp-end`" />
+                                    <parameter name="nig.subnets[$msidx].dhcp-enabled" value="`$tmp.l3-network.subnet[$sidx].dhcp-enabled`" />
+                                    <parameter name="orchestration-status" value="PendingCreate" />
+                                </set>
+                                <set>
+                                    <parameter name="msidx" value="`$msidx + 1`" />
+                                    <parameter name="nig.subnets_length" value="`$nig.subnets_length + 1`" />
+                                </set>
+                            </block>
+                        </for>
+                    </block>
+                </outcome>
+                <outcome value='shared'>
+                    <block atomic="true">
+                        <switch test='`$tmp.first-network`'>
+                            <outcome value='true'>
+                                <block atomic="true">
+                                    <set>
+                                        <parameter name="tmp.skip-first-level" value="Y"/>
+                                        <parameter name="tmp.allocate-subnet-flag" value="Y"/>
+                                        <parameter name="generate-FQPN-input.aic-cloud-region" value="`$aai.cloud-region.cloud-region-id`" />
+                                        <parameter name="generate-FQPN-input.network-name" value="`$network-topology.network-topology-identifier-structure.network-name`" />
+                                        <parameter name="generate-FQPN-input.network-role" value="`$network-topology.network-topology-identifier-structure.network-role`" />
+                                        <parameter name="generate-FQPN-input.network-collection" value="`$aaiapi.output.collection-name`" />
+                                        <parameter name="generate-FQPN-input.network-id" value="`$network-topology.network-topology-identifier-structure.network-id`" />
+                                        <parameter name="tmp.network-id" value="`network-topology.network-topology-identifier-structure.network-id`" />
+                                        <parameter name="tmp.network-instance-group-id" value="`$network-topology.network-topology-identifier-structure.network-instance-group-id`" />
+                                        <!-- the following are not set by calling dg
+generate-FQPN-input.subnet-role
+generate-FQPN-input.zone
+generate-FQPN-input.equipment
+-->
+                                        <!-- network model is already in contect memory -->
+                                        <!-- aai.cloud-region.cloud-region-id  is already in contect memory -->
+                                    </set>
+                                    <call module='GENERIC-RESOURCE-API' rpc='process-generic-eipam-pools' mode='sync' >
+                                        <outcome value='failure'>
+                                            <return status="failure">
+                                                <parameter name="ack-final" value="Y" />
+                                                <parameter name="error-code" value="500"/>
+                                                <parameter name="error-message" value="`'Error from process-generic-eipam-pools, ' + $error-message`" />
+                                            </return>
+                                        </outcome>
+                                    </call>
+                                    <switch test="`$network-model.eipam-v4-address-plan != ''`">
+                                        <outcome value='true'>
+                                            <block atomic='true'>
+                                                <set>
+                                                    <parameter name="network-topology.network-identifier-structure.eipam-v4-address-plan" value="`$network-model.eipam-v4-address-plan`" />
+                                                </set>
+                                                <for silentFailure='true' index='eidx' start='0' end='`$eipam-ip-block.createPoolResponse.CreatePoolPlans_length`' >
+                                                    <switch test="`$eipam-ip-block.createPoolResponse.CreatePoolPlans[$eidx].CreatePoolPlan.PlanName == $network-model.eipam-v4-address-plan`">
+                                                        <outcome value='true'>
+                                                            <block atomic='true'>
+                                                                <set>
+                                                                    <parameter name="v4.ip-prefix" value="`$eipam-ip-block.createPoolResponse.CreatePoolPlans[$eidx].CreatePoolPlan.IPDataBlock.IPAddress`"/>
+                                                                    <parameter name="v4.mask" value="`$eipam-ip-block.createPoolResponse.CreatePoolPlans[$eidx].CreatePoolPlan.IPDataBlock.Mask`"/>
+                                                                    <parameter name="v4.entity-id" value="`$eipam-ip-block.createPoolResponse.CreatePoolPlans[$eidx].CreatePoolPlan.IPDataBlock.IpamPoolAllocId`"/>
+                                                                </set>
+                                                            </block>
+                                                        </outcome>
+                                                    </switch>
+                                                </for>
+                                            </block>
+                                        </outcome>
+                                    </switch>
+                                    <switch test="`$network-model.eipam-v6-address-plan != ''`">
+                                        <outcome value='true'>
+                                            <block atomic='true'>
+                                                <set>
+                                                    <parameter name="network-topology.network-identifier-structure.eipam-v6-address-plan" value="`$network-model.eipam-v4-address-plan`" />
+                                                </set>
+                                                <for silentFailure='true' index='eidx' start='0' end='`$eipam-ip-block.createPoolResponse.CreatePoolPlans_length`' >
+                                                    <switch test="`$eipam-ip-block.createPoolResponse.CreatePoolPlans[$eidx].CreatePoolPlan.PlanName == $network-model.eipam-v6-address-plan`">
+                                                        <outcome value='true'>
+                                                            <block atomic='true'>
+                                                                <set>
+                                                                    <parameter name="v6.ip-prefix" value="`$eipam-ip-block.createPoolResponse.CreatePoolPlans[$eidx].CreatePoolPlan.IPDataBlock.IPAddress`"/>
+                                                                    <parameter name="v6.mask" value="`$eipam-ip-block.createPoolResponse.CreatePoolPlans[$eidx].CreatePoolPlan.IPDataBlock.Mask`"/>
+                                                                    <parameter name="v6.entity-id" value="`$eipam-ip-block.createPoolResponse.CreatePoolPlans[$eidx].CreatePoolPlan.IPDataBlock.IpamPoolAllocId`"/>
+                                                                </set>
+                                                            </block>
+                                                        </outcome>
+                                                    </switch>
+                                                </for>
+                                            </block>
+                                        </outcome>
+                                    </switch>
+                                    <!--tmp.level should be set to 1-->
+                                    <call module='GENERIC-RESOURCE-API' rpc='create-l3-subnet' mode='sync' ></call>
+                                    <switch test='`$tmp.l3-network.service-id`'>
+                                        <outcome value=''>
+                                            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+		key="l3-network.network-id = $tmp.l3-network.network-id" >
+                                                <!-- Create l3-network object -->
+                                                <parameter name="network-id" value="`$tmp.l3-network.network-id`" />
+                                                <parameter name="network-name" value="`$tmp.l3-network.network-name`" />
+                                                <parameter name="network-type" value="`$network-model.network-type`" />
+                                                <parameter name="network-role" value="`$network-model.network-role`" />
+                                                <parameter name="network-technology" value="`$network-model.network-technology`" />
+                                                <parameter name="is-bound-to-vpn" value="`$tmp.l3-network.is-bound-to-vpn-boolean`" />
+                                                <parameter name="tenant-id" value="`$network-topology-operation-input.network-request-information.tenant`" />
+                                                <parameter name="model-invariant-id" value="`$network-model.invariant_uuid`" />
+                                                <parameter name="model-version" value="`$network-model.version`" />
+                                                <parameter name="model-customization-id" value="`$network-model.customization-id`" />
+                                                <parameter name="physical-network-name" value="`$network-model.physical-network-name`" />
+                                                <parameter name="is-provider-network" value="`$tmp.l3-network.is-provider-network-boolean`" />
+                                                <parameter name="is-shared-network" value="`$tmp.l3-network.is-shared-network-boolean`" />
+                                                <parameter name="is-external-network" value="`$tmp.l3-network.is-external-network-boolean`" />
+                                                <parameter name="selflink" value="`$tmp.l3-network.self-link`" />
+                                                <parameter name="operational-status" value="out-of-service-path" />
+                                                <outcome value='failure'>
+                                                    <return status='failure'>
+                                                        <parameter name='ack-final' value='Y'/>
+                                                        <parameter name="error-code" value="500" />
+                                                        <parameter name="error-message" value="`'Failed to save l3-network in AAI for network-id = ' + $tmp.l3-network.network-id`" />
+                                                    </return>
+                                                </outcome>
+                                                <outcome value='not-found'>
+                                                    <return status='failure'>
+                                                        <parameter name='ack-final' value='Y'/>
+                                                        <parameter name="error-code" value="500" />
+                                                        <parameter name="error-message" value="`'Failed to save l3-network in AAI for network-id = ' + $tmp.l3-network.network-id`" />
+                                                    </return>
+                                                </outcome>
+                                            </save>
+                                        </outcome>
+                                        <outcome value='Other'>
+                                            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+		key="l3-network.network-id = $tmp.l3-network.network-id" >
+                                                <!-- Create l3-network object -->
+                                                <parameter name="network-id" value="`$tmp.l3-network.network-id`" />
+                                                <parameter name="network-name" value="`$tmp.l3-network.network-name`" />
+                                                <parameter name="network-type" value="`$network-model.network-type`" />
+                                                <parameter name="network-role" value="`$network-model.network-role`" />
+                                                <parameter name="network-technology" value="`$network-model.network-technology`" />
+                                                <parameter name="is-bound-to-vpn" value="`$tmp.l3-network.is-bound-to-vpn-boolean`" />
+                                                <parameter name="tenant-id" value="`$network-topology-operation-input.network-request-information.tenant`" />
+                                                <parameter name="model-invariant-id" value="`$network-model.invariant_uuid`" />
+                                                <parameter name="model-version" value="`$network-model.version`" />
+                                                <parameter name="model-customization-id" value="`$network-model.customization-id`" />
+                                                <parameter name="physical-network-name" value="`$network-model.physical-network-name`" />
+                                                <parameter name="is-provider-network" value="`$tmp.l3-network.is-provider-network-boolean`" />
+                                                <parameter name="is-shared-network" value="`$tmp.l3-network.is-shared-network-boolean`" />
+                                                <parameter name="is-external-network" value="`$tmp.l3-network.is-external-network-boolean`" />
+                                                <parameter name="selflink" value="`$tmp.l3-network.self-link`" />
+                                                <parameter name="service-id" value="`$tmp.l3-network.service-id`" />
+                                                <parameter name="operational-status" value="out-of-service-path" />
+                                                <outcome value='failure'>
+                                                    <return status='failure'>
+                                                        <parameter name='ack-final' value='Y'/>
+                                                        <parameter name="error-code" value="500" />
+                                                        <parameter name="error-message" value="`'Failed to save l3-network in AAI for network-id = ' + $tmp.l3-network.network-id`" />
+                                                    </return>
+                                                </outcome>
+                                                <outcome value='not-found'>
+                                                    <return status='failure'>
+                                                        <parameter name='ack-final' value='Y'/>
+                                                        <parameter name="error-code" value="500" />
+                                                        <parameter name="error-message" value="`'Failed to save l3-network in AAI for network-id = ' + $tmp.l3-network.network-id`" />
+                                                    </return>
+                                                </outcome>
+                                            </save>
+                                        </outcome>
+                                    </switch>
+                                    <set>
+                                        <parameter name="msidx" value="`$nig.subnets_length`" />
+                                    </set>
+                                    <for index='sidx' start='0' end='`$tmp.l3-network.subnet_length`' >
+                                        <block atomic="true">
+                                            <set>
+                                                <parameter name="tmp.subnet-id" value="`$tmp.l3-network.subnet[$sidx].subnet-id`"/>
+                                            </set>
+                                            <switch test='`$tmp.l3-network.subnet[$sidx].dhcp-enabled`'>
+                                                <outcome value='true'>
+                                                    <block atomic="true">
+                                                        <switch test='`$tmp.l3-network.subnet[$sidx].gateway-address`'>
+                                                            <outcome value=''>
+                                                                <block atomic='true'>
+                                                                    <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="subnet" 
+		key="l3-network.network-id = $tmp.l3-network.network-id 
+			AND subnet.subnet-id = $tmp.subnet-id" >
+                                                                        <!-- Create l3-network object -->
+                                                                        <parameter name="network-id" value="`$tmp.l3-network.network-id`" />
+                                                                        <parameter name="subnet-id" value="`$tmp.l3-network.subnet[$sidx].subnet-id`" />
+                                                                        <parameter name="subnet-name" value="`$tmp.l3-network.subnet[$sidx].subnet-name`" />
+                                                                        <parameter name="network-start-address" value="`$tmp.l3-network.subnet[$sidx].network-start-address`" />
+                                                                        <parameter name="cidr-mask" value="`$tmp.l3-network.subnet[$sidx].cidr-mask`" />
+                                                                        <parameter name="ip-version" value="`$tmp.l3-network.subnet[$sidx].ip-version`" />
+                                                                        <parameter name="dhcp-start" value="`$tmp.l3-network.subnet[$sidx].dhcp-start`" />
+                                                                        <parameter name="dhcp-end" value="`$tmp.l3-network.subnet[$sidx].dhcp-end`" />
+                                                                        <parameter name="dhcp-enabled" value="`$tmp.l3-network.subnet[$sidx].dhcp-enabled`" />
+                                                                        <parameter name="orchestration-status" value="PendingCreate" />
+                                                                        <outcome value='failure'>
+                                                                            <block atomic='true'>
+                                                                                <set>
+                                                                                    <parameter name="error-code" value="500"/>
+                                                                                    <parameter name="tmp.error-message" value="`'An error occurred while saving subnet relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                                                                </set>
+                                                                            </block>
+                                                                        </outcome>
+                                                                        <outcome value='not-found'>
+                                                                            <block atomic='true'>
+                                                                                <set>
+                                                                                    <parameter name="error-code" value="500"/>
+                                                                                    <parameter name="tmp.error-message" value="`'An error occurred while saving subnet relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                                                                </set>
+                                                                            </block>
+                                                                        </outcome>
+                                                                    </save>
+                                                                </block>
+                                                            </outcome>
+                                                            <outcome value='Other'>
+                                                                <block atomic='true'>
+                                                                    <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="subnet" 
+		key="l3-network.network-id = $tmp.l3-network.network-id 
+			AND subnet.subnet-id = $tmp.subnet-id" >
+                                                                        <!-- Create l3-network object -->
+                                                                        <parameter name="network-id" value="`$tmp.l3-network.network-id`" />
+                                                                        <parameter name="subnet-id" value="`$tmp.l3-network.subnet[$sidx].subnet-id`" />
+                                                                        <parameter name="subnet-name" value="`$tmp.l3-network.subnet[$sidx].subnet-name`" />
+                                                                        <parameter name="gateway-address" value="`$tmp.l3-network.subnet[$sidx].gateway-address`" />
+                                                                        <parameter name="network-start-address" value="`$tmp.l3-network.subnet[$sidx].network-start-address`" />
+                                                                        <parameter name="cidr-mask" value="`$tmp.l3-network.subnet[$sidx].cidr-mask`" />
+                                                                        <parameter name="ip-version" value="`$tmp.l3-network.subnet[$sidx].ip-version`" />
+                                                                        <parameter name="dhcp-start" value="`$tmp.l3-network.subnet[$sidx].dhcp-start`" />
+                                                                        <parameter name="dhcp-end" value="`$tmp.l3-network.subnet[$sidx].dhcp-end`" />
+                                                                        <parameter name="dhcp-enabled" value="`$tmp.l3-network.subnet[$sidx].dhcp-enabled`" />
+                                                                        <parameter name="orchestration-status" value="PendingCreate" />
+                                                                        <outcome value='failure'>
+                                                                            <block atomic='true'>
+                                                                                <set>
+                                                                                    <parameter name="error-code" value="500"/>
+                                                                                    <parameter name="tmp.error-message" value="`'An error occurred while saving subnet relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                                                                </set>
+                                                                            </block>
+                                                                        </outcome>
+                                                                        <outcome value='not-found'>
+                                                                            <block atomic='true'>
+                                                                                <set>
+                                                                                    <parameter name="error-code" value="500"/>
+                                                                                    <parameter name="tmp.error-message" value="`'An error occurred while saving subnet relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                                                                </set>
+                                                                            </block>
+                                                                        </outcome>
+                                                                    </save>
+                                                                </block>
+                                                            </outcome>
+                                                        </switch>
+                                                    </block>
+                                                </outcome>
+                                                <outcome value='false'>
+                                                    <block atomic="true">
+                                                        <switch test='`$tmp.l3-network.subnet[$sidx].gateway-address`'>
+                                                            <outcome value=''>
+                                                                <block atomic='true'>
+                                                                    <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="subnet" 
+		key="l3-network.network-id = $tmp.l3-network.network-id 
+			AND subnet.subnet-id = $tmp.subnet-id" >
+                                                                        <!-- Create l3-network object -->
+                                                                        <parameter name="network-id" value="`$tmp.l3-network.network-id`" />
+                                                                        <parameter name="subnet-id" value="`$tmp.l3-network.subnet[$sidx].subnet-id`" />
+                                                                        <parameter name="subnet-name" value="`$tmp.l3-network.subnet[$sidx].subnet-name`" />
+                                                                        <parameter name="network-start-address" value="`$tmp.l3-network.subnet[$sidx].network-start-address`" />
+                                                                        <parameter name="cidr-mask" value="`$tmp.l3-network.subnet[$sidx].cidr-mask`" />
+                                                                        <parameter name="ip-version" value="`$tmp.l3-network.subnet[$sidx].ip-version`" />
+                                                                        <parameter name="dhcp-enabled" value="`$tmp.l3-network.subnet[$sidx].dhcp-enabled`" />
+                                                                        <parameter name="orchestration-status" value="PendingCreate" />
+                                                                        <outcome value='failure'>
+                                                                            <block atomic='true'>
+                                                                                <set>
+                                                                                    <parameter name="error-code" value="500"/>
+                                                                                    <parameter name="tmp.error-message" value="`'An error occurred while saving subnet relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                                                                </set>
+                                                                            </block>
+                                                                        </outcome>
+                                                                        <outcome value='not-found'>
+                                                                            <block atomic='true'>
+                                                                                <set>
+                                                                                    <parameter name="error-code" value="500"/>
+                                                                                    <parameter name="tmp.error-message" value="`'An error occurred while saving subnet relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                                                                </set>
+                                                                            </block>
+                                                                        </outcome>
+                                                                    </save>
+                                                                </block>
+                                                            </outcome>
+                                                            <outcome value='Other'>
+                                                                <block atomic='true'>
+                                                                    <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="subnet" 
+		key="l3-network.network-id = $tmp.l3-network.network-id 
+			AND subnet.subnet-id = $tmp.subnet-id" >
+                                                                        <!-- Create l3-network object -->
+                                                                        <parameter name="network-id" value="`$tmp.l3-network.network-id`" />
+                                                                        <parameter name="subnet-id" value="`$tmp.l3-network.subnet[$sidx].subnet-id`" />
+                                                                        <parameter name="subnet-name" value="`$tmp.l3-network.subnet[$sidx].subnet-name`" />
+                                                                        <parameter name="gateway-address" value="`$tmp.l3-network.subnet[$sidx].gateway-address`" />
+                                                                        <parameter name="network-start-address" value="`$tmp.l3-network.subnet[$sidx].network-start-address`" />
+                                                                        <parameter name="cidr-mask" value="`$tmp.l3-network.subnet[$sidx].cidr-mask`" />
+                                                                        <parameter name="ip-version" value="`$tmp.l3-network.subnet[$sidx].ip-version`" />
+                                                                        <parameter name="dhcp-enabled" value="`$tmp.l3-network.subnet[$sidx].dhcp-enabled`" />
+                                                                        <parameter name="orchestration-status" value="PendingCreate" />
+                                                                        <outcome value='failure'>
+                                                                            <block atomic='true'>
+                                                                                <set>
+                                                                                    <parameter name="error-code" value="500"/>
+                                                                                    <parameter name="tmp.error-message" value="`'An error occurred while saving subnet relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                                                                </set>
+                                                                            </block>
+                                                                        </outcome>
+                                                                        <outcome value='not-found'>
+                                                                            <block atomic='true'>
+                                                                                <set>
+                                                                                    <parameter name="error-code" value="500"/>
+                                                                                    <parameter name="tmp.error-message" value="`'An error occurred while saving subnet relationship for l3-network in AnAI where network-id = ' + $tmp.l3-network.network-id`"/>
+                                                                                </set>
+                                                                            </block>
+                                                                        </outcome>
+                                                                    </save>
+                                                                </block>
+                                                            </outcome>
+                                                        </switch>
+                                                    </block>
+                                                </outcome>
+                                            </switch>
+                                            <set>
+                                                <parameter name="nig.subnets[$msidx].start-address" value="`$tmp.l3-network.subnet[$sidx].network-start-address`" />
+                                                <parameter name="nig.subnets[$msidx].subnet-id" value="`$tmp.l3-network.subnet[$sidx].subnet-id`" />
+                                                <parameter name="nig.subnets[$msidx].subnet-name" value="`$tmp.l3-network.subnet[$sidx].subnet-name`" />
+                                                <parameter name="nig.subnets[$msidx].gateway-address" value="`$tmp.l3-network.subnet[$sidx].gateway-address`" />
+                                                <parameter name="nig.subnets[$msidx].cidr-mask" value="`$tmp.l3-network.subnet[$sidx].cidr-mask`" />
+                                                <parameter name="nig.subnets[$msidx].ip-version" value="`$tmp.l3-network.subnet[$sidx].ip-version`" />
+                                                <parameter name="nig.subnets[$msidx].dhcp-start-address" value="`$tmp.l3-network.subnet[$sidx].dhcp-start`" />
+                                                <parameter name="nig.subnets[$msidx].dhcp-end-address" value="`$tmp.l3-network.subnet[$sidx].dhcp-end`" />
+                                                <parameter name="nig.subnets[$msidx].dhcp-enabled" value="`$tmp.l3-network.subnet[$sidx].dhcp-enabled`" />
+                                                <parameter name="orchestration-status" value="PendingCreate" />
+                                            </set>
+                                            <set>
+                                                <parameter name="msidx" value="`$msidx + 1`" />
+                                                <parameter name="nig.subnets_length" value="`$nig.subnets_length + 1`" />
+                                            </set>
+                                        </block>
+                                    </for>
+                                </block>
+                            </outcome>
+                            <outcome value='false'>
+                                <block atomic='true'>
+                                    <switch test='`$ngnidx`'>
+                                        <outcome value=''>
+                                            <for index='sidx' start='0' end='`$tmp.l3-network.subnet_length`' >
+                                                <block atomic="true">
+                                                    <set>
+                                                        <parameter name="tmp.subnet-id" value="`$tmp.l3-network.subnet[$sidx].subnet-id`"/>
+                                                    </set>
+                                                    <switch test='`$tmp.l3-network.subnet[$sidx].dhcp-enabled`'></switch>
+                                                </block>
+                                            </for>
+                                        </outcome>
+                                        <outcome value='Other'></outcome>
+                                    </switch>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+            </switch>
+            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network:relationship-list" 
+	key="l3-network.network-id = $tmp.l3-network.network-id" 
+	force="true" 
+	local-only="false">
+                <parameter name="relationship-list.relationship[0].related-to" value="instance-group" />
+                <parameter name="relationship-list.relationship[0].related-link" value="`'/aai/v$/network/instance-groups/instance-group/'+ $tmp.network-instance-group-id`" />
+                <outcome value='failure'>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="`'An error occurred while saving instance-group relationship for l3-network in AnAI where instance-group-id = ' + $tmp.network-instance-group-id`"/>
+                        </set>
+                    </block>
+                </outcome>
+                <outcome value='not-found'>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="`'An error occurred while saving instance-group relationship for l3-network in AnAI where instance-group-id = ' + $tmp.network-instance-group-id`"/>
+                        </set>
+                    </block>
+                </outcome>
+            </save>
+            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network:relationship-list" 
+	key="l3-network.network-id = $tmp.l3-network.network-id" >
+                <parameter name="relationship-list.relationship[0].related-to" value="service-instance" />
+                <parameter name="relationship-list.relationship[0].relationship-data[0].relationship-key" value="customer.global-customer-id" />
+                <parameter name="relationship-list.relationship[0].relationship-data[0].relationship-value" value="`$service-data.service-information.global-customer-id`" />
+                <parameter name="relationship-list.relationship[0].relationship-data[1].relationship-key" value="service-subscription.service-type" />
+                <parameter name="relationship-list.relationship[0].relationship-data[1].relationship-value" value="`$service-data.service-information.subscription-service-type`" />
+                <parameter name="relationship-list.relationship[0].relationship-data[2].relationship-key" value="service-instance.service-instance-id" />
+                <parameter name="relationship-list.relationship[0].relationship-data[2].relationship-value" value="`$service-data.service-information.service-instance-id`" />
+                <outcome value='failure'>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="`'An error occurred while saving service-instance relationship for l3-network in AnAI where service-instance-id = ' + $network-topology-operation-input.service-information.service-instance-id`"/>
+                        </set>
+                    </block>
+                </outcome>
+                <outcome value='not-found'>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="tmp.error-message" value="`'An error occurred while saving service-instance relationship for l3-network in AnAI where service-instance-id = ' + $network-topology-operation-input.service-information.service-instance-id`"/>
+                        </set>
+                    </block>
+                </outcome>
+            </save>
+            <set>
+                <parameter name='network-topology.network-topology-identifier-structure.' value='`$tmp.l3-network.`' />
+                <parameter name='network-topology.tenant' value='`$network-topology-operation-input.network-request-input.tenant`' />
+                <parameter name='network-topology.onap-model-information.' value='`$network-topology-operation-input.network-information.onap-model-information.`' />
+                <parameter name='network-topology.network-parameters.' value='`$network-topology-operation-input.network-request-input.network-parameters.`' />
+                <parameter name='network-topology.aic-cloud-region' value='`$network-topology-operation-input.network-request-input.aic-cloud-region`' />
+            </set>
+            <set>
+                <parameter name="service-data.network-instance-groups.network-instance-group[$ngidx]." value='`$nig.`' />
+            </set>
+            <set>
+                <parameter name="service-data.networks.network[$nidx].network-id" value='`$tmp.l3-network.network-id`' />
+                <parameter name="service-data.networks.network[$nidx].network-data.network-topology." value='$network-topology.' />
+                <parameter name="service-data.networks.network_length" value='`$nidx_len`' />
+            </set>
+            <set>
+                <parameter name='networkId' value='`$tmp.l3-network.network-id`' />
+            </set>
+            <set>
+                <parameter name='network-object-path'
+ value="`$tmp.l3-network.self-link`"/>
+            </set>
+            <set>
+                <parameter name='service-data.networks.network[$nidx].network-data.network-level-oper-status.order-status' value='PendingCreate' />
+                <parameter name='service-data.networks.network[$nidx].network-data.network-level-oper-status.last-rpc-action' value='`$network-topology-operation-input.sdnc-request-header.svc-action`' />
+                <parameter name='service-data.networks.network[$nidx].network-data.network-level-oper-status.last-action' value='`$network-topology-operation-input.request-information.request-action`' />
+            </set>
+            <return status='success'>
+                <parameter name='' value='' />
+            </return>
+        </block>
+    </method>
+</service-logic>

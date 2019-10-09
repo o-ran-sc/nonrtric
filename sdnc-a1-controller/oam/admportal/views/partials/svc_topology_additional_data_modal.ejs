@@ -1,0 +1,36 @@
+   <div class="modal fade" id="svc-topology-additional-data-modal" tabindex="-1" role="dialog" aria-labelledby="svc_topology-additional-data-modal-label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="svc-topology-additional-data-modal-label">Service Topology Additional Data</h4>
+          </div>
+          <div class="modal-body">
+            <form id="svc_topology_additional_data_form" role="form" action="" method="POST">
+              <div class="form-group">
+                <label for="svc_vnf_type">svc-vnf-type</label>
+                <input type="text" class="form-control" name="svc_vnf_type" id="svc_vnf_type">
+              </div>
+
+<!--
+              <div class="form-group">
+				<input type="hidden" name="uf_action" id="uf_action">
+                <button type="button" class="btn btn-primary" onclick="submit(this.form);">Submit</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+-->
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>
+
+<script type="text/javascript">
+function submit(form){
+	$('#service-status-modal').modal('hide');
+	form.action = form.uf_action.value;
+	form.submit();
+	return;
+}
+</script>
+

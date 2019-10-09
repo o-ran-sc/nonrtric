@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<% include ../partials/head %>
+<% include ../partials/header %>
+<script type="text/javascript" src="/javascripts/admportal.js" async></script>
+<title>SDNC-MLC AdminPortal</title>
+
+
+<script class="init"> 
+	$(document).ready(function() {
+    $('#linkMaster').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+</head>
+
+<body>
+
+<div class="well well-sm">
+<h3>Link Master</h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+
+	<% if(priv == 'A'){ %>
+        <div class="actions" style="padding:15px 0px;">
+            <button class="btn btn-primary btn-md" data-toggle="modal" data-target="#add_link_master">Add Link</button>
+        </div>
+    <% } %>
+
+	<table id="linkMaster" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+		  <th>*Link Interface IP</th>
+          <th>Source CRS Name</th>
+		  <th>Destination CRS Name</th>
+		  <th>Max Reserved BW</th>
+		  <th>Default Cost</th>
+		  <th>Bundle Name</th>
+		  <th>Shutdown</th>
+		   <% if(priv == 'A'){ %>
+          <th>Action</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+      <% rows.forEach( function(row) { %> 
+        <tr>
+            <td><%= row.link_interface_ip %></td>
+            <td><%= row.source_crs_name %></td>
+            <td><%= row.destination_crs_name %></td>
+            <td><%= row.link_speed %></td>
+            <td><%= row.default_cost %></td>
+            <td><%= row.bundle_name %></td>
+			<td><%= row.shutdown %></td>
+			<% if(priv == 'A') { %>
+            <td>
+				<button type="button" class="btn btn-default btn-xs" onclick="updateLinkMaster('<%= row.link_interface_ip %>', 
+					'<%= row.source_crs_name %>', '<%= row.destination_crs_name %>', '<%= row.link_speed %>', '<%= row.default_cost %>',
+					'<%= row.bundle_name %>', '<%= row.shutdown %>');">Update</button>
+				<button type="button" class="btn btn-default btn-xs" onclick="deleteLinkMaster('<%= row.link_interface_ip %>');">Delete</button>
+            </td>
+            <% } %>
+        </tr>
+    <% }); %>
+      </tbody>
+    </table>
+</div>
+
+<% include ../partials/link_master %>
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+<script type="text/javascript">
+function saveLinkMaster(form)
+{
+    var errorMsg='';
+    var link_interface_ip = '';
+	var source_crs_name = '';
+	var destination_crs_name = '';
+	var link_speed = '';
+	var default_cost = '';
+	var bundle_name = '';
+	var shutdown = '';
+
+    if ( form.name == 'addForm' )
+    {
+		link_interface_ip = form.nf_link_interface_ip;
+		source_crs_name = form.nf_source_crs_name;
+		destination_crs_name = form.nf_destination_crs_name;
+		link_speed = form.nf_link_speed;
+		default_cost = form.nf_default_cost;
+		bundle_name = form.nf_bundle_name;
+		shutdown = form.nf_shutdown;
+    }
+    else
+    {
+		link_interface_ip = form.uf_link_interface_ip;
+		source_crs_name = form.uf_source_crs_name;
+		destination_crs_name = form.uf_destination_crs_name;
+		link_speed = form.uf_link_speed;
+		default_cost = form.uf_default_cost;
+		bundle_name = form.uf_bundle_name;
+		shutdown = form.uf_shutdown;
+    }
+
+
+    if ( (link_interface_ip.value == null) || (link_interface_ip.value == "") || isblank(link_interface_ip.value) )
+    {
+        errorMsg += 'Link Interface IP is required.<br>';
+    }
+    if ( (source_crs_name.value == null) || (source_crs_name.value == "") || isblank(source_crs_name.value) )
+    {
+        errorMsg += 'Source CRS Name is required.<br>';
+    }
+    if ( (destination_crs_name.value == null) || (destination_crs_name.value == "") || isblank(destination_crs_name.value) )
+    {
+        errorMsg += 'Destination CRS Name is required.<br>';
+    }
+    if( errorMsg.length > 0 ) {
+        bootbox.alert(errorMsg);
+        return;
+    }
+
+	if ( link_speed.value.length >0 && !isDigit(link_speed.value) )
+    {
+        bootbox.alert('Max Reserved BW must be a number.');
+        return;
+    }
+	if ( default_cost.value.length >0 && !isDigit(default_cost.value) )
+    {
+        bootbox.alert('Default Cost must be a number.');
+        return;
+    }
+    form.submit();
+}
+
+function updateLinkMaster(link_interface_ip,source_crs_name,destination_crs_name,link_speed,default_cost,bundle_name,shutdown) {
+
+    document.getElementById('uf_link_interface_ip').value=link_interface_ip;
+    document.getElementById('uf_source_crs_name').value=source_crs_name;
+    document.getElementById('uf_destination_crs_name').value=destination_crs_name;
+    document.getElementById('uf_link_speed').value=link_speed;
+    document.getElementById('uf_default_cost').value=default_cost;
+    document.getElementById('uf_bundle_name').value=bundle_name;
+    document.getElementById('uf_shutdown').value=shutdown;
+    document.getElementById('uf_key_link_interface_ip').value=link_interface_ip;
+
+    $('#update_link_master').modal('show');
+}
+
+function deleteLinkMaster(link_interface_ip) {
+
+	var url_string = encodeURI("/tunnel/deleteLinkMaster?link_interface_ip=" + link_interface_ip);
+
+    bootbox.confirm({
+        message: "Are you sure you want to delete this Link [" + link_interface_ip + "]",
+        callback: function(result) {
+            if ( result )
+            {
+				location.assign(url_string);
+            }
+            return;
+        },
+        buttons: {
+            cancel: {
+                label: "Cancel"
+            },
+            confirm: {
+                label: "Yes"
+            }
+        }
+    });
+}
+
+</script>
+
+</body>
+</html>
+

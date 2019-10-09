@@ -1,0 +1,21 @@
+module ietf-subscribed-notifications {
+    yang-version 1;
+    namespace "ietf:subscribed:notifications:huawei";
+    prefix "notif";
+
+    revision 2018-09-08;
+
+    rpc establish-subscription {
+        input {
+            leaf encoding {
+                type string;
+            }
+        }
+
+        output {
+            leaf identifier {
+                type int16;
+            }
+        }
+    }
+}

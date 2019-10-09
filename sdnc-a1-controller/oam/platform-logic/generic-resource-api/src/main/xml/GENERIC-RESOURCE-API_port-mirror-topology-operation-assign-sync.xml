@@ -1,0 +1,124 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='port-mirror-topology-operation-assign-sync' mode='sync'>
+        <block atomic="true">
+            <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='select role,nfc_naming_code,pps_capacity
+    from PORT_MIRROR_CAPABILITY cap, PORT_MIRROR_CONFIGURATION conf, SERVICE_PROXY sp
+    where cap.port_mirror_capability_name=conf.port_mirror_capability_name
+     and cap.port_mirror_service_uuid=conf.port_mirror_service_uuid
+     and cap.service_proxy_name=conf.service_proxy_name
+     and cap.service_proxy_name=sp.service_proxy_name
+     and cap.port_mirror_service_uuid=sp.parent_service_uuid
+     and conf.customization_uuid = $port-mirror-topology-operation-input.configuration-information.onap-model-information.model-customization-uuid
+     and conf.port_mirror_service_uuid = $service-data.service-information.onap-model-information.model-uuid
+    order by role'
+  pfx='db.cap[]'>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error reading PORT_MIRROR_CONFIGURATION and PORT_MIRROR_CAPABILITY tables" />
+                    </return>
+                </outcome>
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`'Unable to find PORT_MIRROR_CONFIGURATION entry for ' + $port-mirror-topology-operation-input.configuration-information.onap-model-information.model-customization-uuid`" />
+                    </return>
+                </outcome>
+            </get-resource>
+            <switch test='`$port-mirror-topology-operation-input.configuration-information.configuration-sub-type`'>
+                <outcome value='vprobe'>
+                    <block atomic="true">
+                        <switch test='`$db.cap_length == 2`'>
+                            <outcome value='false'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="`'PORT_MIRROR_CONFIGURATION does not contain exactly 2 entries for UUID ' + $port-mirror-topology-operation-input.configuration-information.onap-model-information.model-customization-uuid`" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test="`$db.cap[0].role == 'collector'`">
+                            <outcome value='false'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="`'No collector capability_role found for UUID ' + $port-mirror-topology-operation-input.configuration-information.onap-model-information.model-customization-uuid`" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test="`$db.cap[1].role == 'source'`">
+                            <outcome value='false'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="`'No source capability_role found for UUID ' + $port-mirror-topology-operation-input.configuration-information.onap-model-information.model-customization-uuid`" />
+                                </return>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='pprobe'>
+                    <block atomic="true">
+                        <switch test='`$db.cap_length == 1`'>
+                            <outcome value='false'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="`'PORT_MIRROR_CONFIGURATION does not contain exactly 1 entry for UUID ' + $port-mirror-topology-operation-input.configuration-information.onap-model-information.model-customization-uuid`" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test="`$db.cap[0].role == 'source'`">
+                            <outcome value='false'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="`'No source capability_role found for UUID ' + $port-mirror-topology-operation-input.configuration-information.onap-model-information.model-customization-uuid`" />
+                                </return>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='tmp.pm.configuration-id' value='`$port-mirror-topology-operation-input.configuration-information.configuration-id`' />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                <parameter name='contextPrefix' value='prop' />
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$prop.restapi.pm-configuration`"/>
+                <parameter name="outputPath" value="tmp.pmc-url"/>
+                <parameter name="target" value="{configuration-id}"/>
+                <parameter name="replacement" value="`$tmp.pm.configuration-id`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.pmc-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='GET' />
+                <parameter name="responsePrefix" value="mdsal-pmc" />
+                <outcome value='success'>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value="`'Port mirror configuration ' + $tmp.pm.configuration-id + ' already exists'`" />
+                    </return>
+                </outcome>
+                <outcome value='failure'>
+                    <block></block>
+                </outcome>
+            </execute>
+            <return status='success'>
+                <parameter name='error-code' value='200' />
+                <parameter name='ack-final' value='N' />
+            </return>
+        </block>
+    </method>
+</service-logic>

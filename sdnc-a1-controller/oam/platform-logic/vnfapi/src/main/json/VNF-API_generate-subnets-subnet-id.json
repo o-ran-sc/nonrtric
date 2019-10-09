@@ -1,0 +1,407 @@
+[
+    {
+        "id": "aaa6ff4b.724ea",
+        "type": "execute",
+        "name": "execute: generateUUID",
+        "xml": "<execute plugin=\"org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils\" method=\"generateUUID\" >\n\t<parameter name=\"ctx-destination\" value=\"tmp.return.generate-subnets-subnet-id.uuid\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 412.8571472167969,
+        "y": 357.1428527832031,
+        "z": "212bebba.daa304",
+        "wires": [
+            [
+                "5dbe3d08.2b3ac4"
+            ]
+        ]
+    },
+    {
+        "id": "5dbe3d08.2b3ac4",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 608.6071548461914,
+        "y": 357.1428527832031,
+        "z": "212bebba.daa304",
+        "wires": [
+            [
+                "e14fcee.4b28f3"
+            ]
+        ]
+    },
+    {
+        "id": "e14fcee.4b28f3",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<!-- Used to work around execute node bug -->\n\t<parameter name=\"execute_failure\" value=\"false\" />\n\n\t<!-- return parameters -->\n\t<parameter name=\"error-message.generate-l3network-network-id\" value=\"An error occured while generating a UUID for L3-NETWORK.\" />",
+        "comments": "",
+        "x": 773.6071548461914,
+        "y": 357.3928499221802,
+        "z": "212bebba.daa304",
+        "wires": []
+    },
+    {
+        "id": "a4f5c20.aaf894",
+        "type": "get-resource",
+        "name": "Query AnAI -  subnets",
+        "xml": "<get-resource plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\"\n\tresource=\"subnet\"\n\t\tkey=\"l3-network.network-id = $tmp.local.network-id \n\t\t\tAND subnet.subnet-id = $tmp.return.generate-subnets-subnet-id.uuid\"\n\t\tlocal-only=\"false\"\n\t\tpfx=\"tmp.local-variables.generate-subnets-subnet-id.SUBNETS\" >",
+        "comments": "",
+        "outputs": 1,
+        "x": 538.1071548461914,
+        "y": 448.3928499221802,
+        "z": "212bebba.daa304",
+        "wires": [
+            [
+                "7566b0aa.23333",
+                "41541145.8f2fe",
+                "f04ddaec.babb98",
+                "53fa760f.b1d208"
+            ]
+        ]
+    },
+    {
+        "id": "6e3cbfaa.cae83",
+        "type": "for",
+        "name": "for s: true",
+        "xml": "<for atomic=\"true\" index=\"s\" start=\"0\" end=\"1\" >",
+        "comments": "",
+        "outputs": 1,
+        "x": 362.1071548461914,
+        "y": 448.3928499221802,
+        "z": "212bebba.daa304",
+        "wires": [
+            [
+                "a4f5c20.aaf894"
+            ]
+        ]
+    },
+    {
+        "id": "7566b0aa.23333",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 742.6071548461914,
+        "y": 448.3928499221802,
+        "z": "212bebba.daa304",
+        "wires": [
+            [
+                "a7ff3de0.89a3b"
+            ]
+        ]
+    },
+    {
+        "id": "41541145.8f2fe",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 738.6071548461914,
+        "y": 528.3928499221802,
+        "z": "212bebba.daa304",
+        "wires": [
+            [
+                "f6eee8f.2de7c18"
+            ]
+        ]
+    },
+    {
+        "id": "f04ddaec.babb98",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 747.6071548461914,
+        "y": 488.3928499221802,
+        "z": "212bebba.daa304",
+        "wires": [
+            [
+                "ef8307c7.c73008"
+            ]
+        ]
+    },
+    {
+        "id": "f6eee8f.2de7c18",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status=\"failure\">\n\t<!-- return parameters -->\n\t<parameter name=\"error-message.generate-subnets-subnet-id\" value=\"`'An error occured while checking if a generated subnets-subnet-id was unique. subnet-id = ' + $tmp.local-variables.generate-subnets-subnet-id.uuid`\" />",
+        "comments": "",
+        "x": 905.1071624755859,
+        "y": 553.3928556442261,
+        "z": "212bebba.daa304",
+        "wires": []
+    },
+    {
+        "id": "a7ff3de0.89a3b",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 900.6071548461914,
+        "y": 448.3928499221802,
+        "z": "212bebba.daa304",
+        "wires": [
+            [
+                "bde977bc.984908",
+                "a44a8681.7894a8"
+            ]
+        ]
+    },
+    {
+        "id": "bde977bc.984908",
+        "type": "set",
+        "name": "set: ...local...is-unique = 0",
+        "xml": "<set>\n\t<parameter name=\"tmp.local-variables.generate-subnets-subnet-id.is-unique\" value=\"0\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1118.1072082519531,
+        "y": 448.3928556442261,
+        "z": "212bebba.daa304",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a44a8681.7894a8",
+        "type": "execute",
+        "name": "execute: generateUUID",
+        "xml": "<execute plugin=\"org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils\" method=\"generateUUID\" >\n\t<parameter name=\"ctx-destination\" value=\"tmp.return.generate-subnets-subnet-id.uuid\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1111.6071548461914,
+        "y": 488.3928499221802,
+        "z": "212bebba.daa304",
+        "wires": [
+            [
+                "87ba26d4.c54c58"
+            ]
+        ]
+    },
+    {
+        "id": "87ba26d4.c54c58",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1298.6071548461914,
+        "y": 488.3928499221802,
+        "z": "212bebba.daa304",
+        "wires": [
+            [
+                "22793b05.dbc9f4"
+            ]
+        ]
+    },
+    {
+        "id": "22793b05.dbc9f4",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status=\"failure\">\n\t<!-- return parameters -->\n\t<parameter name=\"error-message.generate-subnets-subnet-id\" value=\"An error occured while generating a UUID for SUBNETS.\" />",
+        "comments": "",
+        "x": 1452.6071548461914,
+        "y": 488.3928499221802,
+        "z": "212bebba.daa304",
+        "wires": []
+    },
+    {
+        "id": "ef8307c7.c73008",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 878.6071548461914,
+        "y": 488.3928499221802,
+        "z": "212bebba.daa304",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "514ace13.73fbc",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 119.10715103149414,
+        "y": 44.64284896850586,
+        "z": "212bebba.daa304",
+        "wires": [
+            [
+                "1b1cc085.47687f"
+            ]
+        ]
+    },
+    {
+        "id": "1b1cc085.47687f",
+        "type": "service-logic",
+        "name": "VNF-API ${project.version}",
+        "module": "VNF-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='VNF-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 143.10714721679688,
+        "y": 90.89284896850586,
+        "z": "212bebba.daa304",
+        "wires": [
+            [
+                "d99b1637.7ed018"
+            ]
+        ]
+    },
+    {
+        "id": "d99b1637.7ed018",
+        "type": "method",
+        "name": "method generate-subnets-subnet-id",
+        "xml": "<method rpc=\"generate-subnets-subnet-id\" mode=\"sync\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 228.85714721679688,
+        "y": 143.39284896850586,
+        "z": "212bebba.daa304",
+        "wires": [
+            [
+                "11287140.bdd92f"
+            ]
+        ]
+    },
+    {
+        "id": "c84b6b4.9fc4398",
+        "type": "comment",
+        "name": "VNF-API: GENERATE-SUBNETS-SUBNET-ID",
+        "info": "",
+        "comments": "",
+        "x": 670.6071624755859,
+        "y": 50.89284706115723,
+        "z": "212bebba.daa304",
+        "wires": []
+    },
+    {
+        "id": "11287140.bdd92f",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 180.6071548461914,
+        "y": 268.3928499221802,
+        "z": "212bebba.daa304",
+        "wires": [
+            [
+                "aaa6ff4b.724ea",
+                "a5490895.039508",
+                "41976a7f.5999d4",
+                "6e3cbfaa.cae83"
+            ]
+        ]
+    },
+    {
+        "id": "6ab42343.db7f8c",
+        "type": "comment",
+        "name": "LOOP UNTIL GENERATED NETWORK-ID ISN'T FOUND IN A&AI",
+        "info": "",
+        "comments": "",
+        "x": 581.8571472167969,
+        "y": 404.64285373687744,
+        "z": "212bebba.daa304",
+        "wires": []
+    },
+    {
+        "id": "b9ed64f0.37f1d8",
+        "type": "comment",
+        "name": "GENERATE A SUBNET-ID",
+        "info": "",
+        "comments": "",
+        "x": 445.6071472167969,
+        "y": 314.6428518295288,
+        "z": "212bebba.daa304",
+        "wires": []
+    },
+    {
+        "id": "a5490895.039508",
+        "type": "set",
+        "name": "unset: local-variables & return",
+        "xml": "<set>\n\t<parameter name=\"tmp.local-variables.generate-subnets-subnet-id.\" value=\"\" />\n\t<parameter name=\"tmp.return.generate-subnets-subnet-id.\" value=\"\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 431.6071548461914,
+        "y": 268.3928499221802,
+        "z": "212bebba.daa304",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "60c2bbdc.ec4e64",
+        "type": "comment",
+        "name": "CLEANUP LOCAL VARIABLES TO BE USED",
+        "info": "",
+        "comments": "",
+        "x": 515.8571472167969,
+        "y": 224.6428508758545,
+        "z": "212bebba.daa304",
+        "wires": []
+    },
+    {
+        "id": "71172ef4.cf0d8",
+        "type": "comment",
+        "name": "GLOBAL VARIABLES USED",
+        "info": "// RETURN VALUES\nerror-message.generate-generic-vnf-id\ntmp.return.generate-generic-vnf-id.uuid\n\n// LOCAL VARIABLES (erased at beginning & end of DG)\ntmp.local-variables.generate-generic-vnf-id.*\ntmp.local-variables.generate-generic-vnf-id.GENERIC_VNF.*",
+        "comments": "",
+        "x": 657.107177734375,
+        "y": 90.89284706115723,
+        "z": "212bebba.daa304",
+        "wires": []
+    },
+    {
+        "id": "41976a7f.5999d4",
+        "type": "set",
+        "name": "unset: local-variables & return",
+        "xml": "<set>\n\t<parameter name=\"tmp.local-variables.generate-subnets-subnet-id.\" value=\"\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 431.6071548461914,
+        "y": 548.3928499221802,
+        "z": "212bebba.daa304",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "57f68649.0093a8",
+        "type": "comment",
+        "name": "CLEANUP LOCAL VARIABLES",
+        "info": "",
+        "comments": "",
+        "x": 473.1071472167969,
+        "y": 505.89285469055176,
+        "z": "212bebba.daa304",
+        "wires": []
+    },
+    {
+        "id": "53fa760f.b1d208",
+        "type": "other",
+        "name": "Other",
+        "xml": "<outcome value=\"Other\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 738.6071548461914,
+        "y": 568.3928499221802,
+        "z": "212bebba.daa304",
+        "wires": [
+            [
+                "f6eee8f.2de7c18"
+            ]
+        ]
+    }
+]

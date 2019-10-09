@@ -1,0 +1,3 @@
+${groupId} ${artifactId} ${project.version}-${build.number}
+${SWM_VERSION}
+

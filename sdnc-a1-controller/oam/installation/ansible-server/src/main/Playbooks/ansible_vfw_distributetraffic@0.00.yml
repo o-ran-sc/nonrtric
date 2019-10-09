@@ -1,0 +1,110 @@
+---
+- hosts: all
+  gather_facts: no
+  tasks:
+    - include_vars: "{{ ConfigFileName }}"
+    - debug: var=fwIp
+      failed_when: fwIp is not defined
+    - debug: var=sinkIp
+      failed_when: sinkIp is not defined
+    - name: Read PKG IP
+      shell: cat /opt/config/vpg_private_ip_0.txt
+      register: pkgIp
+      become: true
+    - name: Read OLD FW IP
+      shell: cat /opt/config/fw_ipaddr.txt
+      register: oldFwIp
+      become: true
+    - name: Read OLD SINK IP
+      shell: cat /opt/config/sink_ipaddr.txt
+      register: oldSinkIp
+      become: true
+    - name: Read protected net CIDR
+      shell: cat /opt/config/protected_net_cidr.txt
+      register: protectedCidr
+      become: true
+    - debug: var=pkgIp.stdout
+    - debug: var=oldFwIp.stdout
+    - debug: var=oldSinkIp.stdout
+    - debug: var=protectedCidr.stdout
+    - debug: 
+        msg: "FW IP has not been changed"
+      when: oldFwIp.stdout == fwIp
+    - block:
+        - name: Remove OLD FW IP route
+          shell: vppctl ip route del {{ protectedCidr.stdout }} via {{ oldFwIp.stdout }}
+        - name: Add NEW FW IP route
+          shell: vppctl ip route add {{ protectedCidr.stdout }} via {{ fwIp }}
+        - name: Save NEW FW IP address
+          shell: echo {{ fwIp }} > /opt/config/fw_ipaddr.txt
+        - debug: 
+            msg: "FW IP has been changed"
+      become: true
+      when: oldFwIp.stdout != fwIp
+    - debug: 
+        msg: "SINK IP has not been changed"
+      when: oldSinkIp.stdout == sinkIp
+    - block:
+        - block:
+          - name: Modify packet stream files
+            debug:
+              msg: "Modify packet stream files"
+          - shell: "sed -i -e '0,/UDP/ s/UDP:.*/UDP: {{ pkgIp.stdout }} -> {{ sinkIp }}/' /opt/pg_streams/stream_fw_udp1"
+          - shell: "sed -i -e '0,/UDP/ s/UDP:.*/UDP: {{ pkgIp.stdout }} -> {{ sinkIp }}/' /opt/pg_streams/stream_fw_udp2"
+          - shell: "sed -i -e '0,/UDP/ s/UDP:.*/UDP: {{ pkgIp.stdout }} -> {{ sinkIp }}/' /opt/pg_streams/stream_fw_udp3"
+          - shell: "sed -i -e '0,/UDP/ s/UDP:.*/UDP: {{ pkgIp.stdout }} -> {{ sinkIp }}/' /opt/pg_streams/stream_fw_udp4"
+          - shell: "sed -i -e '0,/UDP/ s/UDP:.*/UDP: {{ pkgIp.stdout }} -> {{ sinkIp }}/' /opt/pg_streams/stream_fw_udp5"
+          - shell: "sed -i -e '0,/UDP/ s/UDP:.*/UDP: {{ pkgIp.stdout }} -> {{ sinkIp }}/' /opt/pg_streams/stream_fw_udp6"
+          - shell: "sed -i -e '0,/UDP/ s/UDP:.*/UDP: {{ pkgIp.stdout }} -> {{ sinkIp }}/' /opt/pg_streams/stream_fw_udp7"
+          - shell: "sed -i -e '0,/UDP/ s/UDP:.*/UDP: {{ pkgIp.stdout }} -> {{ sinkIp }}/' /opt/pg_streams/stream_fw_udp8"
+          - shell: "sed -i -e '0,/UDP/ s/UDP:.*/UDP: {{ pkgIp.stdout }} -> {{ sinkIp }}/' /opt/pg_streams/stream_fw_udp9"
+          - shell: "sed -i -e '0,/UDP/ s/UDP:.*/UDP: {{ pkgIp.stdout }} -> {{ sinkIp }}/' /opt/pg_streams/stream_fw_udp10"
+        - block:
+          - name: Delete old streams
+            debug:
+              msg: "Delete old streams"
+          - shell: vppctl packet-generator delete fw_udp1
+          - shell: vppctl packet-generator delete fw_udp2
+          - shell: vppctl packet-generator delete fw_udp3
+          - shell: vppctl packet-generator delete fw_udp4
+          - shell: vppctl packet-generator delete fw_udp5
+          - shell: vppctl packet-generator delete fw_udp6
+          - shell: vppctl packet-generator delete fw_udp7
+          - shell: vppctl packet-generator delete fw_udp8
+          - shell: vppctl packet-generator delete fw_udp9
+          - shell: vppctl packet-generator delete fw_udp10
+        - block:
+          - name: Install new streams
+            debug:
+              msg: "Install new streams"
+          - shell: vppctl exec /opt/pg_streams/stream_fw_udp1
+          - shell: vppctl exec /opt/pg_streams/stream_fw_udp2
+          - shell: vppctl exec /opt/pg_streams/stream_fw_udp3
+          - shell: vppctl exec /opt/pg_streams/stream_fw_udp4
+          - shell: vppctl exec /opt/pg_streams/stream_fw_udp5
+          - shell: vppctl exec /opt/pg_streams/stream_fw_udp6
+          - shell: vppctl exec /opt/pg_streams/stream_fw_udp7
+          - shell: vppctl exec /opt/pg_streams/stream_fw_udp8
+          - shell: vppctl exec /opt/pg_streams/stream_fw_udp9
+          - shell: vppctl exec /opt/pg_streams/stream_fw_udp10
+        - block:
+          - name: Enable new streams
+            debug:
+              msg: "Enable new streams"
+          - shell: vppctl packet-generator enable fw_udp1
+          - shell: vppctl packet-generator enable fw_udp2
+          - shell: vppctl packet-generator enable fw_udp3
+          - shell: vppctl packet-generator enable fw_udp4
+          - shell: vppctl packet-generator enable fw_udp5
+          - shell: vppctl packet-generator enable fw_udp6
+          - shell: vppctl packet-generator enable fw_udp7
+          - shell: vppctl packet-generator enable fw_udp8
+          - shell: vppctl packet-generator enable fw_udp9
+          - shell: vppctl packet-generator enable fw_udp10
+        - name: Save NEW SINK IP address
+          shell: echo {{ sinkIp }} > /opt/config/sink_ipaddr.txt
+        - debug: 
+            msg: "SINK IP has been changed"
+      become: true
+      when: oldSinkIp.stdout != sinkIp
+
