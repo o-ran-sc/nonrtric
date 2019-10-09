@@ -1,0 +1,744 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='self-serve-mS-vlan-tag-assign' mode='sync'>
+        <block atomic="true">
+            <switch test='`$ss.capability-name`'>
+                <outcome value=''>
+                    <return status="failure">
+                        <parameter name="ack-final" value="Y" />
+                        <parameter name="error-code" value="500"/>
+                        <parameter name="error-message" value="ss.capability-name is null" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$ss.capability-action`'>
+                <outcome value=''>
+                    <return status="failure">
+                        <parameter name="ack-final" value="Y" />
+                        <parameter name="error-code" value="500"/>
+                        <parameter name="error-message" value="ss.capability-action is null" />
+                    </return>
+                </outcome>
+                <outcome value='assign'>
+                    <block atomic="true">
+                        <call module='GENERIC-RESOURCE-API' rpc='self-serve-capability-param-resolution' mode='sync' >
+                            <outcome value='failure'>
+                                <return status="failure">
+                                    <parameter name="ack-final" value="Y" />
+                                    <parameter name="error-code" value="500"/>
+                                    <parameter name="error-message" value="`'Not all assignments are resolved' + $error-message`" />
+                                </return>
+                            </outcome>
+                        </call>
+                        <set>
+                            <parameter name='qidx' value='0' />
+                            <parameter name='ss.vt.' value='' />
+                        </set>
+                        <for silentFailure='true' index="pidx" start="0" end="`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param_length`">
+                            <set>
+                                <parameter name='tmp.ss.param.capability-name' 
+	value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$pidx].resource-resolution-data.capability-name`' />
+                            </set>
+                            <switch test='`$tmp.ss.param.capability-name == $ss.capability-name`'>
+                                <outcome value='true'>
+                                    <block>
+                                        <set>
+                                            <parameter name='ss.vt.param[$qidx].index' value='`$pidx`' />
+                                        </set>
+                                        <for silentFailure='true' index="kidx" start="0" end="`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$pidx].resource-resolution-data.resource-key_length`">
+                                            <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$pidx].resource-resolution-data.resource-key[$kidx].name`'>
+                                                <outcome value='policy-instance-name'>
+                                                    <set>
+                                                        <parameter name='vt.request[$qidx].policy-instance-name' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$pidx].resource-resolution-data.resource-key[$kidx].value`' />
+                                                    </set>
+                                                </outcome>
+                                                <outcome value='resource-name'>
+                                                    <set>
+                                                        <parameter name='vt.request[$qidx].resource-name' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$pidx].resource-resolution-data.resource-key[$kidx].value`' />
+                                                    </set>
+                                                </outcome>
+                                                <outcome value='scope-id'>
+                                                    <set>
+                                                        <parameter name='vt.request[$qidx].scope-id' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$pidx].resource-resolution-data.resource-key[$kidx].value`' />
+                                                    </set>
+                                                </outcome>
+                                                <outcome value='vlan-tag-key'>
+                                                    <set>
+                                                        <parameter name='vt.request[$qidx].vlan-tag-key' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$pidx].resource-resolution-data.resource-key[$kidx].value`' />
+                                                    </set>
+                                                </outcome>
+                                                <outcome value='vlan-type'>
+                                                    <set>
+                                                        <parameter name='vt.request[$qidx].vlan-type' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$pidx].resource-resolution-data.resource-key[$kidx].value`' />
+                                                    </set>
+                                                </outcome>
+                                                <outcome value='resource-value'>
+                                                    <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >
+                                                        <parameter name='source' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$pidx].resource-resolution-data.resource-key[$kidx].value`' />
+                                                        <parameter name='target' value='$' />
+                                                        <outcome value='false'>
+                                                            <set>
+                                                                <parameter name='vt.request[$qidx].resource-value' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$pidx].resource-resolution-data.resource-key[$kidx].value`' />
+                                                            </set>
+                                                        </outcome>
+                                                        <outcome value='true'>
+                                                            <set>
+                                                                <parameter name='vt.request[$qidx].resource-value' value='' />
+                                                            </set>
+                                                        </outcome>
+                                                    </execute>
+                                                </outcome>
+                                            </switch>
+                                        </for>
+                                        <set>
+                                            <parameter name='qidx' value='`$qidx + 1`' />
+                                        </set>
+                                        <set>
+                                            <parameter name='vt.request_length' value='`$qidx`' />
+                                        </set>
+                                        <set>
+                                            <parameter name='ss.vt.param_length' value='`$qidx`' />
+                                        </set>
+                                    </block>
+                                </outcome>
+                            </switch>
+                        </for>
+                        <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                            <parameter name="source" value="`$prop.restapi.ss-mS-vlan-tag-assign`"/>
+                            <parameter name="outputPath" value="tmp.ss-vlan-tag-url"/>
+                            <parameter name="target" value="{action}"/>
+                            <parameter name="replacement" value="`$ss.capability-action`"/>
+                        </execute>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                            <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.ss.mS.vlan.tag.assign.templatefile`" />
+                            <parameter name='restapiUrl' value='`$prop.vt.mS.url + $tmp.ss-vlan-tag-url`' />
+                            <parameter name='restapiUser' value='`$prop.vt.mS.user`' />
+                            <parameter name='restapiPassword' value='`$prop.vt.mS.pwd`' />
+                            <parameter name='format' value='json' />
+                            <parameter name='httpMethod' value='POST' />
+                            <parameter name="responsePrefix" value="vtResp" />
+                            <outcome value='failure'>
+                                <block atomic="true">
+                                    <for index="i" start="0" end="`$ss.vt.param_length`">
+                                        <set>
+                                            <parameter name='vt-index' value='`$ss.vt.param[$i].index`' />
+                                        </set>
+                                        <set>
+                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$vt-index].resource-resolution-data.status' 
+	value='FAILED' />
+                                        </set>
+                                    </for>
+                                    <return status='failure'>
+                                        <parameter name='error-code' value='500' />
+                                        <parameter name='error-message' value="Failed to get vlan-tag assisgnment from mS" />
+                                    </return>
+                                </block>
+                            </outcome>
+                            <outcome value='not-found'>
+                                <block atomic="true">
+                                    <for index="i" start="0" end="`$ss.vt.param_length`">
+                                        <set>
+                                            <parameter name='vt-index' value='`$ss.vt.param[$i].index`' />
+                                        </set>
+                                        <set>
+                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$vt-index].resource-resolution-data.status' 
+	value='FAILED' />
+                                        </set>
+                                    </for>
+                                    <return status='failure'>
+                                        <parameter name='error-code' value='500' />
+                                        <parameter name='error-message' value="Failed to get vlan-tag assisgnment from mS" />
+                                    </return>
+                                </block>
+                            </outcome>
+                            <outcome value='success'>
+                                <switch test='`$vtResp.error-code`'>
+                                    <outcome value='500'>
+                                        <block atomic='true'>
+                                            <for index="i" start="0" end="`$ss.vt.param_length`">
+                                                <set>
+                                                    <parameter name='vt-index' value='`$ss.vt.param[$i].index`' />
+                                                </set>
+                                                <set>
+                                                    <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$vt-index].resource-resolution-data.status' 
+	value='FAILED' />
+                                                </set>
+                                            </for>
+                                            <return status='failure'>
+                                                <parameter name='error-code' value='500'/>
+                                                <parameter name='error-message' value="`'Encountered error from mS-vlan-tag-assign with error-code = ' + $vtResp.error-code + ' and error-message = ' + $vtResp.error-message`" />
+                                            </return>
+                                        </block>
+                                    </outcome>
+                                    <outcome value='200'>
+                                        <block atomic='true'>
+                                            <for silentFailure='true' index="pidx" start="0" end="`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param_length`">
+                                                <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$pidx].name`'>
+                                                    <outcome value='nfc-function'>
+                                                        <set>
+                                                            <parameter name='ss.param.nfc-function' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$pidx].value`' />
+                                                            <parameter name='ss.param.nfc-function-index' value='`$pidx`' />
+                                                        </set>
+                                                    </outcome>
+                                                    <outcome value='nfc-naming-code'>
+                                                        <set>
+                                                            <parameter name='ss.param.nfc-naming-code' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$pidx].value`' />
+                                                            <parameter name='ss.param.nfc-naming-code-index' value='`$pidx`' />
+                                                        </set>
+                                                    </outcome>
+                                                    <outcome value='vnfc-model-customization-uuid'>
+                                                        <set>
+                                                            <parameter name='ss.param.vnfc-model-customization-uuid' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$pidx].value`' />
+                                                            <parameter name='ss.param.vnfc-model-customization-uuid-index' value='`$pidx`' />
+                                                        </set>
+                                                    </outcome>
+                                                    <outcome value='vnfc-model-invariant-uuid'>
+                                                        <set>
+                                                            <parameter name='ss.param.vnfc-model-invariant-uuid' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$pidx].value`' />
+                                                            <parameter name='ss.param.vnfc-model-invariant-uuid-index' value='`$pidx`' />
+                                                        </set>
+                                                    </outcome>
+                                                    <outcome value='vnfc-model-version'>
+                                                        <set>
+                                                            <parameter name='ss.param.vnfc-model-version' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$pidx].value`' />
+                                                            <parameter name='ss.param.vnfc-model-version-index' value='`$pidx`' />
+                                                        </set>
+                                                    </outcome>
+                                                    <outcome value='vm-type'>
+                                                        <set>
+                                                            <parameter name='ss.param.vm-type' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$pidx].value`' />
+                                                            <parameter name='ss.param.vm-type-index' value='`$pidx`' />
+                                                        </set>
+                                                    </outcome>
+                                                    <outcome value='vnfc-name'>
+                                                        <block atomic='true'>
+                                                            <set>
+                                                                <parameter name='ss.param.vnfc-name-unresolved-value' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$pidx].value`' />
+                                                            </set>
+                                                            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                                                                <parameter name="source" value="`$ss.param.vnfc-name-unresolved-value`" />
+                                                                <parameter name="target" value="${"/>
+                                                                <parameter name="replacement" value=""/>
+                                                                <parameter name="outputPath" value="ss.param.vnfc-name-unresolved-value"/>
+                                                            </execute>
+                                                            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                                                                <parameter name="source" value="`$ss.param.vnfc-name-unresolved-value`" />
+                                                                <parameter name="target" value="}"/>
+                                                                <parameter name="replacement" value=""/>
+                                                                <parameter name="outputPath" value="ss.param.vnfc-name-unresolved-value"/>
+                                                            </execute>
+                                                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                                <parameter name="logger" value="message-log"/>
+                                                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                                                <parameter name="field2" value="`'ss.param.vnfc-name-unresolved-value = ' + $ss.param.vnfc-name-unresolved-value`"/>
+                                                            </record>
+                                                            <block>
+                                                                <for silentFailure='true' index="x" start="0" end="`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param_length`">
+                                                                    <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$x].name == $ss.param.vnfc-name-unresolved-value`'>
+                                                                        <outcome value='true'>
+                                                                            <block atomic='true'>
+                                                                                <set>
+                                                                                    <parameter name='ss.param.vnfc-name' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$x].value`' />
+                                                                                    <parameter name='ss.param.vnfc-name-index' value='`$x`' />
+                                                                                </set>
+                                                                                <return status='failure'></return>
+                                                                            </block>
+                                                                        </outcome>
+                                                                    </switch>
+                                                                </for>
+                                                                <return status='success'></return>
+                                                            </block>
+                                                            <switch test='`$ss.param.vnfc-name`'>
+                                                                <outcome value=''>
+                                                                    <block atomic='true'>
+                                                                        <block atomic="true">
+                                                                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                                                <parameter name="logger" value="message-log"/>
+                                                                                <parameter name="field1" value="ROLLBACK: self-serve-mS-vlan-tag-assign"/>
+                                                                            </record>
+                                                                            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                                                                                <parameter name="source" value="`$prop.restapi.ss-mS-vlan-tag-assign`"/>
+                                                                                <parameter name="outputPath" value="tmp.ss-vlan-tag-url"/>
+                                                                                <parameter name="target" value="{action}"/>
+                                                                                <parameter name="replacement" value="unassign"/>
+                                                                            </execute>
+                                                                            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                                                                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.ss.mS.vlan.tag.unassign.templatefile`" />
+                                                                                <parameter name='restapiUrl' value='`$prop.vt.mS.url + $tmp.ss-vlan-tag-url`' />
+                                                                                <parameter name='restapiUser' value='`$prop.vt.mS.user`' />
+                                                                                <parameter name='restapiPassword' value='`$prop.vt.mS.pwd`' />
+                                                                                <parameter name='format' value='json' />
+                                                                                <parameter name='httpMethod' value='POST' />
+                                                                                <parameter name="responsePrefix" value="vtResp" />
+                                                                                <outcome value='failure'>
+                                                                                    <set>
+                                                                                        <parameter name="error-message" 
+	value="Failed to rollback vlan-tag from mS. vlan-tag MUST BE ROLLBACK MANUALLY!!!" />
+                                                                                    </set>
+                                                                                </outcome>
+                                                                                <outcome value='not-found'>
+                                                                                    <set>
+                                                                                        <parameter name="error-message" 
+	value="Failed to rollback vlan-tag from mS. vlan-tag MUST BE ROLLBACK MANUALLY!!!" />
+                                                                                    </set>
+                                                                                </outcome>
+                                                                                <outcome value='success'>
+                                                                                    <switch test='`$vtResp.error-code`'>
+                                                                                        <outcome value='500'>
+                                                                                            <set>
+                                                                                                <parameter name="error-message" 
+	value="`'Received error from mS with error-code = ' + $vtResp.error-code + ' and error-message = ' + $vtResp.error-message + '; vlan-tag MUST BE ROLLBACK MANUALLY!!!'`" />
+                                                                                            </set>
+                                                                                        </outcome>
+                                                                                        <outcome value='200'>
+                                                                                            <block>
+                                                                                                <for silentFailure='true' index="oidx" start="0" end="`$vtResp.output_length`">
+                                                                                                    <for silentFailure='true' index="i" start="0" end="`$ss.vt.param_length`">
+                                                                                                        <set>
+                                                                                                            <parameter name='vt-index' value='`$ss.vt.param[$i].index`' />
+                                                                                                        </set>
+                                                                                                        <set>
+                                                                                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$vt-index].resource-resolution-data.status' 
+	value='PENDING' />
+                                                                                                        </set>
+                                                                                                    </for>
+                                                                                                </for>
+                                                                                                <set>
+                                                                                                    <parameter name="error-message" 
+	value="vlan tags were rolled back from mS successfully." />
+                                                                                                </set>
+                                                                                            </block>
+                                                                                        </outcome>
+                                                                                    </switch>
+                                                                                </outcome>
+                                                                            </execute>
+                                                                        </block>
+                                                                        <return status='failure'>
+                                                                            <parameter name='error-code' value='500' />
+                                                                            <parameter name='error-message' value="`'Unable to resolve vnfc-name; ' + $error-message`" />
+                                                                        </return>
+                                                                    </block>
+                                                                </outcome>
+                                                            </switch>
+                                                        </block>
+                                                    </outcome>
+                                                </switch>
+                                            </for>
+                                            <set>
+                                                <parameter name = 'service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[0].vm-type' value = '`$ss.param.vm-type`' />
+                                                <parameter name = 'service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[0].onap-model-information.model-invariant-uuid' value = '`$ss.param.vnfc-model-invariant-uuid`' />
+                                                <parameter name = 'service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[0].onap-model-information.model-customization-uuid' value = '`$ss.param.vnfc-model-customization-uuid`' />
+                                                <parameter name = 'service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[0].onap-model-information.model-version' value = '`$ss.param.vnfc-model-version`' />
+                                                <parameter name = 'service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[0].vm-names.vnfc-names[0].vnfc-name' value = '`$ss.param.vnfc-name`' />
+                                            </set>
+                                            <set>
+                                                <parameter name = 'service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vms.vm_length' value = '1' />
+                                                <parameter name = 'service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[0].vm-names.vnfc-names_length' value = '1' />
+                                            </set>
+                                            <for silentFailure='true' index="oidx" start="0" end="`$vtResp.output_length`">
+                                                <for silentFailure='true' index="vtidx" start="0" end="`$ss.vt.param_length`">
+                                                    <set>
+                                                        <parameter name='vt-index' value='`$ss.vt.param[$vtidx].index`' />
+                                                    </set>
+                                                    <switch test='`$vtResp.output[$oidx].resource-name == $service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$vt-index].name`'>
+                                                        <outcome value='true'>
+                                                            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >
+                                                                <parameter name='source' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$vt-index].value`' />
+                                                                <parameter name='target' value='$' />
+                                                                <outcome value='true'>
+                                                                    <block atomic='true'>
+                                                                        <set>
+                                                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$vt-index].value' 
+	value='`$vtResp.output[$oidx].resource-value`' />
+                                                                        </set>
+                                                                        <set>
+                                                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$vt-index].resource-resolution-data.status' 
+	value='SUCCESS' />
+                                                                        </set>
+                                                                        <for silentFailure='true' index="kidx" start="0" end="`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$vt-index].resource-resolution-data.resource-key_length`">
+                                                                            <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$vt-index].resource-resolution-data.resource-key[$kidx].name`'>
+                                                                                <outcome value='vnfc-network-role'>
+                                                                                    <block atomic='true'>
+                                                                                        <set>
+                                                                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[0].vm-names.vnfc-names[0].vnfc-networks.vnfc-network-data[$vtidx].vnfc-network-role' 
+	value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$vt-index].resource-resolution-data.resource-key[$kidx].value`' />
+                                                                                        </set>
+                                                                                        <call module="GENERIC-RESOURCE-API" rpc="generate-cp-instance-id" mode="sync" >
+                                                                                            <outcome value='failure'>
+                                                                                                <block atomic='true'>
+                                                                                                    <block atomic="true">
+                                                                                                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                                                                            <parameter name="logger" value="message-log"/>
+                                                                                                            <parameter name="field1" value="ROLLBACK: self-serve-mS-vlan-tag-assign"/>
+                                                                                                        </record>
+                                                                                                        <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                                                                                                            <parameter name="source" value="`$prop.restapi.ss-mS-vlan-tag-assign`"/>
+                                                                                                            <parameter name="outputPath" value="tmp.ss-vlan-tag-url"/>
+                                                                                                            <parameter name="target" value="{action}"/>
+                                                                                                            <parameter name="replacement" value="unassign"/>
+                                                                                                        </execute>
+                                                                                                        <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                                                                                            <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.ss.mS.vlan.tag.unassign.templatefile`" />
+                                                                                                            <parameter name='restapiUrl' value='`$prop.vt.mS.url + $tmp.ss-vlan-tag-url`' />
+                                                                                                            <parameter name='restapiUser' value='`$prop.vt.mS.user`' />
+                                                                                                            <parameter name='restapiPassword' value='`$prop.vt.mS.pwd`' />
+                                                                                                            <parameter name='format' value='json' />
+                                                                                                            <parameter name='httpMethod' value='POST' />
+                                                                                                            <parameter name="responsePrefix" value="vtResp" />
+                                                                                                            <outcome value='failure'>
+                                                                                                                <set>
+                                                                                                                    <parameter name="error-message" 
+	value="Failed to rollback vlan-tag from mS. vlan-tag MUST BE ROLLBACK MANUALLY!!!" />
+                                                                                                                </set>
+                                                                                                            </outcome>
+                                                                                                            <outcome value='not-found'>
+                                                                                                                <set>
+                                                                                                                    <parameter name="error-message" 
+	value="Failed to rollback vlan-tag from mS. vlan-tag MUST BE ROLLBACK MANUALLY!!!" />
+                                                                                                                </set>
+                                                                                                            </outcome>
+                                                                                                            <outcome value='success'>
+                                                                                                                <switch test='`$vtResp.error-code`'>
+                                                                                                                    <outcome value='500'>
+                                                                                                                        <set>
+                                                                                                                            <parameter name="error-message" 
+	value="`'Received error from mS with error-code = ' + $vtResp.error-code + ' and error-message = ' + $vtResp.error-message + '; vlan-tag MUST BE ROLLBACK MANUALLY!!!'`" />
+                                                                                                                        </set>
+                                                                                                                    </outcome>
+                                                                                                                    <outcome value='200'>
+                                                                                                                        <block>
+                                                                                                                            <for silentFailure='true' index="oidx" start="0" end="`$vtResp.output_length`">
+                                                                                                                                <for silentFailure='true' index="i" start="0" end="`$ss.vt.param_length`">
+                                                                                                                                    <set>
+                                                                                                                                        <parameter name='vt-index' value='`$ss.vt.param[$i].index`' />
+                                                                                                                                    </set>
+                                                                                                                                    <set>
+                                                                                                                                        <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$vt-index].resource-resolution-data.status' 
+	value='PENDING' />
+                                                                                                                                    </set>
+                                                                                                                                </for>
+                                                                                                                            </for>
+                                                                                                                            <set>
+                                                                                                                                <parameter name="error-message" 
+	value="vlan tags were rolled back from mS successfully." />
+                                                                                                                            </set>
+                                                                                                                        </block>
+                                                                                                                    </outcome>
+                                                                                                                </switch>
+                                                                                                            </outcome>
+                                                                                                        </execute>
+                                                                                                    </block>
+                                                                                                    <return status='failure'>
+                                                                                                        <parameter name='error-code' value='500'/>
+                                                                                                        <parameter name='error-message' value="`'Error in generating cp-instance-id in SDNC; ' + $error-message.generate-cp-instance-id + $error-message`" />
+                                                                                                    </return>
+                                                                                                </block>
+                                                                                            </outcome>
+                                                                                        </call>
+                                                                                        <for silentFailure='true' index="sidx" start="0" end="`$vtResp.output[$oidx].stored-elements_length`">
+                                                                                            <set>
+                                                                                                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[0].vm-names.vnfc-names[0].vnfc-networks.vnfc-network-data[$vtidx].connection-point.connection-point-id' 
+	value='`$tmp.return.generate-cp-instance-id.id`' />
+                                                                                                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[0].vm-names.vnfc-names[0].vnfc-networks.vnfc-network-data[$vtidx].connection-point.vlan-data[$sidx].vlan-uuid' 
+	value='`$vtResp.output[$oidx].stored-elements[$sidx].vlan-uuid`' />
+                                                                                                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[0].vm-names.vnfc-names[0].vnfc-networks.vnfc-network-data[$vtidx].connection-point.vlan-data[$sidx].vlan-tag-id' 
+	value='`$vtResp.output[$oidx].stored-elements[$sidx].vlantag-value`' />
+                                                                                                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[0].vm-names.vnfc-names[0].vnfc-networks.vnfc-network-data[$vtidx].connection-point.vlan-data[$sidx].vlan-tag-description' 
+	value='`$vtResp.output[$oidx].stored-elements[$sidx].vlantag-name`' />
+                                                                                                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[0].vm-names.vnfc-names[0].vnfc-networks.vnfc-network-data[$vtidx].connection-point.vlan-data[$sidx].vlan-role' 
+	value='`$vtResp.output[$oidx].stored-elements[$sidx].element-vlan-role`' />
+                                                                                            </set>
+                                                                                        </for>
+                                                                                    </block>
+                                                                                </outcome>
+                                                                            </switch>
+                                                                        </for>
+                                                                    </block>
+                                                                </outcome>
+                                                                <outcome value='false'>
+                                                                    <block atomic='true'>
+                                                                        <block atomic='true'>
+                                                                            <set>
+                                                                                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$vt-index].value' 
+	value='`$vtResp.output[$oidx].resource-value`' />
+                                                                            </set>
+                                                                            <set>
+                                                                                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$vt-index].resource-resolution-data.status' 
+	value='SUCCESS' />
+                                                                            </set>
+                                                                            <for silentFailure='true' index="kidx" start="0" end="`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$vt-index].resource-resolution-data.resource-key_length`">
+                                                                                <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$vt-index].resource-resolution-data.resource-key[$kidx].name`'>
+                                                                                    <outcome value='vnfc-network-role'>
+                                                                                        <block atomic='true'>
+                                                                                            <set>
+                                                                                                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[0].vm-names.vnfc-names[0].vnfc-networks.vnfc-network-data[$vtidx].vnfc-network-role' 
+	value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$vt-index].resource-resolution-data.resource-key[$kidx].value`' />
+                                                                                            </set>
+                                                                                            <call module="GENERIC-RESOURCE-API" rpc="generate-cp-instance-id" mode="sync" >
+                                                                                                <outcome value='failure'>
+                                                                                                    <block atomic='true'>
+                                                                                                        <block atomic="true">
+                                                                                                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                                                                                <parameter name="logger" value="message-log"/>
+                                                                                                                <parameter name="field1" value="ROLLBACK: self-serve-mS-vlan-tag-assign"/>
+                                                                                                            </record>
+                                                                                                            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                                                                                                                <parameter name="source" value="`$prop.restapi.ss-mS-vlan-tag-assign`"/>
+                                                                                                                <parameter name="outputPath" value="tmp.ss-vlan-tag-url"/>
+                                                                                                                <parameter name="target" value="{action}"/>
+                                                                                                                <parameter name="replacement" value="unassign"/>
+                                                                                                            </execute>
+                                                                                                            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                                                                                                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.ss.mS.vlan.tag.unassign.templatefile`" />
+                                                                                                                <parameter name='restapiUrl' value='`$prop.vt.mS.url + $tmp.ss-vlan-tag-url`' />
+                                                                                                                <parameter name='restapiUser' value='`$prop.vt.mS.user`' />
+                                                                                                                <parameter name='restapiPassword' value='`$prop.vt.mS.pwd`' />
+                                                                                                                <parameter name='format' value='json' />
+                                                                                                                <parameter name='httpMethod' value='POST' />
+                                                                                                                <parameter name="responsePrefix" value="vtResp" />
+                                                                                                                <outcome value='failure'>
+                                                                                                                    <set>
+                                                                                                                        <parameter name="error-message" 
+	value="Failed to rollback vlan-tag from mS. vlan-tag MUST BE ROLLBACK MANUALLY!!!" />
+                                                                                                                    </set>
+                                                                                                                </outcome>
+                                                                                                                <outcome value='not-found'>
+                                                                                                                    <set>
+                                                                                                                        <parameter name="error-message" 
+	value="Failed to rollback vlan-tag from mS. vlan-tag MUST BE ROLLBACK MANUALLY!!!" />
+                                                                                                                    </set>
+                                                                                                                </outcome>
+                                                                                                                <outcome value='success'>
+                                                                                                                    <switch test='`$vtResp.error-code`'>
+                                                                                                                        <outcome value='500'>
+                                                                                                                            <set>
+                                                                                                                                <parameter name="error-message" 
+	value="`'Received error from mS with error-code = ' + $vtResp.error-code + ' and error-message = ' + $vtResp.error-message + '; vlan-tag MUST BE ROLLBACK MANUALLY!!!'`" />
+                                                                                                                            </set>
+                                                                                                                        </outcome>
+                                                                                                                        <outcome value='200'>
+                                                                                                                            <block>
+                                                                                                                                <for silentFailure='true' index="oidx" start="0" end="`$vtResp.output_length`">
+                                                                                                                                    <for silentFailure='true' index="i" start="0" end="`$ss.vt.param_length`">
+                                                                                                                                        <set>
+                                                                                                                                            <parameter name='vt-index' value='`$ss.vt.param[$i].index`' />
+                                                                                                                                        </set>
+                                                                                                                                        <set>
+                                                                                                                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$vt-index].resource-resolution-data.status' 
+	value='PENDING' />
+                                                                                                                                        </set>
+                                                                                                                                    </for>
+                                                                                                                                </for>
+                                                                                                                                <set>
+                                                                                                                                    <parameter name="error-message" 
+	value="vlan tags were rolled back from mS successfully." />
+                                                                                                                                </set>
+                                                                                                                            </block>
+                                                                                                                        </outcome>
+                                                                                                                    </switch>
+                                                                                                                </outcome>
+                                                                                                            </execute>
+                                                                                                        </block>
+                                                                                                        <return status='failure'>
+                                                                                                            <parameter name='error-code' value='500'/>
+                                                                                                            <parameter name='error-message' value="`'Error in generating cp-instance-id in SDNC; ' + $error-message.generate-cp-instance-id + $error-message`" />
+                                                                                                        </return>
+                                                                                                    </block>
+                                                                                                </outcome>
+                                                                                            </call>
+                                                                                            <for silentFailure='true' index="sidx" start="0" end="`$vtResp.output[$oidx].stored-elements_length`">
+                                                                                                <set>
+                                                                                                    <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[0].vm-names.vnfc-names[0].vnfc-networks.vnfc-network-data[$vtidx].connection-point.connection-point-id' 
+	value='`$tmp.return.generate-cp-instance-id.id`' />
+                                                                                                    <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[0].vm-names.vnfc-names[0].vnfc-networks.vnfc-network-data[$vtidx].connection-point.vlan-data[$sidx].vlan-uuid' 
+	value='`$vtResp.output[$oidx].stored-elements[$sidx].vlan-uuid`' />
+                                                                                                    <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[0].vm-names.vnfc-names[0].vnfc-networks.vnfc-network-data[$vtidx].connection-point.vlan-data[$sidx].vlan-tag-id' 
+	value='`$vtResp.output[$oidx].stored-elements[$sidx].vlantag-value`' />
+                                                                                                    <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[0].vm-names.vnfc-names[0].vnfc-networks.vnfc-network-data[$vtidx].connection-point.vlan-data[$sidx].vlan-tag-description' 
+	value='`$vtResp.output[$oidx].stored-elements[$sidx].vlantag-name`' />
+                                                                                                    <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[0].vm-names.vnfc-names[0].vnfc-networks.vnfc-network-data[$vtidx].connection-point.vlan-data[$sidx].vlan-role' 
+	value='`$vtResp.output[$oidx].stored-elements[$sidx].element-vlan-role`' />
+                                                                                                </set>
+                                                                                            </for>
+                                                                                        </block>
+                                                                                    </outcome>
+                                                                                </switch>
+                                                                            </for>
+                                                                        </block>
+                                                                        <set>
+                                                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$vt-index].resource-resolution-data.capability-name' 
+	value='INPUT' />
+                                                                        </set>
+                                                                    </block>
+                                                                </outcome>
+                                                            </execute>
+                                                        </outcome>
+                                                    </switch>
+                                                </for>
+                                            </for>
+                                            <set>
+                                                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[0].vm-names.vnfc-names[0].vnfc-networks.vnfc-network-data_length' 
+	value='`$ss.vt.param_length`' />
+                                            </set>
+                                            <set>
+                                                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[0].vm-names.vnfc-names[0].vnfc-networks.vnfc-network-data[$vtidx].connection-point.vlan-data_length' 
+	value='`$vtResp.output[$oidx].stored-elements_length`' />
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                            </outcome>
+                        </execute>
+                    </block>
+                </outcome>
+                <outcome value='unassign'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name='qidx' value='0' />
+                            <parameter name='ss.vt.' value='' />
+                        </set>
+                        <for silentFailure='true' index="pidx" start="0" end="`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param_length`">
+                            <set>
+                                <parameter name='tmp.ss.param.capability-name' 
+	value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$pidx].resource-resolution-data.capability-name`' />
+                            </set>
+                            <switch test='`$tmp.ss.param.capability-name == $ss.capability-name`'>
+                                <outcome value='true'>
+                                    <block>
+                                        <set>
+                                            <parameter name='ss.vt.param[$qidx].index' value='`$pidx`' />
+                                        </set>
+                                        <for silentFailure='true' index="kidx" start="0" end="`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$pidx].resource-resolution-data.resource-key_length`">
+                                            <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$pidx].resource-resolution-data.resource-key[$kidx].name`'>
+                                                <outcome value='policy-instance-name'>
+                                                    <set>
+                                                        <parameter name='vt.request[$qidx].policy-instance-name' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$pidx].resource-resolution-data.resource-key[$kidx].value`' />
+                                                    </set>
+                                                </outcome>
+                                                <outcome value='vlan-type'>
+                                                    <set>
+                                                        <parameter name='vt.request[$qidx].vlan-type' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$pidx].resource-resolution-data.resource-key[$kidx].value`' />
+                                                    </set>
+                                                </outcome>
+                                                <outcome value='vlan-tag-key'>
+                                                    <set>
+                                                        <parameter name='vt.request[$qidx].vlan-tag-key' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$pidx].resource-resolution-data.resource-key[$kidx].value`' />
+                                                    </set>
+                                                </outcome>
+                                            </switch>
+                                        </for>
+                                        <set>
+                                            <parameter name='qidx' value='`$qidx + 1`' />
+                                        </set>
+                                        <set>
+                                            <parameter name='vt.request_length' value='`$qidx`' />
+                                        </set>
+                                        <set>
+                                            <parameter name='ss.vt.param_length' value='`$qidx`' />
+                                        </set>
+                                    </block>
+                                </outcome>
+                            </switch>
+                        </for>
+                        <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                            <parameter name="source" value="`$prop.restapi.ss-mS-vlan-tag-assign`"/>
+                            <parameter name="outputPath" value="tmp.ss-vlan-tag-url"/>
+                            <parameter name="target" value="{action}"/>
+                            <parameter name="replacement" value="`$ss.capability-action`"/>
+                        </execute>
+                        <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                            <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.ss.mS.vlan.tag.unassign.templatefile`" />
+                            <parameter name='restapiUrl' value='`$prop.vt.mS.url + $tmp.ss-vlan-tag-url`' />
+                            <parameter name='restapiUser' value='`$prop.vt.mS.user`' />
+                            <parameter name='restapiPassword' value='`$prop.vt.mS.pwd`' />
+                            <parameter name='format' value='json' />
+                            <parameter name='httpMethod' value='POST' />
+                            <parameter name="responsePrefix" value="vtResp" />
+                            <outcome value='failure'>
+                                <block atomic="true">
+                                    <for index="i" start="0" end="`$ss.vt.param_length`">
+                                        <set>
+                                            <parameter name='vt-index' value='`$ss.vt.param[$i].index`' />
+                                        </set>
+                                        <set>
+                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$vt-index].resource-resolution-data.status' 
+	value='FAILED' />
+                                        </set>
+                                    </for>
+                                    <return status='failure'>
+                                        <parameter name='error-code' value='500' />
+                                        <parameter name='error-message' value="Failed to unassign vlan-tag from mS" />
+                                    </return>
+                                </block>
+                            </outcome>
+                            <outcome value='not-found'>
+                                <block atomic="true">
+                                    <for index="i" start="0" end="`$ss.vt.param_length`">
+                                        <set>
+                                            <parameter name='vt-index' value='`$ss.vt.param[$i].index`' />
+                                        </set>
+                                        <set>
+                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$vt-index].resource-resolution-data.status' 
+	value='FAILED' />
+                                        </set>
+                                    </for>
+                                    <return status='failure'>
+                                        <parameter name='error-code' value='500' />
+                                        <parameter name='error-message' value="Failed to unassign vlan-tag from mS" />
+                                    </return>
+                                </block>
+                            </outcome>
+                            <outcome value='success'>
+                                <switch test='`$vtResp.error-code`'>
+                                    <outcome value='500'>
+                                        <block atomic="true">
+                                            <for index="i" start="0" end="`$ss.vt.param_length`">
+                                                <set>
+                                                    <parameter name='vt-index' value='`$ss.vt.param[$i].index`' />
+                                                </set>
+                                                <set>
+                                                    <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$vt-index].resource-resolution-data.status' 
+	value='FAILED' />
+                                                </set>
+                                            </for>
+                                            <return status='failure'>
+                                                <parameter name='error-code' value='500'/>
+                                                <parameter name='error-message' value="`'Encountered error while unassigning mS-vlan-tag with error-code = ' + $vtResp.error-code + ' and error-message = ' + $vtResp.error-message`" />
+                                            </return>
+                                        </block>
+                                    </outcome>
+                                    <outcome value='200'>
+                                        <for silentFailure='true' index="oidx" start="0" end="`$vtResp.output_length`">
+                                            <for silentFailure='true' index="i" start="0" end="`$ss.vt.param_length`">
+                                                <set>
+                                                    <parameter name='vt-index' value='`$ss.vt.param[$i].index`' />
+                                                </set>
+                                                <set>
+                                                    <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$vt-index].resource-resolution-data.status' 
+	value='DELETED' />
+                                                </set>
+                                            </for>
+                                        </for>
+                                    </outcome>
+                                </switch>
+                            </outcome>
+                        </execute>
+                    </block>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='pathname' 
+	value="`'/var/tmp/ss-mS-vlan-tag-' + $ss.capability-action + '-' + 
+	$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-information.vf-module-id + '.log'`" />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >
+                <parameter name='filename' value='`$pathname`' />
+            </execute>
+            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                <parameter name="logger" value="message-log"/>
+                <parameter name="field1" value="DONE: mS-vlan-tag-assign"/>
+            </record>
+        </block>
+    </method>
+</service-logic>

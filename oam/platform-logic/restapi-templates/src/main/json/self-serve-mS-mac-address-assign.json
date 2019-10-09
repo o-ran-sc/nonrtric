@@ -1,0 +1,26 @@
+{
+    "elements": [ ${repeat:ma.elements.element_length:
+      [
+	{
+            "name": "policy-instance-name",
+            "value": ${ma.elements.element[${1}].policy-instance-name}
+	},
+	{
+            "name": "vnf-host-name",
+            "value": ${ma.elements.element[${1}].vnf-host-name}
+	},
+	{
+            "name": "cloud-param-name", 
+            "value": ${ma.elements.element[${1}].cloud-param-name}
+	},
+	{
+            "name": "sw-name",
+            "value":  ${ma.elements.element[${1}].sw-name}
+	},
+	{
+            "name": "resource-value",
+            "value":  ${ma.elements.element[${1}].resource-value}
+        }
+      ], }
+    ]
+}

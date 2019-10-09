@@ -1,0 +1,59 @@
+   <div class="modal fade" id="add_network_profile" tabindex="-1" role="dialog" 
+		aria-labelledby="add_network_profile" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Add Network Profile</h4>
+          </div>
+          <div class="modal-body">
+            <form name="addForm" role="form" action="/gamma/addNetworkProfile" method="POST">
+              <div class="form-group">
+                <label for="nf_network_type">*Network Type</label>
+                <input type="text" class="form-control" name="nf_network_type" id="nf_network_type" maxlength="100" placeholder="varchar(100)">
+              </div>
+              <div class="form-group">
+                <label for="nf_technology">Technology</label>
+                <input type="text" class="form-control" name="nf_technology" id="nf_technology" maxlength="100" placeholder="varchar(100)">
+              </div>
+              <div class="form-group">
+				<input type="hidden" name="nf_action" id="nf_action">
+				<button type="button" class="btn btn-primary" onclick="saveNetworkProfile(this.form);">Save</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>
+
+<div class="modal fade" id="update_network_profile" tabindex="-1" role="dialog"
+        aria-labelledby="update_network_profile_label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Update Network Profile</h4>
+          </div>
+          <div class="modal-body">
+            <form role="form" action="/gamma/updateNetworkProfile" method="POST">
+              <div class="form-group">
+                <label for="uf_network_type">*Network Type</label>
+                <input type="text" class="form-control" maxlength="100" name="uf_network_type" id="uf_network_type" placeholder="varchar(100)">
+              </div>
+              <div class="form-group">
+                <label for="uf_technology">Technology</label>
+                <input type="text" class="form-control" maxlength="100" name="uf_technology" id="uf_technology" placeholder="varchar(100)">
+              </div>
+              <div class="form-group">
+                <input type="hidden" name="uf_action" id="uf_action">
+                <input type="hidden" name="uf_key_network_type" id="uf_key_network_type">
+                <button type="button" class="btn btn-primary" onclick="saveNetworkProfile(this.form);">Save</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>
+

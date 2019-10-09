@@ -1,0 +1,204 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='get-data-from-policy' mode='sync'>
+        <block atomic='true'>
+            <block atomic='true'>
+                <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                    <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                    <parameter name='contextPrefix' value='prop' />
+                    <outcome value='success'>
+                        <block atomic='true'>
+                            <record  plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                <parameter name="logger" value="message-log"/>
+                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                <parameter name="field2" value="LAINA: get-data-from-policy: read properties file."/>
+                            </record>
+                        </block>
+                    </outcome>
+                    <outcome value='failure'>
+                        <block>
+                            <record  plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                <parameter name="logger" value="message-log"/>
+                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                <parameter name="field2" value="LAINA: get-data-from-policy: Could not read properties file."/>
+                                <parameter name="field3" value='`$prop.restapi.pm.getpolicy.templatefile`'/>
+                            </record>
+                            <return status='failure'>
+                                <parameter name='error-code' value='501' />
+                                <parameter name='error-message' value='get-data-from-policy: could not read generic-resource-api properties' />
+                            </return>
+                        </block>
+                    </outcome>
+                </execute>
+                <switch test='`$get-data-from-policy-input.policy-instance-name`'>
+                    <outcome value=''>
+                        <block>
+                            <record  plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                <parameter name="logger" value="message-log"/>
+                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                <parameter name="field2" value="LAINA: get-data-from-policy: input.policy-instance-name is not set"/>
+                            </record>
+                            <return status='failure'>
+                                <parameter name='error-code' value='507' />
+                                <parameter name='error-message' value='get-data-from-policy: input.policy-instance-name is not set' />
+                            </return>
+                        </block>
+                    </outcome>
+                </switch>
+            </block>
+            <block atomic='true'>
+                <set>
+                    <parameter name='tmp.policy-name' value="`$get-data-from-policy-input.policy-instance-name`" />
+                </set>
+                <record plugin="com.att.sdnctl.sli.recording.Slf4jRecorder">
+                    <parameter name="logger" value="message-log"/>
+                    <parameter name="field1" value="__TIMESTAMP__"/>
+                    <parameter name="field2" value="LAINA: get-data-from-policy: restapi-call-node Call Policy Manager getPolicy"/>
+                </record>
+                <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                    <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.pm.getpolicy.templatefile`" />
+                    <parameter name='restapiUrl' value="`$prop.policy-manager.url + '/pdp/api/getConfig'`" />
+                    <parameter name='format' value='json' />
+                    <parameter name='httpMethod' value='POST' />
+                    <parameter name='customHttpHeaders'
+      value="`'Authorization=Basic ' + $prop.policy-manager.authorization + ',ClientAuth=Basic ' + $prop.policy-manager.clientauth + ',Environment=' + $prop.policy-manager.environment `" />
+                    <parameter name="responsePrefix" value="tmp.pm-response" />
+                    <outcome value='failure'>
+                        <block>
+                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                <parameter name="logger" value="message-log"/>
+                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                <parameter name="field2" value="LAINA: get-data-from-policy: Error calling Policy Manager getPolicy"/>
+                            </record>
+                            <return status='failure'>
+                                <parameter name='error-code' value='502' />
+                                <parameter name='error-message' value='get-data-from-policy: getPolicy call to Policy Manger failed' />
+                            </return>
+                        </block>
+                    </outcome>
+                    <outcome value='success'>
+                        <block>
+                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                <parameter name="logger" value="message-log"/>
+                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                <parameter name="field2" value="LAINA: get-data-from-policy: getPolicy SUCCESS"/>
+                                <parameter name='field3' value='`$tmp.pm-response.type`' />
+                                <parameter name='field4' value='`$tmp.pm-response.matchingConditions`' />
+                                <parameter name='field5' value='`$tmp.pm-response.config`' />
+                                <parameter name='field6' value='`$tmp.pm-response.response-code`' />
+                                <parameter name='field7' value='`$tmp.pm-response.response-message`' />
+                            </record>
+                            <set>
+                                <parameter name='policy-config' value="`$tmp.pm-response.config`" />
+                            </set>
+                            <switch test='`$tmp.pm-response.response-code`'>
+                                <outcome value='500'>
+                                    <block>
+                                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                            <parameter name="logger" value="message-log"/>
+                                            <parameter name="field1" value="__TIMESTAMP__"/>
+                                            <parameter name="field2" value="LAINA: get-data-from-policy: Error calling Policy Manager getPolicy"/>
+                                        </record>
+                                        <return status='failure'>
+                                            <parameter name='error-code' value='502' />
+                                            <parameter name='error-message' value='get-data-from-policy: getPolicy call to Policy Manger failed' />
+                                        </return>
+                                    </block>
+                                </outcome>
+                            </switch>
+                        </block>
+                    </outcome>
+                </execute>
+                <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                    <parameter name="logger" value="message-log"/>
+                    <parameter name="field1" value="__TIMESTAMP__"/>
+                    <parameter name="field2" value="LAINA: get-data-from-policy: call jsonStringToCtx"/>
+                    <parameter name='field3' value='`$policy-config`' />
+                </record>
+                <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils" method="jsonStringToCtx">
+                    <parameter name="source" value="policy-config" />
+                    <parameter name="outputPath" value="jsonContextPrefix" />
+                    <parameter name="isEscaped" value="true" />
+                    <outcome value='failure'>
+                        <block>
+                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                <parameter name="logger" value="message-log"/>
+                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                <parameter name="field2" value="LAINA: get-data-from-policy: Error calling jsonStringToCtx"/>
+                            </record>
+                            <return status='failure'>
+                                <parameter name='error-code' value='504' />
+                                <parameter name='error-message' value='get-data-from-policy: failed to parse Policy Manger getPolicy response' />
+                            </return>
+                        </block>
+                    </outcome>
+                    <outcome value='success'>
+                        <block atomic='true'>
+                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                <parameter name="logger" value="message-log"/>
+                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                <parameter name="field2" value="LAINA: get-data-from-policy: jsonStringToCtx SUCCESS: policyName|policy-data|"/>
+                                <parameter name='field3' value='`$jsonContextPrefix.policyName`' />
+                                <parameter name='field4' value='`$jsonContextPrefix.content.policy-data`' />
+                            </record>
+                            <switch test='`$jsonContextPrefix.content.policy-data_length > 0`'>
+                                <outcome value='true'>
+                                    <block atomic='true'>
+                                        <for index='policyDataIndex' start='0' end='`$jsonContextPrefix.content.policy-data_length`' >
+                                            <set>
+                                                <parameter name="`'get-data-from-policy-output[' + $policyDataIndex + ']'`." value= '`$jsonContextPrefix.content.policy-data[$policyDataIndex].`' />
+                                            </set>
+                                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                <parameter name="logger" value="message-log"/>
+                                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                                <parameter name="field2" value="LAINA: get-data-from-policy: policyDataIndex|nf-role|rule-1|rule-2:"/>
+                                                <parameter name='field3' value='`$policyDataIndex`' />
+                                                <parameter name='field4' value='`$jsonContextPrefix.content.policy-data[$policyDataIndex].nf-role`' />
+                                                <parameter name='field5' value='`$jsonContextPrefix.content.policy-data[$policyDataIndex].rule-1`' />
+                                                <parameter name='field6' value='`$jsonContextPrefix.content.policy-data[$policyDataIndex].rule-2`' />
+                                            </record>
+                                        </for>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <switch test='`$jsonContextPrefix.content.policy-data.extended-params_length > 0`'>
+                                <outcome value='true'>
+                                    <block atomic='true'>
+                                        <for index='policyDataExtendedParamsIndex' start='0' end='`$jsonContextPrefix.content.policy-data.extended-params_length`' >
+                                            <set>
+                                                <parameter name='output-param-name' value='`$jsonContextPrefix.content.policy-data.extended-params[$policyDataExtendedParamsIndex].param-name`'  />
+                                                <parameter name='output-param-value' value='`$jsonContextPrefix.content.policy-data.extended-params[$policyDataExtendedParamsIndex].param-value`'  />
+                                            </set>
+                                            <set>
+                                                <parameter name="`'get-data-from-policy-output.' + $output-param-name`" value="`$output-param-value`" />
+                                            </set>
+                                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                <parameter name="logger" value="message-log"/>
+                                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                                <parameter name="field2" value="LAINA: get-data-from-policy: policyDataExtendedParamsIndex|output-param-name|output-param-value:"/>
+                                                <parameter name='field3' value='`$policyDataExtendedParamsIndex`' />
+                                                <parameter name='field4' value='`$output-param-name`' />
+                                                <parameter name='field5' value='`$output-param-value`' />
+                                            </record>
+                                        </for>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <set>
+                                <parameter name='get-data-from-policy-output.' value='`$jsonContextPrefix.content.policy-data.`'  />
+                            </set>
+                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                <parameter name="logger" value="message-log"/>
+                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                <parameter name="field2" value="LAINA: get-data-from-policy: get-data-from-policy-output.:"/>
+                                <parameter name='field3' value='`$get-data-from-policy-output.`' />
+                            </record>
+                        </block>
+                    </outcome>
+                </execute>
+                <return status='success'></return>
+            </block>
+        </block>
+    </method>
+</service-logic>

@@ -1,0 +1,21 @@
+---
+- hosts: all
+  tasks:
+  - name: create a temporary file for additional data
+    file: 
+        path: /tmp/tmp-{{Id}}
+        state: touch
+    become: false
+
+  - name: prepare additional data
+    shell: echo {{additionalData}} > /tmp/tmp-{{Id}}
+    become: false
+
+  - name: execute pre-check operation
+    shell: ./swm/upgrade-pre-check.sh {{pnfId}} {{oldSwVersion}} {{targetSwVersion}} {{ruleName}} /tmp/tmp-{{Id}}
+
+  - name: remove the temporary file
+    file:
+        path: /tmp/tmp-{{Id}}
+        state: absent
+    become: false

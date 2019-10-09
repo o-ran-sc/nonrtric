@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>SDN-C AdminPortal</title>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/ro_header %>
+</head>
+<body class="container">
+
+<div class="actions" style="padding:0px 25px;">
+<h2>SDN-C AdminPortal Healthcheck</h2>
+</div>
+
+<% if (typeof osObj != 'undefined')
+{ %>
+	<pre>
+		Hostname     : <%= osObj.hostname %>
+		Type         : <%= osObj.type %>
+		Platform     : <%= osObj.platform %>
+		Architecture : <%= osObj.arch %>
+		Release      : <%= osObj.release %>
+		Uptime       : <%= osObj.uptime %>
+		Total Memory : <%= osObj.totalmem %>
+	
+		<%= osObj.dbhealth %>
+	</pre>
+<% } %>
+
+
+<footer>
+	 <% include ../partials/footer %>
+</footer>
+    
+</body>
+</html>
+

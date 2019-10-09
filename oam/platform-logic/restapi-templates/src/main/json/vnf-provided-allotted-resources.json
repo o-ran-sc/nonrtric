@@ -1,0 +1,10 @@
+{
+        vnf-provided-allotted-resources: 
+        {
+                "vnf-provided-ar-id": [
+                        ${repeat:vnf-ar.vnf-provided-allotted-resources.vnf-provided-ar-id_length:
+                        ${vnf-ar.vnf-provided-allotted-resources.vnf-provided-ar-id[${1}]},
+                        }
+                ]
+        }
+}

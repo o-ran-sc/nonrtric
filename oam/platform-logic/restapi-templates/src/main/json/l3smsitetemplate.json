@@ -1,0 +1,146 @@
+/*-
+ * ============LICENSE_START=======================================================
+ * ONAP : SDN-C
+ * ================================================================================
+ * Copyright (C) 2017 AT&T Intellectual Property. All rights
+ * 						reserved.
+ * ================================================================================
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ============LICENSE_END=========================================================
+ */
+
+{
+  "site":[
+  {
+  "site-id": ${prop.l3vpn.site1_name},
+  "site-name":"Site-forhuawei1",
+  "vrf-control-option": {
+    "custom-vrf": "true",
+    "vrf-definition-policy": "site-and-vpn-policy"
+  },
+  "vpn-policies": {
+    "vpn-policy": [
+      {
+        "vpn-policy-id": ${prop.l3vpn.vpn-policy1-id},
+        "vpn-policy-name": "policy-forhuawei1",
+        "entries": [
+        {
+          "id": ${prop.l3vpn.entry1-id},
+          "vpn": {
+          "vpn-id": ${prop.l3vpn.name},
+          "site-role": "huawei-ac-net-l3vpn-svc:any-to-any-role"
+          }
+        }
+        ]
+      }
+    ]
+  },
+  "site-network-accesses": {
+    "site-network-access": [
+      {
+        "site-network-access-id": ${prop.l3vpn.sna1_name},
+        "bearer": {
+          "appointed-access": {
+            "ne-id": ${prop.l3vpn.pe1_id},
+            "ltp-id": ${prop.l3vpn.ac1_id},
+            "admin-status":"admin-up",
+            "vlan": {
+              "huawei-ac-net-l3vpn-svc:type": "vlan-dot1q",
+              "vlan-id": ${prop.l3vpn.ac1_svlan},
+              "sub-if-number":"dyn-allocate"
+            }
+          }
+        },
+        "ip-connection": {
+          "ipv4": {
+            "addresses": {
+              "provider-address": ${prop.l3vpn.ac1_ip},
+              "customer-address": ${prop.l3vpn.ac1_peer_ip},
+              "mask": "30"
+            }
+          }
+        },
+        "routing-protocols": {
+          "routing-protocol": [
+            {
+              "type": ${prop.l3vpn.ac1_protocol},
+              "static": {
+                "cascaded-lan-prefixes": 
+                  {
+                    "ipv4-lan-prefixes": [
+                      {
+                        "ip-prefix": ${prop.l3vpn.sna1-route.ip-prefix},
+                        "next-hop": ${prop.l3vpn.sna1-route.next-hop},
+                        "preference":"100"
+                      }
+                    ]
+                  }
+              }
+            }
+          ]
+        },
+        "vpn-attachment": {
+          "vpn-policy-id": ${prop.l3vpn.vpn-policy1-id}
+        }
+      },
+      {
+  "site-network-access-id": ${prop.l3vpn.sna2_name},
+  "bearer": {
+    "appointed-access": {
+      "ne-id": ${prop.l3vpn.pe2_id},
+      "ltp-id": ${prop.l3vpn.ac2_id},
+      "admin-status": "admin-up",
+      "vlan": {
+        "huawei-ac-net-l3vpn-svc:type": "vlan-dot1q",
+        "vlan-id": ${prop.l3vpn.ac2_svlan},
+        "sub-if-number": "dyn-allocate"
+      }
+    }
+  },
+  "ip-connection": {
+    "ipv4": {
+      "addresses": {
+        "provider-address": ${prop.l3vpn.ac2_ip},
+        "customer-address": ${prop.l3vpn.ac2_peer_ip},
+        "mask": "30"
+      }
+    }
+  },
+  "routing-protocols": {
+    "routing-protocol": [
+      {
+        "huawei-ac-net-l3vpn-svc:type": ${prop.l3vpn.ac2_protocol},
+        "static": {
+          "cascaded-lan-prefixes": {
+            "ipv4-lan-prefixes": [
+              {
+                "ip-prefix": ${prop.l3vpn.sna2-route.ip-prefix},
+                "next-hop": ${prop.l3vpn.sna2-route.next-hop},
+                "preference": "100"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "vpn-attachment": {
+    "vpn-policy-id": ${prop.l3vpn.vpn-policy1-id}
+  }
+}
+]
+}
+  }
+ ]
+}
+

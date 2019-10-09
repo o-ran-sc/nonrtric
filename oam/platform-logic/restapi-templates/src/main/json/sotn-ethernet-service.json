@@ -1,0 +1,42 @@
+{
+    "ietf-eth-tran-service:etht-svc": {
+        "globals": {
+            "etht-svc-bandwidth-profiles": [
+                {
+                    "bandwidth-profile-name": ${prop.global.sotn.bandwidth-profile-name},
+                    "bandwidth-profile-type": "ietf-eth-tran-types:mef-10-bwp",
+                    "CIR": ${prop.global.sotn.cir},
+                    "EIR": ${prop.global.sotn.eir},
+                    "color-aware": ${prop.global.sotn.colorAware},
+                    "coupling-flag": ${prop.global.sotn.couplingFlag}
+                }
+            ]
+        },
+        "etht-svc-instances": [
+            {
+                "etht-svc-name": ${prop.global.sotn.etht-svc-name},
+                "access-provider-id": ${oof.vpn.access-provider-id},
+                "access-client-id": ${oof.vpn.access-client-id},
+                "access-topology-id": ${oof.vpn.access-topology-id},
+                "etht-svc-type": "ietf-eth-tran-types:p2p-svc",
+                "admin-status": "ietf-te-types:tunnel-state-up",
+                "etht-svc-access-ports": [
+                    {
+                        "access-port-id": "0",
+                        "access-node-id": ${oof.vpn.access-node-id},
+                        "access-ltp-id": ${oof.vpn.src-access-ltp-id},
+                        "service-classification-type": "ietf-eth-tran-types:port-classification",
+                        "ingress-egress-bandwidth-profile-name": ${prop.global.sotn.bandwidth-profile-name}
+                    },
+                    {
+                        "access-port-id": "1",
+                        "access-node-id": ${oof.vpn.access-node-id},
+                        "access-ltp-id": ${oof.vpn.dst-access-ltp-id},
+                        "service-classification-type": "ietf-eth-tran-types:port-classification",
+                        "ingress-egress-bandwidth-profile-name": ${prop.global.sotn.bandwidth-profile-name}
+                    }
+                ]
+            }
+        ]
+    }
+}

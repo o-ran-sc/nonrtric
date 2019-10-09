@@ -1,0 +1,275 @@
+<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='brg-topology-operation-deactivate' mode='sync'>
+        <block atomic="true">
+            <set>
+                <parameter name='tmp.ar.allotted-resource-id' value='`$brg-topology-operation-input.allotted-resource-information.allotted-resource-id`' />
+                <parameter name='tmp.ar.parent-service-instance-id' value='`$brg-topology-operation-input.allotted-resource-information.parent-service-instance-id`' />
+                <parameter name='tmp.ar.brg-vnf-id' value='`$brg-topology-operation-input.allotted-resource-data.brg-topology.brg-assignments.brg-vnf-id`' />
+            </set>
+            <set>
+                <parameter name='tmp.ar.self-link' value="`'restconf/config/GENERIC-RESOURCE-API:brg-allotted-resources/brg-allotted-resource/' + $tmp.ar.allotted-resource-id + '/allotted-resource-data/brg-topology/'` " />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                <parameter name='contextPrefix' value='prop' />
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$prop.restapi.brg-allottedresource`"/>
+                <parameter name="outputPath" value="tmp.ar-url"/>
+                <parameter name="target" value="{allotted-resource-id}"/>
+                <parameter name="replacement" value="`$tmp.ar.allotted-resource-id`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='GET' />
+                <parameter name="responsePrefix" value="mdsal-ar" />
+                <outcome value='success'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name='bk-brg-ar' value='$mdsal-ar.' />
+                        </set>
+                        <switch test='`$mdsal-ar.brg-allotted-resource_length`'>
+                            <outcome value='1'>
+                                <block atomic='true'>
+                                    <set>
+                                        <parameter name='brg-ar.' value='$mdsal-ar.brg-allotted-resource[0].' />
+                                    </set>
+                                    <switch test='`$brg-ar.allotted-resource-data.allotted-resource-oper-status.order-status`'>
+                                        <outcome value='Created'>
+                                            <block></block>
+                                        </outcome>
+                                        <outcome value='Other'>
+                                            <block></block>
+                                        </outcome>
+                                    </switch>
+                                    <set>
+                                        <parameter name='brg-ar.allotted-resource-data.allotted-resource-oper-status.last-action' value='`$brg-ar.allotted-resource-data.allotted-resource-operation-information.request-information.request-action`' />
+                                        <parameter name='brg-ar.allotted-resource-data.allotted-resource-oper-status.last-rpc-action' value='`$brg-ar.allotted-resource-status.rpc-action`' />
+                                        <parameter name='brg-ar.allotted-resource-data.allotted-resource-oper-status.last-svc-request-id' value='`$brg-ar.allotted-resource-data.allotted-resource-operation-information.sdnc-request-header.svc-request-id`' />
+                                    </set>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='Other'>
+                    <block atomic="true"></block>
+                </outcome>
+            </execute>
+            <set>
+                <parameter name='brg-ar.allotted-resource-id' value="`$tmp.ar.allotted-resource-id` " />
+                <parameter name='brg-ar.allotted-resource-status.action' value="`$brg-topology-operation-input.request-information.request-action` " />
+                <parameter name='brg-ar.allotted-resource-status.rpc-name' value="brg-topology-operation" />
+                <parameter name='brg-ar.allotted-resource-status.rpc-action' value="`$brg-topology-operation-input.sdnc-request-header.svc-action` " />
+                <parameter name='brg-ar.allotted-resource-data.allotted-resource-operation-information.request-information.' value="`$brg-topology-operation-input.request-information.` " />
+                <parameter name='brg-ar.allotted-resource-data.allotted-resource-operation-information.sdnc-request-header.' value="`$brg-topology-operation-input.sdnc-request-header.` " />
+                <parameter name='brg-ar.allotted-resource-data.allotted-resource-operation-information.service-information.' value="`$brg-topology-operation-input.service-information.` " />
+                <parameter name='brg-ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.' value="`$brg-topology-operation-input.allotted-resource-information.` " />
+                <parameter name='brg-ar.allotted-resource-data.allotted-resource-operation-information.brg-request-input.' value="`$brg-topology-operation-input.brg-request-input.` " />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='setTime' >
+                <parameter name="outputPath" value="tmp.current-time" />
+            </execute>
+            <set>
+                <parameter name='brg-ar.allotted-resource-data.allotted-resource-oper-status.order-status' value='PendingDelete' />
+                <parameter name='brg-ar.allotted-resource-data.allotted-resource-oper-status.last-action' value='`$brg-topology-operation-input.request-information.request-action`' />
+                <parameter name='brg-ar.allotted-resource-data.allotted-resource-oper-status.last-rpc-action' value='`$brg-topology-operation-input.sdnc-request-header.svc-action`' />
+                <parameter name='brg-ar.allotted-resource-data.allotted-resource-oper-status.last-svc-request-id' value='`$brg-topology-operation-input.sdnc-request-header.svc-request-id`' />
+                <parameter name='brg-ar.allotted-resource-data.allotted-resource-oper-status.create-timestamp' value='`$tmp.current-time`' />
+            </set>
+            <update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+                    resource="allotted-resource"
+                    key="customer.global-customer-id = $brg-topology-operation-input.service-information.global-customer-id AND service-subscription.service-type = $brg-topology-operation-input.service-information.subscription-service-type AND service-instance.service-instance-id = $brg-topology-operation-input.service-information.service-instance-id AND allotted-resource.id = $tmp.ar.allotted-resource-id"
+                    pfx='pfx' local-only='false' force='false'>
+                <parameter name="operational-status" value="out-of-service-path" />
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="AAI failed" />
+                    </return>
+                </outcome>
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="AAI failed" />
+                    </return>
+                </outcome>
+            </update>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.brg.templatefile`" />
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='PUT' />
+                <parameter name="responsePrefix" value="mdsal-ar" />
+                <outcome value='success'>
+                    <block></block>
+                </outcome>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error updating md-sal for brg-allotted-resource" />
+                    </return>
+                </outcome>
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error updating md-sal for brg-allotted-resource" />
+                    </return>
+                </outcome>
+            </execute>
+            <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='IPADDR' key="SELECT min(ip_addr) ip from DHCP_MAP where mac_addr = $brg-ar.allotted-resource-data.allotted-resource-operation-information.brg-request-input.brg-wan-mac-address" pfx="tmp.brg-wan-ip" ></get-resource>
+            <set>
+                <parameter name='brg-ar.allotted-resource-data.brg-topology.brg-assignments.vbrg-wan-ip' value='`$tmp.brg-wan-ip.ip`' />
+            </set>
+            <set>
+                <parameter name='tmp.ar.consuming-service-instance-id' value='`$allotted-resource-data.brg-topology.allotted-resource-identifiers.consuming-service-instance-id`' />
+            </set>
+            <call module='GENERIC-RESOURCE-API' rpc='get-tunnelxconn-ar' mode='sync' ></call>
+            <set>
+                <parameter name='brg-ar.allotted-resource-data.brg-topology.brg-assignments.vgmux-lan-ip' value='`$tmp.tunnelxconn-ar.allotted-resource-data.tunnelxconn-topology.tunnelxconn-assignments.vgmux-lan-ip`' />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$prop.honeycomb.url`"/>
+                <parameter name="outputPath" value="tmp.honeycomb.url"/>
+                <parameter name="target" value="{honeycomb-instance-ip}"/>
+                <parameter name="replacement" value="`$brg-ar.allotted-resource-data.brg-topology.brg-assignments.vbrg-wan-ip`"/>
+            </execute>
+            <set>
+                <parameter name='tmp.tunnel-name' value="`'vxlanTun' + $brg-ar.allotted-resource-data.allotted-resource-operation-information.brg-request-input.vgmux-lan-ip` " />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$prop.restapi.vpp-honeycomb`"/>
+                <parameter name="outputPath" value="tmp.vpp-honeycomb-url"/>
+                <parameter name="target" value="{tunnel-name}"/>
+                <parameter name="replacement" value="`$tmp.tunnel-name`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='restapiUrl' value='`$tmp.honeycomb.url + $tmp.vpp-honeycomb-url`' />
+                <parameter name='restapiUser' value='`$prop.honeycomb.user`' />
+                <parameter name='restapiPassword' value='`$prop.honeycomb.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='DELETE' />
+                <parameter name="responsePrefix" value="honeycomb-vnf" />
+                <outcome value='success'>
+                    <block></block>
+                </outcome>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error deleting vxlan tunnel" />
+                    </return>
+                </outcome>
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error deleting vxlan tunnel" />
+                    </return>
+                </outcome>
+            </execute>
+            <set>
+                <parameter name='brg-ar.allotted-resource-data.brg-topology.brg-assignments.vg-ip' value='`$tmp.tunnelxconn-ar.allotted-resource-data.tunnelxconn-topology.tunnelxconn-assignments.vg-ip`' />
+            </set>
+            <set>
+                <parameter name='brg-ar.allotted-resource-data.brg-topology.brg-assignments.vgmux-bearer-ip' value='`$tmp.tunnelxconn-ar.allotted-resource-data.tunnelxconn-topology.tunnelxconn-assignments.vgmux-bearer-ip`' />
+            </set>
+            <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.mdsal.ConfigResource' resource='GENERIC-RESOURCE-API' key='services' pfx='tmp.servicedata' >
+                <outcome value='success'>
+                    <for index='serviceidx' start='0' end='`$tmp.servicedata.services.service_length`' >
+                        <switch test='`$tmp.servicedata.services.service[$serviceidx].service-instance-id == $tmp.search.consuming-service-instance-id`'>
+                            <outcome value='true'>
+                                <for index='vnfidx' start='0' end='`$tmp.servicedata.services.service[$serviceidx].service-data.vnfs.vnf_length`' >
+                                    <for index='vfmoduleidx' start='0' end='`$tmp.servicedata.services.service[$serviceidx].service-data.vnfs.vnf[$vnfidx].vnf-data.vf-modules.vf-module_length`' >
+                                        <for index='paramidx' start='0' end='`$tmp.servicedata.services.service[$serviceidx].service-data.vnfs.vnf[$vnfidx].vnf-data.vf-modules.vf-module[$vfmoduleidx].vf-module-data.vf-module-topology.vf-module-parameters.param_length`' >
+                                            <switch test='`$tmp.servicedata.services.service[$serviceidx].service-data.vnfs.vnf[$vnfidx].vnf-data.vf-modules.vf-module[$vfmoduleidx].vf-module-data.vf-module-topology.vf-module-parameters.param[$paramidx].name == vgw_private_ip_1`'>
+                                                <outcome value='true'>
+                                                    <set>
+                                                        <parameter name='brg-ar.allotted-resource-data.brg-topology.brg-assignments.vg-mgmt-ip' value='`$tmp.servicedata.services.service[$serviceidx].service-data.vnfs.vnf[$vnfidx].vnf-data.vf-modules.vf-module[$vfmoduleidx].vf-module-data.vf-module-topology.vf-module-parameters.param[$paramidx].value`' />
+                                                    </set>
+                                                </outcome>
+                                            </switch>
+                                        </for>
+                                    </for>
+                                </for>
+                            </outcome>
+                        </switch>
+                    </for>
+                </outcome>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error getting GENERIC-RESOURCE-API:services" />
+                    </return>
+                </outcome>
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error getting GENERIC-RESOURCE-API:services" />
+                    </return>
+                </outcome>
+            </get-resource>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$prop.honeycomb.url`"/>
+                <parameter name="outputPath" value="tmp.honeycomb.url"/>
+                <parameter name="target" value="{honeycomb-instance-ip}"/>
+                <parameter name="replacement" value="`$brg-ar.allotted-resource-data.brg-topology.brg-assignments.vg-mgmt-ip`"/>
+            </execute>
+            <set>
+                <parameter name='tmp.tunnel-name' value="`'vxlanTun' + $brg-ar.allotted-resource-data.brg-topology.brg-assignments.vgmux-bearer-ip` " />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$prop.restapi.vpp-honeycomb`"/>
+                <parameter name="outputPath" value="tmp.vpp-honeycomb-url"/>
+                <parameter name="target" value="{tunnel-name}"/>
+                <parameter name="replacement" value="`$tmp.tunnel-name`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='restapiUrl' value='`$tmp.honeycomb.url + $tmp.vpp-honeycomb-url`' />
+                <parameter name='restapiUser' value='`$prop.honeycomb.user`' />
+                <parameter name='restapiPassword' value='`$prop.honeycomb.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='DELETE' />
+                <parameter name="responsePrefix" value="honeycomb-vnf" />
+                <outcome value='success'>
+                    <block></block>
+                </outcome>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error setting up vxlan tunnel" />
+                    </return>
+                </outcome>
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error setting up vxlan tunnel" />
+                    </return>
+                </outcome>
+            </execute>
+            <set>
+                <parameter name='allotted-resource-id' value='`$tmp.ar.allotted-resource-id`' />
+                <parameter name='brg-object-path' value="`$tmp.ar.self-link`"/>
+                <parameter name='service-object-path' value="`'restconf/config/GENERIC-RESOURCE-API:services/service/' + $brg-topology-operation-input.service-information.service-instance-id + '/service-data/service-topology/'`"/>
+            </set>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="`$error-message`" />
+            </return>
+        </block>
+    </method>
+</service-logic>

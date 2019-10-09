@@ -1,0 +1,654 @@
+[
+    {
+        "id": "86ab255a.7522f8",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 110.23809051513672,
+        "y": 45.23809242248535,
+        "z": "58bca720.478948",
+        "wires": [
+            [
+                "678d9d6c.30b764"
+            ]
+        ]
+    },
+    {
+        "id": "678d9d6c.30b764",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 213.14283752441406,
+        "y": 119.5238208770752,
+        "z": "58bca720.478948",
+        "wires": [
+            [
+                "b2221892.cef528"
+            ]
+        ]
+    },
+    {
+        "id": "b2221892.cef528",
+        "type": "method",
+        "name": "generate-panorama-name",
+        "xml": "<method rpc='generate-panorama-name' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 203.8215560913086,
+        "y": 205.95234966278076,
+        "z": "58bca720.478948",
+        "wires": [
+            [
+                "f0364dcb.e5f17"
+            ]
+        ]
+    },
+    {
+        "id": "3d24b231.0488de",
+        "type": "execute",
+        "name": "SliStringUtils - untrusted name length",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='getLength' >\n    <parameter name=\"source\" value=\"`$new-name`\" />\n    <parameter name=\"outputPath\" value=\"tmp.strlen\"/>\n  \n",
+        "comments": "",
+        "outputs": 1,
+        "x": 619.2857666015625,
+        "y": 451.9047336578369,
+        "z": "58bca720.478948",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "209cc858.355be8",
+        "type": "switchNode",
+        "name": "switch strlen > 14",
+        "xml": "<switch test='`$tmp.strlen > 14`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 557.6191902160645,
+        "y": 506.6667060852051,
+        "z": "58bca720.478948",
+        "wires": [
+            [
+                "5e19e3e9.a31dfc",
+                "f283f234.fff93"
+            ]
+        ]
+    },
+    {
+        "id": "5e19e3e9.a31dfc",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 748.0952911376953,
+        "y": 514.2856960296631,
+        "z": "58bca720.478948",
+        "wires": [
+            [
+                "cc102d9.0977bd"
+            ]
+        ]
+    },
+    {
+        "id": "f283f234.fff93",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 750.0000343322754,
+        "y": 567.8571586608887,
+        "z": "58bca720.478948",
+        "wires": [
+            [
+                "237a8ded.5a3e32"
+            ]
+        ]
+    },
+    {
+        "id": "f0364dcb.e5f17",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 221.6666717529297,
+        "y": 288.33328199386597,
+        "z": "58bca720.478948",
+        "wires": [
+            [
+                "3d24b231.0488de",
+                "209cc858.355be8",
+                "66cd5e7f.c924a",
+                "64e4cd4b.fe6024",
+                "41133073.515b5",
+                "675c7c6.f01b184",
+                "8effe6b3.282828",
+                "67ad6570.58f12c",
+                "a3bbbbad.a464e8",
+                "5b9cfe55.47f8e",
+                "c675a56.6ee6d58",
+                "f88531c9.a42ed",
+                "969e46d2.b374b8",
+                "94f4e81f.b72c58",
+                "1956129b.dcb17d"
+            ]
+        ]
+    },
+    {
+        "id": "64e4cd4b.fe6024",
+        "type": "execute",
+        "name": "SliStringUtils - split after .",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >\n    <parameter name=\"original_string\" value=\"`$original-name`\" />\n    <parameter name=\"regex\" value=\"\\.\"/>\n    <parameter name=\"limit\" value=\"2\" />\n    <parameter name=\"ctx_memory_result_key\" value=\"splits\" />\n  \n",
+        "comments": "",
+        "outputs": 1,
+        "x": 584.9999237060547,
+        "y": 365.0000514984131,
+        "z": "58bca720.478948",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "cc102d9.0977bd",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 919.9999771118164,
+        "y": 514.9999675750732,
+        "z": "58bca720.478948",
+        "wires": [
+            [
+                "18e960c5.ed36bf"
+            ]
+        ]
+    },
+    {
+        "id": "237a8ded.5a3e32",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 918.3332824707031,
+        "y": 569.9999866485596,
+        "z": "58bca720.478948",
+        "wires": [
+            [
+                "433f13a6.865dec"
+            ]
+        ]
+    },
+    {
+        "id": "433f13a6.865dec",
+        "type": "set",
+        "name": "set newname",
+        "xml": "<set>\n<parameter name='new-name' value='`$new-name`' />\n",
+        "comments": "",
+        "x": 1111.666893005371,
+        "y": 568.3333539962769,
+        "z": "58bca720.478948",
+        "wires": []
+    },
+    {
+        "id": "66cd5e7f.c924a",
+        "type": "set",
+        "name": "set original-name",
+        "xml": "<set>\n<parameter name='original-name' value='`$security-zone-topology-operation-input.security-zone-request-input.untrusted-network-role`' />\n",
+        "comments": "",
+        "x": 563.3332672119141,
+        "y": 328.3333225250244,
+        "z": "58bca720.478948",
+        "wires": []
+    },
+    {
+        "id": "ea3b507a.625f2",
+        "type": "set",
+        "name": "set newname",
+        "xml": "<set>\n<parameter name='new-name' value='`$splits[1]`' />\n",
+        "comments": "",
+        "x": 991.666576385498,
+        "y": 380.6666660308838,
+        "z": "58bca720.478948",
+        "wires": []
+    },
+    {
+        "id": "41133073.515b5",
+        "type": "switchNode",
+        "name": "switch splits length",
+        "xml": "<switch test='`$splits_length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 566.666633605957,
+        "y": 404.99998664855957,
+        "z": "58bca720.478948",
+        "wires": [
+            [
+                "f70ab86.5576d48",
+                "a0a0b61d.244a98",
+                "41e61d00.f9cea4"
+            ]
+        ]
+    },
+    {
+        "id": "f70ab86.5576d48",
+        "type": "outcome",
+        "name": "outcome 1",
+        "xml": "<outcome value='1'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 814.9999961853027,
+        "y": 350.0000400543213,
+        "z": "58bca720.478948",
+        "wires": [
+            [
+                "d7fc706c.8b686"
+            ]
+        ]
+    },
+    {
+        "id": "a0a0b61d.244a98",
+        "type": "outcome",
+        "name": "outcome 2",
+        "xml": "<outcome value='2'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 814.999927520752,
+        "y": 379.99999809265137,
+        "z": "58bca720.478948",
+        "wires": [
+            [
+                "ea3b507a.625f2"
+            ]
+        ]
+    },
+    {
+        "id": "d7fc706c.8b686",
+        "type": "set",
+        "name": "set newname",
+        "xml": "<set>\n<parameter name='new-name' value='`$splits[0]`' />\n",
+        "comments": "",
+        "x": 988.3331985473633,
+        "y": 345.00002574920654,
+        "z": "58bca720.478948",
+        "wires": []
+    },
+    {
+        "id": "41e61d00.f9cea4",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 801.6666374206543,
+        "y": 413.3333396911621,
+        "z": "58bca720.478948",
+        "wires": [
+            [
+                "f60e104a.d022b"
+            ]
+        ]
+    },
+    {
+        "id": "f60e104a.d022b",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value='Unexpected network role used for panorama naming' />\n",
+        "comments": "",
+        "x": 993.333324432373,
+        "y": 413.3333559036255,
+        "z": "58bca720.478948",
+        "wires": []
+    },
+    {
+        "id": "18e960c5.ed36bf",
+        "type": "execute",
+        "name": "SliStringUtils - 14 len substring",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='substring' >\n    <parameter name=\"string\" value=\"`$new-name`\" />\n    <parameter name=\"result\" value=\"new-name\"/>\n    <parameter name=\"begin-index\" value=\"0\" />\n    <parameter name=\"end-index\" value=\"14\" />\n  \n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1168.3332061767578,
+        "y": 503.33331966400146,
+        "z": "58bca720.478948",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f88531c9.a42ed",
+        "type": "execute",
+        "name": "SliStringUtils - untrusted name length",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='getLength' >\n    <parameter name=\"source\" value=\"`$new-name`\" />\n    <parameter name=\"outputPath\" value=\"tmp.strlen\"/>\n  \n",
+        "comments": "",
+        "outputs": 1,
+        "x": 618.3332824707031,
+        "y": 799.9999866485596,
+        "z": "58bca720.478948",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "969e46d2.b374b8",
+        "type": "switchNode",
+        "name": "switch strlen > 14",
+        "xml": "<switch test='`$tmp.strlen > 14`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 556.6667060852051,
+        "y": 854.7619590759277,
+        "z": "58bca720.478948",
+        "wires": [
+            [
+                "2eb1e963.8f58a6",
+                "af892ecf.e3fc8"
+            ]
+        ]
+    },
+    {
+        "id": "2eb1e963.8f58a6",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 747.1428070068359,
+        "y": 862.3809490203857,
+        "z": "58bca720.478948",
+        "wires": [
+            [
+                "22bdc134.447f8e"
+            ]
+        ]
+    },
+    {
+        "id": "af892ecf.e3fc8",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 749.047550201416,
+        "y": 915.9524116516113,
+        "z": "58bca720.478948",
+        "wires": [
+            [
+                "b9e7b020.1beb"
+            ]
+        ]
+    },
+    {
+        "id": "5b9cfe55.47f8e",
+        "type": "execute",
+        "name": "SliStringUtils - split after .",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >\n    <parameter name=\"original_string\" value=\"`$original-name`\" />\n    <parameter name=\"regex\" value=\"\\.\"/>\n    <parameter name=\"limit\" value=\"2\" />\n    <parameter name=\"ctx_memory_result_key\" value=\"splits\" />\n  \n",
+        "comments": "",
+        "outputs": 1,
+        "x": 584.0474395751953,
+        "y": 713.0953044891357,
+        "z": "58bca720.478948",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "22bdc134.447f8e",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 919.047492980957,
+        "y": 863.0952205657959,
+        "z": "58bca720.478948",
+        "wires": [
+            [
+                "4f716d08.83a7d4"
+            ]
+        ]
+    },
+    {
+        "id": "b9e7b020.1beb",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 917.3807983398438,
+        "y": 918.0952396392822,
+        "z": "58bca720.478948",
+        "wires": [
+            [
+                "b4fb00b0.5d6e"
+            ]
+        ]
+    },
+    {
+        "id": "b4fb00b0.5d6e",
+        "type": "set",
+        "name": "set newname",
+        "xml": "<set>\n<parameter name='new-name' value='`$new-name`' />\n",
+        "comments": "",
+        "x": 1110.7144088745117,
+        "y": 916.4286069869995,
+        "z": "58bca720.478948",
+        "wires": []
+    },
+    {
+        "id": "a3bbbbad.a464e8",
+        "type": "set",
+        "name": "set original-name",
+        "xml": "<set>\n<parameter name='original-name' value='`$security-zone-topology-operation-input.security-zone-request-input.trusted-network-role`' />\n",
+        "comments": "",
+        "x": 562.3807830810547,
+        "y": 676.4285755157471,
+        "z": "58bca720.478948",
+        "wires": []
+    },
+    {
+        "id": "a908f194.577e2",
+        "type": "set",
+        "name": "set newname",
+        "xml": "<set>\n<parameter name='new-name' value='`$splits[1]`' />\n",
+        "comments": "",
+        "x": 990.7140922546387,
+        "y": 728.7619190216064,
+        "z": "58bca720.478948",
+        "wires": []
+    },
+    {
+        "id": "c675a56.6ee6d58",
+        "type": "switchNode",
+        "name": "switch splits length",
+        "xml": "<switch test='`$splits_length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 565.7141494750977,
+        "y": 753.0952396392822,
+        "z": "58bca720.478948",
+        "wires": [
+            [
+                "db39b4ca.681638",
+                "b28e57b5.d7f178",
+                "97c9e8ea.f63768"
+            ]
+        ]
+    },
+    {
+        "id": "db39b4ca.681638",
+        "type": "outcome",
+        "name": "outcome 1",
+        "xml": "<outcome value='1'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 814.0475120544434,
+        "y": 698.095293045044,
+        "z": "58bca720.478948",
+        "wires": [
+            [
+                "c17629d6.f61e28"
+            ]
+        ]
+    },
+    {
+        "id": "b28e57b5.d7f178",
+        "type": "outcome",
+        "name": "outcome 2",
+        "xml": "<outcome value='2'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 814.0474433898926,
+        "y": 728.095251083374,
+        "z": "58bca720.478948",
+        "wires": [
+            [
+                "a908f194.577e2"
+            ]
+        ]
+    },
+    {
+        "id": "c17629d6.f61e28",
+        "type": "set",
+        "name": "set newname",
+        "xml": "<set>\n<parameter name='new-name' value='`$splits[0]`' />\n",
+        "comments": "",
+        "x": 987.3807563781738,
+        "y": 693.0952663421631,
+        "z": "58bca720.478948",
+        "wires": []
+    },
+    {
+        "id": "97c9e8ea.f63768",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 800.7141532897949,
+        "y": 761.4285926818848,
+        "z": "58bca720.478948",
+        "wires": [
+            [
+                "6cb0731e.f3e13c"
+            ]
+        ]
+    },
+    {
+        "id": "6cb0731e.f3e13c",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value='Unexpected network role used for panorama naming' />\n",
+        "comments": "",
+        "x": 992.3808403015137,
+        "y": 761.4286088943481,
+        "z": "58bca720.478948",
+        "wires": []
+    },
+    {
+        "id": "4f716d08.83a7d4",
+        "type": "execute",
+        "name": "SliStringUtils - 14 len substring",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='substring' >\n    <parameter name=\"string\" value=\"`$new-name`\" />\n    <parameter name=\"result\" value=\"new-name\"/>\n    <parameter name=\"begin-index\" value=\"0\" />\n    <parameter name=\"end-index\" value=\"14\" />\n  \n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1167.3807220458984,
+        "y": 851.4285726547241,
+        "z": "58bca720.478948",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "675c7c6.f01b184",
+        "type": "set",
+        "name": "set trust and untrust sz name",
+        "xml": "<set>\n<parameter name='tmp.trust-sz' value='$TenantOAMNetworkRole_$LandingNetworkRole_T' />\n<parameter name='tmp.untrust-sz' value='$TenantOAMNetworkRole_$LandingNetworkRole_U' />\n",
+        "comments": "",
+        "x": 599.9999084472656,
+        "y": 289.999960899353,
+        "z": "58bca720.478948",
+        "wires": []
+    },
+    {
+        "id": "8effe6b3.282828",
+        "type": "execute",
+        "name": "execute SliStringUtils - replace TenantOAMNetworkRole - trust-sz",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$tmp.trust-sz`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.trust-sz\"/>\n    <parameter name=\"target\" value=\"$TenantOAMNetworkRole\"/>\n    <parameter name=\"replacement\" value=\"`$new-name`\"/>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 706.9049072265625,
+        "y": 611.1904067993164,
+        "z": "58bca720.478948",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "94f4e81f.b72c58",
+        "type": "execute",
+        "name": "execute SliStringUtils - replace LandingNetworkRole - trust-sz",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$tmp.trust-sz`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.trust-sz\"/>\n    <parameter name=\"target\" value=\"$LandingNetworkRole\"/>\n    <parameter name=\"replacement\" value=\"`$new-name`\"/>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 692.5240325927734,
+        "y": 985.7141342163086,
+        "z": "58bca720.478948",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1956129b.dcb17d",
+        "type": "execute",
+        "name": "execute SliStringUtils - replace LandingNetworkRole untrust-sz",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$tmp.untrust-sz`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.untrust-sz\"/>\n    <parameter name=\"target\" value=\"$LandingNetworkRole\"/>\n    <parameter name=\"replacement\" value=\"`$new-name`\"/>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 690.6665954589844,
+        "y": 1018.8092594146729,
+        "z": "58bca720.478948",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "67ad6570.58f12c",
+        "type": "execute",
+        "name": "execute SliStringUtils - replace TenantOAMNetworkRole - untrust-sz",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$tmp.untrust-sz`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.untrust-sz\"/>\n    <parameter name=\"target\" value=\"$TenantOAMNetworkRole\"/>\n    <parameter name=\"replacement\" value=\"`$new-name`\"/>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 711.6665954589844,
+        "y": 643.3332996368408,
+        "z": "58bca720.478948",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e32a37ab.31d3f8",
+        "type": "outcome",
+        "name": "outcome 1",
+        "xml": "<outcome value='1'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 814.9999084472656,
+        "y": 316.66665840148926,
+        "z": "58bca720.478948",
+        "wires": [
+            []
+        ]
+    }
+]

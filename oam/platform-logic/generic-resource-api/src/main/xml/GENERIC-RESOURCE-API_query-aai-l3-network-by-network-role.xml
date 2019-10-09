@@ -1,0 +1,199 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='query-aai-l3-network-by-network-role' mode='sync'>
+        <block atomic='true'>
+            <switch test='`$query-aai-l3-network-by-network-role-input.aic-cloud-region`'>
+                <outcome value=''>
+                    <return status="failure">
+                        <parameter name="ack-final" value="Y" />
+                        <parameter name="error-code" value="500"/>
+                        <parameter name="error-message" value="query-aai-l3-network-by-network-role-input.aic-cloud-region is null" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$query-aai-l3-network-by-network-role-input.service-instance-id`'>
+                <outcome value=''>
+                    <return status="failure">
+                        <parameter name="ack-final" value="Y" />
+                        <parameter name="error-code" value="500"/>
+                        <parameter name="error-message" value="query-aai-l3-network-by-network-role-input.service-instance-id is null" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$query-aai-l3-network-by-network-role-input.network-role`'>
+                <outcome value=''>
+                    <return status="failure">
+                        <parameter name="ack-final" value="Y" />
+                        <parameter name="error-code" value="500"/>
+                        <parameter name="error-message" value="query-aai-l3-network-by-network-role-input.network-role is null" />
+                    </return>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='query-aai-l3-network-by-network-role-output.' value='' />
+            </set>
+            <set>
+                <parameter name='tmp.aai.l3-networks.' value='' />
+            </set>
+            <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-networks" 
+		key="l3-network.network-role = $query-aai-l3-network-by-network-role-input.network-role" 
+	pfx='tmp.aai.l3-networks' >
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`'No active l3-network found in AAI with cloud_region_id '
+          + $vnf-topology-operation-input.vnf-request-information.aic-cloud-region + ' and network_role '
+          + $query-aai-l3-network-by-network-role-input.network-role`" />
+                    </return>
+                </outcome>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`'Error retrieving l3-network from AAI with network-role = ' + $query-aai-l3-network-by-network-role-input.network-role`" />
+                    </return>
+                </outcome>
+            </get-resource>
+            <switch test='`$tmp.aai.l3-networks.l3-network_length`'>
+                <outcome value='1'>
+                    <set>
+                        <parameter name='query-aai-l3-network-by-network-role-output.l3-network.' 
+	value='`$tmp.aai.l3-networks.l3-network[0].`' />
+                        <!--
+<parameter name='query-aai-l3-network-by-network-role-output.network-id' 
+	value='`$tmp.aai.l3-networks.l3-network[0].network-id`' /><parameter name='query-aai-l3-network-by-network-role-output.network-name' 
+	value='`$tmp.aai.l3-networks.l3-network[0].network-name`' />
+-->
+                    </set>
+                </outcome>
+                <outcome value='Other'>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name='tmp.l3-network-found' value='0' />
+                        </set>
+                        <set>
+                            <parameter name='cloud.matched.l3-networks_length' value='0' />
+                        </set>
+                        <for index='network-index' start='0' end='`$tmp.aai.l3-networks.l3-network_length`' >
+                            <block>
+                                <switch test='`$tmp.aai.l3-networks.l3-network[$network-index].relationship-list.relationship_length`'>
+                                    <outcome value=''>
+                                        <set>
+                                            <parameter name ='tmp.aai.l3-networks.l3-network[$network-index].relationship-list.relationship_length' value = '0' />
+                                        </set>
+                                    </outcome>
+                                </switch>
+                                <for index='ridx' start='0' end='`$tmp.aai.l3-networks.l3-network[$network-index].relationship-list.relationship_length`' >
+                                    <switch test='`$tmp.aai.l3-networks.l3-network[$network-index].relationship-list.relationship[$ridx].related-to`'>
+                                        <outcome value='cloud-region'>
+                                            <for silentFailure='false' index='rdidx' start='0' end="`$tmp.aai.l3-networks.l3-network[$network-index].relationship-list.relationship[$ridx].relationship-data_length`" >
+                                                <switch test='`$tmp.aai.l3-networks.l3-network[$network-index].relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-key`'>
+                                                    <outcome value='cloud-region.cloud-region-id'>
+                                                        <switch test='`$tmp.aai.l3-networks.l3-network[$network-index].relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-value == $query-aai-l3-network-by-network-role-input.aic-cloud-region`'>
+                                                            <outcome value='true'>
+                                                                <block>
+                                                                    <set>
+                                                                        <parameter name='cloud.matched.l3-networks[$cloud.matched.l3-networks_length].' 
+	value='$tmp.aai.l3-networks.l3-network[$network-index].' />
+                                                                    </set>
+                                                                    <set>
+                                                                        <parameter name='cloud.matched.l3-networks_length' value='`$cloud.matched.l3-networks_length + 1`' />
+                                                                    </set>
+                                                                </block>
+                                                            </outcome>
+                                                        </switch>
+                                                    </outcome>
+                                                </switch>
+                                            </for>
+                                        </outcome>
+                                    </switch>
+                                </for>
+                            </block>
+                        </for>
+                        <switch test='`$cloud.matched.l3-networks_length`'>
+                            <outcome value='0'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="`'No l3-network with network-role=' + $query-aai-l3-network-by-network-role-input.network-role + ' and cloud-region=' + $query-aai-l3-network-by-network-role-input.aic-cloud-region + ' found in AAI'`" />
+                                </return>
+                            </outcome>
+                            <outcome value='1'>
+                                <set>
+                                    <parameter name='query-aai-l3-network-by-network-role-output.l3-network.' 
+	value='`$cloud.matched.l3-networks[0].`' />
+                                    <!--		
+	<parameter name='query-aai-l3-network-by-network-role-output.network-id' 
+		value='`$cloud.matched.l3-networks[0].network-id`' /><parameter name='query-aai-l3-network-by-network-role-output.network-name' 
+		value='`$cloud.matched.l3-networks[0].network-name`' />
+-->
+                                </set>
+                            </outcome>
+                            <outcome value='Other'>
+                                <block atomic='true'>
+                                    <block>
+                                        <for index='cidx' start='0' end='`$cloud.matched.l3-networks_length`' >
+                                            <block>
+                                                <switch test='`$tmp.aai.l3-networks.l3-network[$network-index].relationship-list.relationship_length`'>
+                                                    <outcome value=''>
+                                                        <set>
+                                                            <parameter name ='tmp.aai.l3-networks.l3-network[$network-index].relationship-list.relationship_length' value = '0' />
+                                                        </set>
+                                                    </outcome>
+                                                </switch>
+                                                <for index='ridx' start='0' end='`$cloud.matched.l3-networks[$cidx].relationship-list.relationship_length`' >
+                                                    <switch test='`$cloud.matched.l3-networks[$cidx].relationship-list.relationship[$ridx].related-to`'>
+                                                        <outcome value='service-instance'>
+                                                            <for silentFailure='false' index='rdidx' start='0' end="`$cloud.matched.l3-networks[$cidx].relationship-list.relationship[$ridx].relationship-data_length`" >
+                                                                <switch test='`$cloud.matched.l3-networks[$cidx].relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-key`'>
+                                                                    <outcome value='service-instance.service-instance-id'>
+                                                                        <switch test='`$cloud.matched.l3-networks[$cidx].relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-value == $query-aai-l3-network-by-network-role-input.service-instance-id`'>
+                                                                            <outcome value='true'>
+                                                                                <block atomic='true'>
+                                                                                    <set>
+                                                                                        <parameter name='query-aai-l3-network-by-network-role-output.l3-network.' 
+	value='`$cloud.matched.l3-networks[$cidx].`' />
+                                                                                        <!--
+<parameter name='query-aai-l3-network-by-network-role-output.network-id' 
+	value='`$cloud.matched.l3-networks[$cidx].network-id`' /><parameter name='query-aai-l3-network-by-network-role-output.network-name' 
+	value='`$cloud.matched.l3-networks[$cidx].network-name`' />
+-->
+                                                                                    </set>
+                                                                                    <set>
+                                                                                        <parameter name='tmp.l3-network-found' value='1' />
+                                                                                    </set>
+                                                                                    <return status='failure'></return>
+                                                                                </block>
+                                                                            </outcome>
+                                                                        </switch>
+                                                                    </outcome>
+                                                                </switch>
+                                                            </for>
+                                                        </outcome>
+                                                    </switch>
+                                                </for>
+                                            </block>
+                                        </for>
+                                        <return status='success'></return>
+                                    </block>
+                                    <switch test='`$tmp.l3-network-found`'>
+                                        <outcome value='0'>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="`'No l3-network with network-role=' + $query-aai-l3-network-by-network-role-input.network-role + ' and cloud-region=' + $query-aai-l3-network-by-network-role-input.aic-cloud-region + ' and service-instance-id=' + $query-aai-l3-network-by-network-role-input.service-instance-id + ' found in AAI'`" />
+                                            </return>
+                                        </outcome>
+                                    </switch>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+            </switch>
+        </block>
+    </method>
+</service-logic>

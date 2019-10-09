@@ -1,0 +1,313 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='vf-module-topology-vlan-tagging-activate' mode='sync'>
+        <block atomic="true">
+            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+      resource="custom-query"
+      key="format = 'resource&amp;nodesOnly=true'"
+      force="true"
+      local-only="false"
+      pfx="tmp.aai.vnf">
+                <parameter name="start[0]" value="`'/network/generic-vnfs/generic-vnf/' + $vf-module-topology-operation-input.vnf-information.vnf-id `" />
+                <parameter name="start_length" value="1" />
+                <parameter name="query" value="query/cloud-region-fromVnf" />
+                <outcome value='failure'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name="error-message" value="Failed call to AAI custom query: cloud-region-fromVnf" />
+                        </set>
+                    </block>
+                </outcome>
+                <outcome value='not-found'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name="error-message" value="No cloud region returned from AAI: cloud-region-fromVnf" />
+                        </set>
+                    </block>
+                </outcome>
+            </save>
+            <for index='result-idx' start='0' end='`$tmp.aai.vnf.results_length`' >
+                <block atomic="true">
+                    <switch test='`$tmp.aai.vnf.results[$result-idx].cloud-region.cloud-region-id`'>
+                        <outcome value=''>
+                            <block></block>
+                        </outcome>
+                        <outcome value='Other'>
+                            <set>
+                                <parameter name='tmp.cloud-region-id' value='`$tmp.aai.vnf.results[$result-idx].cloud-region.cloud-region-id`' />
+                            </set>
+                        </outcome>
+                    </switch>
+                </block>
+            </for>
+            <set>
+                <parameter name='tmp.vlan-vnfc-instance-groups.'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.`' />
+            </set>
+            <for index='vvig-index' start='0' end='`$tmp.vlan-vnfc-instance-groups.vlan-vnfc-instance-group_length`' >
+                <switch test='`$tmp.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc_length`'>
+                    <outcome value=''>
+                        <block></block>
+                    </outcome>
+                    <outcome value='0'>
+                        <block></block>
+                    </outcome>
+                    <outcome value='Other'>
+                        <block atomic="true">
+                            <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group_length`'>
+                                <outcome value=''>
+                                    <set>
+                                        <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group_length'
+  value='0' />
+                                    </set>
+                                </outcome>
+                            </switch>
+                            <set>
+                                <parameter name='parent-port-role'
+  value='`$tmp.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[0].vnic-groups.vnic-group[0].vnic-interface-role`' />
+                                <parameter name='vnfc-instance-group-function'
+  value='`$tmp.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].instance-group-function`' />
+                                <parameter name='network-instance-group-function'
+  value='`$tmp.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[0].vnic-groups.vnic-group[0].network-instance-group-function`' />
+                            </set>
+                            <set>
+                                <parameter name='vsig-index' value='-1' />
+                            </set>
+                            <for index='idx' start='0' end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group_length`' >
+                                <switch test='`
+  $parent-port-role == $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$idx].parent-port-role
+  and $vnfc-instance-group-function == $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$idx].vnfc-instance-group-function
+  and $network-instance-group-function == $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$idx].network-instance-group-function
+`'>
+                                    <outcome value='true'>
+                                        <block>
+                                            <set>
+                                                <parameter name='vsig-index' value='`$idx`' />
+                                            </set>
+                                            <break/>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                            </for>
+                            <switch test='`$vsig-index`'>
+                                <outcome value='-1'>
+                                    <block>
+                                        <set>
+                                            <parameter name='vsig-index'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group_length`' />
+                                        </set>
+                                        <set>
+                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].parent-port-role'
+  value='`$parent-port-role`' />
+                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].vnfc-instance-group-function'
+  value='`$vnfc-instance-group-function`' />
+                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].network-instance-group-function'
+  value='`$network-instance-group-function`' />
+                                        </set>
+                                        <set>
+                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group_length'
+  value='`$vsig-index + 1`' />
+                                        </set>
+                                    </block>
+                                </outcome>
+                            </switch>
+                            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+      resource="custom-query"
+      key="format = 'resource'"
+      force="true"
+      local-only="false"
+      pfx="tmp.aai.network">
+                                <parameter name="start[0]" value="`'/cloud-infrastructure/cloud-regions/cloud-region/' + $prop.cloud-region.cloud-owner + '/' + $tmp.cloud-region-id`" />
+                                <parameter name="start_length" value="1" />
+                                <parameter name="query" value="`'/query/network-name-fromNetwork-role?networkRole='  + $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].parent-port-role`" />
+                                <outcome value='failure'>
+                                    <return status='failure'>
+                                        <parameter name='error-code' value='500' />
+                                        <parameter name='error-message' value="`'Failed to get network data for network role '
+  + $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].parent-port-role`" />
+                                    </return>
+                                </outcome>
+                                <outcome value='not-found'>
+                                    <return status='failure'>
+                                        <parameter name='error-code' value='500' />
+                                        <parameter name='error-message' value="`'Failed to get network data for network role '
+  + $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].parent-port-role`" />
+                                    </return>
+                                </outcome>
+                            </save>
+                            <set>
+                                <parameter name='network-name' value='`$tmp.aai.network.results[0].l3-network.network-name`' />
+                            </set>
+                            <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].vnfcs.vnfc_length`'>
+                                <outcome value=''>
+                                    <set>
+                                        <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].vnfcs.vnfc_length'
+  value='0' />
+                                    </set>
+                                </outcome>
+                            </switch>
+                            <set>
+                                <parameter name='dest-vnfc-index'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].vnfcs.vnfc_length`' />
+                            </set>
+                            <for index='src-vnfc-index' start='0'
+  end='`$tmp.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc_length`' >
+                                <block atomic="true">
+                                    <set>
+                                        <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].vnfcs.vnfc[$dest-vnfc-index].vnfc-name'
+  value='`$tmp.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$src-vnfc-index].vnfc-name`' />
+                                    </set>
+                                    <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+      resource="custom-query"
+      key="format = 'resource'"
+      force="true"
+      local-only="false"
+      pfx="tmp.aai.interfaces">
+                                        <parameter name="start[0]" value="`'/network/vnfcs/vnfc/' + $tmp.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$src-vnfc-index].vnfc-name`" />
+                                        <parameter name="start_length" value="1" />
+                                        <parameter name="query" value="`'/query/vserver-l-interfaces-fromVnfc?networkName=' + $network-name`" />
+                                        <outcome value='failure'>
+                                            <return status='failure'>
+                                                <parameter name='error-code' value='500' />
+                                                <parameter name='error-message' value="`'Failed to get interface data for network name '
+  + $network-name
+  + ' and vnfc '
+  + $tmp.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$src-vnfc-index].vnfc-name`" />
+                                            </return>
+                                        </outcome>
+                                        <outcome value='not-found'>
+                                            <block></block>
+                                        </outcome>
+                                        <outcome value='success'>
+                                            <block>
+                                                <for silentFailure='true' index='idx1' start='0' end='`$tmp.aai.interfaces.results_length`' >
+                                                    <switch test='`$tmp.aai.interfaces.results[$idx1].vserver.vserver-id`'>
+                                                        <outcome value=''>
+                                                            <block></block>
+                                                        </outcome>
+                                                        <outcome value='Other'>
+                                                            <block>
+                                                                <set>
+                                                                    <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].vnfcs.vnfc[$dest-vnfc-index].vserver-id'
+  value='`$tmp.aai.interfaces.results[$idx1].vserver.vserver-id`' />
+                                                                    <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].vnfcs.vnfc[$dest-vnfc-index].vserver-name'
+  value='`$tmp.aai.interfaces.results[$idx1].vserver.vserver-name`' />
+                                                                </set>
+                                                                <set>
+                                                                    <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].vnfcs.vnfc[$dest-vnfc-index].vnics.vnic_length'
+  value='`$tmp.aai.interfaces.results[$idx1].vserver.l-interfaces.l-interface_length`' />
+                                                                </set>
+                                                                <for silentFailure='true' index='int-index' start='0'
+  end='`$tmp.aai.interfaces.results[$idx1].vserver.l-interfaces.l-interface_length`' >
+                                                                    <block>
+                                                                        <set>
+                                                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].vnfcs.vnfc[$dest-vnfc-index].vnics.vnic[$int-index].vnic-port-id'
+  value='`$tmp.aai.interfaces.results[$idx1].vserver.l-interfaces.l-interface[$int-index].interface-id`' />
+                                                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].vnfcs.vnfc[$dest-vnfc-index].vnics.vnic[$int-index].vnic-port-name'
+  value='`$tmp.aai.interfaces.results[$idx1].vserver.l-interfaces.l-interface[$int-index].interface-name`' />
+                                                                        </set>
+                                                                        <for silentFailure='true' index='idx2' start='0' end='`$tmp.aai.interfaces.results_length`' >
+                                                                            <switch test='`$tmp.aai.interfaces.results[$idx2].l-interface.interface-id
+  == $tmp.aai.interfaces.results[$idx1].vserver.l-interfaces.l-interface[$int-index].interface-id`'>
+                                                                                <outcome value='true'>
+                                                                                    <block>
+                                                                                        <switch test='`$tmp.aai.interfaces.results[$idx2].l-interface.l-interfaces.l-interface_length`'>
+                                                                                            <outcome value=''>
+                                                                                                <block></block>
+                                                                                            </outcome>
+                                                                                            <outcome value='Other'>
+                                                                                                <set>
+                                                                                                    <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].vnfcs.vnfc[$dest-vnfc-index].vnics.vnic[$int-index].sub-interfaces.sub-interface_length'
+  value='`$tmp.aai.interfaces.results[$idx2].l-interface.l-interfaces.l-interface_length`' />
+                                                                                                </set>
+                                                                                            </outcome>
+                                                                                        </switch>
+                                                                                        <for silentFailure='true' index='sub-int-index' start='0'
+  end='`$tmp.aai.interfaces.results[$idx2].l-interface.l-interfaces.l-interface_length`' >
+                                                                                            <block>
+                                                                                                <set>
+                                                                                                    <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].vnfcs.vnfc[$dest-vnfc-index].vnics.vnic[$int-index].sub-interfaces.sub-interface[$sub-int-index].sub-interface-port-id'
+  value='`$tmp.aai.interfaces.results[$idx2].l-interface.l-interfaces.l-interface[$sub-int-index].interface-id`' />
+                                                                                                    <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].vnfcs.vnfc[$dest-vnfc-index].vnics.vnic[$int-index].sub-interfaces.sub-interface[$sub-int-index].sub-interface-port-name'
+  value='`$tmp.aai.interfaces.results[$idx2].l-interface.l-interfaces.l-interface[$sub-int-index].interface-name`' />
+                                                                                                </set>
+                                                                                                <for silentFailure='true' index='idx3' start='0' end='`$tmp.aai.interfaces.results_length`' >
+                                                                                                    <switch test='`$tmp.aai.interfaces.results[$idx3].l-interface.interface-id
+  == $tmp.aai.interfaces.results[$idx2].l-interface.l-interfaces.l-interface[$sub-int-index].interface-id`'>
+                                                                                                        <outcome value='true'>
+                                                                                                            <switch test='`$tmp.aai.interfaces.results[$idx3].l-interface.vlans.vlan[0].vlan-interface`'>
+                                                                                                                <outcome value=''>
+                                                                                                                    <block></block>
+                                                                                                                </outcome>
+                                                                                                                <outcome value='Other'>
+                                                                                                                    <for silentFailure='true' index='idx4' start='0' end='`$tmp.aai.interfaces.results_length`' >
+                                                                                                                        <switch test='`$tmp.aai.interfaces.results[$idx4].vlan.vlan-interface
+  == $tmp.aai.interfaces.results[$idx3].l-interface.vlans.vlan[0].vlan-interface`'>
+                                                                                                                            <outcome value='true'>
+                                                                                                                                <block>
+                                                                                                                                    <switch test='`$tmp.aai.interfaces.results[$idx4].vlan.vlan-id-outer`'>
+                                                                                                                                        <outcome value=''>
+                                                                                                                                            <block></block>
+                                                                                                                                        </outcome>
+                                                                                                                                        <outcome value='Other'>
+                                                                                                                                            <set>
+                                                                                                                                                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].vnfcs.vnfc[$dest-vnfc-index].vnics.vnic[$int-index].sub-interfaces.sub-interface[$sub-int-index].vlan-tags.upper-tag-id'
+  value='`$tmp.aai.interfaces.results[$idx4].vlan.vlan-id-outer`' />
+                                                                                                                                            </set>
+                                                                                                                                        </outcome>
+                                                                                                                                    </switch>
+                                                                                                                                    <switch test='`$tmp.aai.interfaces.results[$idx4].vlan.vlan-id-inner`'>
+                                                                                                                                        <outcome value=''>
+                                                                                                                                            <block></block>
+                                                                                                                                        </outcome>
+                                                                                                                                        <outcome value='Other'>
+                                                                                                                                            <set>
+                                                                                                                                                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].vnfcs.vnfc[$dest-vnfc-index].vnics.vnic[$int-index].sub-interfaces.sub-interface[$sub-int-index].vlan-tags.lower-tag-id'
+  value='`$tmp.aai.interfaces.results[$idx4].vlan.vlan-id-inner`' />
+                                                                                                                                            </set>
+                                                                                                                                        </outcome>
+                                                                                                                                    </switch>
+                                                                                                                                </block>
+                                                                                                                            </outcome>
+                                                                                                                        </switch>
+                                                                                                                    </for>
+                                                                                                                </outcome>
+                                                                                                            </switch>
+                                                                                                        </outcome>
+                                                                                                    </switch>
+                                                                                                </for>
+                                                                                            </block>
+                                                                                        </for>
+                                                                                    </block>
+                                                                                </outcome>
+                                                                            </switch>
+                                                                        </for>
+                                                                    </block>
+                                                                </for>
+                                                            </block>
+                                                        </outcome>
+                                                    </switch>
+                                                </for>
+                                                <set>
+                                                    <parameter name='dest-vnfc-index' value='`$dest-vnfc-index + 1`' />
+                                                </set>
+                                            </block>
+                                        </outcome>
+                                    </save>
+                                </block>
+                            </for>
+                            <set>
+                                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].vnfcs.vnfc_length'
+  value='`$dest-vnfc-index`' />
+                            </set>
+                        </block>
+                    </outcome>
+                </switch>
+            </for>
+            <return status='success'>
+                <parameter name='' value='' />
+            </return>
+        </block>
+    </method>
+</service-logic>

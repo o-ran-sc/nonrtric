@@ -1,0 +1,1007 @@
+[
+    {
+        "id": "acf1df7b.c0642",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 136.25,
+        "y": 92.5,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "d107ddee.41386"
+            ]
+        ]
+    },
+    {
+        "id": "d107ddee.41386",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 249.86902618408203,
+        "y": 132.7381134033203,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "7daffa47.44d444"
+            ]
+        ]
+    },
+    {
+        "id": "7daffa47.44d444",
+        "type": "method",
+        "name": "method port-mirror-topology-operation-deactivate-async",
+        "xml": "<method rpc='port-mirror-topology-operation-deactivate-async' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 277.53578186035156,
+        "y": 173.92856788635254,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "da29a24f.7f3f2"
+            ]
+        ]
+    },
+    {
+        "id": "d6997faa.63095",
+        "type": "comment",
+        "name": "port-mirror-topology-operation-deactivate-async",
+        "info": "",
+        "comments": "",
+        "x": 530.594856262207,
+        "y": 40.08634376525879,
+        "z": "e45b58ea.d3c7a8",
+        "wires": []
+    },
+    {
+        "id": "9ef6714.8e61a9",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name='error-code' value='200' />\n",
+        "comments": "",
+        "x": 480.4882011413574,
+        "y": 1612.8809957504272,
+        "z": "e45b58ea.d3c7a8",
+        "wires": []
+    },
+    {
+        "id": "da29a24f.7f3f2",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 183.86904907226562,
+        "y": 871.5475997924805,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "9ef6714.8e61a9",
+                "ae8a46bd.17c5a8",
+                "ed8e386e.d66588",
+                "33edf927.ccd256",
+                "88b52684.3c1198",
+                "b602cd37.9d966",
+                "51ec1a7c.c67334",
+                "e2a5b4bd.e39bb8",
+                "54a5dead.83a5",
+                "c553e730.5e7f68",
+                "423946eb.24ca18",
+                "914f3421.b83cc8",
+                "3cc26a33.d0cde6",
+                "5b4713f1.7dfb5c"
+            ]
+        ]
+    },
+    {
+        "id": "23544362.1928ac",
+        "type": "comment",
+        "name": "rpc-port-mirror-1090",
+        "info": "",
+        "comments": "",
+        "x": 483.86902618408203,
+        "y": 642.9761972427368,
+        "z": "e45b58ea.d3c7a8",
+        "wires": []
+    },
+    {
+        "id": "2d55bfb8.84d25",
+        "type": "comment",
+        "name": "step 3 - for each source port:",
+        "info": "",
+        "comments": "",
+        "x": 545.8690490722656,
+        "y": 684.1189880371094,
+        "z": "e45b58ea.d3c7a8",
+        "wires": []
+    },
+    {
+        "id": "9221cb49.d93a28",
+        "type": "comment",
+        "name": "1. turn off packet mirroring in contrail (see input parameters spreadsheet)",
+        "info": "",
+        "comments": "",
+        "x": 1131.0594940185547,
+        "y": 719.1189775466919,
+        "z": "e45b58ea.d3c7a8",
+        "wires": []
+    },
+    {
+        "id": "20a97346.cfa9dc",
+        "type": "comment",
+        "name": "2. set is-port-mirrored in A&AI (aai-port-mirror-1040)",
+        "info": "",
+        "comments": "",
+        "x": 1073.1547470092773,
+        "y": 855.4999237060547,
+        "z": "e45b58ea.d3c7a8",
+        "wires": []
+    },
+    {
+        "id": "c4a61894.c3e478",
+        "type": "comment",
+        "name": "step 4 - call DG to deactivate route policy",
+        "info": "",
+        "comments": "",
+        "x": 570.4405059814453,
+        "y": 1034.738042831421,
+        "z": "e45b58ea.d3c7a8",
+        "wires": []
+    },
+    {
+        "id": "4f611f9c.f3b72",
+        "type": "comment",
+        "name": "step 5 - update configuration object (aai-port-mirror-1070)",
+        "info": "",
+        "comments": "",
+        "x": 621.4881134033203,
+        "y": 1183.0236949920654,
+        "z": "e45b58ea.d3c7a8",
+        "wires": []
+    },
+    {
+        "id": "23dd8717.0e3808",
+        "type": "comment",
+        "name": "step 6 - update oper status",
+        "info": "",
+        "comments": "",
+        "x": 521.7737579345703,
+        "y": 1343.7856578826904,
+        "z": "e45b58ea.d3c7a8",
+        "wires": []
+    },
+    {
+        "id": "ae8a46bd.17c5a8",
+        "type": "set",
+        "name": "set tmp variables",
+        "xml": "<set>\n<parameter name='tmp.configuration-id' value='`$port-mirror-topology-operation-input.configuration-information.configuration-id`' />\n\n\n",
+        "comments": "",
+        "x": 496.2500228881836,
+        "y": 241.30948638916016,
+        "z": "e45b58ea.d3c7a8",
+        "wires": []
+    },
+    {
+        "id": "51ec1a7c.c67334",
+        "type": "set",
+        "name": "set port-mirror-configuration data from input",
+        "xml": "<set>\n<parameter name='pm.configuration-data.configuration-operation-information.sdnc-request-header.'\n  value='`$port-mirror-topology-operation-input.sdnc-request-header.`' />\n",
+        "comments": "",
+        "x": 574.8215141296387,
+        "y": 600.3570823669434,
+        "z": "e45b58ea.d3c7a8",
+        "wires": []
+    },
+    {
+        "id": "ed8e386e.d66588",
+        "type": "execute",
+        "name": "execute readProperties",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >\n    <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />\n    <parameter name='contextPrefix' value='prop' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 515.5357818603516,
+        "y": 287.7380418777466,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "33edf927.ccd256",
+        "type": "execute",
+        "name": "generate port-mirror-configuration url",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$prop.restapi.pm-configuration`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.pmc-url\"/>\n    <parameter name=\"target\" value=\"{configuration-id}\"/>\n    <parameter name=\"replacement\" value=\"`$tmp.configuration-id`\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 555.5358505249023,
+        "y": 334.22620391845703,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "88b52684.3c1198",
+        "type": "execute",
+        "name": "execute RestApiCallNode - get port-mirror-configuration",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.pmc-url`' />\n    <parameter name='restapiUser' value='`$prop.controller.user`' />\n    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='GET' />\n    <parameter name=\"responsePrefix\" value=\"pm-mdsal\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 610.2976531982422,
+        "y": 420.3570556640625,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "441543d6.71cf8c",
+                "e792a4af.424e18",
+                "27e5f04e.c2091"
+            ]
+        ]
+    },
+    {
+        "id": "441543d6.71cf8c",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 915.5936126708984,
+        "y": 376.6410722732544,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "637ff647.06cdb8"
+            ]
+        ]
+    },
+    {
+        "id": "e792a4af.424e18",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 911.7261962890625,
+        "y": 418.69032287597656,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "9f402faa.52bcb"
+            ]
+        ]
+    },
+    {
+        "id": "637ff647.06cdb8",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1067.4404525756836,
+        "y": 377.0236053466797,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "27e5f04e.c2091",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 918.6309661865234,
+        "y": 462.02373123168945,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "3bc0bb76.118314"
+            ]
+        ]
+    },
+    {
+        "id": "9f402faa.52bcb",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1090.2976531982422,
+        "y": 418.69039726257324,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "a1ca8a01.0e3cf8",
+                "1489c2f8.2f085d"
+            ]
+        ]
+    },
+    {
+        "id": "3bc0bb76.118314",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1088.6309051513672,
+        "y": 460.35705375671387,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "fc24245d.cf0bc8",
+                "1489c2f8.2f085d"
+            ]
+        ]
+    },
+    {
+        "id": "a1ca8a01.0e3cf8",
+        "type": "configure",
+        "name": "set error-message",
+        "xml": "<set>\n<parameter name=\"error-message\" value=\"Failed to read port-mirror-configuration from MD-SAL\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1295.2976531982422,
+        "y": 417.0237102508545,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "fc24245d.cf0bc8",
+        "type": "configure",
+        "name": "set error-message",
+        "xml": "<set>\n<parameter name=\"error-message\" value=\"Cannot find port-mirror-configuration in MD-SAL\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1291.9642791748047,
+        "y": 462.0237102508545,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b602cd37.9d966",
+        "type": "set",
+        "name": "set pm",
+        "xml": "<set>\n<parameter name='pm.configuration-id' value='`$tmp.configuration-id`' />\n<parameter name='pm.configuration-data.' value='`$pm-mdsal.port-mirror-configuration[0].configuration-data.`' />\n",
+        "comments": "",
+        "x": 460.29769134521484,
+        "y": 503.6903820037842,
+        "z": "e45b58ea.d3c7a8",
+        "wires": []
+    },
+    {
+        "id": "d10e2194.104e6",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`'$error-message'`\" />\n",
+        "comments": "",
+        "x": 1728.1070671081543,
+        "y": 1601.4285154342651,
+        "z": "e45b58ea.d3c7a8",
+        "wires": []
+    },
+    {
+        "id": "699eaa77.1cb434",
+        "type": "configure",
+        "name": "send error to MSO",
+        "xml": "<configure activate=\"true\" adaptor=\"com.att.sdnctl.sli.adaptor.mso.MSOAdaptor\" key=\"__READ_FROM_PARAMETERS__\">\n<parameter name=\"notification-url\" value=\"`$port-mirror-topology-operation-input.sdnc-request-header.svc-notification-url`\" />\n<parameter name=\"input.ack-final-indicator\" value=\"Y\" />\n<parameter name=\"input.response-code\" value=\"500\" />\n<parameter name=\"input.response-message\" value=\"`$error-message`\" />\n<parameter name=\"input.svc-request-id\" value=\"`$port-mirror-topology-operation-input.sdnc-request-header.svc-request-id`\" />\n<parameter name=\"input.service-information.service-type\" value=\"`$port-mirror-topology-operation-input.service-information.subscription-service-type`\" />\n<parameter name=\"input.service-information.service-instance-id\" value=\"`$port-mirror-topology-operation-input.service-information.service-instance-id`\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1745.7991561889648,
+        "y": 1554.8944416046143,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1489c2f8.2f085d",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1559.5355911254883,
+        "y": 1578.5714435577393,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "699eaa77.1cb434",
+                "d10e2194.104e6"
+            ]
+        ]
+    },
+    {
+        "id": "54a5dead.83a5",
+        "type": "execute",
+        "name": "execute RestApiCallNode - PUT port-mirror-configuration",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='templateFileName' value=\"`$prop.restapi.templateDir + '/' + $prop.restapi.portmirrorconfig.templatefile`\" />\n    <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.pmc-url`' />\n    <parameter name='restapiUser' value='`$prop.controller.user`' />\n    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='PUT' />\n    <parameter name=\"responsePrefix\" value=\"mdsal-pmc\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 617.2738494873047,
+        "y": 1468.833387374878,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "1ab1ec64.c45d84",
+                "2b0c94ba.0fbf0c",
+                "1f4272e7.b9a5bd"
+            ]
+        ]
+    },
+    {
+        "id": "e2a5b4bd.e39bb8",
+        "type": "set",
+        "name": "set oper-status",
+        "xml": "<set>\n<parameter name='pm.configuration-data.configuration-oper-status.order-status'\n  value='Created' />\n<parameter name='pm.configuration-data.configuration-oper-status.last-action'\n  value='`$port-mirror-topology-operation-input.request-information.request-action`' />\n<parameter name='pm.configuration-data.configuration-oper-status.last-rpc-action'\n  value='`$port-mirror-topology-operation-input.sdnc-request-header.svc-action`' />\n",
+        "comments": "",
+        "x": 488.59523010253906,
+        "y": 1389.5713024139404,
+        "z": "e45b58ea.d3c7a8",
+        "wires": []
+    },
+    {
+        "id": "1f4272e7.b9a5bd",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 924.5951995849609,
+        "y": 1508.2380676269531,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "b00ed1fd.f89da"
+            ]
+        ]
+    },
+    {
+        "id": "2b0c94ba.0fbf0c",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 917.0238342285156,
+        "y": 1466.7380876541138,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "b00ed1fd.f89da"
+            ]
+        ]
+    },
+    {
+        "id": "1ab1ec64.c45d84",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 920.7738265991211,
+        "y": 1427.0951852798462,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "97768d46.52f58"
+            ]
+        ]
+    },
+    {
+        "id": "97768d46.52f58",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1058.1440963745117,
+        "y": 1426.144528388977,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3f39b480.961f1c",
+        "type": "configure",
+        "name": "set error-message",
+        "xml": "<set>\n<parameter name=\"error-message\" value=\"Error updating md-sal for port-mirror-configuration\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1277.3468208312988,
+        "y": 1479.810827255249,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b00ed1fd.f89da",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1080.0133438110352,
+        "y": 1480.8109140396118,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "3f39b480.961f1c",
+                "1489c2f8.2f085d"
+            ]
+        ]
+    },
+    {
+        "id": "3810a57d.14236a",
+        "type": "call",
+        "name": "call api-contrail-route-topology-operation-deactivate",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='api-contrail-route-topology-operation-deactivate' mode='sync' >\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1181.940444946289,
+        "y": 1122.285041809082,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "cb28e685.257d38"
+            ]
+        ]
+    },
+    {
+        "id": "cb28e685.257d38",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1449.797664642334,
+        "y": 1122.5230445861816,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "1489c2f8.2f085d"
+            ]
+        ]
+    },
+    {
+        "id": "e62ab65d.b91da8",
+        "type": "set",
+        "name": "set parameters",
+        "xml": "<set>\n<parameter name='cto-api.default-domain' value='default-domain' />\n<parameter name='cto-api.default-project'\n  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.tenant`' />\n<parameter name='cto-api.cloud-region-id'\n  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.cloud-region-id`' />\n<parameter name='cto-api.contrail-route-allotted-resource-id'\n  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.route-allotted-resource-id`' />\n<parameter name='cto-api.src-contrail-network-fqdn'\n  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-network-fqdn`' />\n<parameter name='cto-api.collector-contrail-network-fqdn'\n  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.dest-network-fqdn`' />\n<parameter name='cto-api.rollback-flag' value='false' />\n<parameter name='cto-api.owning-entity'\n  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.owning-entity`' />\n",
+        "comments": "",
+        "x": 1069.0833206176758,
+        "y": 1069.4281883239746,
+        "z": "e45b58ea.d3c7a8",
+        "wires": []
+    },
+    {
+        "id": "c553e730.5e7f68",
+        "type": "for",
+        "name": "for each mapped source port",
+        "xml": "<for silentFailure='true' index='src-idx' start='0' end='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 522.7973785400391,
+        "y": 862.6658306121826,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "c54ab73a.ae8e68"
+            ]
+        ]
+    },
+    {
+        "id": "c54ab73a.ae8e68",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 761.5592880249023,
+        "y": 862.7607879638672,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "ce7381ff.88548",
+                "3fbcac7e.c1a1a4"
+            ]
+        ]
+    },
+    {
+        "id": "3fbcac7e.c1a1a4",
+        "type": "execute",
+        "name": "execute ContrailAdaptor to disable port mirroring",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >\n<parameter name='api-name' value='port-mirroring' />\n<parameter name='api-action' value='disable' />\n<parameter name='resp-prefix' value='contrailResp' />\n<parameter name='display-name'\n  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-port-name`' />\n<parameter name='contrail-virtual-machine-interface-name'\n  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-port-name`' />\n<parameter name='contrail-virtual-machine-interface-id'\n  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-port-id`' />\n<parameter name='policy-name'\n  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-port-name`' />\n<parameter name='default-domain' value='default-domain' />\n<parameter name='default-project'\n  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.tenant`' />\n<parameter name='cloud-region-id'\n  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.cloud-region-id`' />\n<parameter name='cloud-owner'\n  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.cloud-owner`' />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1067.1785430908203,
+        "y": 782.0000114440918,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "82848df0.947b5",
+                "8c26f93.26d3a08"
+            ]
+        ]
+    },
+    {
+        "id": "82848df0.947b5",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1341.4641380310059,
+        "y": 807.7143030166626,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "8e1dcd4b.eddea"
+            ]
+        ]
+    },
+    {
+        "id": "ba3b50e4.8fcda",
+        "type": "configure",
+        "name": "set error-message",
+        "xml": "<set>\n    <parameter name=\"error-message\" value=\"`'Failed to update policy in Contrail. '+ $contrailResp.resp-code + ':' +$contrailResp.resp-message `\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1674.3214836120605,
+        "y": 807.7143201828003,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8e1dcd4b.eddea",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1487.1784934997559,
+        "y": 807.7143030166626,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "ba3b50e4.8fcda",
+                "1489c2f8.2f085d"
+            ]
+        ]
+    },
+    {
+        "id": "ce7381ff.88548",
+        "type": "save",
+        "name": "update l-interface object",
+        "xml": "<update plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\"\n   resource=\"l-interface\"\n   key=\"cloud-region.cloud-region-id = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.cloud-region-id\n     AND cloud-region.cloud-owner = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.cloud-owner\n     AND tenant.tenant-id = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.tenant-id\n     AND vserver.vserver-id = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-vserver-id\n     AND l-interface.interface-name = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-port-name\"\n   force=\"true\" pfx=\"tmp.AnAI-data\">\n<parameter name=\"is-port-mirrored\" value=\"false\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 992.130973815918,
+        "y": 940.9523162841797,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "49f37918.005438",
+                "38be4e8.a16eab2",
+                "b68b2de2.f0136"
+            ]
+        ]
+    },
+    {
+        "id": "49f37918.005438",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1196.4882431030273,
+        "y": 941.7144365310669,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "1c203915.556647"
+            ]
+        ]
+    },
+    {
+        "id": "38be4e8.a16eab2",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1205.0596923828125,
+        "y": 896.7146310806274,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "1c203915.556647"
+            ]
+        ]
+    },
+    {
+        "id": "1c203915.556647",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1374.5118713378906,
+        "y": 917.1427631378174,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "a3cef666.7d5688",
+                "1489c2f8.2f085d"
+            ]
+        ]
+    },
+    {
+        "id": "a3cef666.7d5688",
+        "type": "configure",
+        "name": "set error-message",
+        "xml": "<set>\n<parameter name=\"error-message\" value=\"`'Failed to update l-interface object in AAI for interface ' + $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-port-name`\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1571.1784057617188,
+        "y": 915.4759979248047,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "423946eb.24ca18",
+        "type": "save",
+        "name": "update configuration object",
+        "xml": "<update plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\"\n   resource=\"configuration\"\n   key=\"configuration.configuration-id = $tmp.configuration-id\"\n   force=\"true\" pfx=\"tmp.AnAI-data\">\n<parameter name=\"operational-status\" value=\"out-of-service-path\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 523.0357208251953,
+        "y": 1252.1904430389404,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "8eeeba15.39dbd8",
+                "eea0877.1531578"
+            ]
+        ]
+    },
+    {
+        "id": "8eeeba15.39dbd8",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 727.3930397033691,
+        "y": 1275.8097524642944,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "d4efc164.c970a"
+            ]
+        ]
+    },
+    {
+        "id": "eea0877.1531578",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 735.9644546508789,
+        "y": 1225.095555305481,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "1ba8ef22.aa7851"
+            ]
+        ]
+    },
+    {
+        "id": "d4efc164.c970a",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 909.7023849487305,
+        "y": 1277.1900959014893,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "ce2dc4f8.8f4c78",
+                "1489c2f8.2f085d"
+            ]
+        ]
+    },
+    {
+        "id": "1ba8ef22.aa7851",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 908.2738151550293,
+        "y": 1226.9523420333862,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "b12f8aa.29d1678",
+                "1489c2f8.2f085d"
+            ]
+        ]
+    },
+    {
+        "id": "ce2dc4f8.8f4c78",
+        "type": "configure",
+        "name": "set error-message",
+        "xml": "<set>\n<parameter name=\"error-message\" value=\"Failure updating configuration object in AAI\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1096.369010925293,
+        "y": 1277.1900959014893,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b12f8aa.29d1678",
+        "type": "configure",
+        "name": "set error-message",
+        "xml": "<set>\n<parameter name=\"error-message\" value=\"Unable to find configuration object in AAI\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1106.3689727783203,
+        "y": 1223.8570280075073,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8c26f93.26d3a08",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1344.3213157653809,
+        "y": 760.5713777542114,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "cdd281aa.3c357"
+            ]
+        ]
+    },
+    {
+        "id": "cdd281aa.3c357",
+        "type": "set",
+        "name": "set contrail-set[]",
+        "xml": "<set>\n<parameter name='contrail-set[$src-idx]' value='true' />\n",
+        "comments": "",
+        "x": 1500.0355224609375,
+        "y": 759.1429100036621,
+        "z": "e45b58ea.d3c7a8",
+        "wires": []
+    },
+    {
+        "id": "b68b2de2.f0136",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1200.7023696899414,
+        "y": 983.8095188140869,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "7abe579c.fe99a8"
+            ]
+        ]
+    },
+    {
+        "id": "7abe579c.fe99a8",
+        "type": "set",
+        "name": "set l-interface-set[]",
+        "xml": "<set>\n<parameter name='l-interface-set[$src-idx]' value='true' />\n",
+        "comments": "",
+        "x": 1363.559425354004,
+        "y": 985.2382392883301,
+        "z": "e45b58ea.d3c7a8",
+        "wires": []
+    },
+    {
+        "id": "914f3421.b83cc8",
+        "type": "configure",
+        "name": "send success to MSO",
+        "xml": "<configure activate=\"true\" adaptor=\"com.att.sdnctl.sli.adaptor.mso.MSOAdaptor\" key=\"__READ_FROM_PARAMETERS__\">\n<parameter name=\"notification-url\" value=\"`$port-mirror-topology-operation-input.sdnc-request-header.svc-notification-url`\" />\n<parameter name=\"input.ack-final-indicator\" value=\"Y\" />\n<parameter name=\"input.response-code\" value=\"200\" />\n<parameter name=\"input.svc-request-id\" value=\"`$port-mirror-topology-operation-input.sdnc-request-header.svc-request-id`\" />\n<parameter name=\"input.service-information.service-type\" value=\"`$port-mirror-topology-operation-input.service-information.subscription-service-type`\" />\n<parameter name=\"input.service-information.service-instance-id\" value=\"`$port-mirror-topology-operation-input.service-information.service-instance-id`\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 506.25000381469727,
+        "y": 1552.976061820984,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3cc26a33.d0cde6",
+        "type": "set",
+        "name": "set tmp.configuration-sub-type",
+        "xml": "<set>\n<parameter name='tmp.configuration-sub-type' value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.probe-type`' />\n",
+        "comments": "",
+        "x": 531.2499847412109,
+        "y": 550.8333358764648,
+        "z": "e45b58ea.d3c7a8",
+        "wires": []
+    },
+    {
+        "id": "af216003.25212",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 889.5833358764648,
+        "y": 1097.4999256134033,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "e62ab65d.b91da8",
+                "3810a57d.14236a"
+            ]
+        ]
+    },
+    {
+        "id": "5b4713f1.7dfb5c",
+        "type": "switchNode",
+        "name": "switch configuration-sub-type",
+        "xml": "<switch test='`$tmp.configuration-sub-type`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 531.2499847412109,
+        "y": 1097.4999618530273,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "81bae171.b37e6"
+            ]
+        ]
+    },
+    {
+        "id": "81bae171.b37e6",
+        "type": "outcome",
+        "name": "vprobe",
+        "xml": "<outcome value='vprobe'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 729.2499847412109,
+        "y": 1097.4999618530273,
+        "z": "e45b58ea.d3c7a8",
+        "wires": [
+            [
+                "af216003.25212"
+            ]
+        ]
+    }
+]

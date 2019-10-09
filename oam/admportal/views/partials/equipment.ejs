@@ -1,0 +1,58 @@
+   <div class="modal fade" 
+		id="equipment-modal" tabindex="-1" role="dialog" 
+		aria-labelledby="equipment-modal-label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">equipment</h4>
+          </div>
+          <div class="modal-body">
+            <form role="form" action="" method="POST">
+              <div class="form-group">
+                <label for="equipment_role">equipment-role</label>
+                <input type="text" class="form-control" name="equipment_role" id="equipment_role">
+              </div>
+              <div class="form-group">
+                <label for="ptnii_name">ptnii-name</label>
+                <input type="text" class="form-control" name="ptnii_name" id="ptnii_name">
+              </div>
+              <div class="form-group">
+                <label for="ipv4_oam_address">ipv4-oam-address</label>
+                <input type="text" class="form-control" name="ipv4_oam_address" id="ipv4_oam_address">
+              </div>
+              <div class="form-group">
+                <label for="ipv4_oam_gateway_address">ipv4-oam-gateway-address</label>
+                <input type="text" class="form-control" name="ipv4_oam_gateway_address" id="ipv4_oam_gateway_address">
+              </div>
+              <div class="form-group">
+                <label for="v4_loopback0_ip_address">v4-loopback0-ip-address</label>
+                <input type="text" class="form-control" name="v4_loopback0_ip_address" id="v4_loopback0_ip_address">
+              </div>
+              <div class="form-group">
+                <label for="ipv4_oam_gateway_address_prefix_length">ipv4-oam-gateway-address-prefix-length</label>
+                <input type="text" class="form-control" name="ipv4_oam_gateway_address_prefix_length" id="ipv4_oam_gateway_address_prefix_length">
+              </div>
+
+<!--
+              <div class="form-group">
+				<input type="hidden" name="uf_action" id="uf_action">
+                <button type="button" class="btn btn-primary" onclick="submit(this.form);">Submit</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+-->
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>
+
+<script type="text/javascript">
+function submit(form){
+	$('#equipment-modal').modal('hide');
+	form.action = form.uf_action.value;
+	form.submit();
+	return;
+}
+</script>
+

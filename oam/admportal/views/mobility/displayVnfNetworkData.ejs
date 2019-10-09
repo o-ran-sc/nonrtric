@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>SDN-C AdminPortal</title>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+</head>
+<body>
+
+
+<div class="actions" style="padding:0px 25px;">
+<h2>VNF Network Data</h2>
+</div>
+
+<div class="container-fluid">
+<% if ( typeof result != 'undefined' ) {
+        if (result.code.length > 0) {
+            if ( result.code == 'success' ) { %>
+                <pre class='alert alert-success' role='alert'><%=JSON.stringify(result.msg,null,4) %></pre>
+            <% } else { %>
+                <pre class='alert alert-danger' role='danger'><%=result.msg %></pre>
+            <% } %>
+        <% } %>
+<% } %>
+</div>
+
+
+<footer>
+	 <% include ../partials/footer %>
+</footer>
+    
+</body>
+</html>
+

@@ -1,0 +1,386 @@
+[
+    {
+        "id": "ca0478b8.252088",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 142.85714721679688,
+        "y": 72.85714721679688,
+        "z": "7da44d34.41b8e4",
+        "wires": [
+            [
+                "7c71ac58.1f4244"
+            ]
+        ]
+    },
+    {
+        "id": "7c71ac58.1f4244",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 418.8571472167969,
+        "y": 73.85714721679688,
+        "z": "7da44d34.41b8e4",
+        "wires": [
+            [
+                "a2678c16.8e1eb"
+            ]
+        ]
+    },
+    {
+        "id": "a2678c16.8e1eb",
+        "type": "method",
+        "name": "self-serve-vf-module-generate-name-changeassign",
+        "xml": "<method rpc='self-serve-vf-module-generate-name-changeassign' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 323.4285583496094,
+        "y": 125.71429061889648,
+        "z": "7da44d34.41b8e4",
+        "wires": [
+            [
+                "afbcafe4.6d848"
+            ]
+        ]
+    },
+    {
+        "id": "570da090.941e5",
+        "type": "execute",
+        "name": "execute NameGenerationNode-changeassign",
+        "xml": "<execute plugin='org.openecomp.sdnc.prov.namegeneration.node.AssignNameNode' method='process'>\n   <parameter name='payload' value='`$tmp.vf-module.changeassign.naming-data-payload`' />\n   <parameter name=\"prifix\" value=\"vf-module.changeassign.nameGenResponse\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 671.4285888671875,
+        "y": 659.2857213020325,
+        "z": "7da44d34.41b8e4",
+        "wires": [
+            [
+                "551cdc4a.e86e94",
+                "ba2f7c73.31a28"
+            ]
+        ]
+    },
+    {
+        "id": "551cdc4a.e86e94",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 959.4285888671875,
+        "y": 613.2857213020325,
+        "z": "7da44d34.41b8e4",
+        "wires": [
+            [
+                "7dfc16bc.be2d18"
+            ]
+        ]
+    },
+    {
+        "id": "ba2f7c73.31a28",
+        "type": "failure",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 965.4285888671875,
+        "y": 713.2857213020325,
+        "z": "7da44d34.41b8e4",
+        "wires": [
+            [
+                "7dfc16bc.be2d18"
+            ]
+        ]
+    },
+    {
+        "id": "7dfc16bc.be2d18",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1165.4285888671875,
+        "y": 655.2857213020325,
+        "z": "7da44d34.41b8e4",
+        "wires": [
+            [
+                "56db66db.f751e8",
+                "2a9c646.dc70e9c"
+            ]
+        ]
+    },
+    {
+        "id": "56db66db.f751e8",
+        "type": "set",
+        "name": "set status as FAILED",
+        "xml": "<set>\n<parameter name='`service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$ss.service-data.param.index].resource-resolution-data.status`' value='FAILED' />",
+        "comments": "",
+        "x": 1374.4285888671875,
+        "y": 604.2857213020325,
+        "z": "7da44d34.41b8e4",
+        "wires": []
+    },
+    {
+        "id": "2a9c646.dc70e9c",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`'Error from NameGenerationNode ChangeAssign vf-module ' + $error-message`\" />\n",
+        "comments": "",
+        "x": 1360.4285888671875,
+        "y": 713.2857213020325,
+        "z": "7da44d34.41b8e4",
+        "wires": []
+    },
+    {
+        "id": "afbcafe4.6d848",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 224.71428680419922,
+        "y": 562.8571300506592,
+        "z": "7da44d34.41b8e4",
+        "wires": [
+            [
+                "b979f5f1.ad8358",
+                "ab950644.7d58a8",
+                "975f7bc0.f4f5d8",
+                "570da090.941e5",
+                "f212bbb9.76a8b8",
+                "1a352eb2.e4d9b1",
+                "14d9ecdc.aff013"
+            ]
+        ]
+    },
+    {
+        "id": "b979f5f1.ad8358",
+        "type": "for",
+        "name": "for service-data...vf-module...resource-key",
+        "xml": "<for index='i' start='0' end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$ss.service-data.param.index].resource-resolution-data.resource-key_length`' >",
+        "comments": "",
+        "outputs": 1,
+        "x": 667.0000076293945,
+        "y": 375.00000858306885,
+        "z": "7da44d34.41b8e4",
+        "wires": [
+            [
+                "56f43f1.46959c"
+            ]
+        ]
+    },
+    {
+        "id": "56f43f1.46959c",
+        "type": "switchNode",
+        "name": "switch resource-key[].name",
+        "xml": "<switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$ss.service-data.param.index].resource-resolution-data.resource-key[$i].name`'>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1004.8571624755859,
+        "y": 374.9999942779541,
+        "z": "7da44d34.41b8e4",
+        "wires": [
+            [
+                "db5132dc.231e6"
+            ]
+        ]
+    },
+    {
+        "id": "db5132dc.231e6",
+        "type": "outcome",
+        "name": "external-key",
+        "xml": "<outcome value='external-key'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1245.857162475586,
+        "y": 374.9999942779541,
+        "z": "7da44d34.41b8e4",
+        "wires": [
+            [
+                "eace8af.3827778"
+            ]
+        ]
+    },
+    {
+        "id": "eace8af.3827778",
+        "type": "set",
+        "name": "set tmp.external-key.value",
+        "xml": "<set>\n<parameter name='tmp.external-key.value' value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$ss.service-data.param.index].resource-resolution-data.resource-key[$i].value`' />\n",
+        "comments": "",
+        "x": 1475.857162475586,
+        "y": 374.9999942779541,
+        "z": "7da44d34.41b8e4",
+        "wires": []
+    },
+    {
+        "id": "975f7bc0.f4f5d8",
+        "type": "set",
+        "name": "set tmp.vf-module.changeassign.naming-data-payload",
+        "xml": "<set>\n<parameter name=\"tmp.vf-module.changeassign.naming-data-payload\" value=\"`'{&quot;elements&quot;:[{' + '&quot;resource-name&quot;:&quot;' + $vf-module-topology-operation-input.vf-module-request-input.vf-module-input-parameters.param[$ss.input.param.index].name + '&quot;,&quot;resource-value&quot;:&quot;' + $vf-module-topology-operation-input.vf-module-request-input.vf-module-input-parameters.param[$ss.input.param.index].value + '&quot;,&quot;external-key&quot;:&quot;' + $tmp.external-key.value + '&quot;}]}'`\"/>",
+        "comments": "",
+        "x": 710.2856903076172,
+        "y": 559.0000162124634,
+        "z": "7da44d34.41b8e4",
+        "wires": []
+    },
+    {
+        "id": "ab950644.7d58a8",
+        "type": "switchNode",
+        "name": "switch tmp.external-key.value",
+        "xml": "<switch test='`$tmp.external-key.value`'>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 619.0000076293945,
+        "y": 502.00000858306885,
+        "z": "7da44d34.41b8e4",
+        "wires": [
+            [
+                "f0dcf6b8.eaab28"
+            ]
+        ]
+    },
+    {
+        "id": "f0dcf6b8.eaab28",
+        "type": "outcome",
+        "name": "null",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 846.0000076293945,
+        "y": 502.00000858306885,
+        "z": "7da44d34.41b8e4",
+        "wires": [
+            [
+                "a8701ab3.e308f8"
+            ]
+        ]
+    },
+    {
+        "id": "a8701ab3.e308f8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"self-service-vf-module-generate-name-changeassign error : external-key is null for vf-module\" />\n",
+        "comments": "",
+        "x": 1007.0000076293945,
+        "y": 502.00000858306885,
+        "z": "7da44d34.41b8e4",
+        "wires": []
+    },
+    {
+        "id": "fe3c1b72.b16ba8",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 795.9523773193359,
+        "y": 796.0475826263428,
+        "z": "7da44d34.41b8e4",
+        "wires": [
+            [
+                "a8ee0931.de9688"
+            ]
+        ]
+    },
+    {
+        "id": "a8ee0931.de9688",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 977.8571929931641,
+        "y": 834.5714569091797,
+        "z": "7da44d34.41b8e4",
+        "wires": [
+            [
+                "73245796.36c418",
+                "b4c5b7d.9734d48"
+            ]
+        ]
+    },
+    {
+        "id": "73245796.36c418",
+        "type": "set",
+        "name": "set status as FAILED",
+        "xml": "<set>\n\t<parameter name='`service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$ss.service-data.param.index].resource-resolution-data.status`' value='FAILED' />",
+        "comments": "",
+        "x": 1192.857192993164,
+        "y": 794.5714569091797,
+        "z": "7da44d34.41b8e4",
+        "wires": []
+    },
+    {
+        "id": "b4c5b7d.9734d48",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`'Failed to update vf-module.vf-module-name to ' + $vf-module-topology-operation-input.vf-module-request-input.vf-module-input-parameters.param[$ss.input.param.index].value + ' in AnAI'`\" />\n",
+        "comments": "",
+        "x": 1180.857192993164,
+        "y": 882.5714569091797,
+        "z": "7da44d34.41b8e4",
+        "wires": []
+    },
+    {
+        "id": "1a352eb2.e4d9b1",
+        "type": "set",
+        "name": "set param[].value and status",
+        "xml": "<set>\n\t <parameter name='`service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$ss.service-data.param.index].value`' value='`$vf-module-topology-operation-input.vf-module-request-input.vf-module-input-parameters.param[$ss.input.param.index].value`'/>\n\t <parameter name='`service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$ss.service-data.param.index].resource-resolution-data.status`' value='SUCCESS' />",
+        "comments": "",
+        "x": 629.5714416503906,
+        "y": 1023.1428661346436,
+        "z": "7da44d34.41b8e4",
+        "wires": []
+    },
+    {
+        "id": "f212bbb9.76a8b8",
+        "type": "save",
+        "name": "update vf-module",
+        "xml": "<update plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\tresource=\"vf-module\" key=\"generic-vnf.vnf-id = $service-data.vnfs.vnf[$vnf-index].vnf-id AND vf-module.vf-module-id = $service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-id \" > \n<parameter name=\"vf-module-name\" value='`$vf-module-topology-operation-input.vf-module-request-input.vf-module-input-parameters.param[$ss.input.param.index].value`' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 598.2698364257812,
+        "y": 835.0161256790161,
+        "z": "7da44d34.41b8e4",
+        "wires": [
+            [
+                "fe3c1b72.b16ba8",
+                "658b3ee2.d2b67"
+            ]
+        ]
+    },
+    {
+        "id": "658b3ee2.d2b67",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 793.5079803466797,
+        "y": 882.1586666107178,
+        "z": "7da44d34.41b8e4",
+        "wires": [
+            [
+                "a8ee0931.de9688"
+            ]
+        ]
+    },
+    {
+        "id": "14d9ecdc.aff013",
+        "type": "set",
+        "name": "set tmp.external-key.value = NULL",
+        "xml": "<set>\n<parameter name='tmp.external-key.value' value='' />\n",
+        "comments": "",
+        "x": 638.5714263916016,
+        "y": 321.42858600616455,
+        "z": "7da44d34.41b8e4",
+        "wires": []
+    }
+]

@@ -1,0 +1,5 @@
+---
+distribution_type: 'maven'
+version: '1.7.3'
+project: 'sdnc-oam'
+log_dir: 'sdnc-oam-maven-stage-elalto/5/'

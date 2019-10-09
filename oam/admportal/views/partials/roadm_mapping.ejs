@@ -1,0 +1,101 @@
+<div class="modal fade" id="add_roadm_mapping" tabindex="-1" role="dialog"
+                aria-labelledby="add_roadm_mapping_label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Add ROADM Mapping</h4>
+      </div>
+      <div class="modal-body">
+      <form name="addForm" role="form" action="/tunnel/addRoadmMapping" method="POST">
+          <div class="form-group">
+              <label for="nf_router_name">*Router Name</label>
+              <input type="text" class="form-control" name="nf_router_name" id="nf_router_name" maxlength="20" placeholder="varchar(20)">
+          </div>
+          <div class="form-group">
+              <label for="nf_roadm_name">*ROADM Name</label>
+              <input type="text" class="form-control" name="nf_roadm_name" id="nf_roadm_name" maxlength="20" placeholder="varchar(20)">
+          </div>
+          <div class="form-group">
+              <label for="nf_clli">*CLLI</label>
+              <input type="text" class="form-control" name="nf_clli" id="nf_clli" maxlength="20" placeholder="varchar(20)">
+          </div>
+          <div class="form-group">
+              <label for="nf_city_name">*City Name</label>
+              <input type="text" class="form-control" name="nf_city_name" id="nf_city_name" maxlength="80" placeholder="varchar(80)">
+          </div>
+          <div class="form-group">
+              <label for="nf_lat">*Latitude</label>
+              <input type="text" class="form-control" name="nf_lat" id="nf_lat" maxlength="20" placeholder="varchar(20)">
+          </div>
+          <div class="form-group">
+              <label for="nf_lon">*Longitude</label>
+              <input type="text" class="form-control" name="nf_lon" id="nf_lon" maxlength="20" placeholder="varchar(20)">
+          </div>
+          <div class="form-group">
+              <label for="nf_snrc">*SNRC</label>
+              <input type="text" class="form-control" name="nf_snrc" id="nf_snrc" maxlength="20" placeholder="varchar(20)">
+          </div>
+
+          <div class="form-group">
+                <input type="hidden" name="nf_action" id="nf_action">
+                <button type="button" class="btn btn-primary" onclick="saveRoadmMapping(this.form);">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          </div>
+       </form>
+       </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="update_roadm_mapping" tabindex="-1" role="dialog"
+        aria-labelledby="update_roadm_mapping_label" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Update ROADM Mapping</h4>
+      </div>
+      <div class="modal-body">
+      <form role="form" action="/tunnel/updateRoadmMapping" method="POST">
+          <div class="form-group">
+              <label for="uf_router_name">*Router Name</label>
+              <input type="text" class="form-control" name="uf_router_name" id="uf_router_name" maxlength="20" placeholder="varchar(20)">
+          </div>
+          <div class="form-group">
+              <label for="uf_roadm_name">*ROADM Name</label>
+              <input type="text" class="form-control" name="uf_roadm_name" id="uf_roadm_name" maxlength="20" placeholder="varchar(20)">
+          </div>
+          <div class="form-group">
+              <label for="uf_clli">*CLLI</label>
+              <input type="text" class="form-control" name="uf_clli" id="uf_clli" maxlength="20" placeholder="varchar(20)">
+          </div>
+          <div class="form-group">
+              <label for="uf_city_name">*City Name</label>
+              <input type="text" class="form-control" name="uf_city_name" id="uf_city_name" maxlength="80" placeholder="varchar(80)">
+          </div>
+          <div class="form-group">
+              <label for="uf_lat">*Latitude</label>
+              <input type="text" class="form-control" name="uf_lat" id="uf_lat" maxlength="20" placeholder="varchar(20)">
+          </div>
+          <div class="form-group">
+              <label for="uf_lon">*Longitude</label>
+              <input type="text" class="form-control" name="uf_lon" id="uf_lon" maxlength="20" placeholder="varchar(20)">
+          </div>
+          <div class="form-group">
+              <label for="uf_snrc">*SNRC</label>
+              <input type="text" class="form-control" name="uf_snrc" id="uf_snrc" maxlength="20" placeholder="varchar(20)">
+          </div>
+
+      <div class="form-group">
+            <input type="hidden" name="uf_action" id="uf_action">
+            <input type="hidden" name="uf_key_router_name" id="uf_key_router_name">
+            <button type="button" class="btn btn-primary" onclick="saveRoadmMapping(this.form);">Save</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+      </div>
+      </form>
+      </div>
+    </div>
+  </div>
+</div>
+

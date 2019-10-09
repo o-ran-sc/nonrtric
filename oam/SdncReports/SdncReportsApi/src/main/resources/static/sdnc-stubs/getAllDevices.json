@@ -1,0 +1,17 @@
+
+{  
+   "deviceList":[  
+      {  
+         "deviceId":"1",
+         "deviceName":"Device1"
+      },
+      {  
+         "deviceId":"2",
+         "deviceName":"Device2"
+      },
+      {  
+         "deviceId":"3",
+         "deviceName":"Device3"
+      }
+   ]
+}

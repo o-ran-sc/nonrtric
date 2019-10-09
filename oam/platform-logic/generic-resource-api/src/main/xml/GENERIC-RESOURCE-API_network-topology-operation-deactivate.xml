@@ -1,0 +1,172 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='network-topology-operation-deactivate' mode='sync'>
+        <block atomic="true">
+            <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+		key="l3-network.network-id = $network-topology-operation-input.network-information.network-id
+		AND depth='all'" 
+		local-only="false" 
+		pfx="aai.l3-network">
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name="error-code" value="404" />
+                        <parameter name="error-message" value="network-id not found in AAI" />
+                    </return>
+                </outcome>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="'Error retrieving l3-network with network-id=' + $network-topology-operation-input.network-request-information.network-id + 'from AnAI'" />
+                    </return>
+                </outcome>
+            </get-resource>
+            <switch test='`$aai.l3-network.subnets.subnet_length`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="no networks found" />
+                    </return>
+                </outcome>
+                <outcome value='Other'>
+                    <switch test='`$network-data.network-topology.network-topology-identifier-structure.network-instance-group-id`'>
+                        <outcome value=''>
+                            <switch test='`$service-data.networks.network[$nidx].network-data.network-information.from-preload`'>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <for index='sidx' start='0' end='`$aai.l3-network.subnets.subnet_length`' >
+                                            <block atomic="true">
+                                                <update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="subnet" 
+		key="l3-network.network-id = $aai.l3-network.network-id 
+			AND subnet.subnet-id = $aai.l3-network.subnets.subnet[$sidx].subnet-id" >
+                                                    <parameter name="orchestration-status" value="PendingDelete" />
+                                                    <outcome value='failure'>
+                                                        <return status="failure">
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="error-message" value="Failure updating orchestration-status in AAI for subnet." />
+                                                        </return>
+                                                    </outcome>
+                                                    <outcome value="not-found">
+                                                        <return status="failure">
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="error-message" value="Failure updating orchestration-status in AAI for subnet.  Subnet not found." />
+                                                        </return>
+                                                    </outcome>
+                                                </update>
+                                            </block>
+                                        </for>
+                                    </block>
+                                </outcome>
+                                <outcome value='Other'>
+                                    <block atomic="true">
+                                        <for index='sidx' start='0' end='`$aai.l3-network.subnets.subnet_length`' >
+                                            <block atomic="true">
+                                                <get-resource
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="SELECT * from EIPAM_IP_SUBNETS where entity_id = $aai.l3-network.subnets.subnet[$sidx].subnet-id ; "
+        pfx='tmp.eipam-subnet-row'>
+                                                    <outcome value='failure'>
+                                                        <return status="failure">
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="error-message" value="Query to DB table EIPAM_IP_SUBNETS failed to find subnet matching aai subnet." />
+                                                        </return>
+                                                    </outcome>
+                                                    <outcome value="not-found">
+                                                        <return status="failure">
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="error-message" value="Subnet not found in EIPAM_IP_SUBNETS - deactivate failed." />
+                                                        </return>
+                                                    </outcome>
+                                                    <outcome value='success'>
+                                                        <block atomic='true'>
+                                                            <set>
+                                                                <parameter name="eipam-ip-block.entity-id" value="`$aai.l3-network.subnets.subnet[$sidx].subnet-id`"/>
+                                                                <parameter name="eipam-ip-block.plans[0].plan-name" value="$tmp.eipam-subnet-row.plan-name"/>
+                                                            </set>
+                                                        </block>
+                                                    </outcome>
+                                                </get-resource>
+                                                <update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="subnet" 
+		key="l3-network.network-id = $aai.l3-network.network-id 
+			AND subnet.subnet-id = $eipam-ip-block.entity-id" >
+                                                    <parameter name="orchestration-status" value="PendingDelete" />
+                                                    <outcome value='failure'>
+                                                        <return status="failure">
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="error-message" value="Failure updating orchestration-status in AAI for subnet." />
+                                                        </return>
+                                                    </outcome>
+                                                    <outcome value="not-found">
+                                                        <return status="failure">
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="error-message" value="Failure updating orchestration-status in AAI for subnet.  Subnet not found." />
+                                                        </return>
+                                                    </outcome>
+                                                </update>
+                                            </block>
+                                        </for>
+                                    </block>
+                                </outcome>
+                            </switch>
+                        </outcome>
+                        <outcome value='Other'>
+                            <block atomic="true">
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="network collection activate failed" />
+                                </return>
+                            </block>
+                        </outcome>
+                    </switch>
+                </outcome>
+            </switch>
+            <update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+		key="l3-network.network-id = $aai.l3-network.network-id" >
+                <parameter name="orchestration-status" value="PendingDelete" />
+                <outcome value='failure'>
+                    <return status="failure">
+                        <parameter name="error-code" value="500"/>
+                        <parameter name="error-message" value="Failure updating orchestration-status in AAI for l3-network" />
+                    </return>
+                </outcome>
+                <outcome value="not-found">
+                    <return status="failure">
+                        <parameter name="error-code" value="500"/>
+                        <parameter name="error-message" value="Failure updating orchestration-status in AAI for l3-network.  Network not found." />
+                    </return>
+                </outcome>
+            </update>
+            <set>
+                <parameter name='service-data.networks.network[$nidx].network-data.sdnc-request-header.' value='`$network-topology-operation-input.sdnc-request-header.`' />
+                <parameter name='service-data.networks.network[$nidx].network-data.request-information.' value='`$network-topology-operation-input.request-information.`' />
+            </set>
+            <set>
+                <parameter name='networkId' value='`$network-topology-operation-input.network-information.network-id`' />
+            </set>
+            <set>
+                <parameter name='network-object-path' value="`'restconf/config/GENERIC-RESOURCE-API:services/service/'
+ + $network-topology-operation-input.service-information.service-instance-id
+ + '/service-data/networks/network/'
+ + $networkId
+ + '/network-data/network-topology/'` " />
+            </set>
+            <set>
+                <parameter name='service-data.networks.network[$tmp.nidx].network-data.network-level-oper-status.order-status' value='PendingDelete' />
+                <parameter name='service-data.networks.network[$tmp.nidx].network-data.network-level-oper-status.last-rpc-action' value='`$network-topology-operation-input.sdnc-request-header.svc-action`' />
+                <parameter name='service-data.networks.network[$tmp.nidx].network-data.network-level-oper-status.last-action' value='`$network-topology-operation-input.request-information.request-action`' />
+            </set>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="`$error-message`" />
+            </return>
+        </block>
+    </method>
+</service-logic>

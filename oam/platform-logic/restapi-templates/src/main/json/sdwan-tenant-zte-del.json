@@ -1,0 +1,13 @@
+{
+    "tenantName": ${prop.customer-id},
+    "tenantEmail": ${prop.userEmail},
+    "tenantPhone": "8888888888",
+    "tenantDescription": "This is a test tenant created by ONAP",
+    "tenantAddress": "Road123",
+    "limitAccountNum": 1000,
+    "userAccount": ${prop.userAccount},
+    "userEmail": ${prop.userEmail},
+    "sendInitEmailEnable": "true",
+    "countryCode": "CN",
+    "userPassword": "Test@12345"
+}

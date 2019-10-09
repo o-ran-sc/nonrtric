@@ -1,0 +1,289 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='vf-module-topology-vlan-tagging-ip-addresses' mode='sync'>
+        <block atomic="true">
+            <switch test='`$tmp.vt-ip.type`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value='type is required' />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$tmp.vt-ip.network-instance-group-function`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value='network-instance-group-function is required for FIXED ip request' />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$tmp.vt-ip.ip-version`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value='ip-version is required' />
+                    </return>
+                </outcome>
+                <outcome value='ipv4'>
+                    <set>
+                        <parameter name='tmp.address-family' value='4' />
+                        <parameter name='tmp.sql.address-family' value='%4' />
+                    </set>
+                </outcome>
+                <outcome value='ipv6'>
+                    <set>
+                        <parameter name='tmp.address-family' value='6' />
+                        <parameter name='tmp.sql.address-family' value='%6' />
+                    </set>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='eipam-ip-block.' value='' />
+            </set>
+            <switch test='`$tmp.vt-ip.type`'>
+                <outcome value='FIXED'>
+                    <block atomic='true'>
+                        <switch test='`$tmp.vt-ip.vnfc-name`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value='vnfc-name is required for FIXED ip request' />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$tmp.vt-ip.vf-module-id`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value='vf-module-id is required' />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$tmp.vt-ip.sequence-number`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value='seq-num is required' />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <set>
+                            <parameter name="tmp.selected-client-key" 
+	value="`$tmp.vt-ip.vm-type + '|' +
+			$tmp.vt-ip.vnfc-name + '|' +
+			$tmp.vt-ip.network-instance-group-function + '|' + 
+			$tmp.vt-ip.type + '|' + 
+			$tmp.address-family + '|' + 
+			$tmp.vt-ip.sequence-number`" />
+                            <!--	
+fixed-ip client-key:
+vm-type + VFCname + network-instance-group-function + "FIXED" + [ip-version(4/6)] + seqNo
+		seqNo required for unique, but not required for shared
+-->
+                        </set>
+                        <set>
+                            <parameter name="tmp.eipam.info" value="`$tmp.vt-ip.vf-module-id`"/>
+                        </set>
+                    </block>
+                </outcome>
+                <outcome value='VIP'>
+                    <block atomic='true'>
+                        <switch test='`$tmp.vt-ip.nf-role`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value='nf-role is required for VIP ip request' />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test="`$tmp.vt-ip.network-instance-group-id == '' `">
+                            <outcome value='true'>
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value='network-isntance-group-id is required for VIP' />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <set>
+                            <parameter name="tmp.eipam.info" value="`$tmp.vt-ip.network-instance-group-id`"/>
+                        </set>
+                        <set>
+                            <parameter name='tmp.selected-client-key' 
+	value="`$tmp.vt-ip.nf-role + '|' + 
+			$tmp.vt-ip.network-instance-group-function + '|' +
+			$tmp.vt-ip.type + '|' + 
+			$tmp.vt-ip.ip-version`" />
+                            <!--	
+loating-ip client-key:
+nf-role + network-instance-group-function + "VIP" + [ip-version(4/6)]
+-->
+                        </set>
+                    </block>
+                </outcome>
+            </switch>
+            <switch test="`$tmp.vt-ip.network-id == '' and $tmp.vt-ip.network-instance-group-id == '' `">
+                <outcome value='true'>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value='either network-id or network-isntance-group-id is required' />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test="`$tmp.vt-ip.network-id != '' `">
+                <outcome value='true'>
+                    <block atomic='true'>
+                        <set>
+                            <parameter name='tmp.sql' 
+	value="`'SELECT * from EIPAM_IP_SUBNETS WHERE network_id = ' + 
+	'$tmp.vt-ip.network-id AND address_family like $tmp.sql.address-family'`" />
+                        </set>
+                        <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='`$tmp.sql`' pfx='db.selected-subnet-data[]'>
+                            <outcome value='failure'>
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value = 'Failed to read EIPAM_IP_SUBNETS table' />
+                                </return>
+                            </outcome>
+                            <outcome value='not-found'>
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value = "`'No EIPAM_IP_SUBNETS entry found with network-id = ' + $tmp.vt-ip.network-id + ' and address_family = ' + $tmp.address-family`" />
+                                </return>
+                            </outcome>
+                        </get-resource>
+                        <set>
+                            <parameter name="eipam-ip-block.plans[0].requests[0].network-id" 
+	value="`$tmp.vt-ip.network-id`"/>
+                        </set>
+                    </block>
+                </outcome>
+                <outcome value='false'>
+                    <switch test="`$tmp.vt-ip.network-instance-group-id != '' `">
+                        <outcome value='true'>
+                            <block atomic='true'>
+                                <set>
+                                    <parameter name='tmp.sql' 
+	value="`'SELECT * from EIPAM_IP_SUBNETS WHERE network_instance_group_id = '+ 
+		'$tmp.vt-ip.network-instance-group-id AND address_family like $tmp.sql.address-family'`" />
+                                </set>
+                                <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='`$tmp.sql`' pfx='db.selected-subnet-data[]'>
+                                    <outcome value='failure'>
+                                        <return status='failure'>
+                                            <parameter name='error-code' value='500' />
+                                            <parameter name='error-message' value = 'Failed to read EIPAM_IP_SUBNETS table' />
+                                        </return>
+                                    </outcome>
+                                    <outcome value='not-found'>
+                                        <return status='failure'>
+                                            <parameter name='error-code' value='500' />
+                                            <parameter name='error-message' value = "`'No EIPAM_IP_SUBNETS entry found with network-instance-group-id = ' + $tmp.vt-ip.network-instance-group-id + ' and address_family = ' + $tmp.address-family`" />
+                                        </return>
+                                    </outcome>
+                                </get-resource>
+                                <set>
+                                    <parameter name="eipam-ip-block.plans[0].requests[0].network-instance-group-id" 
+	value="`$tmp.vt-ip.network-instance-group-id`"/>
+                                </set>
+                            </block>
+                        </outcome>
+                    </switch>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='tmp.level4-key-found' value='false' />
+            </set>
+            <for index='didx' start='0' end='`$db.selected-subnet-data_length`' >
+                <set>
+                    <parameter name='tmp.sql' 
+	value="`'SELECT a.entity_id, a.key_name, a.key_value, a.level from EIPAM_IP_SUBNET_KEYS a where level = (SELECT MAX(level) from EIPAM_IP_SUBNET_KEYS b where b.entity_id = a.entity_id and entity_id = ' + ' $db.selected-subnet-data[$didx].entity-id )'`" />
+                </set>
+                <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='`$tmp.sql`' pfx='db.selected-subnet-keys'>
+                    <outcome value='failure'>
+                        <return status='failure'>
+                            <parameter name='error-code' value='500' />
+                            <parameter name='error-message' value = 'Failed to read EIPAM_IP_SUBNET_KEYS table to find MAX level by entity_id' />
+                        </return>
+                    </outcome>
+                    <outcome value='success'>
+                        <switch test="`$db.selected-subnet-keys.level == '4' `">
+                            <outcome value='false'>
+                                <block></block>
+                            </outcome>
+                            <outcome value='true'>
+                                <block>
+                                    <set>
+                                        <parameter name='tmp.level4-key-found' value='true' />
+                                    </set>
+                                    <set>
+                                        <parameter name='tmp.selected-entity-id' value='`$db.selected-subnet-keys.entity-id`' />
+                                    </set>
+                                    <set>
+                                        <parameter name='tmp.selected-plan-name' value='`$db.selected-subnet-data[$didx].plan-name`' />
+                                    </set>
+                                    <break/>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </outcome>
+                </get-resource>
+            </for>
+            <switch test="`$tmp.level4-key-found`">
+                <outcome value='false'>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value='No level 4 KeyName found in EIPAM_IP_SUBNET_KEYS' />
+                    </return>
+                </outcome>
+            </switch>
+            <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT * from EIPAM_IP_SUBNET_KEYS  
+  	where entity_id = $tmp.selected-entity-id order by level'
+  pfx='db.eipam-subnet-keys[]'>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value = 'Failed to read EIPAM_IP_SUBNET_KEYS table by entity_id' />
+                    </return>
+                </outcome>
+            </get-resource>
+            <for index='key' start='0' end='`$db.eipam-subnet-keys_length`' >
+                <set>
+                    <parameter name="eipam-ip-block.plans[0].requests[0].pools[$key].key-name" 
+	value="`$db.eipam-subnet-keys[$key].key-name`"/>
+                    <parameter name="eipam-ip-block.plans[0].requests[0].pools[$key].key-value" 
+	value="`$db.eipam-subnet-keys[$key].key-value`"/>
+                </set>
+            </for>
+            <set>
+                <parameter name='eipam-ip-block.plans[0].plan-name' value='`$tmp.selected-plan-name`' />
+                <parameter name='eipam-ip-block.plans[0].address-family' value="`$tmp.vt-ip.ip-version`" />
+                <parameter name='eipam-ip-block.plans[0].requests[0].client-key' 
+	value="`$tmp.selected-client-key`" />
+                <parameter name="eipam-ip-block.plans[0].requests[0].info" 
+	value="`$tmp.eipam.info`"/>
+                <parameter name="eipam-ip-block.plans[0].requests[0].pools_length" value="4"/>
+                <parameter name='eipam-ip-block.plans[0].requests_length' value='1' />
+                <parameter name="eipam-ip-block.plans_length" value="1"/>
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >
+                <parameter name='filename' value='/var/tmp/vlan-tag-ip.log' />
+            </execute>
+            <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="assignIPAddress">
+                <outcome value='failure'>
+                    <block atomic="true">
+                        <return status="failure">
+                            <parameter name="ack-final" value="Y" />
+                            <parameter name="error-code" value="500"/>
+                            <parameter name="error-message" value="`'An error occured while obtaining ip addresses from EIPAM: ' + $error-message`" />
+                        </return>
+                    </block>
+                </outcome>
+            </execute>
+        </block>
+    </method>
+</service-logic>

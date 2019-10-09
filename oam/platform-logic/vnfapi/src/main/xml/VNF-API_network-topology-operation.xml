@@ -1,0 +1,70 @@
+<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='VNF-API' version='${project.version}'><method rpc="network-topology-operation" mode="sync"><block atomic="true"><switch test="`$network-topology-operation-input.request-information.request-action`">
+<outcome value='NetworkActivateRequest'><block atomic="true">
+<switch test="`$network-topology-operation-input.network-request-information.network-name`"><outcome value='Other'><switch test="`$preload-data.network-topology-information.network-topology-identifier.network-name`"><outcome value='Other'><switch test="`$network-topology-operation-input.network-request-information.network-name == $preload-data.network-topology-information.network-topology-identifier.network-name`"><outcome value='false'>
+<return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value="`'No preload-data found to match input network-name = ' + $network-topology-operation-input.network-request-information.network-name`"/></return></outcome></switch></outcome><outcome value=''><return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='network-name not found from preload-data'/></return></outcome></switch></outcome><outcome value=''><return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='network-name is required from input'/></return></outcome></switch><switch test="`$network-topology-operation-input.network-request-information.network-type`"><outcome value='Other'><switch test="`$preload-data.network-topology-information.network-topology-identifier.network-type`"><outcome value='Other'><switch test="`$network-topology-operation-input.network-request-information.network-type == $preload-data.network-topology-information.network-topology-identifier.network-type`"><outcome value='false'>
+<return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value="`'No preload-data found to match input network-type = ' + $network-topology-operation-input.network-request-information.network-type`"/></return></outcome></switch></outcome><outcome value=''><return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='network-type not found from preload-data'/></return></outcome></switch></outcome><outcome value=''><return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='network-type is required from input'/></return></outcome></switch><switch test="`$network-topology-operation-input.service-information.service-instance-id`"><outcome value=''><return status='failure'>
+	<parameter name='error-code' value='500'/>
+	<parameter name='error-message' value='service-instance-id is required.'/></return></outcome></switch><switch test="`$network-topology-operation-input.network-request-information.aic-cloud-region`"><outcome value=''><return status='failure'>
+	<parameter name='error-code' value='500'/>
+	<parameter name='error-message' value='aic-cloud-region is required.'/></return></outcome></switch><switch test="`$network-topology-operation-input.network-request-information.tenant`"><outcome value=''><return status='failure'>
+	<parameter name='error-code' value='500'/>
+	<parameter name='error-message' value='tenant is required.'/></return></outcome></switch><switch test="`$network-topology-operation-input.service-information.service-id`"><outcome value=''><return status='failure'>
+	<parameter name='error-code' value='500'/>
+	<parameter name='error-message' value='service-id is required.'/></return></outcome></switch><switch test="`$network-topology-operation-input.sdnc-request-header.svc-action`">
+<!--
+leaf svc-action { 
+	type enumeration { 
+		enum "reserve";
+		enum "assign";
+		enum "activate";  // equal to commit
+		enum "delete";	  // equal to commit
+		enum "changeassign";
+		enum "changedelete";
+		enum "rollback";
+	}
+}
+-->
+
+<outcome value='Other'>
+<return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='svc-action is not found'/></return></outcome><outcome value='assign'><call module="VNF-API" rpc="network-topology-assign" mode="sync" >
+</call></outcome><outcome value='changeassign'><call module="VNF-API" rpc="network-topology-changeassign" mode="sync" >
+</call></outcome><outcome value='rollback'><call module="VNF-API" rpc="network-topology-rollback" mode="sync" >
+</call></outcome></switch></block></outcome><outcome value='DisconnectNetworkRequest'><switch test="`$network-topology-operation-input.sdnc-request-header.svc-action`">
+<!--
+leaf svc-action { 
+	type enumeration { 
+		enum "reserve";
+		enum "assign";
+		enum "activate";  // equal to commit
+		enum "delete";	  // equal to commit
+		enum "changeassign";
+		enum "changedelete";
+		enum "rollback";
+	}
+}
+-->
+
+<outcome value='rollback'><call module="VNF-API" rpc="network-topology-rollback" mode="sync" >
+</call></outcome><outcome value='delete'><call module="VNF-API" rpc="network-topology-delete" mode="sync" >
+</call></outcome><outcome value='Other'>
+<return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='svc-action is not found'/></return></outcome></switch></outcome><outcome value="Other">
+
+<return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='request-action is not found'/></return></outcome></switch></block></method></service-logic>

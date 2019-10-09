@@ -1,0 +1,234 @@
+[
+    {
+        "id": "d2908135.0d5d4",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 97,
+        "y": 79,
+        "z": "a630608e.55155",
+        "wires": [
+            [
+                "5471a4fa.5564ec"
+            ]
+        ]
+    },
+    {
+        "id": "5471a4fa.5564ec",
+        "type": "service-logic",
+        "name": "DataChange ${project.version}",
+        "module": "DataChange",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='DataChange' version='${project.version}'>",
+        "outputs": 1,
+        "x": 297.5,
+        "y": 79,
+        "z": "a630608e.55155",
+        "wires": [
+            [
+                "41ad4a7a.dfb5f4"
+            ]
+        ]
+    },
+    {
+        "id": "41ad4a7a.dfb5f4",
+        "type": "method",
+        "name": "method sotn-notification-handler",
+        "xml": "<method rpc='sotn-notification-handler' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 268.5,
+        "y": 160,
+        "z": "a630608e.55155",
+        "wires": [
+            [
+                "58822b09.726d74"
+            ]
+        ]
+    },
+    {
+        "id": "3b461d1c.951192",
+        "type": "execute",
+        "name": "execute parseIdFromTarget",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >\n<parameter name=\"original_string\" value='`$notification.push-change-update.datastore-changes.yang-patch.edit[0].target`'/>\n<parameter name=\"regex\" value=\"/\"/>\n<parameter name=\"ctx_memory_result_key\" value=\"yang-nodes\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 254,
+        "y": 220,
+        "z": "a630608e.55155",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a4b6ea60.fbfc48",
+        "type": "execute",
+        "name": "execute last node",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >\n<parameter name=\"original_string\" value='`$yang-nodes[$yang-nodes_length -1]`'/>\n<parameter name=\"regex\" value=\"=\"/>\n<parameter name=\"ctx_memory_result_key\" value=\"last-node\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 223.5,
+        "y": 280,
+        "z": "a630608e.55155",
+        "wires": [
+            [
+                "4fda0bd8.3d5334",
+                "a280007a.e935d"
+            ]
+        ]
+    },
+    {
+        "id": "4e95c5c1.30f36c",
+        "type": "execute",
+        "name": "execute parse topo node",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >\n<parameter name=\"original_string\" value='`$yang-nodes[$yang-nodes_length -2]`'/>\n<parameter name=\"regex\" value=\"=\"/>\n<parameter name=\"ctx_memory_result_key\" value=\"node-prefix\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1185.5,
+        "y": 280,
+        "z": "a630608e.55155",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4b491788.1b21b8",
+        "type": "set",
+        "name": "set unique-ltpId",
+        "xml": "<set>\n<parameter name='unique-ltpId' value=\"`'nodeId-' + $node-prefix[$node-prefix_length -1] + '-ltpId-' + $last-node[$last-node_length -1]`\" />\n",
+        "comments": "",
+        "x": 1156.5,
+        "y": 320,
+        "z": "a630608e.55155",
+        "wires": []
+    },
+    {
+        "id": "f935a561.72ecd8",
+        "type": "update",
+        "name": "update p-interface",
+        "xml": "<update plugin='org.onap.ccsdk.sli.adaptors.aai.AAIService' resource='p-interface' \n      key='pnf.pnf-name = $node.node-id\n      AND p-interface.interface-name = $unique-ltpId' >      \n<parameter name='interface-name' value='`$unique-ltpId`' />\n<parameter name='operational-status' value='`$notification.push-change-update.datastore-changes.yang-patch.edit[0].value.termination-point[0].te.oper-status`' />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1165,
+        "y": 360,
+        "z": "a630608e.55155",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "58822b09.726d74",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 491,
+        "y": 160,
+        "z": "a630608e.55155",
+        "wires": [
+            [
+                "3b461d1c.951192",
+                "a4b6ea60.fbfc48"
+            ]
+        ]
+    },
+    {
+        "id": "8ad7a79a.b1d9a8",
+        "type": "switchNode",
+        "name": "switch last-node type",
+        "xml": "<switch test='`$last-node[0]`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 734,
+        "y": 260,
+        "z": "a630608e.55155",
+        "wires": [
+            [
+                "4f529877.c2c438"
+            ]
+        ]
+    },
+    {
+        "id": "4f529877.c2c438",
+        "type": "outcome",
+        "name": "outcome ietf-network-topology:termination-point",
+        "xml": "<outcome value='ietf-network-topology:termination-point'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 696,
+        "y": 320,
+        "z": "a630608e.55155",
+        "wires": [
+            [
+                "33395266.1d862e"
+            ]
+        ]
+    },
+    {
+        "id": "33395266.1d862e",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 971,
+        "y": 320,
+        "z": "a630608e.55155",
+        "wires": [
+            [
+                "4e95c5c1.30f36c",
+                "4b491788.1b21b8",
+                "f935a561.72ecd8"
+            ]
+        ]
+    },
+    {
+        "id": "f7127d7b.6e386",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 550,
+        "y": 260,
+        "z": "a630608e.55155",
+        "wires": [
+            [
+                "8ad7a79a.b1d9a8"
+            ]
+        ]
+    },
+    {
+        "id": "4fda0bd8.3d5334",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 414,
+        "y": 260,
+        "z": "a630608e.55155",
+        "wires": [
+            [
+                "f7127d7b.6e386"
+            ]
+        ]
+    },
+    {
+        "id": "a280007a.e935d",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 410,
+        "y": 300,
+        "z": "a630608e.55155",
+        "wires": [
+            []
+        ]
+    }
+]

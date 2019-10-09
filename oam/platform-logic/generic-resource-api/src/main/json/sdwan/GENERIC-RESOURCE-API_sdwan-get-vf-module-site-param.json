@@ -1,0 +1,910 @@
+[
+    {
+        "id": "484180f6.294fb",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 121.00390625,
+        "y": 54.00390625,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "39a32e97.7d2bf2"
+            ]
+        ]
+    },
+    {
+        "id": "39a32e97.7d2bf2",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 299.00391006469727,
+        "y": 119.0039234161377,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "cdd33b78.958888"
+            ]
+        ]
+    },
+    {
+        "id": "cdd33b78.958888",
+        "type": "method",
+        "name": "sdwan-get-vf-module-site-param",
+        "xml": "<method rpc='sdwan-get-vf-module-site-param' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 287.0040283203125,
+        "y": 207.00390625,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "3b8b7ba0.ba9d74"
+            ]
+        ]
+    },
+    {
+        "id": "3b8b7ba0.ba9d74",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 294.00392150878906,
+        "y": 293.0039644241333,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "cf281c73.11274"
+            ]
+        ]
+    },
+    {
+        "id": "cf281c73.11274",
+        "type": "for",
+        "name": "for each sdwan-get-request-input-param",
+        "xml": "<for index=\"idx\" start=\"0\" end=\"`$vf-module-topology-operation-input.vf-module-request-input.vf-module-input-parameters.param_length`\">\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 330.6706848144531,
+        "y": 375.670560836792,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "f885ce18.55215"
+            ]
+        ]
+    },
+    {
+        "id": "f885ce18.55215",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 617.5042343139648,
+        "y": 293.00400829315186,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "4a5ce4fc.97fe0c",
+                "f4cc368c.35bde8",
+                "70d53de2.3d5724",
+                "b1d10119.2f141",
+                "6aa3af3.d91fd5",
+                "3a7c3a06.65f626",
+                "50debd23.9a1de4",
+                "4dc3fc8d.6fd204",
+                "b069280b.7f4bd8",
+                "5aa9fa90.43fe74",
+                "db390dd0.a9e2a",
+                "fd28eb0c.be3ba8",
+                "8406a399.f2e3e",
+                "b6ec51e3.02bd9"
+            ]
+        ]
+    },
+    {
+        "id": "4a5ce4fc.97fe0c",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+        "comments": "",
+        "x": 819.005012512207,
+        "y": 726.0046715736389,
+        "z": "3ab9f09a.78056",
+        "wires": []
+    },
+    {
+        "id": "f4cc368c.35bde8",
+        "type": "switchNode",
+        "name": "switch name",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'name'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 837.0039443969727,
+        "y": 89.003981590271,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "34b7e315.1a243c"
+            ]
+        ]
+    },
+    {
+        "id": "34b7e315.1a243c",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 979.0039443969727,
+        "y": 90.003981590271,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "b4b588e9.e7c4f8"
+            ]
+        ]
+    },
+    {
+        "id": "b4b588e9.e7c4f8",
+        "type": "set",
+        "name": "set name",
+        "xml": "<set>\n<parameter name='prop.site.name' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1113.0039443969727,
+        "y": 90.60398769378662,
+        "z": "3ab9f09a.78056",
+        "wires": []
+    },
+    {
+        "id": "70d53de2.3d5724",
+        "type": "switchNode",
+        "name": "switch name",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'name'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 833.0040512084961,
+        "y": 180.00393962860107,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "bd7892f2.73131"
+            ]
+        ]
+    },
+    {
+        "id": "bd7892f2.73131",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1011.0040645599365,
+        "y": 183.00393962860107,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "a01e32db.c7d83"
+            ]
+        ]
+    },
+    {
+        "id": "a01e32db.c7d83",
+        "type": "set",
+        "name": "set name",
+        "xml": "<set>\n<parameter name='prop.site.name' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1158.0040740966797,
+        "y": 182.60393524169922,
+        "z": "3ab9f09a.78056",
+        "wires": []
+    },
+    {
+        "id": "5aa9fa90.43fe74",
+        "type": "switchNode",
+        "name": "switch type",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'type'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 811.8997230529785,
+        "y": 477.9773893356323,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "1b07ddd4.378392"
+            ]
+        ]
+    },
+    {
+        "id": "69d26327.61da0c",
+        "type": "set",
+        "name": "set type",
+        "xml": "<set>\n<parameter name='prop.site.type' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n<parameter name='prop.site.sdwan' value='true' />",
+        "comments": "",
+        "x": 1463.8997840881348,
+        "y": 531.5773239135742,
+        "z": "3ab9f09a.78056",
+        "wires": []
+    },
+    {
+        "id": "db390dd0.a9e2a",
+        "type": "switchNode",
+        "name": "switch role",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'role'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 810.8994369506836,
+        "y": 585.9774322509766,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "e69860a9.0015d"
+            ]
+        ]
+    },
+    {
+        "id": "e69860a9.0015d",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 980.8994445800781,
+        "y": 595.9773950576782,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "9cd4ca73.3ac2d8"
+            ]
+        ]
+    },
+    {
+        "id": "b1d10119.2f141",
+        "type": "switchNode",
+        "name": "switch location-name",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'location-name'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 855.8992385864258,
+        "y": 221.9772481918335,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "8a7e81ba.e5188"
+            ]
+        ]
+    },
+    {
+        "id": "8a7e81ba.e5188",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1019.8994102478027,
+        "y": 221.9772491455078,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "f5bb619c.343e3"
+            ]
+        ]
+    },
+    {
+        "id": "f5bb619c.343e3",
+        "type": "set",
+        "name": "set location-name",
+        "xml": "<set>\n<parameter name='prop.site.location-name' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1181.8994216918945,
+        "y": 221.5773057937622,
+        "z": "3ab9f09a.78056",
+        "wires": []
+    },
+    {
+        "id": "6aa3af3.d91fd5",
+        "type": "switchNode",
+        "name": "switch address",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'address'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 838.8992385864258,
+        "y": 257.97725200653076,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "3614458a.d4ba8a"
+            ]
+        ]
+    },
+    {
+        "id": "3614458a.d4ba8a",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1008.8990859985352,
+        "y": 265.97725105285645,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "8230e765.9acfa8"
+            ]
+        ]
+    },
+    {
+        "id": "8230e765.9acfa8",
+        "type": "set",
+        "name": "set location-address",
+        "xml": "<set>\n<parameter name='prop.site.location-address' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1196.8992614746094,
+        "y": 261.57722663879395,
+        "z": "3ab9f09a.78056",
+        "wires": []
+    },
+    {
+        "id": "3a7c3a06.65f626",
+        "type": "switchNode",
+        "name": "switch postcode",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'postcode'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 839.8992385864258,
+        "y": 299.9772129058838,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "17049263.1424ae"
+            ]
+        ]
+    },
+    {
+        "id": "17049263.1424ae",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1004.8994102478027,
+        "y": 298.9772129058838,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "6c71f682.a61eb8"
+            ]
+        ]
+    },
+    {
+        "id": "6c71f682.a61eb8",
+        "type": "set",
+        "name": "set location-postcode",
+        "xml": "<set>\n<parameter name='prop.site.location-postcode' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1191.8992614746094,
+        "y": 300.5772294998169,
+        "z": "3ab9f09a.78056",
+        "wires": []
+    },
+    {
+        "id": "fd28eb0c.be3ba8",
+        "type": "switchNode",
+        "name": "switch controlPoint",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'controlPoint'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 829.7826614379883,
+        "y": 646.0042333602905,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "e84b540.ad3b8b"
+            ]
+        ]
+    },
+    {
+        "id": "e84b540.ad3b8b",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 991.782585144043,
+        "y": 642.0042562484741,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "6a601537.4b319c"
+            ]
+        ]
+    },
+    {
+        "id": "b2a19a82.68d928",
+        "type": "set",
+        "name": "set role",
+        "xml": "<set>\n<parameter name='prop.site.role' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n\n",
+        "comments": "",
+        "x": 1363.7827529907227,
+        "y": 570.0042057037354,
+        "z": "3ab9f09a.78056",
+        "wires": []
+    },
+    {
+        "id": "f2bf7a.aeab3088",
+        "type": "set",
+        "name": "set controlPoint",
+        "xml": "<set>\n<parameter name='prop.site.controlPoint' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n\n",
+        "comments": "",
+        "x": 1737.7825927734375,
+        "y": 689.0043344497681,
+        "z": "3ab9f09a.78056",
+        "wires": []
+    },
+    {
+        "id": "a54dec2e.97d4",
+        "type": "execute",
+        "name": "execute split roles",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >\n<parameter name=\"original_string\" value='`$prop.site.role`'/>\n<parameter name=\"regex\" value=\",\"/>\n<parameter name=\"ctx_memory_result_key\" value=\"prop.site.roles\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1391.448959350586,
+        "y": 619.0040884017944,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "9cd4ca73.3ac2d8",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1138.4490966796875,
+        "y": 599.0040884017944,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "b2a19a82.68d928",
+                "a54dec2e.97d4"
+            ]
+        ]
+    },
+    {
+        "id": "ba801506.77df48",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1555.4490089416504,
+        "y": 709.0040903091431,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "f2bf7a.aeab3088",
+                "7b2bb6bb.83c9d8"
+            ]
+        ]
+    },
+    {
+        "id": "7b2bb6bb.83c9d8",
+        "type": "execute",
+        "name": "execute split control points",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >\n<parameter name=\"original_string\" value='`$prop.site.controlPoint`'/>\n<parameter name=\"regex\" value=\",\"/>\n<parameter name=\"ctx_memory_result_key\" value=\"prop.site.controlpoints\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1762.4490699768066,
+        "y": 741.0041942596436,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "50debd23.9a1de4",
+        "type": "switchNode",
+        "name": "switch latitude",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'latitude'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 830.1155471801758,
+        "y": 344.00399017333984,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "58f650e6.ada6d"
+            ]
+        ]
+    },
+    {
+        "id": "58f650e6.ada6d",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1006.1153945922852,
+        "y": 339.00394916534424,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "536b62b7.33ab7c"
+            ]
+        ]
+    },
+    {
+        "id": "536b62b7.33ab7c",
+        "type": "set",
+        "name": "set location-latitude",
+        "xml": "<set>\n<parameter name='prop.site.location-latitude' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1180.1154022216797,
+        "y": 337.60396575927734,
+        "z": "3ab9f09a.78056",
+        "wires": []
+    },
+    {
+        "id": "4dc3fc8d.6fd204",
+        "type": "switchNode",
+        "name": "switch longitude",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'longitude'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 833.1155471801758,
+        "y": 384.0040330886841,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "f395b1da.86ab9"
+            ]
+        ]
+    },
+    {
+        "id": "f395b1da.86ab9",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1005.1155548095703,
+        "y": 379.004075050354,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "7695df92.1105c"
+            ]
+        ]
+    },
+    {
+        "id": "7695df92.1105c",
+        "type": "set",
+        "name": "set location-longitude",
+        "xml": "<set>\n<parameter name='prop.site.location-longitude' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1187.1154098510742,
+        "y": 382.60392665863037,
+        "z": "3ab9f09a.78056",
+        "wires": []
+    },
+    {
+        "id": "650d8fc0.b6389",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 996.1155548095703,
+        "y": 429.00407791137695,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "8334f7f2.2699d8"
+            ]
+        ]
+    },
+    {
+        "id": "d0f32787.0608d8",
+        "type": "set",
+        "name": "set emails",
+        "xml": "<set>\n<parameter name='prop.site.emails' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1354.115249633789,
+        "y": 397.6039299964905,
+        "z": "3ab9f09a.78056",
+        "wires": []
+    },
+    {
+        "id": "b069280b.7f4bd8",
+        "type": "switchNode",
+        "name": "switch emails",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'emails'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 823.1156234741211,
+        "y": 429.00407791137695,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "650d8fc0.b6389"
+            ]
+        ]
+    },
+    {
+        "id": "cb890556.5aec68",
+        "type": "execute",
+        "name": "execute split emails",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >\n<parameter name=\"original_string\" value='`$prop.site.emails`'/>\n<parameter name=\"regex\" value=\",\"/>\n<parameter name=\"ctx_memory_result_key\" value=\"prop.site.email\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1379.781593322754,
+        "y": 444.00383281707764,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8334f7f2.2699d8",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1158.1155624389648,
+        "y": 430.0039954185486,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "d0f32787.0608d8",
+                "cb890556.5aec68"
+            ]
+        ]
+    },
+    {
+        "id": "8406a399.f2e3e",
+        "type": "switchNode",
+        "name": "switch description",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'description'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 836.0039291381836,
+        "y": 133.0039103301242,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "df39a5b0.38ab18"
+            ]
+        ]
+    },
+    {
+        "id": "df39a5b0.38ab18",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 980.00390625,
+        "y": 135.00390625,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "77e9385a.343e78"
+            ]
+        ]
+    },
+    {
+        "id": "77e9385a.343e78",
+        "type": "set",
+        "name": "set description",
+        "xml": "<set>\n<parameter name='prop.site.description' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1126.0039825439453,
+        "y": 135.60393619537354,
+        "z": "3ab9f09a.78056",
+        "wires": []
+    },
+    {
+        "id": "bbcae826.787888",
+        "type": "other",
+        "name": "outcome Null",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1353.00394821167,
+        "y": 483.00396156311035,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "b7d9fe5a.8e045"
+            ]
+        ]
+    },
+    {
+        "id": "4964090b.461a88",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1336.5042762756348,
+        "y": 531.0039215087891,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "69d26327.61da0c"
+            ]
+        ]
+    },
+    {
+        "id": "1b07ddd4.378392",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 949.8996047973633,
+        "y": 477.97730827331543,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "dc18071d.1bddd8"
+            ]
+        ]
+    },
+    {
+        "id": "dc18071d.1bddd8",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1066.0039367675781,
+        "y": 480.00392055511475,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "46e35b04.b2e184"
+            ]
+        ]
+    },
+    {
+        "id": "46e35b04.b2e184",
+        "type": "switchNode",
+        "name": "switch value",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1196.0039405822754,
+        "y": 512.0039196014404,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "bbcae826.787888",
+                "4964090b.461a88"
+            ]
+        ]
+    },
+    {
+        "id": "b7d9fe5a.8e045",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1492.0039520263672,
+        "y": 483.00391960144043,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6a601537.4b319c",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1129.00390625,
+        "y": 655.00390625,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "f5a10a50.3b7ee8"
+            ]
+        ]
+    },
+    {
+        "id": "f5a10a50.3b7ee8",
+        "type": "switchNode",
+        "name": "switch value",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1259.0039100646973,
+        "y": 687.0039052963257,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "9d775805.ce9a18",
+                "603a4c12.7819c4"
+            ]
+        ]
+    },
+    {
+        "id": "9d775805.ce9a18",
+        "type": "other",
+        "name": "outcome Null",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1416.0039176940918,
+        "y": 658.0039472579956,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "73c6eb1d.a33c74"
+            ]
+        ]
+    },
+    {
+        "id": "603a4c12.7819c4",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1399.5042457580566,
+        "y": 706.0039072036743,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            [
+                "ba801506.77df48"
+            ]
+        ]
+    },
+    {
+        "id": "73c6eb1d.a33c74",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1555.003921508789,
+        "y": 658.0039052963257,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b6ec51e3.02bd9",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.FileRecorder\">\n<parameter name=\"file\" value=\"/opt/opendaylight/current/data/log/svclogic2.log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"'vf-module-site-params'\"/>\n<parameter name=\"field3\" value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].name`'/>\n\n\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 824.0000228881836,
+        "y": 33,
+        "z": "3ab9f09a.78056",
+        "wires": [
+            []
+        ]
+    }
+]

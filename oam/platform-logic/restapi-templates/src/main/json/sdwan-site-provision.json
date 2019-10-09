@@ -1,0 +1,9 @@
+{
+    "siteIds": [${repeat:prop.provision.hubspokesite_length:
+        ${prop.provision.hubspokesite[${1}]},
+     }
+    ],
+    "encryptionKey":null,
+    "validityPeriod":3
+}
+

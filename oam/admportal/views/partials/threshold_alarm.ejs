@@ -1,0 +1,71 @@
+<div class="modal fade" id="add_threshold_alarm" tabindex="-1" role="dialog"
+        aria-labelledby="add_threshold_alarm_label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Add Threshold Alarm</h4>
+          </div>
+          <div class="modal-body">
+            <form name="addForm" role="form" action="/resalloc/addThresholdAlarm" method="POST">
+              <div class="form-group">
+                <label for="nf_resource_rule_id">*Resource Rule ID</label>
+                <input type="text" class="form-control" maxlength="20" name="nf_resource_rule_id" id="nf_resource_rule_id" placeholder="bigint(20)">
+              </div>
+              <div class="form-group">
+                <label for="nf_threshold_expression">*Threshold Expression</label>
+                <input type="text" class="form-control" maxlength="2000" name="nf_threshold_expression" id="nf_threshold_expression" placeholder="varchar(2000)">
+              </div>
+              <div class="form-group">
+                <label for="nf_threshold_message">*Threshold Message</label>
+                <input type="text" class="form-control" maxlength="500" name="nf_threshold_message" id="nf_threshold_message" placeholder="varchar(500)">
+              </div>
+              <div class="form-group">
+                <input type="hidden" name="nf_action" id="nf_action">
+                <button type="button" class="btn btn-primary" onclick="submitThresholdAlarm(this.form);">Submit</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>
+
+
+   <div class="modal fade" id="update_threshold_alarm" tabindex="-1" role="dialog" 
+		aria-labelledby="threshold_alarm_label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Update Threshold Alarm</h4>
+          </div>
+          <div class="modal-body">
+            <form name="updateForm" role="form" action="/resalloc/updateThresholdAlarm" method="POST">
+              <div class="form-group">
+                <label for="uf_resource_threshold_id">*Resource Threshold ID</label>
+                <input readonly type="text" class="form-control" name="uf_resource_threshold_id" id="uf_resource_threshold_id">
+              </div>
+              <div class="form-group">
+                <label for="uf_resource_rule_id">*Resource Rule ID</label>
+                <input type="text" class="form-control" maxlength="20" name="uf_resource_rule_id" id="uf_resource_rule_id" placeholder="bigint(20)">
+              </div>
+              <div class="form-group">
+                <label for="uf_threshold_expression">*Threshold Expression</label>
+                <input type="text" class="form-control" maxlength="2000" name="uf_threshold_expression" id="uf_threshold_expression" placeholder="varchar(2000)">
+              </div>
+              <div class="form-group">
+                <label for="uf_threshold_message">*Threshold Message</label>
+                <input type="text" class="form-control" maxlength="2000" name="uf_threshold_message" id="uf_threshold_message" placeholder="varchar(2000)">
+              </div>
+              <div class="form-group">
+				<input type="hidden" name="uf_action" id="uf_action">
+				<input type="hidden" name="uf_key_resource_threshold_id" id="uf_key_resource_threshold_id">
+                <button type="button" class="btn btn-primary" onclick="submitThresholdAlarm(this.form);">Submit</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>

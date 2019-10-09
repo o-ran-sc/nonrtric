@@ -1,0 +1,188 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='vf-module-topology-assign-rollback' mode='sync'>
+        <block>
+            <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module_length`'>
+                <outcome value='1'>
+                    <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].floating-ips.created-ipv4-flag`'>
+                        <outcome value='true'>
+                            <switch test='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[0].vnfcs.vnfc[0].vnic-groups.vnic-group[0].network-instance-group-id`'>
+                                <outcome value=''>
+                                    <block></block>
+                                </outcome>
+                                <outcome value='Other'>
+                                    <block>
+                                        <set>
+                                            <parameter name='tmp.status' value="`'PENDING_DELETE_' + $tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[0].vnfcs.vnfc[0].vnic-groups.vnic-group[0].network-instance-group-id`" />
+                                        </set>
+                                        <update plugin="org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource" resource="SQL"
+key="UPDATE EIPAM_IP_ASSIGNMENTS set status = $tmp.status WHERE info = $tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[0].vnfcs.vnfc[0].vnic-groups.vnic-group[0].network-instance-group-id" ></update>
+                                        <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="unassignIPAddress">
+                                            <parameter name="deleteEIPAM_status" value="`$tmp.status`" />
+                                        </execute>
+                                    </block>
+                                </outcome>
+                            </switch>
+                        </outcome>
+                        <outcome value='false'>
+                            <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].floating-ips.created-ipv6-flag`'>
+                                <outcome value='true'>
+                                    <switch test='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[0].vnfcs.vnfc[0].vnic-groups.vnic-group[0].network-instance-group-id`'>
+                                        <outcome value=''>
+                                            <block></block>
+                                        </outcome>
+                                        <outcome value='Other'>
+                                            <block>
+                                                <set>
+                                                    <parameter name='tmp.status' value="`'PENDING_DELETE_' + $tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[0].vnfcs.vnfc[0].vnic-groups.vnic-group[0].network-instance-group-id`" />
+                                                </set>
+                                                <update plugin="org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource" resource="SQL"
+key="UPDATE EIPAM_IP_ASSIGNMENTS set status = $tmp.status WHERE info = $tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[0].vnfcs.vnfc[0].vnic-groups.vnic-group[0].network-instance-group-id" ></update>
+                                                <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="unassignIPAddress">
+                                                    <parameter name="deleteEIPAM_status" value="`$tmp.status`" />
+                                                </execute>
+                                            </block>
+                                        </outcome>
+                                    </switch>
+                                </outcome>
+                            </switch>
+                        </outcome>
+                        <outcome value=''>
+                            <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].floating-ips.created-ipv6-flag`'>
+                                <outcome value='true'>
+                                    <switch test='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[0].vnfcs.vnfc[0].vnic-groups.vnic-group[0].network-instance-group-id`'>
+                                        <outcome value=''>
+                                            <block></block>
+                                        </outcome>
+                                        <outcome value='Other'>
+                                            <block>
+                                                <set>
+                                                    <parameter name='tmp.status' value="`'PENDING_DELETE_' + $tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[0].vnfcs.vnfc[0].vnic-groups.vnic-group[0].network-instance-group-id`" />
+                                                </set>
+                                                <update plugin="org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource" resource="SQL"
+key="UPDATE EIPAM_IP_ASSIGNMENTS set status = $tmp.status WHERE info = $tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[0].vnfcs.vnfc[0].vnic-groups.vnic-group[0].network-instance-group-id" ></update>
+                                                <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="unassignIPAddress">
+                                                    <parameter name="deleteEIPAM_status" value="`$tmp.status`" />
+                                                </execute>
+                                            </block>
+                                        </outcome>
+                                    </switch>
+                                </outcome>
+                            </switch>
+                        </outcome>
+                    </switch>
+                </outcome>
+            </switch>
+            <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-information.from-preload`'>
+                <outcome value='false'>
+                    <block>
+                        <set>
+                            <parameter name='tmp.status' value="`'PENDING_DELETE_' + $vf-module-topology-operation-input.vf-module-information.vf-module-id`" />
+                        </set>
+                        <update plugin="org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource" resource="SQL"
+key="UPDATE EIPAM_IP_ASSIGNMENTS set status = $tmp.status WHERE info = $vf-module-topology-operation-input.vf-module-information.vf-module-id" ></update>
+                        <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="unassignIPAddress">
+                            <parameter name="deleteEIPAM_status" value="`$tmp.status`" />
+                        </execute>
+                    </block>
+                </outcome>
+                <outcome value='true'>
+                    <for silentFailure='true' index='vm-type-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm_length`' >
+                        <for silentFailure='true' index='vnfc-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names_length`' >
+                            <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-name`'>
+                                <outcome value=''>
+                                    <block></block>
+                                </outcome>
+                                <outcome value='Other'>
+                                    <block>
+                                        <set>
+                                            <parameter name='naming-policy-generate-name-input.naming-type' value='VNFC' />
+                                            <parameter name='naming-policy-generate-name-input.context-id' value='`$vf-module-topology-operation-input.vf-module-information.vf-module-id`' />
+                                            <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                        </set>
+                                        <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                    </block>
+                                </outcome>
+                            </switch>
+                        </for>
+                    </for>
+                </outcome>
+            </switch>
+            <for silentFailure='true' index='vm-type-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm_length`' >
+                <block>
+                    <for silentFailure='true' index='vnfc-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names_length`' >
+                        <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].created_flag`'>
+                            <outcome value='true'>
+                                <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+        resource="vnfc" 
+        key="vnfc.vnfc-name = $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-name" ></delete>
+                            </outcome>
+                        </switch>
+                    </for>
+                    <for silentFailure='true' index='network-role-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network_length`' >
+                        <block>
+                            <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].created-flag`'>
+                                <outcome value='true'>
+                                    <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" resource="vf-module:relationship-list"
+    key="vf-module.vf-module-id = $service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-id
+      AND generic-vnf.vnf-id = $service-data.vnfs.vnf[$vnf-index].vnf-id
+      AND related-to = l3-network
+      AND l3-network.network-id = $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$network-role-index].network-id" ></delete>
+                                </outcome>
+                            </switch>
+                            <for silentFailure='true' index='vnfc-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names_length`' >
+                                <block>
+                                    <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].floating-ips.created-ipv4-flag`'>
+                                        <outcome value='true'>
+                                            <for silentFailure='true' index='ipv4-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].floating-ips.floating-ip-v4_length`' >
+                                                <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+   resource="vip-ipv4-address-list" 
+   key="cloud-region.cloud-owner = $prop.cloud-region.cloud-owner
+	  AND cloud-region.cloud-region-id = $vf-module-topology-operation-input.vf-module-request-input.aic-cloud-region
+	  AND vip-ipv4-address-list.vip-ipv4-address = $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].floating-ips.floating-ip-v4[$ipv4-index]" ></delete>
+                                            </for>
+                                        </outcome>
+                                    </switch>
+                                    <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].floating-ips.created-ipv6-flag`'>
+                                        <outcome value='true'>
+                                            <for silentFailure='true' index='ipv6-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].floating-ips.floating-ip-v6_length`' >
+                                                <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+   resource="vip-ipv6-address-list" 
+   key="cloud-region.cloud-owner = $prop.cloud-region.cloud-owner
+	  AND cloud-region.cloud-region-id = $vf-module-topology-operation-input.vf-module-request-input.aic-cloud-region
+	  AND vip-ipv6-address-list.vip-ipv6-address = $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].floating-ips.floating-ip-v6[$ipv6-index]" ></delete>
+                                            </for>
+                                        </outcome>
+                                    </switch>
+                                </block>
+                            </for>
+                        </block>
+                    </for>
+                </block>
+            </for>
+            <switch test='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[0].vnfcs.vnfc[0].vnic-groups.vnic-group[0].network-instance-group-id`'>
+                <outcome value=''>
+                    <block></block>
+                </outcome>
+                <outcome value='Other'>
+                    <for index='nig-index' start='0' end='`$service-data.network-instance-groups.network-instance-group_length`' >
+                        <switch test='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[0].vnfcs.vnfc[0].vnic-groups.vnic-group[0].network-instance-group-id
+  == $service-data.network-instance-groups.network-instance-group[$nig-index].network-instance-group-id`'>
+                            <outcome value='true'>
+                                <for index='network-index' start='0' end='`$service-data.network-instance-groups.network-instance-group[$nig-index].networks.network_length`' >
+                                    <set>
+                                        <parameter name='service-data.network-instance-groups.network-instance-group[$nig-index].networks.network[$network-index].vlan-tag-id'
+  value='' />
+                                        <parameter name='service-data.network-instance-groups.network-instance-group[$nig-index].networks.network[$network-index].network-status'
+  value='unassigned' />
+                                    </set>
+                                </for>
+                            </outcome>
+                        </switch>
+                    </for>
+                </outcome>
+            </switch>
+        </block>
+    </method>
+</service-logic>

@@ -1,0 +1,1026 @@
+[
+    {
+        "id": "b83fc37f.f69e88",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 160,
+        "y": 45,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "78e991f6.6f7c58"
+            ]
+        ]
+    },
+    {
+        "id": "1dd92dc7.5da5d2",
+        "type": "method",
+        "name": "method get-data-from-policy",
+        "xml": "<method rpc='get-data-from-policy' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 750,
+        "y": 45,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "33ec20fb.28aa18"
+            ]
+        ]
+    },
+    {
+        "id": "78e991f6.6f7c58",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 427.9403991699219,
+        "y": 45.32145690917969,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "1dd92dc7.5da5d2"
+            ]
+        ]
+    },
+    {
+        "id": "cbf06f1d.725928",
+        "type": "comment",
+        "name": "Call Policy Manager getPolicy",
+        "info": "",
+        "comments": "",
+        "x": 314,
+        "y": 228,
+        "z": "9eef7e7e.8f1058",
+        "wires": []
+    },
+    {
+        "id": "46375ae1.7b558c",
+        "type": "execute",
+        "name": "execute RestapiCallNode",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='templateFileName' value=\"`$prop.restapi.templateDir + '/' + $prop.restapi.pm.getpolicy.templatefile`\" />\n    <parameter name='restapiUrl' value=\"`$prop.policy-manager.url + '/pdp/api/getConfig'`\" />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='POST' />  \n    <parameter name='customHttpHeaders'\n      value=\"`'Authorization=Basic ' + $prop.policy-manager.authorization + ',ClientAuth=Basic ' + $prop.policy-manager.clientauth + ',Environment=' + $prop.policy-manager.environment `\" />\n\t<parameter name=\"responsePrefix\" value=\"tmp.pm-response\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 468,
+        "y": 352,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "a789fff2.8e6668",
+                "f694d7c1.52ec1"
+            ]
+        ]
+    },
+    {
+        "id": "19b66f4d.72dee9",
+        "type": "set",
+        "name": "set",
+        "xml": "<set>\n<parameter name='tmp.policy-name' value=\"`$get-data-from-policy-input.policy-instance-name`\" />\n",
+        "comments": "",
+        "x": 414,
+        "y": 273,
+        "z": "9eef7e7e.8f1058",
+        "wires": []
+    },
+    {
+        "id": "4ce19c9e.b25124",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 271,
+        "y": 271,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "19b66f4d.72dee9",
+                "46375ae1.7b558c",
+                "ac19e1c6.8e36a8",
+                "d8d1e5cb.101cc",
+                "f617542d.84f16",
+                "a278ba14.2107c8"
+            ]
+        ]
+    },
+    {
+        "id": "ac19e1c6.8e36a8",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"com.att.sdnctl.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: get-data-from-policy: restapi-call-node Call Policy Manager getPolicy\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 414,
+        "y": 313,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d7e1c7cf.a18d1",
+        "type": "execute",
+        "name": "execute readProperties",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >\n    <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />\n    <parameter name='contextPrefix' value='prop' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 977,
+        "y": 117,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "59fd6138.91c4f8",
+                "d5dccc24.0e693"
+            ]
+        ]
+    },
+    {
+        "id": "59fd6138.91c4f8",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1224,
+        "y": 95,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "b5511e69.3d8618"
+            ]
+        ]
+    },
+    {
+        "id": "d5dccc24.0e693",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1222,
+        "y": 136,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "947a2b69.ec9398"
+            ]
+        ]
+    },
+    {
+        "id": "33ec20fb.28aa18",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 162,
+        "y": 85,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "4ce19c9e.b25124",
+                "a8f9fb15.acf4e"
+            ]
+        ]
+    },
+    {
+        "id": "72af1062.d19fd8",
+        "type": "comment",
+        "name": "Read properties",
+        "info": "",
+        "comments": "",
+        "x": 952,
+        "y": 70,
+        "z": "9eef7e7e.8f1058",
+        "wires": []
+    },
+    {
+        "id": "f3a9b2ce.918548",
+        "type": "comment",
+        "name": "Process Policy Manager response",
+        "info": "Use the three naming components returned from Policy Manager to build the name\n\nExtract from json response three data components:\n\n1. VNFNAME\n2. CONSTANT_TAG\n3. SEQUENCE",
+        "comments": "",
+        "x": 498,
+        "y": 443,
+        "z": "9eef7e7e.8f1058",
+        "wires": []
+    },
+    {
+        "id": "d8d1e5cb.101cc",
+        "type": "execute",
+        "name": "execute jsonStringToCtx",
+        "xml": "<execute plugin=\"org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils\" method=\"jsonStringToCtx\">\n\t<parameter name=\"source\" value=\"policy-config\" />\n\t<parameter name=\"outputPath\" value=\"jsonContextPrefix\" />\n\t<parameter name=\"isEscaped\" value=\"true\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 474,
+        "y": 523,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "9bb879f3.58bda",
+                "8ddbc03f.308d9"
+            ]
+        ]
+    },
+    {
+        "id": "f617542d.84f16",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: get-data-from-policy: call jsonStringToCtx\"/>\n<parameter name='field3' value='`$policy-config`' />",
+        "comments": "",
+        "outputs": 1,
+        "x": 419,
+        "y": 481,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a789fff2.8e6668",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 671,
+        "y": 342,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "b2b110f6.fc0288"
+            ]
+        ]
+    },
+    {
+        "id": "9a2680ce.7f8d88",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: get-data-from-policy: Error calling Policy Manager getPolicy\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 932,
+        "y": 303,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f694d7c1.52ec1",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 673,
+        "y": 384,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "4b6fc822.22489"
+            ]
+        ]
+    },
+    {
+        "id": "f53edd55.57cb58",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: get-data-from-policy: getPolicy SUCCESS\"/>\n<parameter name='field3' value='`$tmp.pm-response.type`' />\n<parameter name='field4' value='`$tmp.pm-response.matchingConditions`' />\n<parameter name='field5' value='`$tmp.pm-response.config`' />\n<parameter name='field6' value='`$tmp.pm-response.response-code`' />\n<parameter name='field7' value='`$tmp.pm-response.response-message`' />",
+        "comments": "",
+        "outputs": 1,
+        "x": 927,
+        "y": 380,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "bf2f9549.b5432",
+        "type": "set",
+        "name": "set",
+        "xml": "<set>\n<parameter name='policy-config' value=\"`$tmp.pm-response.config`\" />\n",
+        "comments": "",
+        "x": 928,
+        "y": 418,
+        "z": "9eef7e7e.8f1058",
+        "wires": []
+    },
+    {
+        "id": "9bb879f3.58bda",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 671,
+        "y": 524,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "e4a38d89.8cc9c8"
+            ]
+        ]
+    },
+    {
+        "id": "bb351685.940688",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: get-data-from-policy: Error calling jsonStringToCtx\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 925,
+        "y": 515,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8ddbc03f.308d9",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 491,
+        "y": 573,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "3c75d70f.d3c808"
+            ]
+        ]
+    },
+    {
+        "id": "596244e1.06352c",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: get-data-from-policy: jsonStringToCtx SUCCESS: policyName|policy-data|\"/>\n<parameter name='field3' value='`$jsonContextPrefix.policyName`' />\n<parameter name='field4' value='`$jsonContextPrefix.content.policy-data`' />",
+        "comments": "",
+        "outputs": 1,
+        "x": 674,
+        "y": 620,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3c75d70f.d3c808",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 502,
+        "y": 616,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "596244e1.06352c",
+                "dd037e4c.c7bb3",
+                "5c9052.5d187fb",
+                "17b1aaaa.debfa5",
+                "11920eb2.868ba1"
+            ]
+        ]
+    },
+    {
+        "id": "6c8a4a5d.6a7de4",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='502' />\n<parameter name='error-message' value='get-data-from-policy: getPolicy call to Policy Manger failed' />\n",
+        "comments": "",
+        "x": 950,
+        "y": 341,
+        "z": "9eef7e7e.8f1058",
+        "wires": []
+    },
+    {
+        "id": "f2b6fd24.7801",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='504' />\n<parameter name='error-message' value='get-data-from-policy: failed to parse Policy Manger getPolicy response' />\n",
+        "comments": "",
+        "x": 941,
+        "y": 554,
+        "z": "9eef7e7e.8f1058",
+        "wires": []
+    },
+    {
+        "id": "b2b110f6.fc0288",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 798,
+        "y": 341,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "9a2680ce.7f8d88",
+                "6c8a4a5d.6a7de4"
+            ]
+        ]
+    },
+    {
+        "id": "e4a38d89.8cc9c8",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 799,
+        "y": 524,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "bb351685.940688",
+                "f2b6fd24.7801"
+            ]
+        ]
+    },
+    {
+        "id": "61c23f62.ad7b28",
+        "type": "comment",
+        "name": "Validate inputs",
+        "info": "",
+        "comments": "",
+        "x": 948,
+        "y": 178,
+        "z": "9eef7e7e.8f1058",
+        "wires": []
+    },
+    {
+        "id": "392811b2.b8197e",
+        "type": "switchNode",
+        "name": "switch input.policy-instance-name",
+        "xml": "<switch test='`$get-data-from-policy-input.policy-instance-name`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1007,
+        "y": 226,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "71c6380.f2d7cc8"
+            ]
+        ]
+    },
+    {
+        "id": "71c6380.f2d7cc8",
+        "type": "other",
+        "name": "Blank",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1224,
+        "y": 229,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "ac7758e6.06c038"
+            ]
+        ]
+    },
+    {
+        "id": "a8f9fb15.acf4e",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 270,
+        "y": 178,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "d7e1c7cf.a18d1",
+                "392811b2.b8197e"
+            ]
+        ]
+    },
+    {
+        "id": "d0858194.bb868",
+        "type": "comment",
+        "name": "Read properties and validate inputs",
+        "info": "",
+        "comments": "",
+        "x": 341,
+        "y": 132,
+        "z": "9eef7e7e.8f1058",
+        "wires": []
+    },
+    {
+        "id": "4b6fc822.22489",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 799,
+        "y": 385,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "f53edd55.57cb58",
+                "bf2f9549.b5432",
+                "9c6a1592.fb19c8"
+            ]
+        ]
+    },
+    {
+        "id": "9c6a1592.fb19c8",
+        "type": "switchNode",
+        "name": "switch response-code",
+        "xml": "<switch test='`$tmp.pm-response.response-code`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 983,
+        "y": 462,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "6e86997d.26955"
+            ]
+        ]
+    },
+    {
+        "id": "6e86997d.26955",
+        "type": "outcome",
+        "name": "500",
+        "xml": "<outcome value='500'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1165,
+        "y": 463,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "659860d.dc39e2"
+            ]
+        ]
+    },
+    {
+        "id": "659860d.dc39e2",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1168,
+        "y": 511,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "10b87f4.b81b681",
+                "cb7b17e7.127258"
+            ]
+        ]
+    },
+    {
+        "id": "10b87f4.b81b681",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: get-data-from-policy: Error calling Policy Manager getPolicy\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1316,
+        "y": 489,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "cb7b17e7.127258",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='502' />\n<parameter name='error-message' value='get-data-from-policy: getPolicy call to Policy Manger failed' />\n",
+        "comments": "",
+        "x": 1336,
+        "y": 528,
+        "z": "9eef7e7e.8f1058",
+        "wires": []
+    },
+    {
+        "id": "b5511e69.3d8618",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1380,
+        "y": 95,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "4f062576.7b6584"
+            ]
+        ]
+    },
+    {
+        "id": "947a2b69.ec9398",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1359,
+        "y": 138,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "24195f46.ca98f8",
+                "566a8d54.f462dc"
+            ]
+        ]
+    },
+    {
+        "id": "4f062576.7b6584",
+        "type": "GenericXML",
+        "name": "record",
+        "xml": "<record  plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: get-data-from-policy: read properties file.\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1527,
+        "y": 95,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "24195f46.ca98f8",
+        "type": "GenericXML",
+        "name": "record",
+        "xml": "<record  plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: get-data-from-policy: Could not read properties file.\"/>\n<parameter name=\"field3\" value='`$prop.restapi.pm.getpolicy.templatefile`'/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1528,
+        "y": 135,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "566a8d54.f462dc",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='501' />\n<parameter name='error-message' value='get-data-from-policy: could not read generic-resource-api properties' />\n",
+        "comments": "",
+        "x": 1547,
+        "y": 176,
+        "z": "9eef7e7e.8f1058",
+        "wires": []
+    },
+    {
+        "id": "ac7758e6.06c038",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1368,
+        "y": 229,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "d28d8a99.9ae948",
+                "3c7d35d5.15560a"
+            ]
+        ]
+    },
+    {
+        "id": "d28d8a99.9ae948",
+        "type": "GenericXML",
+        "name": "record",
+        "xml": "<record  plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: get-data-from-policy: input.policy-instance-name is not set\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1530,
+        "y": 228,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3c7d35d5.15560a",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='507' />\n<parameter name='error-message' value='get-data-from-policy: input.policy-instance-name is not set' />\n",
+        "comments": "",
+        "x": 1545,
+        "y": 264,
+        "z": "9eef7e7e.8f1058",
+        "wires": []
+    },
+    {
+        "id": "925a65d4.ac3ab8",
+        "type": "comment",
+        "name": "Loop thru policy-data when it is a list",
+        "info": "",
+        "comments": "",
+        "x": 588,
+        "y": 691,
+        "z": "9eef7e7e.8f1058",
+        "wires": []
+    },
+    {
+        "id": "c1f590f5.8f2c5",
+        "type": "for",
+        "name": "for each policy-data element",
+        "xml": "<for index='policyDataIndex' start='0' end='`$jsonContextPrefix.content.policy-data_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1014,
+        "y": 737,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "e9c505d9.7641f8",
+                "27b7d1c2.c574de"
+            ]
+        ]
+    },
+    {
+        "id": "56f2caaf.a21404",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 793,
+        "y": 737,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "c1f590f5.8f2c5"
+            ]
+        ]
+    },
+    {
+        "id": "e9c505d9.7641f8",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: get-data-from-policy: policyDataIndex|nf-role|rule-1|rule-2:\"/>\n<parameter name='field3' value='`$policyDataIndex`' />\n<parameter name='field4' value='`$jsonContextPrefix.content.policy-data[$policyDataIndex].nf-role`' />\n<parameter name='field5' value='`$jsonContextPrefix.content.policy-data[$policyDataIndex].rule-1`' />\n<parameter name='field6' value='`$jsonContextPrefix.content.policy-data[$policyDataIndex].rule-2`' />",
+        "comments": "",
+        "outputs": 1,
+        "x": 987,
+        "y": 837,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5c9052.5d187fb",
+        "type": "set",
+        "name": "set known policy-data element name and value",
+        "xml": "<set>\n<parameter name='get-data-from-policy-output.' value='`$jsonContextPrefix.content.policy-data.`'  />",
+        "comments": "",
+        "x": 619,
+        "y": 1187,
+        "z": "9eef7e7e.8f1058",
+        "wires": []
+    },
+    {
+        "id": "3f8ba63d.63076a",
+        "type": "for",
+        "name": "for each nested extended-params element extract name and value",
+        "xml": "<for index='policyDataExtendedParamsIndex' start='0' end='`$jsonContextPrefix.content.policy-data.extended-params_length`' >",
+        "comments": "",
+        "outputs": 1,
+        "x": 1125,
+        "y": 947,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "46e505f4.b9ba4c",
+                "f735acce.c6ff4",
+                "478129ad.d071b8"
+            ]
+        ]
+    },
+    {
+        "id": "a2112800.e14638",
+        "type": "comment",
+        "name": "Get extended-params when policy-data is not a list",
+        "info": "",
+        "comments": "",
+        "x": 627,
+        "y": 893,
+        "z": "9eef7e7e.8f1058",
+        "wires": []
+    },
+    {
+        "id": "dff4e845.8c2d38",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 792,
+        "y": 947,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "3f8ba63d.63076a"
+            ]
+        ]
+    },
+    {
+        "id": "46e505f4.b9ba4c",
+        "type": "set",
+        "name": "set name and value from extended params element",
+        "xml": "<set>\n<parameter name='output-param-name' value='`$jsonContextPrefix.content.policy-data.extended-params[$policyDataExtendedParamsIndex].param-name`'  />\n<parameter name='output-param-value' value='`$jsonContextPrefix.content.policy-data.extended-params[$policyDataExtendedParamsIndex].param-value`'  />",
+        "comments": "",
+        "x": 1115,
+        "y": 1000,
+        "z": "9eef7e7e.8f1058",
+        "wires": []
+    },
+    {
+        "id": "dd037e4c.c7bb3",
+        "type": "switchNode",
+        "name": "switch",
+        "xml": "<switch test='`$jsonContextPrefix.content.policy-data_length > 0`'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 505,
+        "y": 737,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "72c5a068.2a844"
+            ]
+        ]
+    },
+    {
+        "id": "72c5a068.2a844",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 634,
+        "y": 737,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "56f2caaf.a21404"
+            ]
+        ]
+    },
+    {
+        "id": "1414756.a77f98b",
+        "type": "comment",
+        "name": "Set known output params",
+        "info": "",
+        "comments": "",
+        "x": 550,
+        "y": 1140,
+        "z": "9eef7e7e.8f1058",
+        "wires": []
+    },
+    {
+        "id": "17b1aaaa.debfa5",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: get-data-from-policy: get-data-from-policy-output.:\"/>\n<parameter name='field3' value='`$get-data-from-policy-output.`' />",
+        "comments": "",
+        "outputs": 1,
+        "x": 499,
+        "y": 1232,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "11920eb2.868ba1",
+        "type": "switchNode",
+        "name": "switch",
+        "xml": "<switch test='`$jsonContextPrefix.content.policy-data.extended-params_length > 0`'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 504,
+        "y": 947,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "6f485d54.b981f4"
+            ]
+        ]
+    },
+    {
+        "id": "6f485d54.b981f4",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 633,
+        "y": 947,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            [
+                "dff4e845.8c2d38"
+            ]
+        ]
+    },
+    {
+        "id": "f7e9500f.a774f",
+        "type": "execute",
+        "name": "printContext",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >\n<parameter name='filename' value='/var/tmp/get-data-from-policy.log' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 516,
+        "y": 1305,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a278ba14.2107c8",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>",
+        "comments": "",
+        "x": 473,
+        "y": 1413,
+        "z": "9eef7e7e.8f1058",
+        "wires": []
+    },
+    {
+        "id": "f735acce.c6ff4",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: get-data-from-policy: policyDataExtendedParamsIndex|output-param-name|output-param-value:\"/>\n<parameter name='field3' value='`$policyDataExtendedParamsIndex`' />\n<parameter name='field4' value='`$output-param-name`' />\n<parameter name='field5' value='`$output-param-value`' />",
+        "comments": "",
+        "outputs": 1,
+        "x": 977,
+        "y": 1100,
+        "z": "9eef7e7e.8f1058",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "478129ad.d071b8",
+        "type": "set",
+        "name": "set output name and value pair from extended params",
+        "xml": "<set>\n<parameter name=\"`'get-data-from-policy-output.' + $output-param-name`\" value=\"`$output-param-value`\" />",
+        "comments": "",
+        "x": 1119,
+        "y": 1048,
+        "z": "9eef7e7e.8f1058",
+        "wires": []
+    },
+    {
+        "id": "56f0abfe.71e324",
+        "type": "set",
+        "name": "set output element for name and values",
+        "xml": "<set>\n<parameter name=\"`'get-data-from-policy-output[' + $policyDataIndex + '].nf-role'`\" value= '`$jsonContextPrefix.content.policy-data[$policyDataIndex].nf-role`' />\n<parameter name=\"`'get-data-from-policy-output[' + $policyDataIndex + '].rule-1'`\" value= '`$jsonContextPrefix.content.policy-data[$policyDataIndex].rule-1`' />\n<parameter name=\"`'get-data-from-policy-output[' + $policyDataIndex + '].rule-2'`\" value= '`$jsonContextPrefix.content.policy-data[$policyDataIndex].rule-2`' />",
+        "comments": "",
+        "x": 1350,
+        "y": 737,
+        "z": "9eef7e7e.8f1058",
+        "wires": []
+    },
+    {
+        "id": "27b7d1c2.c574de",
+        "type": "set",
+        "name": "set known policy-data element name and value",
+        "xml": "<set>\n<parameter name=\"`'get-data-from-policy-output[' + $policyDataIndex + ']'`.\" value= '`$jsonContextPrefix.content.policy-data[$policyDataIndex].`' />",
+        "comments": "",
+        "x": 1107,
+        "y": 789,
+        "z": "9eef7e7e.8f1058",
+        "wires": []
+    }
+]

@@ -1,0 +1,6 @@
+
+{
+  "input":{
+     "node-id":${prop.zte.odutopo.node.name}
+  }
+}

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>SDN-C AdminPortal</title>
+<script class="init">
+    $(document).ready(function() {
+    $('#vnf_networks').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+
+</head>
+<body>
+
+<div class="well well-sm">
+<h3>VNF Networks </h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+
+	<% if (priv == 'A'){ %>
+	<div class="actions" style="padding:15px 0px;">
+    <button class="btn btn-primary btn-md" data-toggle="modal" data-target="#add_vnf_network">
+      Add VNF Network
+    </button>
+	</div>
+	<% } %>
+
+	<table id="vnf_networks" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+		  <th>*VNF_TYPE</th>
+		  <th>*NETWORK_ROLE</th>
+		  <% if(priv == 'A'){ %>
+          <th>Action</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+		<% rows.forEach( function(row) { %>
+        <tr>
+            <td><%= row.vnf_type %></td>
+            <td><%= row.network_role %></td>
+			<% if(priv == 'A' ) { %>
+            <td>
+				<button type="button" class="btn btn-default btn-xs"
+                   onclick="deleteVnfNetwork('<%= row.vnf_type %>', '<%= row.network_role %>');">Delete</button>
+            </td>
+            <% } %>
+        </tr>
+		<% }); %>
+      </tbody>
+    </table>
+
+	<% if(priv == 'A'){ %>
+	<div class="actions" style="padding:0px 25px;">
+	<form method="POST" action="/mobility/uploadVnfNetworks" enctype="multipart/form-data">
+		<div class="form-group">
+    		<label for="dest">File input</label>
+    		<input name="filename" type="file" id="dest">
+    		<p class="help-block">Choose a file to upload.</p>
+  		</div>
+        <button type="button" class="btn btn-default"
+                onclick="uploadFile(this.form);">Upload File</button>
+	</form>
+	</div>
+	<% } %>
+</div>
+
+<% include ../partials/vnf_network %>
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+<script type="text/javascript">
+
+function addVnfNetwork(form)
+{
+	var errorMsg='';
+	var vnf_type='';
+	var network_role='';
+
+	if ( form.name == 'addForm' )
+	{
+		vnf_type = form.nf_vnf_type;
+		network_role = form.nf_network_role;
+	}
+
+	if ( (vnf_type.value == null) || (vnf_type.value == "") || isblank(vnf_type.value) )
+	{
+		errorMsg += 'VNF Type is required.<br>';
+	}
+	if ( (network_role.value == null) || (network_role.value == "") || isblank(network_role.value) )
+	{
+		errorMsg += 'Network Role is required.<br>';
+	}
+	if( errorMsg.length > 0 ) {
+		bootbox.alert(errorMsg);
+		return;
+	}
+	form.submit();
+}
+
+function deleteVnfNetwork(vnf_type, network_role) {
+
+    bootbox.confirm({
+        message: "Are you sure you want to delete VNF_NETWORK [" + vnf_type + "][" + network_role + "]",
+        callback: function(result) {
+            if ( result )
+            {
+				location.assign("/mobility/deleteVnfNetwork?vnf_type=" + vnf_type + "&network_role=" + network_role);
+            }
+            return;
+        },
+        buttons: {
+            cancel: {
+                label: "Cancel"
+            },
+            confirm: {
+                label: "Yes"
+            }
+        }
+    });
+}
+
+</script>
+
+</body>
+</html>
+

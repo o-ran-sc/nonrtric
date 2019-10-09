@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>SDN-C AdminPortal</title>
+</head>
+<body>
+
+<div class="well well-sm">
+<h3>Service Homing</h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+
+	<% if (priv == 'A'){ %>
+	<div class="actions" style="padding:15px 0px;">
+    <button class="btn btn-primary" data-toggle="modal" data-target="#add_service_homing">
+      Add Service Homing
+    </button>
+	</div>
+	<% } %>
+
+	<table class="table table-hover table-condensed">
+      <thead>
+        <tr>
+		  <th>*Service Type</th>
+          <th>*LATA</th>
+		  <th>*Hubbing City Type</th>
+          <th>Latitude</th>
+          <th>Longitude</th>
+          <th>*Primary Site Name</th>
+          <th>Secondary Site Name</th>
+          <th>Tertiary Site Name</th>
+		   <% if(priv == 'A'){ %>
+          <th>Action</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+      <% var i=0; rows.forEach( function(row) { %> 
+        <tr>
+            <td><%= row.service_type %></td>
+            <td><%= row.lata %></td>
+            <td><%= row.hubbing_city_type%></td>
+            <td><%= row.latitude %></td>
+            <td><%= row.longitude %></td>
+            <td><%= row.primary_aic_site_name %></td>
+            <td><%= row.secondary_aic_site_name %></td>
+            <td><%= row.tertiary_aic_site_name %></td>
+			<% if(priv == 'A') { %>
+            <td>
+				<button type="button" class="btn btn-default btn-xs"
+                    onclick="updateServiceHoming('<%=row.service_type %>','<%= row.lata %>','<%= row.hubbing_city_type %>','<%= row.latitude %>','<%= row.longitude %>','<%= row.primary_aic_site_name %>','<%= row.secondary_aic_site_name %>','<%= row.tertiary_aic_site_name %>');">Update</button>
+				<button type="button" class="btn btn-default btn-xs"
+                   onclick="deleteServiceHoming('<%= row.service_type %>','<%=row.lata %>','<%= row.hubbing_city_type %>');">Delete</button>
+            </td>
+            <% } %>
+
+        </tr>
+    <% i++; }); %>
+      </tbody>
+    </table>
+
+	 <div class container>
+        <p><%= i %> rows in table.</p>
+    </div>
+
+
+	<% if(priv == 'A'){ %>
+	<div class="actions" style="padding:0px 25px;">
+	<form method="POST" action="/gamma/uploadServiceHoming" enctype="multipart/form-data">
+		<div class="form-group">
+    		<label for="dest">File input</label>
+    		<input name="filename" type="file" id="dest">
+    		<p class="help-block">Choose a file to upload.</p>
+  		</div>
+		<% if(priv == 'A') { %>
+            <button type="button" class="btn btn-default"
+                onclick="uploadFile(this.form);">Upload File</button>
+        <% } else { %>
+            <button type="button" class="btn btn-default disabled"
+                onclick="uploadFile(this.form);">Upload File</button>
+        <% } %>
+
+	</form>
+	</div>
+	<% } %>
+</div>
+
+<% include ../partials/add_service_homing %>
+<% include ../partials/update_service_homing %>
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+<script type="text/javascript">
+
+function submitServiceHoming(form)
+{
+	var errorMsg='';
+	var lata='';
+	var hubbing_city_type='';
+	var primary_aic_site_name='';
+	var latitude='';
+	var longitude='';
+
+	if ( form.name == 'addForm' )
+	{
+		lata = form.nf_lata;
+		hubbing_city_type = form.nf_hubbing_city_type;
+		primary_aic_site_name = form.nf_primary_aic_site_name;
+		latitude = form.nf_latitude;
+		longitude = form.nf_longitude;
+	}
+	else
+	{
+		lata = form.uf_lata;
+		hubbing_city_type = form.uf_hubbing_city_type;
+		primary_aic_site_name = form.uf_primary_aic_site_name;
+		latitude = form.uf_latitude;
+		longitude = form.uf_longitude;
+	}
+
+
+	if ( (lata.value == null) || (lata.value == "") || isblank(lata.value) )
+	{
+		errorMsg += 'LATA is required.<br>';
+	}
+	if ( (hubbing_city_type.value == null) || (hubbing_city_type.value == "") || isblank(hubbing_city_type.value) )
+	{
+		errorMsg += 'Hubbing City Type is required.<br>';
+	}
+	if ( (primary_aic_site_name.value == null) || (primary_aic_site_name.value == "") || isblank(primary_aic_site_name.value) ){
+		errorMsg += 'Primary Site Name is required.<br>';
+	}
+	if( errorMsg.length > 0 ) {
+		bootbox.alert(errorMsg);
+		return;
+	}
+
+	if ( !isDigit(lata.value) )
+	{
+		bootbox.alert('LATA must be a number.');
+		return;
+	}
+	if ( latitude.length > 0 )
+	{
+		if ( !isFloat(latitude.value) )
+		{
+			bootbox.alert('Latitude must be a float.');
+			return;
+		}
+	}
+	if ( longitude.length > 0 )
+	{
+		if ( !isFloat(longitude.value) )
+		{
+			bootbox.alert('Longitude must be a float.');
+			return;
+		}
+	}
+	form.submit();
+}
+
+function updateServiceHoming(service_type,lata,hubbing_city_type,latitude,longitude,primary_aic_site_name,secondary_aic_site_name,tertiary_aic_site_name) {
+
+    document.getElementById('uf_service_type').value=service_type;
+    document.getElementById('uf_lata').value=lata
+    document.getElementById('uf_hubbing_city_type').value=hubbing_city_type;
+    document.getElementById('uf_latitude').value=latitude;
+    document.getElementById('uf_longitude').value=longitude;
+    document.getElementById('uf_primary_aic_site_name').value=primary_aic_site_name;
+    document.getElementById('uf_secondary_aic_site_name').value=secondary_aic_site_name;
+    document.getElementById('uf_tertiary_aic_site_name').value=tertiary_aic_site_name;
+
+    document.getElementById('uf_key_service_type').value=service_type;
+    document.getElementById('uf_key_lata').value=lata
+    document.getElementById('uf_key_hubbing_city_type').value=hubbing_city_type;
+
+    $('#update_service_homing').modal('show');
+}
+
+function deleteServiceHoming(service_type,lata,hubbing_city_type) {
+
+    bootbox.confirm({
+        message: "Are you sure you want to delete SERVICE_HOMING [" + service_type + "]" + "[" + lata + "][" + hubbing_city_type + "]",
+        callback: function(result) {
+            if ( result )
+            {
+				location.assign("/gamma/deleteServiceHoming?service_type=" + service_type + "&lata=" + lata + "&hubbing_city_type=" + hubbing_city_type);
+
+            }
+            return;
+        },
+        buttons: {
+            cancel: {
+                label: "Cancel"
+            },
+            confirm: {
+                label: "Yes"
+            }
+        }
+    });
+}
+
+</script>
+
+</body>
+</html>
+

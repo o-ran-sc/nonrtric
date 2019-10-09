@@ -1,0 +1,13 @@
+<!--Reserve/release VNI--><service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'><method rpc='manage-vni-assignment' mode='sync'>
+<block atomic='true'><set>
+<parameter name='tmp.sql.plugin' value='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' />
+</set><switch test='`$tmp.manageVni.action`'>
+<outcome value='reserve'>
+<block atomic='true'><get-resource plugin='`$tmp.sql.plugin`' resource='VNI' key="SELECT min(vlan_id) vni from VLAN_ID_POOL where purpose = $tmp.manageVni.pool and status='AVAILABLE'" pfx="tmp.manageVni" >
+<outcome value='success'>
+<save plugin='`$tmp.sql.plugin`' resource='VNI' key="UPDATE VLAN_ID_POOL set status='RESERVED' where purpose='VNI' and vlan_id = $tmp.manageVni.vni" force='false'>
+
+</save></outcome></get-resource></block></outcome><outcome value='release'>
+<save plugin='`$tmp.sql.plugin`' resource='VNI' key="UPDATE VLAN_ID_POOL set status='AVAILABLE' where purpose='VNI' and vlan_id=$tmp.manage-vni.vni" force='false'>
+
+</save></outcome></switch></block></method></service-logic>

@@ -1,0 +1,5 @@
+{
+    "l2": {
+        "xconnect-outgoing-interface": ${tmp.tunnel-name}
+    }
+}

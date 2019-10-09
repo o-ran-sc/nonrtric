@@ -1,0 +1,881 @@
+[
+    {
+        "id": "e4ebdff3.230ac",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 153.7037124633789,
+        "y": 150.37034606933594,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "b4010019.28c11"
+            ]
+        ]
+    },
+    {
+        "id": "b4010019.28c11",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 232.32273864746094,
+        "y": 190.60845851898193,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "d0b7800c.ff6ae"
+            ]
+        ]
+    },
+    {
+        "id": "d0b7800c.ff6ae",
+        "type": "method",
+        "name": "security-zone-topology-operation",
+        "xml": "<method rpc='security-zone-topology-operation' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 216.79901123046875,
+        "y": 250.3703441619873,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "5cabda26.cb2e34"
+            ]
+        ]
+    },
+    {
+        "id": "1d74440d.0be21c",
+        "type": "comment",
+        "name": "SECURITY-ZONE-TOPOLOGY-OPERATION ",
+        "info": "",
+        "comments": "",
+        "x": 544.7152328491211,
+        "y": 97.95668983459473,
+        "z": "38cff129.fc152e",
+        "wires": []
+    },
+    {
+        "id": "5cabda26.cb2e34",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 270.084716796875,
+        "y": 333.81380558013916,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "8572d942.568b08",
+                "a4dc8e17.f43eb",
+                "8f606133.785f7",
+                "b962e00e.873c9"
+            ]
+        ]
+    },
+    {
+        "id": "8572d942.568b08",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+        "comments": "",
+        "x": 494.4537658691406,
+        "y": 937.6564655303955,
+        "z": "38cff129.fc152e",
+        "wires": []
+    },
+    {
+        "id": "a4dc8e17.f43eb",
+        "type": "switchNode",
+        "name": "switch svc-action",
+        "xml": "<switch test='`$security-zone-topology-operation-input.sdnc-request-header.svc-action`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 491.0846405029297,
+        "y": 544.2275238037109,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "3b96ffc6.57b1a",
+                "2254507e.315a2",
+                "e31135d3.dc53d8",
+                "f3af2581.6384d8",
+                "928514d5.296ba8",
+                "5ec79a58.8d5414",
+                "fd3e4e18.0df77"
+            ]
+        ]
+    },
+    {
+        "id": "3b96ffc6.57b1a",
+        "type": "other",
+        "name": "assign",
+        "xml": "<outcome value='assign'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 712.9894676208496,
+        "y": 405.0846047401428,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "aa516bcc.267f38"
+            ]
+        ]
+    },
+    {
+        "id": "aa516bcc.267f38",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 892.7989959716797,
+        "y": 407.51329612731934,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "f56f040a.9ba298"
+            ]
+        ]
+    },
+    {
+        "id": "8f606133.785f7",
+        "type": "call",
+        "name": "call GENERIC-RESOURCE-API:validate-security-zone-input",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='validate-security-zone-input' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 625.6560668945312,
+        "y": 325.7989387512207,
+        "z": "38cff129.fc152e",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f56f040a.9ba298",
+        "type": "call",
+        "name": "call GENERIC-RESOURCE-API:security-zone-topology-operation-assign",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='security-zone-topology-operation-assign' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1264.3702926635742,
+        "y": 407.37035179138184,
+        "z": "38cff129.fc152e",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2254507e.315a2",
+        "type": "other",
+        "name": "activate",
+        "xml": "<outcome value='activate'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 713.3703765869141,
+        "y": 494.37034606933594,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "2b87dbfe.7ba6e4"
+            ]
+        ]
+    },
+    {
+        "id": "2b87dbfe.7ba6e4",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 897.6085357666016,
+        "y": 495.37046813964844,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "49265f59.4181d"
+            ]
+        ]
+    },
+    {
+        "id": "e8d2423f.a9142",
+        "type": "call",
+        "name": "call GENERIC-RESOURCE-API:network-topology-operation-activate",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='network-topology-operation-activate' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1830.1800549825039,
+        "y": 1470.5608215332031,
+        "z": "38cff129.fc152e",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e31135d3.dc53d8",
+        "type": "other",
+        "name": "deactivate",
+        "xml": "<outcome value='deactivate'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 722.3704166412354,
+        "y": 554.3704042434692,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "39e52589.68fa0a"
+            ]
+        ]
+    },
+    {
+        "id": "39e52589.68fa0a",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 903.6085758209229,
+        "y": 555.3705263137817,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "430726d9.dbdaa8"
+            ]
+        ]
+    },
+    {
+        "id": "ed015722.b22218",
+        "type": "call",
+        "name": "call GENERIC-RESOURCE-API:network-topology-operation-deactivate",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='network-topology-operation-deactivate' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1836.6799634297695,
+        "y": 1586.3108215332031,
+        "z": "38cff129.fc152e",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f3af2581.6384d8",
+        "type": "other",
+        "name": "unassign",
+        "xml": "<outcome value='unassign'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 720.370439529419,
+        "y": 672.7037439346313,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "5b1c51a7.e6aa7"
+            ]
+        ]
+    },
+    {
+        "id": "5b1c51a7.e6aa7",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 901.6085987091064,
+        "y": 673.7038660049438,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "5bc27941.d4f4f8"
+            ]
+        ]
+    },
+    {
+        "id": "1d34f9a1.037d66",
+        "type": "call",
+        "name": "call GENERIC-RESOURCE-API:network-topology-operation-unassign",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='network-topology-operation-unassign' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1843.4299634297695,
+        "y": 1699.0608215332031,
+        "z": "38cff129.fc152e",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "928514d5.296ba8",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 719.7037696838379,
+        "y": 732.7037267684937,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "4e2016c4.9e9208"
+            ]
+        ]
+    },
+    {
+        "id": "4e2016c4.9e9208",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"sdnc-request-header.svc-action is a required input\" />\n",
+        "comments": "",
+        "x": 901.7037658691406,
+        "y": 731.7037363052368,
+        "z": "38cff129.fc152e",
+        "wires": []
+    },
+    {
+        "id": "b962e00e.873c9",
+        "type": "set",
+        "name": "Set final indicator to Y",
+        "xml": "<set>\n<parameter name=\"ack-final\" value=\"Y\"/>",
+        "comments": "",
+        "x": 513.4814605712891,
+        "y": 896.8148040771484,
+        "z": "38cff129.fc152e",
+        "wires": []
+    },
+    {
+        "id": "970980ab.4166",
+        "type": "for",
+        "name": "for nidx..service-data.networks.network[]",
+        "xml": "<for index='nidx' start='0' end='`$service-data.networks.network_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1732.1008466084804,
+        "y": 1364.465576171875,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "7c375e30.6abc8"
+            ]
+        ]
+    },
+    {
+        "id": "cec76c20.78cb4",
+        "type": "switchNode",
+        "name": "switch service-data.networks.network_length",
+        "xml": "<switch test='`$service-data.networks.network_length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1065.8149426778164,
+        "y": 1329.0369567871094,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "5fff2a9.d7e8dd4",
+                "94eadb3a.e3a458"
+            ]
+        ]
+    },
+    {
+        "id": "5fff2a9.d7e8dd4",
+        "type": "other",
+        "name": "outcome Null",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1308.81488164266,
+        "y": 1331.0369663238525,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "a0ca271a.2df248"
+            ]
+        ]
+    },
+    {
+        "id": "94eadb3a.e3a458",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1262.8149121602382,
+        "y": 1364.0369873046875,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "955a1867.ed1ea8"
+            ]
+        ]
+    },
+    {
+        "id": "7c375e30.6abc8",
+        "type": "switchNode",
+        "name": "switch networkid found",
+        "xml": "<switch test=\"`$service-data.networks.network[$nidx].network-id == $network-topology-operation-input.network-information.network-id`\">\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2022.5293973286953,
+        "y": 1363.7156600952148,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "43582bb0.126264"
+            ]
+        ]
+    },
+    {
+        "id": "43582bb0.126264",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2211.4817517598476,
+        "y": 1364.6083984375,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "e72ed2b6.760d4"
+            ]
+        ]
+    },
+    {
+        "id": "e72ed2b6.760d4",
+        "type": "set",
+        "name": "set tmp.nidx and ctx.network-data",
+        "xml": "<set>\n<parameter name='tmp.nidx' value='`$nidx`' />\n<parameter name='ctx.network-data.' value='`$service-data.networks.network[$nidx].`' />\n",
+        "comments": "",
+        "x": 2445.0135205586757,
+        "y": 1363.3584060668945,
+        "z": "38cff129.fc152e",
+        "wires": []
+    },
+    {
+        "id": "1533495c.2f7d47",
+        "type": "comment",
+        "name": "Find the index to service data for this network - save id in tmp.nidx, save service-data",
+        "info": "",
+        "comments": "",
+        "x": 1188.9260266621914,
+        "y": 1298.036979675293,
+        "z": "38cff129.fc152e",
+        "wires": []
+    },
+    {
+        "id": "a0ca271a.2df248",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"network-topology-operation-input.network-request-input.network-id not found in service-data\" />\n",
+        "comments": "",
+        "x": 1500.592439015707,
+        "y": 1328.9259643554688,
+        "z": "38cff129.fc152e",
+        "wires": []
+    },
+    {
+        "id": "955a1867.ed1ea8",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1430.0848782857265,
+        "y": 1363.5915641784668,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "970980ab.4166",
+                "a77bcb8b.e65188"
+            ]
+        ]
+    },
+    {
+        "id": "a77bcb8b.e65188",
+        "type": "switchNode",
+        "name": "switch tmp.nidx ",
+        "xml": "<switch test=\"`$tmp.nidx`\">\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1650.4022763570156,
+        "y": 1406.4487829208374,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "4037e2b3.df5d0c"
+            ]
+        ]
+    },
+    {
+        "id": "bbb7bbcb.e9d3e8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"network-topology-operation-input.network-request-input.network-id not found in service-data\" />\n",
+        "comments": "",
+        "x": 2003.25925954183,
+        "y": 1402.1630249023438,
+        "z": "38cff129.fc152e",
+        "wires": []
+    },
+    {
+        "id": "4037e2b3.df5d0c",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1821.8308118184414,
+        "y": 1405.0201683044434,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "bbb7bbcb.e9d3e8"
+            ]
+        ]
+    },
+    {
+        "id": "14c198e5.1cc677",
+        "type": "switchNode",
+        "name": "switch network-level-oper-status",
+        "xml": "<switch test='`$service-data.networks.network[$tmp.nidx].network-data.network-level-oper-status.order-status`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1043.1482861836757,
+        "y": 1470.512222290039,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "3c6c6eae.28e612",
+                "103089d1.c81916"
+            ]
+        ]
+    },
+    {
+        "id": "3c6c6eae.28e612",
+        "type": "outcome",
+        "name": "outcome PendingCreate",
+        "xml": "<outcome value='PendingCreate'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1408.148265838623,
+        "y": 1470.51220703125,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "e8d2423f.a9142"
+            ]
+        ]
+    },
+    {
+        "id": "103089d1.c81916",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1358.1483128865566,
+        "y": 1510.5122375488281,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "e490ae22.d5bde"
+            ]
+        ]
+    },
+    {
+        "id": "e490ae22.d5bde",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`'Network is not in appropriate state for activate. Current state is ' + $service-data.networks.network[$tmp.nidx].network-data.network-level-oper-status.order-status`\" />",
+        "comments": "",
+        "x": 1528.1483128865566,
+        "y": 1510.5122375488281,
+        "z": "38cff129.fc152e",
+        "wires": []
+    },
+    {
+        "id": "ab179e35.550b2",
+        "type": "switchNode",
+        "name": "switch network-level-oper-status",
+        "xml": "<switch test='`$service-data.networks.network[$tmp.nidx].network-data.network-level-oper-status.order-status`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1050.4497693379726,
+        "y": 1586.463623046875,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "9d407a50.6f42b8",
+                "50a066bd.db29b8"
+            ]
+        ]
+    },
+    {
+        "id": "9d407a50.6f42b8",
+        "type": "outcome",
+        "name": "outcome Created",
+        "xml": "<outcome value='Created'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1413.4497388203945,
+        "y": 1586.4636535644531,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "ed015722.b22218"
+            ]
+        ]
+    },
+    {
+        "id": "50a066bd.db29b8",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1383.4497388203945,
+        "y": 1626.4636535644531,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "a5c499d0.8c9ba8"
+            ]
+        ]
+    },
+    {
+        "id": "a5c499d0.8c9ba8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`'Network is not in appropriate state for deactivate. Current state is ' + $service-data.networks.network[$tmp.nidx].network-data.network-level-oper-status.order-status`\" />",
+        "comments": "",
+        "x": 1549.4497388203945,
+        "y": 1628.4636535644531,
+        "z": "38cff129.fc152e",
+        "wires": []
+    },
+    {
+        "id": "5487a9fc.903868",
+        "type": "switchNode",
+        "name": "switch network-level-oper-status",
+        "xml": "<switch test='`$service-data.networks.network[$tmp.nidx].network-data.network-level-oper-status.order-status`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1050.2513440450039,
+        "y": 1700.665023803711,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "774c458d.4976ec",
+                "ff4fd639.391848",
+                "9d8f3da4.83f8"
+            ]
+        ]
+    },
+    {
+        "id": "774c458d.4976ec",
+        "type": "outcome",
+        "name": "outcome PendingCreate",
+        "xml": "<outcome value='PendingCreate'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1410.2513135274257,
+        "y": 1700.665054321289,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "1d34f9a1.037d66"
+            ]
+        ]
+    },
+    {
+        "id": "ff4fd639.391848",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1367.2512524922695,
+        "y": 1784.6650695800781,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "8f2347ed.c81b08"
+            ]
+        ]
+    },
+    {
+        "id": "8f2347ed.c81b08",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`'Network is not in appropriate state for unassign. Current state is ' + $service-data.networks.network[$tmp.nidx].network-data.network-level-oper-status.order-status`\" />",
+        "comments": "",
+        "x": 1558.5846722920742,
+        "y": 1783.3316984176636,
+        "z": "38cff129.fc152e",
+        "wires": []
+    },
+    {
+        "id": "9d8f3da4.83f8",
+        "type": "outcome",
+        "name": "outcome PendingDelete",
+        "xml": "<outcome value='PendingDelete'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1413.4815381368007,
+        "y": 1738.512222290039,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "1d34f9a1.037d66"
+            ]
+        ]
+    },
+    {
+        "id": "5ec79a58.8d5414",
+        "type": "other",
+        "name": "create",
+        "xml": "<outcome value='create'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 718.611083984375,
+        "y": 453.97518730163574,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "5936e2cd.b6288c"
+            ]
+        ]
+    },
+    {
+        "id": "5936e2cd.b6288c",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 899.8492431640625,
+        "y": 454.97530937194824,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "4a78d52c.c3db4c"
+            ]
+        ]
+    },
+    {
+        "id": "4a78d52c.c3db4c",
+        "type": "call",
+        "name": "call GENERIC-RESOURCE-API:security-zone-topology-operation-create",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='security-zone-topology-operation-create' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1265.7539520263672,
+        "y": 454.49903106689453,
+        "z": "38cff129.fc152e",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "fd3e4e18.0df77",
+        "type": "other",
+        "name": "delete",
+        "xml": "<outcome value='delete'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 716.9444370269775,
+        "y": 615.6418466567993,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "d1afc7c1.5f5188"
+            ]
+        ]
+    },
+    {
+        "id": "d1afc7c1.5f5188",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 898.182596206665,
+        "y": 616.6419687271118,
+        "z": "38cff129.fc152e",
+        "wires": [
+            [
+                "c0792090.5b78d"
+            ]
+        ]
+    },
+    {
+        "id": "430726d9.dbdaa8",
+        "type": "call",
+        "name": "call GENERIC-RESOURCE-API:security-zone-topology-operation-deactivate",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='security-zone-topology-operation-deactivate' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1285.5184936523438,
+        "y": 554.851884841919,
+        "z": "38cff129.fc152e",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c0792090.5b78d",
+        "type": "call",
+        "name": "call GENERIC-RESOURCE-API:security-zone-topology-operation-delete",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='security-zone-topology-operation-delete' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1275.1853427886963,
+        "y": 616.5185136795044,
+        "z": "38cff129.fc152e",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5bc27941.d4f4f8",
+        "type": "call",
+        "name": "call GENERIC-RESOURCE-API:security-zone-topology-operation-unassign",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='security-zone-topology-operation-unassign' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1280.8518466949463,
+        "y": 673.8518400192261,
+        "z": "38cff129.fc152e",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "49265f59.4181d",
+        "type": "call",
+        "name": "call GENERIC-RESOURCE-API:security-zone-topology-operation-activate",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='security-zone-topology-operation-activate' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1275.1851806640625,
+        "y": 495.851806640625,
+        "z": "38cff129.fc152e",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ef47642e.ee9758",
+        "type": "set",
+        "name": "copy input to service-data",
+        "xml": "<set>\n<parameter name='service-data.networks.network[$nidx].network-data.sdnc-request-header.' value='`$network-topology-operation-input.sdnc-request-header.`' />\n<parameter name='service-data.networks.network[$nidx].network-data.request-information.' value='`$network-topology-operation-input.request-information.`' />\n<parameter name='service-data.networks.network[$nidx].network-data.service-information.' value='`$network-topology-operation-input.service-information.`' />\n<parameter name='service-data.networks.network[$nidx].network-data.network-information.' value='`$network-topology-operation-input.network-information.`' />\n<parameter name='service-data.networks.network[$nidx].network-data.network-request-input.' value='`$network-topology-operation-input.network-request-input.`' />\n",
+        "comments": "",
+        "x": 524.4444580078125,
+        "y": 855.873046875,
+        "z": "38cff129.fc152e",
+        "wires": []
+    }
+]

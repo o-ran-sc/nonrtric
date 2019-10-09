@@ -1,0 +1,46 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='rollback-eipam-ip-assignment' mode='sync'>
+        <block atomic="true">
+            <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT * from EIPAM_IP_ASSIGNMENTS 
+  WHERE info = $vnf-topology-operation-input.vnf-request-information.vnf-id'>
+                <outcome value='not-found'>
+                    <block></block>
+                </outcome>
+                <outcome value='success'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name='tmp.status' 
+	value="`'PENDING_DELETE_' + $vnf-topology-operation-input.vnf-request-information.vnf-id`" />
+                            <parameter name='service-data.service-information.service-type' 
+	value='NOT_APPLICABLE' />
+                        </set>
+                        <update plugin="org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource" resource="SQL"
+	key="UPDATE EIPAM_IP_ASSIGNMENTS set status = $tmp.status 
+		WHERE info = $vnf-topology-operation-input.vnf-request-information.vnf-id" >
+                            <outcome value='failure'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="Error updating EIPAM_IP_ASSIGNMENTS table on rollback." />
+                                </return>
+                            </outcome>
+                        </update>
+                        <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="unassignIPAddress">
+                            <parameter name="deleteEIPAM_status" value="`$tmp.status`" />
+                            <outcome value='failure'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="Error in EIPAM unassign IP address on rollback." />
+                                </return>
+                            </outcome>
+                        </execute>
+                    </block>
+                </outcome>
+            </get-resource>
+        </block>
+    </method>
+</service-logic>

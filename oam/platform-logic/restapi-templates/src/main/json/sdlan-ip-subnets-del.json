@@ -1,0 +1,13 @@
+{
+
+    "IPSubnets": [
+
+        {
+
+            "id": ${prop.lan.lanPortId},
+
+        }
+
+    ]
+
+}

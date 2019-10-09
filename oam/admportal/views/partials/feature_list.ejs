@@ -1,0 +1,50 @@
+   <div class="modal fade" 
+		id="feature-list-modal" tabindex="-1" role="dialog" 
+		aria-labelledby="feature-list-modal-label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">feature-list</h4>
+          </div>
+          <div class="modal-body">
+            <form role="form" action="" method="POST">
+              <div class="form-group">
+                <label for="feature_instance_id">feature-instance-id</label>
+                <input type="text" class="form-control" name="feature_instance_id" id="feature_instance_id">
+              </div>
+              <div class="form-group">
+                <label for="feature_instance_xpath">feature-instance-xpath</label>
+                <input type="text" class="form-control" name="feature_instance_xpath" id="feature_instance_xpath">
+              </div>
+              <div class="form-group">
+                <label for="feature_sub_type">feature-sub-type</label>
+                <input type="text" class="form-control" name="feature_sub_type" id="feature_sub_type">
+              </div>
+              <div class="form-group">
+                <label for="feature_type">feature-type</label>
+                <input type="text" class="form-control" name="feature_type" id="feature_type">
+              </div>
+
+<!--
+              <div class="form-group">
+				<input type="hidden" name="uf_action" id="uf_action">
+                <button type="button" class="btn btn-primary" onclick="submit(this.form);">Submit</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+-->
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>
+
+<script type="text/javascript">
+function submit(form){
+	$('#feature-list-modal').modal('hide');
+	form.action = form.uf_action.value;
+	form.submit();
+	return;
+}
+</script>
+

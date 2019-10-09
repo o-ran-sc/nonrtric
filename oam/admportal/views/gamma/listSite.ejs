@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>SDN-C AdminPortal</title>
+<script class="init">
+    $(document).ready(function() {
+    $('#site').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+
+</head>
+<body>
+
+<div class="well well-sm">
+    <h3>AIC Site</h3>
+</div>
+<!--
+<div class="actions" style="padding:0px 25px;">
+<h2>AIC SITE</h2>
+</div>
+-->
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+<div class="container-fluid">
+	<table id="site" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+		  <th>Name</th>
+          <th>AIC Site ID</th>
+          <th>VCenter URL</th>
+		  <th>OAM Gateway Address</th>
+          <th>VCenter User</th>
+          <th>VCenter Passwd</th>
+          <th>City</th>
+          <th>State</th>
+          <th>Status</th>
+		  <% if(priv == 'A') { %>
+		  <th>Action</th>
+		  <% } %>
+        </tr>
+      </thead>
+      <tbody>
+      <% rows.forEach( function(row) { %> 
+        <tr>
+            <td><%= row.name %></td>
+            <td><%= row.aic_site_id %></td>
+            <td><%= row.vcenter_url %></td>
+			<td><%= row.oam_gateway_addr %></td>
+            <td><%= row.vcenter_username %></td>
+			<td>*****</td>
+            <td><%= row.city %></td>
+            <td><%= row.state %></td>
+            <td><%= row.operational_status %></td>
+			<% if(priv == 'A') { %>
+			<td>
+				<button type="button" class="btn btn-default btn-xs"
+					onclick="updateAicSite('<%= row.name %>','<%=row.aic_site_id %>',
+					'<%= row.vcenter_url %>','<%= JSON.stringify(row.vcenter_username).replace(/\"/g,'') %>',
+					'<%= row.vcenter_passwd %>', '<%= row.city %>','<%= row.state %>',
+					'<%= row.operational_status %>', '<%= row.oam_gateway_addr %>');">Update</button>
+				<button type="button" class="btn btn-default btn-xs"
+					onclick="deleteSite('<%=row.aic_site_id %>');">Delete</button>
+			</td>
+			<% } %>
+        </tr>
+    <% }); %>
+      </tbody>
+    </table>
+
+<!--
+	<% if(priv == 'A') { %>
+	<div class="actions" style="padding:0px 25px;">
+	<form method="POST" action="/gamma/uploadAicSite" enctype="multipart/form-data">
+		<div class="form-group">
+    		<label for="dest">File input</label>
+    		<input name="filename" type="file" id="dest">
+    		<p class="help-block">Choose a file to upload.</p>
+  		</div>
+		<% if(priv == 'A') { %>
+            <button type="button" class="btn btn-default"
+                onclick="uploadFile(this.form);">Upload File</button>
+        <% } else { %>
+            <button type="button" class="btn btn-default disabled"
+                onclick="uploadFile(this.form);">Upload File</button>
+        <% } %>
+	</form>
+	</div>
+	<% } %>
+-->
+</div>
+
+<% include ../partials/update_aic_site %>
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+<script type="text/javascript">
+function updateAicSite(name,aic_site_id,vcenter_url,vcenter_username,vcenter_passwd,city,state,operational_status,oam_gateway_addr) 
+{
+    document.getElementById('uf_name').value=name
+    document.getElementById('uf_aic_site_id').value=aic_site_id;
+    document.getElementById('uf_vcenter_url').value=vcenter_url;
+    document.getElementById('uf_vcenter_username').value=vcenter_username;
+    document.getElementById('uf_vcenter_passwd').value=vcenter_passwd;
+    document.getElementById('uf_city').value=city;
+    document.getElementById('uf_state').value=state;
+    document.getElementById('uf_operational_status').value=operational_status;
+    document.getElementById('uf_oam_gateway_addr').value=oam_gateway_addr;
+
+    document.getElementById('uf_key_aic_site_id').value=aic_site_id;
+    $('#update_aic_site_modal').modal('show');
+}
+
+function deleteSite(siteId) {
+
+    bootbox.confirm({
+        message: "Their may be SERVICE_HOMING entry pointing to this site.  Are you sure you want to delete site [" + siteId + "] ?",
+        callback: function(result) {
+            if ( result )
+            {
+                location.assign("/gamma/deleteSite?siteid=" + siteId);
+            }
+            return;
+        },
+        buttons: {
+            cancel: {
+                label: "Cancel"
+            },
+            confirm: {
+                label: "Yes"
+            }
+        }
+    });
+}
+</script>
+
+</body>
+</html>
+

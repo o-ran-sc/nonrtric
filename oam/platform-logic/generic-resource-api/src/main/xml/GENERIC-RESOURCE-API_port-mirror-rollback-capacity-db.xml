@@ -1,0 +1,52 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='port-mirror-rollback-capacity-db' mode='sync'>
+        <block>
+            <for index='src-idx' start='0' end='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map_length`' >
+                <block atomic="true">
+                    <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='select available_capacity
+    from VNICS_CAPACITY
+    where vnics_group_id = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.vnics-group-id
+    and vnic_port_name = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].dest-port-name'
+  pfx='db.vnics-capacity'>
+                        <outcome value='success'>
+                            <block>
+                                <set>
+                                    <parameter name='tmp.avail-capacity' value='`$db.vnics-capacity.available-capacity + $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-capacity`' />
+                                </set>
+                                <update plugin="org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource" resource="SQL"
+key="update VNICS_CAPACITY
+     set available_capacity = $tmp.avail-capacity
+     where vnics_group_id = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.vnics-group-id
+     and vnic_port_name = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].dest-port-name
+" ></update>
+                            </block>
+                        </outcome>
+                    </get-resource>
+                </block>
+            </for>
+            <delete plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='delete from VNICS_CONFIGURATION_ID
+  	where configuration_id = $tmp.configuration-id
+    and vnics_group_id = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.vnics-group-id' ></delete>
+            <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='select configuration_id
+    from VNICS_CONFIGURATION_ID
+    where vnics_group_id = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.vnics-group-id'
+  pfx='db.vnics-confid'>
+                <outcome value='not-found'>
+                    <block>
+                        <delete plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='delete from VNICS_CAPACITY
+  	where vnics_group_id = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.vnics-group-id' ></delete>
+                        <delete plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='delete from VNICS_CAPACITY_GROUP
+  	where vnics_group_id = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.vnics-group-id' ></delete>
+                    </block>
+                </outcome>
+            </get-resource>
+        </block>
+    </method>
+</service-logic>

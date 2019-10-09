@@ -1,0 +1,45 @@
+{
+    "tnps": [
+        {
+            "name": ${prop.wan.name},
+            "siteId": ${prop.wan.siteId},
+            "deviceId": ${prop.wan.deviceId},
+            "portId": ${prop.wan.devicePortId},
+            "inSubInterface": false,
+            "vlanId": "null",            
+            "ipConnection": {
+                "ipv4": {
+                    "publicIP": ${prop.wan.ip-address},
+                    "accessType": "IPoE",
+                    "ipMode": "Static",
+                    "customerAddress": ${prop.wan.ip-address},
+                    "prefixLength": ${prop.wan.prefixLength},
+                    "providerAddress": ${prop.wan.providerIpAddress},
+					"peerIp": "null",
+                    "userName": "null",
+                    "userKey": "null"
+                }
+             },
+             "transportNetworkInfo": {
+                 "transportNetworkId": ${prop.wan.transportNetworkId},
+                 "workMode": "active"
+             },
+            "attributes": {
+                "inputBandwidth": ${prop.wan.inputBandwidth},
+                "outputBandwidth": ${prop.wan.outputBandwidth},
+                "mtu": 1500,
+                "TCPmss": 1200
+            },
+			"ntp": [
+              {
+                "serverIP": "11.11.11.11",
+                "authentication": false,
+                "mode": "MD5",
+                "authKey": "123456",
+                "authId": 123
+              }
+            ],
+            "description": ${prop.wan.description}
+        }
+    ]
+}

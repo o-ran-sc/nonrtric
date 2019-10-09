@@ -1,0 +1,88 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='vf-module-topology-vlan-tagging-deactivate' mode='sync'>
+        <block atomic="true">
+            <set>
+                <parameter name='tmp.vlan-vnfc-instance-groups.'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.`' />
+            </set>
+            <for index='vvig-index' start='0' end='`$tmp.vlan-vnfc-instance-groups.vlan-vnfc-instance-group_length`' >
+                <for index='vnfc-index' start='0' end='`$tmp.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc_length`' >
+                    <for index='vnic-group-index' start='0' end='`$tmp.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group_length`' >
+                        <block atomic="true">
+                            <set>
+                                <parameter name='parent-port-role'
+  value='`$tmp.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vnic-interface-role`' />
+                                <parameter name='network-instance-group-function'
+  value='`$tmp.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].network-instance-group-function`' />
+                                <parameter name='vnfc-instance-group-function'
+  value='`$tmp.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].instance-group-function`' />
+                            </set>
+                            <for silentFailure='true' index='vsig-index' start='0' end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group_length`' >
+                                <switch test='`
+  $parent-port-role == $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].parent-port-role
+  and $vnfc-instance-group-function == $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].vnfc-instance-group-function
+  and $network-instance-group-function == $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].network-instance-group-function
+`'>
+                                    <outcome value='true'>
+                                        <block atomic="true">
+                                            <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].customer-bonding-requests.customer-bonding-request_length`'>
+                                                <outcome value=''>
+                                                    <block></block>
+                                                </outcome>
+                                                <outcome value='0'>
+                                                    <block></block>
+                                                </outcome>
+                                                <outcome value='Other'>
+                                                    <return status='failure'>
+                                                        <parameter name='error-code' value='500' />
+                                                        <parameter name='error-message' value='Cannot deactivate module because customer bonding request exists' />
+                                                    </return>
+                                                </outcome>
+                                            </switch>
+                                            <for index='vnf-vnfc-index' start='0'
+  end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].vnfcs.vnfc_length`' >
+                                                <switch test='`$tmp.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnfc-name
+  == $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].vnfcs.vnfc[$vnf-vnfc-index].vnfc-name`'>
+                                                    <outcome value='true'>
+                                                        <block>
+                                                            <for index='$idx' start='`$vnf-vnfc-index`'
+  end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].vnfcs.vnfc_length - 1`' >
+                                                                <block>
+                                                                    <set>
+                                                                        <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].vnfcs.vnfc[$idx].'
+  value='' />
+                                                                    </set>
+                                                                    <set>
+                                                                        <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].vnfcs.vnfc[$idx].'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].vnfcs.vnfc[$idx + 1].`' />
+                                                                    </set>
+                                                                </block>
+                                                            </for>
+                                                            <set>
+                                                                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].vnfcs.vnfc_length'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].vnfcs.vnfc_length - 1`' />
+                                                            </set>
+                                                            <set>
+                                                                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].vnfcs.vnfc[$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-sub-interface-groups.vnf-sub-interface-group[$vsig-index].vnfcs.vnfc_length].' value='' />
+                                                            </set>
+                                                        </block>
+                                                    </outcome>
+                                                </switch>
+                                            </for>
+                                            <break/>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                            </for>
+                        </block>
+                    </for>
+                </for>
+            </for>
+            <return status='success'>
+                <parameter name='' value='' />
+            </return>
+        </block>
+    </method>
+</service-logic>

@@ -1,0 +1,148 @@
+<!-- /*
+   * ============LICENSE_START=======================================================
+   * ONAP : SDNC-FEATURES
+   * ================================================================================
+   * Copyright 2018 TechMahindra
+   *=================================================================================
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *     http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   * ============LICENSE_END=========================================================
+   */
+    -->
+<div class="testMain" style="height:auto ;">  
+	<div class="heading">
+		<img src="images/validation.png" width=30 height="30"
+			style="margin-left: 5px;">&nbsp;&nbsp;Pre-test/Certification
+	</div>
+	<form name="reportForm">
+		<div class="row>
+         <div role="
+			alert" style="margin-left: 20px; margin-bottom: 5px;">
+			<button class="btn btn-danger testNotification" ng-show="showError">
+				<img src="images/error.png" width=40 height="30" class="testImgIcon">{{errorMessage}}
+			</button>
+			<button class="btn btn-success testNotification"
+				ng-show="showSuccess">
+				<img src="images/success.png" width=40 height="30"
+					class="testImgIcon">{{successMessage}}
+			</button>
+			<button class="btn btn-warning testNotification"
+				ng-show="showWarninf">
+				<img src="images/waning.png" width=35 height="25"
+					class="testImgIcon">{{warningMessage}}
+			</button>
+			<button class="btn btn-info testNotification" ng-show="showInfo">{{infoMessage}}</button>
+		</div>
+		<div class="row">
+			<div class="column testCol">
+				<label class="labeltext">Specify IP Address</label>
+			</div>
+			<div class="column"
+				style="background-color: #f2f2f2; width: 50%; margin-left: 0px;">
+				<input type="text" ng-model="IPAddress" name="IPAddress"
+					style="margin-left: 5px; width: 170px;" ng-ip-address
+					placeholder='255.255.255.255' required></input>
+				<div role="alert">
+					<span class="error" ng-show="reportForm.IPAddress.$error.required">Required!</span>
+				</div>
+				<div role="alert">
+					<span class="error" ng-if="reportForm.IPAddress.$invalid">Not
+						a valid IPAddress!</span>
+				</div>
+				<div role="alert">
+					<span class="error" ng-if="reportForm.IPAddress.pattern">Not
+						a valid IPAddress!</span>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="column testCol">
+				<label class="labeltext">Specify Host Name</label>
+			</div>
+			<div class="column"
+				style="background-color: #f2f2f2; width: 50%; margin-left: 0px;">
+				<input type="text" ng-model="HostName" name="HostName"
+					style="margin-left: 5px; width: 170px;" required
+					ng-pattern="hostNamePattern"></input>
+				<div role="alert">
+					<span class="error" ng-show="reportForm.HostName.$error.required">Required!</span>
+				</div>
+				<div role="alert">
+					<span class="error" ng-show="reportForm.HostName.$invalid">Not
+						a valid HostName!</span>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="column"
+				style="width: 25%; background-color: #f2f2f2; height: 45px; margin-left: 35px;">
+				<label class="labeltext">Select Certification</label>
+			</div>
+			<div class="column"
+				style="background-color: #f2f2f2; width: 50%; height: 45px; margin-left: 0px;">
+				<label ng-repeat="val in validationTestList" class="labeltext"
+					style="margin-right: 35px;"> <input type="checkbox"
+					ng-model="val.Selected" class="check"
+					ng-change="updateSelection($index,validationTestList,val.validationType);">{{val.validationType}}</input>
+				</label>
+			</div>
+		</div>
+		<!--<hr style="border-color:darkGrey;">-->
+		<div class="row">
+			<div class="column btnRunTest">
+				<input type="submit" ng-click="runTest()" value="Run PreTest"
+					id="btnSubmit" ng-disabled="showError" style="margin-left: 0px;" />
+			</div>
+
+</div>
+			<table class="tableDisplay" ng-show="ShowResult" id="tableToExport"
+				style="margin-left: 10px; width: 1000px;">
+				<tr class="first_row">
+					<th>SNo.</th>
+					<th colspan="2" style="text-align: center;">TestName</th>
+					<th>Device IP</th>
+					<th>Status</th>
+					<th style="width: 20%;">Statistics (%Loss)</th>
+					<th style="width: 20%;">Average Time (ms)</th>
+					<th>Result</th>
+				</tr>
+				<tr ng-repeat="test in objPreTest">
+					<td>{{$index+1}}</td>
+					<td><img
+						src="{{(test.testtype=='Network Layer') ? 'images/images.png': 'images/protocol.png'}}"
+						width=40 height=30></img></td>
+					<td>{{test.testtype}}</td>
+					<td>{{test.ipaddress}}</td>
+					<td>{{test.status | uppercase}}</td>
+					<td>{{test.statistics | uppercase}}</td>
+					<td>{{test.avgTime | uppercase}}</td>
+
+					<td><img
+						src="{{(test.status=='reachable') ? 'images/success.png': 'images/FailImage.png'}}"
+						width=30 height=25></img></td>
+				</tr>
+			</table>
+		
+	</form>
+
+	<div class="row">
+		<div class="column" style="margin-top: 10px; width: 800px;"
+			ng-show="ShowResult">
+			<span class='arrowRed'>&#8594;</span> <label class="labeltext">UnReachable</label>&nbsp;&nbsp;
+			<span class='arrowGreen'>&#8594;</span> <label class="labeltext">Reachable</label>&nbsp;&nbsp;
+			<span><img src='images/success.png' width=30 height=25></span>
+			<label class="labeltext">Pass</label>&nbsp;&nbsp; <span><img
+				src='images/FailImage.png' width=30 height=25></span> <label
+				class="labeltext">Fail</label>
+		</div>
+	</div>
+</div>

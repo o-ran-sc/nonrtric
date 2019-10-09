@@ -1,0 +1,22 @@
+{
+    "vpnId": ${prop.vpn1Id},
+    "areas": [
+        {
+            "name": "area1",
+            "areaType": "backbone",
+            "topologyType": ${prop.topology},
+            "siteAttachments": [${repeat:prop.siteAttachements_length:
+                    {"siteId": ${prop.siteAttachements[${1}].siteId},
+                     "role": [${repeat:prop.siteAttachements[${1}].roles_length:
+                               ${prop.siteAttachements[${1}].roles[${2}]},
+                                }
+                               ],
+                     "workMode": "with-interconnection",
+                     "sitePriority": "active",
+                     "borders": null
+                    },
+                 }
+            ]
+        }
+    ]
+}

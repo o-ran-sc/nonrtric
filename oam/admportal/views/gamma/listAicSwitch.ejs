@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>SDN-C AdminPortal</title>
+  
+  <script class="init">
+    $(document).ready(function() {
+    $('#switch').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+	} );
+  </script>
+
+</head>
+<body>
+
+<div class="well well-sm">
+<h3>AIC Switch</h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+	<table id="switch" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+		  <th>Physical Network Name</th>
+          <th>Switch Name</th>
+          <th>AIC Site ID</th>
+          <th>UUID</th>
+          <th>Availability Zone</th>
+		  <% if(priv == 'A') { %>
+		  <th>Action</th>
+		  <% } %>
+        </tr>
+      </thead>
+      <tbody>
+      <% rows.forEach( function(row) { %> 
+        <tr>
+            <td><%= row.physical_network_name %></td>
+            <td><%= row.switch_name %></td>
+            <td><%= row.aic_site_id %></td>
+            <td><%= row.uuid %></td>
+            <td><%= row.availability_zone %></td>
+			<% if(priv == 'A') { %>
+            <td>
+				<button type="button" class="btn btn-default btn-xs"
+					onclick="updateAicSwitch('<%= row.physical_network_name %>','<%= row.switch_name %>','<%=row.aic_site_id %>','<%= row.uuid %>','<%=row.availability_zone %>');">Update</button>
+
+				<button type="button" class="btn btn-default btn-xs"
+                   onclick="deleteSwitch('<%=row.physical_network_name %>');">Delete</button>
+            </td>
+            <% } %>
+
+        </tr>
+    <% }); %>
+      </tbody>
+    </table>
+
+
+<!--
+	<% if(priv == 'A') { %>
+	<div class="actions" style="padding:0px 25px;">
+	<form method="POST" action="/gamma/uploadAicSwitch" enctype="multipart/form-data">
+		<div class="form-group">
+    		<label for="dest">File input</label>
+    		<input name="filename" type="file" id="dest">
+    		<p class="help-block">Choose a file to upload.</p>
+  		</div>
+
+		<% if(priv == 'A') { %>
+            <button type="button" class="btn btn-default"
+                onclick="uploadFile(this.form);">Upload File</button>
+        <% } else { %>
+            <button type="button" class="btn btn-default disabled"
+                onclick="uploadFile(this.form);">Upload File</button>
+        <% } %>
+	</form>
+	</div>
+	<% } %>
+-->
+</div>
+
+<% include ../partials/update_aic_switch %>
+
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+<script type="text/javascript">
+function updateAicSwitch(physical_network_name,switch_name,aic_site_id,uuid,availability_zone) {
+
+    document.getElementById('uf_physical_network_name').value=physical_network_name;
+    document.getElementById('uf_switch_name').value=switch_name;
+    document.getElementById('uf_aic_site_id').value=aic_site_id;
+    document.getElementById('uf_uuid').value=uuid;
+    document.getElementById('uf_availability_zone').value=availability_zone;
+    document.getElementById('uf_key_physical_network_name').value=physical_network_name;
+    $('#update_aic_switch_modal').modal('show');
+}
+function deleteSwitch(pnetwork_name) {
+
+    bootbox.confirm({
+        message: "Are you sure you want to delete this switch [" + pnetwork_name + "] ?",
+        callback: function(result) {
+            if ( result )
+            {
+                location.assign("/gamma/deleteSwitch?phy_network_name=" + pnetwork_name);
+            }
+            return;
+        },
+        buttons: {
+            cancel: {
+                label: "Cancel"
+            },
+            confirm: {
+                label: "Yes"
+            }
+        }
+    });
+}
+</script>
+
+</body>
+</html>
+

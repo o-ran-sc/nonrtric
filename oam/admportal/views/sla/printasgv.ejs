@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>SDN-C AdminPortal</title>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+</head>
+<body>
+
+
+
+<div class="well well-sm">
+<h3>Service Logic Graph</h3>
+</div>
+
+<div class="container-fluid">
+<% if ( typeof result != 'undefined' ) {
+        if (result.code.length > 0) {
+            if ( result.code == 'success' ) { %>
+<pre>
+Module  : <%= result.module %>
+RPC     : <%= result.rpc %>
+Mode    : <%= result.mode %>
+Version : <%= result.version %>
+<br>
+<img src='data:image/png;base64,<%= result.msg %>' >
+</pre>
+            <% } else { %>
+                <pre class='alert alert-danger' role='danger'><%=result.msg %></pre>
+            <% } %>
+        <% } %>
+<% } %>
+
+
+<footer>
+	 <% include ../partials/footer %>
+</footer>
+    
+</body>
+</html>
+

@@ -1,0 +1,6 @@
+---
+- hosts: all
+  tasks:
+  - name: check the vpp version
+    shell: vppctl show version | grep v17.04.2-release
+    become: true

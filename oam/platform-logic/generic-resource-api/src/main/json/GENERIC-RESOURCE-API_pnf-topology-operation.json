@@ -1,0 +1,302 @@
+[
+    {
+        "id": "a75a636d.6f381",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 151.42859649658203,
+        "y": 90.00000190734863,
+        "z": "304db441.66b4dc",
+        "wires": [
+            [
+                "bc77da8a.d3eb38"
+            ]
+        ]
+    },
+    {
+        "id": "bc77da8a.d3eb38",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 265.7143020629883,
+        "y": 130.2381134033203,
+        "z": "304db441.66b4dc",
+        "wires": [
+            [
+                "5d578276.4bfefc"
+            ]
+        ]
+    },
+    {
+        "id": "5d578276.4bfefc",
+        "type": "method",
+        "name": "method pnf-topology-operation",
+        "xml": "<method rpc='pnf-topology-operation' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 217.8572235107422,
+        "y": 169.99999618530273,
+        "z": "304db441.66b4dc",
+        "wires": [
+            [
+                "8685d57b.911a08"
+            ]
+        ]
+    },
+    {
+        "id": "24fd3171.4300ae",
+        "type": "comment",
+        "name": "pnf-topology-operation",
+        "info": "",
+        "comments": "",
+        "x": 545.7734527587891,
+        "y": 37.58634567260742,
+        "z": "304db441.66b4dc",
+        "wires": []
+    },
+    {
+        "id": "8685d57b.911a08",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 234.02387237548828,
+        "y": 376.26495265960693,
+        "z": "304db441.66b4dc",
+        "wires": [
+            [
+                "53481fdc.accfe",
+                "142ac2ac.46ecad",
+                "1bd90137.06db9f"
+            ]
+        ]
+    },
+    {
+        "id": "53481fdc.accfe",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+        "comments": "",
+        "x": 519.380973815918,
+        "y": 530.7146434783936,
+        "z": "304db441.66b4dc",
+        "wires": []
+    },
+    {
+        "id": "142ac2ac.46ecad",
+        "type": "switchNode",
+        "name": "switch svc-action",
+        "xml": "<switch test='`$pnf-topology-operation-input.sdnc-request-header.svc-action`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 529.4285430908203,
+        "y": 374.4761962890625,
+        "z": "304db441.66b4dc",
+        "wires": [
+            [
+                "19927cce.f2a7f3",
+                "9c8ad773.ef9d68",
+                "a0c10c00.06af18",
+                "4205ab8c.75bdf4",
+                "5cc63376.4006fc",
+                "bec05d4a.4c7b6"
+            ]
+        ]
+    },
+    {
+        "id": "19927cce.f2a7f3",
+        "type": "outcome",
+        "name": "assign",
+        "xml": "<outcome value='assign'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 726.8094863891602,
+        "y": 268.5239009857178,
+        "z": "304db441.66b4dc",
+        "wires": [
+            [
+                "ff0b4bca.7ccaa8"
+            ]
+        ]
+    },
+    {
+        "id": "9c8ad773.ef9d68",
+        "type": "outcome",
+        "name": "unassign",
+        "xml": "<outcome value='unassign'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 730.8571090698242,
+        "y": 398.7146244049072,
+        "z": "304db441.66b4dc",
+        "wires": [
+            [
+                "34401634.f821aa"
+            ]
+        ]
+    },
+    {
+        "id": "4205ab8c.75bdf4",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 724.142744064331,
+        "y": 484.3332748413086,
+        "z": "304db441.66b4dc",
+        "wires": [
+            [
+                "fa0f4334.3fb5"
+            ]
+        ]
+    },
+    {
+        "id": "fa0f4334.3fb5",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`$pnf-topology-operation-input.sdnc-request-header.svc-action + ' is not a valid svc-action'`\" />\n",
+        "comments": "",
+        "x": 910.3331890106201,
+        "y": 484.3333396911621,
+        "z": "304db441.66b4dc",
+        "wires": []
+    },
+    {
+        "id": "1bd90137.06db9f",
+        "type": "call",
+        "name": "call GENERIC-RESOURCE-API:validate-pnf-input",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='validate-pnf-input' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 633.8452301025391,
+        "y": 227.38104057312012,
+        "z": "304db441.66b4dc",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ff0b4bca.7ccaa8",
+        "type": "call",
+        "name": "call GENERIC-RESOURCE-API:pnf-topology-operation-assign",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='pnf-topology-operation-assign' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1068.9523391723633,
+        "y": 268.0953617095947,
+        "z": "304db441.66b4dc",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "90a49ca8.b5074",
+        "type": "call",
+        "name": "call GENERIC-RESOURCE-API:pnf-topology-operation-deactivate",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='pnf-topology-operation-deactivate' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1080.2856063842773,
+        "y": 352.4287099838257,
+        "z": "304db441.66b4dc",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "34401634.f821aa",
+        "type": "call",
+        "name": "call GENERIC-RESOURCE-API:pnf-topology-operation-unassign",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='pnf-topology-operation-unassign' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1075.952205657959,
+        "y": 398.42875576019287,
+        "z": "304db441.66b4dc",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a0c10c00.06af18",
+        "type": "outcome",
+        "name": "deactivate",
+        "xml": "<outcome value='deactivate'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 735.9522476196289,
+        "y": 353.09538555145264,
+        "z": "304db441.66b4dc",
+        "wires": [
+            [
+                "90a49ca8.b5074"
+            ]
+        ]
+    },
+    {
+        "id": "38e4cbe2.ef1884",
+        "type": "call",
+        "name": "call GENERIC-RESOURCE-API:pnf-topology-operation-activate",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='pnf-topology-operation-activate' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1073.0951843261719,
+        "y": 309.9999933242798,
+        "z": "304db441.66b4dc",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5cc63376.4006fc",
+        "type": "outcome",
+        "name": "activate",
+        "xml": "<outcome value='activate'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 729.7618255615234,
+        "y": 310.66666889190674,
+        "z": "304db441.66b4dc",
+        "wires": [
+            [
+                "38e4cbe2.ef1884"
+            ]
+        ]
+    },
+    {
+        "id": "bec05d4a.4c7b6",
+        "type": "outcome",
+        "name": "changeassign",
+        "xml": "<outcome value='changeassign'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 745.7143363952637,
+        "y": 441.42855644226074,
+        "z": "304db441.66b4dc",
+        "wires": [
+            [
+                "27aa457b.765b8a"
+            ]
+        ]
+    },
+    {
+        "id": "27aa457b.765b8a",
+        "type": "call",
+        "name": "call GENERIC-RESOURCE-API:pnf-topology-operation-changeassign",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='pnf-topology-operation-changeassign' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1086.5237045288086,
+        "y": 441.1427230834961,
+        "z": "304db441.66b4dc",
+        "wires": [
+            []
+        ]
+    }
+]

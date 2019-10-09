@@ -1,0 +1,52 @@
+5.0.1 Initial Build for 1512
+
+10/29/2015
+MR 36,39
+
+11/12/2015
+MR: SDNGC-84 Handle BGP block correctly
+
+11/18/2015
+5.0.3
+MR: SDNGC-145 error with loading uCPE reference data files
+MR: SDNGC=153
+
+11/19/2015
+5.0.4
+MR: SDNGC-154 change ack namespaces for instar request
+
+1/5/2016
+6.0.1
+MR: SDNGC-323 changes to reflect CSI namespace changes
+
+1/7/2016
+6.0.2
+MR: SDNGC-339
+
+1/19/2016
+MR: SDNGC-394 add as-override and secondary-asn to AVPN BGP params
+
+1/20/2016
+MR: SDNGC-404 send response back to CSI before sending request to SDNC
+
+1/27/2016
+MR: SDNGC-463 UCPE Reference Data Change for ucpenminterfaces_MMDDYYYY file
+
+2/15/2016
+MR: SDNGC-489 Add multicast parameters
+
+2/29/2016
+MR: SDNGC-690 AdmPortal protocol changes for 1604
+
+3/22/2016
+MR: SDNGC-909 instar.js handling CSI namespace changes
+
+5/4/2016
+MR: SDNGC-1386 Fix multicast indicator checking
+
+5/19/2016
+MR: SDNGC-1522 CSI format changes in 16.07 for instar CDN
+
+5/23/2016
+MR: SDNGC-1531 More CSI format fixes
+

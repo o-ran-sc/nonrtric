@@ -1,0 +1,749 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='getpathsegment-create-simple-path' mode='sync'>
+        <block>
+            <set>
+                <parameter name='match-type' value='network-name' />
+            </set>
+            <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT * from PATH_SEGMENT WHERE service_uuid = $getpathsegment-topology-operation-input.service-information.onap-model-information.model-uuid
+    AND path_name = $db.forwarding-path[$path-index].path-name ORDER BY path_segment_seq'
+  pfx='db.path-segment[]'>
+                <outcome value='failure'>
+                    <block>
+                        <set>
+                            <parameter name='error-message' value="`'System error reading PATH_SEGMENT table for uuid '
+  + $getpathsegment-topology-operation-input.service-information.onap-model-information.model-uuid
+  + ' and path '
+  + $db.forwarding-path[$path-index].path-name`" />
+                        </set>
+                    </block>
+                </outcome>
+                <outcome value='not-found'>
+                    <block>
+                        <set>
+                            <parameter name='error-message' value="`'No entries in PATH_SEGMENT table for uuid '
+  + $getpathsegment-topology-operation-input.service-information.onap-model-information.model-uuid
+  + ' and path '
+  + $db.forwarding-path[$path-index].path-name`" />
+                        </set>
+                    </block>
+                </outcome>
+                <outcome value='success'>
+                    <block>
+                        <set>
+                            <parameter name='vnf-ids_length' value='0' />
+                        </set>
+                        <for index='path-segment-index' start='0' end='`$db.path-segment_length`' >
+                            <block>
+                                <set>
+                                    <parameter name='vnf-ids[$vnf-ids_length]' value='`$db.path-segment[$path-segment-index].source-association-uuid`' />
+                                    <parameter name='vnf-ids_length' value='`$vnf-ids_length + 1`' />
+                                </set>
+                                <switch test='`$path-segment-index == ( $db.path-segment_length - 1) `'>
+                                    <outcome value='true'>
+                                        <set>
+                                            <parameter name='vnf-ids[$vnf-ids_length]' value='`$db.path-segment[$path-segment-index].target-association-uuid`' />
+                                            <parameter name='vnf-ids_length' value='`$vnf-ids_length + 1`' />
+                                        </set>
+                                    </outcome>
+                                </switch>
+                            </block>
+                        </for>
+                        <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+	resource="custom-query"
+	key="format = 'resource'"
+	force="true"
+	local-only="false"
+	pfx="aai.service-instances" >
+                            <parameter name="start[0]" value="`'nodes/service-instances?model-invariant-id=' + $getpathsegment-topology-operation-input.service-information.onap-model-information.model-invariant-uuid`" />
+                            <parameter name="start_length" value="1" />
+                            <outcome value='not-found'>
+                                <block>
+                                    <set>
+                                        <parameter name='error-message' value="`'No run-time service instances in AAI for invariant uuid '
+  + $getpathsegment-topology-operation-input.service-information.onap-model-information.model-invariant-uuid`" />
+                                    </set>
+                                </block>
+                            </outcome>
+                            <outcome value='failure'>
+                                <block>
+                                    <set>
+                                        <parameter name='error-message' value="`'System error calling AAI to get run-time service instances for invariant uuid '
+  + $getpathsegment-topology-operation-input.service-information.onap-model-information.model-invariant-uuid`" />
+                                    </set>
+                                </block>
+                            </outcome>
+                            <outcome value='success'>
+                                <block>
+                                    <set>
+                                        <parameter name='runtime_length' value='0' />
+                                    </set>
+                                    <for index='runtime-index' start='0' end='`$aai.service-instances.results_length`' >
+                                        <switch test='`$aai.service-instances.results[$runtime-index].service-instance.orchestration-status`'>
+                                            <outcome value='Active'>
+                                                <block>
+                                                    <set>
+                                                        <parameter name='runtime-ids[$runtime_length]' value='`$aai.service-instances.results[$runtime-index].service-instance.service-instance-id`' />
+                                                    </set>
+                                                    <set>
+                                                        <parameter name='runtime_length' value='`$runtime_length + 1`' />
+                                                    </set>
+                                                </block>
+                                            </outcome>
+                                        </switch>
+                                    </for>
+                                    <set>
+                                        <parameter name='serv-insts_length' value='0' />
+                                    </set>
+                                    <for index='runtime-index' start='0' end='`$runtime_length`' >
+                                        <block>
+                                            <set>
+                                                <parameter name='serv-inst.service-instance-id' value='`$runtime-ids[$runtime-index]`' />
+                                            </set>
+                                            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+      resource="custom-query"
+      key="format = 'resource_and_url'"
+      force="true"
+      local-only="false"
+      pfx="tmp.AnAI-data.si">
+                                                <parameter name="start[0]" value="`'nodes/service-instance/' + $serv-inst.service-instance-id `" />
+                                                <parameter name="start_length" value="1" />
+                                                <outcome value='success'>
+                                                    <block>
+                                                        <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >
+                                                            <parameter name="original_string" value="`$tmp.AnAI-data.si.results[0].url`" />
+                                                            <parameter name="regex" value="/"/>
+                                                            <parameter name="limit" value="11" />
+                                                            <parameter name="ctx_memory_result_key" value="split" />
+                                                        </execute>
+                                                        <set>
+                                                            <parameter name='output-global-customer-id' value='`$split[6]`' />
+                                                            <parameter name='output-service-type' value='`$split[9]`' />
+                                                            <parameter name='output-service-role' value='`$tmp.AnAI-data.si.results[0].service-instance.service-role`' />
+                                                        </set>
+                                                    </block>
+                                                </outcome>
+                                            </save>
+                                            <set>
+                                                <parameter name='mdsal-service.' value='' />
+                                                <parameter name='serv-inst.api' value='' />
+                                            </set>
+                                            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                                                <parameter name="source" value="`$prop.restapi.service`"/>
+                                                <parameter name="outputPath" value="tmp.service-url"/>
+                                                <parameter name="target" value="{service-instance-id}"/>
+                                                <parameter name="replacement" value="`$serv-inst.service-instance-id`"/>
+                                            </execute>
+                                            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.service-url`' />
+                                                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                                                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                                                <parameter name='format' value='json' />
+                                                <parameter name='httpMethod' value='GET' />
+                                                <parameter name="responsePrefix" value="mdsal-service" />
+                                                <outcome value='success'>
+                                                    <block>
+                                                        <set>
+                                                            <parameter name='found-path' value='false' />
+                                                        </set>
+                                                        <for silentFailure='true' index='fp-index' start='0' end='`$mdsal-service.service[0].service-data.forwarding-paths.forwarding-path_length`' >
+                                                            <switch test='`$mdsal-service.service[0].service-data.forwarding-paths.forwarding-path[$fp-index].forwarding-path-name
+  == $db.path-segment[0].path-name`'>
+                                                                <outcome value='true'>
+                                                                    <block>
+                                                                        <set>
+                                                                            <parameter name='found-path' value='true' />
+                                                                        </set>
+                                                                        <break/>
+                                                                    </block>
+                                                                </outcome>
+                                                            </switch>
+                                                        </for>
+                                                        <switch test='`$found-path`'>
+                                                            <outcome value='false'>
+                                                                <block>
+                                                                    <call module='GENERIC-RESOURCE-API' rpc='getpathsegment-populate-from-grapi' mode='sync' ></call>
+                                                                    <set>
+                                                                        <parameter name='serv-insts[$serv-insts_length].' value='`$serv-inst.`' />
+                                                                    </set>
+                                                                    <set>
+                                                                        <parameter name='serv-insts_length' value='`$serv-insts_length + 1`' />
+                                                                    </set>
+                                                                </block>
+                                                            </outcome>
+                                                        </switch>
+                                                    </block>
+                                                </outcome>
+                                                <outcome value='failure'>
+                                                    <block>
+                                                        <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='select forwarding_path_service_instance_id
+    from SERVICE_INSTANCE_TO_COMPOSITE_INSTANCE_MAPPING
+    where simple_service_instance_id = $serv-inst.service-instance-id'
+  pfx='db.sitcim'>
+                                                            <outcome value='not-found'>
+                                                                <block>
+                                                                    <call module='GENERIC-RESOURCE-API' rpc='getpathsegment-populate-from-vnfapi' mode='sync' ></call>
+                                                                    <switch test='`$serv-inst.api`'>
+                                                                        <outcome value=''>
+                                                                            <set>
+                                                                                <parameter name='error-message' value="`'Failure finding service instance ' + $serv-inst.service-instance-id + ' in either GENERIC-REOURCE-API or VNF-API'`" />
+                                                                            </set>
+                                                                        </outcome>
+                                                                        <outcome value='Other'>
+                                                                            <block>
+                                                                                <set>
+                                                                                    <parameter name='serv-insts[$serv-insts_length].' value='`$serv-inst.`' />
+                                                                                </set>
+                                                                                <set>
+                                                                                    <parameter name='serv-insts_length' value='`$serv-insts_length + 1`' />
+                                                                                </set>
+                                                                            </block>
+                                                                        </outcome>
+                                                                    </switch>
+                                                                </block>
+                                                            </outcome>
+                                                        </get-resource>
+                                                    </block>
+                                                </outcome>
+                                            </execute>
+                                        </block>
+                                    </for>
+                                    <call module='GENERIC-RESOURCE-API' rpc='getpathsegment-simple-match-pair' mode='sync' ></call>
+                                    <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >
+                                        <parameter name='filename' value='/var/tmp/gps.log' />
+                                    </execute>
+                                    <for index='serv-index' start='0' end='`$serv-insts_length`' >
+                                        <switch test='`$serv-insts[$serv-index].api`'>
+                                            <outcome value='GR'>
+                                                <switch test='`$serv-insts[$serv-index].path-segments_length`'>
+                                                    <outcome value=''>
+                                                        <block></block>
+                                                    </outcome>
+                                                    <outcome value='0'>
+                                                        <block></block>
+                                                    </outcome>
+                                                    <outcome value='Other'>
+                                                        <block>
+                                                            <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils" method="generateUUID" >
+                                                                <parameter name="ctx-destination" value="forwarding-path.forwarding-path-id" />
+                                                            </execute>
+                                                            <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils" method="generateUUID" >
+                                                                <parameter name="ctx-destination" value="forwarding-path.service-paths.service-path[0].service-path-instance-id" />
+                                                            </execute>
+                                                            <set>
+                                                                <parameter name='forwarding-path.forwarding-path-name' value='`$db.path-segment[0].path-name`' />
+                                                                <parameter name='forwarding-path.forwarding-path-type' value='VNF' />
+                                                                <parameter name='forwarding-path.onap-model-information.model-name' value='`$db.path-segment[0].path-name`' />
+                                                                <parameter name='forwarding-path.service-paths.service-path_length' value='1' />
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service-path-instance-name'
+  value='`$db.path-segment[0].path-name + $forwarding-path.service-paths.service-path[0].service-path-instance-id`' />
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service_length' value='1' />
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].service-instance-id'
+  value='`$serv-insts[$serv-index].service-instance-id`' />
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].service-path-sequence-id' value='1' />
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf_length'
+  value='`$serv-insts[$serv-index].path-segments_length`' />
+                                                            </set>
+                                                            <set>
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[0].vnf-path-sequence-id'
+  value='1' />
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[0].vnf-instance-id'
+  value='`$serv-insts[$serv-index].path-segments[0].left-vnf-instance-id`' />
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[0].right-network-name'
+  value='`$serv-insts[$serv-index].path-segments[0].network-name`' />
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[0].right-network-role'
+  value='`$serv-insts[$serv-index].path-segments[0].network-role`' />
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[0].vf-module-instance.vf-module-id'
+  value='`$serv-insts[$serv-index].path-segments[0].left-vf-module-id`' />
+                                                            </set>
+                                                            <set>
+                                                                <parameter name='prev-network-name' value='`$serv-insts[$serv-index].path-segments[0].network-name`' />
+                                                                <parameter name='prev-network-role' value='`$serv-insts[$serv-index].path-segments[0].network-role`' />
+                                                            </set>
+                                                            <for index='ps-index' start='1' end='`$serv-insts[$serv-index].path-segments_length`' >
+                                                                <block>
+                                                                    <set>
+                                                                        <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$ps-index].vnf-path-sequence-id'
+  value='`$ps-index + 1`' />
+                                                                        <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$ps-index].vnf-instance-id'
+  value='`$serv-insts[$serv-index].path-segments[$ps-index].left-vnf-instance-id`' />
+                                                                        <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$ps-index].left-network-name'
+  value='`$prev-network-name`' />
+                                                                        <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$ps-index].left-network-role'
+  value='`$prev-network-role`' />
+                                                                        <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$ps-index].right-network-name'
+  value='`$serv-insts[$serv-index].path-segments[$ps-index].network-name`' />
+                                                                        <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$ps-index].right-network-role'
+  value='`$serv-insts[$serv-index].path-segments[$ps-index].network-role`' />
+                                                                        <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$ps-index].vf-module-instance.vf-module-id'
+  value='`$serv-insts[$serv-index].path-segments[$ps-index].left-vf-module-id`' />
+                                                                    </set>
+                                                                    <set>
+                                                                        <parameter name='prev-network-name' value='`$serv-insts[$serv-index].path-segments[$ps-index].network-name`' />
+                                                                        <parameter name='prev-network-role' value='`$serv-insts[$serv-index].path-segments[$ps-index].network-role`' />
+                                                                    </set>
+                                                                </block>
+                                                            </for>
+                                                            <set>
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$ps-index + 1].vnf-path-sequence-id'
+  value='`$ps-index + 2`' />
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$ps-index + 1].vnf-instance-id'
+  value='`$serv-insts[$serv-index].path-segments[$ps-index].right-vnf-instance-id`' />
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$ps-index + 1].left-network-name'
+  value='`$prev-network-name`' />
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$ps-index + 1].left-network-role'
+  value='`$prev-network-role`' />
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$ps-index + 1].vf-module-instance.vf-module-id'
+  value='`$serv-insts[$serv-index].path-segments[$ps-index].right-vf-module-id`' />
+                                                            </set>
+                                                            <set>
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf_length'
+  value='`$serv-insts[$serv-index].path-segments_length + 1`' />
+                                                            </set>
+                                                            <switch test='`$serv-insts[$serv-index].api`'>
+                                                                <outcome value='GR'>
+                                                                    <set>
+                                                                        <parameter name='tmp.service-instance-id' value='`$serv-insts[$serv-index].service-instance-id`' />
+                                                                    </set>
+                                                                </outcome>
+                                                                <outcome value='VNF'>
+                                                                    <block>
+                                                                        <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils" method="generateUUID" >
+                                                                            <parameter name="ctx-destination" value="tmp.service-instance-id" />
+                                                                        </execute>
+                                                                        <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                                                                            <parameter name="source" value="`$prop.restapi.service`"/>
+                                                                            <parameter name="outputPath" value="tmp.service-url"/>
+                                                                            <parameter name="target" value="{service-instance-id}"/>
+                                                                            <parameter name="replacement" value="`$tmp.service-instance-id`"/>
+                                                                        </execute>
+                                                                        <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                                                            <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.csm.serviceinstance.templatefile`" />
+                                                                            <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.service-url`' />
+                                                                            <parameter name='restapiUser' value='`$prop.controller.user`' />
+                                                                            <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                                                                            <parameter name='format' value='json' />
+                                                                            <parameter name='httpMethod' value='PUT' />
+                                                                            <parameter name="responsePrefix" value="mdsal-sr" />
+                                                                            <outcome value='failure'>
+                                                                                <set>
+                                                                                    <parameter name='error-message' value="Failure creating service instance in MD-SAL" />
+                                                                                </set>
+                                                                            </outcome>
+                                                                        </execute>
+                                                                        <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="service-instance" 
+	key="customer.global-customer-id = $output-global-customer-id
+	  AND service-subscription.service-type = $output-service-type
+	  AND service-instance.service-instance-id = $tmp.service-instance-id" >
+                                                                            <parameter name="service-instance-id" value="`$tmp.service-instance-id`" />
+                                                                            <parameter name="global-customer-id" value="`$output-global-customer-id`" />
+                                                                            <parameter name="service-type" value="`$output-service-type`" />
+                                                                            <parameter name="service-role" value="`$output-service-role`" />
+                                                                            <outcome value='failure'>
+                                                                                <set>
+                                                                                    <parameter name='error-message' value="Failure creating service instance in AAI" />
+                                                                                </set>
+                                                                            </outcome>
+                                                                            <outcome value='not-found'>
+                                                                                <set>
+                                                                                    <parameter name='error-message' value="Failure creating service instance in AAI" />
+                                                                                </set>
+                                                                            </outcome>
+                                                                        </save>
+                                                                        <save plugin="org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource" resource="SQL"
+key="INSERT INTO SERVICE_INSTANCE_TO_COMPOSITE_INSTANCE_MAPPING
+  (simple_service_instance_id, forwarding_path_service_instance_id)
+  VALUES ( $serv-insts[$serv-index].service-instance-id , $tmp.service-instance-id )" ></save>
+                                                                    </block>
+                                                                </outcome>
+                                                            </switch>
+                                                            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                                                                <parameter name="source" value="`$prop.restapi.forwarding-path`"/>
+                                                                <parameter name="outputPath" value="tmp.fp-url"/>
+                                                                <parameter name="target" value="{service-instance-id}"/>
+                                                                <parameter name="replacement" value="`$tmp.service-instance-id`"/>
+                                                            </execute>
+                                                            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                                                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.forwardingpath.templatefile`" />
+                                                                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.fp-url + $forwarding-path.forwarding-path-id`' />
+                                                                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                                                                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                                                                <parameter name='format' value='json' />
+                                                                <parameter name='httpMethod' value='PUT' />
+                                                                <parameter name="responsePrefix" value="mdsal-fp" />
+                                                                <outcome value='failure'>
+                                                                    <set>
+                                                                        <parameter name='error-message' value="Failure writing forwarding-path to MD-SAL" />
+                                                                    </set>
+                                                                </outcome>
+                                                                <outcome value='not-found'>
+                                                                    <set>
+                                                                        <parameter name='error-message' value="Failure writing forwarding-path to MD-SAL" />
+                                                                    </set>
+                                                                </outcome>
+                                                            </execute>
+                                                            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="forwarding-path" 
+	key="forwarding-path.forwarding-path-id = $forwarding-path.service-paths.service-path[0].service-path-instance-id" >
+                                                                <parameter name="forwarding-path-id" value="`$forwarding-path.service-paths.service-path[0].service-path-instance-id`" />
+                                                                <parameter name="forwarding-path-name" value="`$forwarding-path.service-paths.service-path[0].service-path-instance-name`" />
+                                                                <parameter name="selflink" value="`'/restconf/config/GENERIC-RESOURCE-API:services/service/'
+  + $tmp.service-instance-id
+  + '/forwarding-paths/forwarding-path/'
+  + $forwarding-path.forwarding-path-id
+  + '/services-paths/service-path/'
+  + $forwarding-path.service-paths.service-path[0].service-path-instance-id`" />
+                                                                <outcome value='failure'>
+                                                                    <set>
+                                                                        <parameter name='error-message' value="Failure writing forwarding-path to AAI" />
+                                                                    </set>
+                                                                </outcome>
+                                                                <outcome value='not-found'>
+                                                                    <set>
+                                                                        <parameter name='error-message' value="Failure writing forwarding-path to AAI" />
+                                                                    </set>
+                                                                </outcome>
+                                                            </save>
+                                                            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+   resource="forwarding-path:relationship-list"
+   key="forwarding-path.forwarding-path-id = $forwarding-path.service-paths.service-path[0].service-path-instance-id"
+   force="true" pfx="tmp.AnAI-data">
+                                                                <parameter name="relationship-list.relationship[0].related-to" value="service-instance" />
+                                                                <parameter name="relationship-list.relationship[0].related-link"
+      value="`'/aai/v$/business/customers/customer/'
+        + $output-global-customer-id
+        + '/service-subscriptions/service-subscription/'
+        + $output-service-type
+        + '/service-instances/service-instance/'
+        + $tmp.service-instance-id`" />
+                                                                <outcome value='failure'>
+                                                                    <set>
+                                                                        <parameter name='error-message' value="Failure writing forwarding-path relationship to AAI" />
+                                                                    </set>
+                                                                </outcome>
+                                                                <outcome value='not-found'>
+                                                                    <set>
+                                                                        <parameter name='error-message' value="Failure writing forwarding-path relationship to AAI" />
+                                                                    </set>
+                                                                </outcome>
+                                                            </save>
+                                                            <for index='vnf-index' start='0' end='`$forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf_length`' >
+                                                                <block>
+                                                                    <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="forwarder" 
+	key="forwarding-path.forwarding-path-id = $forwarding-path.service-paths.service-path[0].service-path-instance-id AND forwarder.sequence = $forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$vnf-index].vnf-path-sequence-id" >
+                                                                        <parameter name="sequence" value="`$forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$vnf-index].vnf-path-sequence-id`" />
+                                                                        <outcome value='failure'>
+                                                                            <set>
+                                                                                <parameter name='error-message' value="Failure writing forwarder to AAI" />
+                                                                            </set>
+                                                                        </outcome>
+                                                                        <outcome value='not-found'>
+                                                                            <set>
+                                                                                <parameter name='error-message' value="Failure writing forwarder to AAI" />
+                                                                            </set>
+                                                                        </outcome>
+                                                                    </save>
+                                                                    <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+   resource="forwarder:relationship-list"
+   key="forwarding-path.forwarding-path-id = $forwarding-path.service-paths.service-path[0].service-path-instance-id
+     AND forwarder.sequence = $forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$vnf-index].vnf-path-sequence-id"
+   force="true" pfx="tmp.AnAI-data">
+                                                                        <parameter name="relationship-list.relationship[0].related-to" value="generic-vnf" />
+                                                                        <parameter name="relationship-list.relationship[0].related-link"
+      value="`'/aai/v$/network/generic-vnfs/generic-vnf/'
+        + $forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$vnf-index].vnf-instance-id`" />
+                                                                        <outcome value='failure'>
+                                                                            <set>
+                                                                                <parameter name='error-message' value="Failure writing forwarder relationship to AAI" />
+                                                                            </set>
+                                                                        </outcome>
+                                                                        <outcome value='not-found'>
+                                                                            <set>
+                                                                                <parameter name='error-message' value="Failure writing forwarder relationship to AAI" />
+                                                                            </set>
+                                                                        </outcome>
+                                                                    </save>
+                                                                </block>
+                                                            </for>
+                                                        </block>
+                                                    </outcome>
+                                                </switch>
+                                            </outcome>
+                                            <outcome value='VNF'>
+                                                <switch test='`$serv-insts[$serv-index].path-segments_length`'>
+                                                    <outcome value=''>
+                                                        <block></block>
+                                                    </outcome>
+                                                    <outcome value='0'>
+                                                        <block></block>
+                                                    </outcome>
+                                                    <outcome value='Other'>
+                                                        <block>
+                                                            <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils" method="generateUUID" >
+                                                                <parameter name="ctx-destination" value="forwarding-path.forwarding-path-id" />
+                                                            </execute>
+                                                            <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils" method="generateUUID" >
+                                                                <parameter name="ctx-destination" value="forwarding-path.service-paths.service-path[0].service-path-instance-id" />
+                                                            </execute>
+                                                            <set>
+                                                                <parameter name='forwarding-path.forwarding-path-name' value='`$db.path-segment[0].path-name`' />
+                                                                <parameter name='forwarding-path.forwarding-path-type' value='VNF' />
+                                                                <parameter name='forwarding-path.onap-model-information.model-name' value='`$db.path-segment[0].path-name`' />
+                                                                <parameter name='forwarding-path.service-paths.service-path_length' value='1' />
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service-path-instance-name'
+  value='`$db.path-segment[0].path-name + $forwarding-path.service-paths.service-path[0].service-path-instance-id`' />
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service_length' value='1' />
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].service-instance-id'
+  value='`$serv-insts[$serv-index].service-instance-id`' />
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].service-path-sequence-id' value='1' />
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf_length'
+  value='`$serv-insts[$serv-index].path-segments_length`' />
+                                                            </set>
+                                                            <set>
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[0].vnf-path-sequence-id'
+  value='1' />
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[0].vnf-instance-id'
+  value='`$serv-insts[$serv-index].path-segments[0].left-vnf-instance-id`' />
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[0].right-network-name'
+  value='`$serv-insts[$serv-index].path-segments[0].network-name`' />
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[0].right-network-role'
+  value='`$serv-insts[$serv-index].path-segments[0].network-role`' />
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[0].vf-module-instance.vf-module-id'
+  value='`$serv-insts[$serv-index].path-segments[0].left-vf-module-id`' />
+                                                            </set>
+                                                            <set>
+                                                                <parameter name='prev-network-name' value='`$serv-insts[$serv-index].path-segments[0].network-name`' />
+                                                                <parameter name='prev-network-role' value='`$serv-insts[$serv-index].path-segments[0].network-role`' />
+                                                            </set>
+                                                            <for index='ps-index' start='1' end='`$serv-insts[$serv-index].path-segments_length`' >
+                                                                <block>
+                                                                    <set>
+                                                                        <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$ps-index].vnf-path-sequence-id'
+  value='`$ps-index + 1`' />
+                                                                        <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$ps-index].vnf-instance-id'
+  value='`$serv-insts[$serv-index].path-segments[$ps-index].left-vnf-instance-id`' />
+                                                                        <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$ps-index].left-network-name'
+  value='`$prev-network-name`' />
+                                                                        <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$ps-index].left-network-role'
+  value='`$prev-network-role`' />
+                                                                        <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$ps-index].right-network-name'
+  value='`$serv-insts[$serv-index].path-segments[$ps-index].network-name`' />
+                                                                        <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$ps-index].right-network-role'
+  value='`$serv-insts[$serv-index].path-segments[$ps-index].network-role`' />
+                                                                        <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$ps-index].vf-module-instance.vf-module-id'
+  value='`$serv-insts[$serv-index].path-segments[$ps-index].left-vf-module-id`' />
+                                                                    </set>
+                                                                    <set>
+                                                                        <parameter name='prev-network-name' value='`$serv-insts[$serv-index].path-segments[$ps-index].network-name`' />
+                                                                        <parameter name='prev-network-role' value='`$serv-insts[$serv-index].path-segments[$ps-index].network-role`' />
+                                                                    </set>
+                                                                </block>
+                                                            </for>
+                                                            <set>
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$ps-index + 1].vnf-path-sequence-id'
+  value='`$ps-index + 2`' />
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$ps-index + 1].vnf-instance-id'
+  value='`$serv-insts[$serv-index].path-segments[$ps-index].right-vnf-instance-id`' />
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$ps-index + 1].left-network-name'
+  value='`$prev-network-name`' />
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$ps-index + 1].left-network-role'
+  value='`$prev-network-role`' />
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$ps-index + 1].vf-module-instance.vf-module-id'
+  value='`$serv-insts[$serv-index].path-segments[$ps-index].right-vf-module-id`' />
+                                                            </set>
+                                                            <set>
+                                                                <parameter name='forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf_length'
+  value='`$serv-insts[$serv-index].path-segments_length + 1`' />
+                                                            </set>
+                                                            <switch test='`$serv-insts[$serv-index].api`'>
+                                                                <outcome value='GR'>
+                                                                    <set>
+                                                                        <parameter name='tmp.service-instance-id' value='`$serv-insts[$serv-index].service-instance-id`' />
+                                                                    </set>
+                                                                </outcome>
+                                                                <outcome value='VNF'>
+                                                                    <block>
+                                                                        <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils" method="generateUUID" >
+                                                                            <parameter name="ctx-destination" value="tmp.service-instance-id" />
+                                                                        </execute>
+                                                                        <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                                                                            <parameter name="source" value="`$prop.restapi.service`"/>
+                                                                            <parameter name="outputPath" value="tmp.service-url"/>
+                                                                            <parameter name="target" value="{service-instance-id}"/>
+                                                                            <parameter name="replacement" value="`$tmp.service-instance-id`"/>
+                                                                        </execute>
+                                                                        <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                                                            <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.csm.serviceinstance.templatefile`" />
+                                                                            <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.service-url`' />
+                                                                            <parameter name='restapiUser' value='`$prop.controller.user`' />
+                                                                            <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                                                                            <parameter name='format' value='json' />
+                                                                            <parameter name='httpMethod' value='PUT' />
+                                                                            <parameter name="responsePrefix" value="mdsal-sr" />
+                                                                            <outcome value='failure'>
+                                                                                <set>
+                                                                                    <parameter name='error-message' value="Failure creating service instance in MD-SAL" />
+                                                                                </set>
+                                                                            </outcome>
+                                                                        </execute>
+                                                                        <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="service-instance" 
+	key="customer.global-customer-id = $output-global-customer-id
+	  AND service-subscription.service-type = $output-service-type
+	  AND service-instance.service-instance-id = $tmp.service-instance-id" >
+                                                                            <parameter name="service-instance-id" value="`$tmp.service-instance-id`" />
+                                                                            <parameter name="global-customer-id" value="`$output-global-customer-id`" />
+                                                                            <parameter name="service-type" value="`$output-service-type`" />
+                                                                            <parameter name="service-role" value="`$output-service-role`" />
+                                                                            <outcome value='failure'>
+                                                                                <set>
+                                                                                    <parameter name='error-message' value="Failure creating service instance in AAI" />
+                                                                                </set>
+                                                                            </outcome>
+                                                                            <outcome value='not-found'>
+                                                                                <set>
+                                                                                    <parameter name='error-message' value="Failure creating service instance in AAI" />
+                                                                                </set>
+                                                                            </outcome>
+                                                                        </save>
+                                                                        <save plugin="org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource" resource="SQL"
+key="INSERT INTO SERVICE_INSTANCE_TO_COMPOSITE_INSTANCE_MAPPING
+  (simple_service_instance_id, forwarding_path_service_instance_id)
+  VALUES ( $serv-insts[$serv-index].service-instance-id , $tmp.service-instance-id )" ></save>
+                                                                    </block>
+                                                                </outcome>
+                                                            </switch>
+                                                            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                                                                <parameter name="source" value="`$prop.restapi.forwarding-path`"/>
+                                                                <parameter name="outputPath" value="tmp.fp-url"/>
+                                                                <parameter name="target" value="{service-instance-id}"/>
+                                                                <parameter name="replacement" value="`$tmp.service-instance-id`"/>
+                                                            </execute>
+                                                            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                                                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.forwardingpath.templatefile`" />
+                                                                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.fp-url + $forwarding-path.forwarding-path-id`' />
+                                                                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                                                                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                                                                <parameter name='format' value='json' />
+                                                                <parameter name='httpMethod' value='PUT' />
+                                                                <parameter name="responsePrefix" value="mdsal-fp" />
+                                                                <outcome value='failure'>
+                                                                    <set>
+                                                                        <parameter name='error-message' value="Failure writing forwarding-path to MD-SAL" />
+                                                                    </set>
+                                                                </outcome>
+                                                                <outcome value='not-found'>
+                                                                    <set>
+                                                                        <parameter name='error-message' value="Failure writing forwarding-path to MD-SAL" />
+                                                                    </set>
+                                                                </outcome>
+                                                            </execute>
+                                                            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="forwarding-path" 
+	key="forwarding-path.forwarding-path-id = $forwarding-path.service-paths.service-path[0].service-path-instance-id" >
+                                                                <parameter name="forwarding-path-id" value="`$forwarding-path.service-paths.service-path[0].service-path-instance-id`" />
+                                                                <parameter name="forwarding-path-name" value="`$forwarding-path.service-paths.service-path[0].service-path-instance-name`" />
+                                                                <parameter name="selflink" value="`'/restconf/config/GENERIC-RESOURCE-API:services/service/'
+  + $tmp.service-instance-id
+  + '/forwarding-paths/forwarding-path/'
+  + $forwarding-path.forwarding-path-id
+  + '/services-paths/service-path/'
+  + $forwarding-path.service-paths.service-path[0].service-path-instance-id`" />
+                                                                <outcome value='failure'>
+                                                                    <set>
+                                                                        <parameter name='error-message' value="Failure writing forwarding-path to AAI" />
+                                                                    </set>
+                                                                </outcome>
+                                                                <outcome value='not-found'>
+                                                                    <set>
+                                                                        <parameter name='error-message' value="Failure writing forwarding-path to AAI" />
+                                                                    </set>
+                                                                </outcome>
+                                                            </save>
+                                                            <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+   resource="forwarding-path:relationship-list"
+   key="forwarding-path.forwarding-path-id = $forwarding-path.service-paths.service-path[0].service-path-instance-id"
+   force="true" pfx="tmp.AnAI-data">
+                                                                <parameter name="relationship-list.relationship[0].related-to" value="service-instance" />
+                                                                <parameter name="relationship-list.relationship[0].related-link"
+      value="`'/aai/v$/business/customers/customer/'
+        + $output-global-customer-id
+        + '/service-subscriptions/service-subscription/'
+        + $output-service-type
+        + '/service-instances/service-instance/'
+        + $tmp.service-instance-id`" />
+                                                                <outcome value='failure'>
+                                                                    <set>
+                                                                        <parameter name='error-message' value="Failure writing forwarding-path relationship to AAI" />
+                                                                    </set>
+                                                                </outcome>
+                                                                <outcome value='not-found'>
+                                                                    <set>
+                                                                        <parameter name='error-message' value="Failure writing forwarding-path relationship to AAI" />
+                                                                    </set>
+                                                                </outcome>
+                                                            </save>
+                                                            <for index='vnf-index' start='0' end='`$forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf_length`' >
+                                                                <block>
+                                                                    <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="forwarder" 
+	key="forwarding-path.forwarding-path-id = $forwarding-path.service-paths.service-path[0].service-path-instance-id AND forwarder.sequence = $forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$vnf-index].vnf-path-sequence-id" >
+                                                                        <parameter name="sequence" value="`$forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$vnf-index].vnf-path-sequence-id`" />
+                                                                        <outcome value='failure'>
+                                                                            <set>
+                                                                                <parameter name='error-message' value="Failure writing forwarder to AAI" />
+                                                                            </set>
+                                                                        </outcome>
+                                                                        <outcome value='not-found'>
+                                                                            <set>
+                                                                                <parameter name='error-message' value="Failure writing forwarder to AAI" />
+                                                                            </set>
+                                                                        </outcome>
+                                                                    </save>
+                                                                    <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+   resource="forwarder:relationship-list"
+   key="forwarding-path.forwarding-path-id = $forwarding-path.service-paths.service-path[0].service-path-instance-id
+     AND forwarder.sequence = $forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$vnf-index].vnf-path-sequence-id"
+   force="true" pfx="tmp.AnAI-data">
+                                                                        <parameter name="relationship-list.relationship[0].related-to" value="generic-vnf" />
+                                                                        <parameter name="relationship-list.relationship[0].related-link"
+      value="`'/aai/v$/network/generic-vnfs/generic-vnf/'
+        + $forwarding-path.service-paths.service-path[0].service[0].vnfs.vnf[$vnf-index].vnf-instance-id`" />
+                                                                        <outcome value='failure'>
+                                                                            <set>
+                                                                                <parameter name='error-message' value="Failure writing forwarder relationship to AAI" />
+                                                                            </set>
+                                                                        </outcome>
+                                                                        <outcome value='not-found'>
+                                                                            <set>
+                                                                                <parameter name='error-message' value="Failure writing forwarder relationship to AAI" />
+                                                                            </set>
+                                                                        </outcome>
+                                                                    </save>
+                                                                </block>
+                                                            </for>
+                                                        </block>
+                                                    </outcome>
+                                                </switch>
+                                            </outcome>
+                                        </switch>
+                                    </for>
+                                </block>
+                            </outcome>
+                        </save>
+                    </block>
+                </outcome>
+            </get-resource>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="`$error-message`" />
+            </return>
+        </block>
+    </method>
+</service-logic>

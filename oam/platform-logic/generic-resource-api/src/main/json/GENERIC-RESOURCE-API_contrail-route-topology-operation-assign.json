@@ -1,0 +1,3396 @@
+[
+    {
+        "id": "a15c86ae.e9ffa8",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 117.00390625,
+        "y": 66.99999904632568,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "9f7352fa.e9442"
+            ]
+        ]
+    },
+    {
+        "id": "9f7352fa.e9442",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 223.24198150634766,
+        "y": 145.70239448547363,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "bec67786.9a0fd8"
+            ]
+        ]
+    },
+    {
+        "id": "bec67786.9a0fd8",
+        "type": "method",
+        "name": "contrail-route-topology-operation-assign",
+        "xml": "<method rpc='contrail-route-topology-operation-assign' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 224.82543182373047,
+        "y": 241.1904354095459,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "106ac22b.f19c5e"
+            ]
+        ]
+    },
+    {
+        "id": "106ac22b.f19c5e",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 251.4800910949707,
+        "y": 354.5237832069397,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "1b476e9a.fe2761",
+                "89e36959.f57ca8",
+                "8e0d8361.64708",
+                "c1ac5f3e.e6966",
+                "47d7c2d7.6d83ec",
+                "e05ef5d3.6901c8",
+                "2fa400f8.8842c",
+                "63a20e20.4ef0d",
+                "27c0b1cb.cbaf7e",
+                "afb14d8.fa7e8b",
+                "164735e2.5f4fea",
+                "b8ee290b.0a5948",
+                "f4cedf71.423ad",
+                "59b1d791.8e8d88",
+                "98d8146e.2c8368",
+                "ec3a453a.6b4d18",
+                "80199fb5.28a97",
+                "42e59bba.390174",
+                "7bbf3a4b.922ac4",
+                "ab194250.a66de",
+                "94029424.bac068",
+                "f152aa61.54aba8",
+                "d7a09bb1.7dfc58",
+                "846017e5.c13a98",
+                "329e94ed.128dbc",
+                "e081301c.9853a",
+                "e99fb45b.d57118",
+                "6d745a26.0c7354",
+                "4888c4bf.132c3c",
+                "6e65e9d5.9f0028",
+                "e2239d78.dc34",
+                "5ddff342.e4df3c",
+                "5f1ba758.495008",
+                "3b7ee06a.f8b51",
+                "5fefa6f9.3a77d8",
+                "a348f9e1.479f68",
+                "e6b7c56f.4a4108",
+                "5182c386.6fc00c",
+                "b4d8f0cc.1375d",
+                "d3ab9d9.302806",
+                "50a5d5ae.00038c"
+            ]
+        ]
+    },
+    {
+        "id": "89e36959.f57ca8",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+        "comments": "",
+        "x": 486.0041389465332,
+        "y": 3206.2144527435303,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "1b476e9a.fe2761",
+        "type": "set",
+        "name": "set output to api handler",
+        "xml": "<set>\n<parameter name='allotted-resource-id' value='`$tmp.ar.allotted-resource-id`' />\n<parameter name='contrail-route-object-path' value=\"`$tmp.ar.self-link`\"/>\n<parameter name='service-object-path' value=\"`'restconf/config/GENERIC-RESOURCE-API:services/service/'\n + $contrail-route-topology-operation-input.service-information.service-instance-id\n + '/service-data/service-topology/'`\"/>\n \n",
+        "comments": "",
+        "x": 514.7580642700195,
+        "y": 3178.0512561798096,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "80199fb5.28a97",
+        "type": "set",
+        "name": "set allotted-resource-oper-status",
+        "xml": "<set>\n<parameter name='ar.allotted-resource-data.allotted-resource-oper-status.order-status' value='PendingCreate' />\n<parameter name='ar.allotted-resource-data.allotted-resource-oper-status.last-action' value='`$contrail-route-topology-operation-input.request-information.request-action`' />\n<parameter name='ar.allotted-resource-data.allotted-resource-oper-status.last-rpc-action' value='`$contrail-route-topology-operation-input.sdnc-request-header.svc-action`' />\n<parameter name='ar.allotted-resource-data.allotted-resource-oper-status.last-svc-request-id' value='`$contrail-route-topology-operation-input.sdnc-request-header.svc-request-id`' />\n<parameter name='ar.allotted-resource-data.allotted-resource-oper-status.create-timestamp' value='`$tmp.current-time`' />\n",
+        "comments": "",
+        "x": 551.7581520080566,
+        "y": 2355.05126953125,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "c1ac5f3e.e6966",
+        "type": "set",
+        "name": "set tmp.ar.self-link",
+        "xml": "<set>\n<parameter name='tmp.ar.self-link' value=\"`'restconf/config/GENERIC-RESOURCE-API:contrail-route-allotted-resources/contrail-route-allotted-resource/'\n + $tmp.ar.allotted-resource-id\n + '/allotted-resource-data/contrail-route-topology/'` \" />\n\n",
+        "comments": "",
+        "x": 523.7420768737793,
+        "y": 304.3333349227905,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "8e0d8361.64708",
+        "type": "set",
+        "name": "set tmp.ar.allotted-resource-id,etc",
+        "xml": "<set>\n<parameter name='tmp.ar.allotted-resource-id' value='`$contrail-route-topology-operation-input.allotted-resource-information.allotted-resource-id`' />\n<parameter name='tmp.ar.parent-service-instance-id' value='`$contrail-route-topology-operation-input.allotted-resource-information.parent-service-instance-id`' />\n<parameter name='tmp.ar.contrail-applied-service-instance-id' value='`$contrail-route-topology-operation-input.contrail-route-request-input.contrail-applied-service-info.service-instance-id`' />\n<parameter name='tmp.ar.allotted-resource-type' value='`$contrail-route-topology-operation-input.allotted-resource-information.allotted-resource-type`' />\n\n",
+        "comments": "",
+        "x": 571.0013389587402,
+        "y": 270.59260082244873,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "47d7c2d7.6d83ec",
+        "type": "execute",
+        "name": "execute Properties - pull properties file",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >\n    <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />\n    <parameter name='contextPrefix' value='prop' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 585.9974899291992,
+        "y": 336.23158836364746,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2fa400f8.8842c",
+        "type": "execute",
+        "name": "execute RestApiCallNode - Get AR by id",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />\n    <parameter name='restapiUser' value='`$prop.controller.user`' />\n    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='GET' />\n    <parameter name=\"responsePrefix\" value=\"mdsal-ar\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 586.5228080749512,
+        "y": 716.4595785140991,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "4f71533e.51503c",
+                "6ff8b1b0.c2e46"
+            ]
+        ]
+    },
+    {
+        "id": "e05ef5d3.6901c8",
+        "type": "execute",
+        "name": "generate allotted-resource url",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$prop.restapi.cr-allottedresource`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.ar-url\"/>\n    <parameter name=\"target\" value=\"{allotted-resource-id}\"/>\n    <parameter name=\"replacement\" value=\"`$tmp.ar.allotted-resource-id`\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 558.0688667297363,
+        "y": 400.01723861694336,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4f71533e.51503c",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 833.8188972473145,
+        "y": 711.2673678398132,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "15a9be7b.067652"
+            ]
+        ]
+    },
+    {
+        "id": "98d8146e.2c8368",
+        "type": "execute",
+        "name": "execute RestApiCallNode - PUT AR by id",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='templateFileName' value=\"`$prop.restapi.templateDir + '/' + $prop.restapi.cr.templatefile`\" />\n    <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />\n    <parameter name='restapiUser' value='`$prop.controller.user`' />\n    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='PUT' />\n    <parameter name=\"responsePrefix\" value=\"mdsal-ar\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 579.962028503418,
+        "y": 2973.291174888611,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "b6b6c325.b9854",
+                "52bb813.f59bc8"
+            ]
+        ]
+    },
+    {
+        "id": "b6b6c325.b9854",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 846.9367637634277,
+        "y": 3002.956132888794,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "4b9fa7f1.b30308"
+            ]
+        ]
+    },
+    {
+        "id": "52bb813.f59bc8",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 841.2701530456543,
+        "y": 2971.4559688568115,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "4b9fa7f1.b30308"
+            ]
+        ]
+    },
+    {
+        "id": "676e8a31.aad434",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error updating md-sal for contrail-route-allotted-resource.  Parent provided resource rolled back\" />\n",
+        "comments": "",
+        "x": 1183.3534851074219,
+        "y": 3017.539581298828,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "15a9be7b.067652",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1002.8189010620117,
+        "y": 709.7672686576843,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "e0174b9e.a92928"
+            ]
+        ]
+    },
+    {
+        "id": "e0174b9e.a92928",
+        "type": "switchNode",
+        "name": "switch cr length",
+        "xml": "<switch test='`$mdsal-ar.contrail-route-allotted-resource_length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1213.6761436462402,
+        "y": 709.3863978385925,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "80cc2f81.87cf5"
+            ]
+        ]
+    },
+    {
+        "id": "80cc2f81.87cf5",
+        "type": "other",
+        "name": "outcome 1",
+        "xml": "<outcome value='1'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1403.009449005127,
+        "y": 709.3863558769226,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "940b96fe.4bc648"
+            ]
+        ]
+    },
+    {
+        "id": "200f56f8.1a568a",
+        "type": "comment",
+        "name": "Save consumed-allotted-resources to mdsal",
+        "info": "",
+        "comments": "",
+        "x": 586.2475738525391,
+        "y": 2164.386384487152,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "71cd75e1.a2e0ac",
+        "type": "comment",
+        "name": "GET contrail-route-allotted-resource from mdsal",
+        "info": "",
+        "comments": "",
+        "x": 605.8187942504883,
+        "y": 683.7672171592712,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "63a20e20.4ef0d",
+        "type": "set",
+        "name": "set ar-identifiers",
+        "xml": "<set>\n<parameter name='ar-identifiers.consuming-service-instance-id' value=\"`$contrail-route-topology-operation-input.service-information.service-instance-id` \" />\n<parameter name='ar-identifiers.parent-service-instance-id' value=\"`$contrail-route-topology-operation-input.allotted-resource-information.parent-service-instance-id` \" />\n<parameter name='ar-identifiers.allotted-resource-type' value=\"`$contrail-route-topology-operation-input.allotted-resource-information.allotted-resource-type` \" />\n<parameter name='ar-identifiers.allotted-resource-id' value=\"`$tmp.ar.allotted-resource-id` \" />\n\n",
+        "comments": "",
+        "x": 512.0570220947266,
+        "y": 825.2912397384644,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "7f798563.86347c",
+        "type": "comment",
+        "name": "Set allotted-resource-identifiers",
+        "info": "",
+        "comments": "",
+        "x": 552.6760330200195,
+        "y": 795.6720323562622,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "42e59bba.390174",
+        "type": "set",
+        "name": "set identifiers in overal structure",
+        "xml": "<set>\n<parameter name='ar.allotted-resource-data.contrail-route-topology.allotted-resource-identifiers.' \nvalue=\"`$ar-identifiers.`\" />\n\n\n",
+        "comments": "",
+        "x": 572.0568923950195,
+        "y": 1341.9103197157383,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "27c0b1cb.cbaf7e",
+        "type": "set",
+        "name": "set ecomp model information from input",
+        "xml": "<set>\n<parameter name='ar.allotted-resource-data.contrail-route-topology.onap-model-information.' \nvalue=\"`$contrail-route-topology-operation-input.allotted-resource-information.onap-model-information.`\" />\n\n\n",
+        "comments": "",
+        "x": 573.7235946655273,
+        "y": 909.243691444397,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "afb14d8.fa7e8b",
+        "type": "switchNode",
+        "name": "switch model-invariant-uuid is null",
+        "xml": "<switch test='$contrail-route-topology-operation-input.allotted-resource-information.onap-model-information.model-invariant-uuid'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 559.9140548706055,
+        "y": 944.9578285217285,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "50ecfa4d.756b34"
+            ]
+        ]
+    },
+    {
+        "id": "50ecfa4d.756b34",
+        "type": "outcome",
+        "name": "outcome null",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 787.0569343566895,
+        "y": 946.3863458633423,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "57fddba0.eaaf14"
+            ]
+        ]
+    },
+    {
+        "id": "57fddba0.eaaf14",
+        "type": "set",
+        "name": "set model-invariant-uuid",
+        "xml": "<set>\n<parameter name='ar.allotted-resource-data.contrail-route-topology.onap-model-information.model-invariant-uuid' \nvalue=\"`$ar-model.invariant-uuid`\" />\n\n\n",
+        "comments": "",
+        "x": 988.4855079650879,
+        "y": 945.8148984909058,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "164735e2.5f4fea",
+        "type": "switchNode",
+        "name": "switch model-uuid is null",
+        "xml": "<switch test='$contrail-route-topology-operation-input.allotted-resource-information.onap-model-information.model-uuid'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 531.3426513671875,
+        "y": 979.2435293197632,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "6a69d11e.04137"
+            ]
+        ]
+    },
+    {
+        "id": "6a69d11e.04137",
+        "type": "outcome",
+        "name": "outcome null",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 732.7712173461914,
+        "y": 979.8149509429932,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "a902eea0.7b187"
+            ]
+        ]
+    },
+    {
+        "id": "a902eea0.7b187",
+        "type": "set",
+        "name": "set model-uuid",
+        "xml": "<set>\n<parameter name='sar.allotted-resource-data.contrail-route-topology.onap-model-information.model-uuid' \nvalue=\"`$ar-model.uuid`\" />\n\n\n",
+        "comments": "",
+        "x": 925.6283760070801,
+        "y": 979.8148727416992,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "b8ee290b.0a5948",
+        "type": "switchNode",
+        "name": "switch model-version is null",
+        "xml": "<switch test='$contrail-route-topology-operation-input.allotted-resource-information.onap-model-information.model-version'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 539.9140548706055,
+        "y": 1012.1006565093994,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "d20dbd99.c611a"
+            ]
+        ]
+    },
+    {
+        "id": "d20dbd99.c611a",
+        "type": "outcome",
+        "name": "outcome null",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 789.9140357971191,
+        "y": 1012.1006412506104,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "c9fcca5f.606248"
+            ]
+        ]
+    },
+    {
+        "id": "c9fcca5f.606248",
+        "type": "set",
+        "name": "set model-version",
+        "xml": "<set>\n<parameter name='ar.allotted-resource-data.contrail-route-topology.onap-model-information.model-version' \nvalue=\"`$ar-model.version`\" />\n\n\n",
+        "comments": "",
+        "x": 982.771183013916,
+        "y": 1012.1006307601929,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "ab194250.a66de",
+        "type": "switchNode",
+        "name": "switch ar-model.ecomp-generated-naming",
+        "xml": "<switch test='`$ar-model.ecomp-generated-naming`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 600.7236022949219,
+        "y": 1258.767216682434,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "8fb0ef65.8d523",
+                "2eb9cf24.96b3d"
+            ]
+        ]
+    },
+    {
+        "id": "8fb0ef65.8d523",
+        "type": "other",
+        "name": "outcome Y",
+        "xml": "<outcome value='Y'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 877.7236404418945,
+        "y": 1254.8624348640442,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "6c96ac26.e9a684"
+            ]
+        ]
+    },
+    {
+        "id": "6c96ac26.e9a684",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1046.4736824035645,
+        "y": 1255.3624234199524,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "270e2a77.e35dc6"
+            ]
+        ]
+    },
+    {
+        "id": "2eb9cf24.96b3d",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 868.945930480957,
+        "y": 1287.8624348640442,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "9153ab18.136e08"
+            ]
+        ]
+    },
+    {
+        "id": "9153ab18.136e08",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error in allotted-resource-model data.  Ecomp-generated-naming should be true\" />\n\n",
+        "comments": "",
+        "x": 1046.945930480957,
+        "y": 1286.8624348640442,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "270e2a77.e35dc6",
+        "type": "switchNode",
+        "name": "switch ar-model.ecomp-generated-naming",
+        "xml": "<switch test='`$ar-model.naming-policy`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1347.7235870361328,
+        "y": 1255.4338970184326,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "d120c979.8da8c8",
+                "9b914bce.63aad8"
+            ]
+        ]
+    },
+    {
+        "id": "d120c979.8da8c8",
+        "type": "other",
+        "name": "outcome oam_network_policy",
+        "xml": "<outcome value='oam_network_policy'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1718.5814208984375,
+        "y": 1247.0119342803955,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "fcaca6b7.d32838"
+            ]
+        ]
+    },
+    {
+        "id": "9b914bce.63aad8",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1643.342887878418,
+        "y": 1279.5291390419006,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "fcaca6b7.d32838"
+            ]
+        ]
+    },
+    {
+        "id": "b7235bb6.3a29f8",
+        "type": "set",
+        "name": "set ar_name",
+        "xml": "<set>\n<parameter name='tmp.ar-name' value='$TenantName_$CloudRegionID_$TenantNetworkRole_$LandingNetworkRole_policy_' />\n",
+        "comments": "",
+        "x": 2161.104751586914,
+        "y": 1235.100906342268,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "69b920ab.38aa1",
+        "type": "execute",
+        "name": "execute SliStringUtils - replace $TenantName",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$tmp.ar-name`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.ar-name\"/>\n    <parameter name=\"target\" value=\"$TenantName\"/>\n    <parameter name=\"replacement\" value=\"`$tmp.ar.tenant-name`\"/>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2261.248062133789,
+        "y": 1273.6247825324535,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c7259873.fe9de8",
+        "type": "execute",
+        "name": "execute SliStringUtils - replace LandingNetworkRole",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$tmp.ar-name`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.ar-name\"/>\n    <parameter name=\"target\" value=\"$LandingNetworkRole\"/>\n    <parameter name=\"replacement\" value=\"`$contrail-route-topology-operation-input.contrail-route-request-input.dest-network.network-role`\"/>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2269.581314086914,
+        "y": 1377.7676124572754,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "fcaca6b7.d32838",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic='true'>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1948.8666038513184,
+        "y": 1281.0053358078003,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "b7235bb6.3a29f8",
+                "69b920ab.38aa1",
+                "c7259873.fe9de8",
+                "554b99be.4d79e8",
+                "284f958b.7a5dfa",
+                "2b71aba8.1693c4",
+                "a2eac231.37f33",
+                "eef331cb.9aea7",
+                "bc1017e5.305348"
+            ]
+        ]
+    },
+    {
+        "id": "554b99be.4d79e8",
+        "type": "set",
+        "name": "set identifiers.allotted-resource-name",
+        "xml": "<set>\n<parameter name='ar-identifiers.allotted-resource-name' value='`$tmp.ar-name`' />\n",
+        "comments": "",
+        "x": 2225.771224975586,
+        "y": 1524.386548012495,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "7bbf3a4b.922ac4",
+        "type": "set",
+        "name": "set assignments in overal structure",
+        "xml": "<set>\n<parameter name='ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.' \nvalue=\"`$ar-assignments.`\" />\n\n\n",
+        "comments": "",
+        "x": 560.1999206542969,
+        "y": 2131.62486076355,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "f152aa61.54aba8",
+        "type": "set",
+        "name": "set ar-assignments",
+        "xml": "<set>\n<parameter name='ar-assignments.source-network.' value=\"`$contrail-route-topology-operation-input.contrail-route-request-input.source-network.` \" />\n<parameter name='ar-assignments.dest-network.' value=\"`$contrail-route-topology-operation-input.contrail-route-request-input.dest-network.` \" />\n<parameter name='ar-assignments.contrail-applied-service.' value=\"`$contrail-route-topology-operation-input.contrail-route-request-input.contrail-applied-service-info.` \" />\n\n\n",
+        "comments": "",
+        "x": 531.533073425293,
+        "y": 1378.3863615095615,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "287b8459.7da69c",
+        "type": "for",
+        "name": "for cidx..service-data.consumed-allotted-resources.consumed-allotted-resource[]",
+        "xml": "<for index='cidx' start='0' end='`$service-data.consumed-allotted-resources.consumed-allotted-resource_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1465.8194580078125,
+        "y": 2239.2910742759705,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "51656950.e29468"
+            ]
+        ]
+    },
+    {
+        "id": "f4cedf71.423ad",
+        "type": "switchNode",
+        "name": "switch service-data.consumed-allotted-resources_length",
+        "xml": "<switch test='`$service-data.consumed-allotted-resources.consumed-allotted-resource_length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 623.8189086914062,
+        "y": 2197.005136013031,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "64cf189.e7ea6e8",
+                "d0e0868c.bcee08"
+            ]
+        ]
+    },
+    {
+        "id": "64cf189.e7ea6e8",
+        "type": "other",
+        "name": "outcome Null",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 945.9617919921875,
+        "y": 2199.862557888031,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "12a02d0f.ee3803"
+            ]
+        ]
+    },
+    {
+        "id": "d0e0868c.bcee08",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 933.9617958068848,
+        "y": 2242.8625593185425,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "d57ec577.c56ff8"
+            ]
+        ]
+    },
+    {
+        "id": "51656950.e29468",
+        "type": "switchNode",
+        "name": "switch allotted-resource-id",
+        "xml": "<switch test=\"`$service-data.consumed-allotted-resources.consumed-allotted-resource[$cidx].allotted-resource-id == $tmp.ar.allotted-resource-id`\">\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1895.9146881103516,
+        "y": 2241.3508400917053,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "f22e0aec.651d38"
+            ]
+        ]
+    },
+    {
+        "id": "f22e0aec.651d38",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2100.724655151367,
+        "y": 2241.8152928352356,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "716c0762.bdde98"
+            ]
+        ]
+    },
+    {
+        "id": "d57ec577.c56ff8",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1094.0888862609863,
+        "y": 2240.9885358810425,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "287b8459.7da69c",
+                "264a617a.dba88e"
+            ]
+        ]
+    },
+    {
+        "id": "716c0762.bdde98",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2272.485607147217,
+        "y": 2241.672521352768,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "106b68e8.1a4037",
+                "40e2c37b.f6506c"
+            ]
+        ]
+    },
+    {
+        "id": "12a02d0f.ee3803",
+        "type": "set",
+        "name": "set cidx",
+        "xml": "<set>\n<parameter name='tmp.cidx' value=\"`0`\" />\n<parameter name='service-data.consumed-allotted-resources.consumed-allotted-resource_length' value=\"1\" />\n\n\n",
+        "comments": "",
+        "x": 1104.8187637329102,
+        "y": 2199.576620578766,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "106b68e8.1a4037",
+        "type": "set",
+        "name": "set tmp.cidx and ctx.consumed-ar",
+        "xml": "<set>\n<parameter name='tmp.cidx' value='`$cidx`' />\n<parameter name='ctx.consumed-ar.' value='`$service-data.consumed-allotted-resources.consumed-allotted-resource[$cidx].`' />\n<parameter name='tmp.found-cidx' value='true' />",
+        "comments": "",
+        "x": 2518.342935562134,
+        "y": 2242.2439954280853,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "59b1d791.8e8d88",
+        "type": "set",
+        "name": "set consumed allotted resources",
+        "xml": "<set>\n<parameter name='service-data.consumed-allotted-resources.consumed-allotted-resource[$tmp.cidx].allotted-resource-id' value=\"`$tmp.ar.allotted-resource-id` \" />\n<parameter name='service-data.consumed-allotted-resources.consumed-allotted-resource[$tmp.cidx].allotted-resource-type' value=\"`$contrail-route-topology-operation-input.allotted-resource-information.allotted-resource-type` \" />\n<parameter name='service-data.consumed-allotted-resources.consumed-allotted-resource[$tmp.cidx].allotted-resource-pointer' value=\"`$tmp.ar.self-link` \" />\n<parameter name='service-data.consumed-allotted-resources.consumed-allotted-resource_length' value='`$tmp.cidx + 1`' />\n\n",
+        "comments": "",
+        "x": 547.6762428283691,
+        "y": 2287.5766220092773,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "d3ef150f.6b3e38",
+        "type": "comment",
+        "name": "Create urls for restapi",
+        "info": "",
+        "comments": "",
+        "x": 528.9616737365723,
+        "y": 369.6243658065796,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "6e65e9d5.9f0028",
+        "type": "set",
+        "name": "set ar-assignments",
+        "xml": "<set>\n<parameter name='ar-assignments.fq-name' value=\"`$tmp.fq-name` \" />\n\n\n\n",
+        "comments": "",
+        "x": 515.6761856079102,
+        "y": 2097.196541786194,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "d04be762.e31278",
+        "type": "comment",
+        "name": "Add AR to md-sal",
+        "info": "",
+        "comments": "",
+        "x": 501.2476272583008,
+        "y": 2944.4814081192017,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "ec3a453a.6b4d18",
+        "type": "execute",
+        "name": "execute getTime",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='setTime' >\n    <parameter name=\"outputPath\" value=\"tmp.current-time\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 502.24737548828125,
+        "y": 2322.481505393982,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "940b96fe.4bc648",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error: Existing contrail route allotted resource\" />\n    \n",
+        "comments": "",
+        "x": 1583.33740234375,
+        "y": 707.3334112167358,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "6ff8b1b0.c2e46",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 825.6707000732422,
+        "y": 746.3334527015686,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "10cca98f.b56976"
+            ]
+        ]
+    },
+    {
+        "id": "10cca98f.b56976",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1005.6706504821777,
+        "y": 747.0000033378601,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "94029424.bac068",
+        "type": "set",
+        "name": "set ar data",
+        "xml": "<set>\n<parameter name='ar.allotted-resource-id' value=\"`$tmp.ar.allotted-resource-id` \" />\n<parameter name='ar.allotted-resource-status.action' value=\"`$contrail-route-topology-operation-input.request-information.request-action` \" />\n<parameter name='ar.allotted-resource-status.rpc-name' value=\"contrail-route-topology-operation\" />\n<parameter name='ar.allotted-resource-status.rpc-action' value=\"`$contrail-route-topology-operation-input.sdnc-request-header.svc-action` \" />\n<parameter name='ar.allotted-resource-data.allotted-resource-operation-information.request-information.' value=\"`$contrail-route-topology-operation-input.request-information.` \" />\n<parameter name='ar.allotted-resource-data.allotted-resource-operation-information.sdnc-request-header.' value=\"`$contrail-route-topology-operation-input.sdnc-request-header.` \" />\n<parameter name='ar.allotted-resource-data.allotted-resource-operation-information.service-information.' value=\"`$contrail-route-topology-operation-input.service-information.` \" />\n<parameter name='ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.' value=\"`$contrail-route-topology-operation-input.allotted-resource-information.` \" />\n<parameter name='ar.allotted-resource-data.allotted-resource-operation-information.contrail-route-request-input.' value=\"`$contrail-route-topology-operation-input.contrail-route-request-input.` \" />\n",
+        "comments": "",
+        "x": 497.6706657409668,
+        "y": 750.6666746139526,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "284f958b.7a5dfa",
+        "type": "execute",
+        "name": "execute SliStringUtils - replace $CloudRegionID",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$tmp.ar-name`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.ar-name\"/>\n    <parameter name=\"target\" value=\"$CloudRegionID\"/>\n    <parameter name=\"replacement\" value=\"`$tmp.ar.cloud-region-id`\"/>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2270.337173461914,
+        "y": 1307.6671228408813,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2b71aba8.1693c4",
+        "type": "execute",
+        "name": "execute SliStringUtils - replace $TenantNetworkRole",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$tmp.ar-name`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.ar-name\"/>\n    <parameter name=\"target\" value=\"$TenantNetworkRole\"/>\n    <parameter name=\"replacement\" value=\"`$contrail-route-topology-operation-input.contrail-route-request-input.source-network.network-role`\"/>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2279.6703720092773,
+        "y": 1341.6670265197754,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "eef331cb.9aea7",
+        "type": "call",
+        "name": "call GENERIC-RESOURCE-API:generate-unique-name",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='generate-unique-name' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2284.3371658325195,
+        "y": 1482.3336297273636,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "eaf8cb4c.514708",
+                "9f2060bc.fb7c6"
+            ]
+        ]
+    },
+    {
+        "id": "eaf8cb4c.514708",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2594.051689147949,
+        "y": 1485.1907623708248,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "a4726a3d.558568"
+            ]
+        ]
+    },
+    {
+        "id": "9f2060bc.fb7c6",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2599.3849334716797,
+        "y": 1516.8574628829956,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "6a782334.6926ac"
+            ]
+        ]
+    },
+    {
+        "id": "a2eac231.37f33",
+        "type": "set",
+        "name": "set variables for generating unique name",
+        "xml": "<set>\n<parameter name='generate-unique-name-input.index-table-name' value='CONTRAIL_ROUTE_NAME_INDEX' />\n<parameter name='generate-unique-name-input.index-table-prefix-column' value='contrail_route_name_prefix' />\n<parameter name='generate-unique-name-input.name-table-type' value='CONTRAIL_ROUTE_INSTANCE' />\n<parameter name='generate-unique-name-input.prefix' value=\"`$tmp.ar-name`\" />\n<parameter name='generate-unique-name-input.index-length' value='2' />\n",
+        "comments": "",
+        "x": 2246.004165649414,
+        "y": 1412.0003299415112,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "6a782334.6926ac",
+        "type": "set",
+        "name": "set tmp.ar-name to generated name",
+        "xml": "<set>\n<parameter name='tmp.ar-name' value='`$generate-unique-name-output.generated-name`' />\n",
+        "comments": "",
+        "x": 2846.575096130371,
+        "y": 1517.333545833826,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "a4726a3d.558568",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`$generate-unique-name-output.error-message`\" />\n",
+        "comments": "",
+        "x": 2767.9086112976074,
+        "y": 1484.619276046753,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "d7a09bb1.7dfc58",
+        "type": "set",
+        "name": "set fq_name",
+        "xml": "<set>\n<parameter name='tmp.fq-name' value='$defaultDomain.$defaultProject.$sdncNetworkPolicy' />\n",
+        "comments": "",
+        "x": 515.3371810913086,
+        "y": 1457.6666278839111,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "846017e5.c13a98",
+        "type": "execute",
+        "name": "execute SliStringUtils - replace $defaultDomain",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$tmp.fq-name`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.fq-name\"/>\n    <parameter name=\"target\" value=\"$defaultDomain\"/>\n    <parameter name=\"replacement\" value=\"default-domain\"/>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 622.6705322265625,
+        "y": 1487.6666707992554,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "329e94ed.128dbc",
+        "type": "execute",
+        "name": "execute SliStringUtils - replace $defaultProject",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$tmp.fq-name`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.fq-name\"/>\n    <parameter name=\"target\" value=\"$defaultProject\"/>\n    <parameter name=\"replacement\" value=\"`$tmp.ar.tenant-name`\"/>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 622.6705627441406,
+        "y": 1521.000111579895,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "9537b55.6a49048",
+        "type": "comment",
+        "name": "generate fqname",
+        "info": "",
+        "comments": "",
+        "x": 524.3372268676758,
+        "y": 1430.9999341964722,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "e081301c.9853a",
+        "type": "execute",
+        "name": "execute SliStringUtils - replace $sdncNetworkPolicy",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$tmp.fq-name`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.fq-name\"/>\n    <parameter name=\"target\" value=\"$sdncNetworkPolicy\"/>\n    <parameter name=\"replacement\" value=\"`$tmp.ar-name`\"/>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 636.0038681030273,
+        "y": 1554.3332662582397,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "fd2d75b0.6cb4a8",
+        "type": "comment",
+        "name": "Set onap-model-info",
+        "info": "",
+        "comments": "",
+        "x": 521.1468734741211,
+        "y": 875.5714731216431,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "e99fb45b.d57118",
+        "type": "update",
+        "name": "update AAI allotted-resource",
+        "xml": "<update plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\t\tresource=\"allotted-resource\" \n\t\tkey=\"customer.global-customer-id = $service-data.service-information.global-customer-id AND\n\t\t\tservice-subscription.service-type = $service-data.service-information.subscription-service-type AND\n\t\t\tservice-instance.service-instance-id = $service-data.service-information.service-instance-id AND\n\t\t\tallotted-resource.id = $tmp.ar.allotted-resource-id\"\n        pfx='pfx' local-only='false' force='false'>\n\t<parameter name=\"description\" value=\"`$contrail-route-topology-operation-input.allotted-resource-information.allotted-resource-type`\" />\n\t<parameter name=\"selflink\" value=\"`$tmp.ar.self-link`\" />\n\t<parameter name=\"model-invariant-id\" value=\"`$ar-model.invariant-uuid`\" />\n\t<parameter name=\"model-version-id\" value=\"`$ar-model.uuid`\" />\n\t<parameter name=\"operational-status\" value=\"null\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 535.8610954284668,
+        "y": 2453.5715522766113,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "8acb12c2.f6f87",
+                "250daf6.713705"
+            ]
+        ]
+    },
+    {
+        "id": "8acb12c2.f6f87",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 791.6230278015137,
+        "y": 2430.809726715088,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "d00038bb.baddb8"
+            ]
+        ]
+    },
+    {
+        "id": "250daf6.713705",
+        "type": "failure",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 796.9324569702148,
+        "y": 2466.3811445236206,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "d00038bb.baddb8"
+            ]
+        ]
+    },
+    {
+        "id": "d00038bb.baddb8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"AAI failed\" />\n",
+        "comments": "",
+        "x": 1006.7182426452637,
+        "y": 2432.428771018982,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "bc1017e5.305348",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"tmp.ar-name=\"/>\n<parameter name=\"field3\" value=\"`$tmp.ar-name`\"/>\n<parameter name=\"field4\" value=\"generate-unique-name-input.prefix\" />\n<parameter name=\"field5\" value=\"`$generate-unique-name-input.prefix`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 2137.2039642333984,
+        "y": 1447.0004267394543,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6d745a26.0c7354",
+        "type": "switchNode",
+        "name": "switch source-network.network-id",
+        "xml": "<switch test='`$contrail-route-topology-operation-input.contrail-route-request-input.source-network.network-id`'>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 568.6036758422852,
+        "y": 1134.3336181640625,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "8af0f89a.27c2a8",
+                "26bb6725.34ecc8"
+            ]
+        ]
+    },
+    {
+        "id": "8af0f89a.27c2a8",
+        "type": "other",
+        "name": "Other",
+        "xml": "<outcome value='Other'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 919.6039352416992,
+        "y": 1132.0001306533813,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "50061d1e.aa0f94"
+            ]
+        ]
+    },
+    {
+        "id": "26bb6725.34ecc8",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 912.2707290649414,
+        "y": 1093.9999256134033,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "ce51d766.4e8ee8"
+            ]
+        ]
+    },
+    {
+        "id": "b8bb95ad.9a2df8",
+        "type": "for",
+        "name": "for nidx..service-data.networks.network[]",
+        "xml": "<for index='nidx' start='0' end='`$service-data.networks.network_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2072.7152938842773,
+        "y": 1130.4445645213127,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "87c290d7.ffb84"
+            ]
+        ]
+    },
+    {
+        "id": "ffb63116.26d27",
+        "type": "switchNode",
+        "name": "switch service-data.networks.network_length",
+        "xml": "<switch test='`$service-data.networks.network_length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1308.429298400879,
+        "y": 1131.0159149169922,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "87f83d80.0aba7",
+                "94644dd9.fb776"
+            ]
+        ]
+    },
+    {
+        "id": "87f83d80.0aba7",
+        "type": "other",
+        "name": "outcome Null",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1597.429298400879,
+        "y": 1133.0159759521484,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "a14b778d.061fa8"
+            ]
+        ]
+    },
+    {
+        "id": "94644dd9.fb776",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1577.429298400879,
+        "y": 1168.0159759521484,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "38fa1da0.7d4562"
+            ]
+        ]
+    },
+    {
+        "id": "5c5cbd2b.585f54",
+        "type": "switchNode",
+        "name": "switch networkid found",
+        "xml": "<switch test=\"`$service-data.networks.network[$nidx].network-id == $contrail-route-topology-operation-input.contrail-route-request-input.source-network.network-id`\">\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2517.1439571380615,
+        "y": 1092.694730758667,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "42cfffd1.f91eb"
+            ]
+        ]
+    },
+    {
+        "id": "38fa1da0.7d4562",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1778.699317932129,
+        "y": 1169.570541381836,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "b8bb95ad.9a2df8",
+                "e5b36746.9138e8",
+                "c3a2fe60.10d47"
+            ]
+        ]
+    },
+    {
+        "id": "50061d1e.aa0f94",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1050.7151184082031,
+        "y": 1131.444492340088,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "ffb63116.26d27"
+            ]
+        ]
+    },
+    {
+        "id": "ce51d766.4e8ee8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error assigning contrail route.  Source network not found\" />\n",
+        "comments": "",
+        "x": 1066.4041366577148,
+        "y": 1093.0001208782196,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "a14b778d.061fa8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error assigning contrail route.  Source network not found\" />\n",
+        "comments": "",
+        "x": 1787.2040939331055,
+        "y": 1131.0001277923584,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "8cb14e0e.cb709",
+        "type": "set",
+        "name": "set tmp vals",
+        "xml": "<set>\n<parameter name='tmp.ar.tenant-id' value='`$service-data.networks.network[$nidx].network-data.network-topology.tenant`' />\n<parameter name='tmp.ar.cloud-region-id' value='`$service-data.networks.network[$nidx].network-data.network-topology.aic-cloud-region`' />\n<parameter name='source-network-found' value='true' />\n\n",
+        "comments": "",
+        "x": 3026.2041454315186,
+        "y": 1072.0001201629639,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "c64ef011.65ec9",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2836.2705879211426,
+        "y": 1085.0001316070557,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "8cb14e0e.cb709",
+                "ab273234.3352d"
+            ]
+        ]
+    },
+    {
+        "id": "42cfffd1.f91eb",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2686.8041133880615,
+        "y": 1091.0000038146973,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "c64ef011.65ec9"
+            ]
+        ]
+    },
+    {
+        "id": "d6eb6250.74fe",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error assigning contrail route.  Source network not found\" />\n",
+        "comments": "",
+        "x": 2401.6038246154785,
+        "y": 1165.0001640319824,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "c2621055.c2754",
+        "type": "execute",
+        "name": "execute RestApiCallNode - Get Parent service network",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-parentnetwork-url`' />\n    <parameter name='restapiUser' value='`$prop.controller.user`' />\n    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='GET' />\n    <parameter name=\"responsePrefix\" value=\"parent-net\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1516.0039291381836,
+        "y": 1683.0001859664917,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "f806e9f1.0a0b88",
+                "47f327d7.b4ce88"
+            ]
+        ]
+    },
+    {
+        "id": "f806e9f1.0a0b88",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1825.2999839782715,
+        "y": 1683.8080487251282,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "788c3f86.e2829"
+            ]
+        ]
+    },
+    {
+        "id": "788c3f86.e2829",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1994.2999877929688,
+        "y": 1682.3079495429993,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "a8358589.e721f8"
+            ]
+        ]
+    },
+    {
+        "id": "a8358589.e721f8",
+        "type": "switchNode",
+        "name": "switch network length",
+        "xml": "<switch test='`$parent-net.networks.network_length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2205.1572303771973,
+        "y": 1681.9270787239075,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "7e646c9f.895f44",
+                "b4b35449.efef08"
+            ]
+        ]
+    },
+    {
+        "id": "7e646c9f.895f44",
+        "type": "other",
+        "name": "outcome 1",
+        "xml": "<outcome value='1'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2414.4905014038086,
+        "y": 1681.9269938468933,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "7c7775ff.623fcc"
+            ]
+        ]
+    },
+    {
+        "id": "6e8d9ed9.3a19",
+        "type": "comment",
+        "name": "GET dest network from mdsal",
+        "info": "",
+        "comments": "",
+        "x": 1461.299903869629,
+        "y": 1624.307852268219,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "47f327d7.b4ce88",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1817.1517868041992,
+        "y": 1718.8741335868835,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "2c4366b0.10342a"
+            ]
+        ]
+    },
+    {
+        "id": "2c4366b0.10342a",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1997.1517372131348,
+        "y": 1719.540684223175,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "a5487cce.5643f"
+            ]
+        ]
+    },
+    {
+        "id": "4888c4bf.132c3c",
+        "type": "execute",
+        "name": "generate parent-network url",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$prop.restapi.network`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.ar-parentnetwork-url\"/>\n    <parameter name=\"target\" value=\"{service-instance-id}\"/>\n    <parameter name=\"replacement\" value=\"`$tmp.ar.parent-service-instance-id`\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 552.0040283203125,
+        "y": 429.0000228881836,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a5487cce.5643f",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error: No existing parent netorks\" />\n    \n",
+        "comments": "",
+        "x": 2182.003860473633,
+        "y": 1721.0001629590988,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "b4b35449.efef08",
+        "type": "other",
+        "name": "Other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2416.003734588623,
+        "y": 1717.0000939369202,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "32b9b839.5a1048"
+            ]
+        ]
+    },
+    {
+        "id": "32b9b839.5a1048",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error: Network id not found.  Parent Service should only have one network\" />\n    \n",
+        "comments": "",
+        "x": 2582.3317108154297,
+        "y": 1716.9472088813782,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "7c7775ff.623fcc",
+        "type": "set",
+        "name": "set dest network id",
+        "xml": "<set>\n<parameter name='ar-assignments.dest-network.network-id' value=\"`$parent-net.networks.network[0].network-id` \" />\n\n\n\n",
+        "comments": "",
+        "x": 2592.3535537719727,
+        "y": 1683.0001463890076,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "216c7c53.3511e4",
+        "type": "comment",
+        "name": "Find tenant/cloud region from source network",
+        "info": "",
+        "comments": "",
+        "x": 598.0039672851562,
+        "y": 1099.000024318695,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "e2239d78.dc34",
+        "type": "execute",
+        "name": "generate contrail-applied-service url",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$prop.restapi.vnf`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.ar-contrailappliedsvc-url\"/>\n    <parameter name=\"target\" value=\"{service-instance-id}\"/>\n    <parameter name=\"replacement\" value=\"`$tmp.ar.contrail-applied-service-instance-id`\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 579.204029083252,
+        "y": 459.0000247955322,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5ddff342.e4df3c",
+        "type": "execute",
+        "name": "execute RestApiCallNode - Get vnf",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-contrailappliedsvc-url`' />\n    <parameter name='restapiUser' value='`$prop.controller.user`' />\n    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='GET' />\n    <parameter name=\"responsePrefix\" value=\"vnf\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 565.2039566040039,
+        "y": 1814.6668605804443,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "ef846094.0169c",
+                "33a1c4a3.2f55bc"
+            ]
+        ]
+    },
+    {
+        "id": "ef846094.0169c",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 944.5000762939453,
+        "y": 1807.8080350160599,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "2dafc941.bd65e6"
+            ]
+        ]
+    },
+    {
+        "id": "2dafc941.bd65e6",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1113.5000801086426,
+        "y": 1806.307935833931,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "441a5438.6dce1c"
+            ]
+        ]
+    },
+    {
+        "id": "441a5438.6dce1c",
+        "type": "switchNode",
+        "name": "switch vnf length",
+        "xml": "<switch test='`$vnf.vnfs.vnf_length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1324.357322692871,
+        "y": 1805.9270650148392,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "55c34485.1a3a6c",
+                "97a3c7a3.cd7a68"
+            ]
+        ]
+    },
+    {
+        "id": "55c34485.1a3a6c",
+        "type": "other",
+        "name": "outcome 1",
+        "xml": "<outcome value='1'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1515.6908149719238,
+        "y": 1799.9270482063293,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "3f9b4d33.6afa52"
+            ]
+        ]
+    },
+    {
+        "id": "1dfdd5e8.68e2ca",
+        "type": "comment",
+        "name": "GET contrail vnf for contrail applied service  from mdsal",
+        "info": "",
+        "comments": "",
+        "x": 627.8333969116211,
+        "y": 1776.6413373947144,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "33a1c4a3.2f55bc",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 936.351879119873,
+        "y": 1842.8741198778152,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "e82fcfa1.60da4"
+            ]
+        ]
+    },
+    {
+        "id": "e82fcfa1.60da4",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1116.3518295288086,
+        "y": 1843.5406705141068,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "b3f3680a.ed3e28"
+            ]
+        ]
+    },
+    {
+        "id": "b3f3680a.ed3e28",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error: No existing contrail applied service vnfs\" />\n    \n",
+        "comments": "",
+        "x": 1301.2039527893066,
+        "y": 1845.0001492500305,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "97a3c7a3.cd7a68",
+        "type": "other",
+        "name": "Other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1517.2040481567383,
+        "y": 1835.0001482963562,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "9094a451.613fc8"
+            ]
+        ]
+    },
+    {
+        "id": "9094a451.613fc8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error: vnf id not found.  Contrail applied service should only have one vnf\" />\n    \n",
+        "comments": "",
+        "x": 1681.5319519042969,
+        "y": 1834.94731092453,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "3f9b4d33.6afa52",
+        "type": "set",
+        "name": "set applied service vnf id",
+        "xml": "<set>\n<parameter name='ar-assignments.contrail-applied-service.vnf-id' value=\"`$vnf.vnfs.vnf[0].vnf-id` \" />\n\n\n\n",
+        "comments": "",
+        "x": 1726.8040199279785,
+        "y": 1799.0002388954163,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "4affa6c3.5650c8",
+        "type": "comment",
+        "name": "Generate contrail route name",
+        "info": "",
+        "comments": "",
+        "x": 550.0039520263672,
+        "y": 1223.0000276565552,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "241b0a1a.040746",
+        "type": "comment",
+        "name": "GET contrail fqdn from vnf/vf-module",
+        "info": "",
+        "comments": "",
+        "x": 580.3373031616211,
+        "y": 1917.6669092178345,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "5f1ba758.495008",
+        "type": "switchNode",
+        "name": "switch contrail-route-request-input.constrail-applied-service-info.contrail-fqdn",
+        "xml": "<switch test='`$contrail-route-topology-operation-input.contrail-route-request-input.contrail-applied-service-info.contrail-fqdn`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 686.0040054321289,
+        "y": 1959.0002427101135,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "e8efa7a8.736b38",
+                "b22d9dd3.f64d8"
+            ]
+        ]
+    },
+    {
+        "id": "e8efa7a8.736b38",
+        "type": "other",
+        "name": "outcome Null",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1078.0039710998535,
+        "y": 1949.0000647306442,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "b254b3ef.ebc57"
+            ]
+        ]
+    },
+    {
+        "id": "b22d9dd3.f64d8",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1061.0038986206055,
+        "y": 1986.0000519752502,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "a058e74f.55aa98"
+            ]
+        ]
+    },
+    {
+        "id": "a058e74f.55aa98",
+        "type": "set",
+        "name": "set applied service fqdn",
+        "xml": "<set>\n<parameter name='ar-assignments.contrail-applied-service.contrail-fqdn' value=\"`$contrail-route-topology-operation-input.contrail-route-request-input.contrail-applied-service-info.contrail-fqdn` \" />\n\n\n\n",
+        "comments": "",
+        "x": 1252.0039138793945,
+        "y": 1986.0000859498978,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "b254b3ef.ebc57",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1264.0039749145508,
+        "y": 1949.00006377697,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "a0bebd1.5d35d4",
+                "5f68ea4a.6a1ad4"
+            ]
+        ]
+    },
+    {
+        "id": "9ed05f14.02b3a",
+        "type": "comment",
+        "name": "GET dest network from parent service",
+        "info": "",
+        "comments": "",
+        "x": 570.670524597168,
+        "y": 1655.0000686645508,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "3b7ee06a.f8b51",
+        "type": "switchNode",
+        "name": "switch contrail-route-topology-operation-input.contrail-route-request-input.dest-network.network-id",
+        "xml": "<switch test='`$contrail-route-topology-operation-input.contrail-route-request-input.dest-network.network-id`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 762.0039825439453,
+        "y": 1683.000023841858,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "8ecd2ff2.b9e9a",
+                "cc62d74c.c1a2e8"
+            ]
+        ]
+    },
+    {
+        "id": "8ecd2ff2.b9e9a",
+        "type": "other",
+        "name": "outcome Null",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1204.0038833618164,
+        "y": 1683.0000393390656,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "c2621055.c2754"
+            ]
+        ]
+    },
+    {
+        "id": "cc62d74c.c1a2e8",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1186.0038871765137,
+        "y": 1716.0000400543213,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "84dd6a6a.65bf68"
+            ]
+        ]
+    },
+    {
+        "id": "84dd6a6a.65bf68",
+        "type": "set",
+        "name": "set dest network id",
+        "xml": "<set>\n<parameter name='ar-assignments.dest-network.network-id' value=\"`$contrail-route-topology-operation-input.contrail-route-request-input.dest-network.network-id` \" />\n\n\n\n",
+        "comments": "",
+        "x": 1378.003849029541,
+        "y": 1718.9999952316284,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "7b646249.f51a2c",
+        "type": "comment",
+        "name": "GET contrail fqdn via AAI",
+        "info": "",
+        "comments": "",
+        "x": 1517.2039642333984,
+        "y": 1912.9999675750732,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "a0bebd1.5d35d4",
+        "type": "get-resource",
+        "name": "get-resource generic-vnf",
+        "xml": "<get-resource plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\t\tresource=\"generic-vnf\" \n\t\tkey=\"generic-vnf.vnf-id = $ar-assignments.contrail-applied-service.vnf-id\"\n        pfx='aai.vnf' local-only='false' >\n        \n\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1527.2039642333984,
+        "y": 1948.9999685287476,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "d808221.d92d0e",
+                "5ef4a02a.42306"
+            ]
+        ]
+    },
+    {
+        "id": "5ef4a02a.42306",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1729.8435707092285,
+        "y": 1977.8053374290466,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "82e0cc2c.ce754"
+            ]
+        ]
+    },
+    {
+        "id": "82e0cc2c.ce754",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error retrieving vnf from AAI\" />\n",
+        "comments": "",
+        "x": 1905.7957954406738,
+        "y": 1981.1386713981628,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "d808221.d92d0e",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1732.3433952331543,
+        "y": 1947.8054151535034,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "8d4eb08.378ca5"
+            ]
+        ]
+    },
+    {
+        "id": "8d4eb08.378ca5",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Vnf not found in AAI\" />\n",
+        "comments": "",
+        "x": 1900.121280670166,
+        "y": 1947.1108450889587,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "840da30b.94703",
+        "type": "comment",
+        "name": "Loop through vf modeuls looking for contrail fqdn",
+        "info": "",
+        "comments": "",
+        "x": 1600.8706130981445,
+        "y": 2017.3335008621216,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "4c3a7db3.5cd594",
+        "type": "comment",
+        "name": "Update AAI AR",
+        "info": "",
+        "comments": "",
+        "x": 499.20395278930664,
+        "y": 2416.9999961853027,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "5fefa6f9.3a77d8",
+        "type": "execute",
+        "name": "execute RestApiCallNode - Update parent provided service AR",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='templateFileName' value=\"`$prop.restapi.templateDir + '/' + $prop.restapi.parentsvc.templatefile`\" />\n    <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.parent-ar-url`' />\n    <parameter name='restapiUser' value='`$prop.controller.user`' />\n    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='PUT' />\n    <parameter name=\"responsePrefix\" value=\"parent\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 641.2040672302246,
+        "y": 2549.0002632141113,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "4b453088.13e21",
+                "db902bd9.e2c338",
+                "e615d74a.c6fc18"
+            ]
+        ]
+    },
+    {
+        "id": "4b453088.13e21",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 963.5120849609375,
+        "y": 2593.998480796814,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "b694161e.b1bf88"
+            ]
+        ]
+    },
+    {
+        "id": "db902bd9.e2c338",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 954.512134552002,
+        "y": 2562.4985065460205,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "b694161e.b1bf88"
+            ]
+        ]
+    },
+    {
+        "id": "e615d74a.c6fc18",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 958.2621726989746,
+        "y": 2532.855611421168,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "115a2a7e.d97726"
+            ]
+        ]
+    },
+    {
+        "id": "b694161e.b1bf88",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error updating md-sal for contrail-route-allotted-resource\" />\n",
+        "comments": "",
+        "x": 1124.2621726989746,
+        "y": 2563.2485303878784,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "115a2a7e.d97726",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1099.918140411377,
+        "y": 2529.047780610621,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "74edca12.815734",
+        "type": "comment",
+        "name": "Put the parent allotted resource in mdsal",
+        "info": "",
+        "comments": "",
+        "x": 568.2040328979492,
+        "y": 2517.0000886917114,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "264a617a.dba88e",
+        "type": "switchNode",
+        "name": "switch tmp.found-cidx",
+        "xml": "<switch test='`$tmp.found-cidx`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1283.2039337158203,
+        "y": 2273.0000586509705,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "93572ecb.afdae"
+            ]
+        ]
+    },
+    {
+        "id": "93572ecb.afdae",
+        "type": "outcomeTrue",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1473.2038879394531,
+        "y": 2272.9999957084656,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "b7b1719a.2b029"
+            ]
+        ]
+    },
+    {
+        "id": "b7b1719a.2b029",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1639.2038879394531,
+        "y": 2272.9999957084656,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "308899ad.18e666"
+            ]
+        ]
+    },
+    {
+        "id": "308899ad.18e666",
+        "type": "set",
+        "name": "set tmp.cidx ",
+        "xml": "<set>\n<parameter name='tmp.cidx' value='`$service-data.consumed-allotted-resources.consumed-allotted-resource_length`' />\n",
+        "comments": "",
+        "x": 1885.0612163543701,
+        "y": 2273.571469783783,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "40e2c37b.f6506c",
+        "type": "break",
+        "name": "break",
+        "xml": "<break>\n",
+        "comments": "",
+        "x": 2435.203887939453,
+        "y": 2270.9999957084656,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "a348f9e1.479f68",
+        "type": "execute",
+        "name": "generate parent-ar url - replace service-instance-id",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$prop.restapi.parent-provided-resource`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.parent-ar-url\"/>\n    <parameter name=\"target\" value=\"{service-instance-id}\"/>\n    <parameter name=\"replacement\" value=\"`$tmp.ar.parent-service-instance-id`\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 623.2040939331055,
+        "y": 491.0000581741333,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e6b7c56f.4a4108",
+        "type": "execute",
+        "name": "generate parent-ar url - replace allotted-resource-id",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$tmp.parent-ar-url`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.parent-ar-url\"/>\n    <parameter name=\"target\" value=\"{allotted-resource-id}\"/>\n    <parameter name=\"replacement\" value=\"`$tmp.ar.allotted-resource-id`\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 628.2039642333984,
+        "y": 526.0000591278076,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4fa30610.874dd8",
+        "type": "execute",
+        "name": "execute RestApiCallNode - Update parent provided service AR",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='templateFileName' value=\"`$prop.restapi.templateDir + '/' + $prop.restapi.parentsvc.templatefile`\" />\n    <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.parent-ar-url`' />\n    <parameter name='restapiUser' value='`$prop.controller.user`' />\n    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='DELETE' />\n    <parameter name=\"responsePrefix\" value=\"parent\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1340.337501525879,
+        "y": 2983.333375930786,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "4d27fc7a.e0a564",
+                "fca9d210.32923",
+                "5baae4aa.9e3f8c"
+            ]
+        ]
+    },
+    {
+        "id": "b4ec98ab.b04568",
+        "type": "comment",
+        "name": "Rollback parent",
+        "info": "",
+        "comments": "",
+        "x": 1184.3374290466309,
+        "y": 2953.0000064373016,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "4b9fa7f1.b30308",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 993.0040321350098,
+        "y": 2982.666679382324,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "4fa30610.874dd8",
+                "676e8a31.aad434"
+            ]
+        ]
+    },
+    {
+        "id": "4d27fc7a.e0a564",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1711.64554977417,
+        "y": 3043.9983422756195,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "7488686d.da8948"
+            ]
+        ]
+    },
+    {
+        "id": "fca9d210.32923",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1702.6455993652344,
+        "y": 3012.498368024826,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "7488686d.da8948"
+            ]
+        ]
+    },
+    {
+        "id": "5baae4aa.9e3f8c",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1706.395637512207,
+        "y": 2982.8554728999734,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "7488686d.da8948"
+            ]
+        ]
+    },
+    {
+        "id": "7488686d.da8948",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1848.0516052246094,
+        "y": 2979.0476420894265,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5182c386.6fc00c",
+        "type": "execute",
+        "name": "generate network-ar url - replace service-instance-id",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$prop.restapi.network-provided-resource`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.network-ar-url\"/>\n    <parameter name=\"target\" value=\"{service-instance-id}\"/>\n    <parameter name=\"replacement\" value=\"`$tmp.ar.parent-service-instance-id`\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 630.0039291381836,
+        "y": 560.9999933242798,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b4d8f0cc.1375d",
+        "type": "execute",
+        "name": "generate network-ar url - replace network-id",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$tmp.network-ar-url`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.network-ar-url\"/>\n    <parameter name=\"target\" value=\"{network-id}\"/>\n    <parameter name=\"replacement\" value=\"`$ar-assignments.dest-network.network-id`\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 575.3373336791992,
+        "y": 2736.3331060409546,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d3ab9d9.302806",
+        "type": "execute",
+        "name": "execute RestApiCallNode - Update parent network provided AR",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.network-ar-url`' />\n    <parameter name='restapiUser' value='`$prop.controller.user`' />\n    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='GET' />\n    <parameter name=\"responsePrefix\" value=\"net-ar\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 636.0039749145508,
+        "y": 2768.332983016968,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "b126a6ab.fc31a8",
+                "21f26a3d.14b8a6",
+                "58552a71.cf4904"
+            ]
+        ]
+    },
+    {
+        "id": "21f26a3d.14b8a6",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1043.3120384216309,
+        "y": 2769.998592376709,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "d04555d.20f10a8"
+            ]
+        ]
+    },
+    {
+        "id": "58552a71.cf4904",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1035.9787483215332,
+        "y": 2805.165050506592,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "d04555d.20f10a8"
+            ]
+        ]
+    },
+    {
+        "id": "b126a6ab.fc31a8",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1038.0620727539062,
+        "y": 2735.52213678509,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "d04555d.20f10a8"
+            ]
+        ]
+    },
+    {
+        "id": "d04555d.20f10a8",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1209.7179679870605,
+        "y": 2740.047920227051,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "70cece64.b0035",
+                "f47586c7.4dd958"
+            ]
+        ]
+    },
+    {
+        "id": "9c8b757d.7ff708",
+        "type": "comment",
+        "name": "Add AR to  parent network allotted resource from mdsal",
+        "info": "",
+        "comments": "",
+        "x": 604.0038681030273,
+        "y": 2696.666604042053,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "f47586c7.4dd958",
+        "type": "switchNode",
+        "name": "switch net-ar_length",
+        "xml": "<switch test='`$net-ar.network-provided-allotted-resources.network-provided-ar-id_length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1436.3371238708496,
+        "y": 2779.333092689514,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "81789afc.459478",
+                "18863aec.cdfac5"
+            ]
+        ]
+    },
+    {
+        "id": "f3c02a8e.4fd868",
+        "type": "for",
+        "name": "for nidx..net-ar[]",
+        "xml": "<for index='nidx' start='0' end='`$net-ar.network-provided-allotted-resources.network-provided-ar-id_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2154.6705780029297,
+        "y": 2800.3330993652344,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "aaf9c25b.d0a4e"
+            ]
+        ]
+    },
+    {
+        "id": "81789afc.459478",
+        "type": "other",
+        "name": "outcome Null",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1719.1461906433105,
+        "y": 2734.9044456481934,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "a9b1914.36cf07"
+            ]
+        ]
+    },
+    {
+        "id": "18863aec.cdfac5",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1700.8128395080566,
+        "y": 2808.5711641311646,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "400b37af.daefc8"
+            ]
+        ]
+    },
+    {
+        "id": "aaf9c25b.d0a4e",
+        "type": "switchNode",
+        "name": "switch allotted-resource-id",
+        "xml": "<switch test=\"`$net-ar.network-provided-allotted-resources.network-provided-ar-id[$nidx] == $tmp.ar.allotted-resource-id`\">\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2379.765636444092,
+        "y": 2807.3930249214172,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "3f6707e6.536828"
+            ]
+        ]
+    },
+    {
+        "id": "3f6707e6.536828",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2562.909149169922,
+        "y": 2802.8570713996887,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "cf3b236d.afba4"
+            ]
+        ]
+    },
+    {
+        "id": "400b37af.daefc8",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1903.2733039855957,
+        "y": 2811.3636326789856,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "f3c02a8e.4fd868",
+                "b5ca1c40.ba898"
+            ]
+        ]
+    },
+    {
+        "id": "cf3b236d.afba4",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2729.6701126098633,
+        "y": 2804.380966901779,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "b9c29337.bffea",
+                "e860e228.44b05"
+            ]
+        ]
+    },
+    {
+        "id": "b9a5525f.e748d",
+        "type": "outcomeTrue",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2333.7217140197754,
+        "y": 2844.0419883728027,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "3c162262.2edd8e"
+            ]
+        ]
+    },
+    {
+        "id": "3c162262.2edd8e",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2503.0548133850098,
+        "y": 2842.375241279602,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "97955dea.94fa8",
+                "b0991330.37b1f",
+                "19342dda.0ed522"
+            ]
+        ]
+    },
+    {
+        "id": "97955dea.94fa8",
+        "type": "set",
+        "name": "set tmp.nidx ",
+        "xml": "<set>\n<parameter name='tmp.nidx' value='`$net-ar.network-provided-allotted-resources.network-provided-ar-id_length`' />\n",
+        "comments": "",
+        "x": 2708.9120597839355,
+        "y": 2847.946852207184,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "71697d2f.ce67a4",
+        "type": "comment",
+        "name": "allotted resource already exists- no op",
+        "info": "",
+        "comments": "",
+        "x": 2425.003807067871,
+        "y": 2658.3331480026245,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "b5ca1c40.ba898",
+        "type": "switchNode",
+        "name": "switch tmp.found-nidx",
+        "xml": "<switch test='`$tmp.found-nidx`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2163.721622467041,
+        "y": 2842.375159263611,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "b9a5525f.e748d"
+            ]
+        ]
+    },
+    {
+        "id": "b9c29337.bffea",
+        "type": "set",
+        "name": "set tmp.nidx ",
+        "xml": "<set>\n<parameter name='tmp.found-nidx' value='true' />",
+        "comments": "",
+        "x": 2941.6705055236816,
+        "y": 2795.6662425994873,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "e860e228.44b05",
+        "type": "break",
+        "name": "break",
+        "xml": "<break>\n",
+        "comments": "",
+        "x": 2928.864610671997,
+        "y": 2829.0894317626953,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "b0991330.37b1f",
+        "type": "execute",
+        "name": "execute RestApiCallNode - Update parent network provided AR",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='templateFileName' value=\"`$prop.restapi.templateDir + '/' + $prop.restapi.network-ar.templatefile`\" />\n    <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.network-ar-url`' />\n    <parameter name='restapiUser' value='`$prop.controller.user`' />\n    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='PUT' />\n    <parameter name=\"responsePrefix\" value=\"p-network-ar\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2876.0039253234863,
+        "y": 2913.6661825180054,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "d0deebe0.5c10c8",
+                "ce47a3d3.8ea39",
+                "abaaa05a.34376"
+            ]
+        ]
+    },
+    {
+        "id": "abaaa05a.34376",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3219.0038719177246,
+        "y": 2959.9996099472046,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "88cce4e7.5ce3b8"
+            ]
+        ]
+    },
+    {
+        "id": "ce47a3d3.8ea39",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3210.003921508789,
+        "y": 2928.499635696411,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "88cce4e7.5ce3b8"
+            ]
+        ]
+    },
+    {
+        "id": "d0deebe0.5c10c8",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3213.7539596557617,
+        "y": 2898.8567405715585,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "88cce4e7.5ce3b8"
+            ]
+        ]
+    },
+    {
+        "id": "88cce4e7.5ce3b8",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 3398.743251800537,
+        "y": 2895.048861503601,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "70cece64.b0035",
+        "type": "set",
+        "name": "set tmp.found-nidx = false",
+        "xml": "<set>\n<parameter name='tmp.found-nidx' value='false' />",
+        "comments": "",
+        "x": 1453.0038871765137,
+        "y": 2709.666962623596,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "19342dda.0ed522",
+        "type": "set",
+        "name": "set length",
+        "xml": "<set>\n<parameter name='net-ar.network-provided-allotted-resources.network-provided-ar-id_length' value='`$net-ar.network-provided-allotted-resources.network-provided-ar-id_length + 1`' />\n<parameter name='net-ar.network-provided-allotted-resources.network-provided-ar-id[$tmp.nidx]' value=\"`$tmp.ar.allotted-resource-id`\" />\n",
+        "comments": "",
+        "x": 2703.670211791992,
+        "y": 2882.000111103058,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "cf2e9848.75b068",
+        "type": "set",
+        "name": "set new network-provided-ar",
+        "xml": "<set>\n<parameter name='net-ar.network-provided-allotted-resources.network-provided-ar-id_length' value=\"1\" />\n<parameter name='net-ar.network-provided-allotted-resources.network-provided-ar-id[0]' value=\"`$tmp.ar.allotted-resource-id`\" />\n\n\n\n\n",
+        "comments": "",
+        "x": 2220.003257751465,
+        "y": 2738.2850757837296,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "a9b1914.36cf07",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1916.6709251403809,
+        "y": 2734.9993047714233,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "cf2e9848.75b068",
+                "b0991330.37b1f"
+            ]
+        ]
+    },
+    {
+        "id": "532c07a7.4fc418",
+        "type": "comment",
+        "name": "Other Rollbacks? ",
+        "info": "",
+        "comments": "",
+        "x": 1190.003776550293,
+        "y": 3044.9997510910034,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "1a6cf55.8e55d0b",
+        "type": "for",
+        "name": "for each vf-module",
+        "xml": "<for index='idx' start='0' end='`$aai.vnf.vf-modules.vf-module_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1942.1624755859375,
+        "y": 2083.2690420150757,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "f9f855ba.54c4e8"
+            ]
+        ]
+    },
+    {
+        "id": "3073c90c.2b8396",
+        "type": "break",
+        "name": "break",
+        "xml": "<break>\n",
+        "comments": "",
+        "x": 2821.734062194824,
+        "y": 2147.5073776245117,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "f9f855ba.54c4e8",
+        "type": "switchNode",
+        "name": "switch contrail-service-instance-fqdn",
+        "xml": "<switch test='`$aai.vnf.vf-modules.vf-module[$idx].contrail-service-instance-fqdn`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2225.67041015625,
+        "y": 2083.9997549057007,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "16e107d0.dce698",
+                "e20c70a0.0635e"
+            ]
+        ]
+    },
+    {
+        "id": "e93e13c6.51ba8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"VF Module not found in AAI\" />\n",
+        "comments": "",
+        "x": 1923.61474609375,
+        "y": 2050.9721670150757,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "16e107d0.dce698",
+        "type": "other",
+        "name": "outcome Null",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2505.67041015625,
+        "y": 2085.3330068588257,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "75bfef9d.b7113"
+            ]
+        ]
+    },
+    {
+        "id": "e20c70a0.0635e",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2487.6704139709473,
+        "y": 2118.3330075740814,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "6a2486ce.7e5db8"
+            ]
+        ]
+    },
+    {
+        "id": "75bfef9d.b7113",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2662.3373260498047,
+        "y": 2083.666416168213,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6a2486ce.7e5db8",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2669.0036544799805,
+        "y": 2115.3330125808716,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "3073c90c.2b8396",
+                "91e70d26.1944f"
+            ]
+        ]
+    },
+    {
+        "id": "91e70d26.1944f",
+        "type": "set",
+        "name": "set applied service fqdn",
+        "xml": "<set>\n<parameter name='ar-assignments.contrail-applied-service.contrail-fqdn' value=\"`$aai.vnf.vf-modules.vf-module[$idx].contrail-service-instance-fqdn` \" />\n\n\n\n",
+        "comments": "",
+        "x": 2880.3369140625,
+        "y": 2114.666625022888,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "50a5d5ae.00038c",
+        "type": "switchNode",
+        "name": "switch ar-assignments.contrail-applied-service.contrail-fqdn",
+        "xml": "<switch test='`$ar-assignments.contrail-applied-service.contrail-fqdn`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 639.0039672851562,
+        "y": 2032.6666250228882,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "7ef88d8c.1753f4"
+            ]
+        ]
+    },
+    {
+        "id": "7ef88d8c.1753f4",
+        "type": "other",
+        "name": "outcome Null",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 967.6706504821777,
+        "y": 2033.3331513404846,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "906fc5d.d193b38"
+            ]
+        ]
+    },
+    {
+        "id": "906fc5d.d193b38",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error: No vf-module with contrail-service-instance-fqdn found in AAI\" />\n    \n",
+        "comments": "",
+        "x": 1143.6705322265625,
+        "y": 2031.6665029525757,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "9435780f.70de68",
+        "type": "comment",
+        "name": "MDSal adaptor only saves consuming service so parent service and AR are done by Rest api calls",
+        "info": "",
+        "comments": "",
+        "x": 617.670524597168,
+        "y": 69.99999523162842,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "ab273234.3352d",
+        "type": "get-resource",
+        "name": "get-resource tenant",
+        "xml": "<get-resource plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\t\tresource=\"tenant\" \n\t\tkey=\"cloud-region.cloud-owner = $prop.cloud-region.cloud-owner AND \n\t\t     cloud-region.cloud-region-id = $tmp.ar.cloud-region-id AND\n\t\t     tenant.tenant-id = $tmp.ar.tenant-id\"\n        pfx='aai.tenant' local-only='false' >\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3048.670690536499,
+        "y": 1107.999815940857,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "1e32de4c.b2c362",
+                "cacc25d0.431aa8",
+                "ffdd0952.ef2388"
+            ]
+        ]
+    },
+    {
+        "id": "1e32de4c.b2c362",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3269.5320796966553,
+        "y": 1100.61093044281,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "84327f8e.42c2a"
+            ]
+        ]
+    },
+    {
+        "id": "cacc25d0.431aa8",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3264.8651065826416,
+        "y": 1133.9442443847656,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "84327f8e.42c2a"
+            ]
+        ]
+    },
+    {
+        "id": "84327f8e.42c2a",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Tenant not found in AAI\" />\n\n",
+        "comments": "",
+        "x": 3439.0410289764404,
+        "y": 1121.9998035430908,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "ffdd0952.ef2388",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3265.0411128997803,
+        "y": 1069.0368947982788,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "5ac31447.f8751c"
+            ]
+        ]
+    },
+    {
+        "id": "5ac31447.f8751c",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 3445.0411128997803,
+        "y": 1067.0368947982788,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "7452fdf2.e453e4"
+            ]
+        ]
+    },
+    {
+        "id": "7452fdf2.e453e4",
+        "type": "set",
+        "name": "set tenant name",
+        "xml": "<set>\n<parameter name='tmp.ar.tenant-name' value='`$aai.tenant.tenant-name`' />\n\n\n",
+        "comments": "",
+        "x": 3632.004217147827,
+        "y": 1064.66663646698,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "87c290d7.ffb84",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2311.40380859375,
+        "y": 1094.9999990463257,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "5c5cbd2b.585f54",
+                "cf63926f.05ca8"
+            ]
+        ]
+    },
+    {
+        "id": "cf63926f.05ca8",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"tmp.ar-name=\"/>\n<parameter name=\"field3\" value=\"`$tmp.ar-name`\"/>\n<parameter name=\"field4\" value=\"service-data-network-id\" />\n<parameter name=\"field5\" value=\"`$service-data.networks.network[$nidx].network-id`\" />\n<parameter name=\"field6\" value=\"contrail-route-input-network-id\" />\n<parameter name=\"field7\" value=\"`$contrail-route-topology-operation-input.contrail-route-request-input.source-network.network-id`\" />\n<parameter name=\"field8\" value=\"`$nidx`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 2476.0039825439453,
+        "y": 1058.000126838684,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e5b36746.9138e8",
+        "type": "set",
+        "name": "set source-network-found",
+        "xml": "<set>\n<parameter name='source-network-found' value='false' />\n\n",
+        "comments": "",
+        "x": 2034.0041046142578,
+        "y": 1099.000039756298,
+        "z": "85f9bda0.40ea6",
+        "wires": []
+    },
+    {
+        "id": "c3a2fe60.10d47",
+        "type": "switchNode",
+        "name": "switch source-network-found",
+        "xml": "<switch test=\"`$source-network-found`\">\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2038.003978729248,
+        "y": 1165.0000324249268,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "dadae59.dcff218"
+            ]
+        ]
+    },
+    {
+        "id": "dadae59.dcff218",
+        "type": "outcomeTrue",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2250.003936767578,
+        "y": 1165.000033378601,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "d6eb6250.74fe"
+            ]
+        ]
+    },
+    {
+        "id": "5f68ea4a.6a1ad4",
+        "type": "switchNode",
+        "name": "switch vf-module_length",
+        "xml": "<switch test='`$aai.vnf.vf-modules.vf-module_length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1525.00390625,
+        "y": 2049.9999990463257,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "782bd89.42bc228",
+                "163262d8.631f3d"
+            ]
+        ]
+    },
+    {
+        "id": "782bd89.42bc228",
+        "type": "other",
+        "name": "outcome null",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1730.00390625,
+        "y": 2050.9999990463257,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "e93e13c6.51ba8"
+            ]
+        ]
+    },
+    {
+        "id": "163262d8.631f3d",
+        "type": "other",
+        "name": "outcome other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1730.00390625,
+        "y": 2081.9999990463257,
+        "z": "85f9bda0.40ea6",
+        "wires": [
+            [
+                "1a6cf55.8e55d0b"
+            ]
+        ]
+    }
+]

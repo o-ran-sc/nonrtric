@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.onap.ccsdk.parent</groupId>
+		<artifactId>odlparent-lite</artifactId>
+		<version>1.4.3</version>
+	</parent>
+
+	<groupId>org.onap.sdnc.oam</groupId>
+	<artifactId>sdnc-oam</artifactId>
+	<version>1.7.3-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<name>sdnc-oam</name>
+	<description>The SDN-C OAM component contains the components needed to operate, administer and maintain the SDN-C platform.</description>
+	<url>https://wiki.onap.org</url>
+	<organization>
+		<name>AT&amp;T</name>
+	</organization>
+
+	<modules>
+		<module>admportal</module>
+		<module>platform-logic</module>
+		<module>configbackuprestore</module>
+		<module>SdncReports</module>
+		<module>data-migrator</module>
+	</modules>
+
+	<scm>
+                <connection>scm:git:ssh://git@${onap.git.host}/sdnc-oam.git</connection>
+                <developerConnection>scm:git:ssh://${onap.git.host}:${onap.git.port}/${onap.git.project}/sdnc-oam.git</developerConnection>
+                <url>${onap.git.protocol}://${onap.git.host}/projects/${onap.git.project}/repos/sdnc-oam/browse</url>
+    		<tag>HEAD</tag>
+ 	</scm>
+	<issueManagement>
+		<system>JIRA</system>
+		<url>https://jira.onap.org/</url>
+	</issueManagement>
+	<ciManagement>
+		<system>Jenkins</system>
+		<url>https://jenkins.onap.org/</url>
+	</ciManagement>
+	<distributionManagement>
+        <site>
+          <id>sdnc-javadoc</id>
+          <url>dav:https://${onap.nexus.host}:${onap.nexus.port}/repository/sdn-c-javadoc/${project.artifactId}/${project.version}</url>
+        </site>
+    </distributionManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.17</version>
+				<configuration>
+					<skipTests>false</skipTests>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>blackduck</id>
+			<activation>
+				<property>
+					<name>blackduck-scan</name>
+				</property>
+			</activation>
+			<build>
+					<plugins>
+						<plugin>
+							<groupId>com.blackducksoftware.integration</groupId>
+							<artifactId>hub-maven-plugin</artifactId>
+							<version>1.4.0</version>
+							<inherited>false</inherited>
+							<configuration>
+								<hubProjectName>${project.name}</hubProjectName>
+								<outputDirectory>${project.basedir}</outputDirectory>
+							</configuration>
+							<executions>
+								<execution>
+									<id>create-bdio-file</id>
+									<phase>package</phase>
+									<goals>
+										<goal>createHubOutput</goal>
+									</goals>
+								</execution>
+							</executions>
+						</plugin>
+					</plugins>
+
+
+			</build>
+
+		</profile>
+	        <profile>
+		  <id>docker</id>
+		  <modules>
+			<module>installation</module>
+		  </modules>
+	        </profile>
+
+	</profiles>
+	<dependencies>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.25</version>
+		</dependency>
+	</dependencies>
+</project>

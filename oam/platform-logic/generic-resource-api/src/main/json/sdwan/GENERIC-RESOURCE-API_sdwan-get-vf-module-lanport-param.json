@@ -1,0 +1,551 @@
+[
+    {
+        "id": "9db92b19.dbe808",
+        "type": "for",
+        "name": "for each sdwan-get-request-input-param",
+        "xml": "<for index=\"idx\" start=\"0\" end=\"`$vf-module-request-input.vf-module-input-parameters.param_length`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 325,
+        "y": 398.6666383743286,
+        "z": "5f38b520.a4a09c",
+        "wires": [
+            [
+                "c735b4a8.18a688"
+            ]
+        ]
+    },
+    {
+        "id": "188771b4.f4965e",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 157.3332290649414,
+        "y": 61,
+        "z": "5f38b520.a4a09c",
+        "wires": [
+            [
+                "36a2e568.0357ba"
+            ]
+        ]
+    },
+    {
+        "id": "36a2e568.0357ba",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 302.3332328796387,
+        "y": 142.0000171661377,
+        "z": "5f38b520.a4a09c",
+        "wires": [
+            [
+                "c90cdfce.89ab2"
+            ]
+        ]
+    },
+    {
+        "id": "c90cdfce.89ab2",
+        "type": "method",
+        "name": "sdwan-get-vf-module-lanport-param",
+        "xml": "<method rpc='sdwan-get-vf-module-lanport-param' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 290.3333511352539,
+        "y": 230,
+        "z": "5f38b520.a4a09c",
+        "wires": [
+            [
+                "6e63b9aa.639678"
+            ]
+        ]
+    },
+    {
+        "id": "6e63b9aa.639678",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 297.33324432373047,
+        "y": 316.0000581741333,
+        "z": "5f38b520.a4a09c",
+        "wires": [
+            [
+                "9db92b19.dbe808"
+            ]
+        ]
+    },
+    {
+        "id": "c735b4a8.18a688",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 581.2326469421387,
+        "y": 401.0103905200958,
+        "z": "5f38b520.a4a09c",
+        "wires": [
+            [
+                "2b991906.72e806",
+                "dd091818.b8d3d8",
+                "25129de.f993162",
+                "8e9a4bdb.28b1e8",
+                "f37b1ca2.6a934",
+                "fb94d6b4.86b308",
+                "2e9e6276.adaf7e",
+                "aed1f583.2c5408",
+                "83549cb1.b88e3",
+                "d33cf9af.f5b998",
+                "aa03a2b9.57125"
+            ]
+        ]
+    },
+    {
+        "id": "2b991906.72e806",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+        "comments": "",
+        "x": 777.7332763671875,
+        "y": 777.0107421875,
+        "z": "5f38b520.a4a09c",
+        "wires": []
+    },
+    {
+        "id": "25129de.f993162",
+        "type": "switchNode",
+        "name": "switch deviceName",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'deviceName'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 803.7326431274414,
+        "y": 328.01042914390564,
+        "z": "5f38b520.a4a09c",
+        "wires": [
+            [
+                "6f203c8e.611124"
+            ]
+        ]
+    },
+    {
+        "id": "6f203c8e.611124",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 978.7330360412598,
+        "y": 326.01051592826843,
+        "z": "5f38b520.a4a09c",
+        "wires": [
+            [
+                "7b50722c.c7533c"
+            ]
+        ]
+    },
+    {
+        "id": "7b50722c.c7533c",
+        "type": "set",
+        "name": "set deviceName",
+        "xml": "<set>\n<parameter name='prop.lan.deviceName' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1153.7331199645996,
+        "y": 327.61056327819824,
+        "z": "5f38b520.a4a09c",
+        "wires": []
+    },
+    {
+        "id": "2e9e6276.adaf7e",
+        "type": "switchNode",
+        "name": "switch vlanId",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'vlanId'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 781.5727691650391,
+        "y": 535.0104854106903,
+        "z": "5f38b520.a4a09c",
+        "wires": [
+            [
+                "1a406ca0.026be3"
+            ]
+        ]
+    },
+    {
+        "id": "1a406ca0.026be3",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 974.5727577209473,
+        "y": 537.0105578899384,
+        "z": "5f38b520.a4a09c",
+        "wires": [
+            [
+                "bb95c91e.dc2568"
+            ]
+        ]
+    },
+    {
+        "id": "bb95c91e.dc2568",
+        "type": "set",
+        "name": "set vlanId",
+        "xml": "<set>\n<parameter name='prop.lan.vlanId' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1120.9065856933594,
+        "y": 538.4718005657196,
+        "z": "5f38b520.a4a09c",
+        "wires": []
+    },
+    {
+        "id": "fb94d6b4.86b308",
+        "type": "switchNode",
+        "name": "switch ipAddress",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'ipAddress'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 790.6279563903809,
+        "y": 493.3871638774872,
+        "z": "5f38b520.a4a09c",
+        "wires": [
+            [
+                "5af33e36.891"
+            ]
+        ]
+    },
+    {
+        "id": "5af33e36.891",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 975.6280975341797,
+        "y": 493.38712096214294,
+        "z": "5f38b520.a4a09c",
+        "wires": [
+            [
+                "f8a774b3.88f1a8"
+            ]
+        ]
+    },
+    {
+        "id": "f8a774b3.88f1a8",
+        "type": "set",
+        "name": "set ipAddress",
+        "xml": "<set>\n<parameter name='prop.lan.ipAddress' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1139.9619789123535,
+        "y": 494.8483989238739,
+        "z": "5f38b520.a4a09c",
+        "wires": []
+    },
+    {
+        "id": "f37b1ca2.6a934",
+        "type": "switchNode",
+        "name": "switch portNumber",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'portNumber'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 796.9610862731934,
+        "y": 452.00466132164,
+        "z": "5f38b520.a4a09c",
+        "wires": [
+            [
+                "9558353d.7359b8"
+            ]
+        ]
+    },
+    {
+        "id": "9558353d.7359b8",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 978.9611854553223,
+        "y": 454.00467467308044,
+        "z": "5f38b520.a4a09c",
+        "wires": [
+            [
+                "f699e921.7f4d28"
+            ]
+        ]
+    },
+    {
+        "id": "f699e921.7f4d28",
+        "type": "set",
+        "name": "set portNumber",
+        "xml": "<set>\n<parameter name='prop.lan.portNumber' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1148.961597442627,
+        "y": 452.60469126701355,
+        "z": "5f38b520.a4a09c",
+        "wires": []
+    },
+    {
+        "id": "8e9a4bdb.28b1e8",
+        "type": "switchNode",
+        "name": "switch portType",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'portType'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 786.8561058044434,
+        "y": 409.9779860973358,
+        "z": "5f38b520.a4a09c",
+        "wires": [
+            [
+                "54a6b459.f5ae4c"
+            ]
+        ]
+    },
+    {
+        "id": "54a6b459.f5ae4c",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 981.8561782836914,
+        "y": 410.9780204296112,
+        "z": "5f38b520.a4a09c",
+        "wires": [
+            [
+                "85e52ac0.2d8b38"
+            ]
+        ]
+    },
+    {
+        "id": "85e52ac0.2d8b38",
+        "type": "set",
+        "name": "set portType",
+        "xml": "<set>\n<parameter name='prop.lan.portType' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1139.8565788269043,
+        "y": 408.57802534103394,
+        "z": "5f38b520.a4a09c",
+        "wires": []
+    },
+    {
+        "id": "dd091818.b8d3d8",
+        "type": "switchNode",
+        "name": "switch id",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'id'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 787.7319984436035,
+        "y": 279.3970763683319,
+        "z": "5f38b520.a4a09c",
+        "wires": [
+            [
+                "43c39237.1b560c"
+            ]
+        ]
+    },
+    {
+        "id": "43c39237.1b560c",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 979.7319221496582,
+        "y": 279.3970830440521,
+        "z": "5f38b520.a4a09c",
+        "wires": [
+            [
+                "2c7fc366.3d8cac"
+            ]
+        ]
+    },
+    {
+        "id": "2c7fc366.3d8cac",
+        "type": "set",
+        "name": "set id",
+        "xml": "<set>\n<parameter name='prop.lan.id' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1123.7321891784668,
+        "y": 278.99721121788025,
+        "z": "5f38b520.a4a09c",
+        "wires": []
+    },
+    {
+        "id": "aed1f583.2c5408",
+        "type": "switchNode",
+        "name": "switch portSwitch",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'portSwitch'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 793.7324638366699,
+        "y": 371.0207631587982,
+        "z": "5f38b520.a4a09c",
+        "wires": [
+            [
+                "edb7fade.456288"
+            ]
+        ]
+    },
+    {
+        "id": "edb7fade.456288",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 978.7323989868164,
+        "y": 369.02081274986267,
+        "z": "5f38b520.a4a09c",
+        "wires": [
+            [
+                "367efaea.fb2976"
+            ]
+        ]
+    },
+    {
+        "id": "367efaea.fb2976",
+        "type": "set",
+        "name": "set portSwitch",
+        "xml": "<set>\n<parameter name='prop.lan.portSwitch' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1150.7327842712402,
+        "y": 369.6208064556122,
+        "z": "5f38b520.a4a09c",
+        "wires": []
+    },
+    {
+        "id": "83549cb1.b88e3",
+        "type": "switchNode",
+        "name": "switch devicePortId",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'devicePortId'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 797.0000152587891,
+        "y": 579.0000171661377,
+        "z": "5f38b520.a4a09c",
+        "wires": [
+            [
+                "7823f19a.9b76f"
+            ]
+        ]
+    },
+    {
+        "id": "7823f19a.9b76f",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 966.0000286102295,
+        "y": 579.0000991821289,
+        "z": "5f38b520.a4a09c",
+        "wires": [
+            [
+                "7cfb710f.9bc79"
+            ]
+        ]
+    },
+    {
+        "id": "7cfb710f.9bc79",
+        "type": "set",
+        "name": "set devicePortId",
+        "xml": "<set>\n<parameter name='prop.lan.devicePortId' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1124.3338165283203,
+        "y": 582.4613151550293,
+        "z": "5f38b520.a4a09c",
+        "wires": []
+    },
+    {
+        "id": "d33cf9af.f5b998",
+        "type": "switchNode",
+        "name": "switch lanPortId",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'lanPortId'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 779,
+        "y": 635,
+        "z": "5f38b520.a4a09c",
+        "wires": [
+            [
+                "14d30777.14dcf9"
+            ]
+        ]
+    },
+    {
+        "id": "14d30777.14dcf9",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 971.9999885559082,
+        "y": 637.000072479248,
+        "z": "5f38b520.a4a09c",
+        "wires": [
+            [
+                "e250544b.9d4268"
+            ]
+        ]
+    },
+    {
+        "id": "e250544b.9d4268",
+        "type": "set",
+        "name": "set lanPortId",
+        "xml": "<set>\n<parameter name='prop.lan.lanPortId' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1118.3338165283203,
+        "y": 638.4613151550293,
+        "z": "5f38b520.a4a09c",
+        "wires": []
+    },
+    {
+        "id": "aa03a2b9.57125",
+        "type": "switchNode",
+        "name": "switch bridgeDomainId",
+        "xml": "<switch test=\"`$vf-module-request-input.vf-module-input-parameters.param[$idx].name == 'bridgeDomainId'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 801,
+        "y": 693,
+        "z": "5f38b520.a4a09c",
+        "wires": [
+            [
+                "f733597e.c9e3b8"
+            ]
+        ]
+    },
+    {
+        "id": "f733597e.c9e3b8",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 995,
+        "y": 695.0000610351562,
+        "z": "5f38b520.a4a09c",
+        "wires": [
+            [
+                "8e63e7a7.180198"
+            ]
+        ]
+    },
+    {
+        "id": "8e63e7a7.180198",
+        "type": "set",
+        "name": "set bridgeDomainId",
+        "xml": "<set>\n<parameter name='prop.lan.bridgeDomainId' value='`$vf-module-request-input.vf-module-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 1165.3338623046875,
+        "y": 693.4613037109375,
+        "z": "5f38b520.a4a09c",
+        "wires": []
+    }
+]

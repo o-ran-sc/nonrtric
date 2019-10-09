@@ -1,0 +1,279 @@
+[
+    {
+        "id": "3b7d475e.717be8",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 102.85714721679688,
+        "y": 92.85714721679688,
+        "z": "41e68dff.7b4254",
+        "wires": [
+            [
+                "d74e703a.20613"
+            ]
+        ]
+    },
+    {
+        "id": "d74e703a.20613",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 216.71428298950195,
+        "y": 132.66668510437012,
+        "z": "41e68dff.7b4254",
+        "wires": [
+            [
+                "cb52845f.272378"
+            ]
+        ]
+    },
+    {
+        "id": "cb52845f.272378",
+        "type": "method",
+        "name": "method port-mirror-rollback-capacity-db",
+        "xml": "<method rpc='port-mirror-rollback-capacity-db' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 196.28577423095703,
+        "y": 173.85714721679688,
+        "z": "41e68dff.7b4254",
+        "wires": [
+            [
+                "f6902b28.e39428"
+            ]
+        ]
+    },
+    {
+        "id": "4ca6c070.6907e",
+        "type": "comment",
+        "name": "port-mirror-rollback-capacity-db",
+        "info": "",
+        "comments": "",
+        "x": 508.1782455444336,
+        "y": 35.83284664154053,
+        "z": "41e68dff.7b4254",
+        "wires": []
+    },
+    {
+        "id": "f6902b28.e39428",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 203.9523696899414,
+        "y": 338.4761772155762,
+        "z": "41e68dff.7b4254",
+        "wires": [
+            [
+                "923db1f2.d4148",
+                "3ee9cda9.644ed2",
+                "19e81c3c.942fa4"
+            ]
+        ]
+    },
+    {
+        "id": "9f4506c7.640918",
+        "type": "update",
+        "name": "update VNICS_CAPACITY",
+        "xml": "<update plugin=\"org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource\" resource=\"SQL\"\nkey=\"update VNICS_CAPACITY\n     set available_capacity = $tmp.avail-capacity\n     where vnics_group_id = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.vnics-group-id\n     and vnic_port_name = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].dest-port-name\n\" >",
+        "comments": "",
+        "outputs": 1,
+        "x": 1524.6665267944336,
+        "y": 286.3333053588867,
+        "z": "41e68dff.7b4254",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f24a7712.96c968",
+        "type": "get-resource",
+        "name": "get-resource VNICS_CAPACITY",
+        "xml": "<get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key='select available_capacity\n    from VNICS_CAPACITY\n    where vnics_group_id = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.vnics-group-id\n    and vnic_port_name = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].dest-port-name'\n  pfx='db.vnics-capacity'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 909.6664810180664,
+        "y": 263.000093460083,
+        "z": "41e68dff.7b4254",
+        "wires": [
+            [
+                "b048d9ab.c070f8"
+            ]
+        ]
+    },
+    {
+        "id": "cf81b663.384118",
+        "type": "set",
+        "name": "add source capacity back",
+        "xml": "<set>\n<parameter name='tmp.avail-capacity' value='`$db.vnics-capacity.available-capacity + $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-capacity`' />\n",
+        "comments": "",
+        "x": 1522.9998588562012,
+        "y": 234.6667184829712,
+        "z": "41e68dff.7b4254",
+        "wires": []
+    },
+    {
+        "id": "b048d9ab.c070f8",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1157.999885559082,
+        "y": 261.333345413208,
+        "z": "41e68dff.7b4254",
+        "wires": [
+            [
+                "cd281a51.6ede38"
+            ]
+        ]
+    },
+    {
+        "id": "cd281a51.6ede38",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1318.0000457763672,
+        "y": 261.333327293396,
+        "z": "41e68dff.7b4254",
+        "wires": [
+            [
+                "cf81b663.384118",
+                "9f4506c7.640918"
+            ]
+        ]
+    },
+    {
+        "id": "923db1f2.d4148",
+        "type": "delete",
+        "name": "delete VNICS_CONFIGURATION_ID record",
+        "xml": "<delete plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key='delete from VNICS_CONFIGURATION_ID\n  \twhere configuration_id = $tmp.configuration-id\n    and vnics_group_id = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.vnics-group-id' >",
+        "comments": "",
+        "outputs": 1,
+        "x": 482.9999694824219,
+        "y": 341.33331298828125,
+        "z": "41e68dff.7b4254",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3ee9cda9.644ed2",
+        "type": "get-resource",
+        "name": "get-resource VNICS_CONFIGURATION_ID for vnics-group-id",
+        "xml": "<get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key='select configuration_id\n    from VNICS_CONFIGURATION_ID\n    where vnics_group_id = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.vnics-group-id'\n  pfx='db.vnics-confid'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 540.666618347168,
+        "y": 427.9999084472656,
+        "z": "41e68dff.7b4254",
+        "wires": [
+            [
+                "374e0adc.26a606"
+            ]
+        ]
+    },
+    {
+        "id": "374e0adc.26a606",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 855.6666030883789,
+        "y": 426.33338356018066,
+        "z": "41e68dff.7b4254",
+        "wires": [
+            [
+                "8af09ab.de69f68"
+            ]
+        ]
+    },
+    {
+        "id": "35222c7a.050654",
+        "type": "delete",
+        "name": "delete VNICS_CAPACITY records",
+        "xml": "<delete plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key='delete from VNICS_CAPACITY\n  \twhere vnics_group_id = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.vnics-group-id' >",
+        "comments": "",
+        "outputs": 1,
+        "x": 1222.3333854675293,
+        "y": 392.99996757507324,
+        "z": "41e68dff.7b4254",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8af09ab.de69f68",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1000.6665878295898,
+        "y": 424.6666736602783,
+        "z": "41e68dff.7b4254",
+        "wires": [
+            [
+                "35222c7a.050654",
+                "338f14c9.07a05c"
+            ]
+        ]
+    },
+    {
+        "id": "338f14c9.07a05c",
+        "type": "delete",
+        "name": "delete VNICS_CAPACITY_GROUP record",
+        "xml": "<delete plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key='delete from VNICS_CAPACITY_GROUP\n  \twhere vnics_group_id = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.vnics-group-id' >",
+        "comments": "",
+        "outputs": 1,
+        "x": 1247.3332633972168,
+        "y": 452.9999294281006,
+        "z": "41e68dff.7b4254",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "19e81c3c.942fa4",
+        "type": "for",
+        "name": "for each mapped source port",
+        "xml": "<for index='src-idx' start='0' end='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 437.3333053588867,
+        "y": 263.6666564941406,
+        "z": "41e68dff.7b4254",
+        "wires": [
+            [
+                "547c6970.9036e8"
+            ]
+        ]
+    },
+    {
+        "id": "547c6970.9036e8",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 660.666633605957,
+        "y": 263.33308029174805,
+        "z": "41e68dff.7b4254",
+        "wires": [
+            [
+                "f24a7712.96c968"
+            ]
+        ]
+    }
+]

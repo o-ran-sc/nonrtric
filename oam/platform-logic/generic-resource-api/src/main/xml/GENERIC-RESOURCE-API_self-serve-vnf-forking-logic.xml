@@ -1,0 +1,54 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='self-serve-vnf-forking-logic' mode='sync'>
+        <block atomic="true">
+            <set>
+                <parameter name='tmp.exist.sdnc-model-name' value='false' />
+                <parameter name='tmp.exist.sdnc-artifact-name' value='false' />
+            </set>
+            <switch test="`$vnf-topology-operation-input.vnf-request-input.vnf-input-parameters.param_length`">
+                <outcome value=''>
+                    <set>
+                        <parameter name='vnf-topology-operation-input.vnf-request-input.vnf-input-parameters.param_length' value='0' />
+                    </set>
+                </outcome>
+            </switch>
+            <for silentFailure='true' index='p' start='0' end='`$vnf-topology-operation-input.vnf-request-input.vnf-input-parameters.param_length`' >
+                <switch test="`$vnf-topology-operation-input.vnf-request-input.vnf-input-parameters.param[$p].name`">
+                    <outcome value='sdnc_model_name'>
+                        <set>
+                            <parameter name='tmp.exist.sdnc-model-name' value='true' />
+                        </set>
+                    </outcome>
+                    <outcome value='sdnc_artifact_name'>
+                        <set>
+                            <parameter name='tmp.exist.sdnc-artifact-name' value='true' />
+                        </set>
+                    </outcome>
+                </switch>
+            </for>
+            <switch test="`$tmp.exist.sdnc-model-name == 'true' and $tmp.exist.sdnc-artifact-name == 'true'`">
+                <outcome value='true'>
+                    <set>
+                        <parameter name='ss.self-serve-flag' value='true' />
+                    </set>
+                </outcome>
+                <outcome value='false'>
+                    <switch test="`$db.vf-model.sdnc-model-name != '' and $db.vf-model.sdnc-artifact-name != ''`">
+                        <outcome value='true'>
+                            <set>
+                                <parameter name='ss.self-serve-flag' value='true' />
+                            </set>
+                        </outcome>
+                        <outcome value='false'>
+                            <set>
+                                <parameter name='ss.self-serve-flag' value='false' />
+                            </set>
+                        </outcome>
+                    </switch>
+                </outcome>
+            </switch>
+        </block>
+    </method>
+</service-logic>

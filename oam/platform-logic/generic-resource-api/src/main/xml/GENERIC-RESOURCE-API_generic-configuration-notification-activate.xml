@@ -1,0 +1,108 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='generic-configuration-notification-activate' mode='sync'>
+        <block atomic="true">
+            <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                <parameter name='contextPrefix' value='prop' />
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$prop.restapi.gc-configuration`"/>
+                <parameter name="outputPath" value="tmp.gc-url"/>
+                <parameter name="target" value="{configuration-id}"/>
+                <parameter name="replacement" value="`$generic-configuration-notification-input.configuration-information.configuration-id`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.gc-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='GET' />
+                <parameter name="responsePrefix" value="mdsal-gc" />
+                <outcome value='failure'>
+                    <block>
+                        <configure activate="true" adaptor="com.att.sdnctl.sli.adaptor.mso.MSOAdaptor" key="__READ_FROM_PARAMETERS__">
+                            <parameter name="notification-url"
+  value="`$mdsal-gc.gc-configuration[0].configuration-data.configuration-operation-information.sdnc-request-header.svc-notification-url`" />
+                            <parameter name="input.ack-final-indicator"
+  value="Y" />
+                            <parameter name="input.response-code"
+  value="500" />
+                            <parameter name="input.response-message"
+  value="`'Cannot find configuration ' + $generic-configuration-notification-input.configuration-information.configuration-id`" />
+                            <parameter name="input.svc-request-id"
+  value="`$generic-configuration-notification-input.svc-request-id`" />
+                            <parameter name="input.service-information.service-type"
+  value="`$generic-configuration-notification-input.service-information.subscription-service-type`" />
+                            <parameter name="input.service-information.service-instance-id"
+  value="`$generic-configuration-notification-input.service-information.service-instance-id`" />
+                        </configure>
+                        <return status='failure'>
+                            <parameter name='error-code' value='500' />
+                            <parameter name='error-message' value="`'Cannot find configuration ' + $generic-configuration-notification-input.configuration-information.configuration-id`" />
+                        </return>
+                    </block>
+                </outcome>
+            </execute>
+            <set>
+                <parameter name='mdsal-gc.gc-configuration[0].configuration-data.configuration-oper-status.order-status'
+  value='Active' />
+                <parameter name='mdsal-gc.gc-configuration[0].configuration-data.configuration-oper-status.last-action'
+  value='CreateGenericConfigurationInstance' />
+                <parameter name='mdsal-gc.gc-configuration[0].configuration-data.configuration-oper-status.last-rpc-action'
+  value='activate' />
+            </set>
+            <set>
+                <parameter name='gc.' value='mdsal-gc.gc-configuration[0].' />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.genconfig.templatefile`" />
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.gc-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='PUT' />
+                <parameter name="responsePrefix" value="mdsal-gc" />
+                <outcome value='failure'>
+                    <block atomic="true">
+                        <return status='failure'>
+                            <parameter name='error-code' value='500' />
+                            <parameter name='error-message' value='Error updating md-sal for gc-configuration' />
+                        </return>
+                    </block>
+                </outcome>
+                <outcome value='not-found'>
+                    <block atomic="true">
+                        <return status='failure'>
+                            <parameter name='error-code' value='500' />
+                            <parameter name='error-message' value='Error updating md-sal for gc-configuration' />
+                        </return>
+                    </block>
+                </outcome>
+            </execute>
+            <configure activate="true" adaptor="com.att.sdnctl.sli.adaptor.mso.MSOAdaptor" key="__READ_FROM_PARAMETERS__">
+                <parameter name="notification-url"
+  value="`$mdsal-gc.gc-configuration[0].configuration-data.configuration-operation-information.sdnc-request-header.svc-notification-url`" />
+                <parameter name="input.ack-final-indicator"
+  value="`$generic-configuration-notification-input.ack-final-indicator`" />
+                <parameter name="input.response-code"
+  value="`$generic-configuration-notification-input.response-code`" />
+                <parameter name="input.svc-request-id"
+  value="`$generic-configuration-notification-input.svc-request-id`" />
+                <parameter name="input.service-information.service-type"
+  value="`$generic-configuration-notification-input.service-information.subscription-service-type`" />
+                <parameter name="input.service-information.service-instance-id"
+  value="`$generic-configuration-notification-input.service-information.service-instance-id`" />
+            </configure>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >
+                <parameter name='filename' value='/var/tmp/bgb-gcnotify.log' />
+            </execute>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="success" />
+            </return>
+        </block>
+    </method>
+</service-logic>

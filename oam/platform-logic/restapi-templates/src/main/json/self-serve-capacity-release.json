@@ -1,0 +1,16 @@
+{
+   "input": {
+         "reservation-entity-list": [
+           {
+               "reservation-entity-type": "${sscap.rel-entity-type}",
+               "reservation-entity-id": "${sscap.rel-entity-id}"
+           }
+          ],
+         "reservation-resource-list": [
+            {
+                "endpoint-position": "${sscap.rel-endpoint-position}"
+            }
+         ]
+        }
+}
+ 

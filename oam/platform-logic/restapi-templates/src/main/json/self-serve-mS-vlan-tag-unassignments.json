@@ -1,0 +1,11 @@
+{
+    "input": [
+  ${repeat:vt.request_length:
+        {
+            "policy-instance-name": ${vt.request[${1}].policy-instance-name},
+            "vlan-type":  ${vt.request[${1}].vlan-type},
+            "vlan-tag-key": ${vt.request[${1}].vlan-tag-key}
+        },
+  }
+    ]
+}

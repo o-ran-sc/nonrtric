@@ -1,0 +1,26 @@
+<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'><method rpc='tunnelxconn-topology-operation' mode='sync'>
+<block atomic="true"><call module='GENERIC-RESOURCE-API' rpc='validate-tunnelxconn-input' mode='sync' >
+</call><switch test='`$tunnelxconn-topology-operation-input.sdnc-request-header.svc-action`'>
+<outcome value='assign'>
+<block atomic="true"><call module='GENERIC-RESOURCE-API' rpc='tunnelxconn-topology-operation-assign' mode='sync' >
+</call></block></outcome><outcome value='create'>
+<block atomic="true"><call module='GENERIC-RESOURCE-API' rpc='tunnelxconn-topology-operation-create' mode='sync' >
+</call></block></outcome><outcome value='activate'>
+<block atomic="true"><call module='GENERIC-RESOURCE-API' rpc='tunnelxconn-topology-operation-activate' mode='sync' >
+</call></block></outcome><outcome value='deactivate'>
+<block atomic="true"><call module='GENERIC-RESOURCE-API' rpc='tunnelxconn-topology-operation-deactivate' mode='sync' >
+</call></block></outcome><outcome value='delete'>
+<block atomic="true"><call module='GENERIC-RESOURCE-API' rpc='tunnelxconn-topology-operation-delete' mode='sync' >
+</call></block></outcome><outcome value='unassign'>
+<block atomic="true"><call module='GENERIC-RESOURCE-API' rpc='tunnelxconn-topology-operation-unassign' mode='sync' >
+</call></block></outcome><outcome value='Other'>
+<return status='failure'>
+	<parameter name='ack-final' value='Y'/>
+	<parameter name="error-code" value="500" />
+    <parameter name="error-message" value="sdnc-request-header.svc-action is a required input" />
+</return></outcome></switch><set>
+<parameter name="ack-final" value="Y"/></set><return status='success'>
+<parameter name="ack-final-indicator" value="Y" />
+<parameter name="error-code" value="200" />
+<parameter name="error-message" value="`$error-message`" />
+</return></block></method></service-logic>

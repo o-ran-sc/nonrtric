@@ -1,0 +1,54 @@
+<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='VNF-API' version='${project.version}'><method rpc='vnf-topology-assign' mode='sync'>
+<block atomic="true"><switch test="`$vnf-topology-operation-input.vnf-request-information.vnf-id == $service-data.vnf-id`"><outcome value='true'>
+<return status='failure'>
+	<parameter name='error-code' value='500'/>
+	<parameter name='error-message' value='vnf-id is already present in config-tree'/></return></outcome></switch><get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="vf-module" 
+		key="vf-module.vf-module-id = $vnf-topology-operation-input.vnf-request-information.vnf-id 
+			and generic-vnf.vnf-id = $vnf-topology-operation-input.vnf-request-information.generic-vnf-id" 
+		local-only="false" 
+		pfx="tmp.AnAI.vfmodule" ><outcome value='failure'>
+<return status='failure'>
+	<parameter name='error-code' value='500'/>
+	<parameter name='error-message' value="`'Encountered error while querying vf-module from AnAI with vf-module-id = ' + $vnf-topology-operation-input.vnf-request-information.vnf-id + ' and generic-vnf-id = ' + $vnf-topology-operation-input.vnf-request-information.generic-vnf-id`"/></return></outcome><outcome value='not-found'>
+<return status='failure'>
+	<parameter name='error-code' value='500'/>
+	<parameter name='error-message' value="`'vf-module not found in AnAI with vf-module-id = ' + $vnf-topology-operation-input.vnf-request-information.vnf-id + ' and generic-vnf-id = ' + $vnf-topology-operation-input.vnf-request-information.generic-vnf-id`"/></return></outcome></get-resource><call module='VNF-API' rpc='vnf-topology-assign-vfmodule' mode='sync' ></call><switch test="`$service-data.vnf-topology-information.vnf-assignments.vnf-networks_length`"><outcome value=''><set>
+<parameter name='service-data.vnf-topology-information.vnf-assignments.vnf-networks_length' value='0' />
+</set></outcome></switch><for index="i" start="0" end="`$service-data.vnf-topology-information.vnf-assignments.vnf-networks_length`"><save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="vf-module:relationship-list" 
+		key="vf-module.vf-module-id = $vnf-topology-operation-input.vnf-request-information.vnf-id 
+			and generic-vnf.vnf-id = $vnf-topology-operation-input.vnf-request-information.generic-vnf-id" 
+	force="true" 
+	local-only="false">
+	
+	<parameter name="relationship-list.relationship[0].related-to" value="l3-network" />
+	<parameter name="relationship-list.relationship[0].relationship-data[0].relationship-key" value="l3-network.network-id" />
+	<parameter name="relationship-list.relationship[0].relationship-data[0].relationship-value" value="`$service-data.vnf-topology-information.vnf-assignments.vnf-networks[$i].network-id`" /><outcome value='failure'>
+<block atomic='true'><delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="vf-module:relationship-list" 
+	key="vf-module.vf-module-id = $vnf-topology-operation-input.vnf-request-information.vnf-id 
+		AND generic-vnf.vnf-id = $vnf-topology-operation-input.vnf-request-information.generic-vnf-id 
+		AND related-to = l3-network" 
+	force="true" 
+	local-only="false"></delete><return status='failure'>
+	<parameter name='error-code' value='500'/>
+	<parameter name='error-message' value="`'Encountered error while saving vf-module l3-network relationship in AnAI with network-id = ' + $service-data.vnf-topology-information.vnf-assignments.vnf-networks[$i].network-id`"/></return></block></outcome></save></for><update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="vf-module" 
+		key="vf-module.vf-module-id = $vnf-topology-operation-input.vnf-request-information.vnf-id 
+			and generic-vnf.vnf-id = $vnf-topology-operation-input.vnf-request-information.generic-vnf-id" 
+		local-only="false" >
+	<parameter name="orchestration-status" value="pending-create" /><outcome value='failure'>
+<block atomic="true">
+<delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="vf-module:relationship-list" 
+	key="vf-module.vf-module-id = $vnf-topology-operation-input.vnf-request-information.vnf-id 
+		AND generic-vnf.vnf-id = $vnf-topology-operation-input.vnf-request-information.generic-vnf-id 
+		AND related-to = l3-network" 
+	force="true" 
+	local-only="false"></delete><return status='failure'>
+	<parameter name='error-code' value='500'/>
+	<parameter name='error-message' value="Encountered error while updating vf-module orchestration-status in AnAI"/></return></block></outcome></update><set>
+	<parameter name="service-data.oper-status.order-status" value="PendingCreate"/></set><set>
+<parameter name="ack-final" value="Y"/></set><return status='success'>
+	<parameter name="error-code" value="200" /></return></block></method></service-logic>

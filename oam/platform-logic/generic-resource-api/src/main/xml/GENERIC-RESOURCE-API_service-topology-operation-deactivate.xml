@@ -1,0 +1,67 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='service-topology-operation-deactivate' mode='sync'>
+        <block atomic="true">
+            <switch test='`$service-data.service-topology.service-topology-identifier.service-instance-id`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="404" />
+                        <parameter name="error-message" value="`'Service ' + $service-topology-operation-input.service-information.service-instance-id + ' is not found'`" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$service-topology-operation-input.request-information.request-action`'>
+                <outcome value='DeleteServiceInstance'>
+                    <block></block>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="If svc-action is 'deactivate' then request-action must be 'DeleteServiceInstance'" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$service-data.provided-allotted-resources.provided-allotted-resource_length`'>
+                <outcome value='0'>
+                    <block></block>
+                </outcome>
+                <outcome value=''>
+                    <block></block>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Cannot deactivate this service because there are provided allotted resources" />
+                    </return>
+                </outcome>
+            </switch>
+            <update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="service-instance" 
+		key="customer.global-customer-id = $service-data.service-topology.service-topology-identifier.global-customer-id AND
+			service-subscription.service-type = $service-data.service-topology.service-topology-identifier.service-type AND
+			service-instance.service-instance-id = $service-topology-operation-input.service-information.service-instance-id"
+        pfx='pfx' local-only='false' force='false'>
+                <parameter name="orchestration-status" value="PendingDelete" />
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="AAI failed" />
+                    </return>
+                </outcome>
+                <outcome value='not-found'>
+                    <block></block>
+                </outcome>
+            </update>
+            <set>
+                <parameter name='service-data.service-level-oper-status.order-status' value='PendingDelete' />
+                <parameter name='service-data.service-level-oper-status.last-rpc-action' value='deactivate' />
+                <parameter name='service-data.service-level-oper-status.last-action' value='DeleteServiceInstance' />
+            </set>
+        </block>
+    </method>
+</service-logic>

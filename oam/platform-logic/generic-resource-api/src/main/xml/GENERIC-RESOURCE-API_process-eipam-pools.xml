@@ -1,0 +1,935 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc="process-eipam-pools" mode="sync">
+        <switch test='`$tmp.process-eipam-action`'>
+            <outcome value='assign'>
+                <block atomic="true">
+                    <set>
+                        <parameter name='eipam-ip-block.entity-id' value='' />
+                        <parameter name='eipam-ip-block.ip-prefix' value='' />
+                        <parameter name='eipam-ip-block.mask' value='' />
+                        <parameter name='tmp.location8' value='' />
+                        <parameter name='tmp.l3-network.level1.v4.entity-id' value='' />
+                        <parameter name='tmp.l3-network.level1.v4.ip-prefix' value='' />
+                        <parameter name='tmp.l3-network.level1.v4.mask' value='' />
+                        <parameter name='tmp.l3-network.level1.v4.pool.pre-existing' value='false' />
+                        <parameter name='tmp.l3-network.level1.v4.subnet.pre-existing' value='false' />
+                        <parameter name='tmp.l3-network.level1.v6.entity-id' value='' />
+                        <parameter name='tmp.l3-network.level1.v6.ip-prefix' value='' />
+                        <parameter name='tmp.l3-network.level1.v6.mask' value='' />
+                        <parameter name='tmp.l3-network.level1.v6.pool.pre-existing' value='false' />
+                        <parameter name='tmp.l3-network.level1.v6.subnet.pre-existing' value='false' />
+                        <parameter name='tmp.l3-network.level2.v4.entity-id' value='' />
+                        <parameter name='tmp.l3-network.level2.v4.ip-prefix' value='' />
+                        <parameter name='tmp.l3-network.level2.v4.mask' value='' />
+                        <parameter name='tmp.l3-network.level2.v4.pool.pre-existing' value='false' />
+                        <parameter name='tmp.l3-network.level2.v4.subnet.pre-existing' value='false' />
+                        <parameter name='tmp.l3-network.level2.v6.entity-id' value='' />
+                        <parameter name='tmp.l3-network.level2.v6.ip-prefix' value='' />
+                        <parameter name='tmp.l3-network.level2.v6.mask' value='' />
+                        <parameter name='tmp.l3-network.level2.v6.pool.pre-existing' value='false' />
+                        <parameter name='tmp.l3-network.level2.v6.subnet.pre-existing' value='false' />
+                    </set>
+                    <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='substring'>
+                        <parameter name="string" value="`$aai.complex.physical-location-id`" />
+                        <parameter name="result" value="tmp.location8"/>
+                        <parameter name="begin-index" value="0" />
+                        <parameter name="end-index" value="8" />
+                    </execute>
+                    <set>
+                        <parameter name='tmp.region' value='`$aai.complex.region`' />
+                        <parameter name='tmp.cloud-region-id' value="`$aai.cloud-region.cloud-region-id`" />
+                        <parameter name='tmp.physical-location-id' value="`$aai.complex.physical-location-id`" />
+                        <parameter name="tmp.clli" value="`$aai.complex.physical-location-id`" />
+                        <parameter name="tmp.zone" value="`$aai.cloud-region.cloud-zone`" />
+                        <parameter name="tmp.network-id" value="`$tmp.l3-network.network-id`" />
+                        <parameter name="tmp.service-type" value="`$network-topology-operation-input.service-information.subscription-service-type`" />
+                        <parameter name="eipam-ip-block.level" value='1' />
+                        <parameter name='eipam-ip-block.plans_length' value='0' />
+                        <parameter name='eipam-pool.v4.pre-existing' value='false' />
+                        <parameter name='eipam-pool.v6.pre-existing' value='false' />
+                        <parameter name="tmp.level1-key-value" value="`$tmp.location8 + ':' + $aai.cloud-region.cloud-region-id`" />
+                        <parameter name="tmp.level2-key-value" value="`$network-model.network-role + ':' + $tmp.l3-network.network-id`" />
+                        <parameter name="tmp.ipv4-cidr-mask" value="`$network-model.ipv4-cidr-mask`" />
+                        <parameter name="tmp.ipv6-cidr-mask" value="`$network-model.ipv6-cidr-mask`" />
+                    </set>
+                    <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                    <set>
+                        <parameter name="eipam-ip-block.subnet-size-override-v4" value="`$network-model.ipv4-cidr-mask`" />
+                        <parameter name="eipam-ip-block.subnet-size-override-v6" value="`$network-model.ipv6-cidr-mask`" />
+                    </set>
+                    <switch test="`$network-topology-operation-input.network-request-input.network-input-parameters.param_length`">
+                        <outcome value=''>
+                            <block></block>
+                        </outcome>
+                        <outcome value='Other'>
+                            <block>
+                                <for index='pidx' start='0' end='`$network-topology-operation-input.network-request-input.network-input-parameters.param_length`' >
+                                    <block atomic="true">
+                                        <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains'  emitsOutcome='true' >
+                                            <parameter name="source" value="`$network-topology-operation-input.network-request-input.network-input-parameters.param[$pidx].name`" />
+                                            <parameter name="target" value="network_assignments_ipv4_subnet_default_assignment_cidr_mask"/>
+                                            <outcome value='true'>
+                                                <set>
+                                                    <parameter name='eipam-ip-block.subnet-size-override-v4' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$pidx].value`' />
+                                                </set>
+                                            </outcome>
+                                        </execute>
+                                        <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains'  emitsOutcome='true' >
+                                            <parameter name="source" value="`$network-topology-operation-input.network-request-input.network-input-parameters.param[$pidx].name`" />
+                                            <parameter name="target" value="network_assignments_ipv6_subnet_default_assignment_cidr_mask"/>
+                                            <outcome value='true'>
+                                                <set>
+                                                    <parameter name='eipam-ip-block.subnet-size-override-v6' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$pidx].value`' />
+                                                </set>
+                                            </outcome>
+                                        </execute>
+                                    </block>
+                                </for>
+                            </block>
+                        </outcome>
+                    </switch>
+                    <!--tmp.level should be set to 1-->
+                    <call module='GENERIC-RESOURCE-API' rpc='eipam-create-network-role-pool' mode='sync' >
+                        <outcome value='failure'>
+                            <return status="failure">
+                                <parameter name="tmp.eipam-error" value="true" />
+                                <parameter name="error-code" value="500"/>
+                                <parameter name="error-message" value="`'An error occured while allocating subnet in EIPAM.  Error creating level 1 pool. ' + $error-message`" />
+                            </return>
+                        </outcome>
+                        <outcome value='success'>
+                            <block atomic="true">
+                                <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                    <parameter name="logger" value="message-log"/>
+                                    <parameter name="field1" value="__TIMESTAMP__"/>
+                                    <parameter name="field2" value="GENERIC-RESOURCE-API.process-eipam-pools:REQID"/>
+                                    <parameter name="field3" value="`$network-topology-operation-input.sdnc-request-header.svc-request-id`"/>
+                                    <parameter name="field4" value="eipam-pool.v4.pre-existing"/>
+                                    <parameter name="field5" value="`$eipam-pool.v4.pre-existing`"/>
+                                    <parameter name="field6" value="eipam-pool.v4.pre-existing"/>
+                                    <parameter name="field7" value="`$eipam-pool.v6.pre-existing`"/>
+                                    <parameter name="field8" value="tmp.create-v4-pool-flag" />
+                                    <parameter name="field9" value="`$tmp.create-v4-pool-flag`" />
+                                    <parameter name="field10" value="tmp.create-v6-pool-flag" />
+                                    <parameter name="field11" value="`$tmp.create-v6-pool-flag`" />
+                                </record>
+                                <set>
+                                    <parameter name='tmp.l3-network.level1.v4.pool.pre-existing' value='`$eipam-pool.v4.pre-existing`'/>
+                                    <parameter name='tmp.l3-network.level1.v6.pool.pre-existing' value='`$eipam-pool.v6.pre-existing`'/>
+                                </set>
+                            </block>
+                        </outcome>
+                    </call>
+                    <switch test="`$network-model.use-ipv4`">
+                        <outcome value='Y'>
+                            <block atomic='true'>
+                                <get-resource
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="SELECT * from EIPAM_IP_SUBNETS s, EIPAM_IP_SUBNET_KEYS k WHERE s.plan_name = $network-model.eipam-v4-address-plan and s.entity_id = k.entity_id and k.level = 1 and k.key_value = $tmp.level1-key-value ; "
+        pfx='tmp.eipam-subnet-row'>
+                                    <outcome value='success'>
+                                        <block atomic="true">
+                                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                <parameter name="logger" value="message-log"/>
+                                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                                <parameter name="field2" value="GENERIC-RESOURCE-API.process-eipam-pools:REQID"/>
+                                                <parameter name="field3" value="`$network-topology-operation-input.sdnc-request-header.svc-request-id`"/>
+                                                <parameter name="field4" value="Existing eipam-ip-block.ip-prefix for level1"/>
+                                                <parameter name="field5" value="`$tmp.eipam-subnet-row.ip-address`"/>
+                                                <parameter name="field6" value="Existing eipam-ip-block.mask for level1"/>
+                                                <parameter name="field7" value="`$tmp.eipam-subnet-row.prefix-length`"/>
+                                                <parameter name="field8" value="ipv4"/>
+                                            </record>
+                                            <set>
+                                                <parameter name='tmp.l3-network.level1.v4.subnet.pre-existing' value='true' />
+                                                <parameter name='tmp.l3-network.level1.v4.entity-id' value='`$tmp.eipam-row.entity-id`' />
+                                                <parameter name='tmp.l3-network.level1.v4.ip-prefix' value='`$tmp.eipam-row.ip-address`' />
+                                                <parameter name='tmp.l3-network.level1.v4.mask' value='`$tmp.eipam-row.prefix-length`' />
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                    <outcome value="not-found">
+                                        <block atomic='true'>
+                                            <set>
+                                                <parameter name='eipam-ip-block.entity-id' value='' />
+                                                <parameter name='eipam-ip-block.ip-prefix' value='' />
+                                                <parameter name='eipam-ip-block.mask' value='' />
+                                                <parameter name="eipam-ip-block.allocate-version" value='ipv4' />
+                                                <parameter name="eipam-ip-block.level" value='1' />
+                                                <parameter name='eipam-ip-block.plans_length' value='0' />
+                                            </set>
+                                            <call module='GENERIC-RESOURCE-API' rpc='eipam-allocate-network-role-subnet' mode='sync' >
+                                                <outcome value='success'>
+                                                    <block atomic="true">
+                                                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                            <parameter name="logger" value="message-log"/>
+                                                            <parameter name="field1" value="__TIMESTAMP__"/>
+                                                            <parameter name="field2" value="GENERIC-RESOURCE-API.process-eipam-pools:REQID"/>
+                                                            <parameter name="field3" value="`$network-topology-operation-input.sdnc-request-header.svc-request-id`"/>
+                                                            <parameter name="field4" value="eipam-ip-block.ip-prefix for level1"/>
+                                                            <parameter name="field5" value="`$eipam-ip-block.ip-prefix`"/>
+                                                            <parameter name="field6" value="eipam-ip-block.mask for level1"/>
+                                                            <parameter name="field7" value="`$eipam-ip-block.mask`"/>
+                                                            <parameter name="field8" value="ipv4"/>
+                                                        </record>
+                                                        <set>
+                                                            <parameter name='tmp.l3-network.level1.v4.subnet.pre-existing' value='' />
+                                                            <parameter name='tmp.l3-network.level1.v4.entity-id' value='`$eipam-ip-block.entity-id`' />
+                                                            <parameter name='tmp.l3-network.level1.v4.ip-prefix' value='`$eipam-ip-block.ip-prefix`' />
+                                                            <parameter name='tmp.l3-network.level1.v4.mask' value='`$eipam-ip-block.mask`' />
+                                                        </set>
+                                                    </block>
+                                                </outcome>
+                                                <outcome value='failure'>
+                                                    <block atomic="true">
+                                                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                            <parameter name="logger" value="message-log"/>
+                                                            <parameter name="field1" value="__TIMESTAMP__"/>
+                                                            <parameter name="field2" value="GENERIC-RESOURCE-API.process-eipam-pools:REQID"/>
+                                                            <parameter name="field3" value="`$network-topology-operation-input.sdnc-request-header.svc-request-id`"/>
+                                                            <parameter name="field4" value="Failed to allocate level1 ipv4 subnet - failure from eipam-allocate-network-role-subnet"/>
+                                                        </record>
+                                                        <switch test="`$tmp.l3-network.level1.v4.pool.pre-existing`">
+                                                            <outcome value='true'>
+                                                                <return status="failure">
+                                                                    <parameter name="tmp.eipam-error" value="true" />
+                                                                    <parameter name="error-code" value="500"/>
+                                                                    <parameter name="error-message" value="An error occured while allocating subnet in EIPAM. Pre-existing pool, no rollback." />
+                                                                </return>
+                                                            </outcome>
+                                                            <outcome value='false'>
+                                                                <block atomic="true">
+                                                                    <set>
+                                                                        <parameter name="eipam-ip-block.network-id" value="`$tmp.l3-network.network-id`" />
+                                                                        <parameter name="eipam-ip-block.level" value='1' />
+                                                                    </set>
+                                                                    <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                                    <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="deletePoolByNetworkLevel">
+                                                                        <outcome value='failure'>
+                                                                            <return status="failure">
+                                                                                <parameter name="tmp.eipam-error" value="true" />
+                                                                                <parameter name="error-code" value="500"/>
+                                                                                <parameter name="error-message" value="An error occured while allocating subnet in EIPAM.  Error rolling back EIPAM level 1 pool." />
+                                                                            </return>
+                                                                        </outcome>
+                                                                        <outcome value='Other'>
+                                                                            <return status="failure">
+                                                                                <parameter name="tmp.eipam-error" value="true" />
+                                                                                <parameter name="error-code" value="500"/>
+                                                                                <parameter name="error-message" value="An error occured while allocating subnet in EIPAM. Rollback complete." />
+                                                                            </return>
+                                                                        </outcome>
+                                                                    </execute>
+                                                                </block>
+                                                            </outcome>
+                                                            <outcome value=''>
+                                                                <block atomic="true">
+                                                                    <set>
+                                                                        <parameter name="eipam-ip-block.network-id" value="`$tmp.l3-network.network-id`" />
+                                                                        <parameter name="eipam-ip-block.level" value='1' />
+                                                                    </set>
+                                                                    <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                                    <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="deletePoolByNetworkLevel">
+                                                                        <outcome value='failure'>
+                                                                            <return status="failure">
+                                                                                <parameter name="tmp.eipam-error" value="true" />
+                                                                                <parameter name="error-code" value="500"/>
+                                                                                <parameter name="error-message" value="An error occured while allocating subnet in EIPAM.  Error rolling back EIPAM level 1 pool." />
+                                                                            </return>
+                                                                        </outcome>
+                                                                        <outcome value='Other'>
+                                                                            <return status="failure">
+                                                                                <parameter name="tmp.eipam-error" value="true" />
+                                                                                <parameter name="error-code" value="500"/>
+                                                                                <parameter name="error-message" value="An error occured while allocating subnet in EIPAM. Rollback complete." />
+                                                                            </return>
+                                                                        </outcome>
+                                                                    </execute>
+                                                                </block>
+                                                            </outcome>
+                                                        </switch>
+                                                    </block>
+                                                </outcome>
+                                            </call>
+                                        </block>
+                                    </outcome>
+                                </get-resource>
+                            </block>
+                        </outcome>
+                    </switch>
+                    <switch test="`$network-model.use-ipv6`">
+                        <outcome value='Y'>
+                            <block atomic='true'>
+                                <get-resource
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="SELECT * from EIPAM_IP_SUBNETS s, EIPAM_IP_SUBNET_KEYS k WHERE s.plan_name = $network-model.eipam-v6-address-plan and s.entity_id = k.entity_id and k.level = 1 and k.key_value = $tmp.level1-key-value ; "
+        pfx='tmp.eipam-subnet-row'>
+                                    <outcome value='success'>
+                                        <block atomic="true">
+                                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                <parameter name="logger" value="message-log"/>
+                                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                                <parameter name="field2" value="GENERIC-RESOURCE-API.process-eipam-pools:REQID"/>
+                                                <parameter name="field3" value="`$network-topology-operation-input.sdnc-request-header.svc-request-id`"/>
+                                                <parameter name="field4" value="Existing eipam-ip-block.ip-prefix for level1"/>
+                                                <parameter name="field5" value="`$tmp.eipam-subnet-row.ip-address`"/>
+                                                <parameter name="field6" value="Existing eipam-ip-block.mask for level1"/>
+                                                <parameter name="field7" value="`$tmp.eipam-subnet-row.prefix-length`"/>
+                                                <parameter name="field8" value="ipv6"/>
+                                            </record>
+                                            <set>
+                                                <parameter name='tmp.l3-network.level1.v6.subnet.pre-existing' value='true' />
+                                                <parameter name='tmp.l3-network.level1.v6.entity-id' value='`$tmp.eipam-row.entity-id`' />
+                                                <parameter name='tmp.l3-network.level1.v6.ip-prefix' value='`$tmp.eipam-row.ip-address`' />
+                                                <parameter name='tmp.l3-network.level1.v6.mask' value='`$tmp.eipam-row.prefix-length`' />
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                    <outcome value="not-found">
+                                        <block atomic='true'>
+                                            <set>
+                                                <parameter name='eipam-ip-block.entity-id' value='' />
+                                                <parameter name='eipam-ip-block.ip-prefix' value='' />
+                                                <parameter name='eipam-ip-block.mask' value='' />
+                                                <parameter name="eipam-ip-block.allocate-version" value='ipv6' />
+                                                <parameter name="eipam-ip-block.level" value='1' />
+                                                <parameter name='eipam-ip-block.plans_length' value='0' />
+                                            </set>
+                                            <call module='GENERIC-RESOURCE-API' rpc='eipam-allocate-network-role-subnet' mode='sync' >
+                                                <outcome value='success'>
+                                                    <block atomic="true">
+                                                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                            <parameter name="logger" value="message-log"/>
+                                                            <parameter name="field1" value="__TIMESTAMP__"/>
+                                                            <parameter name="field2" value="GENERIC-RESOURCE-API.process-eipam-pools:REQID"/>
+                                                            <parameter name="field3" value="`$network-topology-operation-input.sdnc-request-header.svc-request-id`"/>
+                                                            <parameter name="field4" value="eipam-ip-block.ip-prefix for level1"/>
+                                                            <parameter name="field5" value="`$eipam-ip-block.ip-prefix`"/>
+                                                            <parameter name="field6" value="eipam-ip-block.mask for level1"/>
+                                                            <parameter name="field7" value="`$eipam-ip-block.mask`"/>
+                                                            <parameter name="field8" value="ipv6"/>
+                                                        </record>
+                                                        <set>
+                                                            <parameter name='tmp.l3-network.level1.v6.subnet.pre-existing' value='' />
+                                                            <parameter name='tmp.l3-network.level1.v6.entity-id' value='`$eipam-ip-block.entity-id`' />
+                                                            <parameter name='tmp.l3-network.level1.v6.ip-prefix' value='`$eipam-ip-block.ip-prefix`' />
+                                                            <parameter name='tmp.l3-network.level1.v6.mask' value='`$eipam-ip-block.mask`' />
+                                                        </set>
+                                                    </block>
+                                                </outcome>
+                                                <outcome value='failure'>
+                                                    <block atomic="true">
+                                                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                            <parameter name="logger" value="message-log"/>
+                                                            <parameter name="field1" value="__TIMESTAMP__"/>
+                                                            <parameter name="field2" value="GENERIC-RESOURCE-API.process-eipam-pools:REQID"/>
+                                                            <parameter name="field3" value="`$network-topology-operation-input.sdnc-request-header.svc-request-id`"/>
+                                                            <parameter name="field4" value="Failed to allocate level1 ipv6 subnet - failure from eipam-allocate-network-role-subnet"/>
+                                                        </record>
+                                                        <switch test="`$tmp.l3-network.level1.v6.pool.pre-existing`">
+                                                            <outcome value='true'>
+                                                                <return status="failure">
+                                                                    <parameter name="tmp.eipam-error" value="true" />
+                                                                    <parameter name="error-code" value="500"/>
+                                                                    <parameter name="error-message" value="An error occured while allocating subnet in EIPAM. Pre-existing pool, no rollback." />
+                                                                </return>
+                                                            </outcome>
+                                                            <outcome value='false'>
+                                                                <block atomic="true">
+                                                                    <set>
+                                                                        <parameter name="eipam-ip-block.network-id" value="`$tmp.l3-network.network-id`" />
+                                                                        <parameter name="eipam-ip-block.level" value='1' />
+                                                                    </set>
+                                                                    <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                                    <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="deletePoolByNetworkLevel">
+                                                                        <outcome value='Other'>
+                                                                            <return status="failure">
+                                                                                <parameter name="tmp.eipam-error" value="true" />
+                                                                                <parameter name="error-code" value="500"/>
+                                                                                <parameter name="error-message" value="An error occured while allocating subnet in EIPAM. Rollback complete." />
+                                                                            </return>
+                                                                        </outcome>
+                                                                        <outcome value='failure'>
+                                                                            <return status="failure">
+                                                                                <parameter name="tmp.eipam-error" value="true" />
+                                                                                <parameter name="error-code" value="500"/>
+                                                                                <parameter name="error-message" value="An error occured while allocating subnet in EIPAM.  Error rolling back EIPAM level 1 pool." />
+                                                                            </return>
+                                                                        </outcome>
+                                                                    </execute>
+                                                                </block>
+                                                            </outcome>
+                                                            <outcome value=''>
+                                                                <block atomic="true">
+                                                                    <set>
+                                                                        <parameter name="eipam-ip-block.network-id" value="`$tmp.l3-network.network-id`" />
+                                                                        <parameter name="eipam-ip-block.level" value='1' />
+                                                                    </set>
+                                                                    <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                                    <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="deletePoolByNetworkLevel">
+                                                                        <outcome value='Other'>
+                                                                            <return status="failure">
+                                                                                <parameter name="tmp.eipam-error" value="true" />
+                                                                                <parameter name="error-code" value="500"/>
+                                                                                <parameter name="error-message" value="An error occured while allocating subnet in EIPAM. Rollback complete." />
+                                                                            </return>
+                                                                        </outcome>
+                                                                        <outcome value='failure'>
+                                                                            <return status="failure">
+                                                                                <parameter name="tmp.eipam-error" value="true" />
+                                                                                <parameter name="error-code" value="500"/>
+                                                                                <parameter name="error-message" value="An error occured while allocating subnet in EIPAM.  Error rolling back EIPAM level 1 pool." />
+                                                                            </return>
+                                                                        </outcome>
+                                                                    </execute>
+                                                                </block>
+                                                            </outcome>
+                                                        </switch>
+                                                    </block>
+                                                </outcome>
+                                            </call>
+                                        </block>
+                                    </outcome>
+                                </get-resource>
+                            </block>
+                        </outcome>
+                    </switch>
+                    <set>
+                        <parameter name='eipam-ip-block.entity-id' value='' />
+                        <parameter name='eipam-ip-block.ip-prefix' value='' />
+                        <parameter name='eipam-ip-block.mask' value='' />
+                        <parameter name="eipam-ip-block.level" value='2' />
+                        <parameter name='eipam-ip-block.plans_length' value='0' />
+                        <parameter name='eipam-pool.v4.pre-existing' value='false' />
+                        <parameter name='eipam-pool.v6.pre-existing' value='false' />
+                    </set>
+                    <!--tmp.level should be set to 1-->
+                    <call module='GENERIC-RESOURCE-API' rpc='eipam-create-network-role-pool' mode='sync' >
+                        <outcome value='failure'>
+                            <block atomic="true">
+                                <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                    <parameter name="logger" value="message-log"/>
+                                    <parameter name="field1" value="__TIMESTAMP__"/>
+                                    <parameter name="field2" value="GENERIC-RESOURCE-API.process-eipam-pools:REQID"/>
+                                    <parameter name="field3" value="`$network-topology-operation-input.sdnc-request-header.svc-request-id`"/>
+                                    <parameter name="field4" value="Error creating level 2 pool, need to attempt rollback"/>
+                                </record>
+                                <return status="failure">
+                                    <parameter name="tmp.eipam-error" value="true" />
+                                    <parameter name="error-code" value="500"/>
+                                    <parameter name="error-message" value="An error occured while allocating subnet in EIPAM.  Error creating level 2 pool" />
+                                </return>
+                            </block>
+                        </outcome>
+                        <outcome value='success'>
+                            <block atomic="true">
+                                <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                    <parameter name="logger" value="message-log"/>
+                                    <parameter name="field1" value="__TIMESTAMP__"/>
+                                    <parameter name="field2" value="GENERIC-RESOURCE-API.process-eipam-pools:REQID"/>
+                                    <parameter name="field3" value="`$network-topology-operation-input.sdnc-request-header.svc-request-id`"/>
+                                    <parameter name="field4" value="eipam-pool.v4.pre-existing"/>
+                                    <parameter name="field5" value="`$eipam-pool.v4.pre-existing`"/>
+                                    <parameter name="field6" value="eipam-pool.v4.pre-existing"/>
+                                    <parameter name="field7" value="`$eipam-pool.v6.pre-existing`"/>
+                                    <parameter name="field8" value="tmp.create-v4-pool-flag" />
+                                    <parameter name="field9" value="`$tmp.create-v4-pool-flag`" />
+                                    <parameter name="field10" value="tmp.create-v6-pool-flag" />
+                                    <parameter name="field11" value="`$tmp.create-v6-pool-flag`" />
+                                </record>
+                                <set>
+                                    <parameter name='tmp.l3-network.level2.v4.pre-existing' value='`$eipam-pool.v4.pre-existing`'/>
+                                    <parameter name='tmp.l3-network.level2.v6.pre-existing' value='`$eipam-pool.v6.pre-existing`'/>
+                                </set>
+                            </block>
+                        </outcome>
+                    </call>
+                    <switch test="`$network-model.use-ipv4`">
+                        <outcome value='Y'>
+                            <block atomic='true'>
+                                <get-resource
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="SELECT * from EIPAM_IP_SUBNETS s, EIPAM_IP_SUBNET_KEYS k WHERE s.plan_name = $network-model.eipam-v4-address-plan and s.entity_id = k.entity_id and k.level = 2 and k.key_value = $tmp.level2-key-value ; "
+        pfx='tmp.eipam-subnet-row'>
+                                    <outcome value='success'>
+                                        <block atomic="true">
+                                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                <parameter name="logger" value="message-log"/>
+                                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                                <parameter name="field2" value="GENERIC-RESOURCE-API.process-eipam-pools:REQID"/>
+                                                <parameter name="field3" value="`$network-topology-operation-input.sdnc-request-header.svc-request-id`"/>
+                                                <parameter name="field4" value="Existing eipam-ip-block.ip-prefix for level2"/>
+                                                <parameter name="field5" value="`$tmp.eipam-subnet-row.ip-address`"/>
+                                                <parameter name="field6" value="Existing eipam-ip-block.mask for level2"/>
+                                                <parameter name="field7" value="`$tmp.eipam-subnet-row.prefix-length`"/>
+                                                <parameter name="field8" value="ipv4"/>
+                                            </record>
+                                            <set>
+                                                <parameter name='tmp.l3-network.level2.v4.subnet.pre-existing' value='true' />
+                                                <parameter name='tmp.l3-network.level2.v4.entity-id' value='`$tmp.eipam-row.entity-id`' />
+                                                <parameter name='tmp.l3-network.level2.v4.ip-prefix' value='`$tmp.eipam-row.ip-address`' />
+                                                <parameter name='tmp.l3-network.level2.v4.mask' value='`$tmp.eipam-row.prefix-length`' />
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                    <outcome value="not-found">
+                                        <block atomic='true'>
+                                            <set>
+                                                <parameter name='eipam-ip-block.entity-id' value='' />
+                                                <parameter name='eipam-ip-block.ip-prefix' value='' />
+                                                <parameter name='eipam-ip-block.mask' value='' />
+                                                <parameter name="eipam-ip-block.allocate-version" value='ipv4' />
+                                                <parameter name="eipam-ip-block.level" value='2' />
+                                                <parameter name='eipam-ip-block.plans_length' value='0' />
+                                                <parameter name="eipam-ip-block.subnet-size-override" value="`$eipam-ip-block.subnet-size-override-v4`" />
+                                            </set>
+                                            <call module='GENERIC-RESOURCE-API' rpc='eipam-allocate-network-role-subnet' mode='sync' >
+                                                <outcome value='success'>
+                                                    <block atomic="true">
+                                                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                            <parameter name="logger" value="message-log"/>
+                                                            <parameter name="field1" value="__TIMESTAMP__"/>
+                                                            <parameter name="field2" value="GENERIC-RESOURCE-API.process-eipam-pools:REQID"/>
+                                                            <parameter name="field3" value="`$network-topology-operation-input.sdnc-request-header.svc-request-id`"/>
+                                                            <parameter name="field4" value="eipam-ip-block.ip-prefix for level2"/>
+                                                            <parameter name="field5" value="`$eipam-ip-block.ip-prefix`"/>
+                                                            <parameter name="field6" value="eipam-ip-block.mask for level2"/>
+                                                            <parameter name="field7" value="`$eipam-ip-block.mask`"/>
+                                                            <parameter name="field8" value="ipv4"/>
+                                                        </record>
+                                                        <set>
+                                                            <parameter name='tmp.l3-network.level2.v4.subnet.pre-existing' value='' />
+                                                            <parameter name='tmp.l3-network.level2.v4.entity-id' value='`$eipam-ip-block.entity-id`' />
+                                                            <parameter name='tmp.l3-network.level2.v4.ip-prefix' value='`$eipam-ip-block.ip-prefix`' />
+                                                            <parameter name='tmp.l3-network.level2.v4.mask' value='`$eipam-ip-block.mask`' />
+                                                        </set>
+                                                    </block>
+                                                </outcome>
+                                                <outcome value='failure'>
+                                                    <block atomic="true">
+                                                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                            <parameter name="logger" value="message-log"/>
+                                                            <parameter name="field1" value="__TIMESTAMP__"/>
+                                                            <parameter name="field2" value="GENERIC-RESOURCE-API.process-eipam-pools:REQID"/>
+                                                            <parameter name="field3" value="`$network-topology-operation-input.sdnc-request-header.svc-request-id`"/>
+                                                            <parameter name="field4" value="Failed to allocate level2 ipv4 subnet - failure from eipam-allocate-network-role-subnet"/>
+                                                        </record>
+                                                        <switch test="`$tmp.l3-network.level2.v4.pool.pre-existing`">
+                                                            <outcome value='true'>
+                                                                <return status="failure">
+                                                                    <parameter name="tmp.eipam-error" value="true" />
+                                                                    <parameter name="error-code" value="500"/>
+                                                                    <parameter name="error-message" value="An error occured while allocating subnet in EIPAM. Pre-existing pool, no rollback." />
+                                                                </return>
+                                                            </outcome>
+                                                            <outcome value='false'>
+                                                                <block atomic="true">
+                                                                    <set>
+                                                                        <parameter name="eipam-ip-block.network-id" value="`$tmp.l3-network.network-id`" />
+                                                                        <parameter name="eipam-ip-block.level" value='2' />
+                                                                    </set>
+                                                                    <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                                    <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="deletePoolByNetworkLevel">
+                                                                        <outcome value='failure'></outcome>
+                                                                        <outcome value='Other'></outcome>
+                                                                    </execute>
+                                                                    <switch test="`$tmp.l3-network.level1.v4.pool.pre-existing == true or $tmp.l3-network.level1.v4.pool.pre-existing == true`">
+                                                                        <outcome value='true'>
+                                                                            <return status="failure">
+                                                                                <parameter name="tmp.eipam-error" value="true" />
+                                                                                <parameter name="error-code" value="500"/>
+                                                                                <parameter name="error-message" value="An error occured while allocating subnet in EIPAM. Pre-existing pool, no rollback." />
+                                                                            </return>
+                                                                        </outcome>
+                                                                        <outcome value='false'>
+                                                                            <block atomic="true">
+                                                                                <set>
+                                                                                    <parameter name="eipam-ip-block.network-id" value="`$tmp.l3-network.network-id`" />
+                                                                                    <parameter name="eipam-ip-block.level" value='1' />
+                                                                                </set>
+                                                                                <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                                                <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="deletePoolByNetworkLevel">
+                                                                                    <outcome value='Other'>
+                                                                                        <return status="failure">
+                                                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                                                            <parameter name="error-code" value="500"/>
+                                                                                            <parameter name="error-message" value="An error occured while allocating level 2 ipv4 subnet in EIPAM. Rollback complete." />
+                                                                                        </return>
+                                                                                    </outcome>
+                                                                                    <outcome value='failure'>
+                                                                                        <return status="failure">
+                                                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                                                            <parameter name="error-code" value="500"/>
+                                                                                            <parameter name="error-message" value="An error occured while allocating level 2 ipv4 subnet in EIPAM.  Error rolling back EIPAM level 1 pool." />
+                                                                                        </return>
+                                                                                    </outcome>
+                                                                                </execute>
+                                                                            </block>
+                                                                        </outcome>
+                                                                        <outcome value=''>
+                                                                            <block atomic="true">
+                                                                                <set>
+                                                                                    <parameter name="eipam-ip-block.network-id" value="`$tmp.l3-network.network-id`" />
+                                                                                    <parameter name="eipam-ip-block.level" value='1' />
+                                                                                </set>
+                                                                                <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                                                <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="deletePoolByNetworkLevel">
+                                                                                    <outcome value='Other'>
+                                                                                        <return status="failure">
+                                                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                                                            <parameter name="error-code" value="500"/>
+                                                                                            <parameter name="error-message" value="An error occured while allocating level 2 ipv4 subnet in EIPAM. Rollback complete." />
+                                                                                        </return>
+                                                                                    </outcome>
+                                                                                    <outcome value='failure'>
+                                                                                        <return status="failure">
+                                                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                                                            <parameter name="error-code" value="500"/>
+                                                                                            <parameter name="error-message" value="An error occured while allocating level 2 ipv4 subnet in EIPAM.  Error rolling back EIPAM level 1 pool." />
+                                                                                        </return>
+                                                                                    </outcome>
+                                                                                </execute>
+                                                                            </block>
+                                                                        </outcome>
+                                                                    </switch>
+                                                                </block>
+                                                            </outcome>
+                                                            <outcome value=''>
+                                                                <block atomic="true">
+                                                                    <set>
+                                                                        <parameter name="eipam-ip-block.network-id" value="`$tmp.l3-network.network-id`" />
+                                                                        <parameter name="eipam-ip-block.level" value='2' />
+                                                                    </set>
+                                                                    <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                                    <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="deletePoolByNetworkLevel">
+                                                                        <outcome value='failure'></outcome>
+                                                                        <outcome value='Other'></outcome>
+                                                                    </execute>
+                                                                    <switch test="`$tmp.l3-network.level1.v4.pool.pre-existing == true or $tmp.l3-network.level1.v4.pool.pre-existing == true`">
+                                                                        <outcome value='true'>
+                                                                            <return status="failure">
+                                                                                <parameter name="tmp.eipam-error" value="true" />
+                                                                                <parameter name="error-code" value="500"/>
+                                                                                <parameter name="error-message" value="An error occured while allocating subnet in EIPAM. Pre-existing pool, no rollback." />
+                                                                            </return>
+                                                                        </outcome>
+                                                                        <outcome value='false'>
+                                                                            <block atomic="true">
+                                                                                <set>
+                                                                                    <parameter name="eipam-ip-block.network-id" value="`$tmp.l3-network.network-id`" />
+                                                                                    <parameter name="eipam-ip-block.level" value='1' />
+                                                                                </set>
+                                                                                <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                                                <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="deletePoolByNetworkLevel">
+                                                                                    <outcome value='Other'>
+                                                                                        <return status="failure">
+                                                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                                                            <parameter name="error-code" value="500"/>
+                                                                                            <parameter name="error-message" value="An error occured while allocating level 2 ipv4 subnet in EIPAM. Rollback complete." />
+                                                                                        </return>
+                                                                                    </outcome>
+                                                                                    <outcome value='failure'>
+                                                                                        <return status="failure">
+                                                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                                                            <parameter name="error-code" value="500"/>
+                                                                                            <parameter name="error-message" value="An error occured while allocating level 2 ipv4 subnet in EIPAM.  Error rolling back EIPAM level 1 pool." />
+                                                                                        </return>
+                                                                                    </outcome>
+                                                                                </execute>
+                                                                            </block>
+                                                                        </outcome>
+                                                                        <outcome value=''>
+                                                                            <block atomic="true">
+                                                                                <set>
+                                                                                    <parameter name="eipam-ip-block.network-id" value="`$tmp.l3-network.network-id`" />
+                                                                                    <parameter name="eipam-ip-block.level" value='1' />
+                                                                                </set>
+                                                                                <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                                                <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="deletePoolByNetworkLevel">
+                                                                                    <outcome value='Other'>
+                                                                                        <return status="failure">
+                                                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                                                            <parameter name="error-code" value="500"/>
+                                                                                            <parameter name="error-message" value="An error occured while allocating level 2 ipv4 subnet in EIPAM. Rollback complete." />
+                                                                                        </return>
+                                                                                    </outcome>
+                                                                                    <outcome value='failure'>
+                                                                                        <return status="failure">
+                                                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                                                            <parameter name="error-code" value="500"/>
+                                                                                            <parameter name="error-message" value="An error occured while allocating level 2 ipv4 subnet in EIPAM.  Error rolling back EIPAM level 1 pool." />
+                                                                                        </return>
+                                                                                    </outcome>
+                                                                                </execute>
+                                                                            </block>
+                                                                        </outcome>
+                                                                    </switch>
+                                                                </block>
+                                                            </outcome>
+                                                        </switch>
+                                                    </block>
+                                                </outcome>
+                                            </call>
+                                        </block>
+                                    </outcome>
+                                </get-resource>
+                            </block>
+                        </outcome>
+                    </switch>
+                    <switch test="`$network-model.use-ipv6`">
+                        <outcome value='Y'>
+                            <block atomic='true'>
+                                <get-resource
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="SELECT * from EIPAM_IP_SUBNETS s, EIPAM_IP_SUBNET_KEYS k WHERE s.plan_name = $network-model.eipam-v6-address-plan and s.entity_id = k.entity_id and k.level = 2 and k.key_value = $tmp.level2-key-value ; "
+        pfx='tmp.eipam-subnet-row'>
+                                    <outcome value='success'>
+                                        <block atomic="true">
+                                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                <parameter name="logger" value="message-log"/>
+                                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                                <parameter name="field2" value="GENERIC-RESOURCE-API.process-eipam-pools:REQID"/>
+                                                <parameter name="field3" value="`$network-topology-operation-input.sdnc-request-header.svc-request-id`"/>
+                                                <parameter name="field4" value="Existing eipam-ip-block.ip-prefix for level1"/>
+                                                <parameter name="field5" value="`$tmp.eipam-subnet-row.ip-address`"/>
+                                                <parameter name="field6" value="Existing eipam-ip-block.mask for level1"/>
+                                                <parameter name="field7" value="`$tmp.eipam-subnet-row.prefix-length`"/>
+                                                <parameter name="field8" value="ipv6"/>
+                                            </record>
+                                            <set>
+                                                <parameter name='tmp.l3-network.level2.v6.subnet.pre-existing' value='true' />
+                                                <parameter name='tmp.l3-network.level2.v6.entity-id' value='`$tmp.eipam-row.entity-id`' />
+                                                <parameter name='tmp.l3-network.level2.v6.ip-prefix' value='`$tmp.eipam-row.ip-address`' />
+                                                <parameter name='tmp.l3-network.level2.v6.mask' value='`$tmp.eipam-row.prefix-length`' />
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                    <outcome value="not-found">
+                                        <block atomic='true'>
+                                            <set>
+                                                <parameter name='eipam-ip-block.entity-id' value='' />
+                                                <parameter name='eipam-ip-block.ip-prefix' value='' />
+                                                <parameter name='eipam-ip-block.mask' value='' />
+                                                <parameter name="eipam-ip-block.allocate-version" value='ipv6' />
+                                                <parameter name="eipam-ip-block.level" value='2' />
+                                                <parameter name='eipam-ip-block.plans_length' value='0' />
+                                                <parameter name="eipam-ip-block.subnet-size-override" value="`$eipam-ip-block.subnet-size-override-v6`" />
+                                            </set>
+                                            <call module='GENERIC-RESOURCE-API' rpc='eipam-allocate-network-role-subnet' mode='sync' >
+                                                <outcome value='success'>
+                                                    <block atomic="true">
+                                                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                            <parameter name="logger" value="message-log"/>
+                                                            <parameter name="field1" value="__TIMESTAMP__"/>
+                                                            <parameter name="field2" value="GENERIC-RESOURCE-API.process-eipam-pools:REQID"/>
+                                                            <parameter name="field3" value="`$network-topology-operation-input.sdnc-request-header.svc-request-id`"/>
+                                                            <parameter name="field4" value="eipam-ip-block.ip-prefix for level1"/>
+                                                            <parameter name="field5" value="`$eipam-ip-block.ip-prefix`"/>
+                                                            <parameter name="field6" value="eipam-ip-block.mask for level1"/>
+                                                            <parameter name="field7" value="`$eipam-ip-block.mask`"/>
+                                                            <parameter name="field8" value="ipv6"/>
+                                                        </record>
+                                                        <set>
+                                                            <parameter name='tmp.l3-network.level2.v6.subnet.pre-existing' value='' />
+                                                            <parameter name='tmp.l3-network.level2.v6.entity-id' value='`$eipam-ip-block.entity-id`' />
+                                                            <parameter name='tmp.l3-network.level2.v6.ip-prefix' value='`$eipam-ip-block.ip-prefix`' />
+                                                            <parameter name='tmp.l3-network.level2.v6.mask' value='`$eipam-ip-block.mask`' />
+                                                        </set>
+                                                    </block>
+                                                </outcome>
+                                                <outcome value='failure'>
+                                                    <block atomic="true">
+                                                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                            <parameter name="logger" value="message-log"/>
+                                                            <parameter name="field1" value="__TIMESTAMP__"/>
+                                                            <parameter name="field2" value="GENERIC-RESOURCE-API.process-eipam-pools:REQID"/>
+                                                            <parameter name="field3" value="`$network-topology-operation-input.sdnc-request-header.svc-request-id`"/>
+                                                            <parameter name="field4" value="Failed to allocate level2 ipv6 subnet - failure from eipam-allocate-network-role-subnet"/>
+                                                        </record>
+                                                        <switch test="`$tmp.l3-network.level2.v6.pool.pre-existing`">
+                                                            <outcome value='true'>
+                                                                <return status="failure">
+                                                                    <parameter name="tmp.eipam-error" value="true" />
+                                                                    <parameter name="error-code" value="500"/>
+                                                                    <parameter name="error-message" value="An error occured while allocating subnet in EIPAM. Pre-existing pool, no rollback." />
+                                                                </return>
+                                                            </outcome>
+                                                            <outcome value='false'>
+                                                                <block atomic="true">
+                                                                    <set>
+                                                                        <parameter name="eipam-ip-block.network-id" value="`$tmp.l3-network.network-id`" />
+                                                                        <parameter name="eipam-ip-block.level" value='2' />
+                                                                    </set>
+                                                                    <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                                    <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="deletePoolByNetworkLevel">
+                                                                        <outcome value='failure'></outcome>
+                                                                        <outcome value='Other'></outcome>
+                                                                    </execute>
+                                                                    <switch test="`$tmp.l3-network.level1.v4.pool.pre-existing == true or $tmp.l3-network.level1.v4.pool.pre-existing == true`">
+                                                                        <outcome value='true'>
+                                                                            <return status="failure">
+                                                                                <parameter name="tmp.eipam-error" value="true" />
+                                                                                <parameter name="error-code" value="500"/>
+                                                                                <parameter name="error-message" value="An error occured while allocating subnet in EIPAM. Pre-existing pool, no rollback." />
+                                                                            </return>
+                                                                        </outcome>
+                                                                        <outcome value='false'>
+                                                                            <block atomic="true">
+                                                                                <set>
+                                                                                    <parameter name="eipam-ip-block.network-id" value="`$tmp.l3-network.network-id`" />
+                                                                                    <parameter name="eipam-ip-block.level" value='1' />
+                                                                                </set>
+                                                                                <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                                                <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="deletePoolByNetworkLevel">
+                                                                                    <outcome value='Other'>
+                                                                                        <return status="failure">
+                                                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                                                            <parameter name="error-code" value="500"/>
+                                                                                            <parameter name="error-message" value="An error occured while allocating level 2 ipv6 subnet in EIPAM. Rollback complete." />
+                                                                                        </return>
+                                                                                    </outcome>
+                                                                                    <outcome value='failure'>
+                                                                                        <return status="failure">
+                                                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                                                            <parameter name="error-code" value="500"/>
+                                                                                            <parameter name="error-message" value="An error occured while allocating level 2 ipv6 subnet in EIPAM.  Error rolling back EIPAM level 1 pool." />
+                                                                                        </return>
+                                                                                    </outcome>
+                                                                                </execute>
+                                                                            </block>
+                                                                        </outcome>
+                                                                        <outcome value=''>
+                                                                            <block atomic="true">
+                                                                                <set>
+                                                                                    <parameter name="eipam-ip-block.network-id" value="`$tmp.l3-network.network-id`" />
+                                                                                    <parameter name="eipam-ip-block.level" value='1' />
+                                                                                </set>
+                                                                                <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                                                <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="deletePoolByNetworkLevel">
+                                                                                    <outcome value='Other'>
+                                                                                        <return status="failure">
+                                                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                                                            <parameter name="error-code" value="500"/>
+                                                                                            <parameter name="error-message" value="An error occured while allocating level 2 ipv6 subnet in EIPAM. Rollback complete." />
+                                                                                        </return>
+                                                                                    </outcome>
+                                                                                    <outcome value='failure'>
+                                                                                        <return status="failure">
+                                                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                                                            <parameter name="error-code" value="500"/>
+                                                                                            <parameter name="error-message" value="An error occured while allocating level 2 ipv6 subnet in EIPAM.  Error rolling back EIPAM level 1 pool." />
+                                                                                        </return>
+                                                                                    </outcome>
+                                                                                </execute>
+                                                                            </block>
+                                                                        </outcome>
+                                                                    </switch>
+                                                                </block>
+                                                            </outcome>
+                                                            <outcome value=''>
+                                                                <block atomic="true">
+                                                                    <set>
+                                                                        <parameter name="eipam-ip-block.network-id" value="`$tmp.l3-network.network-id`" />
+                                                                        <parameter name="eipam-ip-block.level" value='2' />
+                                                                    </set>
+                                                                    <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                                    <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="deletePoolByNetworkLevel">
+                                                                        <outcome value='failure'></outcome>
+                                                                        <outcome value='Other'></outcome>
+                                                                    </execute>
+                                                                    <switch test="`$tmp.l3-network.level1.v4.pool.pre-existing == true or $tmp.l3-network.level1.v4.pool.pre-existing == true`">
+                                                                        <outcome value='true'>
+                                                                            <return status="failure">
+                                                                                <parameter name="tmp.eipam-error" value="true" />
+                                                                                <parameter name="error-code" value="500"/>
+                                                                                <parameter name="error-message" value="An error occured while allocating subnet in EIPAM. Pre-existing pool, no rollback." />
+                                                                            </return>
+                                                                        </outcome>
+                                                                        <outcome value='false'>
+                                                                            <block atomic="true">
+                                                                                <set>
+                                                                                    <parameter name="eipam-ip-block.network-id" value="`$tmp.l3-network.network-id`" />
+                                                                                    <parameter name="eipam-ip-block.level" value='1' />
+                                                                                </set>
+                                                                                <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                                                <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="deletePoolByNetworkLevel">
+                                                                                    <outcome value='Other'>
+                                                                                        <return status="failure">
+                                                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                                                            <parameter name="error-code" value="500"/>
+                                                                                            <parameter name="error-message" value="An error occured while allocating level 2 ipv6 subnet in EIPAM. Rollback complete." />
+                                                                                        </return>
+                                                                                    </outcome>
+                                                                                    <outcome value='failure'>
+                                                                                        <return status="failure">
+                                                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                                                            <parameter name="error-code" value="500"/>
+                                                                                            <parameter name="error-message" value="An error occured while allocating level 2 ipv6 subnet in EIPAM.  Error rolling back EIPAM level 1 pool." />
+                                                                                        </return>
+                                                                                    </outcome>
+                                                                                </execute>
+                                                                            </block>
+                                                                        </outcome>
+                                                                        <outcome value=''>
+                                                                            <block atomic="true">
+                                                                                <set>
+                                                                                    <parameter name="eipam-ip-block.network-id" value="`$tmp.l3-network.network-id`" />
+                                                                                    <parameter name="eipam-ip-block.level" value='1' />
+                                                                                </set>
+                                                                                <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                                                <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="deletePoolByNetworkLevel">
+                                                                                    <outcome value='Other'>
+                                                                                        <return status="failure">
+                                                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                                                            <parameter name="error-code" value="500"/>
+                                                                                            <parameter name="error-message" value="An error occured while allocating level 2 ipv6 subnet in EIPAM. Rollback complete." />
+                                                                                        </return>
+                                                                                    </outcome>
+                                                                                    <outcome value='failure'>
+                                                                                        <return status="failure">
+                                                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                                                            <parameter name="error-code" value="500"/>
+                                                                                            <parameter name="error-message" value="An error occured while allocating level 2 ipv6 subnet in EIPAM.  Error rolling back EIPAM level 1 pool." />
+                                                                                        </return>
+                                                                                    </outcome>
+                                                                                </execute>
+                                                                            </block>
+                                                                        </outcome>
+                                                                    </switch>
+                                                                </block>
+                                                            </outcome>
+                                                        </switch>
+                                                    </block>
+                                                </outcome>
+                                            </call>
+                                        </block>
+                                    </outcome>
+                                </get-resource>
+                            </block>
+                        </outcome>
+                    </switch>
+                </block>
+            </outcome>
+            <outcome value='delete'>
+                <return status="failure">
+                    <parameter name="tmp.eipam-error" value="true" />
+                    <parameter name="error-code" value="500"/>
+                    <parameter name="error-message" value="Invalid option to process-eipam" />
+                </return>
+            </outcome>
+            <outcome value='Other'>
+                <return status="failure">
+                    <parameter name="tmp.eipam-error" value="true" />
+                    <parameter name="error-code" value="500"/>
+                    <parameter name="error-message" value="Invalid option to process-eipam" />
+                </return>
+            </outcome>
+        </switch>
+    </method>
+</service-logic>

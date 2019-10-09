@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>AdminPortal</title>
+<script class="init">
+    $(document).ready(function() {
+    $('#user_admin').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+
+</head>
+
+<body>
+
+<div class="well well-sm">
+<h3>User Administration</h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+        if (result.code.length > 0) {
+            if ( result.code == 'success' ) { %>
+                <div class='alert alert-success' role='alert'><%=result.msg %></div>
+            <% } else { %>
+                <div class='alert alert-danger' role='danger'><%=result.msg %></div>
+            <% } %>
+        <% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+    <div class="actions" style="padding:15px 0px;">
+	<% if(priv == 'A') { %>
+    	<button class="btn btn-primary" data-toggle="modal" data-target="#new_user">Add User</button>
+	<% } %>
+
+    </div>
+    <div class="content">
+     <table id="user_admin" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+			<th>Email</th>
+        	<th>Password</th>
+        	<th>Privilege</th>
+	  		<% if(priv == 'A'){ %>
+          	<th>Action</th>
+		  	<% } %>
+        </tr>
+      </thead>
+      <tbody>
+    <% if (rows)  {
+         rows.forEach(function(row) { %>
+			<tr>
+            <td><%= row.email %></td> 
+            <td>**********</td> 
+            <td>
+				<% if(row.privilege == 'A'){ %>
+					Administrator
+				<% } else if (row.privilege == 'R') { %>
+					Readonly
+				<% } else { %>
+					unknown
+				<% } %>
+			</td> 
+			<% if(priv == 'A') { %>
+			<td>
+				<form name="rowform">
+					<button type="button" class="btn btn-default btn-xs"
+						onclick="updateRequest('<%=row.email %>', '<%=row.password %>', '<%=row.privilege %>');">Update</button>
+					<button type="button" class="btn btn-default btn-xs"
+						onclick="deleteRequest('<%=row.email %>');">Delete</button>
+				</form>
+			</td>
+			<% } %>
+			</tr>
+    <% }); }; %>
+      </tbody>
+    </table>
+   </div>
+
+   <% include ../partials/newuserform %>
+   <% include ../partials/userform %>
+
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+    
+<script type="text/javascript">
+
+function submitUserAdmin(form)
+{
+	var errorMsg='';
+	var email = '';
+	var password = '';
+	var confirm_password = '';
+	var privilege = '';
+
+    if ( form.name == 'addForm' )
+    {
+    	email = form.nf_email;
+        password = form.nf_password;
+        confirm_password = form.nf_confirm_password;
+        privilege = form.nf_privilege;
+
+        if ( (email.value == null) || (email.value == "") || isblank(email.value) )
+        {
+                errorMsg += 'Email is required.<br>';
+        }
+        if( errorMsg.length > 0 ) {
+                bootbox.alert(errorMsg);
+                return;
+        }
+
+        if ( password.value != confirm_password.value )
+        {
+            bootbox.alert('Passwords do not match.');
+            return;
+        }
+    }
+    else
+    {
+    	email = form.uf_email;
+        password = form.uf_password;
+        confirm_password = form.uf_confirm_password;
+        privilege = form.uf_privilege;
+
+        if ( (email.value == null) || (email.value == "") || isblank(email.value) )
+        {
+                errorMsg += 'Email is required.<br>';
+        }
+        if ( password.value != confirm_password.value )
+        {
+            bootbox.alert('Passwords do not match.');
+            return;
+        }
+    }
+    form.submit();
+}
+
+function deleteRequest(email) {
+
+	bootbox.confirm({
+  		message: "Are you sure you want to delete user [" + email + "] ?",
+  		callback: function(result) {
+			if ( result )
+			{
+				location.assign("/user/deleteUser?email=" + email);
+			}
+			return;
+  		},
+  		buttons: {
+    		cancel: {
+      			label: "Cancel"
+    		},
+    		confirm: {
+      			label: "Yes"
+    		}
+  		}
+	});
+}
+function updateRequest(email,password,privilege) {
+
+	document.getElementById('uf_email').value = email;
+	document.getElementById('uf_key_email').value = email;
+	document.getElementById('uf_password').value = password;
+	document.getElementById('uf_confirm_password').value = password;
+	if ( privilege == "A" ){
+		document.getElementById('uf_privilege').value = 'admin';
+	}else if (privilege == "R"){
+		document.getElementById('uf_privilege').value = 'readonly';
+	}else{
+		document.getElementById('uf_privilege').value = 'admin';
+	}
+	document.getElementById('uf_action').value = "/user/updateUser";
+	$('#myUserModal').modal('show');
+     
+}
+</script>
+
+</body>
+</html>
+

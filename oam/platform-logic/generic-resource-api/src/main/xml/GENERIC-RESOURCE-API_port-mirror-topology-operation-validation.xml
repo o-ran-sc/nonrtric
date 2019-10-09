@@ -1,0 +1,237 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='port-mirror-topology-operation-validation' mode='sync'>
+        <block atomic="true">
+            <switch test='`$service-data.service-information.subscription-service-type`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value="`'No service exists for service instance ' + $port-mirror-topology-operation-input.service-information.service-instance-id`" />
+                        <parameter name='ack-final' value='Y' />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$port-mirror-topology-operation-input.configuration-information.configuration-id`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value="No configuration-id supplied in input" />
+                        <parameter name='ack-final' value='Y' />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$port-mirror-topology-operation-input.configuration-information.configuration-sub-type`'>
+                <outcome value='pprobe'>
+                    <set>
+                        <parameter name='port-mirror-topology-operation-input.configuration-information.configuration-sub-type' value='pprobe' />
+                    </set>
+                </outcome>
+                <outcome value='PPROBE'>
+                    <set>
+                        <parameter name='port-mirror-topology-operation-input.configuration-information.configuration-sub-type' value='pprobe' />
+                    </set>
+                </outcome>
+                <outcome value='vprobe'>
+                    <set>
+                        <parameter name='port-mirror-topology-operation-input.configuration-information.configuration-sub-type' value='vprobe' />
+                    </set>
+                </outcome>
+                <outcome value='VPROBE'>
+                    <set>
+                        <parameter name='port-mirror-topology-operation-input.configuration-information.configuration-sub-type' value='vprobe' />
+                    </set>
+                </outcome>
+                <outcome value=''>
+                    <set>
+                        <parameter name='port-mirror-topology-operation-input.configuration-information.configuration-sub-type' value='vprobe' />
+                    </set>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value="configuration-sub-type must be pprobe or vprobe" />
+                        <parameter name='ack-final' value='Y' />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$port-mirror-topology-operation-input.sdnc-request-header.svc-action`'>
+                <outcome value='assign'>
+                    <block atomic="true">
+                        <switch test='`$port-mirror-topology-operation-input.sdnc-request-header.svc-notification-url`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value="svc-notification-url is required for assign" />
+                                    <parameter name='ack-final' value='Y' />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test="`$port-mirror-topology-operation-input.request-information.request-action == 'CreatePortMirrorConfigurationInstance'`">
+                            <outcome value='false'>
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value="request-action must be CreatePortMirrorConfigurationInstance for assign" />
+                                    <parameter name='ack-final' value='Y' />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$port-mirror-topology-operation-input.configuration-information.configuration-type`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value="configuration-type is required for assign" />
+                                    <parameter name='ack-final' value='Y' />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$port-mirror-topology-operation-input.configuration-information.onap-model-information.model-customization-uuid`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value="configuration-information.onap-model-information.model-customization-uuid is required for assign" />
+                                    <parameter name='ack-final' value='Y' />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$port-mirror-topology-operation-input.port-mirror-configuration-request-input.source-port.vnf-information.vnf-id`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value="source vnf-id is required for assign" />
+                                    <parameter name='ack-final' value='Y' />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$port-mirror-topology-operation-input.configuration-information.configuration-sub-type`'>
+                            <outcome value='vprobe'>
+                                <switch test='`$port-mirror-topology-operation-input.port-mirror-configuration-request-input.dest-port.vnf-information.vnf-id`'>
+                                    <outcome value=''>
+                                        <return status='failure'>
+                                            <parameter name='error-code' value='500' />
+                                            <parameter name='error-message' value="dest vnf-id is required for vprobe assign" />
+                                            <parameter name='ack-final' value='Y' />
+                                        </return>
+                                    </outcome>
+                                </switch>
+                            </outcome>
+                            <outcome value='pprobe'>
+                                <switch test='`$port-mirror-topology-operation-input.port-mirror-configuration-request-input.dest-port.pnf-information.pnf-name`'>
+                                    <outcome value=''>
+                                        <return status='failure'>
+                                            <parameter name='error-code' value='500' />
+                                            <parameter name='error-message' value="dest pnf-name is required for pprobe assign" />
+                                            <parameter name='ack-final' value='Y' />
+                                        </return>
+                                    </outcome>
+                                </switch>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='activate'>
+                    <block atomic="true">
+                        <switch test='`$port-mirror-topology-operation-input.sdnc-request-header.svc-notification-url`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value="svc-notification-url is required for activate" />
+                                    <parameter name='ack-final' value='Y' />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test="`$port-mirror-topology-operation-input.request-information.request-action == 'CreatePortMirrorConfigurationInstance'`">
+                            <outcome value='false'>
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value="request-action must be CreatePortMirrorConfigurationInstance for activate" />
+                                    <parameter name='ack-final' value='Y' />
+                                </return>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='unassign'>
+                    <block atomic="true">
+                        <switch test="`$port-mirror-topology-operation-input.request-information.request-action == 'DeletePortMirrorConfigurationInstance'`">
+                            <outcome value='false'>
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value="request-action must be DeletePortMirrorConfigurationInstance for unassign" />
+                                    <parameter name='ack-final' value='Y' />
+                                </return>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='deactivate'>
+                    <block atomic="true">
+                        <switch test='`$port-mirror-topology-operation-input.sdnc-request-header.svc-notification-url`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value="svc-notification-url is required for deactivate" />
+                                    <parameter name='ack-final' value='Y' />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test="`$port-mirror-topology-operation-input.request-information.request-action == 'DeletePortMirrorConfigurationInstance'`">
+                            <outcome value='false'>
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value="request-action must be DeletePortMirrorConfigurationInstance for deactivate" />
+                                    <parameter name='ack-final' value='Y' />
+                                </return>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='enable'>
+                    <block atomic="true">
+                        <switch test="`$port-mirror-topology-operation-input.request-information.request-action == 'ChangePortMirrorConfigurationInstance'`">
+                            <outcome value='false'>
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value="request-action must be ChangePortMirrorConfigurationInstance for enable" />
+                                    <parameter name='ack-final' value='Y' />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$port-mirror-topology-operation-input.port-mirror-configuration-request-input.source-port.source-port-id`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value="port-mirror-configuration-request-input.source-port.source-port-id is required for enable" />
+                                    <parameter name='ack-final' value='Y' />
+                                </return>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='disable'>
+                    <block atomic="true">
+                        <switch test="`$port-mirror-topology-operation-input.request-information.request-action == 'ChangePortMirrorConfigurationInstance'`">
+                            <outcome value='false'>
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value="request-action must be ChangePortMirrorConfigurationInstance for disable" />
+                                    <parameter name='ack-final' value='Y' />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <switch test='`$port-mirror-topology-operation-input.port-mirror-configuration-request-input.source-port.source-port-id`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value="port-mirror-configuration-request-input.source-port.source-port-id is required for disable" />
+                                    <parameter name='ack-final' value='Y' />
+                                </return>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+            </switch>
+            <return status='success'></return>
+        </block>
+    </method>
+</service-logic>

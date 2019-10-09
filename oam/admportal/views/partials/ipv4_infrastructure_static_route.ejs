@@ -1,0 +1,50 @@
+   <div class="modal fade" 
+		id="ipv4-infrastructure-static-route-modal" tabindex="-1" role="dialog" 
+		aria-labelledby="ipv4-infrastructure-static-route-modal-label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">ipv4-infrastructure-static-route</h4>
+          </div>
+          <div class="modal-body">
+            <form role="form" action="" method="POST">
+              <div class="form-group">
+                <label for="ipv4_outgoing_interface">ipv4-outgoing-interface</label>
+                <input type="text" class="form-control" name="ipv4_outgoing_interface" id="ipv4_outgoing_interface">
+              </div>
+              <div class="form-group">
+                <label for="ipv4_next_hop_address">ipv4-next-hop-address</label>
+                <input type="text" class="form-control" name="ipv4_next_hop_address" id="ipv4_next_hop_address">
+              </div>
+              <div class="form-group">
+                <label for="ipv4_dest_prefix">ipv4-dest-prefix</label>
+                <input type="text" class="form-control" name="ipv4_dest_prefix" id="ipv4_dest_prefix">
+              </div>
+              <div class="form-group">
+                <label for="ipv4_dest_prefix_length">ipv4-dest-prefix-length</label>
+                <input type="text" class="form-control" name="ipv4_dest_prefix_length" id="ipv4_dest_prefix_length">
+              </div>
+
+<!--
+              <div class="form-group">
+				<input type="hidden" name="uf_action" id="uf_action">
+                <button type="button" class="btn btn-primary" onclick="submit(this.form);">Submit</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+-->
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>
+
+<script type="text/javascript">
+function submit(form){
+	$('#ipv4-infrastructure-static-route-modal').modal('hide');
+	form.action = form.uf_action.value;
+	form.submit();
+	return;
+}
+</script>
+

@@ -1,0 +1,32 @@
+<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='VNF-API' version='${project.version}'><method rpc="preload-vnf-topology-operation" mode="sync"><block atomic="true"><switch test="`$preload-vnf-topology-operation-input.request-information.request-action`">
+<!--
+leaf request-action { 
+				type enumeration { 
+					enum "VNFActivateRequest";
+					enum "ChangeVNFActivateRequest";
+					enum "DisconnectVNFRequest";
+					enum "PreloadVNFRequest";
+					enum "DeletePreloadVNFRequest";
+				} 
+}
+-->
+
+<outcome value='PreloadVNFRequest'><block atomic="true"><set>
+<parameter name="ack-final" value="Y"/></set><set only-if-unset="true">
+<parameter name="sql-resource-plugin" value="org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource"/></set><set>
+<parameter name="preload-data." value="" />
+</set><set>
+<parameter name="preload-data." value="preload-vnf-topology-operation-input." />
+</set><set>
+	<parameter name="preload-data.oper-status.order-status" value="PendingAssignment"/></set><return status="success">
+	<parameter name="error-code" value="200" /></return></block></outcome><outcome value='DeletePreloadVNFRequest'><block atomic="true"><set>
+<parameter name="preload-data." value="" />
+</set><return status="success">
+	<parameter name="error-code" value="200" /></return></block></outcome><outcome value="Other">
+
+ <return status="failure">
+	<parameter name='error-code' value='2000'/>
+	<parameter name='error-message' value='Invalid Request `$preload-vnf-topology-operation-input.request-information.request-action`'/>
+
+ 
+</return></outcome></switch></block></method></service-logic>

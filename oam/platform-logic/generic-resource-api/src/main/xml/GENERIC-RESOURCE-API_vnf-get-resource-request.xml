@@ -1,0 +1,242 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='vnf-get-resource-request' mode='sync'>
+        <block atomic="true">
+            <set>
+                <parameter name="vnf-get-resource-request-output.vnf-get-resource-response-information.service-instance-id" value='`$vnf-get-resource-request-input.service-information.service-instance-id`'/>
+                <parameter name="vnf-get-resource-request-output.vnf-get-resource-response-information.service-instance-name" value='`$service-data.service-topology.service-topology-identifier.service-instance-name`'/>
+            </set>
+            <switch test="`$vnf-get-resource-request-input.vnf_length == ''`">
+                <outcome value='true'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name="vnf-get-resource-request-output.vnf-get-resource-response-information.vnf_length" value='`$service-data.vnfs.vnf_length`'/>
+                        </set>
+                        <switch test="`$service-data.vnfs.vnf_length == ''`">
+                            <outcome value='false'>
+                                <for index='i' start='0' end='`$service-data.vnfs.vnf_length`' >
+                                    <block atomic="true">
+                                        <set>
+                                            <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$i].vnf-id`' value="`$service-data.vnfs.vnf[$i].vnf-id`"/>
+                                            <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$i].vnf-name`' value="`$service-data.vnfs.vnf[$i].vnf-name`"/>
+                                            <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$i].param_length`' value='`$service-data.vnfs.vnf[$i].vnf-data.vnf-topology.vnf-parameters-data.param_length`'/>
+                                            <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$i].vf-module_length`' value='`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module_length`'/>
+                                        </set>
+                                        <switch test="`$service-data.vnfs.vnf[$i].vnf-data.vnf-topology.vnf-parameters-data.param_length == ''`">
+                                            <outcome value='false'>
+                                                <for index='j' start='0' end='`$service-data.vnfs.vnf[$i].vnf-data.vnf-topology.vnf-parameters-data.param_length`' >
+                                                    <block atomic="true">
+                                                        <set>
+                                                            <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$i].param[$j].name`' value="`$service-data.vnfs.vnf[$i].vnf-data.vnf-topology.vnf-parameters-data.param[$j].name`"/>
+                                                            <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$i].param[$j].value`' value="`$service-data.vnfs.vnf[$i].vnf-data.vnf-topology.vnf-parameters-data.param[$j].value`"/>
+                                                            <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$i].param[$j].resource-resolution-data.status`' value="`$service-data.vnfs.vnf[$i].vnf-data.vnf-topology.vnf-parameters-data.param[$j].resource-resolution-data.status`"/>
+                                                            <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$i].param[$j].resource-resolution-data.capability-name`' value="`$service-data.vnfs.vnf[$i].vnf-data.vnf-topology.vnf-parameters-data.param[$j].resource-resolution-data.capability-name`"/>
+                                                            <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$i].param[$j].resource-resolution-data.resource-key_length`' value='`$service-data.vnfs.vnf[$i].vnf-data.vnf-topology.vnf-parameters-data.param[$j].resource-resolution-data.resource-key_length`' />
+                                                        </set>
+                                                        <switch test="`$service-data.vnfs.vnf[$i].vnf-data.vnf-topology.vnf-parameters-data.param[$j].resource-resolution-data.resource-key_length == ''`">
+                                                            <outcome value='false'>
+                                                                <for index='k' start='0' end='`$service-data.vnfs.vnf[$i].vnf-data.vnf-topology.vnf-parameters-data.param[$j].resource-resolution-data.resource-key_length`' >
+                                                                    <set>
+                                                                        <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$i].param[$j].resource-resolution-data.resource-key[$k].name`' value="`$service-data.vnfs.vnf[$i].vnf-data.vnf-topology.vnf-parameters-data.param[$j].resource-resolution-data.resource-key[$k].name`"/>
+                                                                        <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$i].param[$j].resource-resolution-data.resource-key[$k].value`' value="`$service-data.vnfs.vnf[$i].vnf-data.vnf-topology.vnf-parameters-data.param[$j].resource-resolution-data.resource-key[$k].value`"/>
+                                                                    </set>
+                                                                </for>
+                                                            </outcome>
+                                                        </switch>
+                                                    </block>
+                                                </for>
+                                            </outcome>
+                                        </switch>
+                                        <switch test="`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module_length == ''`">
+                                            <outcome value='false'>
+                                                <for index='l' start='0' end='`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module_length`' >
+                                                    <block atomic="true">
+                                                        <set>
+                                                            <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$i].vf-module[$l].vf-module-id`' value="`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module[$l].vf-module-id`"/>
+                                                            <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$i].vf-module[$l].param_length`' value="`service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module[$l].vf-module-data.vf-module-topology.vf-module-parameters.param_length`"/>
+                                                        </set>
+                                                        <for index='m' start='0' end='`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module[$l].vf-module-data.vf-module-topology.vf-module-parameters.param_length`' >
+                                                            <block atomic="true">
+                                                                <set>
+                                                                    <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$i].vf-module[$l].param[$m].name`' value="`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module[$l].vf-module-data.vf-module-topology.vf-module-parameters.param[$m].name`"/>
+                                                                    <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$i].vf-module[$l].param[$m].value`' value="`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module[$l].vf-module-data.vf-module-topology.vf-module-parameters.param[$m].value`"/>
+                                                                    <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$i].vf-module[$l].param[$m].resource-resolution-data.resource-key_length`' value="`service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module[$l].vf-module-data.vf-module-topology.vf-module-parameters.param[$m].resource-resolution-data.resource-key_length`"/>
+                                                                </set>
+                                                                <switch test="`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module[$l].vf-module-data.vf-module-topology.vf-module-parameters.param[$m].resource-resolution-data.resource-key_length == ''`">
+                                                                    <outcome value='false'>
+                                                                        <for index='n' start='0' end='`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module[$l].vf-module-data.vf-module-topology.vf-module-parameters.param[$m].resource-resolution-data.resource-key_length`' >
+                                                                            <set>
+                                                                                <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$i].vf-module[$l].param[$m].resource-resolution-data.resource-key[$n].name`' value="`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module[$l].vf-module-data.vf-module-topology.vf-module-parameters.param[$m].resource-resolution-data.resource-key[$n].name`"/>
+                                                                                <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$i].vf-module[$l].param[$m].resource-resolution-data.resource-key[$n].value`' value="`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module[$l].vf-module-data.vf-module-topology.vf-module-parameters.param[$m].resource-resolution-data.resource-key[$n].value`"/>
+                                                                            </set>
+                                                                        </for>
+                                                                    </outcome>
+                                                                </switch>
+                                                            </block>
+                                                        </for>
+                                                    </block>
+                                                </for>
+                                            </outcome>
+                                        </switch>
+                                    </block>
+                                </for>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='false'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name="tmp.vnf_counter" value='0'/>
+                        </set>
+                        <for index='ll' start='0' end='`$vnf-get-resource-request-input.vnf_length`' >
+                            <block atomic="true">
+                                <set>
+                                    <parameter name="tmp.vnf-id" value="`$vnf-get-resource-request-input.vnf[$ll].vnf-id`"/>
+                                </set>
+                                <switch test="`$service-data.vnfs.vnf_length == ''`">
+                                    <outcome value='false'>
+                                        <for index='i' start='0' end='`$service-data.vnfs.vnf_length`' >
+                                            <block atomic="true">
+                                                <switch test='`$tmp.vnf-id == $service-data.vnfs.vnf[$i].vnf-id`'>
+                                                    <outcome value='true'>
+                                                        <block atomic="true">
+                                                            <set>
+                                                                <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$tmp.vnf_counter].vnf-id`' value="`$service-data.vnfs.vnf[$i].vnf-id`"/>
+                                                                <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$tmp.vnf_counter].vnf-name`' value="`$service-data.vnfs.vnf[$i].vnf-name`"/>
+                                                                <parameter name="tmp.pnum" value='0'/>
+                                                            </set>
+                                                            <switch test="`$service-data.vnfs.vnf[$i].vnf-data.vnf-topology.vnf-parameters-data.param_length == ''`">
+                                                                <outcome value='false'>
+                                                                    <for index='j' start='0' end='`$service-data.vnfs.vnf[$i].vnf-data.vnf-topology.vnf-parameters-data.param_length`' >
+                                                                        <block atomic="true">
+                                                                            <set>
+                                                                                <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$tmp.vnf_counter].param[$tmp.pnum].name`' value="`$service-data.vnfs.vnf[$i].vnf-data.vnf-topology.vnf-parameters-data.param[$j].name`"/>
+                                                                                <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$tmp.vnf_counter].param[$tmp.pnum].value`' value="`$service-data.vnfs.vnf[$i].vnf-data.vnf-topology.vnf-parameters-data.param[$j].value`"/>
+                                                                                <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$tmp.vnf_counter].param[$tmp.pnum].resource-resolution-data.status`' value="`$service-data.vnfs.vnf[$i].vnf-data.vnf-topology.vnf-parameters-data.param[$j].resource-resolution-data.status`"/>
+                                                                                <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$tmp.vnf_counter].param[$tmp.pnum].resource-resolution-data.capability-name`' value="`$service-data.vnfs.vnf[$i].vnf-data.vnf-topology.vnf-parameters-data.param[$j].resource-resolution-data.capability-name`"/>
+                                                                                <parameter name='tmp.prnum' value='0' />
+                                                                            </set>
+                                                                            <switch test="`$service-data.vnfs.vnf[$i].vnf-data.vnf-topology.vnf-parameters-data.param[$j].resource-resolution-data.resource-key_length == ''`">
+                                                                                <outcome value='false'>
+                                                                                    <for index='k' start='0' end='`$service-data.vnfs.vnf[$i].vnf-data.vnf-topology.vnf-parameters-data.param[$j].resource-resolution-data.resource-key_length`' >
+                                                                                        <set>
+                                                                                            <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$tmp.vnf_counter].param[$tmp.pnum].resource-resolution-data.resource-key[$tmp.prnum].name`' value="`$service-data.vnfs.vnf[$i].vnf-data.vnf-topology.vnf-parameters-data.param[$j].resource-resolution-data.resource-key[$k].name`"/>
+                                                                                            <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$tmp.vnf_counter].param[$tmp.pnum].resource-resolution-data.resource-key[$tmp.prnum].value`' value="`$service-data.vnfs.vnf[$i].vnf-data.vnf-topology.vnf-parameters-data.param[$j].resource-resolution-data.resource-key[$k].value`"/>
+                                                                                            <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$tmp.vnf_counter].param[$tmp.pnum].resource-resolution-data.resource-key_length`' value='`$tmp.prnum + 1`' />
+                                                                                            <parameter name='tmp.prnum' value='`$tmp.prnum + 1`' />
+                                                                                        </set>
+                                                                                    </for>
+                                                                                </outcome>
+                                                                            </switch>
+                                                                            <set>
+                                                                                <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$tmp.vnf_counter].param_length`' value='`$tmp.pnum + 1`' />
+                                                                                <parameter name='tmp.pnum' value='`$tmp.pnum + 1`' />
+                                                                            </set>
+                                                                        </block>
+                                                                    </for>
+                                                                </outcome>
+                                                            </switch>
+                                                            <switch test="`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module_length == ''`">
+                                                                <outcome value='false'>
+                                                                    <for index='ln' start='0' end='`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module_length`' >
+                                                                        <switch test="`$vnf-get-resource-request-input.vnf[$ll].vf-module_length == ''`">
+                                                                            <outcome value='false'>
+                                                                                <for index='jj' start='0' end='`$vnf-get-resource-request-input.vnf[$ll].vf-module_length`' >
+                                                                                    <switch test='`$vnf-get-resource-request-input.vnf[$ll].vf-module[$jj].vf-module-id == $service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module[$ln].vf-module-id`'>
+                                                                                        <outcome value='true'>
+                                                                                            <block atomic="true">
+                                                                                                <set>
+                                                                                                    <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$tmp.vnf_counter].vf-module[$tmp.vf_counter].vf-module-id`' value="`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module[$ln].vf-module-id`"/>
+                                                                                                    <parameter name="tmp.vfpnum" value='0'/>
+                                                                                                </set>
+                                                                                                <for index='m' start='0' end='`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module[$ln].vf-module-data.vf-module-topology.vf-module-parameters.param_length`' >
+                                                                                                    <block atomic="true">
+                                                                                                        <set>
+                                                                                                            <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$tmp.vnf_counter].vf-module[$tmp.vf_counter].param[$tmp.vfpnum].name`' value="`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module[$ln].vf-module-data.vf-module-topology.vf-module-parameters.param[$m].name`"/>
+                                                                                                            <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$tmp.vnf_counter].vf-module[$tmp.vf_counter].param[$tmp.vfpnum].value`' value="`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module[$ln].vf-module-data.vf-module-topology.vf-module-parameters.param[$m].value`"/>
+                                                                                                            <parameter name='tmp.pvnfrnum' value='0' />
+                                                                                                        </set>
+                                                                                                        <switch test="`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module[$ln].vf-module-data.vf-module-topology.vf-module-parameters.param[$m].resource-resolution-data.resource-key_length == ''`">
+                                                                                                            <outcome value='false'>
+                                                                                                                <for index='n' start='0' end='`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module[$ln].vf-module-data.vf-module-topology.vf-module-parameters.param[$m].resource-resolution-data.resource-key_length`' >
+                                                                                                                    <set>
+                                                                                                                        <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$tmp.vnf_counter].vf-module[$tmp.vf_counter].param[$tmp.vfpnum].resource-resolution-data.resource-key[$tmp.pvnfrnum].name`' value="`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module[$ln].vf-module-data.vf-module-topology.vf-module-parameters.param[$m].resource-resolution-data.resource-key[$n].name`"/>
+                                                                                                                        <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$tmp.vnf_counter].vf-module[$tmp.vf_counter].param[$tmp.vfpnum].resource-resolution-data.resource-key[$tmp.pvnfrnum].value`' value="`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module[$ln].vf-module-data.vf-module-topology.vf-module-parameters.param[$m].resource-resolution-data.resource-key[$n].value`"/>
+                                                                                                                        <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$tmp.vnf_counter].vf-module[$tmp.vf_counter].param[$tmp.vfpnum].resource-resolution-data.resource-key_length`' value='`$tmp.pvnfrnum + 1`' />
+                                                                                                                        <parameter name='tmp.pvnfrnum' value='`$tmp.pvnfrnum + 1`' />
+                                                                                                                    </set>
+                                                                                                                </for>
+                                                                                                            </outcome>
+                                                                                                        </switch>
+                                                                                                        <set>
+                                                                                                            <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$tmp.vnf_counter].vf-module[$tmp.vf_counter].param_length`' value='`$tmp.vfpnum + 1`' />
+                                                                                                            <parameter name='tmp.vfpnum' value='`$tmp.vfpnum + 1`' />
+                                                                                                        </set>
+                                                                                                    </block>
+                                                                                                </for>
+                                                                                            </block>
+                                                                                        </outcome>
+                                                                                    </switch>
+                                                                                </for>
+                                                                            </outcome>
+                                                                            <outcome value='true'>
+                                                                                <block atomic="true">
+                                                                                    <set>
+                                                                                        <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$tmp.vnf_counter].vf-module[$tmp.vf_counter].vf-module-id`' value="`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module[$ln].vf-module-id`"/>
+                                                                                        <parameter name="tmp.vfpnum" value='0'/>
+                                                                                    </set>
+                                                                                    <for index='m' start='0' end='`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module[$ln].vf-module-data.vf-module-topology.vf-module-parameters.param_length`' >
+                                                                                        <block atomic="true">
+                                                                                            <set>
+                                                                                                <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$tmp.vnf_counter].vf-module[$tmp.vf_counter].param[$tmp.vfpnum].name`' value="`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module[$ln].vf-module-data.vf-module-topology.vf-module-parameters.param[$m].name`"/>
+                                                                                                <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$tmp.vnf_counter].vf-module[$tmp.vf_counter].param[$tmp.vfpnum].value`' value="`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module[$ln].vf-module-data.vf-module-topology.vf-module-parameters.param[$m].value`"/>
+                                                                                                <parameter name='tmp.pvnfrnum' value='0' />
+                                                                                            </set>
+                                                                                            <switch test="`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module[$ln].vf-module-data.vf-module-topology.vf-module-parameters.param[$m].resource-resolution-data.resource-key_length == ''`">
+                                                                                                <outcome value='false'>
+                                                                                                    <for index='n' start='0' end='`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module[$ln].vf-module-data.vf-module-topology.vf-module-parameters.param[$m].resource-resolution-data.resource-key_length`' >
+                                                                                                        <set>
+                                                                                                            <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$tmp.vnf_counter].vf-module[$tmp.vf_counter].param[$tmp.vfpnum].resource-resolution-data.resource-key[$tmp.pvnfrnum].name`' value="`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module[$ln].vf-module-data.vf-module-topology.vf-module-parameters.param[$m].resource-resolution-data.resource-key[$n].name`"/>
+                                                                                                            <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$tmp.vnf_counter].vf-module[$tmp.vf_counter].param[$tmp.vfpnum].resource-resolution-data.resource-key[$tmp.pvnfrnum].value`' value="`$service-data.vnfs.vnf[$i].vnf-data.vf-modules.vf-module[$ln].vf-module-data.vf-module-topology.vf-module-parameters.param[$m].resource-resolution-data.resource-key[$n].value`"/>
+                                                                                                            <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$tmp.vnf_counter].vf-module[$tmp.vf_counter].param[$tmp.vfpnum].resource-resolution-data.resource-key_length`' value='`$tmp.pvnfrnum + 1`' />
+                                                                                                            <parameter name='tmp.pvnfrnum' value='`$tmp.pvnfrnum + 1`' />
+                                                                                                        </set>
+                                                                                                    </for>
+                                                                                                </outcome>
+                                                                                            </switch>
+                                                                                            <set>
+                                                                                                <parameter name='`vnf-get-resource-request-output.vnf-get-resource-response-information.vnf[$tmp.vnf_counter].vf-module[$tmp.vf_counter].param_length`' value='`$tmp.vfpnum + 1`' />
+                                                                                                <parameter name='tmp.vfpnum' value='`$tmp.vfpnum + 1`' />
+                                                                                            </set>
+                                                                                        </block>
+                                                                                    </for>
+                                                                                </block>
+                                                                            </outcome>
+                                                                        </switch>
+                                                                    </for>
+                                                                </outcome>
+                                                            </switch>
+                                                            <set>
+                                                                <parameter name='vnf-get-resource-request-output.vnf-get-resource-response-information.vnf_length' value='`$tmp.vnf_counter + 1`' />
+                                                                <parameter name='tmp.vnf_counter' value='`$tmp.vnf_counter + 1`' />
+                                                            </set>
+                                                        </block>
+                                                    </outcome>
+                                                </switch>
+                                            </block>
+                                        </for>
+                                    </outcome>
+                                </switch>
+                            </block>
+                        </for>
+                    </block>
+                </outcome>
+            </switch>
+            <return status="success">
+                <parameter name="error-code" value="200" />
+            </return>
+        </block>
+    </method>
+</service-logic>

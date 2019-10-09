@@ -1,0 +1,36 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='getpathsegment-topology-operation' mode='sync'>
+        <block>
+            <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                <parameter name='contextPrefix' value='prop' />
+            </execute>
+            <call module='GENERIC-RESOURCE-API' rpc='validate-getpathsegment-input' mode='sync' ></call>
+            <set>
+                <parameter name='service-data.sdnc-request-header.' value='`$getpathsegment-topology-operation-input.sdnc-request-header.`' />
+                <parameter name='service-data.request-information.' value='`$getpathsegment-topology-operation-input.request-information.`' />
+                <parameter name='service-data.service-information.' value='`$getpathsegment-topology-operation-input.service-information.`' />
+                <parameter name='service-data.service-request-input.' value='`$getpathsegment-topology-operation-input.service-request-input.`' />
+            </set>
+            <switch test='`$getpathsegment-topology-operation-input.sdnc-request-header.svc-action`'>
+                <outcome value='create'>
+                    <call module='GENERIC-RESOURCE-API' rpc='getpathsegment-topology-operation-create' mode='sync' ></call>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`$getpathsegment-topology-operation-input.sdnc-request-header.svc-action + ' is not a valid svc-action'`" />
+                    </return>
+                </outcome>
+            </switch>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="`$error-message`" />
+            </return>
+        </block>
+    </method>
+</service-logic>

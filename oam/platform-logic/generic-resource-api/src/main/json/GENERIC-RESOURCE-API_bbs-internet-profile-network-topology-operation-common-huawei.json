@@ -1,0 +1,873 @@
+[
+    {
+        "id": "1005a4d7.cdc89b",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 157.03125,
+        "y": 337.9999974966049,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "84618843.f74f18"
+            ]
+        ]
+    },
+    {
+        "id": "84618843.f74f18",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 465.03089904785156,
+        "y": 338.0000194311142,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "39d6495c.2a8966"
+            ]
+        ]
+    },
+    {
+        "id": "39d6495c.2a8966",
+        "type": "method",
+        "name": "method:bbs-internet-profile-network-topology-operation-common-huawei",
+        "xml": "<method rpc='bbs-internet-profile-network-topology-operation-common-huawei' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 463.0309143066406,
+        "y": 558.0000966787338,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "bc585204.23434"
+            ]
+        ]
+    },
+    {
+        "id": "bc585204.23434",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 887.0311126708984,
+        "y": 557.0000966787338,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "641b9dc3.c76d44",
+                "22e9e7f6.319e28",
+                "5806343e.90d4bc",
+                "ff7e2b0b.240d18"
+            ]
+        ]
+    },
+    {
+        "id": "641b9dc3.c76d44",
+        "type": "call",
+        "name": "call:validate-bbs-network-input-parameters",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='validate-bbs-network-input-parameters' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1353.0312805175781,
+        "y": 236.00000703334808,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "22e9e7f6.319e28",
+        "type": "set",
+        "name": "set:variables",
+        "xml": "<set>\n<parameter name='network-input-parameters.' value='`$network-topology-operation-input.network-request-input.network-input-parameters.`' />\n<parameter name='prop.sdncRestApi.thirdpartySdnc.url' value='http://172.30.0.121:5000' />\n<parameter name='prop.bbs.service_id' value='`$network-topology-operation-input.service-information.service-id`' />\n\n",
+        "comments": "",
+        "x": 1243.03178024292,
+        "y": 342.00020349025726,
+        "z": "b5d9a62e.6044f8",
+        "wires": []
+    },
+    {
+        "id": "5806343e.90d4bc",
+        "type": "execute",
+        "name": "excute:readProperties",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >\n    <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />\n    <parameter name='contextPrefix' value='prop' />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1270.03125,
+        "y": 452.1111682653427,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ff7e2b0b.240d18",
+        "type": "for",
+        "name": "for:network-input-paramters",
+        "xml": "<for index='idx' start='0' end='`$network-input-parameters.param_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1286.5316162109375,
+        "y": 551.0001701116562,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "405ee64e.c6f528"
+            ]
+        ]
+    },
+    {
+        "id": "87370c41.174ad",
+        "type": "switchNode",
+        "name": "switch:ip_remote_id",
+        "xml": "<switch test=\"`$network-input-parameters.param[$idx].name == 'ip_remote_id'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1883.5316772460938,
+        "y": 332.0002044439316,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "6f712c2f.00fd94"
+            ]
+        ]
+    },
+    {
+        "id": "6f712c2f.00fd94",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2087.531597137451,
+        "y": 332.0001758337021,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "1531c27c.bf6ace"
+            ]
+        ]
+    },
+    {
+        "id": "82c53c1.cbe2cc",
+        "type": "set",
+        "name": "set:remote_id",
+        "xml": "<set>\n<parameter name='prop.bbs.remote_id' value='`$network-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 2806.5319595336914,
+        "y": 325.60026013851166,
+        "z": "b5d9a62e.6044f8",
+        "wires": []
+    },
+    {
+        "id": "405ee64e.c6f528",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1532.5316581726074,
+        "y": 550.000178694725,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "87370c41.174ad",
+                "c3b38917.be7dd8",
+                "9df0c6fb.c3cff8",
+                "c04f9f0a.fdecd",
+                "70d3b64e.02f668",
+                "518351b3.5bba",
+                "3d4326b7.055a3a",
+                "363ebd91.fb5852"
+            ]
+        ]
+    },
+    {
+        "id": "c3b38917.be7dd8",
+        "type": "switchNode",
+        "name": "switch:ont_sn",
+        "xml": "<switch test=\"`$network-input-parameters.param[$idx].name == 'ont_sn'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1883.383472442627,
+        "y": 393.0002063512802,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "fcb34afe.c01578"
+            ]
+        ]
+    },
+    {
+        "id": "fcb34afe.c01578",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2086.3833751678467,
+        "y": 393.0002702474594,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "b65719a8.25dce8"
+            ]
+        ]
+    },
+    {
+        "id": "1cf31c48.ca8d04",
+        "type": "set",
+        "name": "set:ont_sn",
+        "xml": "<set>\n<parameter name='prop.bbs.ont_sn' value='`$network-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 2805.384265899658,
+        "y": 387.6003249883652,
+        "z": "b5d9a62e.6044f8",
+        "wires": []
+    },
+    {
+        "id": "9df0c6fb.c3cff8",
+        "type": "switchNode",
+        "name": "switch:c_vlan",
+        "xml": "<switch test=\"`$network-input-parameters.param[$idx].name == 'c_vlan'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1878.3837280273438,
+        "y": 752.0003808736801,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "9f06e43c.6bf558"
+            ]
+        ]
+    },
+    {
+        "id": "9f06e43c.6bf558",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2081.383586883545,
+        "y": 752.0003923177719,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "6d16f565.8a456c"
+            ]
+        ]
+    },
+    {
+        "id": "da1647b1.e6b208",
+        "type": "set",
+        "name": "set:c_vlan",
+        "xml": "<set>\n<parameter name='prop.bbs.c_vlan' value='`$network-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 2800.38427734375,
+        "y": 748.6004413366318,
+        "z": "b5d9a62e.6044f8",
+        "wires": []
+    },
+    {
+        "id": "c04f9f0a.fdecd",
+        "type": "switchNode",
+        "name": "switch:s_vlan",
+        "xml": "<switch test=\"`$network-input-parameters.param[$idx].name == 's_vlan'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1873.3837356567383,
+        "y": 695.2226079702377,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "c02cb5b5.2a9368"
+            ]
+        ]
+    },
+    {
+        "id": "c02cb5b5.2a9368",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2082.383620262146,
+        "y": 694.2226060628891,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "ad861806.5a6d18"
+            ]
+        ]
+    },
+    {
+        "id": "e8f72dd1.3f17a",
+        "type": "set",
+        "name": "set:s_vlan",
+        "xml": "<set>\n<parameter name='prop.bbs.s_vlan' value='`$network-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 2802.38419342041,
+        "y": 688.8226960897446,
+        "z": "b5d9a62e.6044f8",
+        "wires": []
+    },
+    {
+        "id": "1531c27c.bf6ace",
+        "type": "switchNode",
+        "name": "switch:ip_remote_id value",
+        "xml": "<switch test='`$network-input-parameters.param[$idx].value`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2298.531597137451,
+        "y": 331.0002063512802,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "ead29df7.edff2",
+                "7088f31b.2c3bac"
+            ]
+        ]
+    },
+    {
+        "id": "7088f31b.2c3bac",
+        "type": "outcome",
+        "name": "Other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2599.5320053100586,
+        "y": 325.0002979040146,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "82c53c1.cbe2cc"
+            ]
+        ]
+    },
+    {
+        "id": "b65719a8.25dce8",
+        "type": "switchNode",
+        "name": "switch:ont_sn value",
+        "xml": "<switch test='`$network-input-parameters.param[$idx].value`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2298.531597137451,
+        "y": 393.0002063512802,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "ead29df7.edff2",
+                "693a2d60.620f14"
+            ]
+        ]
+    },
+    {
+        "id": "693a2d60.620f14",
+        "type": "outcome",
+        "name": "Other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2601.5320053100586,
+        "y": 388.0002979040146,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "1cf31c48.ca8d04"
+            ]
+        ]
+    },
+    {
+        "id": "6d16f565.8a456c",
+        "type": "switchNode",
+        "name": "switch:c_vlan value",
+        "xml": "<switch test='`$network-input-parameters.param[$idx].value`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2296.53178024292,
+        "y": 753.0003312826157,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "ead29df7.edff2",
+                "c393438f.bba03"
+            ]
+        ]
+    },
+    {
+        "id": "c393438f.bba03",
+        "type": "outcome",
+        "name": "Other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2600.5323791503906,
+        "y": 750.000425696373,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "da1647b1.e6b208"
+            ]
+        ]
+    },
+    {
+        "id": "ad861806.5a6d18",
+        "type": "switchNode",
+        "name": "switch:s_vlan value",
+        "xml": "<switch test='`$network-input-parameters.param[$idx].value`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2295.53178024292,
+        "y": 694.0002912282944,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "ead29df7.edff2",
+                "bcb8e5a5.9e5928"
+            ]
+        ]
+    },
+    {
+        "id": "bcb8e5a5.9e5928",
+        "type": "outcome",
+        "name": "Other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2598.5321884155273,
+        "y": 690.0003827810287,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "e8f72dd1.3f17a"
+            ]
+        ]
+    },
+    {
+        "id": "ead29df7.edff2",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2611.531982421875,
+        "y": 168.00020730495453,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "b35dde56.d6c17"
+            ]
+        ]
+    },
+    {
+        "id": "70d3b64e.02f668",
+        "type": "switchNode",
+        "name": "switch:ip_service_type",
+        "xml": "<switch test=\"`$network-input-parameters.param[$idx].name == 'ip_service_type'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1880.364860534668,
+        "y": 453.00010430812836,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "920a7410.841ae8"
+            ]
+        ]
+    },
+    {
+        "id": "920a7410.841ae8",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2089.3647451400757,
+        "y": 452.0001024007797,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "a417f2d7.b944f"
+            ]
+        ]
+    },
+    {
+        "id": "5db34f7f.78458",
+        "type": "set",
+        "name": "set:service_type",
+        "xml": "<set>\n<parameter name='prop.bbs.service_type' value='`$network-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 2809.36531829834,
+        "y": 446.6001924276352,
+        "z": "b5d9a62e.6044f8",
+        "wires": []
+    },
+    {
+        "id": "a417f2d7.b944f",
+        "type": "switchNode",
+        "name": "switch:ip_service_type value",
+        "xml": "<switch test='`$network-input-parameters.param[$idx].value`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2302.5129051208496,
+        "y": 451.777787566185,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "2cc279ab.a0af76",
+                "ead29df7.edff2"
+            ]
+        ]
+    },
+    {
+        "id": "2cc279ab.a0af76",
+        "type": "outcome",
+        "name": "Other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2605.513313293457,
+        "y": 447.7778791189194,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "5db34f7f.78458"
+            ]
+        ]
+    },
+    {
+        "id": "518351b3.5bba",
+        "type": "switchNode",
+        "name": "switch:ip_rg_mac_addr",
+        "xml": "<switch test=\"`$network-input-parameters.param[$idx].name == 'ip_rg_mac_addr'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1878.364860534668,
+        "y": 513.000106215477,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "8a32b1ef.5d1bd"
+            ]
+        ]
+    },
+    {
+        "id": "8a32b1ef.5d1bd",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2087.3647451400757,
+        "y": 512.0001043081284,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "d637aef8.5a4c4"
+            ]
+        ]
+    },
+    {
+        "id": "201d0bf8.38ef94",
+        "type": "set",
+        "name": "set:mac",
+        "xml": "<set>\n<parameter name='prop.bbs.mac' value='`$network-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 2796.365234375,
+        "y": 506.6002343893051,
+        "z": "b5d9a62e.6044f8",
+        "wires": []
+    },
+    {
+        "id": "d637aef8.5a4c4",
+        "type": "switchNode",
+        "name": "switch:ip_rg_mac_addr value",
+        "xml": "<switch test='`$network-input-parameters.param[$idx].value`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2300.5129051208496,
+        "y": 511.77778947353363,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "2891a7be.4e6178",
+                "ead29df7.edff2"
+            ]
+        ]
+    },
+    {
+        "id": "2891a7be.4e6178",
+        "type": "outcome",
+        "name": "Other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2603.513313293457,
+        "y": 507.777881026268,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "201d0bf8.38ef94"
+            ]
+        ]
+    },
+    {
+        "id": "363ebd91.fb5852",
+        "type": "switchNode",
+        "name": "switch:ip_downstream_speed",
+        "xml": "<switch test=\"`$network-input-parameters.param[$idx].name == 'ip_downstream_speed'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1877.3650207519531,
+        "y": 635.0002111196518,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "bb19ad4b.b256c"
+            ]
+        ]
+    },
+    {
+        "id": "bb19ad4b.b256c",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2086.364905357361,
+        "y": 634.0002092123032,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "fdc80625.9b6288"
+            ]
+        ]
+    },
+    {
+        "id": "541d49b3.202258",
+        "type": "set",
+        "name": "set:down_speed",
+        "xml": "<set>\n<parameter name='prop.bbs.down_speed' value='`$network-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 2806.365478515625,
+        "y": 628.6002992391586,
+        "z": "b5d9a62e.6044f8",
+        "wires": []
+    },
+    {
+        "id": "fdc80625.9b6288",
+        "type": "switchNode",
+        "name": "switch:ip_downstream_speed value",
+        "xml": "<switch test='`$network-input-parameters.param[$idx].value`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2299.5130653381348,
+        "y": 633.7778943777084,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "6796c19d.201ef",
+                "ead29df7.edff2"
+            ]
+        ]
+    },
+    {
+        "id": "6796c19d.201ef",
+        "type": "outcome",
+        "name": "Other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2602.513473510742,
+        "y": 629.7779859304428,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "541d49b3.202258"
+            ]
+        ]
+    },
+    {
+        "id": "f9293ec6.f63f5",
+        "type": "switchNode",
+        "name": "switch:service_id",
+        "xml": "<switch test=\"`$network-input-parameters.param[$idx].name == 'service_id'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1888.3647117614746,
+        "y": 274.0000089406967,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "5b9ff78a.e4ef68"
+            ]
+        ]
+    },
+    {
+        "id": "5b9ff78a.e4ef68",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2092.364631652832,
+        "y": 273.9999803304672,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "bd60c3c1.753f3"
+            ]
+        ]
+    },
+    {
+        "id": "666554a.9b343ac",
+        "type": "set",
+        "name": "set:service_id",
+        "xml": "<set>\n<parameter name='prop.bbs.service_id' value='`$network-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 2811.3649940490723,
+        "y": 267.6000646352768,
+        "z": "b5d9a62e.6044f8",
+        "wires": []
+    },
+    {
+        "id": "bd60c3c1.753f3",
+        "type": "switchNode",
+        "name": "switch:service_id value",
+        "xml": "<switch test='`$network-input-parameters.param[$idx].value`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2303.364631652832,
+        "y": 273.00001084804535,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "db0298c0.2da528"
+            ]
+        ]
+    },
+    {
+        "id": "db0298c0.2da528",
+        "type": "outcome",
+        "name": "Other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2604.3650398254395,
+        "y": 267.0001024007797,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "666554a.9b343ac"
+            ]
+        ]
+    },
+    {
+        "id": "3d4326b7.055a3a",
+        "type": "switchNode",
+        "name": "switch:ip_upstream_speed",
+        "xml": "<switch test=\"`$network-input-parameters.param[$idx].name == 'ip_upstream_speed'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1877.3651809692383,
+        "y": 574.0001882314682,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "b44522a4.559ad"
+            ]
+        ]
+    },
+    {
+        "id": "b44522a4.559ad",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2086.365065574646,
+        "y": 573.0001863241196,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "dd2d9b7b.ed18c8"
+            ]
+        ]
+    },
+    {
+        "id": "d48daabb.434658",
+        "type": "set",
+        "name": "set:up_speed",
+        "xml": "<set>\n<parameter name='prop.bbs.up_speed' value='`$network-input-parameters.param[$idx].value`' />\n",
+        "comments": "",
+        "x": 2806.36563873291,
+        "y": 567.600276350975,
+        "z": "b5d9a62e.6044f8",
+        "wires": []
+    },
+    {
+        "id": "dd2d9b7b.ed18c8",
+        "type": "switchNode",
+        "name": "switch:ip_upstream_speed value",
+        "xml": "<switch test='`$network-input-parameters.param[$idx].value`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2299.51322555542,
+        "y": 572.7778714895248,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "45350699.e53268",
+                "ead29df7.edff2"
+            ]
+        ]
+    },
+    {
+        "id": "45350699.e53268",
+        "type": "outcome",
+        "name": "Other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2602.5136337280273,
+        "y": 568.7779630422592,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            [
+                "d48daabb.434658"
+            ]
+        ]
+    },
+    {
+        "id": "b35dde56.d6c17",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='ack-final' value='Y'/>\n<parameter name=\"error-code\" value=\"500\" />\n<parameter name=\"error-message\" value=\"`$network-input-parameters.param[$idx].name  +' value is null, please check it.'`\" />\n",
+        "comments": "",
+        "x": 2798.364501953125,
+        "y": 166.99999749660492,
+        "z": "b5d9a62e.6044f8",
+        "wires": []
+    },
+    {
+        "id": "b035a2d5.a72c7",
+        "type": "record",
+        "name": "log file",
+        "xml": " <record plugin=\"org.onap.ccsdk.sli.core.sli.recording.FileRecorder\">\n    <parameter name=\"file\" value=\"/opt/oak/logx.txt\" />\n    <parameter name=\"field1\" value=\"bbs-internet-profile-common\" />\n    <parameter name=\"field2\" value=\"`$prop.bbs.service_id`\" />\n    <parameter name=\"field3\" value=\"`$prop.bbs.remote_id`\" />\n    <parameter name=\"field4\" value=\"`$prop.bbs.ont_sn`\" />\n    <parameter name=\"field5\" value=\"`$prop.bbs.service_type`\" />\n    <parameter name=\"field6\" value=\"`$prop.bbs.mac`\" />\n    <parameter name=\"field7\" value=\"`$prop.bbs.up_speed`\" />\n    <parameter name=\"field8\" value=\"`$prop.bbs.down_speed`\" />\n    <parameter name=\"field9\" value=\"`$prop.bbs.s_vlan`\" />\n    <parameter name=\"field10\" value=\"`$prop.bbs.c_vlan`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1221.253345489502,
+        "y": 657.5555566549301,
+        "z": "b5d9a62e.6044f8",
+        "wires": [
+            []
+        ]
+    }
+]

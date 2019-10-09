@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>SDN-C AdminPortal</title>
+<script class="init">
+    $(document).ready(function() {
+    $('#resource_rule').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+
+</head>
+<body>
+
+<div class="well wel-sm">
+<h3>Resource Rule</h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+
+	 <% if(priv == 'A'){ %>
+        <div class="actions" style="padding:15px 0px;">
+            <button class="btn btn-primary" data-toggle="modal" data-target="#add_resource_rule">
+            Add Resource Rule
+            </button>
+            </div>
+    <% } %>
+
+	<table id="resource_rule" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+		  <th>*ID</th>
+          <th>*Name</th>
+		  <th>*End Point Position</th>
+          <th>*Service Expression</th>
+          <th>*Equipment Level</th>
+          <th>*Equipment Expression</th>
+          <th>*Allocation Expression</th>
+          <th>*Soft Limit Expression</th>
+          <th>*Hard Limit Expression</th>
+          <th>*Service Model</th>
+		   <% if(priv == 'A'){ %>
+          <th>Action</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+      <% rows.forEach( function(row) { %> 
+        <tr>
+            <td><%= row.resource_rule_id %></td>
+            <td><%= row.resource_name %></td>
+            <td><%= row.end_point_position %></td>
+            <td><%= row.service_expression %></td>
+            <td><%= row.equipment_level %></td>
+            <td><%= row.equipment_expression %></td>
+            <td><%= row.allocation_expression %></td>
+            <td><%= row.soft_limit_expression %></td>
+            <td><%= row.hard_limit_expression %></td>
+            <td><%= row.service_model %></td>
+			<% if(priv == 'A') { %>
+            <td>
+				<button type="button" class="btn btn-default btn-xs"
+                    onclick="updateResourceRule('<%=row.resource_rule_id %>','<%= row.resource_name %>','<%= row.end_point_position %>','<%= row.service_expression %>','<%= row.equipment_level %>','<%= row.equipment_expression %>','<%= row.allocation_expression %>','<%= row.soft_limit_expression %>', '<%= row.hard_limit_expression %>','<%= row.service_model %>');">Update</button>
+				<button type="button" class="btn btn-default btn-xs"
+                   onclick="deleteResourceRule('<%= row.resource_rule_id %>');">Delete</button>
+            </td>
+            <% } %>
+
+        </tr>
+    <% }); %>
+      </tbody>
+    </table>
+
+</div>
+
+<% include ../partials/resource_rule %>
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+<script type="text/javascript">
+function submitResourceRule(form)
+{
+    var errorMsg='';
+    var resource_name = '';
+	var end_point_position = '';
+	var service_expression = '';
+	var equipment_level = '';
+	var equipment_expression = '';
+	var allocation_expression = '';
+	var soft_limit_expression = '';
+	var hard_limit_expression = '';
+	var service_model = '';
+
+    if ( form.name == 'addForm' )
+    {
+		resource_name = form.nf_resource_name;
+		end_point_position = form.nf_end_point_position;
+		service_expression = form.nf_service_expression;
+		equipment_level = form.nf_equipment_level;
+		allocation_expression = form.nf_allocation_expression;
+		soft_limit_expression = form.nf_soft_limit_expression;
+		hard_limit_expression = form.nf_hard_limit_expression;
+		service_model = form.nf_service_model;
+    }
+    else
+    {
+		resource_name = form.uf_resource_name;
+		end_point_position = form.uf_end_point_position;
+		service_expression = form.uf_service_expression;
+		equipment_level = form.uf_equipment_level;
+		allocation_expression = form.uf_allocation_expression;
+		soft_limit_expression = form.uf_soft_limit_expression;
+		hard_limit_expression = form.uf_hard_limit_expression;
+		service_model = form.uf_service_model;
+    }
+
+
+    if ( (resource_name.value == null) || (resource_name.value == "") || isblank(resource_name.value) )
+    {
+        errorMsg += 'Resource Name is required.<br>';
+    }
+    if ( (end_point_position.value == null) || (end_point_position.value == "") || isblank(end_point_position.value) )
+    {
+        errorMsg += 'End Point Position is required.<br>';
+    }
+    if ( (service_expression.value == null) || (service_expression.value == "") || isblank(service_expression.value) ){
+        errorMsg += 'Service Expression is required.<br>';
+    }
+    if ( (equipment_level.value == null) || (equipment_level.value == "") || isblank(equipment_level.value) ){
+        errorMsg += 'Equipment Level is required.<br>';
+    }
+    if ( (allocation_expression.value == null) || (allocation_expression.value == "") || isblank(allocation_expression.value) ){
+        errorMsg += 'Allocation Expression is required.<br>';
+    }
+    if ( (soft_limit_expression.value == null) || (soft_limit_expression.value == "") || isblank(soft_limit_expression.value) ){
+        errorMsg += 'Soft Limit Expression is required.<br>';
+    }
+    if ( (hard_limit_expression.value == null) || (hard_limit_expression.value == "") || isblank(hard_limit_expression.value) ){
+        errorMsg += 'Hard Limit Expression is required.<br>';
+    }
+    if ( (service_model.value == null) || (service_model.value == "") || isblank(service_model.value) ){
+        errorMsg += 'Service Model is required.<br>';
+    }
+    if( errorMsg.length > 0 ) {
+        bootbox.alert(errorMsg);
+        return;
+    }
+    form.submit();
+}
+
+function updateResourceRule(resource_rule_id,resource_name,end_point_position,service_expression,equipment_level,equipment_expression,allocation_expression,soft_limit_expression,hard_limit_expression,service_model) {
+
+    document.getElementById('uf_resource_rule_id').value=resource_rule_id;
+    document.getElementById('uf_resource_name').value=resource_name;
+    document.getElementById('uf_end_point_position').value=end_point_position;
+    document.getElementById('uf_service_expression').value=service_expression;
+    document.getElementById('uf_equipment_level').value=equipment_level;
+    document.getElementById('uf_equipment_expression').value=equipment_expression;
+    document.getElementById('uf_allocation_expression').value=allocation_expression;
+    document.getElementById('uf_soft_limit_expression').value=soft_limit_expression;
+    document.getElementById('uf_hard_limit_expression').value=hard_limit_expression;
+    document.getElementById('uf_service_model').value=service_model;
+    document.getElementById('uf_key_resource_rule_id').value=resource_rule_id;
+
+    $('#update_resource_rule').modal('show');
+}
+
+function deleteResourceRule(resource_rule_id) {
+
+    bootbox.confirm({
+        message: "Are you sure you want to delete RESOURCE_RULE [" + resource_rule_id + "]",
+        callback: function(result) {
+            if ( result )
+            {
+				location.assign("/resalloc/deleteResourceRule?resource_rule_id=" + resource_rule_id);
+            }
+            return;
+        },
+        buttons: {
+            cancel: {
+                label: "Cancel"
+            },
+            confirm: {
+                label: "Yes"
+            }
+        }
+    });
+}
+
+</script>
+
+</body>
+</html>
+

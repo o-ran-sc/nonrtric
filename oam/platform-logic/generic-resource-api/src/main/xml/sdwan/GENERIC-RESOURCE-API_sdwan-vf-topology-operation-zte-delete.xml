@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<service-logic xmlns="http://www.onap.org/sdnc/svclogic" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.onap.org/sdnc/svclogic ./svclogic.xsd" module="GENERIC-RESOURCE-API" version="${project.version}">
+  <method rpc="wan-connection-topology-operation-delete" mode="sync"> 
+    <block atomic="true">
+      <switch test="`$network-topology-operation-input.network-information.network-id`"> 
+        <outcome value="">
+          <return status="failure"> 
+            <parameter name="error-code" value=""/>  
+            <parameter name="error-message" value="An error occured while generation allotted resource ID"/> 
+          </return>
+        </outcome>
+        <outcome value="Other"></outcome>
+      </switch>
+      <execute plugin="org.onap.ccsdk.sli.plugins.prop.PropertiesNode" method="readProperties"> 
+        <parameter name="fileName" value="%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties"/>  
+        <parameter name="contextPrefix" value="prop"/> 
+      </execute>
+      <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils" method="contains"> 
+        <parameter name="source" value="`$network-topology-operation-input.network-information.onap-model-information.model-name`"/>  
+        <parameter name="target" value="FC"/>  
+        <outcome value="true"> 
+          <block atomic="true">
+            <record plugin="org.onap.ccsdk.sli.core.sli.recording.FileRecorder"> 
+              <parameter name="file" value="/opt/opendaylight/current/data/log/svclogic.log"/>  
+              <parameter name="field1" value="__TIMESTAMP__"/>  
+              <parameter name="field2" value="wan-connection-topology-operation-delete"/>  
+              <parameter name="field3" value="`$network-topology-operation-input.network-information.onap-model-information.model-name + ' delete'`"/> 
+            </record>
+            <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" resource="connectivity" key="connectivity.connectivity-id = $network-topology-operation-input.network-information.network-id"></delete>
+            <set> 
+              <parameter name="service-data.networks.network_length" value="`$service-data.networks.network_length - 1`"/> 
+            </set>
+            <set> 
+              <parameter name="service-data.networks.network[$tmp.nidx]." value=""/> 
+            </set>
+            <set> 
+              <parameter name="networkId" value="`$network-topology-operation-input.network-information.network-id`"/>  
+              <parameter name="service-object-path" value="`'restconf/config/GENERIC-RESOURCE-API:services/service/'  + $network-topology-operation-input.service-information.service-instance-id  + '/service-data/service-topology/'` "/>
+            </set>
+          </block>
+        </outcome>
+        <outcome value="false"> 
+          <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils" method="contains"> 
+            <parameter name="source" value="`$network-topology-operation-input.network-information.onap-model-information.model-name`"/>  
+            <parameter name="target" value="FD"/>  
+            <outcome value="true"> 
+              <block atomic="true">
+                <record plugin="org.onap.ccsdk.sli.core.sli.recording.FileRecorder"> 
+                  <parameter name="file" value="/opt/opendaylight/current/data/log/svclogic.log"/>  
+                  <parameter name="field1" value="__TIMESTAMP__"/>  
+                  <parameter name="field2" value="wan-connection-topology-operation-delete"/>  
+                  <parameter name="field3" value="`$network-topology-operation-input.network-information.onap-model-information.model-name + ' delete'`"/> 
+                </record>
+                <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" resource="connectivity" key="connectivity.connectivity-id = $network-topology-operation-input.network-information.network-id"></delete>
+                <set> 
+                  <parameter name="service-data.networks.network_length" value="`$service-data.networks.network_length - 1`"/> 
+                </set>
+                <set> 
+                  <parameter name="service-data.networks.network[$tmp.nidx]." value=""/> 
+                </set>
+                <set> 
+                  <parameter name="networkId" value="`$network-topology-operation-input.network-information.network-id`"/>  
+                  <parameter name="service-object-path" value="`'restconf/config/GENERIC-RESOURCE-API:services/service/'  + $network-topology-operation-input.service-information.service-instance-id  + '/service-data/service-topology/'` "/>
+                </set>
+              </block>
+            </outcome>
+            <outcome value="false"> 
+              <block></block>
+            </outcome>
+          </execute>
+        </outcome>
+      </execute>
+      <return status="success"> 
+        <parameter name="ack-final-indicator" value="Y"/>  
+        <parameter name="error-code" value="200"/>  
+        <parameter name="error-message" value="`$error-message`"/> 
+      </return>
+    </block>
+  </method>
+</service-logic>

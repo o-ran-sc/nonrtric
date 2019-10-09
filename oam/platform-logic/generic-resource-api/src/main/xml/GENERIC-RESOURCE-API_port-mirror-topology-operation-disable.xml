@@ -1,0 +1,184 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='port-mirror-topology-operation-disable' mode='sync'>
+        <block atomic="true">
+            <set>
+                <parameter name='tmp.configuration-id' value='`$port-mirror-topology-operation-input.configuration-information.configuration-id`' />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                <parameter name='contextPrefix' value='prop' />
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$prop.restapi.pm-configuration`"/>
+                <parameter name="outputPath" value="tmp.pmc-url"/>
+                <parameter name="target" value="{configuration-id}"/>
+                <parameter name="replacement" value="`$tmp.configuration-id`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.pmc-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='GET' />
+                <parameter name="responsePrefix" value="pm-mdsal" />
+                <outcome value='success'>
+                    <switch test='`$pm-mdsal.port-mirror-configuration_length == 1`'>
+                        <outcome value='false'>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500' />
+                                <parameter name='error-message' value="`'Cannot find port-mirror-configuration ' + $tmp.configuration-id`" />
+                            </return>
+                        </outcome>
+                    </switch>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value="`'Cannot find port-mirror-configuration ' + $tmp.configuration-id`" />
+                    </return>
+                </outcome>
+            </execute>
+            <set>
+                <parameter name='pm.configuration-id' value='`$tmp.configuration-id`' />
+                <parameter name='pm.configuration-data.' value='`$pm-mdsal.port-mirror-configuration[0].configuration-data.`' />
+            </set>
+            <switch test="`$pm-mdsal.port-mirror-configuration[0].configuration-data.configuration-oper-status.order-status == 'Active'`">
+                <outcome value='false'>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value="`'Order status is ' + $mdsal-pmc.port-mirror-configuration[0].configuration-data.configuration-oper-status.order-status + ' but must be Active'`" />
+                    </return>
+                </outcome>
+            </switch>
+            <for index='idx' start='0' end='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map_length`' >
+                <switch test='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$idx].source-port-id
+  == $port-mirror-topology-operation-input.port-mirror-configuration-request-input.source-port.source-port-id`'>
+                    <outcome value='true'>
+                        <block atomic="true">
+                            <set>
+                                <parameter name='src-idx' value='`$idx`' />
+                            </set>
+                            <break/>
+                        </block>
+                    </outcome>
+                </switch>
+            </for>
+            <switch test='`$src-idx`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value="`'Unable to find source port ' + $port-mirror-topology-operation-input.port-mirror-configuration-request-input.source-port.source-port-id + ' in MD-SAL'`" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].dest-ip-addresses.ip-addresses.ipv4-address`'>
+                <outcome value='Other'>
+                    <set>
+                        <parameter name='tmp.analyzer.ip-address'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].dest-ip-addresses.ip-addresses.ipv4-address`' />
+                    </set>
+                </outcome>
+                <outcome value=''>
+                    <switch test='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].dest-ip-addresses.ip-addresses.ipv6-address`'>
+                        <outcome value='Other'>
+                            <set>
+                                <parameter name='tmp.analyzer.ip-address'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].dest-ip-addresses.ip-addresses.ipv6-address`' />
+                            </set>
+                        </outcome>
+                        <outcome value=''>
+                            <switch test='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].dest-ip-addresses.ip-addresses.vipv4-address`'>
+                                <outcome value='Other'>
+                                    <set>
+                                        <parameter name='tmp.analyzer.ip-address'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].dest-ip-addresses.ip-addresses.vipv4-address`' />
+                                    </set>
+                                </outcome>
+                                <outcome value=''>
+                                    <switch test='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].dest-ip-addresses.ip-addresses.vipv6-address`'>
+                                        <outcome value='Other'>
+                                            <set>
+                                                <parameter name='tmp.analyzer.ip-address'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].dest-ip-addresses.ip-addresses.vipv6-address`' />
+                                            </set>
+                                        </outcome>
+                                        <outcome value=''>
+                                            <return status='failure'>
+                                                <parameter name='error-code' value='500' />
+                                                <parameter name='error-message' value="`'No dest addresses stored for source port ' + $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-port-name`" />
+                                            </return>
+                                        </outcome>
+                                    </switch>
+                                </outcome>
+                            </switch>
+                        </outcome>
+                    </switch>
+                </outcome>
+            </switch>
+            <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                <parameter name='api-name' value='port-mirroring' />
+                <parameter name='api-action' value='disable' />
+                <parameter name='resp-prefix' value='contrailResp' />
+                <parameter name='display-name'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-port-name`' />
+                <parameter name='contrail-virtual-machine-interface-name'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-port-name`' />
+                <parameter name='contrail-virtual-machine-interface-id'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-port-id`' />
+                <parameter name='default-domain' value='default-domain' />
+                <parameter name='default-project'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.tenant`' />
+                <parameter name='traffic-direction' value='both' />
+                <parameter name='analyzer-ip-address'
+  value='`$tmp.analyzer.ip-address`' />
+                <parameter name='udp-port' value='8099' />
+                <parameter name='routing-instance'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.dest-network-fqdn`' />
+                <parameter name='local-preference' value='1' />
+                <parameter name='cloud-region-id'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.cloud-region-id`' />
+                <parameter name='cloud-owner'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.cloud-owner`' />
+                <outcome value='success'>
+                    <set>
+                        <parameter name='contrail-set[$src-idx]' value='true' />
+                    </set>
+                </outcome>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value="`'Failed to update policy in Contrail. '+ $contrailResp.resp-code + ':' +$contrailResp.resp-message `" />
+                    </return>
+                </outcome>
+            </execute>
+            <update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+   resource="l-interface"
+   key="cloud-region.cloud-region-id = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.cloud-region-id
+     AND cloud-region.cloud-owner = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.cloud-owner
+     AND tenant.tenant-id = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.tenant-id
+     AND vserver.vserver-id = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-vserver-id
+     AND l-interface.interface-name = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-port-name"
+   force="true" pfx="tmp.AnAI-data">
+                <parameter name="is-port-mirrored" value="false" />
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value="`'Failed to update l-interface object in AAI for interface ' + $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-port-name`" />
+                    </return>
+                </outcome>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value="`'Failed to update l-interface object in AAI for interface ' + $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-port-name`" />
+                    </return>
+                </outcome>
+            </update>
+            <return status='success'>
+                <parameter name='error-code' value='200' />
+                <parameter name='ack-final' value='Y' />
+            </return>
+        </block>
+    </method>
+</service-logic>

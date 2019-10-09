@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>SDN-C AdminPortal</title>
+<script class="init">
+    $(document).ready(function() {
+    $('#vm_networks').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+
+</head>
+<body>
+
+<div class="well well-sm">
+<h3>VM Networks </h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+
+	<% if (priv == 'A'){ %>
+	<div class="actions" style="padding:15px 0px;">
+    <button class="btn btn-primary btn-md" data-toggle="modal" data-target="#add_vm_network">
+      Add VM Network
+    </button>
+	</div>
+	<% } %>
+
+	<table id="vm_networks" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+		  <th>*VNF_TYPE</th>
+		  <th>*VM_TYPE</th>
+          <th>*NETWORK_ROLE</th>
+          <th>IP_COUNT</th>
+          <th>ASSIGN_IPS</th>
+          <th>ASSIGN_MACS</th>
+          <th>ASSIGN_FLOATING_IP</th>
+		  <% if(priv == 'A'){ %>
+          <th>Action</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+		<% rows.forEach( function(row) { %>
+        <tr>
+            <td><%= row.vnf_type %></td>
+            <td><%= row.vm_type %></td>
+            <td><%= row.network_role %></td>
+			<td><%= row.ip_count %></td>
+            <td><%= (row.assign_ips == '1') ? 'true' : 'false' %></td>
+            <td><%= (row.assign_macs == '1') ? 'true' : 'false' %></td>
+            <td><%= (row.assign_floating_ip == '1') ? 'true' : 'false' %></td>
+			<% if(priv == 'A' ) { %>
+            <td>
+				<button type="button" class="btn btn-default btn-xs"
+                   onclick="deleteVmNetwork('<%= row.vnf_type %>', '<%= row.vm_type %>', '<%= row.network_role %>');">Delete</button>
+            </td>
+            <% } %>
+        </tr>
+		<% }); %>
+      </tbody>
+    </table>
+
+	<% if(priv == 'A'){ %>
+	<div class="actions" style="padding:0px 25px;">
+	<form method="POST" action="/mobility/uploadVmNetworks" enctype="multipart/form-data">
+		<div class="form-group">
+    		<label for="dest">File input</label>
+    		<input name="filename" type="file" id="dest">
+    		<p class="help-block">Choose a file to upload.</p>
+  		</div>
+        <button type="button" class="btn btn-default"
+                onclick="uploadFile(this.form);">Upload File</button>
+	</form>
+	</div>
+	<% } %>
+</div>
+
+<% include ../partials/vm_networks %>
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+<script type="text/javascript">
+
+function addVmNetwork(form)
+{
+	var errorMsg='';
+	var vnf_type='';
+	var vm_type='';
+	var network_role='';
+	var ip_count = '';
+	var assign_ips='';
+	var assign_macs='';
+	var assign_floating_ip='';
+
+	if ( form.name == 'addForm' )
+	{
+		vnf_type = form.nf_vnf_type;
+		vm_type = form.nf_vm_type;
+		network_role = form.nf_network_role;
+		ip_count = form.nf_ip_count;
+		assign_ips = form.nf_assign_ips;
+		assign_macs = form.nf_assign_macs;
+		assign_floating_ip = form.nf_assign_floating_ip;
+	}
+
+	if ( (vnf_type.value == null) || (vnf_type.value == "") || isblank(vnf_type.value) )
+	{
+		errorMsg += 'VNF Type is required.<br>';
+	}
+	if ( (vm_type.value == null) || (vm_type.value == "") || isblank(vm_type.value) )
+	{
+		errorMsg += 'VM Type is required.<br>';
+	}
+	if ( (network_role.value == null) || (network_role.value == "") || isblank(network_role.value) ){
+		errorMsg += 'Network Role is required.<br>';
+	}
+	if( errorMsg.length > 0 ) {
+		bootbox.alert(errorMsg);
+		return;
+	}
+	if (ip_count.value.length >0 && !isDigit(ip_count.value) )
+    {
+        bootbox.alert('VM Count must be a number.');
+        return;
+    }
+	if (assign_ips.value == 'true' && ip_count.value.length == 0)
+    {
+        bootbox.alert("If ASSIGN IPS equals 'true', IP COUNT must be populated with a number.");
+        return;
+    }
+
+	form.submit();
+}
+
+function deleteVmNetwork(vnf_type,vm_type,network_role) {
+
+    bootbox.confirm({
+        message: "Are you sure you want to delete VM_NETWORK [" + vnf_type + "]" + "[" + vm_type + "][" + network_role + "]",
+        callback: function(result) {
+            if ( result )
+            {
+				location.assign("/mobility/deleteVmNetwork?vnf_type=" + vnf_type + "&vm_type=" + vm_type + "&network_role=" + network_role);
+
+            }
+            return;
+        },
+        buttons: {
+            cancel: {
+                label: "Cancel"
+            },
+            confirm: {
+                label: "Yes"
+            }
+        }
+    });
+}
+
+</script>
+
+</body>
+</html>
+

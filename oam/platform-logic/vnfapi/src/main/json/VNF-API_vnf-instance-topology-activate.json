@@ -1,0 +1,354 @@
+[
+    {
+        "id": "224ab88a.0adf58",
+        "type": "set",
+        "name": "set: order-status = Active",
+        "xml": "<set>\n\t<parameter name=\"vnf-instance-service-data.oper-status.order-status\" value=\"Active\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 423.33331298828125,
+        "y": 374.3888626098633,
+        "z": "76e70bd1.ad60c4",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ab9eb400.713038",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 170.33330535888672,
+        "y": 141.88887786865234,
+        "z": "76e70bd1.ad60c4",
+        "wires": [
+            [
+                "224ab88a.0adf58",
+                "c8ee6ab7.bac638",
+                "c0d479cd.b79348",
+                "34cb709c.929ed",
+                "f798ae57.6d47d",
+                "b8342ba1.d183f8",
+                "a8c37c05.42ceb",
+                "716ea0ca.5337a"
+            ]
+        ]
+    },
+    {
+        "id": "e7f31ebf.f0df3",
+        "type": "method",
+        "name": "method vnf-instance-topology-activate",
+        "xml": "<method rpc='vnf-instance-topology-activate' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 212.99999237060547,
+        "y": 86.0555419921875,
+        "z": "76e70bd1.ad60c4",
+        "wires": [
+            [
+                "ab9eb400.713038"
+            ]
+        ]
+    },
+    {
+        "id": "ef96001e.3e2e5",
+        "type": "service-logic",
+        "name": "VNF-API ${project.version}",
+        "module": "VNF-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='VNF-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 304.99996185302734,
+        "y": 39.05554962158203,
+        "z": "76e70bd1.ad60c4",
+        "wires": [
+            [
+                "e7f31ebf.f0df3"
+            ]
+        ]
+    },
+    {
+        "id": "5b8d2293.3efc3c",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 139.83330535888672,
+        "y": 38.888877868652344,
+        "z": "76e70bd1.ad60c4",
+        "wires": [
+            [
+                "ef96001e.3e2e5"
+            ]
+        ]
+    },
+    {
+        "id": "c8ee6ab7.bac638",
+        "type": "switchNode",
+        "name": "switch: order-status = PendingCreate",
+        "xml": "<switch test=\"`$vnf-instance-service-data.oper-status.order-status == PendingCreate`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 462.66668701171875,
+        "y": 270.72208404541016,
+        "z": "76e70bd1.ad60c4",
+        "wires": [
+            [
+                "2f2bb679.ddde5a"
+            ]
+        ]
+    },
+    {
+        "id": "2f2bb679.ddde5a",
+        "type": "other",
+        "name": "false",
+        "xml": "<outcome value='false'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 712.0000381469727,
+        "y": 271.05539321899414,
+        "z": "76e70bd1.ad60c4",
+        "wires": [
+            [
+                "caf23eef.2d6a7"
+            ]
+        ]
+    },
+    {
+        "id": "9112f66c.accf18",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='error-code' value='400'/>\n\t<parameter name='error-message' value='Invalid order-status'/>",
+        "comments": "",
+        "x": 1370.3331604003906,
+        "y": 270.0554447174072,
+        "z": "76e70bd1.ad60c4",
+        "wires": []
+    },
+    {
+        "id": "f798ae57.6d47d",
+        "type": "switchNode",
+        "name": "switch:vnf-instance-id   config == input",
+        "xml": "<switch test=\"`$vnf-instance-topology-operation-input.vnf-instance-request-information.vnf-instance-id == $vnf-instance-service-data.vnf-instance-id`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 456.1060485839844,
+        "y": 218.93431854248047,
+        "z": "76e70bd1.ad60c4",
+        "wires": [
+            [
+                "d6b1f417.d762b8"
+            ]
+        ]
+    },
+    {
+        "id": "d6b1f417.d762b8",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 684.5605239868164,
+        "y": 219.11613845825195,
+        "z": "76e70bd1.ad60c4",
+        "wires": [
+            [
+                "7f1082ca.4c62bc"
+            ]
+        ]
+    },
+    {
+        "id": "7f1082ca.4c62bc",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='error-code' value='400'/>\n\t<parameter name='error-message' value=\"`'vnf-instance-id = ' + $vnf-instance-topology-operation-input.vnf-instance-request-information.vnf-instance-id + ' not found in SDNC'`\"/>",
+        "comments": "",
+        "x": 837.6514663696289,
+        "y": 219.02524185180664,
+        "z": "76e70bd1.ad60c4",
+        "wires": []
+    },
+    {
+        "id": "c0d479cd.b79348",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n\t<parameter name=\"error-code\" value=\"200\" />",
+        "comments": "",
+        "x": 392.4444274902344,
+        "y": 595.0555191040039,
+        "z": "76e70bd1.ad60c4",
+        "wires": []
+    },
+    {
+        "id": "caf23eef.2d6a7",
+        "type": "switchNode",
+        "name": "switch: order-status = PendingUpdate",
+        "xml": "<switch test=\"`$vnf-instance-service-data.oper-status.order-status == PendingUpdate`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 962.9242324829102,
+        "y": 270.4798011779785,
+        "z": "76e70bd1.ad60c4",
+        "wires": [
+            [
+                "3d49c074.c55d4"
+            ]
+        ]
+    },
+    {
+        "id": "3d49c074.c55d4",
+        "type": "other",
+        "name": "false",
+        "xml": "<outcome value='false'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1205.3786392211914,
+        "y": 270.4797706604004,
+        "z": "76e70bd1.ad60c4",
+        "wires": [
+            [
+                "9112f66c.accf18"
+            ]
+        ]
+    },
+    {
+        "id": "26b3d7a2.652ae8",
+        "type": "comment",
+        "name": "once success is returned, operational-data gets saved",
+        "info": "",
+        "comments": "",
+        "x": 738.8510208129883,
+        "y": 555.9898414611816,
+        "z": "76e70bd1.ad60c4",
+        "wires": []
+    },
+    {
+        "id": "34cb709c.929ed",
+        "type": "set",
+        "name": "set: last-order-status = order-status",
+        "xml": "<set>\n\t<parameter name=\"vnf-instance-service-data.oper-status.last-order-status\" value=\"`$vnf-instance-service-data.oper-status.order-status`\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 456.4469909667969,
+        "y": 323.00257110595703,
+        "z": "76e70bd1.ad60c4",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1c5ee2ad.503e0d",
+        "type": "comment",
+        "name": "request-action = VNFActivateRequest, svc-action = activate",
+        "info": "",
+        "comments": "",
+        "x": 718.9443893432617,
+        "y": 78.22221183776855,
+        "z": "76e70bd1.ad60c4",
+        "wires": []
+    },
+    {
+        "id": "b8342ba1.d183f8",
+        "type": "set",
+        "name": "set: service-data = input",
+        "xml": "<set>\n\t<parameter name=\"vnf-instance-service-data.\" value=\"vnf-instance-topology-operation-input.\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 420.33331298828125,
+        "y": 509.4444351196289,
+        "z": "76e70bd1.ad60c4",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a8c37c05.42ceb",
+        "type": "set",
+        "name": "set: last-action ",
+        "xml": "<set>\n\t<parameter name=\"vnf-instance-service-data.oper-status.last-action\" value=\"`$vnf-instance-service-data.request-information.request-action`\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 390.33331298828125,
+        "y": 421.4444351196289,
+        "z": "76e70bd1.ad60c4",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "9d73784e.83dda8",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 778.7460327148438,
+        "y": 464.43293380737305,
+        "z": "76e70bd1.ad60c4",
+        "wires": [
+            [
+                "852e8aa2.d5c6c8"
+            ]
+        ]
+    },
+    {
+        "id": "852e8aa2.d5c6c8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='error-code' value='500'/>\n\t<parameter name='error-message' value=\"`'An error occurred while updating vnf-instance orchestration-status in AnAI with vnf-instance-id = ' + $vnf-instance-topology-operation-input.vnf-instance-request-information.vnf-instance-id`\"/>",
+        "comments": "",
+        "x": 961.8889617919922,
+        "y": 464.43300437927246,
+        "z": "76e70bd1.ad60c4",
+        "wires": []
+    },
+    {
+        "id": "5f34e90c.952258",
+        "type": "set",
+        "name": "Set final indicator to Y",
+        "xml": "<set>\n<parameter name=\"ack-final\" value=\"Y\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 414.65076446533203,
+        "y": 553.1586799621582,
+        "z": "76e70bd1.ad60c4",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "716ea0ca.5337a",
+        "type": "save",
+        "name": "update AnAI - vnf-instance.orchestration-status",
+        "xml": "<update plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\tresource=\"generic-vnf\"   \n\t\tkey=\"generic-vnf.vnf-id = $vnf-instance-topology-operation-input.vnf-instance-request-information.vnf-instance-id\" >\n<parameter name=\"orchestration-status\" value=\"active\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 491.22217559814453,
+        "y": 464.44443130493164,
+        "z": "76e70bd1.ad60c4",
+        "wires": [
+            [
+                "9d73784e.83dda8",
+                "d85d5574.f399a8"
+            ]
+        ]
+    },
+    {
+        "id": "d85d5574.f399a8",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 785.9721984863281,
+        "y": 507.1944456100464,
+        "z": "76e70bd1.ad60c4",
+        "wires": [
+            [
+                "852e8aa2.d5c6c8"
+            ]
+        ]
+    }
+]

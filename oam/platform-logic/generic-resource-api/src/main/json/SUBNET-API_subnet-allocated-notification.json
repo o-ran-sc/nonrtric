@@ -1,0 +1,2235 @@
+[
+    {
+        "id": "e2caddb4.aa4f3",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 84,
+        "y": 72.68333053588867,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "7dfa29c7.e57d58"
+            ]
+        ]
+    },
+    {
+        "id": "cbc97fd8.e73ef",
+        "type": "success",
+        "name": "outcome success",
+        "xml": "<outcome value=\"success\">\n",
+        "outputs": 1,
+        "x": 766.6665115356445,
+        "y": 180.71110725402832,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "3bd2d930.bf75f6"
+            ]
+        ]
+    },
+    {
+        "id": "890652c0.be9cf",
+        "type": "other",
+        "name": "outcome Other ",
+        "xml": "<outcome value=\"Other\"> \n\n",
+        "outputs": 1,
+        "x": 693.416633605957,
+        "y": 337.10004234313965,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "5f7d48df.f75b98"
+            ]
+        ]
+    },
+    {
+        "id": "d6b0362c.9c5128",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": " <return status=\"success\">\n \n",
+        "x": 1165.1664276123047,
+        "y": 248.68336868286133,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "1b062aa5.755935",
+        "type": "method",
+        "name": "subnet-allocated-notification",
+        "xml": "<method rpc='subnet-allocated-notification' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 653.8667144775391,
+        "y": 72.55000305175781,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "ddfcf206.07bf7"
+            ]
+        ]
+    },
+    {
+        "id": "ddfcf206.07bf7",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 91.86669158935547,
+        "y": 149.80000495910645,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "64574d3b.bdf2e4",
+                "1c03d112.43261f"
+            ]
+        ]
+    },
+    {
+        "id": "64574d3b.bdf2e4",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"subnet-allocated-notification\"/>\n<parameter name=\"field3\" value=\"`$eipam-ip-block.request-id`\"/>\n<parameter name=\"field4\" value=\"`$eipam-ip-block.entity-id`\"/>\n<parameter name=\"field5\" value=\"`$eipam-ip-block.ptnii-name`\"/>\n<parameter name=\"field6\" value=\"`$eipam-ip-block.ip-address`\"/>\n<parameter name=\"field7\" value=\"`$eipam-ip-block.prefix-length`\"/>\n<parameter name=\"field8\" value=\"`$eipam-ip-block.status`\"/>\n<parameter name=\"field9\" value=\"`$tmp.key-value`\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 263.2595672607422,
+        "y": 163.63769435882568,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8ad2bbea.c97f08",
+        "type": "configure",
+        "name": "configure ncs SNIIR ",
+        "xml": "<configure adaptor=\"com.att.sdnctl.sli.adaptor.ncs.ncsAdaptor\" key=\"SNIIR\" activate=\"true\">\n\t<parameter name=\"input.request-id\" value=\"`$eipam-ip-block.request-id`\" />\n\t<parameter name=\"input.source\" value=\"SDNC\" />\n\t<parameter name=\"input.ptnii-name\" value=\"`$eipam-ip-block.ptnii-name`\" />\n\t<parameter name=\"input.ip-address\" value=\"`$eipam-ip-block.ip-address`\" />\n\t<parameter name=\"input.mask\" value=\"`$eipam-ip-block.prefix-length`\" />",
+        "outputs": 1,
+        "x": 473.41666412353516,
+        "y": 335.6000442504883,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "cbc97fd8.e73ef",
+                "890652c0.be9cf"
+            ]
+        ]
+    },
+    {
+        "id": "3bd2d930.bf75f6",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>",
+        "atomic": "false",
+        "outputs": 1,
+        "x": 918.4999237060547,
+        "y": 181.49443435668945,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "2dc51873.fbbc88",
+                "810874e3.8849c8",
+                "d6b0362c.9c5128",
+                "436f433.ffb90bc"
+            ]
+        ]
+    },
+    {
+        "id": "2dc51873.fbbc88",
+        "type": "set",
+        "name": "set: status = Pending Active",
+        "xml": "<set>\n\t<parameter name=\"eipam-ip-block.status\" value=\"PENDING-ACTIVE\" />",
+        "x": 1197.4667205810547,
+        "y": 157.05000686645508,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "810874e3.8849c8",
+        "type": "save",
+        "name": "save: status = Pending Active",
+        "xml": "<save plugin=\"org.onap.ccsdk.sli.adaptors.resource.mdsal.ConfigResource\" resource=\"eipam-ip-block\">\n\t<parameter name=\"eipam-ip-block.status\" value=\"PENDING-ACTIVE\" />",
+        "outputs": 1,
+        "x": 1206.4666595458984,
+        "y": 203.04997634887695,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "54ca6207.0cfb2c",
+        "type": "set",
+        "name": "set: status = ERROR",
+        "xml": "<set>\n\t<parameter name=\"eipam-ip-block.status\" value=\"NCS_IP_SUBNET_INSTALL_ERROR\" />",
+        "comments": "",
+        "x": 1289.967025756836,
+        "y": 507.8610420227051,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "344b0bc7.6af414",
+        "type": "save",
+        "name": "save: status = NCS_IP_SUBNET_INSTALL_ERROR",
+        "xml": "<save plugin=\"org.onap.ccsdk.sli.adaptors.resource.mdsal.ConfigResource\" resource=\"eipam-ip-block\">\n\t<parameter name=\"eipam-ip-block.status\" value=\"NCS_IP_SUBNET_INSTALL_ERROR\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1386.217300415039,
+        "y": 555.8610315322876,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7dfa29c7.e57d58",
+        "type": "service-logic",
+        "name": "SUBNET-API ${project.version}",
+        "module": "SUBNET-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='SUBNET-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 321.9500274658203,
+        "y": 73.00001525878906,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "1b062aa5.755935"
+            ]
+        ]
+    },
+    {
+        "id": "31daf633.7ba63a",
+        "type": "comment",
+        "name": "ChangeLog",
+        "info": "1.0.0: Release 1504\n2.0.0: Release 1507 - Remove Update Inventory\n9/16: update record node format\nRelease 1710 - update to include VIPR & SRIOV address plans\n12/15/17: update AAI VPE to GENERIC-VNF for ADIod\n\t\tUS 518510 - 291247b-F24748: SDN-CP to update SUBNET-SERVICE DG for vPE orchestration on AIC 3.X",
+        "comments": "",
+        "x": 69.94999694824219,
+        "y": 20,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "5f7d48df.f75b98",
+        "type": "execute",
+        "name": "execute EIPAM deletePool",
+        "xml": "<execute plugin=\"com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin\" method=\"deletePool\">\n\n",
+        "comments": "subnet and subnet_keys are deleted in the EIPAMPlugin",
+        "outputs": 1,
+        "x": 908.5182647705078,
+        "y": 334.06732749938965,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "14809a55.ca7476",
+                "8d1a7b1c.633738"
+            ]
+        ]
+    },
+    {
+        "id": "5975d49b.222cac",
+        "type": "set",
+        "name": "set: status = Deleted",
+        "xml": "<set>\n\t<parameter name=\"eipam-ip-block.status\" value=\"DELETED\" />",
+        "comments": "",
+        "x": 1554.518051147461,
+        "y": 269.7616767883301,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "14809a55.ca7476",
+        "type": "other",
+        "name": "outcome Other ",
+        "xml": "<outcome value=\"Other\"> \n\n",
+        "outputs": 1,
+        "x": 1149.0736541748047,
+        "y": 389.6505928039551,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "e862d426.78f0b8"
+            ]
+        ]
+    },
+    {
+        "id": "e862d426.78f0b8",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1049.4341278076172,
+        "y": 484.76176834106445,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "54ca6207.0cfb2c",
+                "e8cb542a.45f388",
+                "72c4110c.bb7ed",
+                "c52a41c3.18f85"
+            ]
+        ]
+    },
+    {
+        "id": "e8cb542a.45f388",
+        "type": "returnFailure",
+        "name": "return failure ",
+        "xml": "  <return status=\"failure\">\n              <parameter name=\"error-code\" value=\"1000\" />\n              <parameter name=\"error-message\" value=\"IpBlockInstall failure and deletePool failed in EIPAM, need to manually delete\" />\n",
+        "comments": "",
+        "x": 1261.767578125,
+        "y": 698.650580406189,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "8d1a7b1c.633738",
+        "type": "success",
+        "name": "outcome success",
+        "xml": "<outcome value=\"success\">\n",
+        "outputs": 1,
+        "x": 1158.2432098388672,
+        "y": 336.79436111450195,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "62fdd070.1af19"
+            ]
+        ]
+    },
+    {
+        "id": "9b97f6d.5105208",
+        "type": "returnFailure",
+        "name": "return failure ",
+        "xml": "  <return status=\"failure\">\n              <parameter name=\"error-code\" value=\"1000\" />\n              <parameter name=\"error-message\" value=\"IpBlockInstall failure and deletePool deleted in EIPAM\" />\n",
+        "comments": "",
+        "x": 1529.1320037841797,
+        "y": 415.0164680480957,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "62fdd070.1af19",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>",
+        "atomic": "false",
+        "outputs": 1,
+        "x": 1355.348300933838,
+        "y": 336.6303253173828,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "5975d49b.222cac",
+                "9b97f6d.5105208"
+            ]
+        ]
+    },
+    {
+        "id": "84a4163.f8d0ee8",
+        "type": "save",
+        "name": "Update AAI: NCS_IP_SUBNET_INSTALL_ERROR, PREPROV",
+        "xml": "<update plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" resource=\"generic-vnf\" key=\"generic-vnf.vnf-id = $tmp.vpe-pool-row.vpe-id\" pfx=\"vpe-after\">\n\t<parameter name=\"operational-status\" value=\"NCS_IP_SUBNET_INSTALL_ERROR\" />\n\t<parameter name=\"summary-status\" value=\"`$aai-summary-status-message`\" />\n\t<parameter name=\"prov-status\" value=\"PREPROV\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1762.0000228881836,
+        "y": 365.35004234313965,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c52a41c3.18f85",
+        "type": "save",
+        "name": "Update AAI: NCS_IP_SUBNET_INSTALL_ERROR, PREPROV",
+        "xml": "<update plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" resource=\"generic-vnf\" key=\"generic-vnf.vnf-id = $tmp.vpe-pool.vpe-id\" pfx=\"vpe-after\">\n\t<parameter name=\"operational-status\" value=\"NCS_IP_SUBNET_INSTALL_ERROR\" />\n\t<parameter name=\"summary-status\" value=\"`$aai-summary-status-message`\" />\n\t<parameter name=\"prov-status\" value=\"PREPROV\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1416.166732788086,
+        "y": 649.6833076477051,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6fe30b95.3674d4",
+        "type": "execute",
+        "name": "execute: set aai-summary-status-message",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.adaptors.aai.AAIService' method='setStatusMethod' >\n<parameter name=\"key1\" value=\"IpBlockInstall failure and pool deleted in EIPAM.\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1625.3333587646484,
+        "y": 319.6833381652832,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "aeadd804.b843a8",
+        "type": "execute",
+        "name": "execute: set aai-summary-status-message",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.adaptors.aai.AAIService' method='setStatusMethod' >\n<parameter name=\"key1\" value=\"IpBlockInstall failure and pool deletion failed in EIPAM, need to manually delete.\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1355.3333587646484,
+        "y": 603.6833076477051,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1c03d112.43261f",
+        "type": "switchNode",
+        "name": "switch: ptnii_name",
+        "xml": "<switch test=\"`$eipam-ip-block.ptnii-name`\">",
+        "comments": "Need to know which ipv version to get the plan name from the network-model.",
+        "outputs": 1,
+        "x": 116.67860412597656,
+        "y": 223.75476360321045,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "51cbbf6e.bce95",
+                "2171ca6e.b25e66"
+            ]
+        ]
+    },
+    {
+        "id": "2171ca6e.b25e66",
+        "type": "other",
+        "name": "Null",
+        "xml": "<outcome value=''>",
+        "comments": "If no ptnii-name, check if VIPR or SRIOV",
+        "outputs": 1,
+        "x": 201.67856979370117,
+        "y": 895.0047702789307,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "909ee043.2df28"
+            ]
+        ]
+    },
+    {
+        "id": "51cbbf6e.bce95",
+        "type": "other",
+        "name": "Other",
+        "xml": "<outcome value='Other'>",
+        "comments": "If there's ptnii-name, then it's Gamma service",
+        "outputs": 1,
+        "x": 152.9285774230957,
+        "y": 282.50476455688477,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "8d875ca6.a136"
+            ]
+        ]
+    },
+    {
+        "id": "909ee043.2df28",
+        "type": "execute",
+        "name": "execute plan-name startsWith AIC",
+        "xml": "<execute plugin=\"org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils\" method=\"startsWith\" emitsOutcome='true' >\n<parameter name=\"source\" value=\"`toUpperCase($eipam-ip-block.plan-name)`\" />\n<parameter name=\"target\" value=\"AIC_\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 411.6785659790039,
+        "y": 896.2547702789307,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "d3d5f0b0.4a664",
+                "86c22fba.8ed29"
+            ]
+        ]
+    },
+    {
+        "id": "86c22fba.8ed29",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 624.1785736083984,
+        "y": 940.004771232605,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "131053a4.d1dffc"
+            ]
+        ]
+    },
+    {
+        "id": "d3d5f0b0.4a664",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 625.4285736083984,
+        "y": 897.254771232605,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "9725cb51.702688"
+            ]
+        ]
+    },
+    {
+        "id": "131053a4.d1dffc",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 771.6785659790039,
+        "y": 941.2547569274902,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "9659a3ea.e5ef3",
+                "3ffd19bb.4f4e36",
+                "f1fc5eba.89bce",
+                "c77e4701.89df28",
+                "cf6722db.8b927",
+                "33a7298c.a1e5c6",
+                "5fb42e09.35366",
+                "de60f20e.7fe8c",
+                "9b32befa.3ad65",
+                "7437f146.91864",
+                "1d533385.91dbac",
+                "ed912931.696a38",
+                "38409251.785ace",
+                "e60d143a.a53bf8",
+                "eccae1c1.cfd61",
+                "3b0f0963.0e3606",
+                "605747f6.c15988",
+                "f634ef3e.b5b91",
+                "57bed018.e09e4",
+                "325c38e8.bf4558",
+                "22f00d11.312d02",
+                "75fff231.25968c",
+                "d916c321.529dc"
+            ]
+        ]
+    },
+    {
+        "id": "9725cb51.702688",
+        "type": "returnFailure",
+        "name": "return failure ",
+        "xml": "  <return status=\"failure\">\n              <parameter name=\"error-code\" value=\"500\" />\n              <parameter name=\"error-message\" value=\"Unknown Address Plan - not supported!\" />\n",
+        "comments": "",
+        "x": 766.6785659790039,
+        "y": 898.7547569274902,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "9659a3ea.e5ef3",
+        "type": "get-resource",
+        "name": "get-resource - validate pool exists already",
+        "xml": "<get-resource\n        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'\n        resource='SQL'\n        key=\"SELECT * FROM EIPAM_IP_POOLS where plan_name = $eipam-ip-block.plan-name and level = 2 and key_value = $tmp.level2-key-value ;\"\n        pfx='tmp.eipam-pool-row'>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1032.928581237793,
+        "y": 942.5047702789307,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "34771a54.041056",
+                "b267fd26.f533b"
+            ]
+        ]
+    },
+    {
+        "id": "b267fd26.f533b",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1299.2904014587402,
+        "y": 895.2547702789307,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "6b0324a2.349bec"
+            ]
+        ]
+    },
+    {
+        "id": "34771a54.041056",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value=\"not-found\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1306.5405235290527,
+        "y": 970.504771232605,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "83c66d87.67bd"
+            ]
+        ]
+    },
+    {
+        "id": "cbbdd8aa.7d2a38",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"subnet-allocated-notification\"/>\n<parameter name=\"field3\" value=\"`$eipam-ip-block.request-id`\"/>\n<parameter name=\"field4\" value=\"`$eipam-ip-block.entity-id`\"/>\n<parameter name=\"field5\" value=\"`$eipam-ip-block.ptnii-name`\"/>\n<parameter name=\"field6\" value=\"`$eipam-ip-block.ip-address`\"/>\n<parameter name=\"field7\" value=\"`$eipam-ip-block.prefix-length`\"/>\n<parameter name=\"field8\" value=\"`$eipam-ip-block.status`\"/>\n<parameter name=\"field9\" value=\"This record is not found in DB!\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1661.6785888671875,
+        "y": 941.254771232605,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a891b62.8fdbc48",
+        "type": "returnFailure",
+        "name": "return failure ",
+        "xml": "  <return status=\"failure\">\n  \t<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n  \t\t<parameter name=\"error-code\" value=\"500\" />\n              <parameter name=\"error-message\" value=\"Unknown EIPAM pool - not found in DB!\" />\n",
+        "comments": "",
+        "x": 1680.4285926818848,
+        "y": 980.004771232605,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "83c66d87.67bd",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1484.1785888671875,
+        "y": 971.254771232605,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "cbbdd8aa.7d2a38",
+                "a891b62.8fdbc48"
+            ]
+        ]
+    },
+    {
+        "id": "b4649f8b.b431",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"subnet-allocated-notification\"/>\n<parameter name=\"field3\" value=\"`$eipam-ip-block.request-id`\"/>\n<parameter name=\"field4\" value=\"`$eipam-ip-block.entity-id`\"/>\n<parameter name=\"field5\" value=\"`$eipam-ip-block.ptnii-name`\"/>\n<parameter name=\"field6\" value=\"`$eipam-ip-block.ip-address`\"/>\n<parameter name=\"field7\" value=\"`$eipam-ip-block.prefix-length`\"/>\n<parameter name=\"field8\" value=\"`$eipam-ip-block.status`\"/>\n<parameter name=\"field9\" value=\"Failed to find this record in DB!\"/>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1661.6785888671875,
+        "y": 862.5047731399536,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4d6d74bf.b02c3c",
+        "type": "returnFailure",
+        "name": "return failure ",
+        "xml": "  <return status=\"failure\">\n\t<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n              <parameter name=\"error-code\" value=\"500\" />\n              <parameter name=\"error-message\" value=\"Unknown EIPAM pool - not found in DB!\" />\n",
+        "comments": "",
+        "x": 1680.4285926818848,
+        "y": 901.2547731399536,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "6b0324a2.349bec",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1484.1785888671875,
+        "y": 892.5047731399536,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "b4649f8b.b431",
+                "4d6d74bf.b02c3c"
+            ]
+        ]
+    },
+    {
+        "id": "3ffd19bb.4f4e36",
+        "type": "get-resource",
+        "name": "get-resource - validate if initial level 2 subnet exists",
+        "xml": "<get-resource\n        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'\n        resource='SQL'\n        key=\"SELECT * from EIPAM_IP_SUBNETS s, EIPAM_IP_SUBNET_KEYS k WHERE s.plan_name = $eipam-ip-block.plan-name and s.entity_id = k.entity_id and k.level = 2 and k.key_value = $tmp.level2-key-value and s.address_family = $tmp.version ; \"\n        pfx='pfx.eipam-initial-subnet'>\n\n",
+        "comments": "initial subnet should exists",
+        "outputs": 1,
+        "x": 1059.1786041259766,
+        "y": 1007.5047760009766,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "ce6bcabe.97f718",
+                "421560eb.81bf2"
+            ]
+        ]
+    },
+    {
+        "id": "bb5d9c34.1d4fc",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status=\"failure\">\n\t<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n\t<parameter name=\"error-code\" value=\"500\"/>\n\t<parameter name=\"error-message\" value=\"Query to DB table EIPAM_IP_SUBNET_KEYS and EIPAM_IP_SUBNETS failed.\" />\n\t",
+        "comments": "",
+        "x": 1481.4285430908203,
+        "y": 1005.7547626495361,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "ce6bcabe.97f718",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1329.7904052734375,
+        "y": 1010.2547721862793,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "bb5d9c34.1d4fc"
+            ]
+        ]
+    },
+    {
+        "id": "421560eb.81bf2",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value=\"not-found\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1330.040470123291,
+        "y": 1044.7547664642334,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "562b2139.070f1"
+            ]
+        ]
+    },
+    {
+        "id": "8994e422.3636c8",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"subnet-allocated-notification\"/>\n<parameter name=\"field3\" value=\"`$eipam-ip-block.request-id`\"/>\n<parameter name=\"field4\" value=\"`$eipam-ip-block.entity-id`\"/>\n<parameter name=\"field5\" value=\"`$eipam-ip-block.ptnii-name`\"/>\n<parameter name=\"field6\" value=\"`$eipam-ip-block.ip-address`\"/>\n<parameter name=\"field7\" value=\"`$eipam-ip-block.prefix-length`\"/>\n<parameter name=\"field8\" value=\"`$eipam-ip-block.status`\"/>\n<parameter name=\"field9\" value=\"`$tmp.key-value`\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2332.928565979004,
+        "y": 943.7547569274902,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c77e4701.89df28",
+        "type": "save",
+        "name": "insert new EIPAM_IP_SUBNETS for level 2",
+        "xml": "<save\n        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'\n        resource='SQL'\n        key=\"INSERT EIPAM_IP_SUBNETS\n             SET\n             entity_id = $eipam-ip-block.entity-id ,\n             service_type = $pfx.eipam-initial-subnet.service-type ,\n             ip_address = $eipam-ip-block.ip-prefix ,\n             prefix_length = $eipam-ip-block.mask ,\n             plan_name = $eipam-ip-block.plan-name ,\n             status = 'PENDING_ACTIVE' ,\n             pool_id = $pfx.eipam-initial-subnet.pool-id ,\n             address_family = $pfx.eipam-initial-subnet.address-family ,\n             network_id = $pfx.eipam-initial-subnet.network-id ; \"\n    force='true'\n        pfx='pfx.eipam-new-subnet'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1044.178581237793,
+        "y": 1271.2548027038574,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "b8b710a5.faa7c",
+                "c385bfae.d3b5e"
+            ]
+        ]
+    },
+    {
+        "id": "cf6722db.8b927",
+        "type": "save",
+        "name": "insert EIPAM_IP_SUBNET_KEYS for level 1",
+        "xml": "<save\n        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'\n        resource='SQL'\n        key=\"INSERT EIPAM_IP_SUBNET_KEYS\n             SET\n             entity_id = $eipam-ip-block.entity-id ,\n             key_name = $tmp.level1-key-name ,\n             key_value = $tmp.level1-key-value ,\n             level = 1 ; \"\n    force='true'\n        pfx='pfx.eipam-subnet-level1'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1059.1783981323242,
+        "y": 1313.2547454833984,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "c385bfae.d3b5e",
+                "160a99ef.650b86"
+            ]
+        ]
+    },
+    {
+        "id": "33a7298c.a1e5c6",
+        "type": "save",
+        "name": "insert EIPAM_IP_SUBNET_KEYS for level 2",
+        "xml": "<save\n        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'\n        resource='SQL'\n        key=\"INSERT EIPAM_IP_SUBNET_KEYS\n             SET\n             entity_id = $eipam-ip-block.entity-id ,\n             key_name = $tmp.level2-key-name ,\n             key_value = $tmp.level2-key-value ,\n             level = 2 ; \"\n    force='true'\n        pfx='pfx.eipam-subnet-level2'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1058.1785202026367,
+        "y": 1359.2547760009766,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "c385bfae.d3b5e",
+                "160a99ef.650b86"
+            ]
+        ]
+    },
+    {
+        "id": "b8b710a5.faa7c",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>",
+        "outputs": 1,
+        "x": 1379.4619102478027,
+        "y": 1284.754801750183,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "23e6f9d8.6f5356"
+            ]
+        ]
+    },
+    {
+        "id": "c385bfae.d3b5e",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1380.3048629760742,
+        "y": 1322.4049453735352,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "160a99ef.650b86",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>",
+        "outputs": 1,
+        "x": 1381.0180625915527,
+        "y": 1358.2548027038574,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "201429d8.95bf06"
+            ]
+        ]
+    },
+    {
+        "id": "f1fc5eba.89bce",
+        "type": "get-resource",
+        "name": "get-resource - validate if subnet with same ip exists",
+        "xml": "<get-resource\n        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'\n        resource='SQL'\n        key=\"SELECT * from EIPAM_IP_SUBNETS s WHERE s.plan_name = $eipam-ip-block.plan-name and s.entity_id = $eipam-ip-block.entity-id and s.ip_address = $eipam-ip-block.ip-address ; \"\n        pfx='pfx.eipam-subnet-with-same-ip'>\n\n",
+        "comments": "check if new subnet already exists, possibly from previous attempt.",
+        "outputs": 1,
+        "x": 1062.928596496582,
+        "y": 1083.754774093628,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "ba1f099b.3a0878",
+                "bfe13ef7.e3f2"
+            ]
+        ]
+    },
+    {
+        "id": "725e871e.2731f8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status=\"failure\">\n\t<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n\t<parameter name=\"error-code\" value=\"500\"/>\n\t<parameter name=\"error-message\" value=\"Query to DB table EIPAM_IP_SUBNET_KEYS and EIPAM_IP_SUBNETS failed.\" />\n\t",
+        "comments": "",
+        "x": 1486.4286613464355,
+        "y": 1082.0047636032104,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "ba1f099b.3a0878",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1334.7905235290527,
+        "y": 1086.5047731399536,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "725e871e.2731f8"
+            ]
+        ]
+    },
+    {
+        "id": "bfe13ef7.e3f2",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value=\"not-found\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1346.2906188964844,
+        "y": 1128.5047845840454,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "dcf3f5f7.409df8",
+        "type": "not-found",
+        "name": "not found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1376.6786499023438,
+        "y": 1427.504789352417,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "c4a8d945.3c0a58"
+            ]
+        ]
+    },
+    {
+        "id": "c4a8d945.3c0a58",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n\t<parameter name=\"error-code\" value=\"404\" />\n\t<parameter name=\"error-message\" value=\"'l3-network with network-id=' + $pfx.eipam-initial-subnet.network-id + ' And subnet-id=' + $eipam-ip-block.entity-id + ' is Not found in AnAI'\" />",
+        "comments": "",
+        "x": 1539.873046875,
+        "y": 1427.6160106658936,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "5fb42e09.35366",
+        "type": "get-resource",
+        "name": "get AnAI - l3-network subnet by network-id and subnet-id",
+        "xml": "<get-resource plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\tresource=\"subnet\" \n\t\tkey=\"l3-network.network-id = $pfx.eipam-initial-subnet.network-id\n\t\t\tAND subnet.subnet-id = $eipam-ip-block.entity-id\"\n\t\tlocal-only=\"false\" \n\t\tpfx=\"tmp.aai-initial-subnet\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1080.1507034301758,
+        "y": 1435.739423751831,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "dcf3f5f7.409df8",
+                "6b48a955.5b2088"
+            ]
+        ]
+    },
+    {
+        "id": "6b48a955.5b2088",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1369.4007568359375,
+        "y": 1465.989393234253,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "1c6d8420.6c07fc"
+            ]
+        ]
+    },
+    {
+        "id": "1c6d8420.6c07fc",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n\t<parameter name=\"error-code\" value=\"500\" />\n\t<parameter name=\"error-message\" value=\"'Error retrieving l3-network with network-id=' + $pfx.eipam-initial-subnet.network-id + ' And subnet-id=' + $eipam-ip-block.entity-id  + ' from AnAI'\" />",
+        "comments": "",
+        "x": 1521.5118408203125,
+        "y": 1466.2116222381592,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "562b2139.070f1",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status=\"failure\">\n\t<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n\t<parameter name=\"error-code\" value=\"500\"/>\n\t<parameter name=\"error-message\" value=\"Initial subnet not found, cannot auto extend.\" />\n\t",
+        "comments": "",
+        "x": 1484.1785354614258,
+        "y": 1043.7547645568848,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "23e6f9d8.6f5356",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status=\"failure\">\n\t<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n\t<parameter name=\"error-code\" value=\"500\"/>\n\t<parameter name=\"error-message\" value=\"Insert to DB table EIPAM_IP_SUBNETS failed.\" />\n\t",
+        "comments": "",
+        "x": 1516.678565979004,
+        "y": 1287.504783630371,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "201429d8.95bf06",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status=\"failure\">\n\t<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n\t<parameter name=\"error-code\" value=\"500\"/>\n\t<parameter name=\"error-message\" value=\"Insert to DB table EIPAM_IP_SUBNET_KEYS failed.\" />\n\t",
+        "comments": "",
+        "x": 1520.428565979004,
+        "y": 1356.254783630371,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "8d83ed60.0715f",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1250.018955230713,
+        "y": 1851.4807324409485,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "e81fdab.a073e28"
+            ]
+        ]
+    },
+    {
+        "id": "689d1c14.7b79e4",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1258.742099761963,
+        "y": 1889.123920917511,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "de60f20e.7fe8c",
+        "type": "save",
+        "name": "save AnAI - l3-network.subnets",
+        "xml": "<save plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\tresource=\"subnet\" \n\t\tkey=\"l3-network.network-id = $pfx.eipam-initial-subnet.network-id \n\t\t\tAND subnet.subnet-id = $eipam-ip-block.entity-id\" >\n<!-- Create l3-network object -->\n<parameter name=\"network-id\" value=\"`$pfx.eipam-initial-subnet.network-id`\" />\n<parameter name=\"subnet-id\" value=\"`$eipam-ip-block.entity-id`\" />\n<parameter name=\"subnet-name\" value=\"`$tmp.l3-network.subnet.subnet-name`\" />\n<parameter name=\"gateway-address\" value=\"`$tmp.return.generate.gateway-address`\" />\n<parameter name=\"network-start-address\" value=\"`$eipam-ip-block.ip-prefix`\" />\n<parameter name=\"cidr-mask\" value=\"`$eipam-ip-block.prefix-length`\" />\n<parameter name=\"ip-version\" value=\"`$tmp.version`\" />\n<parameter name=\"dhcp-start\" value=\"`$tmp.l3-network.subnet.dhcp-start`\" />\n<parameter name=\"dhcp-end\" value=\"`$tmp.l3-network.subnet.dhcp-end`\" />\n<parameter name=\"dhcp-enabled\" value=\"`$tmp.l3-network.subnet.dhcp-enabled`\" />\n<parameter name=\"orchestration-status\" value=\"PendingCreate\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 990.539966583252,
+        "y": 1868.5165219306946,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "689d1c14.7b79e4",
+                "8d83ed60.0715f"
+            ]
+        ]
+    },
+    {
+        "id": "26fc5e9d.ee8832",
+        "type": "call",
+        "name": "call GENERIC-RESOURCE-API:create-l3-subnet",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='create-l3-subnet' mode='sync' >\n",
+        "comments": "tmp.level should be set to 1",
+        "outputs": 1,
+        "x": 1787.928581237793,
+        "y": 1463.7548065185547,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "32ccea0f.159e96",
+        "type": "comment",
+        "name": "Get service_type from initial subnet",
+        "info": "",
+        "comments": "",
+        "x": 772.9285659790039,
+        "y": 1053.7547569274902,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "49a09274.40efdc",
+        "type": "set",
+        "name": "set dhcp data",
+        "xml": "<set>\n<parameter name='tmp.l3-network.subnet.dhcp-enabled' value='true' />\n<parameter name='tmp.l3-network.subnet.dhcp-start' value='`$tmp.return.generate.dhcp-start-address`' />\n<parameter name='tmp.l3-network.subnet.dhcp-end' value='`$tmp.return.generate.dhcp-end-address`' />\n\n\n",
+        "comments": "",
+        "x": 1646.6786155700684,
+        "y": 1767.5048027038574,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "9b32befa.3ad65",
+        "type": "execute",
+        "name": "execute getSubnetAddresses",
+        "xml": "<execute plugin=\"com.att.sdnctl.sli.plugin.ipAddressTools.IpAddressTool\" method=\"getSubnetAddresses\">\n\t<parameter name=\"ipAddress\" value=\"`$eipam-ip-block.ip-prefix`\" />\n\t<parameter name=\"ipVersion\" value=\"`tmp.version`\" />\n\t<parameter name=\"subnet\" value=\"`$eipam-ip-block.prefix-length`\" />\n\t<parameter name=\"ctxGateway\" value=\"tmp.return.generate.gateway-address\" />\n\t<parameter name=\"ctxDhcpStart\" value=\"tmp.return.generate.dhcp-start-address\" />\n\t<parameter name=\"ctxDhcpEnd\" value=\"tmp.return.generate.dhcp-end-address\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 999.5357971191406,
+        "y": 1695.7905054092407,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "f44d5fe7.afc4f"
+            ]
+        ]
+    },
+    {
+        "id": "ed912931.696a38",
+        "type": "switchNode",
+        "name": "switch tmp.aai-initial-subnet.dhcp-enabled",
+        "xml": "<switch test='`$tmp.aai-initial-subnet.dhcp-enabled`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1031.1868209838867,
+        "y": 1758.869896888733,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "3cab0bd5.728684",
+                "3cc191c.8042f6e"
+            ]
+        ]
+    },
+    {
+        "id": "3cab0bd5.728684",
+        "type": "other",
+        "name": "Y",
+        "xml": "<outcome value='Y'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1286.9008502960205,
+        "y": 1768.8698720932007,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "266fb95c.68e316"
+            ]
+        ]
+    },
+    {
+        "id": "266fb95c.68e316",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1447.3770866394043,
+        "y": 1768.8698587417603,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "49a09274.40efdc"
+            ]
+        ]
+    },
+    {
+        "id": "f44d5fe7.afc4f",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1231.451187133789,
+        "y": 1695.5629892349243,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "9f2e9d98.83945"
+            ]
+        ]
+    },
+    {
+        "id": "9f2e9d98.83945",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Failed to generate gateway addresses using IpAddressTools\" />",
+        "comments": "",
+        "x": 1403.1177368164062,
+        "y": 1695.5629892349243,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "14d86ca2.7154c3",
+        "type": "set",
+        "name": "set l3network.subnet",
+        "xml": "<set>\n<parameter name='tmp.l3-network.subnet.subnet-name' value=\"`$aai.l3-network.network-name + '_S' + $aai.l3-network.subnets.subnet_length`\" />\n",
+        "comments": "",
+        "x": 1393.3296279907227,
+        "y": 1578.869887828827,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "3cc191c.8042f6e",
+        "type": "other",
+        "name": "N",
+        "xml": "<outcome value='N'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1289.4406433105469,
+        "y": 1804.584153175354,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "68a37c0d.2a6604"
+            ]
+        ]
+    },
+    {
+        "id": "71a33119.8d0e1",
+        "type": "set",
+        "name": "set dhcp data",
+        "xml": "<set>\n<parameter name='tmp.l3-network.subnet.dhcp-enabled' value='false' />\n<parameter name='tmp.l3-network.subnet.dhcp-start' value='' />\n<parameter name='tmp.l3-network.subnet.dhcp-end' value='' />\n\n\n",
+        "comments": "",
+        "x": 1649.4406433105469,
+        "y": 1803.1555948257446,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "68a37c0d.2a6604",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1450.1391143798828,
+        "y": 1804.5206508636475,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "71a33119.8d0e1"
+            ]
+        ]
+    },
+    {
+        "id": "76b8ab04.2a4724",
+        "type": "not-found",
+        "name": "not found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1282.3928146362305,
+        "y": 1168.3975982666016,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "686791c9.12b07"
+            ]
+        ]
+    },
+    {
+        "id": "7437f146.91864",
+        "type": "get-resource",
+        "name": "get AnAI - l3-network by network-id",
+        "xml": "<get-resource plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\tresource=\"l3-network\" \n\t\tkey=\"l3-network.network-id = $pfx.eipam-initial-subnet.network-id\" \n\t\tlocal-only=\"false\" \n\t\tpfx=\"aai.l3-network\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1047.1149215698242,
+        "y": 1172.8822021484375,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "76b8ab04.2a4724",
+                "d141964d.436768"
+            ]
+        ]
+    },
+    {
+        "id": "d141964d.436768",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1275.1149215698242,
+        "y": 1206.8822021484375,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "4b5e945f.17c4cc"
+            ]
+        ]
+    },
+    {
+        "id": "1d533385.91dbac",
+        "type": "switchNode",
+        "name": "switch get current # of subnets",
+        "xml": "<switch test='`$aai.l3-network.subnets.subnet_length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1013.4286193847656,
+        "y": 1541.754774570465,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "683368b.b1aa498",
+                "823674a7.f95ee8"
+            ]
+        ]
+    },
+    {
+        "id": "683368b.b1aa498",
+        "type": "other",
+        "name": "outcome Null",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1237.1786270141602,
+        "y": 1540.504774570465,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "ae7ce728.270eb8"
+            ]
+        ]
+    },
+    {
+        "id": "823674a7.f95ee8",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1223.178611755371,
+        "y": 1579.2547793388367,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "14d86ca2.7154c3"
+            ]
+        ]
+    },
+    {
+        "id": "4b5e945f.17c4cc",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n\t<parameter name=\"error-code\" value=\"500\" />\n\t<parameter name=\"error-message\" value=\"'Error retrieving l3-network with network-id=' + $pfx.eipam-initial-subnet.network-id + 'from AnAI'\" />",
+        "comments": "",
+        "x": 1426.142837524414,
+        "y": 1208.3976211547852,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "686791c9.12b07",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n\t<parameter name=\"error-code\" value=\"404\" />\n\t<parameter name=\"error-message\" value=\"'l3-network with network-id=' + $pfx.eipam-initial-subnet.network-id + 'Not found in AnAI'\" />",
+        "comments": "",
+        "x": 1438.6428146362305,
+        "y": 1167.1475982666016,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "ae7ce728.270eb8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n\t<parameter name=\"error-code\" value=\"404\" />\n\t<parameter name=\"error-message\" value=\"'No subnets found in AAI for network-id=' + $pfx.eipam-initial-subnet.network-id\" />",
+        "comments": "",
+        "x": 1404.1786270141602,
+        "y": 1540.004744052887,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "e81fdab.a073e28",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n\t<parameter name=\"error-code\" value=\"500\" />\n\t<parameter name=\"error-message\" value=\"'Cannot save subnet with l3 network-id=' + $pfx.eipam-initial-subnet.network-id + ' And subnet-id=' + $eipam-ip-block.entity-id  + ' in AnAI'\" />",
+        "comments": "",
+        "x": 1392.928623199463,
+        "y": 1851.2547779083252,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "38409251.785ace",
+        "type": "execute",
+        "name": "execute Contrail API create subnet",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >\n<parameter name='api-name' value='subnet' />\n<parameter name='api-action' value='add' />\n<parameter name='resp-prefix' value='contrailResp' />\n<parameter name='contrail-virtual-network-id' value='`$pfx.eipam-initial-subnet.network-id`' />\n<parameter name='ip-prefix' value='`$eipam-ip-block.ip-prefix`' />\n<parameter name='ip-prefix-len' value='`$eipam-ip-block.prefix-length`' />\n<parameter name='dns-server-address' value='0.0.0.0' />\n<parameter name='enable-dhcp' value='`$tmp.l3-network.subnet.dhcp-enabled`' />\n<parameter name='default-gateway' value='`$tmp.return.generate.gateway-address`' />\n<parameter name='subnet-name' value='`$tmp.l3-network.subnet.subnet-name`' />\n<parameter name='start' value='`$tmp.l3-network.subnet.dhcp-start`' />\n<parameter name='end' value='`$tmp.l3-network.subnet.dhcp-end`' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1010.4286422729492,
+        "y": 1985.004786491394,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "3f3c4dfb.edd672",
+                "b55baea1.688c1"
+            ]
+        ]
+    },
+    {
+        "id": "3f3c4dfb.edd672",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1315.5594863891602,
+        "y": 1961.897045765072,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "dd95f113.bb3b3"
+            ]
+        ]
+    },
+    {
+        "id": "b55baea1.688c1",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1313.6548080444336,
+        "y": 1994.8969855308533,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "2cdedcb.0fb6624"
+            ]
+        ]
+    },
+    {
+        "id": "b618419.a7745c",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`'Failed to create subnet in Contrail. '+ $contrailResp.resp-code + ':' +$contrailResp.resp-message `\" />\n",
+        "comments": "",
+        "x": 1611.0595741271973,
+        "y": 2134.2303714752197,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "dd95f113.bb3b3",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1467.7499694824219,
+        "y": 1962.5637707710266,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e60d143a.a53bf8",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"Added an entry for subnet-allocated-notification in EIPAM_IP_SUBNETS and EIPAM_IP_SUBNET_KEYS\"/>\n<parameter name=\"field3\" value=\"`$eipam-ip-block.request-id`\"/>\n<parameter name=\"field4\" value=\"`$eipam-ip-block.entity-id`\"/>\n<parameter name=\"field5\" value=\"`$pfx.eipam-initial-subnet.network-id`\"/>\n<parameter name=\"field6\" value=\"`$eipam-ip-block.ip-address`\"/>\n<parameter name=\"field7\" value=\"`$eipam-ip-block.prefix-length`\"/>\n<parameter name=\"field8\" value=\"`$eipam-ip-block.status`\"/>\n<parameter name=\"field9\" value=\"`$tmp.key-value`\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 946.6785659790039,
+        "y": 1397.504783630371,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "eccae1c1.cfd61",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"Added a subnetin AAI\"/>\n<parameter name=\"field3\" value=\"`$eipam-ip-block.request-id`\"/>\n<parameter name=\"field4\" value=\"`$eipam-ip-block.entity-id`\"/>\n<parameter name=\"field5\" value=\"`$pfx.eipam-initial-subnet.network-id`\"/>\n<parameter name=\"field6\" value=\"`$eipam-ip-block.ip-address`\"/>\n<parameter name=\"field7\" value=\"`$eipam-ip-block.prefix-length`\"/>\n<parameter name=\"field8\" value=\"`$eipam-ip-block.status`\"/>\n<parameter name=\"field9\" value=\"`$tmp.key-value`\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 920.4286041259766,
+        "y": 1918.7547497749329,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3b0f0963.0e3606",
+        "type": "set",
+        "name": "set request-id",
+        "xml": "<set>\n<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n",
+        "comments": "",
+        "x": 989.8928298950195,
+        "y": 1220.8976154327393,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "605747f6.c15988",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"Added a subnet in Contrail\"/>\n<parameter name=\"field3\" value=\"`$eipam-ip-block.request-id`\"/>\n<parameter name=\"field4\" value=\"`$eipam-ip-block.entity-id`\"/>\n<parameter name=\"field5\" value=\"`$pfx.eipam-initial-subnet.network-id`\"/>\n<parameter name=\"field6\" value=\"`$eipam-ip-block.ip-address`\"/>\n<parameter name=\"field7\" value=\"`$eipam-ip-block.prefix-length`\"/>\n<parameter name=\"field8\" value=\"`$eipam-ip-block.status`\"/>\n<parameter name=\"field9\" value=\"`$tmp.key-value`\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 919.1786041259766,
+        "y": 2046.2547497749329,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2cdedcb.0fb6624",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1437.9285888671875,
+        "y": 2021.2547874450684,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "203ea735.c779e8",
+                "1daaf7b.fd32308",
+                "57933b03.0c74f4",
+                "b618419.a7745c",
+                "7712a.3fec4ed6c"
+            ]
+        ]
+    },
+    {
+        "id": "325c38e8.bf4558",
+        "type": "execute",
+        "name": "execute EIPAM activateSubnet",
+        "xml": "<execute plugin=\"com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin\" method=\"activateSubnet\">\n",
+        "comments": "subnet and subnet_keys are deleted in the EIPAMPlugin",
+        "outputs": 1,
+        "x": 900.4285507202148,
+        "y": 2383.7548093795776,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "756e1a89.f634c4"
+            ]
+        ]
+    },
+    {
+        "id": "756e1a89.f634c4",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>",
+        "outputs": 1,
+        "x": 1110.428581237793,
+        "y": 2385.1451749801636,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "1699aa2c.f5ddc6"
+            ]
+        ]
+    },
+    {
+        "id": "1699aa2c.f5ddc6",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status=\"failure\">\n\t<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n\t<parameter name=\"error-code\" value=\"500\"/>\n\t<parameter name=\"error-message\" value=\"An error occured while activating subnet in EIPAM.\" />\n\t",
+        "comments": "",
+        "x": 1274.4285621643066,
+        "y": 2383.8594675064087,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "22f00d11.312d02",
+        "type": "save",
+        "name": "Update subnet to Active in DB",
+        "xml": "<save \n\tplugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' \n\tresource='SQL'\n\tkey=\"UPDATE EIPAM_IP_SUBNETS\n             SET status = 'ACTIVE'\n             WHERE entity_id = $eipam-ip-block.entity-id ; \"\n    force='true'\n        pfx='pfx.eipam-subnet-row'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 899.0000534057617,
+        "y": 2423.754755973816,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "3f14a040.36a47",
+                "42f12379.83832c",
+                "ca35bb05.971478"
+            ]
+        ]
+    },
+    {
+        "id": "66665ee9.9b772",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status=\"failure\">\n\t<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n\t<parameter name=\"error-code\" value=\"500\"/>\n\t<parameter name=\"error-message\" value=\"An error occured while updating subnet to active in mysql.\" />\n\t",
+        "comments": "",
+        "x": 1267.571434020996,
+        "y": 2430.8976316452026,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "ca35bb05.971478",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1118.1430282592773,
+        "y": 2498.897602081299,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3f14a040.36a47",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1118.4333114624023,
+        "y": 2432.8976316452026,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "66665ee9.9b772"
+            ]
+        ]
+    },
+    {
+        "id": "42f12379.83832c",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value=\"not-found\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1119.2904205322266,
+        "y": 2467.1833522617817,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "30dfa1a7.69502e"
+            ]
+        ]
+    },
+    {
+        "id": "30dfa1a7.69502e",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status=\"failure\">\n\t<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n\t<parameter name=\"error-code\" value=\"500\"/>\n\t<parameter name=\"error-message\" value=\"An error occured while updating subnet to active in mysql.\" />\n\t",
+        "comments": "",
+        "x": 1266.571273803711,
+        "y": 2463.18338277936,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "75fff231.25968c",
+        "type": "save",
+        "name": "update AnAI - subnet",
+        "xml": "<update plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\tresource=\"subnet\" \n\t\tkey=\"l3-network.network-id = $aai.l3-network.network-id \n\t\t\tAND subnet.subnet-id = $eipam-ip-block.entity-id\" >\n<parameter name=\"orchestration-status\" value=\"Created\" />\n\t\t",
+        "comments": "",
+        "outputs": 1,
+        "x": 877.3928356170654,
+        "y": 2559.806347846985,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "6e21e203.9f313c",
+                "b79fac42.5e29"
+            ]
+        ]
+    },
+    {
+        "id": "5827e3d6.a2347c",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status=\"failure\">\n\t<parameter name=\"error-code\" value=\"500\"/>\n\t<parameter name=\"error-message\" value=\"Failure updating orchestration-status in AAI for subnet.\" />\n\t",
+        "comments": "",
+        "x": 1269.1390056610107,
+        "y": 2549.6475925445557,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "d0969e92.5f504",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1119.710599899292,
+        "y": 2617.647562980652,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "c283102d.9a28"
+            ]
+        ]
+    },
+    {
+        "id": "6e21e203.9f313c",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1108.5722465515137,
+        "y": 2555.933322906494,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "5827e3d6.a2347c"
+            ]
+        ]
+    },
+    {
+        "id": "b79fac42.5e29",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value=\"not-found\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1120.8579921722412,
+        "y": 2585.9333131611347,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "29983bc9.4f3514"
+            ]
+        ]
+    },
+    {
+        "id": "c283102d.9a28",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1272.4246883392334,
+        "y": 2619.076183319092,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "29983bc9.4f3514",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status=\"failure\">\n\t<parameter name=\"error-code\" value=\"500\"/>\n\t<parameter name=\"error-message\" value=\"Failure updating orchestration-status in AAI for subnet.  Subnet not found.\" />\n\t",
+        "comments": "",
+        "x": 1268.1388454437256,
+        "y": 2581.933343678713,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "d916c321.529dc",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": " <return status=\"success\">\n \t<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n",
+        "comments": "",
+        "x": 856.6785774230957,
+        "y": 2645.004796028137,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "203ea735.c779e8",
+        "type": "save",
+        "name": "Update subnet to ERROR in DB",
+        "xml": "<save \n\tplugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' \n\tresource='SQL'\n\tkey=\"UPDATE EIPAM_IP_SUBNETS\n             SET status = 'ERROR'\n             WHERE entity_id = $eipam-ip-block.entity-id ; \"\n    force='true'\n        pfx='pfx.eipam-subnet-row'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1630.428565979004,
+        "y": 2021.2547569274902,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "d9c60cd1.3e061",
+                "eb6e865f.03b368"
+            ]
+        ]
+    },
+    {
+        "id": "a3879ce0.868fd",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status=\"failure\">\n\t<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n\t<parameter name=\"error-code\" value=\"500\"/>\n\t<parameter name=\"error-message\" value=\"An error occured while updating subnet to ERROR in mysql.\" />\n\t",
+        "comments": "",
+        "x": 1998.9999465942383,
+        "y": 2028.397632598877,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "d9c60cd1.3e061",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1849.8618240356445,
+        "y": 2030.397632598877,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "a3879ce0.868fd"
+            ]
+        ]
+    },
+    {
+        "id": "eb6e865f.03b368",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value=\"not-found\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1850.7189331054688,
+        "y": 2064.683353215456,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "2a29d972.a51706"
+            ]
+        ]
+    },
+    {
+        "id": "2a29d972.a51706",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status=\"failure\">\n\t<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n\t<parameter name=\"error-code\" value=\"500\"/>\n\t<parameter name=\"error-message\" value=\"An error occured while updating subnet to ERROR in mysql.\" />\n\t",
+        "comments": "",
+        "x": 1997.9997863769531,
+        "y": 2060.683383733034,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "1daaf7b.fd32308",
+        "type": "delete",
+        "name": "delete subnet from AAI",
+        "xml": "<delete plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\tresource=\"subnet\" \n\tkey=\"l3-network.network-id = $pfx.eipam-initial-subnet.network-id\n\t\t\t\tAND subnet.subnet-id = $eipam-ip-block.entity-id\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1605.4285888671875,
+        "y": 2063.7547874450684,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "57933b03.0c74f4",
+        "type": "save",
+        "name": "save MDSAL: status = ERROR",
+        "xml": "<save plugin=\"org.onap.ccsdk.sli.adaptors.resource.mdsal.ConfigResource\" resource=\"eipam-ip-block\">\n\t<parameter name=\"eipam-ip-block.status\" value=\"ERROR\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1634.178596496582,
+        "y": 2100.004789352417,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f634ef3e.b5b91",
+        "type": "save",
+        "name": "update AnAI - subnet with status Created",
+        "xml": "<update plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\tresource=\"subnet\" \n\t\tkey=\"l3-network.network-id = $pfx.eipam-initial-subnet.network-id \n\t\t\tAND subnet.subnet-id = $eipam-ip-block.entity-id\" >\n\t<parameter name=\"orchestration-status\" value=\"Created\" />\n\t\t",
+        "comments": "",
+        "outputs": 1,
+        "x": 972.9285659790039,
+        "y": 2140.0047569274902,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "b228a3df.0cce8",
+                "ff5cf0b4.7228d"
+            ]
+        ]
+    },
+    {
+        "id": "b228a3df.0cce8",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1204.178581237793,
+        "y": 2137.504789352417,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "45874148.accf2"
+            ]
+        ]
+    },
+    {
+        "id": "ff5cf0b4.7228d",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1207.901725769043,
+        "y": 2098.897855758667,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e4838ecb.b8673",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n\t<parameter name=\"error-code\" value=\"500\" />\n\t<parameter name=\"error-message\" value=\"'Cannot save subnet status to Created with l3 network-id=' + $pfx.eipam-initial-subnet.network-id + ' And subnet-id=' + $eipam-ip-block.entity-id  + ' in AnAI'\" />",
+        "comments": "",
+        "x": 1487.2668685913086,
+        "y": 2378.8857164382935,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "346f479b.225938",
+        "type": "save",
+        "name": "Update subnet to ERROR in DB",
+        "xml": "<save \n\tplugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' \n\tresource='SQL'\n\tkey=\"UPDATE EIPAM_IP_SUBNETS\n             SET status = 'ERROR'\n             WHERE entity_id = $eipam-ip-block.entity-id ; \"\n    force='true'\n        pfx='pfx.eipam-subnet-row'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1534.1785888671875,
+        "y": 2197.504789829254,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "56abfd21.fa7d64",
+                "fd0ca37a.c8e48"
+            ]
+        ]
+    },
+    {
+        "id": "19a9415f.cf00ff",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status=\"failure\">\n\t<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n\t<parameter name=\"error-code\" value=\"500\"/>\n\t<parameter name=\"error-message\" value=\"An error occured while updating subnet to ERROR in mysql.\" />\n\t",
+        "comments": "",
+        "x": 1902.7499694824219,
+        "y": 2204.647665500641,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "56abfd21.fa7d64",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1753.6118469238281,
+        "y": 2206.647665500641,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "19a9415f.cf00ff"
+            ]
+        ]
+    },
+    {
+        "id": "fd0ca37a.c8e48",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value=\"not-found\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1754.4689559936523,
+        "y": 2240.93338611722,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "86fbd250.1c628"
+            ]
+        ]
+    },
+    {
+        "id": "86fbd250.1c628",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status=\"failure\">\n\t<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n\t<parameter name=\"error-code\" value=\"500\"/>\n\t<parameter name=\"error-message\" value=\"An error occured while updating subnet to ERROR in mysql.\" />\n\t",
+        "comments": "",
+        "x": 1901.7498092651367,
+        "y": 2236.933416634798,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "7cdf33b.16065cc",
+        "type": "delete",
+        "name": "delete subnet from AAI",
+        "xml": "<delete plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\tresource=\"subnet\" \n\tkey=\"l3-network.network-id = $pfx.eipam-initial-subnet.network-id\n\t\t\t\tAND subnet.subnet-id = $eipam-ip-block.entity-id\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1509.178611755371,
+        "y": 2240.0048203468323,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f13e3925.587088",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"Update status to Created failed in AAI\"/>\n<parameter name=\"field3\" value=\"`$eipam-ip-block.request-id`\"/>\n<parameter name=\"field4\" value=\"`$eipam-ip-block.entity-id`\"/>\n<parameter name=\"field5\" value=\"`$pfx.eipam-initial-subnet.network-id`\"/>\n<parameter name=\"field6\" value=\"`$eipam-ip-block.ip-address`\"/>\n<parameter name=\"field7\" value=\"`$eipam-ip-block.prefix-length`\"/>\n<parameter name=\"field8\" value=\"`$eipam-ip-block.status`\"/>\n<parameter name=\"field9\" value=\"`$tmp.key-value`\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1452.9285736083984,
+        "y": 2161.254756450653,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "45874148.accf2",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1319.1785850524902,
+        "y": 2161.254789352417,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "f13e3925.587088",
+                "346f479b.225938",
+                "7cdf33b.16065cc",
+                "e4838ecb.b8673",
+                "baa512c3.0963a",
+                "170994e8.eee78b"
+            ]
+        ]
+    },
+    {
+        "id": "baa512c3.0963a",
+        "type": "execute",
+        "name": "execute Contrail API delete subnet",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >\n<parameter name='api-name' value='subnet' />\n<parameter name='api-action' value='delete' />\n<parameter name='resp-prefix' value='contrailResp' />\n<parameter name='contrail-virtual-network-id' value='`$pfx.eipam-initial-subnet.network-id`' />\n<parameter name='ip-prefix' value='`$eipam-ip-block.ip-prefix`' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1540.428565979004,
+        "y": 2283.7547569274902,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "9c1ec68b.c5c7e8"
+            ]
+        ]
+    },
+    {
+        "id": "9c1ec68b.c5c7e8",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1755.428565979004,
+        "y": 2280.0047569274902,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "fd4b323e.9f80e"
+            ]
+        ]
+    },
+    {
+        "id": "fd4b323e.9f80e",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`'Failed to delete subnet in Contrail. '+ $contrailResp.resp-code + ':' +$contrailResp.resp-message `\" />\n",
+        "comments": "",
+        "x": 1911.678565979004,
+        "y": 2281.2547569274902,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "57bed018.e09e4",
+        "type": "save",
+        "name": "Update subnet to CREATED in DB",
+        "xml": "<save \n\tplugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' \n\tresource='SQL'\n\tkey=\"UPDATE EIPAM_IP_SUBNETS\n             SET status = 'CREATED'\n             WHERE entity_id = $eipam-ip-block.entity-id ; \"\n    force='true'\n        pfx='pfx.eipam-subnet-row'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 907.9285659790039,
+        "y": 2250.0047569274902,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "fc6a8361.1b23e",
+                "f102d632.e2c298"
+            ]
+        ]
+    },
+    {
+        "id": "453b14d.e93c4ec",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status=\"failure\">\n\t<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n\t<parameter name=\"error-code\" value=\"500\"/>\n\t<parameter name=\"error-message\" value=\"An error occured while updating subnet to CREATED in mysql.\" />\n\t",
+        "comments": "",
+        "x": 1276.4999465942383,
+        "y": 2257.147632598877,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "fc6a8361.1b23e",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1127.3618240356445,
+        "y": 2259.147632598877,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "453b14d.e93c4ec"
+            ]
+        ]
+    },
+    {
+        "id": "f102d632.e2c298",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value=\"not-found\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1128.2189331054688,
+        "y": 2293.433353215456,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "14936440.6c927c"
+            ]
+        ]
+    },
+    {
+        "id": "14936440.6c927c",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status=\"failure\">\n\t<parameter name='eipam-ip-block.request-id' value=\"`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`\" />\n\t<parameter name=\"error-code\" value=\"500\"/>\n\t<parameter name=\"error-message\" value=\"An error occured while updating subnet to CREATED in mysql.\" />\n\t",
+        "comments": "",
+        "x": 1275.4997863769531,
+        "y": 2289.433383733034,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "436f433.ffb90bc",
+        "type": "save",
+        "name": "Update subnet to PENDING-ACTIVE in DB",
+        "xml": "<save \n\tplugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' \n\tresource='SQL'\n\tkey=\"UPDATE EIPAM_IP_SUBNETS\n             SET status = 'PENDING-ACTIVE'\n             WHERE entity_id = $eipam-ip-block.entity-id ; \"\n    force='true'\n        pfx='pfx.eipam-subnet-row'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1212.928565979004,
+        "y": 103.75475692749023,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "72c4110c.bb7ed",
+        "type": "save",
+        "name": "Update subnet to ERROR in DB",
+        "xml": "<save \n\tplugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' \n\tresource='SQL'\n\tkey=\"UPDATE EIPAM_IP_SUBNETS\n             SET \n             status = 'ERROR',\n             dealloc_failure = 'deletePool failed in response to NCS_IP_SUBNET_INSTALL_ERROR'\n             WHERE entity_id = $eipam-ip-block.entity-id ; \"\n    force='true'\n        pfx='pfx.eipam-subnet-row'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1303.8214263916016,
+        "y": 446.4333562850952,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7712a.3fec4ed6c",
+        "type": "set",
+        "name": "set: status = ERROR",
+        "xml": "<set>\n\t<parameter name=\"eipam-ip-block.status\" value=\"ERROR\" />",
+        "x": 1632.5714797973633,
+        "y": 1984.1118841171265,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "170994e8.eee78b",
+        "type": "set",
+        "name": "set: status = ERROR",
+        "xml": "<set>\n\t<parameter name=\"eipam-ip-block.status\" value=\"ERROR\" />",
+        "x": 1502.571388244629,
+        "y": 2329.8262901306152,
+        "z": "1aeff3d2.0f322c",
+        "wires": []
+    },
+    {
+        "id": "38037809.d5abe8",
+        "type": "get-resource",
+        "name": "get-resource - vpe_pool",
+        "xml": "<get-resource\n        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'\n        resource='SQL'\n        key=\"SELECT * FROM VPE_POOL where vpe_name = $eipam-ip-block.ptnii-name ;\"\n        pfx='tmp.vpe-pool-row'>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 490.00001525878906,
+        "y": 247.50000476837158,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8d875ca6.a136",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 290.0000057220459,
+        "y": 283.7500057220459,
+        "z": "1aeff3d2.0f322c",
+        "wires": [
+            [
+                "8ad2bbea.c97f08"
+            ]
+        ]
+    }
+]

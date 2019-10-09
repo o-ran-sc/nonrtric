@@ -1,0 +1,1127 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='eipam-allocate-generic-subnet' mode='sync'>
+        <block atomic='true'>
+            <set>
+                <parameter name="tmp.eipam-error" value="false" />
+                <parameter name="tmp.allocate-v4-subnet-flag" value="N" />
+                <parameter name="tmp.allocate-v6-subnet-flag" value="N" />
+                <parameter name='eipam-ip-block.plans_length' value='0' />
+                <parameter name="eipam-pool.v4.pre-existing" value="N"/>
+                <parameter name="eipam-pool.v6.pre-existing" value="N"/>
+                <parameter name="tmp.leaf-level" value="N" />
+            </set>
+            <switch test="`$tmp.activate-subnet-flag`">
+                <outcome value="">
+                    <block atomic='true'>
+                        <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                        <set>
+                            <parameter name="tmp.activate-subnet-flag" value="Y"/>
+                        </set>
+                    </block>
+                </outcome>
+                <outcome value='Y'></outcome>
+                <outcome value='N'></outcome>
+            </switch>
+            <switch test="`$eipam-ip-block.level == $eipam-ip-block.getPlanTopologyResponse.TopologyDetails_length`">
+                <outcome value='true'>
+                    <block atomic='true'>
+                        <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                        <set>
+                            <parameter name="tmp.leaf-level" value="Y" />
+                        </set>
+                    </block>
+                </outcome>
+            </switch>
+            <!--Need to know which ipv version to get the plan name from the network-model.-->
+            <switch test="`$eipam-ip-block.allocate-version`">
+                <outcome value='ipv4'>
+                    <block atomic='true'>
+                        <switch test="`$l-idx`">
+                            <outcome value='1'>
+                                <block atomic='true'>
+                                    <switch test="`$tmp.skip-first-level`">
+                                        <outcome value='Y'></outcome>
+                                        <outcome value="">
+                                            <block atomic='true'>
+                                                <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                <set>
+                                                    <parameter name="eipam-ip-block.plan-name" value="`$network-model.eipam-v4-address-plan`"/>
+                                                    <parameter name="eipam-ip-block.activate-subnet-flag" value="`$tmp.activate-subnet-flag`"/>
+                                                    <parameter name="eipam-ip-block.leaf-level-indicator" value="`$tmp.leaf-level`"/>
+                                                    <parameter name="tmp.allocate-v4-subnet-flag" value="Y" />
+                                                    <!-- Number of Pool Levels -->
+                                                    <parameter name="eipam-ip-block.pools_length" value="`$eipam-ip-block.level`"/>
+                                                </set>
+                                                <for index="l4-idx" start="0" end="`$eipam-ip-block.level`">
+                                                    <block atomic='true'>
+                                                        <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                        <set>
+                                                            <parameter name="eipam-ip-block.pools[$l4-idx].key-name" value="`$v4FQPN-output.pools[$l4-idx].key-name`"/>
+                                                            <parameter name="eipam-ip-block.pools[$l4-idx].key-value" value="`$v4FQPN-output.pools[$l4-idx].key-value`"/>
+                                                        </set>
+                                                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                            <parameter name="logger" value="message-log"/>
+                                                            <parameter name="field1" value="__TIMESTAMP__"/>
+                                                            <parameter name="field2" value="network-topology-operation"/>
+                                                            <parameter name="field3" value="eipam-allocate-generic-subnet"/>
+                                                            <parameter name="field4" value="`$eipam-ip-block.plan-name`"/>
+                                                            <parameter name="field5" value="`$eipam-ip-block.pools[$l4-idx].key-name`"/>
+                                                            <parameter name="field6" value="`$eipam-ip-block.pools[$l4-idx].key-value`"/>
+                                                        </record>
+                                                    </block>
+                                                </for>
+                                                <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="allocateSubnet">
+                                                    <outcome value='failure'>
+                                                        <return status="failure">
+                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="error-message" value="An error occured while allocating V4 subnet in EIPAM." />
+                                                        </return>
+                                                    </outcome>
+                                                </execute>
+                                                <get-resource
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="SELECT * from EIPAM_IP_POOLS WHERE plan_name = $network-model.eipam-v4-address-plan and level = $eipam-ip-block.level and key_value = $tmp.key-value ; "
+        pfx='pfx.eipam-pool-row'>
+                                                    <outcome value='failure'>
+                                                        <return status="failure">
+                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="error-message" value="An error occured while looking for entry in EIPAM_IP_POOLS for V4 subnet in EIPAM." />
+                                                        </return>
+                                                    </outcome>
+                                                    <outcome value="not-found">
+                                                        <return status="failure">
+                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="error-message" value="An error occured while looking for entry in EIPAM_IP_POOLS for V4 subnet in EIPAM." />
+                                                        </return>
+                                                    </outcome>
+                                                </get-resource>
+                                                <switch test="`$network-instance-group-data.subnet-assignment-policy.subnet-use`">
+                                                    <outcome value='shared'>
+                                                        <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNETS
+             SET
+             entity_id = $eipam-ip-block.entity-id ,
+             service_type = $tmp.service-type ,
+             ip_address = $eipam-ip-block.ip-prefix ,
+             prefix_length = $eipam-ip-block.mask ,
+             plan_name = $network-model.eipam-v4-address-plan ,
+             status = 'ACTIVE' ,
+             pool_id = $pfx.eipam-pool-row.pool-id ,
+             address_family = $network-model.ipv4-ip-version ,
+             network_id = $tmp.network-id ,
+             network_instance_group_id = $tmp.network-instance-group-id ; "
+    force='true'
+        pfx='pfx.eipam-v4subnet-row'>
+                                                            <outcome value='failure'>
+                                                                <return status='failure'>
+                                                                    <parameter name='error-code' value='500' />
+                                                                    <parameter name='error-message' value='failed to update EIPAM_IP_SUBNETS table.' />
+                                                                </return>
+                                                            </outcome>
+                                                        </save>
+                                                    </outcome>
+                                                    <outcome value='Other'>
+                                                        <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNETS
+             SET
+             entity_id = $eipam-ip-block.entity-id ,
+             service_type = $tmp.service-type ,
+             ip_address = $eipam-ip-block.ip-prefix ,
+             prefix_length = $eipam-ip-block.mask ,
+             plan_name = $network-model.eipam-v4-address-plan ,
+             status = 'ACTIVE' ,
+             pool_id = $pfx.eipam-pool-row.pool-id ,
+             address_family = $network-model.ipv4-ip-version ,
+             network_id = $tmp.network-id ; "
+    force='true'
+        pfx='pfx.eipam-v4subnet-row'>
+                                                            <outcome value='failure'>
+                                                                <return status='failure'>
+                                                                    <parameter name='error-code' value='500' />
+                                                                    <parameter name='error-message' value='failed to update EIPAM_IP_SUBNETS table.' />
+                                                                </return>
+                                                            </outcome>
+                                                        </save>
+                                                    </outcome>
+                                                    <outcome value=''>
+                                                        <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNETS
+             SET
+             entity_id = $eipam-ip-block.entity-id ,
+             service_type = $tmp.service-type ,
+             ip_address = $eipam-ip-block.ip-prefix ,
+             prefix_length = $eipam-ip-block.mask ,
+             plan_name = $network-model.eipam-v4-address-plan ,
+             status = 'ACTIVE' ,
+             pool_id = $pfx.eipam-pool-row.pool-id ,
+             address_family = $network-model.ipv4-ip-version ,
+             network_id = $tmp.network-id ; "
+    force='true'
+        pfx='pfx.eipam-v4subnet-row'>
+                                                            <outcome value='failure'>
+                                                                <return status='failure'>
+                                                                    <parameter name='error-code' value='500' />
+                                                                    <parameter name='error-message' value='failed to update EIPAM_IP_SUBNETS table.' />
+                                                                </return>
+                                                            </outcome>
+                                                        </save>
+                                                    </outcome>
+                                                </switch>
+                                                <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNET_KEYS
+             SET
+             entity_id = $eipam-ip-block.entity-id ,
+             key_name = $key-name ,
+             key_value = $key-value ,
+             level = $eipam-ip-block.level ; "
+    force='true'
+        pfx='pfx.eipam-v4subnet-key-row'>
+                                                    <outcome value='failure'>
+                                                        <return status='failure'>
+                                                            <parameter name='error-code' value='500' />
+                                                            <parameter name='error-message' value='failed to update EIPAM_IP_SUBNET_KEYS table.' />
+                                                        </return>
+                                                    </outcome>
+                                                    <outcome value='success'></outcome>
+                                                </save>
+                                                <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                    <parameter name="logger" value="message-log"/>
+                                                    <parameter name="field1" value="__TIMESTAMP__"/>
+                                                    <parameter name="field2" value="network-topology-operation"/>
+                                                    <parameter name="field3" value="eipam-allocate-generic-subnet"/>
+                                                    <parameter name="field4" value="`$network-model.eipam-v4-address-plan`"/>
+                                                    <parameter name="field5" value="`$key-value`"/>
+                                                    <parameter name="field6" value="`$tmp.eipam-pool-row.pool-id`"/>
+                                                    <parameter name="field7" value="`$tmp.network_instance_group_id`"/>
+                                                    <parameter name="field8" value="`$eipam-ip-block.level`"/>
+                                                    <parameter name="field9" value="`$network-model.network-role`"/>
+                                                    <parameter name="field10" value="`$tmp.network-id`"/>
+                                                    <parameter name="field11" value="subnet saved to DB."/>
+                                                </record>
+                                            </block>
+                                        </outcome>
+                                        <outcome value='N'>
+                                            <block atomic='true'>
+                                                <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                <set>
+                                                    <parameter name="eipam-ip-block.plan-name" value="`$network-model.eipam-v4-address-plan`"/>
+                                                    <parameter name="eipam-ip-block.activate-subnet-flag" value="`$tmp.activate-subnet-flag`"/>
+                                                    <parameter name="eipam-ip-block.leaf-level-indicator" value="`$tmp.leaf-level`"/>
+                                                    <parameter name="tmp.allocate-v4-subnet-flag" value="Y" />
+                                                    <!-- Number of Pool Levels -->
+                                                    <parameter name="eipam-ip-block.pools_length" value="`$eipam-ip-block.level`"/>
+                                                </set>
+                                                <for index="l4-idx" start="0" end="`$eipam-ip-block.level`">
+                                                    <block atomic='true'>
+                                                        <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                        <set>
+                                                            <parameter name="eipam-ip-block.pools[$l4-idx].key-name" value="`$v4FQPN-output.pools[$l4-idx].key-name`"/>
+                                                            <parameter name="eipam-ip-block.pools[$l4-idx].key-value" value="`$v4FQPN-output.pools[$l4-idx].key-value`"/>
+                                                        </set>
+                                                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                            <parameter name="logger" value="message-log"/>
+                                                            <parameter name="field1" value="__TIMESTAMP__"/>
+                                                            <parameter name="field2" value="network-topology-operation"/>
+                                                            <parameter name="field3" value="eipam-allocate-generic-subnet"/>
+                                                            <parameter name="field4" value="`$eipam-ip-block.plan-name`"/>
+                                                            <parameter name="field5" value="`$eipam-ip-block.pools[$l4-idx].key-name`"/>
+                                                            <parameter name="field6" value="`$eipam-ip-block.pools[$l4-idx].key-value`"/>
+                                                        </record>
+                                                    </block>
+                                                </for>
+                                                <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="allocateSubnet">
+                                                    <outcome value='failure'>
+                                                        <return status="failure">
+                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="error-message" value="An error occured while allocating V4 subnet in EIPAM." />
+                                                        </return>
+                                                    </outcome>
+                                                </execute>
+                                                <get-resource
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="SELECT * from EIPAM_IP_POOLS WHERE plan_name = $network-model.eipam-v4-address-plan and level = $eipam-ip-block.level and key_value = $tmp.key-value ; "
+        pfx='pfx.eipam-pool-row'>
+                                                    <outcome value='failure'>
+                                                        <return status="failure">
+                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="error-message" value="An error occured while looking for entry in EIPAM_IP_POOLS for V4 subnet in EIPAM." />
+                                                        </return>
+                                                    </outcome>
+                                                    <outcome value="not-found">
+                                                        <return status="failure">
+                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="error-message" value="An error occured while looking for entry in EIPAM_IP_POOLS for V4 subnet in EIPAM." />
+                                                        </return>
+                                                    </outcome>
+                                                </get-resource>
+                                                <switch test="`$network-instance-group-data.subnet-assignment-policy.subnet-use`">
+                                                    <outcome value='shared'>
+                                                        <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNETS
+             SET
+             entity_id = $eipam-ip-block.entity-id ,
+             service_type = $tmp.service-type ,
+             ip_address = $eipam-ip-block.ip-prefix ,
+             prefix_length = $eipam-ip-block.mask ,
+             plan_name = $network-model.eipam-v4-address-plan ,
+             status = 'ACTIVE' ,
+             pool_id = $pfx.eipam-pool-row.pool-id ,
+             address_family = $network-model.ipv4-ip-version ,
+             network_id = $tmp.network-id ,
+             network_instance_group_id = $tmp.network-instance-group-id ; "
+    force='true'
+        pfx='pfx.eipam-v4subnet-row'>
+                                                            <outcome value='failure'>
+                                                                <return status='failure'>
+                                                                    <parameter name='error-code' value='500' />
+                                                                    <parameter name='error-message' value='failed to update EIPAM_IP_SUBNETS table.' />
+                                                                </return>
+                                                            </outcome>
+                                                        </save>
+                                                    </outcome>
+                                                    <outcome value='Other'>
+                                                        <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNETS
+             SET
+             entity_id = $eipam-ip-block.entity-id ,
+             service_type = $tmp.service-type ,
+             ip_address = $eipam-ip-block.ip-prefix ,
+             prefix_length = $eipam-ip-block.mask ,
+             plan_name = $network-model.eipam-v4-address-plan ,
+             status = 'ACTIVE' ,
+             pool_id = $pfx.eipam-pool-row.pool-id ,
+             address_family = $network-model.ipv4-ip-version ,
+             network_id = $tmp.network-id ; "
+    force='true'
+        pfx='pfx.eipam-v4subnet-row'>
+                                                            <outcome value='failure'>
+                                                                <return status='failure'>
+                                                                    <parameter name='error-code' value='500' />
+                                                                    <parameter name='error-message' value='failed to update EIPAM_IP_SUBNETS table.' />
+                                                                </return>
+                                                            </outcome>
+                                                        </save>
+                                                    </outcome>
+                                                    <outcome value=''>
+                                                        <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNETS
+             SET
+             entity_id = $eipam-ip-block.entity-id ,
+             service_type = $tmp.service-type ,
+             ip_address = $eipam-ip-block.ip-prefix ,
+             prefix_length = $eipam-ip-block.mask ,
+             plan_name = $network-model.eipam-v4-address-plan ,
+             status = 'ACTIVE' ,
+             pool_id = $pfx.eipam-pool-row.pool-id ,
+             address_family = $network-model.ipv4-ip-version ,
+             network_id = $tmp.network-id ; "
+    force='true'
+        pfx='pfx.eipam-v4subnet-row'>
+                                                            <outcome value='failure'>
+                                                                <return status='failure'>
+                                                                    <parameter name='error-code' value='500' />
+                                                                    <parameter name='error-message' value='failed to update EIPAM_IP_SUBNETS table.' />
+                                                                </return>
+                                                            </outcome>
+                                                        </save>
+                                                    </outcome>
+                                                </switch>
+                                                <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNET_KEYS
+             SET
+             entity_id = $eipam-ip-block.entity-id ,
+             key_name = $key-name ,
+             key_value = $key-value ,
+             level = $eipam-ip-block.level ; "
+    force='true'
+        pfx='pfx.eipam-v4subnet-key-row'>
+                                                    <outcome value='failure'>
+                                                        <return status='failure'>
+                                                            <parameter name='error-code' value='500' />
+                                                            <parameter name='error-message' value='failed to update EIPAM_IP_SUBNET_KEYS table.' />
+                                                        </return>
+                                                    </outcome>
+                                                    <outcome value='success'></outcome>
+                                                </save>
+                                                <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                    <parameter name="logger" value="message-log"/>
+                                                    <parameter name="field1" value="__TIMESTAMP__"/>
+                                                    <parameter name="field2" value="network-topology-operation"/>
+                                                    <parameter name="field3" value="eipam-allocate-generic-subnet"/>
+                                                    <parameter name="field4" value="`$network-model.eipam-v4-address-plan`"/>
+                                                    <parameter name="field5" value="`$key-value`"/>
+                                                    <parameter name="field6" value="`$tmp.eipam-pool-row.pool-id`"/>
+                                                    <parameter name="field7" value="`$tmp.network_instance_group_id`"/>
+                                                    <parameter name="field8" value="`$eipam-ip-block.level`"/>
+                                                    <parameter name="field9" value="`$network-model.network-role`"/>
+                                                    <parameter name="field10" value="`$tmp.network-id`"/>
+                                                    <parameter name="field11" value="subnet saved to DB."/>
+                                                </record>
+                                            </block>
+                                        </outcome>
+                                    </switch>
+                                </block>
+                            </outcome>
+                            <outcome value=''>
+                                <return status="failure">
+                                    <parameter name="tmp.eipam-error" value="true" />
+                                    <parameter name="error-code" value="500"/>
+                                    <parameter name="error-message" value="Please set the eipam-ip-block.level for appropriate EIPAM request." />
+                                </return>
+                            </outcome>
+                            <outcome value='Other'>
+                                <block atomic='true'>
+                                    <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                    <set>
+                                        <parameter name="eipam-ip-block.plan-name" value="`$network-model.eipam-v4-address-plan`"/>
+                                        <parameter name="eipam-ip-block.activate-subnet-flag" value="`$tmp.activate-subnet-flag`"/>
+                                        <parameter name="eipam-ip-block.leaf-level-indicator" value="`$tmp.leaf-level`"/>
+                                        <parameter name="tmp.allocate-v4-subnet-flag" value="Y" />
+                                        <!-- Number of Pool Levels -->
+                                        <parameter name="eipam-ip-block.pools_length" value="`$eipam-ip-block.level`"/>
+                                    </set>
+                                    <for index="l4-idx" start="0" end="`$eipam-ip-block.level`">
+                                        <block atomic='true'>
+                                            <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                            <set>
+                                                <parameter name="eipam-ip-block.pools[$l4-idx].key-name" value="`$v4FQPN-output.pools[$l4-idx].key-name`"/>
+                                                <parameter name="eipam-ip-block.pools[$l4-idx].key-value" value="`$v4FQPN-output.pools[$l4-idx].key-value`"/>
+                                            </set>
+                                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                <parameter name="logger" value="message-log"/>
+                                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                                <parameter name="field2" value="network-topology-operation"/>
+                                                <parameter name="field3" value="eipam-allocate-generic-subnet"/>
+                                                <parameter name="field4" value="`$eipam-ip-block.plan-name`"/>
+                                                <parameter name="field5" value="`$eipam-ip-block.pools[$l4-idx].key-name`"/>
+                                                <parameter name="field6" value="`$eipam-ip-block.pools[$l4-idx].key-value`"/>
+                                            </record>
+                                        </block>
+                                    </for>
+                                    <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                    <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="allocateSubnet">
+                                        <outcome value='failure'>
+                                            <return status="failure">
+                                                <parameter name="tmp.eipam-error" value="true" />
+                                                <parameter name="error-code" value="500"/>
+                                                <parameter name="error-message" value="An error occured while allocating V4 subnet in EIPAM." />
+                                            </return>
+                                        </outcome>
+                                    </execute>
+                                    <get-resource
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="SELECT * from EIPAM_IP_POOLS WHERE plan_name = $network-model.eipam-v4-address-plan and level = $eipam-ip-block.level and key_value = $tmp.key-value ; "
+        pfx='pfx.eipam-pool-row'>
+                                        <outcome value='failure'>
+                                            <return status="failure">
+                                                <parameter name="tmp.eipam-error" value="true" />
+                                                <parameter name="error-code" value="500"/>
+                                                <parameter name="error-message" value="An error occured while looking for entry in EIPAM_IP_POOLS for V4 subnet in EIPAM." />
+                                            </return>
+                                        </outcome>
+                                        <outcome value="not-found">
+                                            <return status="failure">
+                                                <parameter name="tmp.eipam-error" value="true" />
+                                                <parameter name="error-code" value="500"/>
+                                                <parameter name="error-message" value="An error occured while looking for entry in EIPAM_IP_POOLS for V4 subnet in EIPAM." />
+                                            </return>
+                                        </outcome>
+                                    </get-resource>
+                                    <switch test="`$network-instance-group-data.subnet-assignment-policy.subnet-use`">
+                                        <outcome value='shared'>
+                                            <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNETS
+             SET
+             entity_id = $eipam-ip-block.entity-id ,
+             service_type = $tmp.service-type ,
+             ip_address = $eipam-ip-block.ip-prefix ,
+             prefix_length = $eipam-ip-block.mask ,
+             plan_name = $network-model.eipam-v4-address-plan ,
+             status = 'ACTIVE' ,
+             pool_id = $pfx.eipam-pool-row.pool-id ,
+             address_family = $network-model.ipv4-ip-version ,
+             network_id = $tmp.network-id ,
+             network_instance_group_id = $tmp.network-instance-group-id ; "
+    force='true'
+        pfx='pfx.eipam-v4subnet-row'>
+                                                <outcome value='failure'>
+                                                    <return status='failure'>
+                                                        <parameter name='error-code' value='500' />
+                                                        <parameter name='error-message' value='failed to update EIPAM_IP_SUBNETS table.' />
+                                                    </return>
+                                                </outcome>
+                                            </save>
+                                        </outcome>
+                                        <outcome value='Other'>
+                                            <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNETS
+             SET
+             entity_id = $eipam-ip-block.entity-id ,
+             service_type = $tmp.service-type ,
+             ip_address = $eipam-ip-block.ip-prefix ,
+             prefix_length = $eipam-ip-block.mask ,
+             plan_name = $network-model.eipam-v4-address-plan ,
+             status = 'ACTIVE' ,
+             pool_id = $pfx.eipam-pool-row.pool-id ,
+             address_family = $network-model.ipv4-ip-version ,
+             network_id = $tmp.network-id ; "
+    force='true'
+        pfx='pfx.eipam-v4subnet-row'>
+                                                <outcome value='failure'>
+                                                    <return status='failure'>
+                                                        <parameter name='error-code' value='500' />
+                                                        <parameter name='error-message' value='failed to update EIPAM_IP_SUBNETS table.' />
+                                                    </return>
+                                                </outcome>
+                                            </save>
+                                        </outcome>
+                                        <outcome value=''>
+                                            <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNETS
+             SET
+             entity_id = $eipam-ip-block.entity-id ,
+             service_type = $tmp.service-type ,
+             ip_address = $eipam-ip-block.ip-prefix ,
+             prefix_length = $eipam-ip-block.mask ,
+             plan_name = $network-model.eipam-v4-address-plan ,
+             status = 'ACTIVE' ,
+             pool_id = $pfx.eipam-pool-row.pool-id ,
+             address_family = $network-model.ipv4-ip-version ,
+             network_id = $tmp.network-id ; "
+    force='true'
+        pfx='pfx.eipam-v4subnet-row'>
+                                                <outcome value='failure'>
+                                                    <return status='failure'>
+                                                        <parameter name='error-code' value='500' />
+                                                        <parameter name='error-message' value='failed to update EIPAM_IP_SUBNETS table.' />
+                                                    </return>
+                                                </outcome>
+                                            </save>
+                                        </outcome>
+                                    </switch>
+                                    <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNET_KEYS
+             SET
+             entity_id = $eipam-ip-block.entity-id ,
+             key_name = $key-name ,
+             key_value = $key-value ,
+             level = $eipam-ip-block.level ; "
+    force='true'
+        pfx='pfx.eipam-v4subnet-key-row'>
+                                        <outcome value='failure'>
+                                            <return status='failure'>
+                                                <parameter name='error-code' value='500' />
+                                                <parameter name='error-message' value='failed to update EIPAM_IP_SUBNET_KEYS table.' />
+                                            </return>
+                                        </outcome>
+                                        <outcome value='success'></outcome>
+                                    </save>
+                                    <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                        <parameter name="logger" value="message-log"/>
+                                        <parameter name="field1" value="__TIMESTAMP__"/>
+                                        <parameter name="field2" value="network-topology-operation"/>
+                                        <parameter name="field3" value="eipam-allocate-generic-subnet"/>
+                                        <parameter name="field4" value="`$network-model.eipam-v4-address-plan`"/>
+                                        <parameter name="field5" value="`$key-value`"/>
+                                        <parameter name="field6" value="`$tmp.eipam-pool-row.pool-id`"/>
+                                        <parameter name="field7" value="`$tmp.network_instance_group_id`"/>
+                                        <parameter name="field8" value="`$eipam-ip-block.level`"/>
+                                        <parameter name="field9" value="`$network-model.network-role`"/>
+                                        <parameter name="field10" value="`$tmp.network-id`"/>
+                                        <parameter name="field11" value="subnet saved to DB."/>
+                                    </record>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='ipv6'>
+                    <block atomic='true'>
+                        <switch test="`$l-idx`">
+                            <outcome value='1'>
+                                <block atomic='true'>
+                                    <switch test="`$tmp.skip-first-level`">
+                                        <outcome value='Y'></outcome>
+                                        <outcome value="">
+                                            <block atomic='true'>
+                                                <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                <set>
+                                                    <parameter name="eipam-ip-block.plan-name" value="`$network-model.eipam-v6-address-plan`"/>
+                                                    <parameter name="eipam-ip-block.activate-subnet-flag" value="`$tmp.activate-subnet-flag`"/>
+                                                    <parameter name="eipam-ip-block.leaf-level-indicator" value="`$tmp.leaf-level`"/>
+                                                    <parameter name="tmp.allocate-v6-subnet-flag" value="Y" />
+                                                    <!-- Number of Pool Levels -->
+                                                    <parameter name="eipam-ip-block.pools_length" value="`$eipam-ip-block.level`"/>
+                                                </set>
+                                                <for index="l6-idx" start="0" end="`$eipam-ip-block.level`">
+                                                    <block atomic='true'>
+                                                        <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                        <set>
+                                                            <parameter name="eipam-ip-block.pools[$l6-idx].key-name" value="`$v6FQPN-output.pools[$l6-idx].key-name`"/>
+                                                            <parameter name="eipam-ip-block.pools[$l6-idx].key-value" value="`$v6FQPN-output.pools[$l6-idx].key-value`"/>
+                                                        </set>
+                                                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                            <parameter name="logger" value="message-log"/>
+                                                            <parameter name="field1" value="__TIMESTAMP__"/>
+                                                            <parameter name="field2" value="network-topology-operation"/>
+                                                            <parameter name="field3" value="eipam-allocate-generic-subnet"/>
+                                                            <parameter name="field4" value="`$eipam-ip-block.plan-name`"/>
+                                                            <parameter name="field5" value="`$eipam-ip-block.pools[$l6-idx].key-name`"/>
+                                                            <parameter name="field6" value="`$eipam-ip-block.pools[$l6-idx].key-value`"/>
+                                                            <parameter name="field7" value="`$l6-idx`"/>
+                                                        </record>
+                                                    </block>
+                                                </for>
+                                                <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="allocateSubnet">
+                                                    <outcome value='failure'>
+                                                        <return status="failure">
+                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="error-message" value="An error occured while allocating V6 subnet in EIPAM." />
+                                                        </return>
+                                                    </outcome>
+                                                </execute>
+                                                <get-resource
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="SELECT * from EIPAM_IP_POOLS WHERE plan_name = $network-model.eipam-v6-address-plan and level = $eipam-ip-block.level and key_value = $tmp.key-value ; "
+        pfx='pfx.eipam-pool-row'>
+                                                    <outcome value='failure'>
+                                                        <return status="failure">
+                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="error-message" value="An error occured while looking for entry in EIPAM_IP_POOLS for V6 subnet in EIPAM." />
+                                                        </return>
+                                                    </outcome>
+                                                    <outcome value="not-found">
+                                                        <return status="failure">
+                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="error-message" value="An error occured while looking for entry in EIPAM_IP_POOLS for V6 subnet in EIPAM." />
+                                                        </return>
+                                                    </outcome>
+                                                </get-resource>
+                                                <switch test="`$network-instance-group-data.subnet-assignment-policy.subnet-use`">
+                                                    <outcome value='shared'>
+                                                        <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNETS
+             SET
+             entity_id = $eipam-ip-block.entity-id ,
+             service_type = $tmp.service-type ,
+             ip_address = $eipam-ip-block.ip-prefix ,
+             prefix_length = $eipam-ip-block.mask ,
+             plan_name = $network-model.eipam-v6-address-plan ,
+             status = 'ACTIVE' ,
+             pool_id = $pfx.eipam-pool-row.pool-id ,
+             address_family = $network-model.ipv6-ip-version ,
+             network_id = $tmp.network-id ,
+             network_instance_group_id = $tmp.network-instance-group-id ; "
+    force='true'
+        pfx='pfx.eipam-v6subnet-row'>
+                                                            <outcome value='failure'>
+                                                                <return status='failure'>
+                                                                    <parameter name='error-code' value='500' />
+                                                                    <parameter name='error-message' value='failed to update EIPAM_IP_SUBNETS table.' />
+                                                                </return>
+                                                            </outcome>
+                                                        </save>
+                                                    </outcome>
+                                                    <outcome value='Other'>
+                                                        <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNETS
+             SET
+             entity_id = $eipam-ip-block.entity-id ,
+             service_type = $tmp.service-type ,
+             ip_address = $eipam-ip-block.ip-prefix ,
+             prefix_length = $eipam-ip-block.mask ,
+             plan_name = $network-model.eipam-v6-address-plan ,
+             status = 'ACTIVE' ,
+             pool_id = $pfx.eipam-pool-row.pool-id ,
+             address_family = $network-model.ipv6-ip-version ,
+             network_id = $tmp.network-id ; "
+    force='true'
+        pfx='pfx.eipam-v6subnet-row'>
+                                                            <outcome value='failure'>
+                                                                <return status='failure'>
+                                                                    <parameter name='error-code' value='500' />
+                                                                    <parameter name='error-message' value='failed to update EIPAM_IP_SUBNETS table.' />
+                                                                </return>
+                                                            </outcome>
+                                                        </save>
+                                                    </outcome>
+                                                    <outcome value=''>
+                                                        <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNETS
+             SET
+             entity_id = $eipam-ip-block.entity-id ,
+             service_type = $tmp.service-type ,
+             ip_address = $eipam-ip-block.ip-prefix ,
+             prefix_length = $eipam-ip-block.mask ,
+             plan_name = $network-model.eipam-v6-address-plan ,
+             status = 'ACTIVE' ,
+             pool_id = $pfx.eipam-pool-row.pool-id ,
+             address_family = $network-model.ipv6-ip-version ,
+             network_id = $tmp.network-id ; "
+    force='true'
+        pfx='pfx.eipam-v6subnet-row'>
+                                                            <outcome value='failure'>
+                                                                <return status='failure'>
+                                                                    <parameter name='error-code' value='500' />
+                                                                    <parameter name='error-message' value='failed to update EIPAM_IP_SUBNETS table.' />
+                                                                </return>
+                                                            </outcome>
+                                                        </save>
+                                                    </outcome>
+                                                </switch>
+                                                <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNET_KEYS
+             SET
+             entity_id = $eipam-ip-block.entity-id ,
+             key_name = $key-name ,
+             key_value = $key-value ,
+             level = $eipam-ip-block.level ; "
+    force='true'
+        pfx='pfx.eipam-v6subnet-key-row'>
+                                                    <outcome value='failure'>
+                                                        <return status='failure'>
+                                                            <parameter name='error-code' value='500' />
+                                                            <parameter name='error-message' value='failed to update EIPAM_IP_SUBNET_KEYS table.' />
+                                                        </return>
+                                                    </outcome>
+                                                    <outcome value='success'></outcome>
+                                                </save>
+                                                <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                    <parameter name="logger" value="message-log"/>
+                                                    <parameter name="field1" value="__TIMESTAMP__"/>
+                                                    <parameter name="field2" value="network-topology-operation"/>
+                                                    <parameter name="field3" value="eipam-allocate-generic-subnet"/>
+                                                    <parameter name="field4" value="`$network-model.eipam-v6-address-plan`"/>
+                                                    <parameter name="field5" value="`$key-value`"/>
+                                                    <parameter name="field6" value="`$tmp.eipam-pool-row.pool-id`"/>
+                                                    <parameter name="field7" value="`$tmp.network_instance_group_id`"/>
+                                                    <parameter name="field8" value="`$eipam-ip-block.level`"/>
+                                                    <parameter name="field9" value="`$network-model.network-role`"/>
+                                                    <parameter name="field10" value="`$tmp.network-id`"/>
+                                                    <parameter name="field11" value="subnet info are saved to DB."/>
+                                                </record>
+                                            </block>
+                                        </outcome>
+                                        <outcome value='N'>
+                                            <block atomic='true'>
+                                                <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                <set>
+                                                    <parameter name="eipam-ip-block.plan-name" value="`$network-model.eipam-v6-address-plan`"/>
+                                                    <parameter name="eipam-ip-block.activate-subnet-flag" value="`$tmp.activate-subnet-flag`"/>
+                                                    <parameter name="eipam-ip-block.leaf-level-indicator" value="`$tmp.leaf-level`"/>
+                                                    <parameter name="tmp.allocate-v6-subnet-flag" value="Y" />
+                                                    <!-- Number of Pool Levels -->
+                                                    <parameter name="eipam-ip-block.pools_length" value="`$eipam-ip-block.level`"/>
+                                                </set>
+                                                <for index="l6-idx" start="0" end="`$eipam-ip-block.level`">
+                                                    <block atomic='true'>
+                                                        <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                        <set>
+                                                            <parameter name="eipam-ip-block.pools[$l6-idx].key-name" value="`$v6FQPN-output.pools[$l6-idx].key-name`"/>
+                                                            <parameter name="eipam-ip-block.pools[$l6-idx].key-value" value="`$v6FQPN-output.pools[$l6-idx].key-value`"/>
+                                                        </set>
+                                                        <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                            <parameter name="logger" value="message-log"/>
+                                                            <parameter name="field1" value="__TIMESTAMP__"/>
+                                                            <parameter name="field2" value="network-topology-operation"/>
+                                                            <parameter name="field3" value="eipam-allocate-generic-subnet"/>
+                                                            <parameter name="field4" value="`$eipam-ip-block.plan-name`"/>
+                                                            <parameter name="field5" value="`$eipam-ip-block.pools[$l6-idx].key-name`"/>
+                                                            <parameter name="field6" value="`$eipam-ip-block.pools[$l6-idx].key-value`"/>
+                                                            <parameter name="field7" value="`$l6-idx`"/>
+                                                        </record>
+                                                    </block>
+                                                </for>
+                                                <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="allocateSubnet">
+                                                    <outcome value='failure'>
+                                                        <return status="failure">
+                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="error-message" value="An error occured while allocating V6 subnet in EIPAM." />
+                                                        </return>
+                                                    </outcome>
+                                                </execute>
+                                                <get-resource
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="SELECT * from EIPAM_IP_POOLS WHERE plan_name = $network-model.eipam-v6-address-plan and level = $eipam-ip-block.level and key_value = $tmp.key-value ; "
+        pfx='pfx.eipam-pool-row'>
+                                                    <outcome value='failure'>
+                                                        <return status="failure">
+                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="error-message" value="An error occured while looking for entry in EIPAM_IP_POOLS for V6 subnet in EIPAM." />
+                                                        </return>
+                                                    </outcome>
+                                                    <outcome value="not-found">
+                                                        <return status="failure">
+                                                            <parameter name="tmp.eipam-error" value="true" />
+                                                            <parameter name="error-code" value="500"/>
+                                                            <parameter name="error-message" value="An error occured while looking for entry in EIPAM_IP_POOLS for V6 subnet in EIPAM." />
+                                                        </return>
+                                                    </outcome>
+                                                </get-resource>
+                                                <switch test="`$network-instance-group-data.subnet-assignment-policy.subnet-use`">
+                                                    <outcome value='shared'>
+                                                        <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNETS
+             SET
+             entity_id = $eipam-ip-block.entity-id ,
+             service_type = $tmp.service-type ,
+             ip_address = $eipam-ip-block.ip-prefix ,
+             prefix_length = $eipam-ip-block.mask ,
+             plan_name = $network-model.eipam-v6-address-plan ,
+             status = 'ACTIVE' ,
+             pool_id = $pfx.eipam-pool-row.pool-id ,
+             address_family = $network-model.ipv6-ip-version ,
+             network_id = $tmp.network-id ,
+             network_instance_group_id = $tmp.network-instance-group-id ; "
+    force='true'
+        pfx='pfx.eipam-v6subnet-row'>
+                                                            <outcome value='failure'>
+                                                                <return status='failure'>
+                                                                    <parameter name='error-code' value='500' />
+                                                                    <parameter name='error-message' value='failed to update EIPAM_IP_SUBNETS table.' />
+                                                                </return>
+                                                            </outcome>
+                                                        </save>
+                                                    </outcome>
+                                                    <outcome value='Other'>
+                                                        <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNETS
+             SET
+             entity_id = $eipam-ip-block.entity-id ,
+             service_type = $tmp.service-type ,
+             ip_address = $eipam-ip-block.ip-prefix ,
+             prefix_length = $eipam-ip-block.mask ,
+             plan_name = $network-model.eipam-v6-address-plan ,
+             status = 'ACTIVE' ,
+             pool_id = $pfx.eipam-pool-row.pool-id ,
+             address_family = $network-model.ipv6-ip-version ,
+             network_id = $tmp.network-id ; "
+    force='true'
+        pfx='pfx.eipam-v6subnet-row'>
+                                                            <outcome value='failure'>
+                                                                <return status='failure'>
+                                                                    <parameter name='error-code' value='500' />
+                                                                    <parameter name='error-message' value='failed to update EIPAM_IP_SUBNETS table.' />
+                                                                </return>
+                                                            </outcome>
+                                                        </save>
+                                                    </outcome>
+                                                    <outcome value=''>
+                                                        <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNETS
+             SET
+             entity_id = $eipam-ip-block.entity-id ,
+             service_type = $tmp.service-type ,
+             ip_address = $eipam-ip-block.ip-prefix ,
+             prefix_length = $eipam-ip-block.mask ,
+             plan_name = $network-model.eipam-v6-address-plan ,
+             status = 'ACTIVE' ,
+             pool_id = $pfx.eipam-pool-row.pool-id ,
+             address_family = $network-model.ipv6-ip-version ,
+             network_id = $tmp.network-id ; "
+    force='true'
+        pfx='pfx.eipam-v6subnet-row'>
+                                                            <outcome value='failure'>
+                                                                <return status='failure'>
+                                                                    <parameter name='error-code' value='500' />
+                                                                    <parameter name='error-message' value='failed to update EIPAM_IP_SUBNETS table.' />
+                                                                </return>
+                                                            </outcome>
+                                                        </save>
+                                                    </outcome>
+                                                </switch>
+                                                <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNET_KEYS
+             SET
+             entity_id = $eipam-ip-block.entity-id ,
+             key_name = $key-name ,
+             key_value = $key-value ,
+             level = $eipam-ip-block.level ; "
+    force='true'
+        pfx='pfx.eipam-v6subnet-key-row'>
+                                                    <outcome value='failure'>
+                                                        <return status='failure'>
+                                                            <parameter name='error-code' value='500' />
+                                                            <parameter name='error-message' value='failed to update EIPAM_IP_SUBNET_KEYS table.' />
+                                                        </return>
+                                                    </outcome>
+                                                    <outcome value='success'></outcome>
+                                                </save>
+                                                <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                    <parameter name="logger" value="message-log"/>
+                                                    <parameter name="field1" value="__TIMESTAMP__"/>
+                                                    <parameter name="field2" value="network-topology-operation"/>
+                                                    <parameter name="field3" value="eipam-allocate-generic-subnet"/>
+                                                    <parameter name="field4" value="`$network-model.eipam-v6-address-plan`"/>
+                                                    <parameter name="field5" value="`$key-value`"/>
+                                                    <parameter name="field6" value="`$tmp.eipam-pool-row.pool-id`"/>
+                                                    <parameter name="field7" value="`$tmp.network_instance_group_id`"/>
+                                                    <parameter name="field8" value="`$eipam-ip-block.level`"/>
+                                                    <parameter name="field9" value="`$network-model.network-role`"/>
+                                                    <parameter name="field10" value="`$tmp.network-id`"/>
+                                                    <parameter name="field11" value="subnet info are saved to DB."/>
+                                                </record>
+                                            </block>
+                                        </outcome>
+                                    </switch>
+                                </block>
+                            </outcome>
+                            <outcome value=''>
+                                <return status="failure">
+                                    <parameter name="tmp.eipam-error" value="true" />
+                                    <parameter name="error-code" value="500"/>
+                                    <parameter name="error-message" value="Please set the eipam-ip-block.level for appropriate EIPAM request." />
+                                </return>
+                            </outcome>
+                            <outcome value='Other'>
+                                <block atomic='true'>
+                                    <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                    <set>
+                                        <parameter name="eipam-ip-block.plan-name" value="`$network-model.eipam-v6-address-plan`"/>
+                                        <parameter name="eipam-ip-block.activate-subnet-flag" value="`$tmp.activate-subnet-flag`"/>
+                                        <parameter name="eipam-ip-block.leaf-level-indicator" value="`$tmp.leaf-level`"/>
+                                        <parameter name="tmp.allocate-v6-subnet-flag" value="Y" />
+                                        <!-- Number of Pool Levels -->
+                                        <parameter name="eipam-ip-block.pools_length" value="`$eipam-ip-block.level`"/>
+                                    </set>
+                                    <for index="l6-idx" start="0" end="`$eipam-ip-block.level`">
+                                        <block atomic='true'>
+                                            <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                            <set>
+                                                <parameter name="eipam-ip-block.pools[$l6-idx].key-name" value="`$v6FQPN-output.pools[$l6-idx].key-name`"/>
+                                                <parameter name="eipam-ip-block.pools[$l6-idx].key-value" value="`$v6FQPN-output.pools[$l6-idx].key-value`"/>
+                                            </set>
+                                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                <parameter name="logger" value="message-log"/>
+                                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                                <parameter name="field2" value="network-topology-operation"/>
+                                                <parameter name="field3" value="eipam-allocate-generic-subnet"/>
+                                                <parameter name="field4" value="`$eipam-ip-block.plan-name`"/>
+                                                <parameter name="field5" value="`$eipam-ip-block.pools[$l6-idx].key-name`"/>
+                                                <parameter name="field6" value="`$eipam-ip-block.pools[$l6-idx].key-value`"/>
+                                                <parameter name="field7" value="`$l6-idx`"/>
+                                            </record>
+                                        </block>
+                                    </for>
+                                    <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                    <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="allocateSubnet">
+                                        <outcome value='failure'>
+                                            <return status="failure">
+                                                <parameter name="tmp.eipam-error" value="true" />
+                                                <parameter name="error-code" value="500"/>
+                                                <parameter name="error-message" value="An error occured while allocating V6 subnet in EIPAM." />
+                                            </return>
+                                        </outcome>
+                                    </execute>
+                                    <get-resource
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="SELECT * from EIPAM_IP_POOLS WHERE plan_name = $network-model.eipam-v6-address-plan and level = $eipam-ip-block.level and key_value = $tmp.key-value ; "
+        pfx='pfx.eipam-pool-row'>
+                                        <outcome value='failure'>
+                                            <return status="failure">
+                                                <parameter name="tmp.eipam-error" value="true" />
+                                                <parameter name="error-code" value="500"/>
+                                                <parameter name="error-message" value="An error occured while looking for entry in EIPAM_IP_POOLS for V6 subnet in EIPAM." />
+                                            </return>
+                                        </outcome>
+                                        <outcome value="not-found">
+                                            <return status="failure">
+                                                <parameter name="tmp.eipam-error" value="true" />
+                                                <parameter name="error-code" value="500"/>
+                                                <parameter name="error-message" value="An error occured while looking for entry in EIPAM_IP_POOLS for V6 subnet in EIPAM." />
+                                            </return>
+                                        </outcome>
+                                    </get-resource>
+                                    <switch test="`$network-instance-group-data.subnet-assignment-policy.subnet-use`">
+                                        <outcome value='shared'>
+                                            <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNETS
+             SET
+             entity_id = $eipam-ip-block.entity-id ,
+             service_type = $tmp.service-type ,
+             ip_address = $eipam-ip-block.ip-prefix ,
+             prefix_length = $eipam-ip-block.mask ,
+             plan_name = $network-model.eipam-v6-address-plan ,
+             status = 'ACTIVE' ,
+             pool_id = $pfx.eipam-pool-row.pool-id ,
+             address_family = $network-model.ipv6-ip-version ,
+             network_id = $tmp.network-id ,
+             network_instance_group_id = $tmp.network-instance-group-id ; "
+    force='true'
+        pfx='pfx.eipam-v6subnet-row'>
+                                                <outcome value='failure'>
+                                                    <return status='failure'>
+                                                        <parameter name='error-code' value='500' />
+                                                        <parameter name='error-message' value='failed to update EIPAM_IP_SUBNETS table.' />
+                                                    </return>
+                                                </outcome>
+                                            </save>
+                                        </outcome>
+                                        <outcome value='Other'>
+                                            <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNETS
+             SET
+             entity_id = $eipam-ip-block.entity-id ,
+             service_type = $tmp.service-type ,
+             ip_address = $eipam-ip-block.ip-prefix ,
+             prefix_length = $eipam-ip-block.mask ,
+             plan_name = $network-model.eipam-v6-address-plan ,
+             status = 'ACTIVE' ,
+             pool_id = $pfx.eipam-pool-row.pool-id ,
+             address_family = $network-model.ipv6-ip-version ,
+             network_id = $tmp.network-id ; "
+    force='true'
+        pfx='pfx.eipam-v6subnet-row'>
+                                                <outcome value='failure'>
+                                                    <return status='failure'>
+                                                        <parameter name='error-code' value='500' />
+                                                        <parameter name='error-message' value='failed to update EIPAM_IP_SUBNETS table.' />
+                                                    </return>
+                                                </outcome>
+                                            </save>
+                                        </outcome>
+                                        <outcome value=''>
+                                            <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNETS
+             SET
+             entity_id = $eipam-ip-block.entity-id ,
+             service_type = $tmp.service-type ,
+             ip_address = $eipam-ip-block.ip-prefix ,
+             prefix_length = $eipam-ip-block.mask ,
+             plan_name = $network-model.eipam-v6-address-plan ,
+             status = 'ACTIVE' ,
+             pool_id = $pfx.eipam-pool-row.pool-id ,
+             address_family = $network-model.ipv6-ip-version ,
+             network_id = $tmp.network-id ; "
+    force='true'
+        pfx='pfx.eipam-v6subnet-row'>
+                                                <outcome value='failure'>
+                                                    <return status='failure'>
+                                                        <parameter name='error-code' value='500' />
+                                                        <parameter name='error-message' value='failed to update EIPAM_IP_SUBNETS table.' />
+                                                    </return>
+                                                </outcome>
+                                            </save>
+                                        </outcome>
+                                    </switch>
+                                    <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNET_KEYS
+             SET
+             entity_id = $eipam-ip-block.entity-id ,
+             key_name = $key-name ,
+             key_value = $key-value ,
+             level = $eipam-ip-block.level ; "
+    force='true'
+        pfx='pfx.eipam-v6subnet-key-row'>
+                                        <outcome value='failure'>
+                                            <return status='failure'>
+                                                <parameter name='error-code' value='500' />
+                                                <parameter name='error-message' value='failed to update EIPAM_IP_SUBNET_KEYS table.' />
+                                            </return>
+                                        </outcome>
+                                        <outcome value='success'></outcome>
+                                    </save>
+                                    <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                        <parameter name="logger" value="message-log"/>
+                                        <parameter name="field1" value="__TIMESTAMP__"/>
+                                        <parameter name="field2" value="network-topology-operation"/>
+                                        <parameter name="field3" value="eipam-allocate-generic-subnet"/>
+                                        <parameter name="field4" value="`$network-model.eipam-v6-address-plan`"/>
+                                        <parameter name="field5" value="`$key-value`"/>
+                                        <parameter name="field6" value="`$tmp.eipam-pool-row.pool-id`"/>
+                                        <parameter name="field7" value="`$tmp.network_instance_group_id`"/>
+                                        <parameter name="field8" value="`$eipam-ip-block.level`"/>
+                                        <parameter name="field9" value="`$network-model.network-role`"/>
+                                        <parameter name="field10" value="`$tmp.network-id`"/>
+                                        <parameter name="field11" value="subnet info are saved to DB."/>
+                                    </record>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value=''>
+                    <return status="failure">
+                        <parameter name="tmp.eipam-error" value="true" />
+                        <parameter name="error-code" value="500"/>
+                        <parameter name="error-message" value="Please set the eipam-ip-block.allocate-version for appropriate EIPAM request." />
+                    </return>
+                </outcome>
+            </switch>
+            <return status='success'>
+                <parameter name="error-code" value="200" />
+            </return>
+        </block>
+    </method>
+</service-logic>

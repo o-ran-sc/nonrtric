@@ -1,0 +1,638 @@
+[
+    {
+        "id": "4a3915c6.05f4cc",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 101.42857360839844,
+        "y": 81.42857360839844,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "4b88506.9e22db"
+            ]
+        ]
+    },
+    {
+        "id": "4b88506.9e22db",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 215.04759979248047,
+        "y": 121.66668701171875,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "3d36d704.8162c8"
+            ]
+        ]
+    },
+    {
+        "id": "3d36d704.8162c8",
+        "type": "method",
+        "name": "method port-mirror-topology-operation",
+        "xml": "<method rpc='port-mirror-topology-operation' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 189.8572006225586,
+        "y": 161.42857360839844,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "e6e242da.69fe6"
+            ]
+        ]
+    },
+    {
+        "id": "be456109.bd24e",
+        "type": "comment",
+        "name": "port-mirror-topology-operation",
+        "info": "",
+        "comments": "",
+        "x": 495.77342987060547,
+        "y": 29.014917373657227,
+        "z": "ccb80365.d73f6",
+        "wires": []
+    },
+    {
+        "id": "355dd75e.24ec18",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n\n",
+        "comments": "",
+        "x": 518.869068145752,
+        "y": 721.7260837554932,
+        "z": "ccb80365.d73f6",
+        "wires": []
+    },
+    {
+        "id": "e6e242da.69fe6",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 224.28571319580078,
+        "y": 459.99999237060547,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "355dd75e.24ec18",
+                "f0cb07d6.0e4048",
+                "508bb8bf.ae93d8",
+                "f41c1b7a.2417f8"
+            ]
+        ]
+    },
+    {
+        "id": "f0cb07d6.0e4048",
+        "type": "call",
+        "name": "call port-mirror-topology-operation-validation",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='port-mirror-topology-operation-validation' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 615,
+        "y": 251.25000381469727,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "f20f67c8.480108"
+            ]
+        ]
+    },
+    {
+        "id": "f20f67c8.480108",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 899.9999847412109,
+        "y": 251.6071434020996,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "28729372.5d8d4c"
+            ]
+        ]
+    },
+    {
+        "id": "28729372.5d8d4c",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='ack-final' value='Y' />\n",
+        "comments": "",
+        "x": 1069.9999237060547,
+        "y": 250.71429443359375,
+        "z": "ccb80365.d73f6",
+        "wires": []
+    },
+    {
+        "id": "508bb8bf.ae93d8",
+        "type": "switchNode",
+        "name": "switch svc-action",
+        "xml": "<switch test='`$port-mirror-topology-operation-input.sdnc-request-header.svc-action`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 532.857177734375,
+        "y": 480.0000228881836,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "911e3654.4628b8",
+                "9cf51ec1.5a687",
+                "240d0258.67162e",
+                "13c3af67.47b1b1",
+                "dcac8be4.96c918",
+                "d7879d5c.1b4cb"
+            ]
+        ]
+    },
+    {
+        "id": "911e3654.4628b8",
+        "type": "outcome",
+        "name": "assign",
+        "xml": "<outcome value='assign'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 758.5714855194092,
+        "y": 371.2500286102295,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "be83b6f4.dba758"
+            ]
+        ]
+    },
+    {
+        "id": "9cf51ec1.5a687",
+        "type": "outcome",
+        "name": "activate",
+        "xml": "<outcome value='activate'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 759.2858085632324,
+        "y": 418.7500829696655,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "26db655a.45972a"
+            ]
+        ]
+    },
+    {
+        "id": "240d0258.67162e",
+        "type": "outcome",
+        "name": "unassign",
+        "xml": "<outcome value='unassign'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 759.642894744873,
+        "y": 465.8929195404053,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "4c2b1545.e2559c"
+            ]
+        ]
+    },
+    {
+        "id": "13c3af67.47b1b1",
+        "type": "outcome",
+        "name": "deactivate",
+        "xml": "<outcome value='deactivate'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 764.6428985595703,
+        "y": 513.9286460876465,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "1489bb5a.cc2a45"
+            ]
+        ]
+    },
+    {
+        "id": "dcac8be4.96c918",
+        "type": "outcome",
+        "name": "enable",
+        "xml": "<outcome value='enable'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 753.3929290771484,
+        "y": 560.535810470581,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "1ab8a43d.1a186c"
+            ]
+        ]
+    },
+    {
+        "id": "d7879d5c.1b4cb",
+        "type": "outcome",
+        "name": "disable",
+        "xml": "<outcome value='disable'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 753.2144660949707,
+        "y": 605.5357418060303,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "1b07a08e.6bf74f"
+            ]
+        ]
+    },
+    {
+        "id": "be83b6f4.dba758",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 907.3214740753174,
+        "y": 371.2500228881836,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "99c6d930.0a8418"
+            ]
+        ]
+    },
+    {
+        "id": "26db655a.45972a",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 910.5358085632324,
+        "y": 418.7500829696655,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "a48c837b.3ad64"
+            ]
+        ]
+    },
+    {
+        "id": "1489bb5a.cc2a45",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 912.1428985595703,
+        "y": 512.6786470413208,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "f5118913.72f998"
+            ]
+        ]
+    },
+    {
+        "id": "4c2b1545.e2559c",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 911.0714645385742,
+        "y": 465.89294624328613,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "8cb75768.8a7f38"
+            ]
+        ]
+    },
+    {
+        "id": "1ab8a43d.1a186c",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 912.1429290771484,
+        "y": 560.5358123779297,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "c455fe19.109ac"
+            ]
+        ]
+    },
+    {
+        "id": "1b07a08e.6bf74f",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 910.7144660949707,
+        "y": 605.5357437133789,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "38bd81a6.85a1ce"
+            ]
+        ]
+    },
+    {
+        "id": "99c6d930.0a8418",
+        "type": "call",
+        "name": "call port-mirror-topology-operation-assign-sync",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='port-mirror-topology-operation-assign-sync' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1198.5714111328125,
+        "y": 370,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "dacaa4a6.19a198"
+            ]
+        ]
+    },
+    {
+        "id": "dacaa4a6.19a198",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1461.4285888671875,
+        "y": 368.5714416503906,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "a38116c0.2bc5a8"
+            ]
+        ]
+    },
+    {
+        "id": "a38116c0.2bc5a8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='ack-final' value='Y' />\n\n",
+        "comments": "",
+        "x": 1631.428565979004,
+        "y": 367.6785888671875,
+        "z": "ccb80365.d73f6",
+        "wires": []
+    },
+    {
+        "id": "a48c837b.3ad64",
+        "type": "call",
+        "name": "call port-mirror-topology-operation-activate-sync",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='port-mirror-topology-operation-activate-sync' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1200.000171661377,
+        "y": 419.0000190734863,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "24ad15be.750daa"
+            ]
+        ]
+    },
+    {
+        "id": "24ad15be.750daa",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1464.2858963012695,
+        "y": 419.00004482269287,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "c812919a.e4b99"
+            ]
+        ]
+    },
+    {
+        "id": "c812919a.e4b99",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='ack-final' value='Y' />\n\n",
+        "comments": "",
+        "x": 1632.8573379516602,
+        "y": 418.6785898208618,
+        "z": "ccb80365.d73f6",
+        "wires": []
+    },
+    {
+        "id": "47b534cc.71ecec",
+        "type": "comment",
+        "name": "More involved validations",
+        "info": "",
+        "comments": "",
+        "x": 890.0000305175781,
+        "y": 322.85713291168213,
+        "z": "ccb80365.d73f6",
+        "wires": []
+    },
+    {
+        "id": "fb527534.27e138",
+        "type": "comment",
+        "name": "Input validations",
+        "info": "",
+        "comments": "",
+        "x": 575.7142944335938,
+        "y": 202.85715293884277,
+        "z": "ccb80365.d73f6",
+        "wires": []
+    },
+    {
+        "id": "f5118913.72f998",
+        "type": "call",
+        "name": "call port-mirror-topology-operation-deactivate-sync",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='port-mirror-topology-operation-deactivate-sync' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1205.142822265625,
+        "y": 512.2857055664062,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "3532cc9e.66ec14"
+            ]
+        ]
+    },
+    {
+        "id": "3532cc9e.66ec14",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1461.4285469055176,
+        "y": 512.2857313156128,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "a6fa834e.abd31"
+            ]
+        ]
+    },
+    {
+        "id": "a6fa834e.abd31",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='ack-final' value='Y' />\n\n",
+        "comments": "",
+        "x": 1629.9999885559082,
+        "y": 511.96427631378174,
+        "z": "ccb80365.d73f6",
+        "wires": []
+    },
+    {
+        "id": "c455fe19.109ac",
+        "type": "call",
+        "name": "call port-mirror-topology-operation-enable",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='port-mirror-topology-operation-enable' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1177.2857666015625,
+        "y": 560,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "c5988a87.bbad38"
+            ]
+        ]
+    },
+    {
+        "id": "c5988a87.bbad38",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1458.571491241455,
+        "y": 560.0000257492065,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "4844c077.62ae3"
+            ]
+        ]
+    },
+    {
+        "id": "4844c077.62ae3",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='ack-final' value='Y' />\n\n",
+        "comments": "",
+        "x": 1627.1429328918457,
+        "y": 559.6785707473755,
+        "z": "ccb80365.d73f6",
+        "wires": []
+    },
+    {
+        "id": "38bd81a6.85a1ce",
+        "type": "call",
+        "name": "call port-mirror-topology-operation-disable",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='port-mirror-topology-operation-disable' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1176.2857666015625,
+        "y": 607.1428833007812,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "fd672617.26d768"
+            ]
+        ]
+    },
+    {
+        "id": "fd672617.26d768",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1458.571491241455,
+        "y": 607.1429090499878,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "b751d818.e76978"
+            ]
+        ]
+    },
+    {
+        "id": "b751d818.e76978",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='ack-final' value='Y' />\n\n",
+        "comments": "",
+        "x": 1627.1429328918457,
+        "y": 606.8214540481567,
+        "z": "ccb80365.d73f6",
+        "wires": []
+    },
+    {
+        "id": "8cb75768.8a7f38",
+        "type": "call",
+        "name": "call port-mirror-topology-operation-unassign",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='port-mirror-topology-operation-unassign' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1184.2857131958008,
+        "y": 464.2857189178467,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "72e7e63a.f45948"
+            ]
+        ]
+    },
+    {
+        "id": "72e7e63a.f45948",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1462.857135772705,
+        "y": 462.8571729660034,
+        "z": "ccb80365.d73f6",
+        "wires": [
+            [
+                "8b2dcc51.346be"
+            ]
+        ]
+    },
+    {
+        "id": "8b2dcc51.346be",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='ack-final' value='Y' />\n\n",
+        "comments": "",
+        "x": 1631.4285774230957,
+        "y": 462.53571796417236,
+        "z": "ccb80365.d73f6",
+        "wires": []
+    },
+    {
+        "id": "f41c1b7a.2417f8",
+        "type": "set",
+        "name": "set response paths",
+        "xml": "<set>\n<parameter name='service-object-path' value=\"`'/config/GENERIC-RESOURCE-API:services/service/'\n  + $port-mirror-topology-operation-input.service-information.service-instance-id + '/service-data/service-topology'`\" />\n<parameter name='port-mirror-object-path' value=\"`'/config/GENERIC-RESOURCE-API:port-mirror-configurations/port-mirror-configuration/'\n  + $port-mirror-topology-operation-input.configuration-information.configuration-id + '/configuration-data/port-mirror-configuration-topology'`\" />\n",
+        "comments": "",
+        "x": 533.3333206176758,
+        "y": 668.3333396911621,
+        "z": "ccb80365.d73f6",
+        "wires": []
+    }
+]

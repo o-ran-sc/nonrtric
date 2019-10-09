@@ -1,0 +1,1001 @@
+[
+    {
+        "id": "af3e34db.feb098",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 126.25,
+        "y": 45,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "ca83e5f.ab90a18"
+            ]
+        ]
+    },
+    {
+        "id": "ca83e5f.ab90a18",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 378.8213806152344,
+        "y": 44.428558349609375,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "6274efd5.b2315"
+            ]
+        ]
+    },
+    {
+        "id": "6274efd5.b2315",
+        "type": "method",
+        "name": "self-serve-vnf-generate-name",
+        "xml": "<method rpc='self-serve-vnf-generate-name' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 249.05955505371094,
+        "y": 106.333327293396,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "a81678e9.2da388"
+            ]
+        ]
+    },
+    {
+        "id": "2ec3454f.2d328a",
+        "type": "switchNode",
+        "name": "switch capability action",
+        "xml": "<switch test=\"`$ss.capability-action`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 316.7142028808594,
+        "y": 880.9762096405029,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "47b5b6d4.177928",
+                "29572028.8c0e7"
+            ]
+        ]
+    },
+    {
+        "id": "47b5b6d4.177928",
+        "type": "not-found",
+        "name": "unassign",
+        "xml": "<outcome value='unassign'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 542.0119094848633,
+        "y": 260.7380905151367,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "97f6ac39.db8e9"
+            ]
+        ]
+    },
+    {
+        "id": "a81678e9.2da388",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 230.18649291992188,
+        "y": 172.206392288208,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "2ec3454f.2d328a",
+                "19085dd6.206392"
+            ]
+        ]
+    },
+    {
+        "id": "97f6ac39.db8e9",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 712.5000076293945,
+        "y": 261.25000190734863,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "ae293e85.fab67",
+                "4d44790c.037178"
+            ]
+        ]
+    },
+    {
+        "id": "ae293e85.fab67",
+        "type": "set",
+        "name": "set tmp.naming-data-payload",
+        "xml": "<set>\n<parameter name='tmp.naming-data-payload' value='{&quot;elements&quot;:[' />\n",
+        "comments": "",
+        "x": 963.7500076293945,
+        "y": 262.50000063702464,
+        "z": "d9ed52e6.dc44c",
+        "wires": []
+    },
+    {
+        "id": "29572028.8c0e7",
+        "type": "not-found",
+        "name": "assign",
+        "xml": "<outcome value='assign'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 514.603157043457,
+        "y": 1514.535545349121,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "c78ccdba.af20a"
+            ]
+        ]
+    },
+    {
+        "id": "7a858a5e.cd7834",
+        "type": "set",
+        "name": "set tmp.naming-data-payload",
+        "xml": "<set>\n\t<parameter name='tmp.naming-data-payload' value='{&quot;elements&quot;:[' />\n\t<parameter name='tmp.gen-name_length' value='0' />",
+        "comments": "",
+        "x": 964.3650646209717,
+        "y": 1514.8730697631836,
+        "z": "d9ed52e6.dc44c",
+        "wires": []
+    },
+    {
+        "id": "316f0a4f.16ee26",
+        "type": "execute",
+        "name": "execute replace extra comma",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace'>\n   <parameter name='outputPath' value='tmp.naming-data-payload' />\n   <parameter name='source' value='`$tmp.naming-data-payload`' />\n   <parameter name='target' value=',}' />\n   <parameter name='replacement' value='}' />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1120.0000228881836,
+        "y": 754.9642696380615,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4d44790c.037178",
+        "type": "for",
+        "name": "for vnf-parameters-data",
+        "xml": "<for index='i' start='0' end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 943.7857971191406,
+        "y": 326.25001525878906,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "c4c0d2ab.b2585"
+            ]
+        ]
+    },
+    {
+        "id": "c4c0d2ab.b2585",
+        "type": "switchNode",
+        "name": "switch capability-name",
+        "xml": "<switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$i].resource-resolution-data.capability-name == $ss.capability-name`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1186.6428527832031,
+        "y": 326.25001525878906,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "e657dc1b.40e9b"
+            ]
+        ]
+    },
+    {
+        "id": "e657dc1b.40e9b",
+        "type": "not-found",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1367.3572082519531,
+        "y": 326.25,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "31a5002f.e6918"
+            ]
+        ]
+    },
+    {
+        "id": "4504c048.2c22f",
+        "type": "for",
+        "name": "for vnf-parameters-data",
+        "xml": "<for index='j' start='0' end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$i].resource-resolution-data.resource-key_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1089.5000228881836,
+        "y": 555.9642696380615,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "57bc2b62.0fd734"
+            ]
+        ]
+    },
+    {
+        "id": "21846577.931eda",
+        "type": "set",
+        "name": "set payload data",
+        "xml": "<set>\n<parameter name=\"tmp.naming-data-payload\" value=\"`$tmp.naming-data-payload + '&quot;' + $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$i].resource-resolution-data.resource-key[$j].name + '&quot;:' + '&quot;' + $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$i].resource-resolution-data.resource-key[$j].value + '&quot;,'`\"/>\n<parameter name=\"`tmp.gen-name[0].element[$j].name`\" value=\"`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$i].resource-resolution-data.resource-key[$j].name`\"/>\n<parameter name=\"`tmp.gen-name[0].element[$j].value`\" value=\"`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$i].resource-resolution-data.resource-key[$j].value`\"/>\n<parameter name=\"`tmp.gen-name[0].element_length`\" value='`$j + 1`' />",
+        "comments": "",
+        "x": 1692.0000228881836,
+        "y": 553.9642696380615,
+        "z": "d9ed52e6.dc44c",
+        "wires": []
+    },
+    {
+        "id": "f773ea3a.971e88",
+        "type": "set",
+        "name": "set set payload data",
+        "xml": "<set>\n<parameter name='tmp.naming-data-payload' value=\"`$tmp.naming-data-payload + '{'`\" />\n<parameter name='tmp.gen-name_length' value='1' />",
+        "comments": "",
+        "x": 1087.0001754760742,
+        "y": 481.8213634490967,
+        "z": "d9ed52e6.dc44c",
+        "wires": []
+    },
+    {
+        "id": "e286d1e2.22f7f",
+        "type": "set",
+        "name": "set payload data",
+        "xml": "<set>\n<parameter name='tmp.naming-data-payload' value=\"`$tmp.naming-data-payload + '},'`\" />",
+        "comments": "",
+        "x": 1087.0000228881836,
+        "y": 617.9642696380615,
+        "z": "d9ed52e6.dc44c",
+        "wires": []
+    },
+    {
+        "id": "2f0e6f87.4aa69",
+        "type": "set",
+        "name": "set close payload list",
+        "xml": "<set>\n<parameter name='tmp.naming-data-payload' value=\"`$tmp.naming-data-payload + ']}'`\" />",
+        "comments": "",
+        "x": 1093.0000228881836,
+        "y": 682.9642696380615,
+        "z": "d9ed52e6.dc44c",
+        "wires": []
+    },
+    {
+        "id": "6a04c3c2.d8353c",
+        "type": "execute",
+        "name": "execute replace extra comma",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace'>\n   <parameter name='outputPath' value='tmp.naming-data-payload' />\n   <parameter name='source' value='`$tmp.naming-data-payload`' />\n   <parameter name='target' value=',]' />\n   <parameter name='replacement' value=']' />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1123.0000228881836,
+        "y": 808.9642696380615,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "91a5a0b9.28b1d",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1482.7500305175781,
+        "y": 884.7142467498779,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "c44601cf.e3781"
+            ]
+        ]
+    },
+    {
+        "id": "2391c5d1.fd861a",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error from NameGenerationNode Unassign\" />\n",
+        "comments": "",
+        "x": 1847.7500305175781,
+        "y": 984.7142467498779,
+        "z": "d9ed52e6.dc44c",
+        "wires": []
+    },
+    {
+        "id": "ffa6ef8.c99991",
+        "type": "failure",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1487.7500305175781,
+        "y": 983.7142467498779,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "c44601cf.e3781"
+            ]
+        ]
+    },
+    {
+        "id": "c44601cf.e3781",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1645.7500305175781,
+        "y": 928.7142467498779,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "122596ab.6c3209",
+                "2391c5d1.fd861a"
+            ]
+        ]
+    },
+    {
+        "id": "122596ab.6c3209",
+        "type": "set",
+        "name": "set status as FAILED",
+        "xml": "<set>\n<parameter name='`service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$i].resource-resolution-data.status`' value='FAILED' />",
+        "comments": "",
+        "x": 1861.7500305175781,
+        "y": 875.7142467498779,
+        "z": "d9ed52e6.dc44c",
+        "wires": []
+    },
+    {
+        "id": "acdd082c.0a4988",
+        "type": "execute",
+        "name": "execute jsonStringToCtx",
+        "xml": "<execute plugin=\"org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils\" method=\"jsonStringToCtx\">\n\t<parameter name=\"source\" value=\"nameGenResponse.httpResponse\" />\n\t<parameter name=\"outputPath\" value=\"jsonContextPrefix\" />\n\t<parameter name=\"isEscaped\" value=\"false\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1096.500015258789,
+        "y": 1083.9643726348877,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "31a5002f.e6918",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 816.2500114440918,
+        "y": 483.21427154541016,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "f773ea3a.971e88",
+                "4504c048.2c22f",
+                "e286d1e2.22f7f",
+                "2f0e6f87.4aa69",
+                "316f0a4f.16ee26",
+                "acdd082c.0a4988",
+                "6a04c3c2.d8353c",
+                "7281ab1.108d054",
+                "7190fc5.2e53204",
+                "b700fe4f.6ea67",
+                "82081d21.8af89",
+                "4b9fd950.22bda8"
+            ]
+        ]
+    },
+    {
+        "id": "57bc2b62.0fd734",
+        "type": "switchNode",
+        "name": "switch external-key",
+        "xml": "<switch test=\"`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$i].resource-resolution-data.resource-key[$j].name == 'external-key'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1328.0000228881836,
+        "y": 554.9642696380615,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "e7102f7d.d31b6"
+            ]
+        ]
+    },
+    {
+        "id": "e7102f7d.d31b6",
+        "type": "not-found",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1512.0000228881836,
+        "y": 554.9642696380615,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "21846577.931eda"
+            ]
+        ]
+    },
+    {
+        "id": "7281ab1.108d054",
+        "type": "execute",
+        "name": "execute RestApiCallNode - DELETE gen-name",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >    \n    <parameter name='templateFileName' value=\"`$prop.restapi.templateDir + '/' + $prop.restapi.naming.gen-name.templatefile`\" />\n    <parameter name='restapiUrl' value='`$prop.naming.gen-name.url + $prop.restapi.naming.gen-name.service`' />\n    <parameter name='restapiUser' value='`$prop.naming.gen-name.user`' />\n    <parameter name='restapiPassword' value='`$prop.naming.gen-name.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='DELETE' />\n    <parameter name=\"responsePrefix\" value=\"nameGenResponse\" />\n\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1168.8928527832031,
+        "y": 931.5714855194092,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "91a5a0b9.28b1d",
+                "ffa6ef8.c99991"
+            ]
+        ]
+    },
+    {
+        "id": "7190fc5.2e53204",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"BEFORE namegeneration.node.UnAssignNameNode\"/>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1041.25,
+        "y": 865,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b700fe4f.6ea67",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"AFTER namegeneration.node.UnAssignNameNode\"/>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1037.916763305664,
+        "y": 1015.0000152587891,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "de5ed672.9504b8",
+        "type": "switchNode",
+        "name": "switch resource-name",
+        "xml": "<switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$i].name == $jsonContextPrefix.elements[$n].resource-name`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1333.7500228881836,
+        "y": 1203.7500171661377,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "6f5ecb0e.d83724"
+            ]
+        ]
+    },
+    {
+        "id": "6f5ecb0e.d83724",
+        "type": "not-found",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1525.7500228881836,
+        "y": 1202.7500171661377,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "1a582734.1c4b39"
+            ]
+        ]
+    },
+    {
+        "id": "1a582734.1c4b39",
+        "type": "set",
+        "name": "set set payload data",
+        "xml": "<set>\n<parameter name='`service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$i].value`' value=\"`$jsonContextPrefix.elements[$n].resource-value`\" />\n",
+        "comments": "",
+        "x": 1712.2500228881836,
+        "y": 1202.7500171661377,
+        "z": "d9ed52e6.dc44c",
+        "wires": []
+    },
+    {
+        "id": "4b9fd950.22bda8",
+        "type": "for",
+        "name": "for response elements",
+        "xml": "<for index='n' start='0' end='`$jsonContextPrefix.elements_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1085.750015258789,
+        "y": 1202.7500095367432,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "de5ed672.9504b8"
+            ]
+        ]
+    },
+    {
+        "id": "82081d21.8af89",
+        "type": "set",
+        "name": "set status as DELETED",
+        "xml": "<set>\n<parameter name='`service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$i].resource-resolution-data.status`' value='DELETED' />",
+        "comments": "",
+        "x": 1085.7499923706055,
+        "y": 1147.9999923706055,
+        "z": "d9ed52e6.dc44c",
+        "wires": []
+    },
+    {
+        "id": "46d41de0.7a0cc4",
+        "type": "execute",
+        "name": "execute replace extra comma",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace'>\n   <parameter name='outputPath' value='tmp.naming-data-payload' />\n   <parameter name='source' value='`$tmp.naming-data-payload`' />\n   <parameter name='target' value=',}' />\n   <parameter name='replacement' value='}' />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1173.166519165039,
+        "y": 1980.0000286102295,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "200ba840.7f1278",
+        "type": "for",
+        "name": "for vnf-parameters-data",
+        "xml": "<for index='j' start='0' end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$i].resource-resolution-data.resource-key_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1770.6665344238281,
+        "y": 1590.2500267028809,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "1a217f86.3ebd2"
+            ]
+        ]
+    },
+    {
+        "id": "1a217f86.3ebd2",
+        "type": "set",
+        "name": "set payload data",
+        "xml": "<set>\n<parameter name=\"tmp.naming-data-payload\" value=\"`$tmp.naming-data-payload + '&quot;' + $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$i].resource-resolution-data.resource-key[$j].name + '&quot;:' + '&quot;' + $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$i].resource-resolution-data.resource-key[$j].value + '&quot;,'`\"/>\n<parameter name=\"`tmp.gen-name[$tmp.gen-name_length].element[$j].name`\" value=\"`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$i].resource-resolution-data.resource-key[$j].name`\"/>\n<parameter name=\"`tmp.gen-name[$tmp.gen-name_length].element[$j].value`\" value=\"`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$i].resource-resolution-data.resource-key[$j].value`\"/>\n<parameter name=\"`tmp.gen-name[$tmp.gen-name_length].element_length`\" value='`$j + 1`' />",
+        "comments": "",
+        "x": 2023.1665344238281,
+        "y": 1590.2500267028809,
+        "z": "d9ed52e6.dc44c",
+        "wires": []
+    },
+    {
+        "id": "c73e069c.8a2e28",
+        "type": "set",
+        "name": "set payload data",
+        "xml": "<set>\n<parameter name='tmp.naming-data-payload' value=\"`$tmp.naming-data-payload + '{'`\" />\n",
+        "comments": "",
+        "x": 1751.5950012207031,
+        "y": 1528.964443206787,
+        "z": "d9ed52e6.dc44c",
+        "wires": []
+    },
+    {
+        "id": "10b3ff3c.77cba1",
+        "type": "set",
+        "name": "set payload data",
+        "xml": "<set>\n<parameter name='tmp.naming-data-payload' value=\"`$tmp.naming-data-payload + '},'`\" />\n<parameter name='tmp.gen-name_length' value='`$tmp.gen-name_length + 1`' />",
+        "comments": "",
+        "x": 1753.1665344238281,
+        "y": 1646.2500267028809,
+        "z": "d9ed52e6.dc44c",
+        "wires": []
+    },
+    {
+        "id": "f44eb178.31eaa",
+        "type": "set",
+        "name": "set close payload list",
+        "xml": "<set>\n<parameter name='tmp.naming-data-payload' value=\"`$tmp.naming-data-payload + ']}'`\" />",
+        "comments": "",
+        "x": 1148.166519165039,
+        "y": 1936.9999675750732,
+        "z": "d9ed52e6.dc44c",
+        "wires": []
+    },
+    {
+        "id": "2368778a.9a1ae8",
+        "type": "execute",
+        "name": "execute replace extra comma",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace'>\n   <parameter name='outputPath' value='tmp.naming-data-payload' />\n   <parameter name='source' value='`$tmp.naming-data-payload`' />\n   <parameter name='target' value=',]' />\n   <parameter name='replacement' value=']' />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1174.166519165039,
+        "y": 2031.0000286102295,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "25410bf3.d5fd84",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1516.416648864746,
+        "y": 2150.000274658203,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "d82a7d30.19ff5"
+            ]
+        ]
+    },
+    {
+        "id": "338c365d.e7c04a",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error from NameGenerationNode Assign\" />\n",
+        "comments": "",
+        "x": 1881.4166412353516,
+        "y": 2247.5002765655518,
+        "z": "d9ed52e6.dc44c",
+        "wires": []
+    },
+    {
+        "id": "5ff247d0.61e018",
+        "type": "failure",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1521.4166412353516,
+        "y": 2246.5002765655518,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "d82a7d30.19ff5"
+            ]
+        ]
+    },
+    {
+        "id": "d82a7d30.19ff5",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1679.4166412353516,
+        "y": 2191.5002765655518,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "e3f624d0.095ed8",
+                "338c365d.e7c04a"
+            ]
+        ]
+    },
+    {
+        "id": "e3f624d0.095ed8",
+        "type": "set",
+        "name": "set status as FAILED",
+        "xml": "<set>\n<parameter name='`service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$i].resource-resolution-data.status`' value='FAILED' />",
+        "comments": "",
+        "x": 1895.4166412353516,
+        "y": 2138.5002765655518,
+        "z": "d9ed52e6.dc44c",
+        "wires": []
+    },
+    {
+        "id": "9337d2c9.9435b",
+        "type": "execute",
+        "name": "execute jsonStringToCtx",
+        "xml": "<execute plugin=\"org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils\" method=\"jsonStringToCtx\">\n\t<parameter name=\"source\" value=\"nameGenResponse.httpResponse\" />\n\t<parameter name=\"outputPath\" value=\"jsonContextPrefix\" />\n\t<parameter name=\"isEscaped\" value=\"false\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1160.166519165039,
+        "y": 2380.000036239624,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "49ed3077.f85e7",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1532.0595932006836,
+        "y": 1591.0356693267822,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "c73e069c.8a2e28",
+                "200ba840.7f1278",
+                "10b3ff3c.77cba1"
+            ]
+        ]
+    },
+    {
+        "id": "f4b8a1b1.39296",
+        "type": "for",
+        "name": "for vnf-parameters-data",
+        "xml": "<for index='i' start='0' end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 945.9644927978516,
+        "y": 1591.2503910064697,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "bc8d77f9.febd58"
+            ]
+        ]
+    },
+    {
+        "id": "bc8d77f9.febd58",
+        "type": "switchNode",
+        "name": "switch capability-name",
+        "xml": "<switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$i].resource-resolution-data.capability-name == $ss.capability-name`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1187.571548461914,
+        "y": 1591.2503910064697,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "aa52a53d.d90d78"
+            ]
+        ]
+    },
+    {
+        "id": "aa52a53d.d90d78",
+        "type": "not-found",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1368.285903930664,
+        "y": 1591.2503910064697,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "49ed3077.f85e7"
+            ]
+        ]
+    },
+    {
+        "id": "c78ccdba.af20a",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 686.2500076293945,
+        "y": 1514.155053138733,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "f4b8a1b1.39296",
+                "f39b937c.aa4b9",
+                "7a858a5e.cd7834"
+            ]
+        ]
+    },
+    {
+        "id": "f39b937c.aa4b9",
+        "type": "switchNode",
+        "name": "switch tmp.naming-data-payload is null",
+        "xml": "<switch test=\"`$tmp.naming-data-payload == ''`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 995.7500152587891,
+        "y": 1714.1550579071045,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "62b243b0.214edc"
+            ]
+        ]
+    },
+    {
+        "id": "62b243b0.214edc",
+        "type": "not-found",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1232.750015258789,
+        "y": 1715.1550579071045,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "5e87a197.3645b"
+            ]
+        ]
+    },
+    {
+        "id": "5e87a197.3645b",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 909.5000152587891,
+        "y": 1936.9050579071045,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "f44eb178.31eaa",
+                "46d41de0.7a0cc4",
+                "2368778a.9a1ae8",
+                "9337d2c9.9435b",
+                "570d2cbf.e15644",
+                "3bb91c6d.095be4",
+                "af9341c5.9475e",
+                "55954cc9.700ec4"
+            ]
+        ]
+    },
+    {
+        "id": "570d2cbf.e15644",
+        "type": "execute",
+        "name": "execute RestApiCallNode - POST gen-name",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >    \n    <parameter name='templateFileName' value=\"`$prop.restapi.templateDir + '/' + $prop.restapi.naming.gen-name.templatefile`\" />\n    <parameter name='restapiUrl' value='`$prop.naming.gen-name.url + $prop.restapi.naming.gen-name.service`' />\n    <parameter name='restapiUser' value='`$prop.naming.gen-name.user`' />\n    <parameter name='restapiPassword' value='`$prop.naming.gen-name.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='POST' />\n    <parameter name=\"responsePrefix\" value=\"nameGenResponse\" />\n\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1220.8929595947266,
+        "y": 2191.8337726593018,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "25410bf3.d5fd84",
+                "5ff247d0.61e018"
+            ]
+        ]
+    },
+    {
+        "id": "3bb91c6d.095be4",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"BEFORE namegeneration.node.AssignNameNode\"/>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1096.25,
+        "y": 2101.25,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "af9341c5.9475e",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"AFTER namegeneration.node.AssignNameNode\"/>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1097.9166412353516,
+        "y": 2306.2500343322754,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2879ca51.fb1d86",
+        "type": "for",
+        "name": "for vnf-parameters-data",
+        "xml": "<for index='l' start='0' end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1401.9403228759766,
+        "y": 2460.083044052124,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "b4bf8116.4b95f"
+            ]
+        ]
+    },
+    {
+        "id": "55954cc9.700ec4",
+        "type": "for",
+        "name": "for response elements",
+        "xml": "<for index='n' start='0' end='`$jsonContextPrefix.elements_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1154.9403228759766,
+        "y": 2459.083044052124,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "2879ca51.fb1d86"
+            ]
+        ]
+    },
+    {
+        "id": "b4bf8116.4b95f",
+        "type": "switchNode",
+        "name": "switch resource-name",
+        "xml": "<switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$l].name == $jsonContextPrefix.elements[$n].resource-name`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1649.0355758666992,
+        "y": 2459.845019161701,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "314e7b92.2eb284"
+            ]
+        ]
+    },
+    {
+        "id": "b64275d.5c7fb88",
+        "type": "set",
+        "name": "set param value and status",
+        "xml": "<set>\n<parameter name='`service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$l].value`' value=\"`$jsonContextPrefix.elements[$n].resource-value`\" />\n<parameter name='`service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$l].resource-resolution-data.status`' value='SUCCESS' />",
+        "comments": "",
+        "x": 2036.5594940185547,
+        "y": 2458.5723484158516,
+        "z": "d9ed52e6.dc44c",
+        "wires": []
+    },
+    {
+        "id": "314e7b92.2eb284",
+        "type": "not-found",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1833.3211784362793,
+        "y": 2459.416481792927,
+        "z": "d9ed52e6.dc44c",
+        "wires": [
+            [
+                "b64275d.5c7fb88"
+            ]
+        ]
+    },
+    {
+        "id": "19085dd6.206392",
+        "type": "set",
+        "name": "set pathname for context logging",
+        "xml": "<set>\n<parameter name='pathname' \n\tvalue=\"`'/var/tmp/ss-gen-name-' + \n\t$ss.capability-type + '-' + $ss.capability-action + '-' + \n\t$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-information.vnf-id + '.log'`\" />\n",
+        "comments": "",
+        "x": 537.5000152587891,
+        "y": 172.50000286102295,
+        "z": "d9ed52e6.dc44c",
+        "wires": []
+    }
+]

@@ -1,0 +1,17 @@
+{
+  "bridgeDomains": [
+   {
+     "id": "",
+     "deviceId": ${prop.lan.deviceId},
+     "ports": [
+       {
+          "id": ${prop.lan.devicePortId},
+          "tagMode": "untag"
+       }
+    ],
+     "vlanId":  ${prop.lan.vlanId},
+     "description": "spoke2 test vlan L2 port"
+   }
+ ]
+}
+

@@ -1,0 +1,11 @@
+{
+  "service_id":${prop.bbs.service_id},
+  "remote_id":${prop.bbs.remote_id},
+  "ont_sn":${prop.bbs.ont_sn},
+  "service_type":${prop.bbs.service_type},
+  "mac":${prop.bbs.mac},
+  "up_speed":${prop.bbs.up_speed},
+  "down_speed":${prop.bbs.down_speed},
+  "s_vlan":${prop.bbs.s_vlan},
+  "c_vlan":${prop.bbs.c_vlan}
+}

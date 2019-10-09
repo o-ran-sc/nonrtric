@@ -1,0 +1,381 @@
+[
+    {
+        "id": "db5642bb.db1e5",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 121.42855834960938,
+        "y": 57.14285659790039,
+        "z": "2d052f87.5609f",
+        "wires": [
+            [
+                "57e37eb4.944e6"
+            ]
+        ]
+    },
+    {
+        "id": "57e37eb4.944e6",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 397.4285583496094,
+        "y": 58.14285659790039,
+        "z": "2d052f87.5609f",
+        "wires": [
+            [
+                "f841c0f6.c5f5b"
+            ]
+        ]
+    },
+    {
+        "id": "f841c0f6.c5f5b",
+        "type": "method",
+        "name": "self-serve-vfmodule-changeassign ",
+        "xml": "<method rpc='self-serve-vfmodule-changeassign' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 314.7143249511719,
+        "y": 102.00000286102295,
+        "z": "2d052f87.5609f",
+        "wires": [
+            [
+                "d9f3cb74.bcc858"
+            ]
+        ]
+    },
+    {
+        "id": "d9f3cb74.bcc858",
+        "type": "block",
+        "name": "block atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 258.5,
+        "y": 161.5714225769043,
+        "z": "2d052f87.5609f",
+        "wires": [
+            [
+                "cfddaee8.3580a",
+                "dfdf0e15.940d8"
+            ]
+        ]
+    },
+    {
+        "id": "1e86b28e.b1457d",
+        "type": "set",
+        "name": "set",
+        "xml": "<set>\n   <parameter name='`service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$j].resource-resolution-data.status`' value='PENDING'/>\n   <parameter name='ss.input.param.index' value='`$i`' />\n   <parameter name='ss.service-data.param.index' value='`$j`' />\n   <parameter name='ss.input.param.found.in.service.param' value='true' />\n   <parameter name='ss.capability-type' value='vf-module' />\n   <parameter name='ss.capability-action' value='changeassign' />",
+        "comments": "",
+        "x": 1777.0000457763672,
+        "y": 570.0000133514404,
+        "z": "2d052f87.5609f",
+        "wires": []
+    },
+    {
+        "id": "cfddaee8.3580a",
+        "type": "switchNode",
+        "name": "switch vf-module-input-parameters",
+        "xml": "<switch test='`$vf-module-topology-operation-input.vf-module-request-input.vf-module-input-parameters.param_length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 533.8571472167969,
+        "y": 208.8571367263794,
+        "z": "2d052f87.5609f",
+        "wires": [
+            [
+                "6098f169.8c4d9"
+            ]
+        ]
+    },
+    {
+        "id": "6098f169.8c4d9",
+        "type": "outcome",
+        "name": "null",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 764.0000305175781,
+        "y": 208.71428394317627,
+        "z": "2d052f87.5609f",
+        "wires": [
+            [
+                "39cfb934.d0b286"
+            ]
+        ]
+    },
+    {
+        "id": "39cfb934.d0b286",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"no param name/value provided in vf-module-request-input\" />\n",
+        "comments": "",
+        "x": 936.8571472167969,
+        "y": 208.8571367263794,
+        "z": "2d052f87.5609f",
+        "wires": []
+    },
+    {
+        "id": "dfdf0e15.940d8",
+        "type": "for",
+        "name": "for vf-module-input-parameters.param index i",
+        "xml": "<for index='i' start='0' end='`$vf-module-topology-operation-input.vf-module-request-input.vf-module-input-parameters.param_length`' >",
+        "comments": "",
+        "outputs": 1,
+        "x": 566.8571472167969,
+        "y": 278.8571367263794,
+        "z": "2d052f87.5609f",
+        "wires": [
+            [
+                "60302596.50a3ac"
+            ]
+        ]
+    },
+    {
+        "id": "60302596.50a3ac",
+        "type": "switchNode",
+        "name": "switch service param length null",
+        "xml": "<switch test=\"`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param_length == ''`\">\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 922.8571472167969,
+        "y": 278.8571367263794,
+        "z": "2d052f87.5609f",
+        "wires": [
+            [
+                "fd980afc.22cc08"
+            ]
+        ]
+    },
+    {
+        "id": "fd980afc.22cc08",
+        "type": "other",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1156.8571472167969,
+        "y": 278.8571367263794,
+        "z": "2d052f87.5609f",
+        "wires": [
+            [
+                "2de6b8a9.5ab508"
+            ]
+        ]
+    },
+    {
+        "id": "2396d4ed.eaa96c",
+        "type": "for",
+        "name": "for service-data.vnf-parameters-data.param index j",
+        "xml": "<for index='j' start='0' end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param_length`' >",
+        "comments": "",
+        "outputs": 1,
+        "x": 879.4286499023438,
+        "y": 569.0000162124634,
+        "z": "2d052f87.5609f",
+        "wires": [
+            [
+                "90ff1c3.259f4e"
+            ]
+        ]
+    },
+    {
+        "id": "90ff1c3.259f4e",
+        "type": "switchNode",
+        "name": "switch match for vnf-name",
+        "xml": "<switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-topology.vf-module-parameters.param[$j].name == $vf-module-topology-operation-input.vf-module-request-input.vf-module-input-parameters.param[$i].name`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1229.0000457763672,
+        "y": 570.0000133514404,
+        "z": "2d052f87.5609f",
+        "wires": [
+            [
+                "164a17a8.3d4a38"
+            ]
+        ]
+    },
+    {
+        "id": "164a17a8.3d4a38",
+        "type": "not-found",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1424.0000457763672,
+        "y": 569.0000133514404,
+        "z": "2d052f87.5609f",
+        "wires": [
+            [
+                "459bcced.4174b4"
+            ]
+        ]
+    },
+    {
+        "id": "f4c49db0.aa1a",
+        "type": "not-found",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1131.285758972168,
+        "y": 859.4285659790039,
+        "z": "2d052f87.5609f",
+        "wires": [
+            [
+                "67f318f2.47e6a8"
+            ]
+        ]
+    },
+    {
+        "id": "67f318f2.47e6a8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"No vf-module-request-input.vf-module-input-parameters.param[].name found in service-data.\" />\n",
+        "comments": "",
+        "x": 1278.8572082519531,
+        "y": 857.0000019073486,
+        "z": "2d052f87.5609f",
+        "wires": []
+    },
+    {
+        "id": "459bcced.4174b4",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1580.0000457763672,
+        "y": 570.0000133514404,
+        "z": "2d052f87.5609f",
+        "wires": [
+            [
+                "1e86b28e.b1457d",
+                "c4c15254.21d5f",
+                "894750cd.34691"
+            ]
+        ]
+    },
+    {
+        "id": "c4c15254.21d5f",
+        "type": "call",
+        "name": "call self-serve-generate-name-changeassign",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='self-serve-generate-name-changeassign' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1917.4285278320312,
+        "y": 641.5714178085327,
+        "z": "2d052f87.5609f",
+        "wires": [
+            [
+                "6693964c.555518",
+                "6b9a9290.f4c99c"
+            ]
+        ]
+    },
+    {
+        "id": "6693964c.555518",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2244.857208251953,
+        "y": 609.8572025299072,
+        "z": "2d052f87.5609f",
+        "wires": [
+            [
+                "3db94b2d.c6d2b4"
+            ]
+        ]
+    },
+    {
+        "id": "6b9a9290.f4c99c",
+        "type": "failure",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2252.5714721679688,
+        "y": 676.4286041259766,
+        "z": "2d052f87.5609f",
+        "wires": [
+            [
+                "3db94b2d.c6d2b4"
+            ]
+        ]
+    },
+    {
+        "id": "3db94b2d.c6d2b4",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error from self-service-generate-name-changeassign\" />\n",
+        "comments": "",
+        "x": 2440.5714721679688,
+        "y": 638.4286041259766,
+        "z": "2d052f87.5609f",
+        "wires": []
+    },
+    {
+        "id": "2de6b8a9.5ab508",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 519.7143096923828,
+        "y": 530.857120513916,
+        "z": "2d052f87.5609f",
+        "wires": [
+            [
+                "b4ae1ea.8e047e",
+                "2396d4ed.eaa96c",
+                "85402c0f.e3301"
+            ]
+        ]
+    },
+    {
+        "id": "b4ae1ea.8e047e",
+        "type": "set",
+        "name": "set ss.input.param.found.in.service.param to false",
+        "xml": "<set>\n   <parameter name='ss.input.param.found.in.service.param' value='false' />",
+        "comments": "",
+        "x": 882.1428833007812,
+        "y": 492.28572845458984,
+        "z": "2d052f87.5609f",
+        "wires": []
+    },
+    {
+        "id": "894750cd.34691",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n",
+        "comments": "",
+        "x": 1807.0000457763672,
+        "y": 710.0000133514404,
+        "z": "2d052f87.5609f",
+        "wires": []
+    },
+    {
+        "id": "85402c0f.e3301",
+        "type": "switchNode",
+        "name": "switch ss.input.param.found.in.service.param",
+        "xml": "<switch test='`$ss.input.param.found.in.service.param`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 862.7143249511719,
+        "y": 859.4285907745361,
+        "z": "2d052f87.5609f",
+        "wires": [
+            [
+                "f4c49db0.aa1a"
+            ]
+        ]
+    }
+]

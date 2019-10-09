@@ -1,0 +1,214 @@
+module A1-ADAPTER-API {
+
+    namespace "org:onap:sdnc:northbound:a1-adapter";
+
+    prefix a1-adapter-api;
+
+    import ietf-inet-types { prefix "inet"; revision-date "2013-07-15"; }
+
+    import ietf-yang-types { prefix yang; }
+
+    revision "2019-10-02" {
+        description
+        "A1 adapter for Frankfurt";
+    }
+
+///Flattend interface using RPC
+
+    //Get a comma separated list of near-rt rics, e.g. domain-name1:port1,domainname2:port2
+    //Each item in the returned list will be regarded as one near-rt-ric-id.
+    rpc getNearRT-RICs {
+        output {
+            leaf-list near-rt-ric-id-list {
+                type string;
+            }
+        }
+    }
+
+    //Get health status for a Near-RT-RIC. true - health ok, false - health is not ok.
+    rpc getHealthCheck {
+         input {
+            leaf near-rt-ric-id {
+                type string;
+            }
+        }
+
+        output {
+            leaf health-status {
+                type boolean;
+            }
+        }   
+    }
+
+    //Get a comma separated list of integer policy type ids
+    //Each item in the returned list will be regarded as one policy-type-id.
+    rpc getPolicyTypes {
+        input {
+            leaf near-rt-ric-id {
+                type string;
+            }
+        }
+
+        output {
+            leaf-list policy-type-id-list {
+                type uint32;
+            }
+        }
+    }
+
+    //Create a policy type
+    rpc createPolicyType {
+        input {
+            leaf near-rt-ric-id {
+                type string;
+            }
+            leaf policy-type-id {
+                type uint32;
+            }
+            leaf description {
+                type string;
+            }
+            leaf name {
+                type string;
+            }
+            leaf policy-type {
+                type string;
+            }
+        }
+       output {
+            leaf status {
+                type string;
+            }
+            leaf code {
+                type string;
+            }
+        }
+    }
+
+    //Get a policy type
+    rpc getPolicyType {
+        input {
+            leaf near-rt-ric-id {
+                type string;
+            }
+            leaf policy-type-id {
+                type uint32;
+            }
+        }
+        output {
+            leaf description {
+                type string;
+            }
+            leaf name {
+                type string;
+            }
+            leaf policy-type {
+                type string;
+            }
+        }
+    }
+
+    //Delete a policy type
+    rpc deletePolicyType {
+        input {
+            leaf near-rt-ric-id {
+                type string;
+            }
+            leaf policy-type-id {
+                type uint32;
+            }
+        }
+    }
+
+    //Get a comma separeated list of string policy instance ids
+    //Each item in the returned list will be regarded as one policy-instance-id.
+    rpc getPolicyInstances {
+        input {
+            leaf near-rt-ric-id {
+                type string;
+            }
+            leaf policy-type-id {
+                type uint32;
+            }
+        }
+
+        output {
+            leaf-list policy-instance-id-list {
+                type string;
+            }
+        }
+    }
+
+    //Create a policy instance
+    rpc createPolicyInstance {
+        input {
+            leaf near-rt-ric-id {
+                type string;
+            }
+            leaf policy-type-id {
+                type uint32;
+            }
+            leaf policy-instance-id {
+                type string;
+            }
+            leaf policy-instance {
+                type string;
+            }
+        }
+    }
+    
+    ///Get a policy instance
+    rpc getPolicyInstance {
+        input {
+            leaf near-rt-ric-id {
+                type string;
+            }
+            leaf policy-type-id {
+                type uint32;
+            }
+            leaf policy-instance-id {
+                type string;
+            }
+        }
+        output {
+            leaf policy-instance {
+                type string;
+            }
+        }
+    }
+    
+    //Delete a policy instance
+    rpc deletePolicyInstance {
+        input {
+            leaf near-rt-ric-id {
+                type string;
+            }
+            leaf policy-type-id {
+                type uint32;
+            }
+            leaf policy-instance-id {
+                type string;
+            }
+        }
+    }
+
+    //Get the status for a policy instance
+    rpc getStatus {
+        input {
+            leaf near-rt-ric-id {
+                type string;
+            }
+            leaf policy-type-id {
+                type uint32;
+            }
+            leaf policy-instance-id {
+                type string;
+            }
+        }
+        output {
+            leaf status {
+                type string;
+            }
+        }
+    }
+}

@@ -1,0 +1,29 @@
+
+{  
+   "vnfList":[  
+      {  
+         "IpAddress":"1.160.10.240",
+         "HostName":"Host1",
+		 "Selected":false,
+		 "PortNo":"8282"
+      },
+      {  
+         "IpAddress":"1.160.10.241",
+         "HostName":"Host2",
+		 "Selected":false,
+		 "PortNo":"8080"
+      },
+      {  
+         "IpAddress":"1.160.10.242",
+         "HostName":"Host3",
+		 "Selected":false,
+		 "PortNo":"8285"
+      },
+       {  
+         "IpAddress":"1.160.10.243",
+         "HostName":"Host4",
+		 "Selected":false,
+		 "PortNo":"8286"
+      }
+   ]
+}

@@ -1,0 +1,17 @@
+{
+    "routes": [
+        {
+            "id": ${prop.route.id},
+            "vpnId": ${prop.vpnId},
+            "siteId": ${prop.route.siteId},
+            "deviceId": ${prop.route.deviceId}, 
+            "destinationAddressMask": ${prop.route.providerIpAddress},			
+            "priority": 60,            
+            "nextHopType": "ip-address",
+            "ipAddress": ${prop.route.ipAddress},
+            "track": false,
+            "target": null
+        }
+    ]
+}
+

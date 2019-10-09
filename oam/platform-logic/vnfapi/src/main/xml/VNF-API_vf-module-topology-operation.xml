@@ -1,0 +1,48 @@
+<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='VNF-API' version='${project.version}'><method rpc='vf-module-topology-operation' mode='sync'>
+<block atomic="true"><switch test="`$vf-module-topology-operation-input.vf-module-request-information.vf-module-name`"><outcome value='Other'><switch test="`$vf-module-preload-data.vf-module-topology-information.vf-module-identifiers.vf-module-name`"><outcome value='Other'><switch test="`$vf-module-topology-operation-input.vf-module-request-information.vf-module-name == $vf-module-preload-data.vf-module-topology-information.vf-module-identifiers.vf-module-name`"><outcome value='false'>
+<return status='failure'>
+	<parameter name='error-code' value='404'/>
+	<parameter name='error-message' value='vf-module-name not found in vf-module-preload-data'/></return></outcome></switch></outcome><outcome value=''><return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='No preload data found to match vf-module-name'/></return></outcome></switch></outcome><outcome value=''><return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='vf-module-name is required'/></return></outcome></switch><switch test="`$vf-module-topology-operation-input.vf-module-request-information.vf-module-model-id`"><outcome value='Other'><switch test="`$vf-module-preload-data.vf-module-topology-information.vf-module-identifiers.vf-module-model-id`"><outcome value='Other'><switch test="`$vf-module-topology-operation-input.vf-module-request-information.vf-module-model-id == $vf-module-preload-data.vf-module-topology-information.vf-module-identifiers.vf-module-model-id`"><outcome value='false'>
+<return status='failure'>
+	<parameter name='error-code' value='404'/>
+	<parameter name='error-message' value='vf-module-model-id not found in vf-module-preload-data'/></return></outcome></switch></outcome><outcome value=''><return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='No preload data found to match vf-module-model-id from input'/></return></outcome></switch></outcome><outcome value=''><return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='vf-module-model-id is required'/></return></outcome></switch><switch test="`$vf-module-topology-operation-input.vf-module-request-information.vf-module-id`"><outcome value='0'><return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='vf-module-id cannot be NULL or 0'/></return></outcome><outcome value=''><return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='vf-module-id cannot be NULL or 0'/></return></outcome></switch><switch test="`$vf-module-topology-operation-input.vf-module-request-information.vnf-instance-id`"><outcome value='0'><return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='vnf-instance-id cannot be NULL or 0'/></return></outcome><outcome value=''><return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='vnf-instance-id cannot be NULL or 0'/></return></outcome></switch><switch test="`$vf-module-topology-operation-input.vf-module-request-information.vnf-instance-name`"><outcome value=''><return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='vnf-instance-name cannot be NULL'/></return></outcome></switch><switch test="`$vf-module-topology-operation-input.vf-module-request-information.vnf-model-id`"><outcome value=''><return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='vnf-model-id cannot be NULL'/></return></outcome></switch><switch test="`$vf-module-topology-operation-input.vf-module-request-information.aic-cloud-region`"><outcome value=''><return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='aic-cloud-region cannot be NULL'/></return></outcome></switch><switch test="`$vf-module-topology-operation-input.sdnc-request-header.svc-action`">
+<!--
+leaf svc-action { 
+	type enumeration { 
+		enum "reserve";
+		enum "assign";
+		enum "activate";  // equal to commit
+		enum "delete";	  // equal to commit
+		enum "changeassign";
+		enum "changedelete";
+		enum "rollback";
+	}
+}
+-->
+
+<outcome value='assign'><call module='VNF-API' rpc='vf-module-topology-assign' mode='sync' ></call></outcome><outcome value='changeassign'><call module='VNF-API' rpc='vf-module-topology-changeassign' mode='sync' ></call></outcome><outcome value='activate'><call module='VNF-API' rpc='vf-module-topology-activate' mode='sync' ></call></outcome><outcome value='rollback'><call module='VNF-API' rpc='vf-module-topology-rollback' mode='sync' ></call></outcome><outcome value='delete'><call module='VNF-API' rpc='vf-module-topology-delete' mode='sync' ></call></outcome><outcome value='Other'><return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='svc-action not recognized'/>
+</return></outcome></switch></block></method></service-logic>

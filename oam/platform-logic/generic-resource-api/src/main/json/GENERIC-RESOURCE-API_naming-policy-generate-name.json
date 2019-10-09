@@ -1,0 +1,4441 @@
+[
+    {
+        "id": "75a34d0b.bb7574",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 118,
+        "y": 51,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "70404768.1ea1c8"
+            ]
+        ]
+    },
+    {
+        "id": "6492a0ff.445ef",
+        "type": "method",
+        "name": "method naming-policy-generate-name",
+        "xml": "<method rpc='naming-policy-generate-name' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 722,
+        "y": 52,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "ba99c4a1.1c0018"
+            ]
+        ]
+    },
+    {
+        "id": "70404768.1ea1c8",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 376.9403991699219,
+        "y": 51.32145690917969,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "6492a0ff.445ef"
+            ]
+        ]
+    },
+    {
+        "id": "6edde0fc.72ccc",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 283,
+        "y": 2249,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "2c51c155.dc3526",
+                "9fa570e4.d047d8",
+                "3e4fd70d.b8b488"
+            ]
+        ]
+    },
+    {
+        "id": "2c51c155.dc3526",
+        "type": "set",
+        "name": "set variables for generating unique name",
+        "xml": "<set>\n<!--<parameter name='generate-unique-name-input.index-table-name' value='VM_NAME_INDEX' />-->\n<parameter name='generate-unique-name-input.index-table-name' value=\"`$table-name`\" />\n<parameter name='generate-unique-name-input.index-table-prefix-column' value=\"`$table-prefix-column`\" />\n<!--<parameter name='generate-unique-name-input.name-table-type' value='VNFAPI_VM_INSTANCE' />-->\n<parameter name='generate-unique-name-input.name-table-type' value=\"`$table-type`\" />\n<!--<parameter name='generate-unique-name-input.prefix' value=\"`$naming-policy-generate-name-input.nfc-naming-code`\" />\n<parameter name='generate-unique-name-input.index-length' value='003' />-->\n<parameter name='generate-unique-name-input.prefix' value=\"`$constructed-name`\" />\n<parameter name='generate-unique-name-input.index-length' value=\"`$seq-length`\" />\n<parameter name='generate-unique-name-input.action' value=\"`$naming-policy-generate-name-input.action`\" />\n<parameter name='generate-unique-name-input.context-id' value=\"`$naming-policy-generate-name-input.context-id`\" />",
+        "comments": "",
+        "x": 421.6904296875,
+        "y": 2353.3095703125,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "3e4fd70d.b8b488",
+        "type": "call",
+        "name": "call GR-API:naming-policy-generate-unique-name",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-unique-name' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 454.023681640625,
+        "y": 2398.976318359375,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "ddb98dbf.d86528",
+                "56f09382.d52994"
+            ]
+        ]
+    },
+    {
+        "id": "ddb98dbf.d86528",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 757.7379760742188,
+        "y": 2375.83349609375,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "f4297935.f9f37"
+            ]
+        ]
+    },
+    {
+        "id": "56f09382.d52994",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 761.0713259379067,
+        "y": 2427.50013923645,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "8322f6bc.4995f"
+            ]
+        ]
+    },
+    {
+        "id": "9a53573e.453378",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`$generate-unique-name-output.error-message`\" />\n",
+        "comments": "",
+        "x": 1048.5950927734375,
+        "y": 2375.261962890625,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "8185858d.9e0a08",
+        "type": "set",
+        "name": "set generated vm-name",
+        "xml": "<set>\n<parameter name='naming-policy-generate-name-output.vm-name' value='`$generate-unique-name-output.generated-name`' />\n<parameter name='constructed-name' value='' />\n<parameter name='seq-length' value='' />",
+        "comments": "",
+        "x": 1264.5950953165689,
+        "y": 2520.9760637283325,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "4535c483.19cc2c",
+        "type": "comment",
+        "name": "Call Policy Manager getPolicy",
+        "info": "",
+        "comments": "",
+        "x": 271,
+        "y": 274,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "8fb3313.00e47d",
+        "type": "execute",
+        "name": "execute RestapiCallNode",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='templateFileName' value=\"`$prop.restapi.templateDir + '/' + $prop.restapi.pm.getpolicy.templatefile`\" />\n    <parameter name='restapiUrl' value=\"`$prop.policy-manager.url + '/pdp/api/getConfig'`\" />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='POST' />  \n    <parameter name='customHttpHeaders'\n      value=\"`'Authorization=Basic ' + $prop.policy-manager.authorization + ',ClientAuth=Basic ' + $prop.policy-manager.clientauth + ',Environment=' + $prop.policy-manager.environment `\" />\n\t<parameter name=\"responsePrefix\" value=\"tmp.pm-response\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 432,
+        "y": 397,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "55f4b148.256098",
+                "d7e7421a.85577"
+            ]
+        ]
+    },
+    {
+        "id": "fac278.cbdfd588",
+        "type": "set",
+        "name": "set",
+        "xml": "<set>\n<parameter name='tmp.policy-name' value=\"`$naming-policy-generate-name-input.policy-instance-name`\" />\n",
+        "comments": "",
+        "x": 377,
+        "y": 318,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "5d83b069.18ee5",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 234,
+        "y": 316,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "fac278.cbdfd588",
+                "8fb3313.00e47d",
+                "a0a20ae8.85051",
+                "a2215e38.ce28e",
+                "15537c0b.057ca4",
+                "73f403b2.c4d354"
+            ]
+        ]
+    },
+    {
+        "id": "a0a20ae8.85051",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"com.att.sdnctl.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: restapi-call-node Call Policy Manager getPolicy\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 377,
+        "y": 358,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d145dda.fd66aa",
+        "type": "execute",
+        "name": "execute readProperties",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >\n    <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />\n    <parameter name='contextPrefix' value='prop' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1366,
+        "y": 123,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "df488a42.d2de8",
+                "e9591d07.9c2818"
+            ]
+        ]
+    },
+    {
+        "id": "df488a42.d2de8",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1565,
+        "y": 102,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "b544100e.489ef8"
+            ]
+        ]
+    },
+    {
+        "id": "e9591d07.9c2818",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1563,
+        "y": 143,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "aa4103e3.cd9c68"
+            ]
+        ]
+    },
+    {
+        "id": "aa4103e3.cd9c68",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1700,
+        "y": 145,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "4e4e1cae.459c7c",
+                "68d25eab.cfdcb"
+            ]
+        ]
+    },
+    {
+        "id": "4e4e1cae.459c7c",
+        "type": "GenericXML",
+        "name": "record",
+        "xml": "<record  plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: Could not read properties file.\"/>\n<parameter name=\"field3\" value='`$prop.restapi.pm.getpolicy.templatefile`'/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1871,
+        "y": 142,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b544100e.489ef8",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1721,
+        "y": 102,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "311b8744.7f9128"
+            ]
+        ]
+    },
+    {
+        "id": "ba99c4a1.1c0018",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 120,
+        "y": 91,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "23484a65.1e44ce",
+                "80631453.603ea8"
+            ]
+        ]
+    },
+    {
+        "id": "b463feb.8663e",
+        "type": "comment",
+        "name": "Read properties",
+        "info": "",
+        "comments": "",
+        "x": 1341,
+        "y": 76,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "a0550124.60527",
+        "type": "comment",
+        "name": "Generate unique name with constructed-name based on naming-recipe",
+        "info": "",
+        "comments": "",
+        "x": 462,
+        "y": 2199,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "5bd249c1.943ee8",
+        "type": "comment",
+        "name": "Process Policy Manager response",
+        "info": "Use the three naming components returned from Policy Manager to build the name\n\nExtract from json response three data components:\n\n1. VNFNAME\n2. CONSTANT_TAG\n3. SEQUENCE",
+        "comments": "",
+        "x": 462,
+        "y": 500,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "311b8744.7f9128",
+        "type": "GenericXML",
+        "name": "record",
+        "xml": "<record  plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: read properties file.\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1868,
+        "y": 102,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "73f403b2.c4d354",
+        "type": "set",
+        "name": "set",
+        "xml": "<set>\n<parameter name='vnf-name' value=\"`$naming-policy-generate-name-input.generic-vnf-name`\" />\n<parameter name='constant-tag' value=\"`$naming-policy-generate-name-input.constant-tag`\" />\n<parameter name='sequence' value=\"`$naming-policy-generate-name-input.sequence`\" />\n",
+        "comments": "",
+        "x": 379,
+        "y": 443,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "a2215e38.ce28e",
+        "type": "execute",
+        "name": "execute jsonStringToCtx",
+        "xml": "<execute plugin=\"org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils\" method=\"jsonStringToCtx\">\n\t<parameter name=\"source\" value=\"naming-policy-config\" />\n\t<parameter name=\"outputPath\" value=\"jsonContextPrefix\" />\n\t<parameter name=\"isEscaped\" value=\"true\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 438,
+        "y": 580,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "875018c2.d50af8",
+                "202858.a5bcf7a8"
+            ]
+        ]
+    },
+    {
+        "id": "15537c0b.057ca4",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: call jsonStringToCtx\"/>\n<parameter name='field3' value='`$naming-policy-config`' />",
+        "comments": "",
+        "outputs": 1,
+        "x": 383,
+        "y": 538,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "55f4b148.256098",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 634,
+        "y": 387,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "20a0ada2.86197a"
+            ]
+        ]
+    },
+    {
+        "id": "4cd2ac34.0a838c",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: Error calling Policy Manager getPolicy\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 975,
+        "y": 341,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d7e7421a.85577",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 636,
+        "y": 429,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "1101599b.ecff1e"
+            ]
+        ]
+    },
+    {
+        "id": "af00ee16.fb8b7",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: getPolicy SUCCESS\"/>\n<parameter name='field3' value='`$tmp.pm-response.type`' />\n<parameter name='field4' value='`$tmp.pm-response.matchingConditions`' />\n<parameter name='field5' value='`$tmp.pm-response.config`' />\n<parameter name='field6' value='`$tmp.pm-response.response-code`' />\n<parameter name='field7' value='`$tmp.pm-response.response-message`' />",
+        "comments": "",
+        "outputs": 1,
+        "x": 975,
+        "y": 421,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2e2bf07f.6bef",
+        "type": "set",
+        "name": "set",
+        "xml": "<set>\n<parameter name='naming-policy-config' value=\"`$tmp.pm-response.config`\" />\n",
+        "comments": "",
+        "x": 976,
+        "y": 459,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "875018c2.d50af8",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 637,
+        "y": 575,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "6d355400.a200e4"
+            ]
+        ]
+    },
+    {
+        "id": "2427b7f2.f78918",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: Error calling jsonStringToCtx\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 898,
+        "y": 566,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "202858.a5bcf7a8",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 643,
+        "y": 622,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "fe35d17a.708da"
+            ]
+        ]
+    },
+    {
+        "id": "e6f1d650.5a9f2",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: jsonStringToCtx SUCCESS: policy-instance-name|naming-models_length|constructed-name:\"/>\n<parameter name='field3' value='`$jsonContextPrefix.content.policy-instance-name`' />\n<parameter name='field4' value='`$jsonContextPrefix.content.naming-models_length`' />\n<parameter name='field5' value='`$constructed-name`' />",
+        "comments": "",
+        "outputs": 1,
+        "x": 425,
+        "y": 727,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f0ff2011.6ffb6",
+        "type": "for",
+        "name": "for each namig-model",
+        "xml": "<for index='modelsIndex' start='0' end='`$jsonContextPrefix.content.naming-models_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 466,
+        "y": 771,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "f383011c.bcb46"
+            ]
+        ]
+    },
+    {
+        "id": "fe35d17a.708da",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 443,
+        "y": 685,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "e6f1d650.5a9f2",
+                "f0ff2011.6ffb6",
+                "f8a0b8fd.ddc3a",
+                "14834b6c.ad004d"
+            ]
+        ]
+    },
+    {
+        "id": "2129c70.608263a",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: propertiesIndex|source-endpoint|source-system|property-name:\"/>\n<parameter name='field3' value='`$propertiesIndex`' />\n<parameter name='field4' value='`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-properties[$propertiesIndex].source-endpoint`' />\n<parameter name='field5' value='`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-properties[$propertiesIndex].source-system`' />\n<parameter name='field6' value='`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-properties[$propertiesIndex].property-name`' />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1347,
+        "y": 1608,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "42841b11.aad434",
+        "type": "comment",
+        "name": "Resolve the value of the naming-property",
+        "info": "For each naming-property, get the value using the source-endpoinr and the source-system if the property-name is part of the naming-recipe.",
+        "comments": "",
+        "x": 1330,
+        "y": 1563,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "9565a666.a66ff",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1225,
+        "y": 1609,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "2129c70.608263a",
+                "bb618182.7a5348",
+                "4bd119b3.f9c08"
+            ]
+        ]
+    },
+    {
+        "id": "dbc48e79.680fe8",
+        "type": "switchNode",
+        "name": "switch source-system",
+        "xml": "<switch test='`$source-system`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1794,
+        "y": 1743,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "a209ce6a.66539",
+                "674dfafd.50cfc4",
+                "68a415fe.a3c6f4",
+                "27ec5b13.c3b8d4",
+                "f43244a3.fe4528"
+            ]
+        ]
+    },
+    {
+        "id": "bb618182.7a5348",
+        "type": "set",
+        "name": "set naming-property vars",
+        "xml": "<set>\n<parameter name='source-system' value='`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-properties[$propertiesIndex].source-system`'  />\n<parameter name='source-endpoint' value='`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-properties[$propertiesIndex].source-endpoint`'  />\n<parameter name='property-name' value='`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-properties[$propertiesIndex].property-name`'  />\n<parameter name='property-value' value='`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-properties[$propertiesIndex].property-value`'  />\n",
+        "comments": "",
+        "x": 1399,
+        "y": 1646,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "a209ce6a.66539",
+        "type": "outcome",
+        "name": "outcome: MD-SAL",
+        "xml": "<outcome value=\"MD-SAL\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1823,
+        "y": 1787,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "5914689f.c6128"
+            ]
+        ]
+    },
+    {
+        "id": "27ec5b13.c3b8d4",
+        "type": "outcome",
+        "name": "outcome: TOSCA",
+        "xml": "<outcome value=\"TOSCA\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1832,
+        "y": 2366,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "f1b8b11f.c6e268"
+            ]
+        ]
+    },
+    {
+        "id": "f43244a3.fe4528",
+        "type": "other",
+        "name": "Blank",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1789,
+        "y": 3865,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "b6b75232.0ce81"
+            ]
+        ]
+    },
+    {
+        "id": "33427119.67b63e",
+        "type": "get-resource",
+        "name": "get-resource: using source-enpoint",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' method='parameterizedQuery' emitsOutcome='true' >\n<parameter name='query' value='nfc_naming_code from VFC_MODEL where customization_uuid = ?' />\n<parameter name='prefix' value='queryPfx' />\n<parameter name='param1' value=\"`$naming-policy-generate-name-input.vfc-customization-uuid`\" />\n\n<!--<get-resource \n\tplugin='org.openecomp.sdnc.sli.resource.sql.SqlResource' \n    resource='SQL'\n\tkey=\"SELECT nfc_naming_code from VFC_MODEL where customization_uuid = $naming-policy-generate-name-input.customization-uuid ; \"\n\tpfx='queryPfx'>\n\t\n-- Use parameterized query\nRead\n<execute plugin='com.att.sdnctl.sli.resource.sql.SqlResource' method='parameterizedQuery' emitsOutcome='true' >\n<parameter name='query' value='select version from SVC_LOGIC where module = ?' />\n<parameter name='prefix' value='query1' />\n<parameter name='param1' value=\"`$vfcCustomizationUuid`  (passed in from calling DG)\" />\n-->\t\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3158,
+        "y": 2436,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6e47d8a0.889f3",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2708,
+        "y": 2422,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "b0046580.4d276"
+            ]
+        ]
+    },
+    {
+        "id": "b0046580.4d276",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='514' />\n<parameter name='error-message' value='naming-policy-generate-name query-parameter not found in DB table'/>\n",
+        "comments": "",
+        "x": 2849,
+        "y": 2422,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "50737887.589db",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2700,
+        "y": 2458,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "df3b5efb.ab02a"
+            ]
+        ]
+    },
+    {
+        "id": "df3b5efb.ab02a",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='515' />\n<parameter name='error-message' value='naming-policy-generate-name database access failure'/>\n",
+        "comments": "",
+        "x": 2849,
+        "y": 2458,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "4bf394e2.0c215c",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2312,
+        "y": 2472,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "18bd0a36.98e46e"
+            ]
+        ]
+    },
+    {
+        "id": "f71e5755.3b8be8",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: source-system TOSCA name-value pair|new-part|constructed-name:\"/>\n<parameter name=\"field3\" value=\"`$name-var`\" />\n<parameter name=\"field4\" value=\"`$value-var`\" />\n<parameter name=\"field5\" value=\"`$new-part`\" />\n<parameter name=\"field6\" value=\"`$constructed-name`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 2627,
+        "y": 2912,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "18bd0a36.98e46e",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2311,
+        "y": 2517,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "f71e5755.3b8be8",
+                "1f38982a.fd3db8",
+                "8dfa3cf2.977b5",
+                "74241d5c.4f5c4c",
+                "c6e9efbe.0a3b9",
+                "5a0ecd08.97aca4",
+                "e48db706.321a18",
+                "ff7274bf.81bd7",
+                "4f4d8a88.0ea29c"
+            ]
+        ]
+    },
+    {
+        "id": "8dfa3cf2.977b5",
+        "type": "set",
+        "name": "set new-part",
+        "xml": "<set>\n<parameter name=\"name-var\" value=\"`$propertiesIndex + '-naming-property-value'`\" />\n<parameter name=\"value-var\" value=\"`$property-name + '-' + $resolved-query-parameter`\" />\n<parameter name=\"new-part\" value=\"`$resolved-query-parameter` \" />",
+        "comments": "",
+        "x": 2641,
+        "y": 2819,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "559d0190.b9a298",
+        "type": "set",
+        "name": "set new-part",
+        "xml": "<set>\n<parameter name=\"name-var\" value=\"`$propertiesIndex + '-naming-property-value'`\" />\n<parameter name=\"value-var\" value=\"`$property-name + '-' + $naming-policy-generate-name-input.test-source-endpoint-resolved-value` \" />\n<parameter name=\"new-part\" value=\"`$resolved-source-endpoint` \" />\n<!--<parameter name=\"new-part\" value=\"`$naming-policy-generate-name-input.test-source-endpoint-resolved-value` \" />-->",
+        "comments": "",
+        "x": 2132,
+        "y": 1901,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "5cf92254.7a3a2c",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: source-system MD-SAL name-value pair|new-part|constructed-name:\"/>\n<parameter name=\"field3\" value=\"`$name-var`\" />\n<parameter name=\"field4\" value=\"`$value-var`\" />\n<parameter name=\"field5\" value=\"`$new-part`\" />\n<parameter name=\"field6\" value=\"`$constructed-name`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 2116,
+        "y": 1989,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "bd92dfcd.c08348",
+        "type": "execute",
+        "name": "SliStringUtils - split after |",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >\n    <parameter name=\"original_string\" value=\"`$original-name`\" />\n    <parameter name=\"regex\" value=\"\\|\"/>\n    <parameter name=\"limit\" value=\"10\" />\n    <parameter name=\"ctx_memory_result_key\" value=\"namingRecipeSplits\" />\n  \n",
+        "comments": "",
+        "outputs": 1,
+        "x": 897,
+        "y": 1118,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b2ecc5f0.43531",
+        "type": "set",
+        "name": "set original-name",
+        "xml": "<set>\n<parameter name='original-name' value='`$naming-recipe`' />\n",
+        "comments": "",
+        "x": 871.3333740234375,
+        "y": 1077.333251953125,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "2d28b1ee.0d253e",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 665,
+        "y": 1077,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "b2ecc5f0.43531",
+                "bd92dfcd.c08348",
+                "6f8b5246.912494",
+                "6edde0fc.72ccc"
+            ]
+        ]
+    },
+    {
+        "id": "6f8b5246.912494",
+        "type": "for",
+        "name": "for each naming-recipe section",
+        "xml": "<for index='sectionIndex' start='0' end='`$namingRecipeSplits_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 921,
+        "y": 1158,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "42632c44.901de4",
+                "50857c42.42adcc"
+            ]
+        ]
+    },
+    {
+        "id": "50857c42.42adcc",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: Split naming-recipe sectionIndex|section value\"/>\n<parameter name=\"field3\" value=\"`$sectionIndex`\" />\n<parameter name=\"field4\" value=\"`$namingRecipeSplits[$sectionIndex]`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1144,
+        "y": 1158,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "42632c44.901de4",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 872,
+        "y": 1208,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "4f6f9e3d.d93e98",
+                "dbb6c8bd.b9d85"
+            ]
+        ]
+    },
+    {
+        "id": "4f6f9e3d.d93e98",
+        "type": "for",
+        "name": "for each naming-property",
+        "xml": "<for index='propertiesIndex' start='0' end='`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-properties_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1048,
+        "y": 1249,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "8c4f2aa1.47e8f8"
+            ]
+        ]
+    },
+    {
+        "id": "4ca738a3.1fe0f8",
+        "type": "switchNode",
+        "name": "switch property-name == section-value",
+        "xml": "<switch test='`$property-name == $section-value`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1153,
+        "y": 1428,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "5ef228d5.03a9c"
+            ]
+        ]
+    },
+    {
+        "id": "5ef228d5.03a9c",
+        "type": "outcome",
+        "name": "outcome: recipe section match",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1197,
+        "y": 1470,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "7bf7454d.cb5eac"
+            ]
+        ]
+    },
+    {
+        "id": "9fa570e4.d047d8",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: call generate-unique-name: constructed-name\"/>\n<parameter name=\"field6\" value=\"`$constructed-name`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 310,
+        "y": 2308,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "dbb6c8bd.b9d85",
+        "type": "set",
+        "name": "set section-value",
+        "xml": "<set>\n<parameter name='section-value' value=\"`$namingRecipeSplits[$sectionIndex]`\"  />\n",
+        "comments": "",
+        "x": 1031,
+        "y": 1209,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "cc00f157.dcdd08",
+        "type": "set",
+        "name": "set property-name",
+        "xml": "<set>\n<!--<parameter name='property-name' value=\"`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-properties[$propertiesIndex].property-name`\"  />-->\n<parameter name='property-name' value=\"`$property-name-trimmed`\"  />\n",
+        "comments": "",
+        "x": 1097,
+        "y": 1385,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "8c4f2aa1.47e8f8",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1018,
+        "y": 1294,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "4ca738a3.1fe0f8",
+                "3a8d4560.940002",
+                "cc00f157.dcdd08"
+            ]
+        ]
+    },
+    {
+        "id": "37b3dd6b.37aaa2",
+        "type": "set",
+        "name": "set constructed-name",
+        "xml": "<set>\n<!--<parameter name='constructed-name' value=\"`'init-constructed-name'`\"  />-->\n<parameter name='constructed-name' value=\"`''`\"  />",
+        "comments": "",
+        "x": 665,
+        "y": 678,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "7bf7454d.cb5eac",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1174,
+        "y": 1513,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "9565a666.a66ff",
+                "edd08f5b.e85f58"
+            ]
+        ]
+    },
+    {
+        "id": "ff95881b.e519c",
+        "type": "set",
+        "name": "set SEQUENCE info for this naming-property",
+        "xml": "<set>\n<!-- until PM is passing the correct source-endpoint for memory value, \n     use one passed via executeDG test\n\n<parameter name=\"`$propertiesIndex` + '-naming-property-value'\" value=\"` $property-name + '-' + $source-endpoint `\"  />\n-->\n<parameter name=\"seq-scope\" value=\"`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-properties[$propertiesIndex].increment-sequence.scope`\" />\n<parameter name=\"seq-start-value\" value=\"`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-properties[$propertiesIndex].increment-sequence.start-value` \" />\n<parameter name=\"seq-length\" value=\"`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-properties[$propertiesIndex].increment-sequence.length` \" />\n<parameter name=\"seq-increment\" value=\"`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-properties[$propertiesIndex].increment-sequence.increment` \" />\n",
+        "comments": "",
+        "x": 2194,
+        "y": 3903,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "28763b06.0da9d4",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: SDN-GC SEQUENCE info: scope|start-value|length|increment|constructed-name:\"/>\n<parameter name=\"field3\" value=\"`$seq-scope`\" />\n<parameter name=\"field4\" value=\"`$seq-start-value`\" />\n<parameter name=\"field5\" value=\"`$seq-length`\" />\n<parameter name=\"field6\" value=\"`$seq-increment`\" />\n<parameter name=\"field7\" value=\"`$constructed-name`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 2071,
+        "y": 3943,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5914689f.c6128",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2118,
+        "y": 1853,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "559d0190.b9a298",
+                "5cf92254.7a3a2c",
+                "465cf13e.01d79",
+                "5c07edd9.938f7c"
+            ]
+        ]
+    },
+    {
+        "id": "b6b75232.0ce81",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2070,
+        "y": 3865,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "ff95881b.e519c",
+                "28763b06.0da9d4"
+            ]
+        ]
+    },
+    {
+        "id": "8db0d286.7fa708",
+        "type": "execute",
+        "name": "execute parameterized query using source-endpoint",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' method='parameterizedQuery' emitsOutcome='true' >\n<!--<parameter name='query' value='select nfc_naming_code from VFC_MODEL where customization_uuid = ?' />-->\n<parameter name='query' value=\"`$source-endpoint`\" />\n<parameter name='prefix' value='queryPfx' />\n<parameter name='param1' value=\"`$naming-policy-generate-name-input.query-parameter`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 2432,
+        "y": 2422,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "6e47d8a0.889f3",
+                "50737887.589db",
+                "4bf394e2.0c215c"
+            ]
+        ]
+    },
+    {
+        "id": "edd08f5b.e85f58",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: recipe section match: section-value|property-name:\"/>\n<parameter name=\"field3\" value=\"`$section-value`\" />\n<parameter name=\"field4\" value=\"`$property-name`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1301,
+        "y": 1513,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1f38982a.fd3db8",
+        "type": "set",
+        "name": "add new-part to constructed-value",
+        "xml": "<set>\n<parameter name=\"constructed-name\" value=\"`$constructed-name + $new-part` \"  />\n",
+        "comments": "",
+        "x": 2707,
+        "y": 2863,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "465cf13e.01d79",
+        "type": "set",
+        "name": "add new-part to constructed-value",
+        "xml": "<set>\n<parameter name=\"constructed-name\" value=\"`$constructed-name + $new-part` \"  />",
+        "comments": "",
+        "x": 2201,
+        "y": 1939,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "8322f6bc.4995f",
+        "type": "switchNode",
+        "name": "switch naming-type (VM | VNFC | VNF)",
+        "xml": "<switch test='`$naming-type`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 978.0000025431314,
+        "y": 2425.9999895095825,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "9d532e22.50b1b8",
+                "78aa50c5.9e78e",
+                "64bf3864.33ff38",
+                "6d8b2a02.46fe54",
+                "81a52062.6b654"
+            ]
+        ]
+    },
+    {
+        "id": "9d532e22.50b1b8",
+        "type": "outcome",
+        "name": "outcome: VM",
+        "xml": "<outcome value=\"VM\">\n<!-- <outcome value=\"MD-SAL\"> -->\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1007,
+        "y": 2478,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "518d8ec2.33b29"
+            ]
+        ]
+    },
+    {
+        "id": "78aa50c5.9e78e",
+        "type": "outcome",
+        "name": "outcome: VNFC",
+        "xml": "<outcome value=\"VNFC\">\n<!-- <outcome value=\"MD-SAL\"> -->\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1017,
+        "y": 2609,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "e889ec83.003b58"
+            ]
+        ]
+    },
+    {
+        "id": "cbbec45b.5e0258",
+        "type": "set",
+        "name": "set generated vnfc-name",
+        "xml": "<set>\n<parameter name='naming-policy-generate-name-output.vnfc-name' value='`$generate-unique-name-output.generated-name`' />\n<parameter name='constructed-name' value='' />\n<parameter name='seq-length' value='' />",
+        "comments": "",
+        "x": 1258.5950927734375,
+        "y": 2688.97607421875,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "f3b3cf11.bcec9",
+        "type": "record",
+        "name": "record generated vm-name",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: generated vm-name|generate-unique-name-output.generated-name:\"/>\n<parameter name=\"field5\" value=\"`$naming-policy-generate-name-output.vm-name`\" />\n<parameter name=\"field6\" value=\"`$generate-unique-name-output.generated-name`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1275.0000025431314,
+        "y": 2561.9999895095825,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "518d8ec2.33b29",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1209,
+        "y": 2477,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "f3b3cf11.bcec9",
+                "8185858d.9e0a08"
+            ]
+        ]
+    },
+    {
+        "id": "e889ec83.003b58",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1200,
+        "y": 2648,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "7741602e.23feb",
+                "cbbec45b.5e0258"
+            ]
+        ]
+    },
+    {
+        "id": "7741602e.23feb",
+        "type": "record",
+        "name": "record generated vnfc-name",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: generated vnfc-name|generate-unique-name-output.generated-name:\"/>\n<parameter name=\"field5\" value=\"`$naming-policy-generate-name-output.vnfc-name`\" />\n<parameter name=\"field6\" value=\"`$generate-unique-name-output.generated-name`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1269,
+        "y": 2727,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4bd119b3.f9c08",
+        "type": "switchNode",
+        "name": "switch property-value",
+        "xml": "<switch test='`$property-value`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1390,
+        "y": 1688,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "eb25d531.93517",
+                "a13023cc.efc698"
+            ]
+        ]
+    },
+    {
+        "id": "eb25d531.93517",
+        "type": "other",
+        "name": "Blank",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1585,
+        "y": 1689,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "b7c93ceb.1810d8"
+            ]
+        ]
+    },
+    {
+        "id": "b7c93ceb.1810d8",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1621,
+        "y": 1742,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "dbc48e79.680fe8"
+            ]
+        ]
+    },
+    {
+        "id": "a13023cc.efc698",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1296,
+        "y": 1875,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "5ed3e30e.accf14"
+            ]
+        ]
+    },
+    {
+        "id": "5ed3e30e.accf14",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1326,
+        "y": 1917,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "992c18a9.120f3",
+                "b2e909c3.17d858",
+                "b5b4a205.b0a848"
+            ]
+        ]
+    },
+    {
+        "id": "992c18a9.120f3",
+        "type": "set",
+        "name": "set new-part",
+        "xml": "<set>\n<!-- until PM is passing the correct source-endpoint for memory value, \n     use one passed via executeDG test\n\n<parameter name=\"`$propertiesIndex` + '-naming-property-value'\" value=\"` $property-name + '-' + $source-endpoint `\"  />\n-->\n<parameter name=\"name-var\" value=\"`$propertiesIndex + '-naming-property-value'`\" />\n<parameter name=\"value-var\" value=\"`$property-name + '-' + $property-value` \" />\n<parameter name=\"new-part\" value=\"`$property-value` \" />",
+        "comments": "",
+        "x": 1344,
+        "y": 1954,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "b5b4a205.b0a848",
+        "type": "set",
+        "name": "add new-part to constructed-value",
+        "xml": "<set>\n<parameter name=\"constructed-name\" value=\"`$constructed-name + $new-part` \"  />",
+        "comments": "",
+        "x": 1413,
+        "y": 1992,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "b2e909c3.17d858",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: property-value name-value pair|new-part|constructed-name:\"/>\n<parameter name=\"field3\" value=\"`$name-var`\" />\n<parameter name=\"field4\" value=\"`$value-var`\" />\n<parameter name=\"field5\" value=\"`$new-part`\" />\n<parameter name=\"field6\" value=\"`$constructed-name`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1325,
+        "y": 2030,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f8a0b8fd.ddc3a",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name='naming-policy-generate-name-output.vm-name' value=\"`$naming-policy-generate-name-output.vm-name`\" />\n<parameter name='naming-policy-generate-name-output.vnfc-name' value=\"`$naming-policy-generate-name-output.vnfc-name`\" />\n",
+        "comments": "",
+        "x": 202,
+        "y": 3275,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "68d25eab.cfdcb",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='501' />\n<parameter name='error-message' value='naming-policy-generate-name: could not read generic-resource-api properties' />\n",
+        "comments": "",
+        "x": 1883,
+        "y": 185,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "f5405176.e50ca",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='502' />\n<parameter name='error-message' value='naming-policy-generate-name: getPolicy call to Policy Manger failed' />\n",
+        "comments": "",
+        "x": 991,
+        "y": 380,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "4dfee0c8.38978",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='504' />\n<parameter name='error-message' value='naming-policy-generate-name: failed to parse Policy Manger getPolicy response' />\n",
+        "comments": "",
+        "x": 914,
+        "y": 605,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "20a0ada2.86197a",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 761,
+        "y": 386,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "4cd2ac34.0a838c",
+                "f5405176.e50ca"
+            ]
+        ]
+    },
+    {
+        "id": "6d355400.a200e4",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 772,
+        "y": 575,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "2427b7f2.f78918",
+                "4dfee0c8.38978"
+            ]
+        ]
+    },
+    {
+        "id": "3a8d4560.940002",
+        "type": "execute",
+        "name": "SliStringUtils - trim property-name",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='trim' >\n    <parameter name=\"source\" value=\"`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-properties[$propertiesIndex].property-name`\" />\n    <parameter name=\"outputPath\" value=\"property-name-trimmed\" />\n  \n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1143,
+        "y": 1343,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "cf295ecd.ac6bb",
+        "type": "execute",
+        "name": "SliPluginUtils - getArrtibuteValue for source-endpoint",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='getAttributeValue' >\n\t<parameter name=\"source\" value=\"`$source-endpoint`\" />\n\t<!--<parameter name=\"source\" value=\"`$naming-policy-generate-name-input.test-source-endpoint-path`\" />-->\n\t<parameter name=\"outputPath\" value=\"resolved-source-endpoint\" />\n\t",
+        "comments": "",
+        "outputs": 1,
+        "x": 2742,
+        "y": 2075,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "85860723.7cbb78",
+        "type": "set",
+        "name": "set ctx-memory-path * TEST ONLY *",
+        "xml": "<set>\n<parameter name=\"ctx-memory-path\" value='test-source-endpoint-resolved-value' />",
+        "comments": "",
+        "x": 2209,
+        "y": 1791,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "5c07edd9.938f7c",
+        "type": "switchNode",
+        "name": "switch property-name (VMNAME | VNFNAME | Other)",
+        "xml": "<switch test='`$property-name`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2577,
+        "y": 1852,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "7a67ffd2.e19ed",
+                "2dcf567f.4b8eb2",
+                "fcbf6f2f.6c2558"
+            ]
+        ]
+    },
+    {
+        "id": "7a67ffd2.e19ed",
+        "type": "outcome",
+        "name": "outcome: VMNAME",
+        "xml": "<outcome value=\"VMNAME\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2510,
+        "y": 1905,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "aba0d492.8c0b78"
+            ]
+        ]
+    },
+    {
+        "id": "2dcf567f.4b8eb2",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2470,
+        "y": 2075,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "cf295ecd.ac6bb"
+            ]
+        ]
+    },
+    {
+        "id": "aa207226.ec6ef8",
+        "type": "set",
+        "name": "set resolved-source-endpoint to input vm-name",
+        "xml": "<set>\n<parameter name=\"resolved-source-endpoint\" value=\"`$naming-policy-generate-name-input.vm-name`\" />",
+        "comments": "",
+        "x": 3167,
+        "y": 1925,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "be2a29d3.e3246",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: Error calling generate-unique-name\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1034,
+        "y": 2329,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2a176147.86e4a6",
+        "type": "comment",
+        "name": "If property-value was set use it instead of constructing a value",
+        "info": "",
+        "comments": "",
+        "x": 1465,
+        "y": 1836,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "3ffbeb15.ee1a1c",
+        "type": "comment",
+        "name": "construct a name only if the naming-type matches input.  Valid types: VNF | VM | VNFC | NETWORK | SERVICE",
+        "info": "",
+        "comments": "",
+        "x": 738,
+        "y": 812,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "f383011c.bcb46",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 473,
+        "y": 853,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "4d70248f.886584",
+                "af65c0f0.1d9608",
+                "c68c5be6.cd663",
+                "53c5a10b.b8eb28",
+                "153c4ae9.a6de65"
+            ]
+        ]
+    },
+    {
+        "id": "4d70248f.886584",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: modelsIndex|naming-type|naming-recipe:\"/>\n<parameter name='field3' value='`$modelsIndex`' />\n<parameter name='field4' value='`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-type`' />\n<parameter name='field5' value='`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-recipe`' />",
+        "comments": "",
+        "outputs": 1,
+        "x": 790,
+        "y": 849,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c68c5be6.cd663",
+        "type": "set",
+        "name": "set naming-model vars (naming-recipe and naming-type)",
+        "xml": "<set>\n<parameter name='naming-recipe' value='`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-recipe`'  />\n<parameter name='naming-type' value='`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-type`'  />\n",
+        "comments": "",
+        "x": 944,
+        "y": 888,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "af65c0f0.1d9608",
+        "type": "switchNode",
+        "name": "switch naming-type == input.naming-type",
+        "xml": "<switch test='`$naming-type == $naming-policy-generate-name-input.naming-type`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 524,
+        "y": 992,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "f5ba895b.cd8e4",
+                "be0c5c6c.f15a2"
+            ]
+        ]
+    },
+    {
+        "id": "f5ba895b.cd8e4",
+        "type": "outcome",
+        "name": "outcome:naming-type match",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 529,
+        "y": 1032,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "2d28b1ee.0d253e"
+            ]
+        ]
+    },
+    {
+        "id": "be0c5c6c.f15a2",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 465,
+        "y": 1074,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "1697accc.44d5c3"
+            ]
+        ]
+    },
+    {
+        "id": "1697accc.44d5c3",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: naming-type from returned policy does not match input.naming-type.  Do not construct name for: \"/>\n<parameter name=\"field3\" value=\"`$naming-type`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 458,
+        "y": 1121,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6e4783ce.b43dc4",
+        "type": "comment",
+        "name": "Validate inputs",
+        "info": "",
+        "comments": "",
+        "x": 1331,
+        "y": 234,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "f4297935.f9f37",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 897,
+        "y": 2376,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "be2a29d3.e3246",
+                "9a53573e.453378"
+            ]
+        ]
+    },
+    {
+        "id": "a810ba97.bc966",
+        "type": "switchNode",
+        "name": "switch input.naming-type",
+        "xml": "<switch test='`$naming-policy-generate-name-input.naming-type`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1374,
+        "y": 328,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "29894a6d.fcfd2e",
+                "2ea8e223.bf22fe",
+                "f89e5c46.be5898",
+                "f92989b4.f2bcb8",
+                "2da294ed.7f325c",
+                "11a9f6da.c807c1"
+            ]
+        ]
+    },
+    {
+        "id": "29894a6d.fcfd2e",
+        "type": "outcome",
+        "name": "VM",
+        "xml": "<outcome value='VM'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1622,
+        "y": 330,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "f2326745.eeb0b8"
+            ]
+        ]
+    },
+    {
+        "id": "c9cc7fee.430e7",
+        "type": "set",
+        "name": "set table-name NAMING_POLICY_VNFC_NAME",
+        "xml": "<set>\n<parameter name='table-name' value=\"NAMING_POLICY_VNFC_NAME_INDEX\" />\n<parameter name='table-type' value=\"VNFC_INSTANCE\" />\n<parameter name='table-prefix-column' value=\"vnfc_name_prefix\" />\n<parameter name='seq-length' value=\"0\" />",
+        "comments": "",
+        "x": 2254,
+        "y": 446,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "f2326745.eeb0b8",
+        "type": "set",
+        "name": "set table-name NAMING_POLICY_VM_NAME",
+        "xml": "<set>\n<parameter name='table-name' value=\"NAMING_POLICY_VM_NAME_INDEX\" />\n<parameter name='table-type' value=\"VM_INSTANCE\" />\n<parameter name='table-prefix-column' value=\"vm_name_prefix\" />",
+        "comments": "",
+        "x": 1904,
+        "y": 330,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "2ea8e223.bf22fe",
+        "type": "outcome",
+        "name": "VNFC",
+        "xml": "<outcome value='VNFC'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1622,
+        "y": 385,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "171caa16.1ed2d6"
+            ]
+        ]
+    },
+    {
+        "id": "f89e5c46.be5898",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1623,
+        "y": 630,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "d7a00f6d.c4ee1"
+            ]
+        ]
+    },
+    {
+        "id": "d7a00f6d.c4ee1",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1777,
+        "y": 630,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "39f8d8b0.a7e64",
+                "2c701ccb.01509c"
+            ]
+        ]
+    },
+    {
+        "id": "39f8d8b0.a7e64",
+        "type": "GenericXML",
+        "name": "record",
+        "xml": "<record  plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: invalid input.naming-type.\"/>\n<parameter name=\"field3\" value='`$naming-policy-generate-name-input.naming-type`'/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1904,
+        "y": 632,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2c701ccb.01509c",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='503' />\n<parameter name='error-message' value='naming-policy-generate-name: Invalid input.naming-type' />\n",
+        "comments": "",
+        "x": 1921,
+        "y": 672,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "171caa16.1ed2d6",
+        "type": "switchNode",
+        "name": "switch input.vm-name",
+        "xml": "<switch test='`$naming-policy-generate-name-input.vm-name`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1825,
+        "y": 385,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "467b9870.7570f8",
+                "36a2c7ec.0127c8"
+            ]
+        ]
+    },
+    {
+        "id": "467b9870.7570f8",
+        "type": "other",
+        "name": "Blank",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2003,
+        "y": 385,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "4a78e468.b7611c"
+            ]
+        ]
+    },
+    {
+        "id": "36a2c7ec.0127c8",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2003,
+        "y": 428,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "c9cc7fee.430e7"
+            ]
+        ]
+    },
+    {
+        "id": "a805a9b0.7607b8",
+        "type": "GenericXML",
+        "name": "record",
+        "xml": "<record  plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: input.naming-type is VNFC but input.vm-name is not set\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2266,
+        "y": 361,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "88ca34e0.05a1c8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='505' />\n<parameter name='error-message' value='naming-policy-generate-name: input.naming-type is VNFC but input.vm-name is not set' />\n",
+        "comments": "",
+        "x": 2281,
+        "y": 401,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "1625cae3.0e96cd",
+        "type": "switchNode",
+        "name": "switch input.policy-instance-name",
+        "xml": "<switch test='`$naming-policy-generate-name-input.policy-instance-name`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1391,
+        "y": 755,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "fcc1b469.2a97a8"
+            ]
+        ]
+    },
+    {
+        "id": "fcc1b469.2a97a8",
+        "type": "other",
+        "name": "Blank",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1619,
+        "y": 755,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "7051a8cf.38c55"
+            ]
+        ]
+    },
+    {
+        "id": "7051a8cf.38c55",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1778,
+        "y": 755,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "d16b1533.2821c8"
+            ]
+        ]
+    },
+    {
+        "id": "3a5e7060.07154",
+        "type": "GenericXML",
+        "name": "record",
+        "xml": "<record  plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: input.policy-instance-name is not set and input.policy is ASSIGN\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2371,
+        "y": 736,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2e5670a7.e2838",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='507' />\n<parameter name='error-message' value='naming-policy-generate-name: input.policy-instance-name is not set and input.policy is ASSIGN' />\n",
+        "comments": "",
+        "x": 2388,
+        "y": 776,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "23484a65.1e44ce",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 228,
+        "y": 184,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "d145dda.fd66aa",
+                "a810ba97.bc966",
+                "1625cae3.0e96cd",
+                "bc02137f.30d418",
+                "7aabbb44.838e4c"
+            ]
+        ]
+    },
+    {
+        "id": "76dc7da.840bc04",
+        "type": "comment",
+        "name": "Read properties and validate inputs",
+        "info": "",
+        "comments": "",
+        "x": 299,
+        "y": 138,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "1101599b.ecff1e",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 762,
+        "y": 430,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "af00ee16.fb8b7",
+                "2e2bf07f.6bef",
+                "f786b61d.eeb208"
+            ]
+        ]
+    },
+    {
+        "id": "f786b61d.eeb208",
+        "type": "switchNode",
+        "name": "switch response-code",
+        "xml": "<switch test='`$tmp.pm-response.response-code`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1027,
+        "y": 506,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "f97aad60.54393"
+            ]
+        ]
+    },
+    {
+        "id": "f97aad60.54393",
+        "type": "outcome",
+        "name": "500",
+        "xml": "<outcome value='500'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1202,
+        "y": 503,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "d4f772ea.5bf2c8"
+            ]
+        ]
+    },
+    {
+        "id": "d4f772ea.5bf2c8",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1209,
+        "y": 548,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "d477517.4c3263",
+                "b1981638.99cb8"
+            ]
+        ]
+    },
+    {
+        "id": "d477517.4c3263",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: Error calling Policy Manager getPolicy\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1348,
+        "y": 524,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b1981638.99cb8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='502' />\n<parameter name='error-message' value='naming-policy-generate-name: getPolicy call to Policy Manger failed' />\n",
+        "comments": "",
+        "x": 1366,
+        "y": 567,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "f92989b4.f2bcb8",
+        "type": "outcome",
+        "name": "VNF",
+        "xml": "<outcome value='VNF'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1624,
+        "y": 462,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "6d2ea0b7.f76398"
+            ]
+        ]
+    },
+    {
+        "id": "2da294ed.7f325c",
+        "type": "outcome",
+        "name": "NETWORK",
+        "xml": "<outcome value='NETWORK'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1637,
+        "y": 513,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "da7c6991.7af078"
+            ]
+        ]
+    },
+    {
+        "id": "11a9f6da.c807c1",
+        "type": "outcome",
+        "name": "SERVICE",
+        "xml": "<outcome value='SERVICE'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1633,
+        "y": 564,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "7625c54.c368d3c"
+            ]
+        ]
+    },
+    {
+        "id": "6d2ea0b7.f76398",
+        "type": "set",
+        "name": "set table-name VNF_NAME_INDEX",
+        "xml": "<set>\n<parameter name='table-name' value=\"VNF_NAME_INDEX\" />\n<parameter name='table-type' value=\"VNF_INSTANCE\" />\n<parameter name='table-prefix-column' value=\"vnf_name_prefix\" />",
+        "comments": "",
+        "x": 1862,
+        "y": 462,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "da7c6991.7af078",
+        "type": "set",
+        "name": "set table-name NETWORK_INSTANCE_NAME_INDEX",
+        "xml": "<set>\n<parameter name='table-name' value=\"NETWORK_INSTANCE_NAME_INDEX\" />\n<parameter name='table-type' value=\"NETWORK_INSTANCE\" />\n<parameter name='table-prefix-column' value=\"network_instance_name_prefix\" />",
+        "comments": "",
+        "x": 1923,
+        "y": 513,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "7625c54.c368d3c",
+        "type": "set",
+        "name": "set table-name SERVICE_INSTANCE_NAME_INDEX",
+        "xml": "<set>\n<parameter name='table-name' value=\"SERVICE_INSTANCE_NAME_INDEX\" />\n<parameter name='table-type' value=\"SERVICE_INSTANCE\" />\n<parameter name='table-prefix-column' value=\"service_instance_name_prefix\" />",
+        "comments": "",
+        "x": 1924,
+        "y": 564,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "67447001.3edbd",
+        "type": "comment",
+        "name": "naming-type (VNF | VM | VNFC | NETWORK | SERVICE) - REQUIRED",
+        "info": "",
+        "comments": "",
+        "x": 1510,
+        "y": 284,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "bc02137f.30d418",
+        "type": "switchNode",
+        "name": "switch input.query-parameter",
+        "xml": "<switch test='`$naming-policy-generate-name-input.query-parameter`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1380,
+        "y": 858,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "57a3a6a1.fbd058"
+            ]
+        ]
+    },
+    {
+        "id": "545b6fb8.22f54",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1781,
+        "y": 858,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "5bd4377d.585d08"
+            ]
+        ]
+    },
+    {
+        "id": "5bd4377d.585d08",
+        "type": "GenericXML",
+        "name": "record",
+        "xml": "<record  plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: input.vfc-customization-uuid is not set\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1914,
+        "y": 834,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7358b18c.329d48",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='506' />\n<parameter name='error-message' value='naming-policy-generate-name: input.vfc-customization-uuid is not set' />\n",
+        "comments": "",
+        "x": 1931,
+        "y": 874,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "57a3a6a1.fbd058",
+        "type": "other",
+        "name": "Blank",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1622,
+        "y": 858,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "545b6fb8.22f54"
+            ]
+        ]
+    },
+    {
+        "id": "a01e1ff9.50b64",
+        "type": "comment",
+        "name": "Don't return failure for missing query-parameter in 1806",
+        "info": "",
+        "comments": "",
+        "x": 2180,
+        "y": 836,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "fb18471f.a2fe8",
+        "type": "comment",
+        "name": "input.policy-instance-name - REQUIRED for ASSIGN action but not for DELETE action",
+        "info": "",
+        "comments": "",
+        "x": 1549,
+        "y": 706,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "53c5a10b.b8eb28",
+        "type": "switchNode",
+        "name": "switch naming-type",
+        "xml": "<switch test='`$naming-type`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 832,
+        "y": 930,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "5e549bb.3050be4"
+            ]
+        ]
+    },
+    {
+        "id": "5e549bb.3050be4",
+        "type": "other",
+        "name": "Blank",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 999,
+        "y": 930,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "fb9e37ef.f54ef"
+            ]
+        ]
+    },
+    {
+        "id": "fb9e37ef.f54ef",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='504' />\n<parameter name='error-message' value='naming-policy-generate-name: naming-type in policy is blank' />\n",
+        "comments": "",
+        "x": 1144,
+        "y": 930,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "153c4ae9.a6de65",
+        "type": "switchNode",
+        "name": "switch naming-recipe",
+        "xml": "<switch test='`$naming-recipe`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 835,
+        "y": 974,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "2a71d2b.18e0aae"
+            ]
+        ]
+    },
+    {
+        "id": "2a71d2b.18e0aae",
+        "type": "other",
+        "name": "Blank",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1002,
+        "y": 974,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "79ed9b39.4e2aa4"
+            ]
+        ]
+    },
+    {
+        "id": "79ed9b39.4e2aa4",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='504' />\n<parameter name='error-message' value='naming-policy-generate-name: naming-recipe in policy is blank' />\n",
+        "comments": "",
+        "x": 1147,
+        "y": 974,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "f1b8b11f.c6e268",
+        "type": "switchNode",
+        "name": "switch input.query-parameter",
+        "xml": "<switch test='`$naming-policy-generate-name-input.query-parameter`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2174,
+        "y": 2366,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "d7aabc69.a2e3e8",
+                "c9e519ef.a46d88"
+            ]
+        ]
+    },
+    {
+        "id": "d7aabc69.a2e3e8",
+        "type": "other",
+        "name": "Blank",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2375,
+        "y": 2367,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "7616f046.770668"
+            ]
+        ]
+    },
+    {
+        "id": "7616f046.770668",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2503,
+        "y": 2367,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "4cf573c7.4b348c",
+                "fada7118.239f3"
+            ]
+        ]
+    },
+    {
+        "id": "4cf573c7.4b348c",
+        "type": "GenericXML",
+        "name": "record",
+        "xml": "<record  plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: input.query-parameter is not set\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2665,
+        "y": 2342,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "fada7118.239f3",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='506' />\n<parameter name='error-message' value='naming-policy-generate-name: input.query-parameter is not set' />\n",
+        "comments": "",
+        "x": 2682,
+        "y": 2383,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "c9e519ef.a46d88",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2146,
+        "y": 2421,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "8db0d286.7fa708"
+            ]
+        ]
+    },
+    {
+        "id": "14834b6c.ad004d",
+        "type": "execute",
+        "name": "printContext",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >\n<parameter name='filename' value='/var/tmp/naming-policy-generate-name.log' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 195,
+        "y": 3220,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "447be3a7.f54764",
+        "type": "comment",
+        "name": "Process naming-property based on source-system (MD-SAL | CONTEXT | TOSCA | AAI | BLANK)",
+        "info": "",
+        "comments": "",
+        "x": 2009,
+        "y": 1704,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "68a415fe.a3c6f4",
+        "type": "outcome",
+        "name": "outcome: CONTEXT",
+        "xml": "<outcome value=\"CONTEXT\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1833,
+        "y": 2134,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "6e965022.fe956"
+            ]
+        ]
+    },
+    {
+        "id": "309ed755.487e78",
+        "type": "set",
+        "name": "set new-part",
+        "xml": "<set>\n<parameter name=\"name-var\" value=\"`$propertiesIndex + '-naming-property-value'`\" />\n<parameter name=\"value-var\" value=\"`$property-name + '-' + $naming-policy-generate-name-input.test-source-endpoint-resolved-value` \" />\n<parameter name=\"new-part\" value=\"`$resolved-source-endpoint` \" />\n<!--<parameter name=\"new-part\" value=\"`$naming-policy-generate-name-input.test-source-endpoint-resolved-value` \" />-->",
+        "comments": "",
+        "x": 2129,
+        "y": 2225,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "c8d251a7.aea628",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: source-system CONTEXT name-value pair|new-part|constructed-name:\"/>\n<parameter name=\"field3\" value=\"`$name-var`\" />\n<parameter name=\"field4\" value=\"`$value-var`\" />\n<parameter name=\"field5\" value=\"`$new-part`\" />\n<parameter name=\"field6\" value=\"`$constructed-name`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 2113,
+        "y": 2309,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6e965022.fe956",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2108,
+        "y": 2134,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "309ed755.487e78",
+                "c8d251a7.aea628",
+                "5950ef04.ed81f",
+                "bfb38316.2b9e8"
+            ]
+        ]
+    },
+    {
+        "id": "5950ef04.ed81f",
+        "type": "set",
+        "name": "add new-part to constructed-value",
+        "xml": "<set>\n<parameter name=\"constructed-name\" value=\"`$constructed-name + $new-part` \"  />",
+        "comments": "",
+        "x": 2197,
+        "y": 2268,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "fcbf6f2f.6c2558",
+        "type": "outcome",
+        "name": "outcome: VNFNAME",
+        "xml": "<outcome value=\"VNFNAME\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2515,
+        "y": 1988,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "d915ca2c.562cd8"
+            ]
+        ]
+    },
+    {
+        "id": "235c56b6.8b4c4a",
+        "type": "set",
+        "name": "set resolved-source-endpoint to input vm-name",
+        "xml": "<set>\n<parameter name=\"resolved-source-endpoint\" value=\"`$naming-policy-generate-name-input.vnf-name`\" />",
+        "comments": "",
+        "x": 3169,
+        "y": 2053,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "bfb38316.2b9e8",
+        "type": "execute",
+        "name": "SliPluginUtils - getArrtibuteValue for source-endpoint",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='getAttributeValue' >\n\t<parameter name=\"source\" value=\"`$source-endpoint`\" />\n\t<parameter name=\"outputPath\" value=\"resolved-source-endpoint\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 2253,
+        "y": 2181,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c0a08bde.73447",
+        "type": "set",
+        "name": "set source-endpoint context value  * TEST ONLY *",
+        "xml": "<set>\n<parameter name=\"vnf-topology-operation-input.vnf-request-input.aic-cloud-region\" value=\"some-cloud-region\" />",
+        "comments": "",
+        "x": 2396,
+        "y": 2134,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "74241d5c.4f5c4c",
+        "type": "set",
+        "name": "set original-name",
+        "xml": "<set>\n<parameter name='original-name' value='`$source-endpoint`' />\n",
+        "comments": "",
+        "x": 2656,
+        "y": 2569,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "c6e9efbe.0a3b9",
+        "type": "execute",
+        "name": "SliStringUtils - split after ' '",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >\n    <parameter name=\"original_string\" value=\"`$original-name`\" />\n    <parameter name=\"regex\" value=\" \"/>\n    <parameter name=\"limit\" value=\"10\" />\n    <parameter name=\"ctx_memory_result_key\" value=\"sourceEndpointSplits\" />\n  \n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2679.6666564941406,
+        "y": 2609.6667289733887,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "184d741.514f70c",
+        "type": "comment",
+        "name": "determime queryPrefix parameter by parsing query",
+        "info": "",
+        "comments": "",
+        "x": 2751,
+        "y": 2523,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "5a0ecd08.97aca4",
+        "type": "set",
+        "name": "set query-parameter-name",
+        "xml": "<set>\n<parameter name=\"query-parameter-name-underbars\" value=\"`$sourceEndpointSplits[1]`\"  />",
+        "comments": "",
+        "x": 2682,
+        "y": 2657,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "3b69d8e3.8663e8",
+        "type": "set",
+        "name": "set new-part (test)",
+        "xml": "<set>\n<parameter name=\"name-var\" value=\"`$propertiesIndex + '-naming-property-value'`\" />\n<parameter name=\"value-var\" value=\"`$property-name + '-' + $queryPfx.$query-parameter-name`\" />\n<parameter name=\"new-part\" value=\"`$queryPfx.$query-parameter-name` \" />",
+        "comments": "",
+        "x": 2974,
+        "y": 2629,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "64bf3864.33ff38",
+        "type": "outcome",
+        "name": "outcome: VNF",
+        "xml": "<outcome value=\"VNF\">\n<!-- <outcome value=\"MD-SAL\"> -->\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1018,
+        "y": 2765,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "a1e31157.0c5708"
+            ]
+        ]
+    },
+    {
+        "id": "b61eb81e.8bfd8",
+        "type": "set",
+        "name": "set generated vnf-name",
+        "xml": "<set>\n<parameter name='naming-policy-generate-name-output.vnf-name' value='`$generate-unique-name-output.generated-name`' />\n<parameter name='constructed-name' value='' />\n<parameter name='seq-length' value='' />",
+        "comments": "",
+        "x": 1259.5950927734375,
+        "y": 2844.97607421875,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "a1e31157.0c5708",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1201,
+        "y": 2804,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "fa59e379.19e768",
+                "b61eb81e.8bfd8"
+            ]
+        ]
+    },
+    {
+        "id": "fa59e379.19e768",
+        "type": "record",
+        "name": "record generated vnf-name",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: generated vnf-name|generate-unique-name-output.generated-name:\"/>\n<parameter name=\"field5\" value=\"`$naming-policy-generate-name-output.vnf-name`\" />\n<parameter name=\"field6\" value=\"`$generate-unique-name-output.generated-name`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1270,
+        "y": 2883,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a17c7654.15ff",
+        "type": "set",
+        "name": "set new-part (test)",
+        "xml": "<set>\n<parameter name=\"name-var\" value=\"`$propertiesIndex + '-naming-property-value'`\" />\n<parameter name='value-var' value=\"`$property-name + '-' + $queryPfx.`\" />\n<parameter name='new-part' value='`$queryPrefix.`' />\n<!--<parameter name='get-data-from-policy-output.' value='`$jsonContextPrefix.content.policy-data.`'  />-->",
+        "comments": "",
+        "x": 2976,
+        "y": 2669,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "e48db706.321a18",
+        "type": "execute",
+        "name": "SliStringUtils - replace \"_\" with \"-\"",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n\t<parameter name=\"source\" value=\"`$query-parameter-name-underbars`\"/>\n\t<parameter name=\"outputPath\" value=\"tmp.query-parameter-name-dashes\"/>\n\t<parameter name=\"target\" value=\"_\"/>\n\t<parameter name=\"replacement\" value=\"-\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2701,
+        "y": 2696,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4f4d8a88.0ea29c",
+        "type": "execute",
+        "name": "SliPluginUtils - getArrtibuteValue for query-parameter",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='getAttributeValue' >\n\t<parameter name=\"source\" value=\"`$full-query-param-name`\" />\n\t<parameter name=\"outputPath\" value=\"resolved-query-parameter\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 2763,
+        "y": 2781,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ff7274bf.81bd7",
+        "type": "set",
+        "name": "set full-query-param-name",
+        "xml": "<set>\n<parameter name=\"full-query-param-name\" value=\"`'queryPfx.' + $tmp.query-parameter-name-dashes`\" />",
+        "comments": "",
+        "x": 2679,
+        "y": 2738,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "674dfafd.50cfc4",
+        "type": "outcome",
+        "name": "outcome: AAI",
+        "xml": "<outcome value=\"AAI\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1801,
+        "y": 2954,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "5d880e46.1dde38"
+            ]
+        ]
+    },
+    {
+        "id": "4a78e468.b7611c",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2133,
+        "y": 385,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "a805a9b0.7607b8",
+                "88ca34e0.05a1c8"
+            ]
+        ]
+    },
+    {
+        "id": "7aa39627.b38648",
+        "type": "comment",
+        "name": "if source-system is blank expect an increment-sequence block",
+        "info": "Example:\n\n{\n\t\"property-name\": \"NETWORK_NUMBER\",\n\t\"increment-sequence\": {\n\t\t\"scope\": \"PRECEEDING\",\n\t\t\"start-value\": \"001\",\n\t\t\"length\": \"3\",\n\t\t\"increment\": \"1\"\n\t}\n},",
+        "comments": "",
+        "x": 2238,
+        "y": 3819,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "5edd068d.04c6b",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2069.0001220703125,
+        "y": 3333,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "17d9f03b.1b77a",
+                "e40ef10a.685198",
+                "bd8141e4.6613a8",
+                "7796fb8b.f063fc",
+                "9505e5aa.984de8",
+                "d8b1bd71.3f958",
+                "2b8edb09.8ecbd4"
+            ]
+        ]
+    },
+    {
+        "id": "17d9f03b.1b77a",
+        "type": "set",
+        "name": "set tenant id, cloud region id and aaiQueryKey",
+        "xml": "<set>\n<parameter name=\"`'tmp.' + $aaiSourceEndpointKeySplits[0]`\" value= \"`$aaiQueryKeySplits[0]`\"/>\n<parameter name=\"`'tmp.' + $aaiSourceEndpointKeySplits[1]`\" value=\"`$aaiQueryKeySplits[1]`\" />\n<parameter name=\"`'tmp.' + $aaiSourceEndpointKeySplits[2]`\" value=\"`$aaiQueryKeySplits[2]`\" />\n<!--<parameter name=\"aaiQueryKeyPart1\" value=\"cloud-region.cloud-owner = 'att-aic' AND \" />-->\n<parameter name=\"aaiQueryKeyPart1\" value=\"`$aaiSourceEndpointKeySplits[0]`\"/>\n<parameter name=\"aaiQueryKeyPart2\" value=\" = '\" />\n<parameter name=\"aaiQueryKeyPart3\" value=\"`$aaiQueryKeySplits[0]`\" />\n<parameter name=\"aaiQueryKeyPart4\" value=\"' AND \" />\n<parameter name=\"aaiQueryKeyPart5\" value=\"`$aaiSourceEndpointKeySplits[1]`\"/>\n<parameter name=\"aaiQueryKeyPart6\" value=\" = '\" />\n<parameter name=\"aaiQueryKeyPart7\" value=\"`$aaiQueryKeySplits[1]`\" />\n<parameter name=\"aaiQueryKeyPart8\" value=\"' AND \" />\n<parameter name=\"aaiQueryKeyPart9\" value=\"`$aaiSourceEndpointKeySplits[2]`\"/>\n<parameter name=\"aaiQueryKeyPart10\" value=\" = '\" />\n<parameter name=\"aaiQueryKeyPart11\" value=\"`$aaiQueryKeySplits[2]`\" />\n<parameter name=\"aaiQueryKeyPart12\" value=\"'\" />\n<parameter name=\"aaiQueryKey\" value=\"`$aaiQueryKeyPart1 + $aaiQueryKeyPart2 + $aaiQueryKeyPart3 + $aaiQueryKeyPart4 + $aaiQueryKeyPart5 + $aaiQueryKeyPart6 + $aaiQueryKeyPart7 + $aaiQueryKeyPart8 + $aaiQueryKeyPart9 + $aaiQueryKeyPart10 + $aaiQueryKeyPart11 + $aaiQueryKeyPart12 `\" />\n<!-- works without single quotes <parameter name=\"aaiQueryKey\" value=\"`'cloud-region.cloud-owner = att-aic AND ' + $aaiSourceEndpointKeySplits[0] + ' = ' + $aaiQueryKeySplits[0] + ' AND ' + $aaiSourceEndpointKeySplits[1] + ' = ' + $aaiQueryKeySplits[1]`\" />-->\n<!-- key=\"cloud-region.cloud-owner = '$a' AND cloud-region.cloud-region-id = '$b' AND tenant.tenant-id = '$c' AND vserver.vserver-id = '$d'\" -->\n<!--<parameter name=\"`'get-data-from-policy-output[' + $policyDataIndex + ']'`.\" value= '`$jsonContextPrefix.content.policy-data[$policyDataIndex].`' />-->",
+        "comments": "",
+        "x": 2194.93359375,
+        "y": 3430,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "7796fb8b.f063fc",
+        "type": "get-resource",
+        "name": "get-resource tenant",
+        "xml": "<get-resource plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\t\tresource='`$resource`'\n        key='`$aaiQueryKey`'\n        pfx=\"`'aai.' + $resource`\" local-only='true' >",
+        "comments": "",
+        "outputs": 1,
+        "x": 2113.40025138855,
+        "y": 3530.9997606277466,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "8148fec6.090f8",
+                "4411aef4.94b2b",
+                "35eaa816.c441c8"
+            ]
+        ]
+    },
+    {
+        "id": "35eaa816.c441c8",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2356.770612716675,
+        "y": 3514.0366258621216,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "64d5dd16.9a8ecc"
+            ]
+        ]
+    },
+    {
+        "id": "8148fec6.090f8",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2360.26157951355,
+        "y": 3555.6108446121216,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "aa9f0cfa.cd152"
+            ]
+        ]
+    },
+    {
+        "id": "4411aef4.94b2b",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2356.59458732605,
+        "y": 3597.9440965652466,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "aa9f0cfa.cd152"
+            ]
+        ]
+    },
+    {
+        "id": "64d5dd16.9a8ecc",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2536.7705688476562,
+        "y": 3514.036745071411,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "f9523f93.ccc208"
+            ]
+        ]
+    },
+    {
+        "id": "aa9f0cfa.cd152",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Tenant not found in AAI\" />\n\n",
+        "comments": "",
+        "x": 2530.7704849243164,
+        "y": 3562.999653816223,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "f9523f93.ccc208",
+        "type": "set",
+        "name": "set tenant name",
+        "xml": "<set>\n<parameter name='tmp.tenant-name' value='`$aai.tenant.tenant-name`' />\n\n\n",
+        "comments": "",
+        "x": 2723.733673095703,
+        "y": 3514.6664867401123,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "d01a537b.d728b",
+        "type": "comment",
+        "name": "determime resource and keys for AAI query by parsing source-endpoint",
+        "info": "",
+        "comments": "",
+        "x": 2259,
+        "y": 2913,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "aba0d492.8c0b78",
+        "type": "switchNode",
+        "name": "switch input.vm-name",
+        "xml": "<switch test='`$naming-policy-generate-name-input.vm-name`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2733,
+        "y": 1905,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "9b3bb802.d44d88",
+                "47f2fc25.56e6ec"
+            ]
+        ]
+    },
+    {
+        "id": "9b3bb802.d44d88",
+        "type": "other",
+        "name": "Blank",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2916,
+        "y": 1880,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "5cbde5c1.5dd7e4"
+            ]
+        ]
+    },
+    {
+        "id": "5cbde5c1.5dd7e4",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 3044,
+        "y": 1880,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "74010697.452c08",
+                "f7c0210e.b94548"
+            ]
+        ]
+    },
+    {
+        "id": "74010697.452c08",
+        "type": "GenericXML",
+        "name": "record",
+        "xml": "<record  plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: required input.vm-name is not set\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 3193,
+        "y": 1839,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f7c0210e.b94548",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='506' />\n<parameter name='error-message' value='naming-policy-generate-name: required input.vm-name is not set' />\n",
+        "comments": "",
+        "x": 3210,
+        "y": 1880,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "47f2fc25.56e6ec",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2916,
+        "y": 1925,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "aa207226.ec6ef8"
+            ]
+        ]
+    },
+    {
+        "id": "d915ca2c.562cd8",
+        "type": "switchNode",
+        "name": "switch input.vnf-name",
+        "xml": "<switch test='`$naming-policy-generate-name-input.vnf-name`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2734,
+        "y": 1988,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "b2f3958f.8a23a8",
+                "a2914e1f.70d8"
+            ]
+        ]
+    },
+    {
+        "id": "a2914e1f.70d8",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2917,
+        "y": 2013,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "235c56b6.8b4c4a"
+            ]
+        ]
+    },
+    {
+        "id": "b2f3958f.8a23a8",
+        "type": "other",
+        "name": "Blank",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2917,
+        "y": 1968,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "7f0313.e1800cec"
+            ]
+        ]
+    },
+    {
+        "id": "7f0313.e1800cec",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 3045,
+        "y": 1968,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "17dc3fdc.7a4138",
+                "7ba2023a.2b314c"
+            ]
+        ]
+    },
+    {
+        "id": "17dc3fdc.7a4138",
+        "type": "GenericXML",
+        "name": "record",
+        "xml": "<record  plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: required input.vnf-name is not set\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 3193,
+        "y": 1969,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7ba2023a.2b314c",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='506' />\n<parameter name='error-message' value='naming-policy-generate-name: required input.vnf-name is not set' />\n",
+        "comments": "",
+        "x": 3210,
+        "y": 2010,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "6d8b2a02.46fe54",
+        "type": "outcome",
+        "name": "outcome: NETWORK",
+        "xml": "<outcome value=\"NETWORK\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1033,
+        "y": 2921,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "d8f62d02.0b7c68"
+            ]
+        ]
+    },
+    {
+        "id": "d8f62d02.0b7c68",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1216,
+        "y": 2960,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "111d7b38.aff69d",
+                "6a27ae77.c59aa8"
+            ]
+        ]
+    },
+    {
+        "id": "6a27ae77.c59aa8",
+        "type": "set",
+        "name": "set generated network-name",
+        "xml": "<set>\n<parameter name='naming-policy-generate-name-output.network-name' value='`$generate-unique-name-output.generated-name`' />\n<parameter name='constructed-name' value='' />\n<parameter name='seq-length' value='' />",
+        "comments": "",
+        "x": 1274.5950927734375,
+        "y": 3000.97607421875,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "111d7b38.aff69d",
+        "type": "record",
+        "name": "record generated network-name",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: generated network-name|generate-unique-name-output.generated-name:\"/>\n<parameter name=\"field5\" value=\"`$naming-policy-generate-name-output.network-name`\" />\n<parameter name=\"field6\" value=\"`$generate-unique-name-output.generated-name`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1285,
+        "y": 3039,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6c6e0868.85ff6",
+        "type": "for",
+        "name": "for each naming-property",
+        "xml": "<for index='propIndex' start='0' end='`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-properties_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2665,
+        "y": 3177,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "f6e46bdd.b61188"
+            ]
+        ]
+    },
+    {
+        "id": "f6e46bdd.b61188",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2926,
+        "y": 3178,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "5529c6a3.6c9ba",
+                "4707cc40.cacf7c",
+                "bf26bf2f.b9fbd8"
+            ]
+        ]
+    },
+    {
+        "id": "4707cc40.cacf7c",
+        "type": "execute",
+        "name": "SliStringUtils - trim property-name",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='trim' >\n    <parameter name=\"source\" value=\"`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-properties[$propIndex].property-name`\" />\n    <parameter name=\"outputPath\" value=\"property-name-trimmed\" />\n  \n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3051,
+        "y": 3227,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "bf26bf2f.b9fbd8",
+        "type": "set",
+        "name": "set property-name",
+        "xml": "<set>\n<!--<parameter name='property-name' value=\"`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-properties[$propertiesIndex].property-name`\"  />-->\n<parameter name='property-name' value=\"`$property-name-trimmed`\"  />\n",
+        "comments": "",
+        "x": 3005,
+        "y": 3269,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "5529c6a3.6c9ba",
+        "type": "switchNode",
+        "name": "switch property-name == key-value",
+        "xml": "<switch test='`$property-name == $key-value`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3061,
+        "y": 3312,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "ef6f30a6.fb9468"
+            ]
+        ]
+    },
+    {
+        "id": "ef6f30a6.fb9468",
+        "type": "outcome",
+        "name": "outcome: key match",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3105,
+        "y": 3354,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "65bb9041.eadd68"
+            ]
+        ]
+    },
+    {
+        "id": "65bb9041.eadd68",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 3082,
+        "y": 3397,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "c6d6d4f8.dd3a9",
+                "4950a758.f5058"
+            ]
+        ]
+    },
+    {
+        "id": "4950a758.f5058",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: key match: key-value|property-name:\"/>\n<parameter name=\"field3\" value=\"`$key-value`\" />\n<parameter name=\"field4\" value=\"`$property-name`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 3209,
+        "y": 3397,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c6d6d4f8.dd3a9",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 3133,
+        "y": 3493,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "4b9e0e4c.6cb3e",
+                "7cab5b4.a2dad24",
+                "abedb075.44d8"
+            ]
+        ]
+    },
+    {
+        "id": "4b9e0e4c.6cb3e",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: propertiesIndex|source-endpoint|source-system|property-name:\"/>\n<parameter name='field3' value='`$propertiesIndex`' />\n<parameter name='field4' value='`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-properties[$propIndex].source-endpoint`' />\n<parameter name='field5' value='`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-properties[$propIndex].source-system`' />\n<parameter name='field6' value='`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-properties[$propIndex].property-name`' />",
+        "comments": "",
+        "outputs": 1,
+        "x": 3255,
+        "y": 3492,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7cab5b4.a2dad24",
+        "type": "set",
+        "name": "set naming-property vars",
+        "xml": "<set>\n<parameter name='source-system' value='`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-properties[$propIndex].source-system`'  />\n<parameter name='source-endpoint' value='`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-properties[$propIndex].source-endpoint`'  />\n<parameter name='property-name' value='`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-properties[$propIndex].property-name`'  />\n<parameter name='property-value' value='`$jsonContextPrefix.content.naming-models[$modelsIndex].naming-properties[$propIndex].property-value`'  />\n",
+        "comments": "",
+        "x": 3307,
+        "y": 3530,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "abedb075.44d8",
+        "type": "switchNode",
+        "name": "switch property-value",
+        "xml": "<switch test='`$property-value`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3298,
+        "y": 3572,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "9d508caf.68d6b8",
+                "168b952e.fa12c3"
+            ]
+        ]
+    },
+    {
+        "id": "9d508caf.68d6b8",
+        "type": "other",
+        "name": "Blank",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3493,
+        "y": 3573,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "aa999573.c5828"
+            ]
+        ]
+    },
+    {
+        "id": "aa999573.c5828",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 3529,
+        "y": 3626,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "88afe8a0.740cb"
+            ]
+        ]
+    },
+    {
+        "id": "88afe8a0.740cb",
+        "type": "switchNode",
+        "name": "switch source-system",
+        "xml": "<switch test='`$source-system`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3702,
+        "y": 3627,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "fbfee537.2b391"
+            ]
+        ]
+    },
+    {
+        "id": "364b9242.460e2e",
+        "type": "comment",
+        "name": "Resolve the value of the naming-property",
+        "info": "For each naming-property, get the value using the source-endpoinr and the source-system if the property-name is part of the naming-recipe.",
+        "comments": "",
+        "x": 3238,
+        "y": 3447,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "fbfee537.2b391",
+        "type": "outcome",
+        "name": "outcome: CONTEXT",
+        "xml": "<outcome value=\"CONTEXT\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 3751,
+        "y": 3692,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "4148c29c.d5dd14"
+            ]
+        ]
+    },
+    {
+        "id": "a72fd538.10a5c8",
+        "type": "set",
+        "name": "set key-value",
+        "xml": "<set>\n<parameter name='key-value' value=\"`$aaiSourceEndpointKeySplits[$keyIndex]`\"  />",
+        "comments": "",
+        "x": 2625,
+        "y": 3131,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "4148c29c.d5dd14",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 4026,
+        "y": 3692,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "bfdc7cc7.350b88",
+                "5ccbff14.99e5d8",
+                "76cfcc8f.f93ec4",
+                "df11b04c.5256d8"
+            ]
+        ]
+    },
+    {
+        "id": "fbae139a.467f08",
+        "type": "set",
+        "name": "set source-endpoint context value  * TEST ONLY *",
+        "xml": "<set>\n<parameter name=\"network-topology-operation-input.network-request-input.aic-cloud-region\" value=\"CR-rwan670\" />\n<parameter name=\"network-topology-operation-input.network-request-input.tenant\" value=\"s6709b7252b6484d89432611cfb2491b\" />",
+        "comments": "",
+        "x": 4314,
+        "y": 3692,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "76cfcc8f.f93ec4",
+        "type": "execute",
+        "name": "SliPluginUtils - getArrtibuteValue for source-endpoint",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='getAttributeValue' >\n\t<parameter name=\"source\" value=\"`$source-endpoint`\" />\n\t<parameter name=\"outputPath\" value=\"resolved-source-endpoint\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 4171,
+        "y": 3739,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "bfdc7cc7.350b88",
+        "type": "set",
+        "name": "set new-part",
+        "xml": "<set>\n<parameter name=\"aai-name-var\" value=\"`$propertiesIndex + '-naming-property-value'`\" />\n<parameter name=\"aai-value-var\" value=\"`$property-name + '-' + $naming-policy-generate-name-input.test-source-endpoint-resolved-value` \" />\n<parameter name=\"aai-new-part\" value=\"`$resolved-source-endpoint` \" />\n<!--<parameter name=\"new-part\" value=\"`$naming-policy-generate-name-input.test-source-endpoint-resolved-value` \" />-->",
+        "comments": "",
+        "x": 4047,
+        "y": 3783,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "8124b794.18f208",
+        "type": "set",
+        "name": "add new-part to constructed-value",
+        "xml": "<set>\n<parameter name=\"aai-constructed-name\" value=\"`$aai-new-part `\"  />",
+        "comments": "",
+        "x": 4498,
+        "y": 3802,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "5ccbff14.99e5d8",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: source-system CONTEXT name-value pair|aai-new-part|aai-constructed-name:\"/>\n<parameter name=\"field3\" value=\"`$aai-name-var`\" />\n<parameter name=\"field4\" value=\"`$aai-value-var`\" />\n<parameter name=\"field5\" value=\"`$aai-new-part`\" />\n<parameter name=\"field6\" value=\"`$aai-constructed-name`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 4030,
+        "y": 3882,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a450f8b5.62efe",
+        "type": "comment",
+        "name": "Parse AAI keys out of the source-endpoint",
+        "info": "",
+        "comments": "",
+        "x": 2485,
+        "y": 2998,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "c258ae47.3a09b8",
+        "type": "comment",
+        "name": "Resolve the value for each key",
+        "info": "",
+        "comments": "",
+        "x": 2452,
+        "y": 3035,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "c19923a4.8cc7d8",
+        "type": "execute",
+        "name": "execute - Kevin test split",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' > \n    <parameter name=\"original_string\" value='Hello:World,Hello\\\\Universe' /> \n    <parameter name=\"regex\" value='\\\\\\\\|:'/> \n    <parameter name=\"limit\" value=\"10\" /> \n    <parameter name=\"ctx_memory_result_key\" value=\"aaiSourceEndpointSplits\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 2432,
+        "y": 2963,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5d880e46.1dde38",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2063,
+        "y": 2954,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "2b3f82f2.0915c6",
+                "eff13281.c06a2",
+                "4cf33561.8a3154",
+                "9ef01647.feb57",
+                "b7da91f.e2c397",
+                "5edd068d.04c6b"
+            ]
+        ]
+    },
+    {
+        "id": "2b3f82f2.0915c6",
+        "type": "execute",
+        "name": "SliStringUtils - split after |",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >\n    <parameter name=\"original_string\" value=\"`$original-name`\" />\n    <parameter name=\"regex\" value=\"\\|\"/>\n    <parameter name=\"limit\" value=\"10\" />\n    <parameter name=\"ctx_memory_result_key\" value=\"aaiSourceEndpointRegionKeySplits\" />\n  \n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2126.6666259765625,
+        "y": 3037.666748046875,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "eff13281.c06a2",
+        "type": "set",
+        "name": "set resource and keys; initialize aai-constructed-name",
+        "xml": "<set>\n<parameter name=\"resource\" value=\"`$aaiSourceEndpointRegionKeySplits[0]`\"  />\n<parameter name=\"keys\" value=\"`$aaiSourceEndpointRegionKeySplits[1]`\"  />\n<parameter name='aai-constructed-name' value=\"\"  />",
+        "comments": "",
+        "x": 2204,
+        "y": 3078,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "4cf33561.8a3154",
+        "type": "set",
+        "name": "set original-name",
+        "xml": "<set>\n<parameter name='original-name' value='`$source-endpoint`' />\n",
+        "comments": "",
+        "x": 2098,
+        "y": 2998,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "9ef01647.feb57",
+        "type": "for",
+        "name": "for each AAI key (not the initial split which is region)",
+        "xml": "<for index='keyIndex' start='0' end='`$aaiSourceEndpointKeySplits_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2203,
+        "y": 3162,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "e160f4e5.a06f4"
+            ]
+        ]
+    },
+    {
+        "id": "e160f4e5.a06f4",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2471,
+        "y": 3162,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "a72fd538.10a5c8",
+                "6c6e0868.85ff6"
+            ]
+        ]
+    },
+    {
+        "id": "5de7ccf1.828bdc",
+        "type": "comment",
+        "name": "After aai-constructed-value is resolved from keys use the resolved values in AAi query",
+        "info": "",
+        "comments": "",
+        "x": 2302.0001220703125,
+        "y": 3289,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "b7da91f.e2c397",
+        "type": "execute",
+        "name": "SliStringUtils - split after :",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >\n    <parameter name=\"original_string\" value=\"`$keys`\" />\n    <parameter name=\"regex\" value=\"\\:\"/>\n    <parameter name=\"limit\" value=\"10\" />\n    <parameter name=\"ctx_memory_result_key\" value=\"aaiSourceEndpointKeySplits\" />\n  \n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2122,
+        "y": 3120,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "392390c1.f6aa4",
+        "type": "comment",
+        "name": "use same modelsIndex but reset propIndex",
+        "info": "",
+        "comments": "",
+        "x": 2717,
+        "y": 3220,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "bd8141e4.6613a8",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: Call AAI query for keys aai-constructed-name|region|aaiQueryKey:\"/>\n<parameter name=\"field3\" value=\"`$aai-constructed-name`\" />\n<parameter name=\"field4\" value=\"`$resource`\" />\n<parameter name=\"field5\" value=\"`$aaiQueryKey`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 2075,
+        "y": 3479,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e40ef10a.685198",
+        "type": "execute",
+        "name": "SliStringUtils - split after |",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >\n    <parameter name=\"original_string\" value=\"`$aai-constructed-name`\" />\n    <parameter name=\"regex\" value=\"\\|\"/>\n    <parameter name=\"limit\" value=\"10\" />\n    <parameter name=\"ctx_memory_result_key\" value=\"aaiQueryKeySplits\" />\n  \n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2131,
+        "y": 3378,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "36bb1e3a.83fb22",
+        "type": "set",
+        "name": "add new-part to constructed-value",
+        "xml": "<set>\n<parameter name=\"aai-constructed-name\" value=\"`$aai-constructed-name + '|' + $aai-new-part`\"  />",
+        "comments": "",
+        "x": 4500,
+        "y": 3848,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "df11b04c.5256d8",
+        "type": "switchNode",
+        "name": "switch aai-constructed-name",
+        "xml": "<switch test='`$aai-constructed-name`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 4099,
+        "y": 3836,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "cb771f61.bc0538",
+                "2fe999f0.5f7d26"
+            ]
+        ]
+    },
+    {
+        "id": "cb771f61.bc0538",
+        "type": "other",
+        "name": "Blank",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 4291,
+        "y": 3803,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "8124b794.18f208"
+            ]
+        ]
+    },
+    {
+        "id": "2fe999f0.5f7d26",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 4291,
+        "y": 3848,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "36bb1e3a.83fb22"
+            ]
+        ]
+    },
+    {
+        "id": "168b952e.fa12c3",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3498,
+        "y": 4166,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "fc710544.23ca4"
+            ]
+        ]
+    },
+    {
+        "id": "fc710544.23ca4",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 3528,
+        "y": 4208,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "4e54e664.6ea89",
+                "8c40d3d7.3ec928",
+                "ef94dfef.3cd2f8"
+            ]
+        ]
+    },
+    {
+        "id": "4e54e664.6ea89",
+        "type": "set",
+        "name": "set new-part",
+        "xml": "<set>\n<!-- until PM is passing the correct source-endpoint for memory value, \n     use one passed via executeDG test\n\n<parameter name=\"`$propertiesIndex` + '-naming-property-value'\" value=\"` $property-name + '-' + $source-endpoint `\"  />\n-->\n<parameter name=\"aai-name-var\" value=\"`$propertiesIndex + '-naming-property-value'`\" />\n<parameter name=\"aai-value-var\" value=\"`$property-name + '-' + $property-value` \" />\n<parameter name=\"aai-new-part\" value=\"`$property-value` \" />",
+        "comments": "",
+        "x": 3546,
+        "y": 4245,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "af1ad1df.d33788",
+        "type": "comment",
+        "name": "If property-value was set use it instead of constructing a value",
+        "info": "",
+        "comments": "",
+        "x": 3667,
+        "y": 4127,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "8c40d3d7.3ec928",
+        "type": "switchNode",
+        "name": "switch aai-constructed-name",
+        "xml": "<switch test='`$aai-constructed-name`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3600,
+        "y": 4289,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "c6bf903.2b1727",
+                "add4aaee.f672f8"
+            ]
+        ]
+    },
+    {
+        "id": "c6bf903.2b1727",
+        "type": "other",
+        "name": "Blank",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3789,
+        "y": 4270,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "16a761fa.44425e"
+            ]
+        ]
+    },
+    {
+        "id": "add4aaee.f672f8",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3789,
+        "y": 4315,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "1e1ef54.4364e8b"
+            ]
+        ]
+    },
+    {
+        "id": "16a761fa.44425e",
+        "type": "set",
+        "name": "add new-part to constructed-value",
+        "xml": "<set>\n<parameter name=\"aai-constructed-name\" value=\"`$aai-new-part `\"  />",
+        "comments": "",
+        "x": 3996,
+        "y": 4269,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "1e1ef54.4364e8b",
+        "type": "set",
+        "name": "add new-part to constructed-value",
+        "xml": "<set>\n<parameter name=\"aai-constructed-name\" value=\"`$aai-constructed-name + '|' + $aai-new-part`\"  />",
+        "comments": "",
+        "x": 3998,
+        "y": 4315,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "ef94dfef.3cd2f8",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: source-system CONTEXT name-value pair|aai-new-part|aai-constructed-name:\"/>\n<parameter name=\"field3\" value=\"`$aai-name-var`\" />\n<parameter name=\"field4\" value=\"`$aai-value-var`\" />\n<parameter name=\"field5\" value=\"`$aai-new-part`\" />\n<parameter name=\"field6\" value=\"`$aai-constructed-name`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 3535,
+        "y": 4329,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "81a52062.6b654",
+        "type": "outcome",
+        "name": "outcome: SERVICE",
+        "xml": "<outcome value=\"SERVICE\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1040,
+        "y": 3089,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "c968ece2.e861b8"
+            ]
+        ]
+    },
+    {
+        "id": "c968ece2.e861b8",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1214,
+        "y": 3131,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "5961d44e.b60844",
+                "b4a18786.5a349"
+            ]
+        ]
+    },
+    {
+        "id": "b4a18786.5a349",
+        "type": "set",
+        "name": "set generated service-name",
+        "xml": "<set>\n<parameter name='naming-policy-generate-name-output.service-name' value='`$generate-unique-name-output.generated-name`' />\n<parameter name='constructed-name' value='' />\n<parameter name='seq-length' value='' />",
+        "comments": "",
+        "x": 1281.5950927734375,
+        "y": 3168.97607421875,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "5961d44e.b60844",
+        "type": "record",
+        "name": "record generated service-name",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: generated service-name|generate-unique-name-output.generated-name:\"/>\n<parameter name=\"field5\" value=\"`$naming-policy-generate-name-output.service-name`\" />\n<parameter name=\"field6\" value=\"`$generate-unique-name-output.generated-name`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1292,
+        "y": 3207,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "643f91a1.6e381",
+        "type": "set",
+        "name": "set tenant name  * TEST ONLY *",
+        "xml": "<set>\n<parameter name='tmp.tenant-name' value='testTenantName' />\n\n\n",
+        "comments": "",
+        "x": 2590,
+        "y": 3609,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "2b8edb09.8ecbd4",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: source-system AAI name-value pair|new-part|constructed-name:\"/>\n<parameter name=\"field3\" value=\"`$name-var`\" />\n<parameter name=\"field4\" value=\"`$value-var`\" />\n<parameter name=\"field5\" value=\"`$new-part`\" />\n<parameter name=\"field6\" value=\"`$constructed-name`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 2080,
+        "y": 3679,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "9505e5aa.984de8",
+        "type": "set",
+        "name": "set new-part",
+        "xml": "<set>\n<parameter name=\"name-var\" value=\"`$propertiesIndex + '-naming-property-value'`\" />\n<parameter name=\"value-var\" value=\"`$property-name + '-' + $tmp.tenant-name`\" />\n<parameter name=\"new-part\" value=\"`$tmp.tenant-name` \" />",
+        "comments": "",
+        "x": 2094,
+        "y": 3586,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "d8b1bd71.3f958",
+        "type": "set",
+        "name": "add new-part to constructed-value",
+        "xml": "<set>\n<parameter name=\"constructed-name\" value=\"`$constructed-name + $new-part` \"  />\n",
+        "comments": "",
+        "x": 2160,
+        "y": 3630,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "1c27c208.07cec6",
+        "type": "comment",
+        "name": "TO DO: Add other valid source-systems",
+        "info": "",
+        "comments": "",
+        "x": 3804,
+        "y": 3956,
+        "z": "5fbfaf64.570368",
+        "wires": []
+    },
+    {
+        "id": "7aabbb44.838e4c",
+        "type": "switchNode",
+        "name": "switch input.action",
+        "xml": "<switch test='`$naming-policy-generate-name-input.action`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1352,
+        "y": 949,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "65801471.a8cfe4",
+                "dd90ae76.d8d0a",
+                "a5ab2eba.d8837"
+            ]
+        ]
+    },
+    {
+        "id": "65801471.a8cfe4",
+        "type": "other",
+        "name": "Blank",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1610,
+        "y": 949,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "8efa90f2.cfd8a"
+            ]
+        ]
+    },
+    {
+        "id": "8efa90f2.cfd8a",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1741,
+        "y": 948,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "e3dff93c.c00fa8"
+            ]
+        ]
+    },
+    {
+        "id": "e3dff93c.c00fa8",
+        "type": "GenericXML",
+        "name": "record",
+        "xml": "<record  plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: input.action is not set or invalid\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1878,
+        "y": 948,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "dd90ae76.d8d0a",
+        "type": "outcome",
+        "name": "ASSIGN | DELETE",
+        "xml": "<outcome value='ASSIGN | DELETE'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1642,
+        "y": 1032,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a5ab2eba.d8837",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1607,
+        "y": 990,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "8efa90f2.cfd8a"
+            ]
+        ]
+    },
+    {
+        "id": "80631453.603ea8",
+        "type": "switchNode",
+        "name": "switch input.action",
+        "xml": "<switch test='`$naming-policy-generate-name-input.action`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 236.5,
+        "y": 233,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "751cad23.e2ffa4",
+                "d9b96b5c.478e6"
+            ]
+        ]
+    },
+    {
+        "id": "751cad23.e2ffa4",
+        "type": "other",
+        "name": "ASSIGN",
+        "xml": "<outcome value='ASSIGN'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 399,
+        "y": 233,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "5d83b069.18ee5"
+            ]
+        ]
+    },
+    {
+        "id": "d9b96b5c.478e6",
+        "type": "other",
+        "name": "DELETE",
+        "xml": "<outcome value='DELETE'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 210,
+        "y": 368,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "6edde0fc.72ccc"
+            ]
+        ]
+    },
+    {
+        "id": "d16b1533.2821c8",
+        "type": "switchNode",
+        "name": "switch input.action",
+        "xml": "<switch test='`$naming-policy-generate-name-input.action`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1944,
+        "y": 755,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "a7458e5b.9b3d2",
+                "ee1bf64b.2c78b"
+            ]
+        ]
+    },
+    {
+        "id": "a7458e5b.9b3d2",
+        "type": "outcome",
+        "name": "ASSIGN",
+        "xml": "<outcome value='ASSIGN'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2113,
+        "y": 755,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "47b7d396.98efbc"
+            ]
+        ]
+    },
+    {
+        "id": "47b7d396.98efbc",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2248,
+        "y": 755,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "3a5e7060.07154",
+                "2e5670a7.e2838"
+            ]
+        ]
+    },
+    {
+        "id": "ee1bf64b.2c78b",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2116,
+        "y": 710,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            [
+                "fbe9f97c.69471"
+            ]
+        ]
+    },
+    {
+        "id": "fbe9f97c.69471",
+        "type": "GenericXML",
+        "name": "record",
+        "xml": "<record  plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\">\n<parameter name=\"logger\" value=\"message-log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"LAINA: naming-policy-generate-name: input.policy-instance-name is not set but input.policy is not ASSIGN\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2250,
+        "y": 710,
+        "z": "5fbfaf64.570368",
+        "wires": [
+            []
+        ]
+    }
+]

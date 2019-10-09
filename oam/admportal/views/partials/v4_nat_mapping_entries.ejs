@@ -1,0 +1,46 @@
+   <div class="modal fade" id="v4-nat-mapping-entries-modal" tabindex="-1" role="dialog" 
+		aria-labelledby="v4-nat-mapping-entries-modal-label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">v4-nat-mapping-entries</h4>
+          </div>
+          <div class="modal-body">
+            <form id="v4_nat_mapping_entries_form" role="form" action="" method="POST">
+              <div class="form-group">
+                <label for="v4_nat_external">v4-nat-external</label>
+                <input type="text" class="form-control" name="v4_nat_external" id="v4_nat_external">
+              </div>
+              <div class="form-group">
+                <label for="v4_nat_next_hop_address">v4-nat-next-hop-address</label>
+                <input type="text" class="form-control" name="v4_nat_next_hop_address" id="v4_nat_next_hop_address">
+              </div>
+              <div class="form-group">
+                <label for="v4_nat_internal">v4-nat-internal</label>
+                <input type="text" class="form-control" name="v4_nat_internal" id="v4_nat_internal">
+              </div>
+
+<!--
+              <div class="form-group">
+				<input type="hidden" name="svc_instance_id" id="svc_instance_id">
+				<input type="hidden" name="uf_action" id="uf_action">
+                <button type="button" class="btn btn-primary" onclick="submit(this.form);">Submit</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+-->
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>
+
+<script type="text/javascript">
+function submit(form){
+	$('#v4-nat-mapping-entries-modal').modal('hide');
+	form.action = form.uf_action.value;
+	form.submit();
+	return;
+}
+</script>
+

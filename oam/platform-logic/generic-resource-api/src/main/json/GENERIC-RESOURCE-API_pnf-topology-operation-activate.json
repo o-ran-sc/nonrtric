@@ -1,0 +1,408 @@
+[
+    {
+        "id": "c1cda377.e6968",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 158.75,
+        "y": 92.5,
+        "z": "decb865e.560cf8",
+        "wires": [
+            [
+                "58dce5c3.307dcc"
+            ]
+        ]
+    },
+    {
+        "id": "58dce5c3.307dcc",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 272.3690414428711,
+        "y": 132.73811054229736,
+        "z": "decb865e.560cf8",
+        "wires": [
+            [
+                "9667d3fe.1b151"
+            ]
+        ]
+    },
+    {
+        "id": "9667d3fe.1b151",
+        "type": "method",
+        "name": "method pnf-topology-operation-activate",
+        "xml": "<method rpc='pnf-topology-operation-activate' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 250.1786346435547,
+        "y": 173.166654586792,
+        "z": "decb865e.560cf8",
+        "wires": [
+            [
+                "af3e8af.a61e978"
+            ]
+        ]
+    },
+    {
+        "id": "49fe6017.3a4b5",
+        "type": "comment",
+        "name": "pnf-topology-operation-activate",
+        "info": "",
+        "comments": "",
+        "x": 553.094856262207,
+        "y": 40.08634376525879,
+        "z": "decb865e.560cf8",
+        "wires": []
+    },
+    {
+        "id": "490a17e0.43a998",
+        "type": "switchNode",
+        "name": "switch request-action",
+        "xml": "<switch test='`$pnf-topology-operation-input.request-information.request-action`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 562.273811340332,
+        "y": 271.3571376800537,
+        "z": "decb865e.560cf8",
+        "wires": [
+            [
+                "f5055a1f.74b9c8",
+                "707a8e66.03ca9"
+            ]
+        ]
+    },
+    {
+        "id": "f5055a1f.74b9c8",
+        "type": "outcome",
+        "name": "CreatePnfInstance",
+        "xml": "<outcome value='CreatePnfInstance'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 780.6547737121582,
+        "y": 248.50002193450928,
+        "z": "decb865e.560cf8",
+        "wires": [
+            [
+                "92dc7585.b94628"
+            ]
+        ]
+    },
+    {
+        "id": "707a8e66.03ca9",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 744.6547393798828,
+        "y": 294.2143497467041,
+        "z": "decb865e.560cf8",
+        "wires": [
+            [
+                "e8067f7e.1e237"
+            ]
+        ]
+    },
+    {
+        "id": "92dc7585.b94628",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 967.5119018554688,
+        "y": 248.5000514984131,
+        "z": "decb865e.560cf8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e8067f7e.1e237",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"If svc-action is 'activate' then request-action must be 'CreatePnfInstance'\" />\n",
+        "comments": "",
+        "x": 984.6547470092773,
+        "y": 294.2143077850342,
+        "z": "decb865e.560cf8",
+        "wires": []
+    },
+    {
+        "id": "af3e8af.a61e978",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 240.41666412353516,
+        "y": 481.6666622161865,
+        "z": "decb865e.560cf8",
+        "wires": [
+            [
+                "490a17e0.43a998",
+                "5bf28db1.61b564",
+                "5b09bd46.5c0574",
+                "a8e6104b.8eaab",
+                "5ddadd37.238e54",
+                "653d68c6.7140b8",
+                "9b19e105.b2e98",
+                "7bd93c51.6f0374"
+            ]
+        ]
+    },
+    {
+        "id": "5bf28db1.61b564",
+        "type": "switchNode",
+        "name": "switch pnf_length",
+        "xml": "<switch test='`$service-data.pnfs.pnf_length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 548.7499847412109,
+        "y": 340.83336353302,
+        "z": "decb865e.560cf8",
+        "wires": [
+            [
+                "89467472.09d148"
+            ]
+        ]
+    },
+    {
+        "id": "89467472.09d148",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 735.4166641235352,
+        "y": 340.1666612625122,
+        "z": "decb865e.560cf8",
+        "wires": [
+            [
+                "7e601764.405ac8"
+            ]
+        ]
+    },
+    {
+        "id": "7e601764.405ac8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"404\" />\n    <parameter name=\"error-message\" value=\"There are no PNFs in MD-SAL\" />\n",
+        "comments": "",
+        "x": 917.0832901000977,
+        "y": 340.1666612625122,
+        "z": "decb865e.560cf8",
+        "wires": []
+    },
+    {
+        "id": "5b09bd46.5c0574",
+        "type": "for",
+        "name": "for each pnf",
+        "xml": "<for index='idx' start='0' end='`$service-data.pnfs.pnf_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 530.4166641235352,
+        "y": 389.16668128967285,
+        "z": "decb865e.560cf8",
+        "wires": [
+            [
+                "4e154697.d6fc28"
+            ]
+        ]
+    },
+    {
+        "id": "4e154697.d6fc28",
+        "type": "switchNode",
+        "name": "switch this pnf-id == input pnf-id",
+        "xml": "<switch test='`$service-data.pnfs.pnf[$idx].pnf-id == $pnf-topology-operation-input.pnf-details.pnf-id`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 785.4167518615723,
+        "y": 387.8333492279053,
+        "z": "decb865e.560cf8",
+        "wires": [
+            [
+                "e7691b1.8180fe8"
+            ]
+        ]
+    },
+    {
+        "id": "e7691b1.8180fe8",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1023.7500381469727,
+        "y": 386.833327293396,
+        "z": "decb865e.560cf8",
+        "wires": [
+            [
+                "cc442217.f25db"
+            ]
+        ]
+    },
+    {
+        "id": "cc442217.f25db",
+        "type": "set",
+        "name": "set pnf-index",
+        "xml": "<set>\n<parameter name='pnf-index' value='`$idx`' />\n",
+        "comments": "",
+        "x": 1192.0832328796387,
+        "y": 386.8333492279053,
+        "z": "decb865e.560cf8",
+        "wires": []
+    },
+    {
+        "id": "a8e6104b.8eaab",
+        "type": "switchNode",
+        "name": "switch pnf-index",
+        "xml": "<switch test='`$pnf-index`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 542.0833282470703,
+        "y": 435.8333511352539,
+        "z": "decb865e.560cf8",
+        "wires": [
+            [
+                "f4e58e32.9147f"
+            ]
+        ]
+    },
+    {
+        "id": "f4e58e32.9147f",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 723.7499465942383,
+        "y": 435.16668128967285,
+        "z": "decb865e.560cf8",
+        "wires": [
+            [
+                "1460f65f.17708a"
+            ]
+        ]
+    },
+    {
+        "id": "1460f65f.17708a",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"404\" />\n    <parameter name=\"error-message\" value=\"'Could not find PNF ' + $pnf-topology-operation-input.pnf-details.pnf-id + ' in MD-SAL'\" />\n",
+        "comments": "",
+        "x": 890.416633605957,
+        "y": 434.83330726623535,
+        "z": "decb865e.560cf8",
+        "wires": []
+    },
+    {
+        "id": "9b19e105.b2e98",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+        "comments": "",
+        "x": 530.8332901000977,
+        "y": 788.7500114440918,
+        "z": "decb865e.560cf8",
+        "wires": []
+    },
+    {
+        "id": "653d68c6.7140b8",
+        "type": "set",
+        "name": "set pnf-level-oper-status to Created",
+        "xml": "<set>\n<parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-level-oper-status.order-status' value='Created' />\n<parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-level-oper-status.last-rpc-action' value='`$pnf-topology-operation-input.sdnc-request-header.svc-action`' />\n<parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-level-oper-status.last-action' value='`$pnf-topology-operation-input.request-information.request-action`' />\n",
+        "comments": "",
+        "x": 594.5633964538574,
+        "y": 739.8371295928955,
+        "z": "decb865e.560cf8",
+        "wires": []
+    },
+    {
+        "id": "5ddadd37.238e54",
+        "type": "set",
+        "name": "copy input data",
+        "xml": "<set>\n<parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.sdnc-request-header.' value='$pnf-topology-operation-input.sdnc-request-header.' />\n<parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.request-information.' value='$pnf-topology-operation-input.request-information.' />\n<parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.service-information.' value='$pnf-topology-operation-input.service-information.' />\n<parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-details.' value='$pnf-topology-operation-input.pnf-details.' />\n<parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-request-input.' value='$pnf-topology-operation-input.pnf-request-input.' />\n\n",
+        "comments": "",
+        "x": 535.4165382385254,
+        "y": 695.8333110809326,
+        "z": "decb865e.560cf8",
+        "wires": []
+    },
+    {
+        "id": "cb0c3cab.3e7f9",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`'No pnf found in AAI with pnf-id = ' + $service-data.pnfs.pnf[$pnf-index].pnf-id`\" />\n",
+        "comments": "",
+        "x": 1053.7500190734863,
+        "y": 581.4999418258667,
+        "z": "decb865e.560cf8",
+        "wires": []
+    },
+    {
+        "id": "7ccf7c78.770534",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 884.7739181518555,
+        "y": 537.7857532501221,
+        "z": "decb865e.560cf8",
+        "wires": [
+            [
+                "bb23b26b.3439a"
+            ]
+        ]
+    },
+    {
+        "id": "877c806f.dc481",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 893.3453483581543,
+        "y": 582.0714664459229,
+        "z": "decb865e.560cf8",
+        "wires": [
+            [
+                "cb0c3cab.3e7f9"
+            ]
+        ]
+    },
+    {
+        "id": "bb23b26b.3439a",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error updating pnf in AAI\" />\n",
+        "comments": "",
+        "x": 1056.4406127929688,
+        "y": 538.2621469497681,
+        "z": "decb865e.560cf8",
+        "wires": []
+    },
+    {
+        "id": "7bd93c51.6f0374",
+        "type": "save",
+        "name": "update generic-pnf prov-status to NVTPROV",
+        "xml": "<update plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\"\n   resource=\"pnf\"\n   key=\"pnf.pnf-id = $service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-topology-identifier-structure.pnf-id\"\n   force=\"true\" pfx=\"tmp.AnAI-data\">\n<parameter name=\"prov-status\" value=\"NVTPROV\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 632.0833435058594,
+        "y": 557.5000095367432,
+        "z": "decb865e.560cf8",
+        "wires": [
+            [
+                "7ccf7c78.770534",
+                "877c806f.dc481"
+            ]
+        ]
+    }
+]

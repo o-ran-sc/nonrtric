@@ -1,0 +1,170 @@
+[
+    {
+        "id": "4153f9c1.51e918",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 121.03125,
+        "y": 50.99999761581421,
+        "z": "351662fa.1d559e",
+        "wires": [
+            [
+                "c35543aa.9c0db"
+            ]
+        ]
+    },
+    {
+        "id": "c35543aa.9c0db",
+        "type": "service-logic",
+        "name": "DataChange ${project.version}",
+        "module": "DataChange",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='DataChange' version='${project.version}'>",
+        "outputs": 1,
+        "x": 284.14239501953125,
+        "y": 153.44447326660156,
+        "z": "351662fa.1d559e",
+        "wires": [
+            [
+                "ddb1e250.e70de"
+            ]
+        ]
+    },
+    {
+        "id": "ddb1e250.e70de",
+        "type": "method",
+        "name": "method data-change-notification",
+        "xml": "<method rpc='data-change-notification' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 281.5869483947754,
+        "y": 316.22225427627563,
+        "z": "351662fa.1d559e",
+        "wires": [
+            [
+                "d8e6317c.7d1e4"
+            ]
+        ]
+    },
+    {
+        "id": "d8e6317c.7d1e4",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 326.8092346191406,
+        "y": 431.1113245487213,
+        "z": "351662fa.1d559e",
+        "wires": [
+            [
+                "3e65d07f.a9ae2",
+                "ed2d48f6.216158"
+            ]
+        ]
+    },
+    {
+        "id": "3e65d07f.a9ae2",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+        "comments": "",
+        "x": 534.3650932312012,
+        "y": 518.5561289787292,
+        "z": "351662fa.1d559e",
+        "wires": []
+    },
+    {
+        "id": "b5c4485f.b2ff78",
+        "type": "call",
+        "name": "call esr-thirdparty-sdnc",
+        "xml": "<call module='DataChange' rpc='esr-thirdparty-sdnc' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1162.3653564453125,
+        "y": 152.66677856445312,
+        "z": "351662fa.1d559e",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ed2d48f6.216158",
+        "type": "switchNode",
+        "name": "switch aai-node-type",
+        "xml": "<switch test='`$data-change-notification-input.aai-node-type`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 537.9139709472656,
+        "y": 394.88262581825256,
+        "z": "351662fa.1d559e",
+        "wires": [
+            [
+                "a7d7c4e8.cc6678",
+                "c25d5c15.d569e"
+            ]
+        ]
+    },
+    {
+        "id": "a7d7c4e8.cc6678",
+        "type": "other",
+        "name": "esr-thirdparty-sdnc",
+        "xml": "<outcome value='esr-thirdparty-sdnc'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 712.9459228515625,
+        "y": 153.0572485923767,
+        "z": "351662fa.1d559e",
+        "wires": [
+            [
+                "dfa0cb23.be8c58"
+            ]
+        ]
+    },
+    {
+        "id": "c25d5c15.d569e",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 777.9140357971191,
+        "y": 393.8826584815979,
+        "z": "351662fa.1d559e",
+        "wires": [
+            [
+                "f4eb1449.fa4908"
+            ]
+        ]
+    },
+    {
+        "id": "f4eb1449.fa4908",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"AAI node type not supported\" />",
+        "comments": "",
+        "x": 933.3585548400879,
+        "y": 393.99375772476196,
+        "z": "351662fa.1d559e",
+        "wires": []
+    },
+    {
+        "id": "dfa0cb23.be8c58",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 929.53125,
+        "y": 153,
+        "z": "351662fa.1d559e",
+        "wires": [
+            [
+                "b5c4485f.b2ff78"
+            ]
+        ]
+    }
+]

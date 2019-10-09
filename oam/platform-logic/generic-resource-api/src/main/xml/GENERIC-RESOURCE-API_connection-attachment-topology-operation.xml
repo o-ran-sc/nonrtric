@@ -1,0 +1,94 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='connection-attachment-topology-operation' mode='sync'>
+        <block atomic="true">
+            <call module='GENERIC-RESOURCE-API' rpc='validate-connection-attachment-input' mode='sync' ></call>
+            <switch test='`$connection-attachment-topology-operation-input.sdnc-request-header.svc-action`'>
+                <outcome value='create'>
+                    <switch test='`$connection-attachment-topology-operation-input.request-information.request-action`'>
+                        <outcome value='CreateSOTNAttachmentInstance'>
+                            <call module='GENERIC-RESOURCE-API' rpc='sotn-attachment-topology-operation-create' mode='sync' ></call>
+                        </outcome>
+                        <outcome value='CreateSDWANAttachmentInstance'>
+                            <call module='GENERIC-RESOURCE-API' rpc='sdwan-attachment-topology-operation-create' mode='sync' ></call>
+                        </outcome>
+                        <outcome value='other'>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="`'Provided request-action=' + $connection-attachment-topology-operation-input.request-information.request-action + ' is not supported.'`" />
+                            </return>
+                        </outcome>
+                    </switch>
+                </outcome>
+                <outcome value='activate'>
+                    <switch test='`$connection-attachment-topology-operation-input.request-information.request-action`'>
+                        <outcome value='ActivateSOTNAttachmentInstance'>
+                            <call module='GENERIC-RESOURCE-API' rpc='sotn-attachment-topology-operation-activate' mode='sync' ></call>
+                        </outcome>
+                        <outcome value='ActivateSDWANAttachmentInstance'>
+                            <call module='GENERIC-RESOURCE-API' rpc='sdwan-attachment-topology-operation-activate' mode='sync' ></call>
+                        </outcome>
+                        <outcome value='other'>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="`'Provided request-action=' + $connection-attachment-topology-operation-input.request-information.request-action + ' is not supported.'`" />
+                            </return>
+                        </outcome>
+                    </switch>
+                </outcome>
+                <outcome value='deactivate'>
+                    <switch test='`$connection-attachment-topology-operation-input.request-information.request-action`'>
+                        <outcome value='DeactivateSOTNAttachmentInstance'>
+                            <call module='GENERIC-RESOURCE-API' rpc='sotn-attachment-topology-operation-deactivate' mode='sync' ></call>
+                        </outcome>
+                        <outcome value='DeactivateSDWANAttachmentInstance'>
+                            <call module='GENERIC-RESOURCE-API' rpc='sdwan-attachment-topology-operation-deactivate' mode='sync' ></call>
+                        </outcome>
+                        <outcome value='other'>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="`'Provided request-action=' + $connection-attachment-topology-operation-input.request-information.request-action + ' is not supported.'`" />
+                            </return>
+                        </outcome>
+                    </switch>
+                </outcome>
+                <outcome value='delete'>
+                    <switch test='`$connection-attachment-topology-operation-input.request-information.request-action`'>
+                        <outcome value='DeleteSOTNAttachmentInstance'>
+                            <call module='GENERIC-RESOURCE-API' rpc='sotn-attachment-topology-operation-delete' mode='sync' ></call>
+                        </outcome>
+                        <outcome value='DeleteSDWANAttachmentInstance'>
+                            <call module='GENERIC-RESOURCE-API' rpc='sdwan-attachment-topology-operation-delete' mode='sync' ></call>
+                        </outcome>
+                        <outcome value='other'>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="`'Provided request-action=' + $connection-attachment-topology-operation-input.request-information.request-action + ' is not supported.'`" />
+                            </return>
+                        </outcome>
+                    </switch>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="sdnc-request-header.svc-action is invalid" />
+                    </return>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name="ack-final" value="Y"/>
+            </set>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="`$error-message`" />
+            </return>
+        </block>
+    </method>
+</service-logic>

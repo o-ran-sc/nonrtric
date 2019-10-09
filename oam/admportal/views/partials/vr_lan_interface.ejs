@@ -1,0 +1,66 @@
+   <div class="modal fade" id="vr-lan-interface-modal" tabindex="-1" role="dialog" 
+		aria-labelledby="vr-lan-interface-modal-label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">VR-LAN-INTERFACE</h4>
+          </div>
+          <div class="modal-body">
+            <form id="vr_lan_interface_form" role="form" action="/odl/update_vr_lan_interface" method="POST">
+              <div class="form-group">
+                <label for="vr_designation">vr-designation</label>
+                <input type="text" class="form-control" name="vr_designation" id="vr_designation">
+              </div>
+              <div class="form-group">
+                <label for="v6_vr_lan_prefix">v6-vr-lan-prefix</label>
+                <input type="text" class="form-control" name="v6_vr_lan_prefix" id="v6_vr_lan_prefix">
+              </div>
+              <div class="form-group">
+                <label for="v6_vr_lan_prefix_length">v6-vr-lan-prefix-length</label>
+                <input type="text" class="form-control" name="v6_vr_lan_prefix_length" id="v6_vr_lan_prefix_length">
+              </div>
+              <div class="form-group">
+                <label for="v6_vce_wan_address">v6-vce-wan-address</label>
+                <input type="text" class="form-control" name="v6_vce_wan_address" id="v6_vce_wan_address">
+              </div>
+              <div class="form-group">
+                <label for="v4_vr_lan_prefix">v4-vr-lan-prefix</label>
+                <input type="text" class="form-control" name="v4_vr_lan_prefix" id="v4_vr_lan_prefix">
+              </div>
+              <div class="form-group">
+                <label for="v4_vr_lan_prefix_length">v4-vr-lan-prefix-length</label>
+                <input type="text" class="form-control" name="v4_vr_lan_prefix_length" id="v4_vr_lan_prefix_length">
+              </div>
+              <div class="form-group">
+                <label for="t_defaulted_v6_vrlan">t-defaulted-v6-vrlan</label>
+                <input type="text" class="form-control" name="t_defaulted_v6_vrlan" id="t_defaulted_v6_vrlan">
+              </div>
+              <div class="form-group">
+                <label for="v4_vce_loopback_address">v4-vce-loopback-address</label>
+                <input type="text" class="form-control" name="v4_vce_loopback_address" id="v4_vce_loopback_address">
+              </div>
+
+<!--
+              <div class="form-group">
+				<input type="hidden" name="svc_instance_id" id="svc_instance_id">
+				<input type="hidden" name="uf_action" id="uf_action">
+                <button type="button" class="btn btn-primary" onclick="submit(this.form);">Submit</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+-->
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>
+
+<script type="text/javascript">
+function submit(form){
+	$('#vr-lan-interface-modal').modal('hide');
+	form.action = form.uf_action.value;
+	form.submit();
+	return;
+}
+</script>
+

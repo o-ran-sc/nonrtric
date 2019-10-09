@@ -1,0 +1,457 @@
+[
+    {
+        "id": "757023b0.c2468c",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 117.00390625,
+        "y": 95.99999871850014,
+        "z": "43ea58cb.5b56b8",
+        "wires": [
+            [
+                "7a528753.0793a8"
+            ]
+        ]
+    },
+    {
+        "id": "7a528753.0793a8",
+        "type": "service-logic",
+        "name": "DataChange ${project.version}",
+        "module": "DataChange",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='DataChange' version='${project.version}'>",
+        "outputs": 1,
+        "x": 320.11501693725586,
+        "y": 98.00002494454384,
+        "z": "43ea58cb.5b56b8",
+        "wires": [
+            [
+                "ae93aaac.418418"
+            ]
+        ]
+    },
+    {
+        "id": "ae93aaac.418418",
+        "type": "method",
+        "name": "method validate-esr-thirdparty-sdnc-input",
+        "xml": "<method rpc='validate-esr-thirdparty-sdnc-input' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 398.5596008300781,
+        "y": 220.00002479553223,
+        "z": "43ea58cb.5b56b8",
+        "wires": [
+            [
+                "37ee7462.da3a1c"
+            ]
+        ]
+    },
+    {
+        "id": "2152ae75.5db0e2",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2487.0038986206055,
+        "y": 1273.5555483400822,
+        "z": "43ea58cb.5b56b8",
+        "wires": [
+            [
+                "e2ca5b21.1154c8"
+            ]
+        ]
+    },
+    {
+        "id": "e2ca5b21.1154c8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='' />\n<parameter name='error-message' value=\"An error occured while splitting sna1_route\" />\n",
+        "comments": "",
+        "x": 2668.0038986206055,
+        "y": 1271.5555483400822,
+        "z": "43ea58cb.5b56b8",
+        "wires": []
+    },
+    {
+        "id": "6fe2c29e.8f19cc",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2485.0038986206055,
+        "y": 1375.5555483400822,
+        "z": "43ea58cb.5b56b8",
+        "wires": [
+            [
+                "e3dd559f.6ba7b8"
+            ]
+        ]
+    },
+    {
+        "id": "e3dd559f.6ba7b8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='' />\n<parameter name='error-message' value=\"An error occured while splitting sna1_route\" />\n",
+        "comments": "",
+        "x": 2666.0038986206055,
+        "y": 1373.5555483400822,
+        "z": "43ea58cb.5b56b8",
+        "wires": []
+    },
+    {
+        "id": "47680dcc.0511d4",
+        "type": "failure",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2486.0038986206055,
+        "y": 1207.5555483400822,
+        "z": "43ea58cb.5b56b8",
+        "wires": [
+            [
+                "18757b49.6ae535"
+            ]
+        ]
+    },
+    {
+        "id": "f3d08cd7.3ee9b",
+        "type": "failure",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2482.0038986206055,
+        "y": 1327.5555483400822,
+        "z": "43ea58cb.5b56b8",
+        "wires": [
+            [
+                "20888a03.0d8406"
+            ]
+        ]
+    },
+    {
+        "id": "18757b49.6ae535",
+        "type": "set",
+        "name": "set route1 ip-prefix next-hop",
+        "xml": "<set>\n<parameter name='prop.l3vpn.sna1-route.ip-prefix' value='`$route1[0]`' />\n<parameter name='prop.l3vpn.sna1-route.next-hop' value='`$route1[1]`' />\n",
+        "comments": "",
+        "x": 2693.0038986206055,
+        "y": 1201.5555483400822,
+        "z": "43ea58cb.5b56b8",
+        "wires": []
+    },
+    {
+        "id": "20888a03.0d8406",
+        "type": "set",
+        "name": "set route2 ip-prefix next-hop",
+        "xml": "<set>\n<parameter name='prop.l3vpn.sna2-route.ip-prefix' value='`$route2[0]`' />\n<parameter name='prop.l3vpn.sna2-route.next-hop' value='`$route2[1]`' />",
+        "comments": "",
+        "x": 2693.0038986206055,
+        "y": 1320.5555483400822,
+        "z": "43ea58cb.5b56b8",
+        "wires": []
+    },
+    {
+        "id": "e1257f0.a7f488",
+        "type": "switchNode",
+        "name": "switch aai-node-type",
+        "xml": "<switch test='`$data-change-notification-input.aai-node-type`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 786.8929500579834,
+        "y": 374.5555830001831,
+        "z": "43ea58cb.5b56b8",
+        "wires": [
+            [
+                "ec1259f5.ebbc68"
+            ]
+        ]
+    },
+    {
+        "id": "ec1259f5.ebbc68",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1012.6072008950368,
+        "y": 357.5555825914653,
+        "z": "43ea58cb.5b56b8",
+        "wires": [
+            [
+                "df711004.31bd3"
+            ]
+        ]
+    },
+    {
+        "id": "df711004.31bd3",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"data-change-notification-input.aai-node-type is a required input\" />\n",
+        "comments": "",
+        "x": 1164.0357668740407,
+        "y": 357.55558068411665,
+        "z": "43ea58cb.5b56b8",
+        "wires": []
+    },
+    {
+        "id": "ecc0f598.db90c8",
+        "type": "switchNode",
+        "name": "switch aai-event-trigger",
+        "xml": "<switch test='`$data-change-notification-input.aai-event-trigger`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 796.464277267456,
+        "y": 316.12700843811035,
+        "z": "43ea58cb.5b56b8",
+        "wires": [
+            [
+                "a9518242.ec786"
+            ]
+        ]
+    },
+    {
+        "id": "a9518242.ec786",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1011.1786212921143,
+        "y": 314.69840812683105,
+        "z": "43ea58cb.5b56b8",
+        "wires": [
+            [
+                "239438cd.9f0138"
+            ]
+        ]
+    },
+    {
+        "id": "239438cd.9f0138",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"data-change-notification-input.aai-event-trigger is a required input\" />\n",
+        "comments": "",
+        "x": 1161.1785945892334,
+        "y": 314.6984176635742,
+        "z": "43ea58cb.5b56b8",
+        "wires": []
+    },
+    {
+        "id": "4bbc510.85d9db",
+        "type": "for",
+        "name": "for 0..key-data_length",
+        "xml": "<for index='idx' start='0' end='`$data-change-notification-input.key-data_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 785.3373355865479,
+        "y": 445.0000476837158,
+        "z": "43ea58cb.5b56b8",
+        "wires": [
+            [
+                "de7f2e06.cc171"
+            ]
+        ]
+    },
+    {
+        "id": "de7f2e06.cc171",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 737.2263736724854,
+        "y": 535.4444351196289,
+        "z": "43ea58cb.5b56b8",
+        "wires": [
+            [
+                "2f8a5311.978d7c",
+                "267435da.461d5a",
+                "596d52bd.fd695c"
+            ]
+        ]
+    },
+    {
+        "id": "a0ba4f6d.060be",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1183.671136856079,
+        "y": 557.7778100967407,
+        "z": "43ea58cb.5b56b8",
+        "wires": [
+            [
+                "49a377b1.d9e3a8"
+            ]
+        ]
+    },
+    {
+        "id": "577c0f47.e83ae",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1178.2425479888916,
+        "y": 496.92064571380615,
+        "z": "43ea58cb.5b56b8",
+        "wires": [
+            [
+                "713caa1.0fcb154"
+            ]
+        ]
+    },
+    {
+        "id": "713caa1.0fcb154",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"data-change-notification-input.key-data.key-data.service-url is a required input\" />\n",
+        "comments": "",
+        "x": 1367.2424297332764,
+        "y": 495.92064571380615,
+        "z": "43ea58cb.5b56b8",
+        "wires": []
+    },
+    {
+        "id": "8eb34243.18f14",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1186.671136856079,
+        "y": 620.634973526001,
+        "z": "43ea58cb.5b56b8",
+        "wires": [
+            [
+                "347ffe80.91f072"
+            ]
+        ]
+    },
+    {
+        "id": "37ee7462.da3a1c",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 488.892822265625,
+        "y": 378.77777767181396,
+        "z": "43ea58cb.5b56b8",
+        "wires": [
+            [
+                "ecc0f598.db90c8",
+                "e1257f0.a7f488",
+                "4bbc510.85d9db"
+            ]
+        ]
+    },
+    {
+        "id": "2f8a5311.978d7c",
+        "type": "switchNode",
+        "name": "switch service-url",
+        "xml": "<switch test=\"`$data-change-notification-input.key-data[$idx].key-name == 'service-url'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 987.7076587677002,
+        "y": 495,
+        "z": "43ea58cb.5b56b8",
+        "wires": [
+            [
+                "577c0f47.e83ae"
+            ]
+        ]
+    },
+    {
+        "id": "267435da.461d5a",
+        "type": "switchNode",
+        "name": "switch user-name",
+        "xml": "<switch test=\"`$data-change-notification-input.key-data[$idx].key-name == 'user-name'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 987.9973659515381,
+        "y": 564.2470645904541,
+        "z": "43ea58cb.5b56b8",
+        "wires": [
+            [
+                "a0ba4f6d.060be"
+            ]
+        ]
+    },
+    {
+        "id": "596d52bd.fd695c",
+        "type": "switchNode",
+        "name": "switch password",
+        "xml": "<switch test=\"`$data-change-notification-input.key-data[$idx].key-name == 'password'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 985.7751979827881,
+        "y": 629.8026142120361,
+        "z": "43ea58cb.5b56b8",
+        "wires": [
+            [
+                "8eb34243.18f14"
+            ]
+        ]
+    },
+    {
+        "id": "49a377b1.d9e3a8",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1347.337236404419,
+        "y": 557.2222194671631,
+        "z": "43ea58cb.5b56b8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "347ffe80.91f072",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1350.670488357544,
+        "y": 626.11110496521,
+        "z": "43ea58cb.5b56b8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "110d1cac.458883",
+        "type": "comment",
+        "name": "do nothing to support http",
+        "info": "",
+        "comments": "",
+        "x": 1542.8929843902588,
+        "y": 555.0000343322754,
+        "z": "43ea58cb.5b56b8",
+        "wires": []
+    },
+    {
+        "id": "83190729.11d658",
+        "type": "comment",
+        "name": "do nothing to support http",
+        "info": "",
+        "comments": "",
+        "x": 1542.8927783966064,
+        "y": 624.9999752044678,
+        "z": "43ea58cb.5b56b8",
+        "wires": []
+    }
+]

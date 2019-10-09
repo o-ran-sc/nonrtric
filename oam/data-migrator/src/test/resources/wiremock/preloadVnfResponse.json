@@ -1,0 +1,132 @@
+{
+  "preload-vnfs": {
+    "vnf-preload-list": [
+      {
+        "vnf-type": "vnf-type",
+        "vnf-name": "vnf-name",
+        "preload-data": {
+          "oper-status": {
+            "last-action": "VNFActivateRequest",
+            "modify-timestamp": "Some modify-timestamp",
+            "create-timestamp": "Some create-timestamp",
+            "last-order-status": "Active",
+            "order-status": "Active",
+            "maintenance-indicator": "Y",
+            "last-svc-request-id": "Some last-svc-request-id"
+          },
+          "vnf-topology-information": {
+            "vnf-topology-identifier": {
+              "service-type": "Some service-type",
+              "service-id": "Some service-id",
+              "generic-vnf-name": "Some generic-vnf-name",
+              "generic-vnf-id": "Some generic-vnf-id",
+              "generic-vnf-type": "Some generic-vnf-type",
+              "vnf-type": "vnf-type",
+              "vnf-name": "vnf-name"
+            },
+            "vnf-parameters": [
+              {
+                "vnf-parameter-name": "Some vnf-parameter-name",
+                "vnf-parameter-value": "Some vnf-parameter-value"
+              }
+            ],
+            "vnf-assignments": {
+              "vnf-vms": [
+                {
+                  "vm-type": "Some vm-type",
+                  "vm-count": 0,
+                  "vm-names": [
+                    {"vm-name": "Some vm-name"}
+                  ],
+                  "vm-networks": [
+                    {
+                      "network-role": "Some network-role",
+                      "use-dhcp": "Y",
+                      "floating-ip": "2.12.250.0",
+                      "network-macs": [
+                        {"mac-address": "Some mac-address"}
+                      ],
+                      "network-ips": [
+                        {"ip-address": "13.2.219.8"}
+                      ],
+                      "interface-route-prefixes": [
+                        {
+                          "interface-route-prefix-cidr": "Some interface-route-prefix-cidr",
+                          "interface-route-prefix": "24.0.45.1"
+                        }
+                      ],
+                      "ip-count": 0
+                    }
+                  ]
+                }
+              ],
+              "vnf-status": "Some vnf-status",
+              "vnf-networks": [
+                {
+                  "network-role": "Some network-role",
+                  "network-id": "Some network-id",
+                  "ipv6-subnet-id": "Some ipv6-subnet-id",
+                  "ipv6-subnet-name": "Some ipv6-subnet-name",
+                  "subnet-name": "Some subnet-name",
+                  "contrail-network-fqdn": "Some contrail-network-fqdn",
+                  "subnet-id": "Some subnet-id",
+                  "sriov-vlan-filter-list": [
+                    {"sriov-vlan-filter": "Some sriov-vlan-filter"}
+                  ],
+                  "network-name": "Some network-name",
+                  "neutron-id": "Some neutron-id"
+                }
+              ],
+              "availability-zones": [
+                {"availability-zone": "Some availability-zone"}
+              ]
+            }
+          },
+          "network-topology-information": {
+            "is-provider-network": true,
+            "network-topology-identifier": {
+              "service-type": "Some service-type",
+              "network-role": "Some network-role",
+              "network-technology": "Some network-technology",
+              "network-type": "Some network-type",
+              "network-name": "Some network-name"
+            },
+            "route-table-reference": [
+              {
+                "route-table-reference-fqdn": "Some route-table-reference-fqdn",
+                "route-table-reference-id": "Some route-table-reference-id"
+              }
+            ],
+            "network-policy": [
+              {
+                "network-policy-fqdn": "Some network-policy-fqdn",
+                "network-policy-id": "Some network-policy-id"
+              }
+            ],
+            "subnets": [
+              {
+                "start-address": "1.1.11.2",
+                "gateway-address": "8.0.25.2",
+                "cidr-mask": "Some cidr-mask",
+                "dhcp-end-address": "Some dhcp-end-address",
+                "subnet-name": "Some subnet-name",
+                "dhcp-start-address": "Some dhcp-start-address",
+                "ip-version": "Some ip-version",
+                "dhcp-enabled": "Y"
+              }
+            ],
+            "vpn-bindings": [
+              {
+                "vpn-binding-id": "Some vpn-binding-id",
+                "global-route-target": "Some global-route-target"
+              }
+            ],
+            "is-external-network": true,
+            "is-shared-network": true,
+            "physical-network-name": "Some physical-network-name"
+          }
+        }
+      }
+    ]
+  }
+}

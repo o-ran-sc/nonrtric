@@ -1,0 +1,485 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='generic-configuration-notification-assign' mode='sync'>
+        <block atomic="true">
+            <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                <parameter name='contextPrefix' value='prop' />
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$prop.restapi.gc-configuration`"/>
+                <parameter name="outputPath" value="tmp.gc-url"/>
+                <parameter name="target" value="{configuration-id}"/>
+                <parameter name="replacement" value="`$generic-configuration-notification-input.configuration-information.configuration-id`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.gc-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='GET' />
+                <parameter name="responsePrefix" value="mdsal-gc" />
+                <outcome value='failure'>
+                    <block>
+                        <configure activate="true" adaptor="com.att.sdnctl.sli.adaptor.mso.MSOAdaptor" key="__READ_FROM_PARAMETERS__">
+                            <parameter name="notification-url"
+  value="`$mdsal-gc.gc-configuration[0].configuration-data.configuration-operation-information.sdnc-request-header.svc-notification-url`" />
+                            <parameter name="input.ack-final-indicator"
+  value="Y" />
+                            <parameter name="input.response-code"
+  value="500" />
+                            <parameter name="input.response-message"
+  value="`'Cannot find configuration ' + $generic-configuration-notification-input.configuration-information.configuration-id`" />
+                            <parameter name="input.svc-request-id"
+  value="`$generic-configuration-notification-input.svc-request-id`" />
+                            <parameter name="input.service-information.service-type"
+  value="`$generic-configuration-notification-input.service-information.subscription-service-type`" />
+                            <parameter name="input.service-information.service-instance-id"
+  value="`$generic-configuration-notification-input.service-information.service-instance-id`" />
+                        </configure>
+                        <return status='failure'>
+                            <parameter name='error-code' value='500' />
+                            <parameter name='error-message' value="`'Cannot find configuration ' + $generic-configuration-notification-input.configuration-information.configuration-id`" />
+                        </return>
+                    </block>
+                </outcome>
+            </execute>
+            <switch test='`$generic-configuration-notification-input.response-code`'>
+                <outcome value='Other'>
+                    <block>
+                        <configure activate="true" adaptor="com.att.sdnctl.sli.adaptor.mso.MSOAdaptor" key="__READ_FROM_PARAMETERS__">
+                            <parameter name="notification-url"
+  value="`$mdsal-gc.gc-configuration[0].configuration-data.configuration-operation-information.sdnc-request-header.svc-notification-url`" />
+                            <parameter name="input.ack-final-indicator"
+  value="`$generic-configuration-notification-input.ack-final-indicator`" />
+                            <parameter name="input.response-code"
+  value="`$generic-configuration-notification-input.response-code`" />
+                            <parameter name="input.svc-request-id"
+  value="`$generic-configuration-notification-input.svc-request-id`" />
+                            <parameter name="input.service-information.service-type"
+  value="`$generic-configuration-notification-input.service-information.subscription-service-type`" />
+                            <parameter name="input.service-information.service-instance-id"
+  value="`$generic-configuration-notification-input.service-information.service-instance-id`" />
+                        </configure>
+                        <return status='failure'>
+                            <parameter name='error-code' value='500' />
+                            <parameter name='error-message' value="`$generic-configuration-notification-input.response-message`" />
+                        </return>
+                    </block>
+                </outcome>
+                <outcome value='200'>
+                    <block></block>
+                </outcome>
+            </switch>
+            <switch test='`$service-data.provided-configurations.provided-configuration_length`'>
+                <outcome value=''>
+                    <set>
+                        <parameter name='service-data.provided-configurations.provided-configuration_length' value='0' />
+                    </set>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='found-provided-configuration' value='false' />
+            </set>
+            <set>
+                <parameter name='pc-index' value='0' />
+            </set>
+            <for silentFailure='true' index='pc-index' start='0' end='`$service-data.provided-configurations.provided-configuration_length`' >
+                <switch test='`$service-data.provided-configurations.provided-configuration[$pc-index].configuration-id
+  == $generic-configuration-notification-input.configuration-information.configuration-id`'>
+                    <outcome value='true'>
+                        <block>
+                            <set>
+                                <parameter name='found-provided-configuration' value='true' />
+                            </set>
+                            <break/>
+                        </block>
+                    </outcome>
+                </switch>
+            </for>
+            <switch test='`$found-provided-configuration`'>
+                <outcome value='false'>
+                    <set>
+                        <parameter name='service-data.provided-configurations.provided-configuration_length'
+  value='`$service-data.provided-configurations.provided-configuration_length + 1`' />
+                    </set>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='service-data.provided-configurations.provided-configuration[$pc-index].configuration-id'
+  value='`$generic-configuration-notification-input.configuration-information.configuration-id`' />
+                <parameter name='service-data.provided-configurations.provided-configuration[$pc-index].configuration-type'
+  value='`$generic-configuration-notification-input.configuration-information.configuration-type`' />
+                <parameter name='service-data.provided-configurations.provided-configuration[$pc-index].configuration-sub-type'
+  value='`$generic-configuration-notification-input.configuration-information.configuration-sub-type`' />
+                <parameter name='service-data.provided-configurations.provided-configuration[$pc-index].configuration-topology-link'
+  value="`'restconf/config/GENERIC-RESOURCE-API:services/service/'
+   + $generic-configuration-notification-input.service-information.service-instance-id
+   + '/service-data/provided-configurations/provided-configuration/'
+   + $generic-configuration-notification-input.configuration-information.configuration-id`" />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$prop.restapi.vnf-sub-interface-group`"/>
+                <parameter name="outputPath" value="tmp.part"/>
+                <parameter name="target" value="{service-instance-id}"/>
+                <parameter name="replacement" value="`$generic-configuration-notification-input.vnr-parameters.vnf-service-instance-id`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$tmp.part`"/>
+                <parameter name="outputPath" value="tmp.part"/>
+                <parameter name="target" value="{vnf-id}"/>
+                <parameter name="replacement" value="`$generic-configuration-notification-input.vnr-parameters.vnf-id`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$tmp.part`"/>
+                <parameter name="outputPath" value="tmp.part"/>
+                <parameter name="target" value="{vnfc-instance-group-function}"/>
+                <parameter name="replacement" value="`$generic-configuration-notification-input.vnr-parameters.vnfc-instance-group-function`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$tmp.part`"/>
+                <parameter name="outputPath" value="tmp.part"/>
+                <parameter name="target" value="{network-instance-group-function}"/>
+                <parameter name="replacement" value="`$generic-configuration-notification-input.vnr-parameters.network-instance-group-function`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$tmp.part`"/>
+                <parameter name="outputPath" value="tmp.vsig-url"/>
+                <parameter name="target" value="{parent-port-role}"/>
+                <parameter name="replacement" value="`$generic-configuration-notification-input.vnr-parameters.parent-port-role`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.vsig-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='GET' />
+                <parameter name="responsePrefix" value="mdsal-vsig" />
+                <outcome value='failure'>
+                    <block>
+                        <configure activate="true" adaptor="com.att.sdnctl.sli.adaptor.mso.MSOAdaptor" key="__READ_FROM_PARAMETERS__">
+                            <parameter name="notification-url"
+  value="`$mdsal-gc.gc-configuration[0].configuration-data.configuration-operation-information.sdnc-request-header.svc-notification-url`" />
+                            <parameter name="input.ack-final-indicator"
+  value="Y" />
+                            <parameter name="input.response-code"
+  value="500" />
+                            <parameter name="input.response-message"
+  value="`'Cannot find vnf-sub-interface-group in service ' + $generic-configuration-notification-input.vnr-parameters.vnf-service-instance-id`" />
+                            <parameter name="input.svc-request-id"
+  value="`$generic-configuration-notification-input.svc-request-id`" />
+                            <parameter name="input.service-information.service-type"
+  value="`$generic-configuration-notification-input.service-information.subscription-service-type`" />
+                            <parameter name="input.service-information.service-instance-id"
+  value="`$generic-configuration-notification-input.service-information.service-instance-id`" />
+                        </configure>
+                        <return status='failure'>
+                            <parameter name='error-code' value='500' />
+                            <parameter name='error-message' value="`'Cannot find vnf-sub-interface-group in service ' + $generic-configuration-notification-input.vnr-parameters.vnf-service-instance-id`" />
+                        </return>
+                    </block>
+                </outcome>
+            </execute>
+            <for silentFailure='true' index='vnfc-index' start='0' end='`$mdsal-vsig.vnf-sub-interface-group[0].vnfcs.vnfc_length`' >
+                <for silentFailure='true' index='vnic-index' start='0' end='`$mdsal-vsig.vnf-sub-interface-group[0].vnfcs.vnfc[$vnfc-index].vnics.vnic_length`' >
+                    <for silentFailure='true' index='si-index' start='0' end='`$mdsal-vsig.vnf-sub-interface-group[0].vnfcs.vnfc[$vnfc-index].vnics.vnic[$vnic-index].sub-interfaces.sub-interface_length`' >
+                        <switch test='`$mdsal-vsig.vnf-sub-interface-group[0].vnfcs.vnfc[$vnfc-index].vnics.vnic[$vnic-index].sub-interfaces.sub-interface[$si-index].vlan-tags.lower-tag-id
+  == $generic-configuration-notification-input.vnr-parameters.lower-tag-id`'>
+                            <outcome value='true'>
+                                <set>
+                                    <parameter name='mdsal-vsig.vnf-sub-interface-group[0].vnfcs.vnfc[$vnfc-index].vnics.vnic[$vnic-index].sub-interfaces.sub-interface[$si-index].sub-interface-status'
+  value='assigned' />
+                                </set>
+                            </outcome>
+                        </switch>
+                    </for>
+                </for>
+            </for>
+            <switch test='`$mdsal-vsig.vnf-sub-interface-group[0].customer-bonding-requests.customer-bonding-request_length`'>
+                <outcome value=''>
+                    <set>
+                        <parameter name='mdsal-vsig.vnf-sub-interface-group[0].customer-bonding-requests.customer-bonding-request_length'
+  value='0' />
+                    </set>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='found-customer-bonding-request' value='false' />
+            </set>
+            <for index='cbr-index' start='0' end='`$mdsal-vsig.vnf-sub-interface-group[0].customer-bonding-requests.customer-bonding-request_length`' >
+                <switch test='`$mdsal-vsig.vnf-sub-interface-group[0].customer-bonding-requests.customer-bonding-request[$cbr-index].configuration-id
+  == $generic-configuration-notification-input.configuration-information.configuration-id`'>
+                    <outcome value='true'>
+                        <block>
+                            <set>
+                                <parameter name='found-customer-bonding-request' value='true' />
+                            </set>
+                            <break/>
+                        </block>
+                    </outcome>
+                </switch>
+            </for>
+            <switch test='`$found-customer-bonding-request`'>
+                <outcome value='false'>
+                    <block>
+                        <set>
+                            <parameter name='mdsal-vsig.vnf-sub-interface-group[0].customer-bonding-requests.customer-bonding-request[$mdsal-vsig.vnf-sub-interface-group[0].customer-bonding-requests.customer-bonding-request_length].configuration-id'
+  value='`$generic-configuration-notification-input.configuration-information.configuration-id`' />
+                        </set>
+                        <set>
+                            <parameter name='mdsal-vsig.vnf-sub-interface-group[0].customer-bonding-requests.customer-bonding-request_length'
+  value='`$mdsal-vsig.vnf-sub-interface-group[0].customer-bonding-requests.customer-bonding-request_length + 1`' />
+                        </set>
+                    </block>
+                </outcome>
+            </switch>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.vnfsubinterfacegroup.templatefile`" />
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.vsig-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='PUT' />
+                <parameter name="responsePrefix" value="mdsal-vsig" />
+                <outcome value='failure'>
+                    <block>
+                        <configure activate="true" adaptor="com.att.sdnctl.sli.adaptor.mso.MSOAdaptor" key="__READ_FROM_PARAMETERS__">
+                            <parameter name="notification-url"
+  value="`$mdsal-gc.gc-configuration[0].configuration-data.configuration-operation-information.sdnc-request-header.svc-notification-url`" />
+                            <parameter name="input.ack-final-indicator"
+  value="Y" />
+                            <parameter name="input.response-code"
+  value="500" />
+                            <parameter name="input.response-message"
+  value="Failure writing vnf-sub-interface-group" />
+                            <parameter name="input.svc-request-id"
+  value="`$generic-configuration-notification-input.svc-request-id`" />
+                            <parameter name="input.service-information.service-type"
+  value="`$generic-configuration-notification-input.service-information.subscription-service-type`" />
+                            <parameter name="input.service-information.service-instance-id"
+  value="`$generic-configuration-notification-input.service-information.service-instance-id`" />
+                        </configure>
+                        <return status='failure'>
+                            <parameter name='error-code' value='500' />
+                            <parameter name='error-message' value="Failure writing vnf-sub-interface-group" />
+                        </return>
+                    </block>
+                </outcome>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$prop.restapi.network-instance-group-network`"/>
+                <parameter name="outputPath" value="tmp.part"/>
+                <parameter name="target" value="{service-instance-id}"/>
+                <parameter name="replacement" value="`$generic-configuration-notification-input.vnr-parameters.network-collection-service-instance-id`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$tmp.part`"/>
+                <parameter name="outputPath" value="tmp.part"/>
+                <parameter name="target" value="{network-instance-group-id}"/>
+                <parameter name="replacement" value="`$generic-configuration-notification-input.vnr-parameters.network-instance-group-id`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$tmp.part`"/>
+                <parameter name="outputPath" value="tmp.nign-url"/>
+                <parameter name="target" value="{network-id}"/>
+                <parameter name="replacement" value="`$generic-configuration-notification-input.vnr-parameters.network-id`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.nign-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='GET' />
+                <parameter name="responsePrefix" value="mdsal-nign" />
+                <outcome value='failure'>
+                    <block>
+                        <configure activate="true" adaptor="com.att.sdnctl.sli.adaptor.mso.MSOAdaptor" key="__READ_FROM_PARAMETERS__">
+                            <parameter name="notification-url"
+  value="`$mdsal-gc.gc-configuration[0].configuration-data.configuration-operation-information.sdnc-request-header.svc-notification-url`" />
+                            <parameter name="input.ack-final-indicator"
+  value="Y" />
+                            <parameter name="input.response-code"
+  value="500" />
+                            <parameter name="input.response-message"
+  value="`'Cannot find network-instance-group-network in service ' + $generic-configuration-notification-input.vnr-parameters.network-collection-service-instance-id`" />
+                            <parameter name="input.svc-request-id"
+  value="`$generic-configuration-notification-input.svc-request-id`" />
+                            <parameter name="input.service-information.service-type"
+  value="`$generic-configuration-notification-input.service-information.subscription-service-type`" />
+                            <parameter name="input.service-information.service-instance-id"
+  value="`$generic-configuration-notification-input.service-information.service-instance-id`" />
+                        </configure>
+                        <return status='failure'>
+                            <parameter name='error-code' value='500' />
+                            <parameter name='error-message' value="`'Cannot find network-instance-group-network in service ' + $generic-configuration-notification-input.vnr-parameters.network-collection-service-instance-id`" />
+                        </return>
+                    </block>
+                </outcome>
+            </execute>
+            <switch test='`$mdsal-nign.network[0].customer-bonding-requests.customer-bonding-request_length`'>
+                <outcome value=''>
+                    <set>
+                        <parameter name='mdsal-nign.network[0].customer-bonding-requests.customer-bonding-request_length'
+  value='0' />
+                    </set>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='found-customer-bonding-request' value='false' />
+            </set>
+            <set>
+                <parameter name='cbr-index' value='0' />
+            </set>
+            <for index='cbr-index' start='0' end='`$mdsal-nign.network[0].customer-bonding-requests.customer-bonding-request_length`' >
+                <switch test='`$mdsal-nign.network[0].customer-bonding-requests.customer-bonding-request[$cbr-index].configuration-id
+  == $generic-configuration-notification-input.configuration-information.configuration-id`'>
+                    <outcome value='true'>
+                        <block>
+                            <set>
+                                <parameter name='found-customer-bonding-request' value='true' />
+                            </set>
+                            <break/>
+                        </block>
+                    </outcome>
+                </switch>
+            </for>
+            <switch test='`$found-customer-bonding-request`'>
+                <outcome value='false'>
+                    <block>
+                        <set>
+                            <parameter name='mdsal-nign.network[0].customer-bonding-requests.customer-bonding-request[$mdsal-nign.network[0].customer-bonding-requests.customer-bonding-request_length].configuration-id'
+  value='`$generic-configuration-notification-input.configuration-information.configuration-id`' />
+                        </set>
+                        <set>
+                            <parameter name='mdsal-nign.network[0].customer-bonding-requests.customer-bonding-request_length'
+  value='`$mdsal-nign.network[0].customer-bonding-requests.customer-bonding-request_length + 1`' />
+                        </set>
+                    </block>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='mdsal-nign.network[0].network-status' value='assigned' />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.network-instance-group-network.templatefile`" />
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.nign-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='PUT' />
+                <parameter name="responsePrefix" value="mdsal-nign" />
+                <outcome value='failure'>
+                    <block>
+                        <configure activate="true" adaptor="com.att.sdnctl.sli.adaptor.mso.MSOAdaptor" key="__READ_FROM_PARAMETERS__">
+                            <parameter name="notification-url"
+  value="`$mdsal-gc.gc-configuration[0].configuration-data.configuration-operation-information.sdnc-request-header.svc-notification-url`" />
+                            <parameter name="input.ack-final-indicator"
+  value="Y" />
+                            <parameter name="input.response-code"
+  value="500" />
+                            <parameter name="input.response-message"
+  value="Failure writing network-instance-group network" />
+                            <parameter name="input.svc-request-id"
+  value="`$generic-configuration-notification-input.svc-request-id`" />
+                            <parameter name="input.service-information.service-type"
+  value="`$generic-configuration-notification-input.service-information.subscription-service-type`" />
+                            <parameter name="input.service-information.service-instance-id"
+  value="`$generic-configuration-notification-input.service-information.service-instance-id`" />
+                        </configure>
+                        <return status='failure'>
+                            <parameter name='error-code' value='500' />
+                            <parameter name='error-message' value="Failure writing network-instance-group network" />
+                        </return>
+                    </block>
+                </outcome>
+            </execute>
+            <set>
+                <parameter name='mdsal-gc.gc-configuration[0].configuration-data.configuration-oper-status.order-status'
+  value='Created' />
+            </set>
+            <set>
+                <parameter name='gc.' value='mdsal-gc.gc-configuration[0].' />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.genconfig.templatefile`" />
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.gc-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='PUT' />
+                <parameter name="responsePrefix" value="mdsal-gc" />
+                <outcome value='failure'>
+                    <block atomic="true">
+                        <configure activate="true" adaptor="com.att.sdnctl.sli.adaptor.mso.MSOAdaptor" key="__READ_FROM_PARAMETERS__">
+                            <parameter name="notification-url"
+  value="`$mdsal-gc.gc-configuration[0].configuration-data.configuration-operation-information.sdnc-request-header.svc-notification-url`" />
+                            <parameter name="input.ack-final-indicator"
+  value="Y" />
+                            <parameter name="input.response-code"
+  value="500" />
+                            <parameter name="input.response-message"
+  value="Error updating md-sal for gc-configuration" />
+                            <parameter name="input.svc-request-id"
+  value="`$generic-configuration-notification-input.svc-request-id`" />
+                            <parameter name="input.service-information.service-type"
+  value="`$generic-configuration-notification-input.service-information.subscription-service-type`" />
+                            <parameter name="input.service-information.service-instance-id"
+  value="`$generic-configuration-notification-input.service-information.service-instance-id`" />
+                        </configure>
+                        <return status='failure'>
+                            <parameter name='error-code' value='500' />
+                            <parameter name='error-message' value='Error updating md-sal for gc-configuration' />
+                        </return>
+                    </block>
+                </outcome>
+                <outcome value='not-found'>
+                    <block atomic="true">
+                        <configure activate="true" adaptor="com.att.sdnctl.sli.adaptor.mso.MSOAdaptor" key="__READ_FROM_PARAMETERS__">
+                            <parameter name="notification-url"
+  value="`$mdsal-gc.gc-configuration[0].configuration-data.configuration-operation-information.sdnc-request-header.svc-notification-url`" />
+                            <parameter name="input.ack-final-indicator"
+  value="Y" />
+                            <parameter name="input.response-code"
+  value="500" />
+                            <parameter name="input.response-message"
+  value="Error updating md-sal for gc-configuration" />
+                            <parameter name="input.svc-request-id"
+  value="`$generic-configuration-notification-input.svc-request-id`" />
+                            <parameter name="input.service-information.service-type"
+  value="`$generic-configuration-notification-input.service-information.subscription-service-type`" />
+                            <parameter name="input.service-information.service-instance-id"
+  value="`$generic-configuration-notification-input.service-information.service-instance-id`" />
+                        </configure>
+                        <return status='failure'>
+                            <parameter name='error-code' value='500' />
+                            <parameter name='error-message' value='Error updating md-sal for gc-configuration' />
+                        </return>
+                    </block>
+                </outcome>
+            </execute>
+            <configure activate="true" adaptor="com.att.sdnctl.sli.adaptor.mso.MSOAdaptor" key="__READ_FROM_PARAMETERS__">
+                <parameter name="notification-url"
+  value="`$mdsal-gc.gc-configuration[0].configuration-data.configuration-operation-information.sdnc-request-header.svc-notification-url`" />
+                <parameter name="input.ack-final-indicator"
+  value="`$generic-configuration-notification-input.ack-final-indicator`" />
+                <parameter name="input.response-code"
+  value="`$generic-configuration-notification-input.response-code`" />
+                <parameter name="input.svc-request-id"
+  value="`$generic-configuration-notification-input.svc-request-id`" />
+                <parameter name="input.service-information.service-type"
+  value="`$generic-configuration-notification-input.service-information.subscription-service-type`" />
+                <parameter name="input.service-information.service-instance-id"
+  value="`$generic-configuration-notification-input.service-information.service-instance-id`" />
+            </configure>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >
+                <parameter name='filename' value='/var/tmp/bgb-gcnotify.log' />
+            </execute>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="success" />
+            </return>
+        </block>
+    </method>
+</service-logic>

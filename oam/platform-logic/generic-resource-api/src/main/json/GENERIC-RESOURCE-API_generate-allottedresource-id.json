@@ -1,0 +1,398 @@
+[
+    {
+        "id": "4eb410ec.15c8",
+        "type": "execute",
+        "name": "execute: generateUUID",
+        "xml": "<execute plugin=\"org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils\" method=\"generateUUID\" >\n\t<parameter name=\"ctx-destination\" value=\"tmp.return.generate-allottedresource-id.id\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 538.3333129882812,
+        "y": 515.8333282470703,
+        "z": "4903bad.edade44",
+        "wires": [
+            [
+                "a4997c46.9d57f"
+            ]
+        ]
+    },
+    {
+        "id": "a4997c46.9d57f",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 734.0833206176758,
+        "y": 515.8333282470703,
+        "z": "4903bad.edade44",
+        "wires": [
+            [
+                "5525e405.5a720c"
+            ]
+        ]
+    },
+    {
+        "id": "5525e405.5a720c",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<!-- Used to work around execute node bug -->\n\t<parameter name=\"execute_failure\" value=\"false\" />\n\n\t<!-- return parameters -->\n\t<parameter name=\"error-message.generate-l3network-network-id\" value=\"An error occured while generating a UUID for L3-NETWORK.\" />",
+        "comments": "",
+        "x": 899.0833206176758,
+        "y": 516.0833253860474,
+        "z": "4903bad.edade44",
+        "wires": []
+    },
+    {
+        "id": "66d02173.cfc28",
+        "type": "get-resource",
+        "name": "Query AnAI -  allotted-resource",
+        "xml": "<get-resource plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\"\n              resource=\"allotted-resource\"\n              key=\"customer.global-customer-id = $service-data.service-information.global-customer-id AND\n\t\t\t\t\tservice-subscription.service-type = $cto-api.service-type AND\n\t\t\t\t\tservice-instance.service-instance-id = $cto-api.port-mirror-configuration-instance-id AND\n\t\t\t\t\tallotted-resource.id = $tmp.return.generate-allottedresource-id.id\"\n              local-only=\"false\"\n              pfx=\"tmp.local-variables.generate-allottedresource-id.ALLOTTEDRESOURCE\" >",
+        "comments": "",
+        "outputs": 1,
+        "x": 750.2500305175781,
+        "y": 605.4166297912598,
+        "z": "4903bad.edade44",
+        "wires": [
+            [
+                "954e6938.90cb08",
+                "c3f9027.48ad5",
+                "88fbf3ed.1e4ec",
+                "167962db.dfa98d"
+            ]
+        ]
+    },
+    {
+        "id": "5835198f.dc0b38",
+        "type": "for",
+        "name": "for n: true",
+        "xml": "<for atomic=\"true\" index=\"n\" start=\"0\" end=\"1\" >",
+        "comments": "",
+        "outputs": 1,
+        "x": 487.5833206176758,
+        "y": 607.0833253860474,
+        "z": "4903bad.edade44",
+        "wires": [
+            [
+                "66d02173.cfc28"
+            ]
+        ]
+    },
+    {
+        "id": "954e6938.90cb08",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1071.416603088379,
+        "y": 603.7499647140503,
+        "z": "4903bad.edade44",
+        "wires": [
+            [
+                "5a93b788.462aa8"
+            ]
+        ]
+    },
+    {
+        "id": "c3f9027.48ad5",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1067.416603088379,
+        "y": 683.7499647140503,
+        "z": "4903bad.edade44",
+        "wires": [
+            [
+                "9a1a9def.d6a4"
+            ]
+        ]
+    },
+    {
+        "id": "88fbf3ed.1e4ec",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1076.416603088379,
+        "y": 643.7499647140503,
+        "z": "4903bad.edade44",
+        "wires": [
+            [
+                "3401c5c.83c4e3a"
+            ]
+        ]
+    },
+    {
+        "id": "9a1a9def.d6a4",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status=\"failure\">\n\t<!-- return parameters -->\n\t<parameter name=\"error-message.generate-allottedresource-id\" value=\"`'An error occured while checking if a generated allotted-resource-id was unique. allotted-resource-id = ' + $tmp.local-variables.generate-allottedresource-id.id`\" />",
+        "comments": "",
+        "x": 1233.9166107177734,
+        "y": 708.7499704360962,
+        "z": "4903bad.edade44",
+        "wires": []
+    },
+    {
+        "id": "5a93b788.462aa8",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1229.416603088379,
+        "y": 603.7499647140503,
+        "z": "4903bad.edade44",
+        "wires": [
+            [
+                "42f40b02.0f1b64",
+                "a99c317d.5b194"
+            ]
+        ]
+    },
+    {
+        "id": "42f40b02.0f1b64",
+        "type": "set",
+        "name": "set: ...local...is-unique = 0",
+        "xml": "<set>\n\t<parameter name=\"tmp.local-variables.generate-allottedresource-id.is-unique\" value=\"0\" />",
+        "comments": "",
+        "x": 1446.9167022705078,
+        "y": 603.7499361038208,
+        "z": "4903bad.edade44",
+        "wires": []
+    },
+    {
+        "id": "a99c317d.5b194",
+        "type": "execute",
+        "name": "execute: generateUUID",
+        "xml": "<execute plugin=\"org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils\" method=\"generateUUID\" >\n\t<parameter name=\"ctx-destination\" value=\"tmp.return.generate-allottedresource-id.id\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1440.416603088379,
+        "y": 643.7499647140503,
+        "z": "4903bad.edade44",
+        "wires": [
+            [
+                "e5672b.69ed28d8"
+            ]
+        ]
+    },
+    {
+        "id": "e5672b.69ed28d8",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1627.416603088379,
+        "y": 643.7499647140503,
+        "z": "4903bad.edade44",
+        "wires": [
+            [
+                "d2e9bf0a.cb123"
+            ]
+        ]
+    },
+    {
+        "id": "d2e9bf0a.cb123",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status=\"failure\">\n\t<!-- return parameters -->\n\t<parameter name=\"error-message.generate-allottedresource-id\" value=\"An error occured while generating a UUID for ALLOTTED-RESOURCE.\" />",
+        "comments": "",
+        "x": 1779.7499923706055,
+        "y": 643.7499656677246,
+        "z": "4903bad.edade44",
+        "wires": []
+    },
+    {
+        "id": "3401c5c.83c4e3a",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1207.416603088379,
+        "y": 643.7499647140503,
+        "z": "4903bad.edade44",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6a875f8d.73cc2",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 244.58331680297852,
+        "y": 203.33332443237305,
+        "z": "4903bad.edade44",
+        "wires": [
+            [
+                "20c9128.11698ee"
+            ]
+        ]
+    },
+    {
+        "id": "20c9128.11698ee",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 268.58331298828125,
+        "y": 249.58332443237305,
+        "z": "4903bad.edade44",
+        "wires": [
+            [
+                "c9e0323.6c392d"
+            ]
+        ]
+    },
+    {
+        "id": "c9e0323.6c392d",
+        "type": "method",
+        "name": "method generate-allottedresource-id",
+        "xml": "<method rpc=\"generate-allottedresource-id\" mode=\"sync\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 354.33331298828125,
+        "y": 302.08332443237305,
+        "z": "4903bad.edade44",
+        "wires": [
+            [
+                "11f29edc.8e12b1"
+            ]
+        ]
+    },
+    {
+        "id": "aa4e1446.234628",
+        "type": "comment",
+        "name": "GENERIC-RESOURCE-API: GENERATE-L3NETWORK-NETWORK-ID",
+        "info": "",
+        "comments": "",
+        "x": 796.0833282470703,
+        "y": 209.5833225250244,
+        "z": "4903bad.edade44",
+        "wires": []
+    },
+    {
+        "id": "11f29edc.8e12b1",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 306.0833206176758,
+        "y": 427.08332538604736,
+        "z": "4903bad.edade44",
+        "wires": [
+            [
+                "4eb410ec.15c8",
+                "5835198f.dc0b38",
+                "96991ff7.0c0e5",
+                "8eb23908.bf31d8"
+            ]
+        ]
+    },
+    {
+        "id": "5be115d7.3547fc",
+        "type": "comment",
+        "name": "LOOP UNTIL GENERATED ALLOTTED-RESOURCE ISN'T FOUND IN A&AI",
+        "info": "",
+        "comments": "",
+        "x": 707.3333129882812,
+        "y": 563.3333292007446,
+        "z": "4903bad.edade44",
+        "wires": []
+    },
+    {
+        "id": "f6ac6a5d.3c4308",
+        "type": "comment",
+        "name": "GENERATE A NETWORK-ID",
+        "info": "",
+        "comments": "",
+        "x": 571.0833129882812,
+        "y": 473.333327293396,
+        "z": "4903bad.edade44",
+        "wires": []
+    },
+    {
+        "id": "96991ff7.0c0e5",
+        "type": "set",
+        "name": "unset: local-variables & return",
+        "xml": "<set>\n\t<parameter name=\"tmp.local-variables.generate-allottedresource-id.\" value=\"\" />\n\t<parameter name=\"tmp.return.generate-allottedresource-id.\" value=\"\" />",
+        "comments": "",
+        "x": 558.7499885559082,
+        "y": 427.083309173584,
+        "z": "4903bad.edade44",
+        "wires": []
+    },
+    {
+        "id": "b4d56db.b9ad09",
+        "type": "comment",
+        "name": "CLEANUP LOCAL VARIABLES TO BE USED",
+        "info": "",
+        "comments": "",
+        "x": 641.3333129882812,
+        "y": 383.3333263397217,
+        "z": "4903bad.edade44",
+        "wires": []
+    },
+    {
+        "id": "1c2f28d9.80ec27",
+        "type": "comment",
+        "name": "GLOBAL VARIABLES USED",
+        "info": "// RETURN VALUES\nerror-message.generate-l3network-network-id\ntmp.return.generate-l3network-network-id.uuid\n\n// LOCAL VARIABLES (erased at beginning & end of DG)\ntmp.local-variables.generate-l3network-network-id.*\ntmp.return.generate-l3network-network-id.*\n",
+        "comments": "",
+        "x": 782.5833435058594,
+        "y": 249.5833225250244,
+        "z": "4903bad.edade44",
+        "wires": []
+    },
+    {
+        "id": "8eb23908.bf31d8",
+        "type": "set",
+        "name": "unset: local-variables & return",
+        "xml": "<set>\n\t<parameter name=\"tmp.local-variables.generate-allottedresource-id.\" value=\"\" />",
+        "comments": "",
+        "x": 557.0833206176758,
+        "y": 707.0833253860474,
+        "z": "4903bad.edade44",
+        "wires": []
+    },
+    {
+        "id": "13e6bec1.8c1fd1",
+        "type": "comment",
+        "name": "CLEANUP LOCAL VARIABLES",
+        "info": "",
+        "comments": "",
+        "x": 598.5833129882812,
+        "y": 664.583330154419,
+        "z": "4903bad.edade44",
+        "wires": []
+    },
+    {
+        "id": "167962db.dfa98d",
+        "type": "other",
+        "name": "Other",
+        "xml": "<outcome value=\"Other\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1067.416603088379,
+        "y": 723.7499647140503,
+        "z": "4903bad.edade44",
+        "wires": [
+            [
+                "9a1a9def.d6a4"
+            ]
+        ]
+    }
+]

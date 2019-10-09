@@ -1,0 +1,6 @@
+vnfapi/model/src/main/yang/VNF-API.yang:            leaf aic-clli { 
+vnfapi/model/src/main/yang/VNF-API.yang:            leaf aic-cloud-region { 
+vnfapi/model/src/main/yang/VNF-API.yang:                description "The AIC cloud region which maps to contrail versions";
+vnfapi/model/src/main/yang/VNF-API.yang:            leaf aic-clli { 
+vnfapi/model/src/main/yang/VNF-API.yang:            leaf aic-cloud-region { 
+vnfapi/model/src/main/yang/VNF-API.yang:                description "The AIC cloud region which maps to contrail versions";

@@ -1,0 +1,171 @@
+{
+    "vf-module": [{
+        "vf-module-id": ${vf.vf-module-id},
+        "vf-module-data": {
+            "sdnc-request-header": {
+                "svc-request-id": ${vf.vf-module-data.sdnc-request-header.svc-request-id},
+                "svc-action": ${vf.vf-module-data.sdnc-request-header.svc-action},
+                "svc-notification-url": ${vf.vf-module-data.sdnc-request-header.svc-notification-url}
+            },
+            "request-information": {
+                "request-id": ${vf.vf-module-data.request-information.request-id},
+                "request-action": ${vf.vf-module-data.request-information.request-action},
+                "source": ${vf.vf-module-data.request-information.source},
+                "notification-url": ${vf.vf-module-data.request-information.notification-url},
+                "order-number": ${vf.vf-module-data.request-information.order-number},
+                "order-version": ${vf.vf-module-data.request-information.order-version}
+            },
+            "service-information": {
+                "service-id": ${vf.vf-module-data.service-information.service-id},
+                "subscription-service-type": ${vf.vf-module-data.service-information.subscription-service-type},
+                "onap-model-information": {
+                    "model-invariant-uuid": ${vf.vf-module-data.service-information.onap-model-information.model-invariant-uuid},
+                    "model-customization-uuid": ${vf.vf-module-data.service-information.onap-model-information.model-customization-uuid},
+                    "model-uuid": ${vf.vf-module-data.service-information.onap-model-information.model-uuid},
+                    "model-version": ${vf.vf-module-data.service-information.onap-model-information.model-version},
+                    "model-name": ${vf.vf-module-data.service-information.onap-model-information.model-name}
+                },
+                "service-instance-id": ${vf.vf-module-data.service-information.service-instance-id},
+                "global-customer-id": ${vf.vf-module-data.service-information.global-customer-id},
+                "subscriber-name": ${vf.vf-module-data.service-information.subscriber-name}
+            },
+            "vnf-information": {
+                "vnf-id": ${vf.vf-module-data.vnf-information.vnf-id},
+                "vnf-type": ${vf.vf-module-data.vnf-information.vnf-type},
+                "vnf-name": ${vf.vf-module-data.vnf-information.vnf-name},
+                "onap-model-information": {
+                    "model-invariant-uuid": ${vf.vf-module-data.vnf-information.onap-model-information.model-invariant-uuid},
+                    "model-customization-uuid": ${vf.vf-module-data.vnf-information.onap-model-information.model-customization-uuid},
+                    "model-uuid": ${vf.vf-module-data.vnf-information.onap-model-information.model-uuid},
+                    "model-version": ${vf.vf-module-data.vnf-information.onap-model-information.model-version},
+                    "model-name": ${vf.vf-module-data.vnf-information.onap-model-information.model-name}
+                }
+            },
+            "vf-module-information": {
+                "vf-module-id": ${vf.vf-module-data.vf-module-information.vf-module-id},
+                "vf-module-type": ${vf.vf-module-data.vf-module-information.vf-module-type},
+                "onap-model-information": {
+                    "model-invariant-uuid": ${vf.vf-module-data.vf-module-information.onap-model-information.model-invariant-uuid},
+                    "model-customization-uuid": ${vf.vf-module-data.vf-module-information.onap-model-information.model-customization-uuid},
+                    "model-uuid": ${vf.vf-module-data.vf-module-information.onap-model-information.model-uuid},
+                    "model-version": ${vf.vf-module-data.vf-module-information.onap-model-information.model-version},
+                    "model-name": ${vf.vf-module-data.vf-module-information.onap-model-information.model-name}
+                }
+            },
+            "vf-module-request-input": {
+                "request-version": ${vf.vf-module-data.vf-module-request-input.request-version},
+                "vf-module-name": ${vf.vf-module-data.vf-module-request-input.vf-module-name},
+                "tenant": ${vf.vf-module-data.vf-module-request-input.tenant},
+                "aic-cloud-region": ${vf.vf-module-data.vf-module-request-input.aic-cloud-region},
+                "aic-clli": ${vf.vf-module-data.vf-module-request-input.aic-clli},
+                "vf-module-input-parameters": {
+                    "param": [
+${repeat:vf.vf-module-data.vf-module-request-input.vf-module-input-parameters.param_length:
+                        {
+                            "name": ${vf.vf-module-data.vf-module-request-input.vf-module-input-parameters.param[${1}].name},
+                            "value": ${vf.vf-module-data.vf-module-request-input.vf-module-input-parameters.param[${1}].value}
+                        },
+}
+                    ]
+                }
+            },
+            "vf-module-topology": {
+                "vf-module-topology-identifier": {
+                    "vf-module-id": ${vf.vf-module-data.vf-module-topology.vf-module-topology-identifier.vf-module-id},
+                    "vf-module-name": ${vf.vf-module-data.vf-module-topology.vf-module-topology-identifier.vf-module-name},
+                    "vf-module-type": ${vf.vf-module-data.vf-module-topology.vf-module-topology-identifier.vf-module-type}
+                },
+                "onap-model-information": {
+                    "model-invariant-uuid": ${vf.vf-module-data.vf-module-topology.onap-model-information.model-invariant-uuid},
+                    "model-customization-uuid": ${vf.vf-module-data.vf-module-topology.onap-model-information.model-customization-uuid},
+                    "model-uuid": ${vf.vf-module-data.vf-module-topology.onap-model-information.model-uuid},
+                    "model-version": ${vf.vf-module-data.vf-module-topology.onap-model-information.model-version},
+                    "model-name": ${vf.vf-module-data.vf-module-topology.onap-model-information.model-name}
+                },
+                "vf-module-assignments": {
+                    "vms": {
+                        "vm": [
+${repeat:vf.vf-module-data.vf-module-topology.vf-module-assignments.vms.vm_length:
+                            {
+                                "vm-type": ${vf.vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[${1}].vm-type},
+                                "onap-model-information": {
+                                    "model-invariant-uuid": ${vf.vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[${1}].onap-model-information.model-invariant-uuid},
+                                    "model-customization-uuid": ${vf.vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[${1}].onap-model-information.model-customization-uuid},
+                                    "model-version": ${vf.vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[${1}].onap-model-information.model-version}
+                                },
+                                "vm-names": {
+                                    "vnfc-names": [
+${repeat:vf.vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[${1}].vm-names.vnfc-names_length:
+                                        {
+                                            "vnfc-name": ${vf.vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[${1}].vm-names.vnfc-names[${2}].vnfc-name},
+                                            "vnfc-networks": {
+                                                "vnfc-network-data": [
+${repeat:vf.vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[${1}].vm-names.vnfc-names[${2}].vnfc-networks.vnfc-network-data_length:
+                                                    {
+                                                        "vnfc-network-role": ${vf.vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[${1}].vm-names.vnfc-names[${2}].vnfc-networks.vnfc-network-data[${3}].vnfc-network-role},
+                                                        "vnfc-type": ${vf.vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[${1}].vm-names.vnfc-names[${2}].vnfc-networks.vnfc-network-data[${3}].vnfc-type},
+                                                        "connection-point": {
+                                                            "connection-point-id": ${vf.vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[${1}].vm-names.vnfc-names[${2}].vnfc-networks.vnfc-network-data[${3}].connection-point.connection-point-id},
+                                                        	"vlan-data": [
+${repeat:vf.vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[${1}].vm-names.vnfc-names[${2}].vnfc-networks.vnfc-network-data[${3}].connection-point.vlan-data_length:
+                                                            	{
+                                                                	"vlan-uuid": ${vf.vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[${1}].vm-names.vnfc-names[${2}].vnfc-networks.vnfc-network-data[${3}].connection-point.vlan-data[${4}].vlan-uuid},
+                                                                	"vlan-tag-id": ${vf.vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[${1}].vm-names.vnfc-names[${2}].vnfc-networks.vnfc-network-data[${3}].connection-point.vlan-data[${4}].vlan-tag-id},
+                                                                	"vlan-tag-description": ${vf.vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[${1}].vm-names.vnfc-names[${2}].vnfc-networks.vnfc-network-data[${3}].connection-point.vlan-data[${4}].vlan-tag-description},
+                                                                	"vlan-role": ${vf.vf-module-data.vf-module-topology.vf-module-assignments.vms.vm[${1}].vm-names.vnfc-names[${2}].vnfc-networks.vnfc-network-data[${3}].connection-point.vlan-data[${4}].vlan-role}
+                                                            	},
+}
+                                                        	]
+                                                    	}
+													},
+}
+                                                ]
+											}
+										},
+}
+                                    ]
+                                }
+							},
+}
+                        ]
+                    }
+                },
+                "vf-module-parameters": {
+                    "param": [
+${repeat:vf.vf-module-data.vf-module-topology.vf-module-parameters.param_length:
+                        {
+                            "name": ${vf.vf-module-data.vf-module-topology.vf-module-parameters.param[${1}].name},
+                            "value": ${vf.vf-module-data.vf-module-topology.vf-module-parameters.param[${1}].value},
+                            "resource-resolution-data": {
+                                "resource-key": [
+${repeat:vf.vf-module-data.vf-module-topology.vf-module-parameters.param[${1}].resource-resolution-data.resource-key_length:
+                                    {
+                                        "name": ${vf.vf-module-data.vf-module-topology.vf-module-parameters.param[${1}].resource-resolution-data.resource-key[${2}].name},
+                                        "value": ${vf.vf-module-data.vf-module-topology.vf-module-parameters.param[${1}].resource-resolution-data.resource-key[${2}].value}
+                                    },
+}
+                                ],
+                                "status": ${vf.vf-module-data.vf-module-topology.vf-module-parameters.param[${1}].resource-resolution-data.status},
+                                "capability-name": ${vf.vf-module-data.vf-module-topology.vf-module-parameters.param[${1}].resource-resolution-data.capability-name}
+                            },
+                        },
+}
+                    ]
+                },
+                "tenant": ${vf.vf-module-data.vf-module-topology.tenant},
+                "aic-cloud-region": ${vf.vf-module-data.vf-module-topology.aic-cloud-region},
+                "aic-clli": ${vf.vf-module-data.vf-module-topology.aic-clli},
+                "sdnc-generated-cloud-resources": ${vf.vf-module-data.vf-module-topology.sdnc-generated-cloud-resources}
+            },
+            "vf-module-level-oper-status": {
+                "order-status": ${vf.vf-module-data.vf-module-level-oper-status.order-status},
+                "last-rpc-action": ${vf.vf-module-data.vf-module-level-oper-status.last-rpc-action},
+                "last-action": ${vf.vf-module-data.vf-module-level-oper-status.last-action},
+                "last-svc-request-id": ${vf.vf-module-data.vf-module-level-oper-status.last-svc-request-id},
+                "last-order-status": ${vf.vf-module-data.vf-module-level-oper-status.last-order-status},
+                "create-timestamp": ${vf.vf-module-data.vf-module-level-oper-status.create-timestamp},
+                "modify-timestamp": ${vf.vf-module-data.vf-module-level-oper-status.modify-timestamp}
+            }
+        }
+    }]
+}

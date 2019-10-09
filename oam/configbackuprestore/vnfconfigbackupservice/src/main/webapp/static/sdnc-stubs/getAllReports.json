@@ -1,0 +1,75 @@
+
+{  
+   "data":[  
+      {  
+         "testid":1,
+         "deviceid":1,
+         "testName":"Network Layer",
+         "deviceName":"Router",
+         "execuationDetails":{"output": {"hostname": "google.com","testresult": "pass", "status": "reachable","statistics": "0% loss","ipaddress": "10.53.122.44","avgTime": "Minimum = 70ms"}},
+         "result":"Pass",
+         "timeStamp":"2018-03-16"
+      },
+      {  
+         "testid":2,
+         "deviceid":1,
+         "testName":"Network Layer",
+         "deviceName":"Router",
+         "execuationDetails":{"output": {"hostname": "google.com","testresult": "fail", "status": "unreachable","statistics": "100% loss","ipaddress": "10.53.122.44","avgTime": "Minimum = 33ms"}},
+         "result":"Pass",
+         "timeStamp":"2018-03-16"
+      },
+	    {  
+         "testid":4,
+         "deviceid":1,
+         "testName":"Protocol Layer",
+         "deviceName":"Router",
+         "execuationDetails":{"output": {"status": "unreachable"}},
+         "result":"Fail",
+         "timeStamp":"2018-03-08"
+      },
+      {  
+         "testid":5,
+         "deviceid":1,
+         "testName":"Protocol Layer",
+         "deviceName":"Router",
+         "execuationDetails":{"output": {"status": "reachable"}},
+         "result":"Pass",
+         "timeStamp":"2018-03-15"
+      },
+      {  
+         "testid":6,
+         "deviceid":1,
+         "testName":"Network Layer",
+         "deviceName":"Router",
+         "execuationDetails":{"output": {"hostname": "google.com","testresult": "fail", "status": "unreachable","statistics": "100% loss","ipaddress": "10.53.122.44","avgTime": "Minimum = 33ms"}},
+         "result":"Fail",
+         "timeStamp":"2018-03-15"
+      },
+      {  
+         "testid":7,
+         "deviceid":1,
+        "testName":"Network Layer",
+         "deviceName":"Router",
+         "execuationDetails":{"output": {"hostname": "google.com","testresult": "fail", "status": "unreachable","statistics": "100% loss","ipaddress": "10.53.122.44","avgTime": "Minimum = 50ms"}},
+         "result":"Fail",
+         "timeStamp":"2018-03-15"
+      }
+   ],
+   "status":200,
+   "config":{  
+      "method":"GET",
+      "transformRequest":[  
+         null
+      ],
+      "transformResponse":[  
+         null
+      ],
+      "params":"",
+      "headers":{  
+         "Accept":"application/json"
+      },
+      "url":"/findReportByDeviceName/Thu Mar 15 2018 00:00:00 GMT+0530 (India Standard Time)/Fri Mar 16 2018 00:00:00 GMT+0530 (India Standard Time)/Router"
+   },
+   "statusText":""
+}

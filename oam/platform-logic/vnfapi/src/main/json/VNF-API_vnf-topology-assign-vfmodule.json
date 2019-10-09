@@ -1,0 +1,1873 @@
+[
+    {
+        "id": "a31dd50.8f7cf28",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 140,
+        "y": 61.42857360839844,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "fcb8154c.6bd848"
+            ]
+        ]
+    },
+    {
+        "id": "fcb8154c.6bd848",
+        "type": "service-logic",
+        "name": "VNF-API ${project.version}",
+        "module": "VNF-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='VNF-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 305.1666564941406,
+        "y": 61.595245361328125,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "94fe54b7.9c25f8"
+            ]
+        ]
+    },
+    {
+        "id": "94fe54b7.9c25f8",
+        "type": "method",
+        "name": "method vnf-topology-assign-vfmodule",
+        "xml": "<method rpc='vnf-topology-assign-vfmodule' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 237.16668701171875,
+        "y": 114.5952377319336,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "1d4d3089.10a17f"
+            ]
+        ]
+    },
+    {
+        "id": "1d4d3089.10a17f",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 189.50000762939453,
+        "y": 163.42857360839844,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "20002884.ee2078",
+                "b3f35db0.e0e4",
+                "d031edaa.e6184",
+                "cb1afc0e.40927",
+                "3c67b88b.3c6c28",
+                "9aaf059b.32e0d8",
+                "9f4073e7.b1211"
+            ]
+        ]
+    },
+    {
+        "id": "637385b9.ca295c",
+        "type": "switchNode",
+        "name": "switch test: INPUT network-id = NULL",
+        "xml": "<switch test=\"`$vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].network-id == '' or $vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].network-id == '0'`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 718.9422798156738,
+        "y": 715.4150276184082,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "49d71e01.633db",
+                "53a64d09.4de384"
+            ]
+        ]
+    },
+    {
+        "id": "49d71e01.633db",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 959.3057670593262,
+        "y": 758.5968976020813,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "3983efb0.652cd"
+            ]
+        ]
+    },
+    {
+        "id": "3983efb0.652cd",
+        "type": "switchNode",
+        "name": "switch : INPUT network-name = NULL",
+        "xml": "<switch test=\"`$vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].network-name == '' or $vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].network-name == '0'`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1197.0878677368164,
+        "y": 758.4408760070801,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "372c9435.92cf3c",
+                "d62ab763.7f7488"
+            ]
+        ]
+    },
+    {
+        "id": "53a64d09.4de384",
+        "type": "other",
+        "name": "false",
+        "xml": "<outcome value='false'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 959.3260536193848,
+        "y": 715.3039240837097,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "c6e8f114.6edb3"
+            ]
+        ]
+    },
+    {
+        "id": "372c9435.92cf3c",
+        "type": "other",
+        "name": "false",
+        "xml": "<outcome value='false'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1435.2798194885254,
+        "y": 797.9963579177856,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "459aea4a.7ec284"
+            ]
+        ]
+    },
+    {
+        "id": "c6e8f114.6edb3",
+        "type": "save",
+        "name": "get  AnAI - l3-network by id",
+        "xml": "<get-resource plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\tresource=\"l3-network\" \n\t\tkey=\"l3-network.network-id = $vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].network-id\" \n\t\tlocal-only=\"false\" \n\t\tpfx=\"tmp.AnAI.l3network\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1160.548168182373,
+        "y": 715.3040919303894,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "ef79ca38.6e05a8",
+                "8a064197.2016f"
+            ]
+        ]
+    },
+    {
+        "id": "ef79ca38.6e05a8",
+        "type": "success",
+        "name": "not found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1363.4928588867188,
+        "y": 714.8595404624939,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "df4013d1.53f66"
+            ]
+        ]
+    },
+    {
+        "id": "d4a5dd72.75857",
+        "type": "for",
+        "name": "for i : INPUT vnf-networks",
+        "xml": "<for index=\"i\" start=\"0\" end=\"`$vnf-topology-operation-input.vnf-request-information.vnf-networks_length`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 548.236156463623,
+        "y": 571.9077110290527,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "2dd04c5d.087a24"
+            ]
+        ]
+    },
+    {
+        "id": "459aea4a.7ec284",
+        "type": "save",
+        "name": "get AnAI - l3-network by name",
+        "xml": "<get-resource plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\tresource=\"l3-network\" \n\t\tkey=\"l3-network.network-name = $vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].network-name\" \n\t\tlocal-only=\"false\" \n\t\tpfx=\"tmp.AnAI.l3network\">\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1645.7818222045898,
+        "y": 797.7381496429443,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "3388e17e.b2e1be",
+                "86e3396f.1580b8"
+            ]
+        ]
+    },
+    {
+        "id": "3388e17e.b2e1be",
+        "type": "success",
+        "name": "not found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1867.0318222045898,
+        "y": 797.9882106781006,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "df4013d1.53f66"
+            ]
+        ]
+    },
+    {
+        "id": "b1029783.5d2708",
+        "type": "set",
+        "name": "initialize tmp.usePreload = 1 and tmp.AAI.l3network",
+        "xml": "<set>\n<parameter name='tmp.usePreload' value='1' />\n<parameter name='tmp.AnAI.l3network.' value='' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 435.72979736328125,
+        "y": 485.63307189941406,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "22808f4a.1e8c2",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 510.91400146484375,
+        "y": 398.16761016845703,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "b1029783.5d2708",
+                "816372ff.06ba2",
+                "b66fd01c.9af55"
+            ]
+        ]
+    },
+    {
+        "id": "20002884.ee2078",
+        "type": "for",
+        "name": "for j : PRELOAD vnf-networks",
+        "xml": "<for index=\"j\" start=\"0\" end=\"`$preload-data.vnf-topology-information.vnf-assignments.vnf-networks_length`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 273.8889465332031,
+        "y": 398.6785583496094,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "22808f4a.1e8c2"
+            ]
+        ]
+    },
+    {
+        "id": "816372ff.06ba2",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 315.61627197265625,
+        "y": 571.8376026153564,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "d4a5dd72.75857",
+                "fd1635d9.5c1398"
+            ]
+        ]
+    },
+    {
+        "id": "2dd04c5d.087a24",
+        "type": "switchNode",
+        "name": "switch : PRELOAD network-role = INPUT",
+        "xml": "<switch test=\"`$preload-data.vnf-topology-information.vnf-assignments.vnf-networks[$j].network-role == $vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].network-role`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 857.6163368225098,
+        "y": 572.2012739181519,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "b66fe12f.c0be8"
+            ]
+        ]
+    },
+    {
+        "id": "b66fe12f.c0be8",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1108.4117622375488,
+        "y": 572.4969162940979,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "6c5f5d3f.b58ed4"
+            ]
+        ]
+    },
+    {
+        "id": "6c5f5d3f.b58ed4",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 466.6973304748535,
+        "y": 672.2760715484619,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "637385b9.ca295c",
+                "13b8f738.862a39",
+                "989e6dbf.d5d9d"
+            ]
+        ]
+    },
+    {
+        "id": "13b8f738.862a39",
+        "type": "set",
+        "name": "set tmp.usePreload = 0",
+        "xml": "<set>\n<parameter name='tmp.usePreload' value='0' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 673.060962677002,
+        "y": 672.1852006912231,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d62ab763.7f7488",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1434.8377532958984,
+        "y": 758.7023506164551,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "df4013d1.53f66"
+            ]
+        ]
+    },
+    {
+        "id": "989e6dbf.d5d9d",
+        "type": "switchNode",
+        "name": "switch : tmp.usePreload= 0",
+        "xml": "<switch test=\"`$tmp.usePreload == 0`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 699.7430572509766,
+        "y": 951.2915191650391,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "a94fbeb7.9f49d"
+            ]
+        ]
+    },
+    {
+        "id": "a94fbeb7.9f49d",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 898.7429428100586,
+        "y": 951.5416564941406,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "f300366b.1bf838"
+            ]
+        ]
+    },
+    {
+        "id": "ae3d7146.3003c",
+        "type": "for",
+        "name": "for k : SERVICE_DATA vnf-networks",
+        "xml": "<for index=\"k\" start=\"0\" end=\"`$service-data.vnf-topology-information.vnf-assignments.vnf-networks_length`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 800.1870269775391,
+        "y": 1135.3089752197266,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "6d4a43e6.1837ec"
+            ]
+        ]
+    },
+    {
+        "id": "6d4a43e6.1837ec",
+        "type": "switchNode",
+        "name": "switch: SERVICE-DATA network-role = INPUT",
+        "xml": "<switch test=\"`$service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].network-role == $vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].network-role`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1158.0671691894531,
+        "y": 1135.6582279205322,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "5d39673b.750638"
+            ]
+        ]
+    },
+    {
+        "id": "5d39673b.750638",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1437.6125793457031,
+        "y": 1135.7038822174072,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "99507e8d.3fb04"
+            ]
+        ]
+    },
+    {
+        "id": "fd1635d9.5c1398",
+        "type": "switchNode",
+        "name": "switch: tmp.usePreload= 1",
+        "xml": "<switch test=\"`$tmp.usePreload == 1`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 540.9327087402344,
+        "y": 1653.80224609375,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "f3fd6148.f130e"
+            ]
+        ]
+    },
+    {
+        "id": "f3fd6148.f130e",
+        "type": "other",
+        "name": "true",
+        "xml": "<outcome value='true'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 748.9642868041992,
+        "y": 1653.5424976348877,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "394ee13a.df62ee"
+            ]
+        ]
+    },
+    {
+        "id": "df4013d1.53f66",
+        "type": "set",
+        "name": "set tmp.usePreload = 1",
+        "xml": "<set>\n<parameter name='tmp.usePreload' value='1' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1629.4458465576172,
+        "y": 899.4613742828369,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b7f69264.cf1ab",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"`'Failed to query AnAI for l3-network with network-id = ' + $vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].network-id`\"  />\n",
+        "comments": "",
+        "x": 1514.416659037272,
+        "y": 673.9840910169814,
+        "z": "3018bfef.3ec6f",
+        "wires": []
+    },
+    {
+        "id": "8a064197.2016f",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1357.1944368150498,
+        "y": 673.9840910169814,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "b7f69264.cf1ab"
+            ]
+        ]
+    },
+    {
+        "id": "d9b59f8d.62ec6",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"`'Failed to query AnAI for l3-network with network-name = ' + $vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].network-name`\"  />\n",
+        "comments": "",
+        "x": 2015.5275802612305,
+        "y": 756.2063064575195,
+        "z": "3018bfef.3ec6f",
+        "wires": []
+    },
+    {
+        "id": "86e3396f.1580b8",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1858.3053580390078,
+        "y": 756.2063064575195,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "d9b59f8d.62ec6"
+            ]
+        ]
+    },
+    {
+        "id": "18ac44d0.2f45cb",
+        "type": "set",
+        "name": "set: SERVICE_DATA vnf-networks = AAI DATA",
+        "xml": "<set>\n<parameter name=\"service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].network-name\" value=\"`$tmp.AnAI.l3network.network-name`\" />\n<parameter name=\"service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].network-id\" value=\"`$tmp.AnAI.l3network.network-id`\" />\n<parameter name=\"service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].neutron-id\" value=\"`$tmp.AnAI.l3network.neutron-network-id`\" />\n<parameter name=\"service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].contrail-network-fqdn\" value=\"`$tmp.AnAI.l3network.contrail-network-fqdn`\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1894.9072570800781,
+        "y": 1135.7456226348877,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d30c2e81.9d2fd",
+        "type": "success",
+        "name": "not found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1419.0712356567383,
+        "y": 1653.4231624603271,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "ae6f9f81.1a798"
+            ]
+        ]
+    },
+    {
+        "id": "10de1549.964beb",
+        "type": "set",
+        "name": "set: SERVICE_DATA vnf-networks = AAI DATA",
+        "xml": "<set>\n<parameter name=\"service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].network-name\" value=\"`$tmp.AnAI.l3network.network-name`\" />\n<parameter name=\"service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].network-id\" value=\"`$tmp.AnAI.l3network.network-id`\" />\n<parameter name=\"service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].neutron-id\" value=\"`$tmp.AnAI.l3network.neutron-network-id`\" />\n<parameter name=\"service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].contrail-network-fqdn\" value=\"`$tmp.AnAI.l3network.contrail-network-fqdn`\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2024.2062301635742,
+        "y": 1900.2730236053467,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a3d35540.191cd8",
+        "type": "save",
+        "name": "get AnAI - l3-network by name",
+        "xml": "<get-resource plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\tresource=\"l3-network\" \n\t\tkey=\"l3-network.network-name = $preload-data.vnf-topology-information.vnf-assignments.vnf-networks[$j].network-name\" \n\t\tlocal-only=\"false\" \n\t\tpfx=\"tmp.AnAI.l3network\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1153.964256286621,
+        "y": 1653.6891021728516,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "d30c2e81.9d2fd",
+                "d435904c.f085c",
+                "f9269416.45efe8"
+            ]
+        ]
+    },
+    {
+        "id": "394ee13a.df62ee",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 904.9758262634277,
+        "y": 1653.9880352020264,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "a3d35540.191cd8",
+                "b15670b5.3c9b2",
+                "ad2f4a81.8af4e8"
+            ]
+        ]
+    },
+    {
+        "id": "e68e26af.0bdf48",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"`'Failed to query AnAI for l3-network with network-name = ' + $vnf-topology-operation-input.vnf-request-information.vnf-networks[$j].network-name`\"  />\n",
+        "comments": "",
+        "x": 1566.3570709228516,
+        "y": 1691.285740852356,
+        "z": "3018bfef.3ec6f",
+        "wires": []
+    },
+    {
+        "id": "d435904c.f085c",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1411.1348487006294,
+        "y": 1691.285740852356,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "e68e26af.0bdf48"
+            ]
+        ]
+    },
+    {
+        "id": "ae6f9f81.1a798",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"`'PRELOAD network-name = ' + $preload-data.vnf-topology-information.vnf-assignments.vnf-networks[$j].network-name + ' not found in AnAI'`\"  />\n",
+        "comments": "",
+        "x": 1585.3571014404297,
+        "y": 1653.2857656478882,
+        "z": "3018bfef.3ec6f",
+        "wires": []
+    },
+    {
+        "id": "b3f35db0.e0e4",
+        "type": "switchNode",
+        "name": "switch ...PRELOAD vnf-networks[]",
+        "xml": "<switch test=\"`$preload-data.vnf-topology-information.vnf-assignments.vnf-networks_length`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 453.5,
+        "y": 342.9285774230957,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "24971653.569cea"
+            ]
+        ]
+    },
+    {
+        "id": "24971653.569cea",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "outputs": 1,
+        "x": 680.9444732666016,
+        "y": 342.4562873840332,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "cbca70d0.7f17"
+            ]
+        ]
+    },
+    {
+        "id": "cbca70d0.7f17",
+        "type": "set",
+        "name": "set PRELOAD vnf-networks[] = 0",
+        "xml": "<set>\n<parameter name = \"preload-data.vnf-topology-information.vnf-assignments.vnf-networks_length\" value=\"0\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 902.5000822279189,
+        "y": 342.4563080469766,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b66fd01c.9af55",
+        "type": "switchNode",
+        "name": "switch ...INPUT vnf-networks[]",
+        "xml": "<switch test=\"`$vnf-topology-operation-input.vnf-request-information.vnf-networks_length`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 369.00001525878906,
+        "y": 526.6785554885864,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "3bbc7752.e54408"
+            ]
+        ]
+    },
+    {
+        "id": "3bbc7752.e54408",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "outputs": 1,
+        "x": 592.444465637207,
+        "y": 526.4562911987305,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "ebefaf21.666f1"
+            ]
+        ]
+    },
+    {
+        "id": "ebefaf21.666f1",
+        "type": "set",
+        "name": "set INPUT vnf-networks_length = 0",
+        "xml": "<set>\n<parameter name='vnf-topology-operation-input.vnf-request-information.vnf-networks_length' value='0' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 825.0000745985244,
+        "y": 526.4563118616738,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8ee6be3c.0943d",
+        "type": "comment",
+        "name": "For each preload network, see if there is an override in input",
+        "info": "",
+        "comments": "",
+        "x": 861.8612213134766,
+        "y": 454.90082454681396,
+        "z": "3018bfef.3ec6f",
+        "wires": []
+    },
+    {
+        "id": "be41e53d.c12d58",
+        "type": "switchNode",
+        "name": "switch: SERVICE-DATA network-role = PRELOAD",
+        "xml": "<switch test=\"`$service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].network-role == $preload-data.vnf-topology-information.vnf-assignments.vnf-networks[$j].network-role`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1278.1070175170898,
+        "y": 1900.0358438491821,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "35b957ef.660a98"
+            ]
+        ]
+    },
+    {
+        "id": "35b957ef.660a98",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1566.509693145752,
+        "y": 1899.6528720855713,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "9a01436f.4ed71"
+            ]
+        ]
+    },
+    {
+        "id": "b15670b5.3c9b2",
+        "type": "for",
+        "name": "for k : SERVICE_DATA vnf-networks",
+        "xml": "<for index=\"k\" start=\"0\" end=\"`$service-data.vnf-topology-information.vnf-assignments.vnf-networks_length`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1173.642807006836,
+        "y": 1850.6072368621826,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "be41e53d.c12d58"
+            ]
+        ]
+    },
+    {
+        "id": "c7ee590b.fb69b8",
+        "type": "comment",
+        "name": "CALLED BY vnf-topology-assign AND vnf-topology-changeassign",
+        "info": "",
+        "comments": "",
+        "x": 795.1666564941406,
+        "y": 105.53968811035156,
+        "z": "3018bfef.3ec6f",
+        "wires": []
+    },
+    {
+        "id": "cb1afc0e.40927",
+        "type": "set",
+        "name": "set: service-data =+ input",
+        "xml": "<set>\n\t<parameter name=\"service-data.\" value=\"vnf-topology-operation-input.\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 425.27777671813965,
+        "y": 251.8730125427246,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d031edaa.e6184",
+        "type": "set",
+        "name": "set: service-data = preload-data",
+        "xml": "<set>\n\t<parameter name=\"service-data.\" value=\"preload-data.\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 445.1818904876709,
+        "y": 210.0194969177246,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3c67b88b.3c6c28",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n\t<parameter name=\"error-code\" value=\"200\" />",
+        "comments": "",
+        "x": 396.2857437133789,
+        "y": 1912.2859153747559,
+        "z": "3018bfef.3ec6f",
+        "wires": []
+    },
+    {
+        "id": "9aaf059b.32e0d8",
+        "type": "switchNode",
+        "name": "switch: preload order-status = PendingAssignment",
+        "xml": "<switch test=\"`$preload-data.oper-status.order-status == PendingAssignment`\">\n<!--\nleaf order-status {\n\ttype enumeration {\n\t\tenum \"Active\";\n\t\tenum \"PendingAssignment\";\n\t\tenum \"PendingCreate\";\n\t\tenum \"PendingUpdate\";\n\t\tenum \"Deleted\";\n\t}\n}\n-->",
+        "comments": "",
+        "outputs": 1,
+        "x": 502.2777862548828,
+        "y": 163.4285764694214,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "113a87df.14b818"
+            ]
+        ]
+    },
+    {
+        "id": "d97cceee.5c382",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='error-code' value='400'/>\n\t<parameter name='error-message' value='Invalid preload-data order status'/>",
+        "comments": "",
+        "x": 919.2170295715332,
+        "y": 163.1255865097046,
+        "z": "3018bfef.3ec6f",
+        "wires": []
+    },
+    {
+        "id": "113a87df.14b818",
+        "type": "other",
+        "name": "false",
+        "xml": "<outcome value='false'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 769.883918762207,
+        "y": 163.1255121231079,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "d97cceee.5c382"
+            ]
+        ]
+    },
+    {
+        "id": "9f4073e7.b1211",
+        "type": "set",
+        "name": "set: vnf-id",
+        "xml": "<set>\n\t<parameter name=\"service-data.vnf-id\" value=\"`$vnf-topology-operation-input.vnf-request-information.vnf-id`\"/>\n\t<parameter name=\"service-data.service-information.service-instance-id\" value=\"`$vnf-topology-operation-input.service-information.service-instance-id`\"/>\n\t<parameter name=\"service-data.vnf-request-information.vnf-id\" value=\"`$vnf-topology-operation-input.vnf-request-information.vnf-id`\"/>\n    <parameter name=\"service-data.vnf-topology-information.vnf-topology-identifier.vnf-id\" value=\"`$vnf-topology-operation-input.vnf-request-information.vnf-id`\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 377.5992889404297,
+        "y": 296.36905097961426,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "63fc40cc.c84e4",
+        "type": "switchNode",
+        "name": "switch: tmp.AnAI.l3network.network-id == null",
+        "xml": "<switch test=\"`$tmp.AnAI.l3network.network-id == ''`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1676.7500305175781,
+        "y": 1729.1787147521973,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "f7b88266.11803"
+            ]
+        ]
+    },
+    {
+        "id": "f7b88266.11803",
+        "type": "other",
+        "name": "true",
+        "xml": "<outcome value='true'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1939.0000305175781,
+        "y": 1729.1787147521973,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "60aaae18.6b34b"
+            ]
+        ]
+    },
+    {
+        "id": "60aaae18.6b34b",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"`'An error occurred while querying l3-network with network-name = ' + $preload-data.vnf-topology-information.vnf-assignments.vnf-networks[$j].network-name + ' , it is likely that there are more than one l3-newtork object with the same network-name in AnAI.'`\"  />\n",
+        "comments": "",
+        "x": 2093.000030517578,
+        "y": 1729.6787147521973,
+        "z": "3018bfef.3ec6f",
+        "wires": []
+    },
+    {
+        "id": "f9269416.45efe8",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1414.750015258789,
+        "y": 1728.928695678711,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "63fc40cc.c84e4"
+            ]
+        ]
+    },
+    {
+        "id": "365956fb.0b312a",
+        "type": "switchNode",
+        "name": "switch: SERVICE-DATA ipv6-sbunet-id == NULL",
+        "xml": "<switch test=\"`$service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].ipv6-subnet-id == ''`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2011.41650390625,
+        "y": 2245.250244140625,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "94a6ca67.61df88"
+            ]
+        ]
+    },
+    {
+        "id": "94a6ca67.61df88",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2295.6664695739746,
+        "y": 2245.00022315979,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "34509c24.cfaf64"
+            ]
+        ]
+    },
+    {
+        "id": "b4cda74e.ecf228",
+        "type": "switchNode",
+        "name": "switch: SERVICE-DATA sbunet-name != NULL",
+        "xml": "<switch test=\"`$service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].subnet-name != ''`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2102.857208251953,
+        "y": 2050.3570852279663,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "117b6909.23fc67"
+            ]
+        ]
+    },
+    {
+        "id": "117b6909.23fc67",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2368.1071739196777,
+        "y": 2050.1070642471313,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "14f42f64.b3e611"
+            ]
+        ]
+    },
+    {
+        "id": "f8a8a33e.215bb",
+        "type": "set",
+        "name": "set: service-data = AnAI - subnet-id ",
+        "xml": "<set>\n<parameter name=\"service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].subnet-id\" value=\"`$tmp.AnAI.l3network.subnets.subnet[$i].neutron-subnet-id`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 3136.868942260742,
+        "y": 2164.6549243927,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "14f42f64.b3e611",
+        "type": "switchNode",
+        "name": "switch: tmp.AnAI.l3network.subnets.subnet != NULL",
+        "xml": "<switch test=\"`$tmp.AnAI.l3network.subnets.subnet_length != ''`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2228.368927001953,
+        "y": 2107.9048166275024,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "12ee504d.24c76"
+            ]
+        ]
+    },
+    {
+        "id": "f8a347b6.06cb48",
+        "type": "for",
+        "name": "for i : tmp.AnAI.l3network.subnets.subnet[]",
+        "xml": "<for index=\"i\" start=\"0\" end=\"`$tmp.AnAI.l3network.subnets.subnet_length`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2271.797393798828,
+        "y": 2166.0834045410156,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "f8cb09b3.6b0028"
+            ]
+        ]
+    },
+    {
+        "id": "f8cb09b3.6b0028",
+        "type": "switchNode",
+        "name": "switch: AnAI == service-data - subnet-name",
+        "xml": "<switch test=\"`$tmp.AnAI.l3network.subnets.subnet[$i].subnet-name == $service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].subnet-name`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2644.547348022461,
+        "y": 2165.3334884643555,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "7ed66661.050d48"
+            ]
+        ]
+    },
+    {
+        "id": "7ed66661.050d48",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2902.950038909912,
+        "y": 2165.2005167007446,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "f8a8a33e.215bb"
+            ]
+        ]
+    },
+    {
+        "id": "12ee504d.24c76",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2513.6904106140137,
+        "y": 2107.4882073402405,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "f8a347b6.06cb48"
+            ]
+        ]
+    },
+    {
+        "id": "34509c24.cfaf64",
+        "type": "switchNode",
+        "name": "switch: SERVICE-DATA ipv6-sbunet-name != NULL",
+        "xml": "<switch test=\"`$service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].ipv6-subnet-name != ''`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2147.6188888549805,
+        "y": 2299.976417541504,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "9d340516.572948"
+            ]
+        ]
+    },
+    {
+        "id": "9d340516.572948",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2432.868854522705,
+        "y": 2299.726396560669,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "1544738d.b38abc"
+            ]
+        ]
+    },
+    {
+        "id": "e9ee4f00.4d645",
+        "type": "set",
+        "name": "set: service-data = AnAI - ipv6-subnet-id ",
+        "xml": "<set>\n<parameter name=\"service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].ipv6-subnet-id\" value=\"`$tmp.AnAI.l3network.subnets.subnet[$i].neutron-subnet-id`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 3159.1308670043945,
+        "y": 2411.7742557525635,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1544738d.b38abc",
+        "type": "switchNode",
+        "name": "switch: tmp.AnAI.l3network.subnets.subnet != NULL",
+        "xml": "<switch test=\"`$tmp.AnAI.l3network.subnets.subnet_length != ''`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2248.1308517456055,
+        "y": 2355.024024963379,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "151974e3.0664ab"
+            ]
+        ]
+    },
+    {
+        "id": "5a40afd6.e4ff8",
+        "type": "for",
+        "name": "for i : tmp.AnAI.l3network.subnets.subnet[]",
+        "xml": "<for index=\"i\" start=\"0\" end=\"`$tmp.AnAI.l3network.subnets.subnet_length`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2294.0593185424805,
+        "y": 2413.202735900879,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "d120df1f.f811c"
+            ]
+        ]
+    },
+    {
+        "id": "d120df1f.f811c",
+        "type": "switchNode",
+        "name": "switch: AnAI == service-data - ipv6-subnet-name",
+        "xml": "<switch test=\"`$tmp.AnAI.l3network.subnets.subnet[$i].subnet-name == $service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].ipv6-subnet-name`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2666.8092727661133,
+        "y": 2412.4528198242188,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "541bc841.f2b0f8"
+            ]
+        ]
+    },
+    {
+        "id": "541bc841.f2b0f8",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2925.2119636535645,
+        "y": 2412.319848060608,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "e9ee4f00.4d645"
+            ]
+        ]
+    },
+    {
+        "id": "151974e3.0664ab",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2533.452335357666,
+        "y": 2354.607415676117,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "5a40afd6.e4ff8"
+            ]
+        ]
+    },
+    {
+        "id": "9a01436f.4ed71",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1729.9999771118164,
+        "y": 1900.16672706604,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "10de1549.964beb",
+                "6110484f.04a978",
+                "365956fb.0b312a"
+            ]
+        ]
+    },
+    {
+        "id": "6110484f.04a978",
+        "type": "switchNode",
+        "name": "switch: SERVICE-DATA sbunet-id == NULL",
+        "xml": "<switch test=\"`$service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].subnet-id == ''`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1996.4285697937012,
+        "y": 1993.845314025879,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "71d2499c.c98928"
+            ]
+        ]
+    },
+    {
+        "id": "71d2499c.c98928",
+        "type": "outcomeFalse",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2252.6785049438477,
+        "y": 1994.345365524292,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "b4cda74e.ecf228"
+            ]
+        ]
+    },
+    {
+        "id": "99507e8d.3fb04",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1601.2500228881836,
+        "y": 1136.2500171661377,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "18ac44d0.2f45cb",
+                "aa7965a7.8a0268",
+                "fe682f55.17228"
+            ]
+        ]
+    },
+    {
+        "id": "9b32ad95.a25bc",
+        "type": "comment",
+        "name": "Use INPUT vnf-networks to override preload",
+        "info": "",
+        "comments": "",
+        "x": 906.6070709228516,
+        "y": 1030.7142543792725,
+        "z": "3018bfef.3ec6f",
+        "wires": []
+    },
+    {
+        "id": "f6b569a4.ef41e8",
+        "type": "comment",
+        "name": "if INPUT vnf-network not in AnAI, use Preload",
+        "info": "",
+        "comments": "",
+        "x": 1957.1429443359375,
+        "y": 878.2142715454102,
+        "z": "3018bfef.3ec6f",
+        "wires": []
+    },
+    {
+        "id": "acfdf9bf.62cbd8",
+        "type": "switchNode",
+        "name": "switch: INPUT sbunet-name != NULL",
+        "xml": "<switch test=\"`$vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].subnet-name != ''`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2384.226348876953,
+        "y": 1246.8569526672363,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "279dbc6a.3dcd44"
+            ]
+        ]
+    },
+    {
+        "id": "279dbc6a.3dcd44",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2621.4763145446777,
+        "y": 1246.6069316864014,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "7a8c22e0.a09bfc"
+            ]
+        ]
+    },
+    {
+        "id": "15630d42.609893",
+        "type": "set",
+        "name": "set: service-data = AnAI - subnet-id ",
+        "xml": "<set>\n<parameter name=\"service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].subnet-id\" value=\"`$tmp.AnAI.l3network.subnets.subnet[$i].neutron-subnet-id`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 3360.738327026367,
+        "y": 1360.154670715332,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7a8c22e0.a09bfc",
+        "type": "switchNode",
+        "name": "switch: tmp.AnAI.l3network.subnets.subnet != NULL",
+        "xml": "<switch test=\"`$tmp.AnAI.l3network.subnets.subnet_length != ''`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2487.238311767578,
+        "y": 1297.1545581817627,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "f12b50fc.bf6ec"
+            ]
+        ]
+    },
+    {
+        "id": "3e5c8652.818e1a",
+        "type": "for",
+        "name": "for i : tmp.AnAI.l3network.subnets.subnet[]",
+        "xml": "<for index=\"i\" start=\"0\" end=\"`$tmp.AnAI.l3network.subnets.subnet_length`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2495.666778564453,
+        "y": 1361.5831508636475,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "1103bb86.f0b774"
+            ]
+        ]
+    },
+    {
+        "id": "1103bb86.f0b774",
+        "type": "switchNode",
+        "name": "switch: AnAI == INPUT - subnet-name",
+        "xml": "<switch test=\"`$tmp.AnAI.l3network.subnets.subnet[$i].subnet-name == $vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].subnet-name`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2868.416732788086,
+        "y": 1360.8332347869873,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "86b2b0cf.39e87"
+            ]
+        ]
+    },
+    {
+        "id": "86b2b0cf.39e87",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3126.819423675537,
+        "y": 1360.7002630233765,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "15630d42.609893"
+            ]
+        ]
+    },
+    {
+        "id": "f12b50fc.bf6ec",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2772.5597953796387,
+        "y": 1296.7379488945007,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "3e5c8652.818e1a"
+            ]
+        ]
+    },
+    {
+        "id": "fe682f55.17228",
+        "type": "switchNode",
+        "name": "switch: INPUT sbunet-id != NULL",
+        "xml": "<switch test=\"`$vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].subnet-id != ''`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1877.797794342041,
+        "y": 1203.0951328277588,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "d47a1488.eef628",
+                "c9c1e1fa.1b416"
+            ]
+        ]
+    },
+    {
+        "id": "b85f607.859b7a",
+        "type": "set",
+        "name": "set: data-data = INPUT - subnet-id ",
+        "xml": "<set>\n<parameter name=\"service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].subnet-id\" value=\"`$vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].subnet-id`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 2376.0477905273438,
+        "y": 1203.3451347351074,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d47a1488.eef628",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2134.0477600097656,
+        "y": 1202.8451118469238,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "b85f607.859b7a"
+            ]
+        ]
+    },
+    {
+        "id": "c9c1e1fa.1b416",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2135.2978019714355,
+        "y": 1246.8451328277588,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "acfdf9bf.62cbd8"
+            ]
+        ]
+    },
+    {
+        "id": "a1734fb1.d43be",
+        "type": "switchNode",
+        "name": "switch: INPUT ipv6-sbunet-name != NULL",
+        "xml": "<switch test=\"`$vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].ipv6-subnet-name != ''`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2392.5,
+        "y": 1475,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "e98fe3c1.1cf8c"
+            ]
+        ]
+    },
+    {
+        "id": "e98fe3c1.1cf8c",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2639.7499656677246,
+        "y": 1474.749979019165,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "77179e25.c032f"
+            ]
+        ]
+    },
+    {
+        "id": "7618e85b.df1788",
+        "type": "set",
+        "name": "set: service-data = AnAI - ipv6-subnet-id ",
+        "xml": "<set>\n<parameter name=\"service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].ipv6-subnet-id\" value=\"`$tmp.AnAI.l3network.subnets.subnet[$i].neutron-subnet-id`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 3369.011978149414,
+        "y": 1588.2977180480957,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "77179e25.c032f",
+        "type": "switchNode",
+        "name": "switch: tmp.AnAI.l3network.subnets.subnet != NULL",
+        "xml": "<switch test=\"`$tmp.AnAI.l3network.subnets.subnet_length != ''`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2495.511962890625,
+        "y": 1525.2976055145264,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "d63d308e.fbbed"
+            ]
+        ]
+    },
+    {
+        "id": "4cf11d6a.ec1414",
+        "type": "for",
+        "name": "for i : tmp.AnAI.l3network.subnets.subnet[]",
+        "xml": "<for index=\"i\" start=\"0\" end=\"`$tmp.AnAI.l3network.subnets.subnet_length`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2503.9404296875,
+        "y": 1589.7261981964111,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "1eb54f30.ad23b1"
+            ]
+        ]
+    },
+    {
+        "id": "1eb54f30.ad23b1",
+        "type": "switchNode",
+        "name": "switch: AnAI == INPUT - ipv6-subnet-name",
+        "xml": "<switch test=\"`$tmp.AnAI.l3network.subnets.subnet[$i].subnet-name == $vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].ipv6-subnet-name`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2876.690383911133,
+        "y": 1588.976282119751,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "bba8b999.fef0c8"
+            ]
+        ]
+    },
+    {
+        "id": "bba8b999.fef0c8",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3135.093074798584,
+        "y": 1588.8433103561401,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "7618e85b.df1788"
+            ]
+        ]
+    },
+    {
+        "id": "d63d308e.fbbed",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2780.8334465026855,
+        "y": 1524.8809962272644,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "4cf11d6a.ec1414"
+            ]
+        ]
+    },
+    {
+        "id": "aa7965a7.8a0268",
+        "type": "switchNode",
+        "name": "switch: INPUT ipv6-sbunet-id != NULL",
+        "xml": "<switch test=\"`$vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].ipv6-subnet-id != ''`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1886.071445465088,
+        "y": 1431.2381801605225,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "dba017f7.db9878",
+                "db733b1.265eec8"
+            ]
+        ]
+    },
+    {
+        "id": "83458f26.3bb7d",
+        "type": "set",
+        "name": "set: service-data = INPUT - ipv6-subnet-id ",
+        "xml": "<set>\n<parameter name=\"service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].ipv6-subnet-id\" value=\"`$vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].ipv6-subnet-id`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 2393.3214416503906,
+        "y": 1431.488182067871,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "dba017f7.db9878",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2142.3214111328125,
+        "y": 1430.9881591796875,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "83458f26.3bb7d"
+            ]
+        ]
+    },
+    {
+        "id": "db733b1.265eec8",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2143.5714530944824,
+        "y": 1474.9881801605225,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "a1734fb1.d43be"
+            ]
+        ]
+    },
+    {
+        "id": "f8168a86.067868",
+        "type": "comment",
+        "name": "Use Preload Data",
+        "info": "",
+        "comments": "",
+        "x": 576,
+        "y": 1599.5,
+        "z": "3018bfef.3ec6f",
+        "wires": []
+    },
+    {
+        "id": "ad2f4a81.8af4e8",
+        "type": "switchNode",
+        "name": "switch: service-data...vnf-networks_length",
+        "xml": "<switch test=\"`$service-data.vnf-topology-information.vnf-assignments.vnf-networks_length`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 1190.21435546875,
+        "y": 1803.0714111328125,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "27e3bb35.5afc04"
+            ]
+        ]
+    },
+    {
+        "id": "27e3bb35.5afc04",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1449.7143478393555,
+        "y": 1803.0714111328125,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "c75309.f948fcf8"
+            ]
+        ]
+    },
+    {
+        "id": "c75309.f948fcf8",
+        "type": "switchNode",
+        "name": "set: service-data...vnf-networks_length = 0",
+        "xml": "<set>\n\t<parameter name=\"service-data.vnf-topology-information.vnf-assignments.vnf-networks_length\" value = \"0\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1714.4643478393555,
+        "y": 1803.0714111328125,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "98d3927f.7bccf",
+        "type": "switchNode",
+        "name": "switch: service-data...vnf-networks_length",
+        "xml": "<switch test=\"`$service-data.vnf-topology-information.vnf-assignments.vnf-networks_length`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 817.6786041259766,
+        "y": 1087.6786041259766,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "d2e9cd7e.23312"
+            ]
+        ]
+    },
+    {
+        "id": "d2e9cd7e.23312",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1077.178596496582,
+        "y": 1087.6786041259766,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "fcd3cd85.688eb"
+            ]
+        ]
+    },
+    {
+        "id": "fcd3cd85.688eb",
+        "type": "switchNode",
+        "name": "set: service-data...vnf-networks_length = 0",
+        "xml": "<set>\n\t<parameter name=\"service-data.vnf-topology-information.vnf-assignments.vnf-networks_length\" value = \"0\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1341.928596496582,
+        "y": 1087.6786041259766,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f300366b.1bf838",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 542.1428298950195,
+        "y": 1036.6786041259766,
+        "z": "3018bfef.3ec6f",
+        "wires": [
+            [
+                "98d3927f.7bccf",
+                "ae3d7146.3003c"
+            ]
+        ]
+    }
+]

@@ -1,0 +1,30 @@
+{
+    "sites": [
+        {            
+            "name": ${prop.site.name},
+            "locations": [
+                {
+                     "name": ${prop.site.location-name},
+                     "address": ${prop.site.location-address},
+                     "postcode": ${prop.site.location-postcode}
+                }
+            ],
+           "devices": [${repeat:prop.site.deviceId_length:
+                  {
+                      "deviceId": ${prop.site.deviceId[${1}]},
+                      "locationName": ${prop.site.location-name},
+                  },
+                }
+           ],
+            "siteType": ${prop.site.type},
+            "role": [${repeat:prop.site.roles_length:
+                       ${prop.site.roles[${1}]},
+                      }
+                    ],               
+            "controlPoints": [],            
+            "description": "--------role:dsvpn-hub---------------"
+        }
+    ]
+}
+
+

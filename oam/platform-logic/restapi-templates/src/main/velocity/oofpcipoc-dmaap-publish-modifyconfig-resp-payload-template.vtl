@@ -1,0 +1,31 @@
+## Velocity template for configPCI response payload
+#set($begCntr=0)
+#set($endCntr=0)
+#set($entries=$ctx.getAttribute("configuration-phy-cell-id-input.fap-service-number-of-entries"))
+#set($endCntr=$endCntr.parseInt($entries))
+#set( $endCntr = $endCntr - 1)
+{
+        "Configurations": [ #foreach($no in [$begCntr..$endCntr]) {"Status": {
+                        "Code":  "$ctx.getAttribute("prop.oofpcipoc-dmaap-config-resp.status-code")",
+                        "Value": "$ctx.getAttribute("prop.oofpcipoc-dmaap-config-resp.status-value")"
+                },
+                "data": {
+                        "FAPService": {
+                                "alias": "$ctx.getAttribute("configuration-phy-cell-id-input.fap-service[$no].alias")",
+                                "X0005b9Lte": {
+                                        "phyCellIdInUse": "$ctx.getAttribute("configuration-phy-cell-id-input.fap-service[$no].phy-cell-id-in-use")",
+                                        "pnfName": "$ctx.getAttribute("configuration-phy-cell-id-input.fap-service[$no].pnf-name")"
+                                },
+                                "CellConfig": {
+                                        "LTE": {
+                                                "RAN": {
+                                                        "Common": {
+                                                                "CellIdentity": "$ctx.getAttribute("configuration-phy-cell-id-input.fap-service[$no].cid")"
+                                                        }
+                                                }
+                                        }
+                                }
+                        }
+                }
+        } #if( $foreach.count == $endCntr), #end #end ]
+}

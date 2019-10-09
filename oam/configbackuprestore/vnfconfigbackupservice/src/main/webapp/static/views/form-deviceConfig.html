@@ -1,0 +1,467 @@
+<!-- /*
+   * ============LICENSE_START=======================================================
+   * ONAP : SDNC-FEATURES
+   * ================================================================================
+   * Copyright 2018 TechMahindra
+   *=================================================================================
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *     http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   * ============LICENSE_END=========================================================
+   */
+    -->
+<!-- <div class="VersionMain" ng-show="showResult">
+   <div class="versionHeading"><img src="static/images/compare.jpg" width=25 height="25" style="margin-left:5px;">&nbsp;&nbsp;Version Comparision Result</div>
+   <div class="columnsVersion">
+      <ul class="price">
+         <li class="headerVersion">Attributes</li>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Config Details</li>
+            <li ng-repeat="(key,value) in objCompareModel1.versionDetails">{{key}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">VNF Topology</li>
+            <li ng-repeat="(key,value) in objCompareModel1.topologyInfo">{{key}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;" ng-if="objCompareModel1.networkTopologyInfo.length>=1">
+            <li class="listHeading">Network Topology</li>
+            <li ng-repeat="(key,value) in objCompareModel1.networkTopologyInfo">{{key}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Operation Status</li>
+            <li ng-repeat="(key,value) in objCompareModel1.operationStatus">{{key}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">VNF Topology Identifer</li>
+            <li ng-repeat="(key,value) in objCompareModel1.vnfTopologyIdentifier">{{key}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+      </ul>
+   </div>
+   <div class="columnsVersion">
+      <ul class="price">
+         <li class="headerVersion" style="background-color:#807C7C">Version {{objCompareModel1.versionDetails.vnfversion}}</li>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Config Details</li>
+            <li ng-repeat="(key,value) in objCompareModel1.versionDetails">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">VNF Topology</li>
+            <li  ng-repeat="(key,value) in objCompareModel1.topologyInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;" ng-if="objCompareModel1.networkTopologyInfo.length>=1">
+            <li class="listHeading">Network Topology</li>
+            <li ng-repeat="(key,value) in objCompareModel1.networkTopologyInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Operation Status</li>
+            <li ng-repeat="(key,value) in objCompareModel1.operationStatus">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">VNF Topology Identifer</li>
+            <li ng-repeat="(key,value) in objCompareModel1.vnfTopologyIdentifier">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+      </ul>
+   </div>
+   <div class="columnsVersion">
+      <ul class="price">
+         <li class="headerVersion"style="background-color:#807C7C">Version {{objCompareModel2.versionDetails.vnfversion}}</li>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Config Details</li>
+            <li ng-repeat="(key,value) in objCompareModel2.versionDetails">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">VNF Topology</li>
+            <li ng-repeat="(key,value) in objCompareModel2.topologyInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;" ng-if="objCompareModel1.networkTopologyInfo.length>=1">
+            <li class="listHeading">Network Topology</li>
+            <li ng-repeat="(key,value) in objCompareModel2.networkTopologyInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Operation Status</li>
+            <li ng-repeat="(key,value) in objCompareModel2.operationStatus">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">VNF Topology Identifer</li>
+            <li ng-repeat="(key,value) in objCompareModel2.vnfTopologyIdentifier">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+      </ul>
+   </div>
+</div> -->
+
+
+
+<div id = "Div1" class="VersionMain" ng-show="showResult" >
+   <div class="versionHeading"><img src="static/images/compare.jpg" width=25 height="25" style="margin-left:5px;">&nbsp;&nbsp;Version Comparision Result</div>
+  <table class="tableCompare" >
+  <td style="width:230px;">
+   
+      <ul class="price" style="font-weight:bold;">
+         <li class="headerVersion">Attributes</li>
+         <div style="background-color:#E1E0DA;">
+            <li  class="listHeading">Config Details</li>
+            <li  ng-repeat="(key,value) in objCompareModel1.versionDetails">{{key}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+          <div style="background-color:#E1E0DA;">
+            <li class="listHeading">VNF ID</li>
+            <li ng-repeat="(key,value) in objCompareModel1.vnfIdInfo">{{key}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">SERVICE STATUS</li>
+            <li ng-repeat="(key,value) in objCompareModel1.serviceStatusInfo">{{key}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">VNF Topology Identifer</li>
+            <li ng-repeat="(key,value) in objCompareModel1.vnfTopologyIdentifier">{{key}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Operation Status</li>
+            <li ng-repeat="(key,value) in objCompareModel1.operationStatus">{{key}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+          <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Request Info</li>
+            <li ng-repeat="(key,value) in objCompareModel1.vnfRequestInfo">{{key}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Service Info</li>
+            <li ng-repeat="(key,value) in objCompareModel1.serviceInfo">{{key}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Service Request Header</li>
+            <li ng-repeat="(key,value) in objCompareModel1.requestHeader">{{key}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Request Information</li>
+            <li ng-repeat="(key,value) in objCompareModel1.requestInfo">{{key}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">VNF Topology</li>
+            <li ng-repeat="(key,value) in objCompareModel1.topologyInfo">{{key}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+      </ul>
+  
+  </td><td>
+   
+      <ul class="price">
+         <li class="headerVersion" style="background-color:#807C7C">Version {{objCompareModel1.versionDetails.vnfversion}}</li>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Config Details</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel1.versionDetails">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+          <div style="background-color:#E1E0DA;" >
+            <li class="listHeading">VNF ID</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel1.vnfIdInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+          <div style="background-color:#E1E0DA;">
+            <li class="listHeading">SERVICE STATUS</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel1.serviceStatusInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+          <div style="background-color:#E1E0DA;">
+            <li class="listHeading">VNF Topology Identifer</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel1.vnfTopologyIdentifier">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+          <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Operation Status</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel1.operationStatus">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+          <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Request Info</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel1.vnfRequestInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Service Info</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel1.serviceInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Service Request Header</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel1.requestHeader">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Request Information</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel1.requestInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">VNF Topology</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel1.topologyInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+       </ul>
+  
+</td><td>
+     
+         <ul class="price">
+         <li class="headerVersion"style="background-color:#807C7C">Version {{objCompareModel2.versionDetails.vnfversion}}</li>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Config Details</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel2.versionDetails">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+          <div style="background-color:#E1E0DA;">
+            <li class="listHeading">VNF ID</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel2.vnfIdInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">SERVICE STATUS</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel2.serviceStatusInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">VNF Topology Identifer</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel2.vnfTopologyIdentifier">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Operation Status</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel2.operationStatus">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Request Info</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel2.vnfRequestInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+  		<div style="background-color:#E1E0DA;">
+            <li class="listHeading">Service Info</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel2.serviceInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+  		<div style="background-color:#E1E0DA;">
+            <li class="listHeading">Service Request Header</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel2.requestHeader">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Request Information</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel2.requestInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">VNF Topology</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel2.topologyInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+      </ul>
+   
+</td><td ng-show=version3>
+
+         <ul class="price">
+         <li class="headerVersion"style="background-color:#807C7C">Version {{objCompareModel3.versionDetails.vnfversion}}</li>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Config Details</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel3.versionDetails">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+          <div style="background-color:#E1E0DA;">
+            <li class="listHeading">VNF ID</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel3.vnfIdInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">SERVICE STATUS</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel3.serviceStatusInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">VNF Topology Identifer</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel3.vnfTopologyIdentifier">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Operation Status</li>
+            <li  style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel3.operationStatus">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Request Info</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel3.vnfRequestInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+  		<div style="background-color:#E1E0DA;">
+            <li class="listHeading">Service Info</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel3.serviceInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+  		<div style="background-color:#E1E0DA;">
+            <li class="listHeading">Service Request Header</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel3.requestHeader">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Request Information</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel3.requestInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">VNF Topology</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel3.topologyInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+      </ul>
+  
+</td><td ng-show=version4>
+
+         <ul class="price">
+         <li class="headerVersion"style="background-color:#807C7C">Version {{objCompareModel4.versionDetails.vnfversion}}</li>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Config Details</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel4.versionDetails">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+          <div style="background-color:#E1E0DA;">
+            <li class="listHeading">VNF ID</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel4.vnfIdInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">SERVICE STATUS</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel4.serviceStatusInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">VNF Topology Identifer</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel4.vnfTopologyIdentifier">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Operation Status</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel4.operationStatus">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Request Info</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel4.vnfRequestInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+  		<div style="background-color:#E1E0DA;">
+            <li class="listHeading">Service Info</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel4.serviceInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+  		<div style="background-color:#E1E0DA;">
+            <li class="listHeading">Service Request Header</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel4.requestHeader">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">Request Information</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel4.requestInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+         <div style="background-color:#E1E0DA;">
+            <li class="listHeading">VNF Topology</li>
+            <li style="height:29px;overflow: auto;" ng-repeat="(key,value) in objCompareModel4.topologyInfo">{{value}}</li>
+            <hr class="separator">
+            </hr>
+         </div>
+      </ul>
+  
+   </td>
+</table>
+</div>

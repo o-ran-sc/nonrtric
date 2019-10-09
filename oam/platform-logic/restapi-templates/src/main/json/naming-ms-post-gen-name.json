@@ -1,0 +1,13 @@
+{
+     "elements": [
+   ${repeat:tmp.gen-name_length:
+         {
+            ${repeat:tmp.gen-name[${1}].element_length:
+                        ${tmp.gen-name[${1}].element[${2}].name}: ${tmp.gen-name[${1}].element[${2}].value}
+                ,
+         },
+   },
+        }
+
+     ]
+ }

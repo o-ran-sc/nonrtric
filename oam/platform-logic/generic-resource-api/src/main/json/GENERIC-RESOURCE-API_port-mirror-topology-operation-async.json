@@ -1,0 +1,540 @@
+[
+    {
+        "id": "a92b87d1.18ec78",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 101.66666412353516,
+        "y": 86.66666412353516,
+        "z": "998e256c.383a68",
+        "wires": [
+            [
+                "b4d6454f.2dd218"
+            ]
+        ]
+    },
+    {
+        "id": "b4d6454f.2dd218",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 215.2856903076172,
+        "y": 126.90477752685547,
+        "z": "998e256c.383a68",
+        "wires": [
+            [
+                "ae4c47c5.756b08"
+            ]
+        ]
+    },
+    {
+        "id": "ae4c47c5.756b08",
+        "type": "method",
+        "name": "method port-mirror-topology-operation-async",
+        "xml": "<method rpc='port-mirror-topology-operation-async' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 210.0952911376953,
+        "y": 166.66666412353516,
+        "z": "998e256c.383a68",
+        "wires": [
+            [
+                "9ce29364.07fb2"
+            ]
+        ]
+    },
+    {
+        "id": "4790a30.c63705c",
+        "type": "comment",
+        "name": "port-mirror-topology-operation-async",
+        "info": "",
+        "comments": "",
+        "x": 496.0115203857422,
+        "y": 34.253007888793945,
+        "z": "998e256c.383a68",
+        "wires": []
+    },
+    {
+        "id": "ebececd6.1026b",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name='ack-final' value='Y' />\n",
+        "comments": "",
+        "x": 437.14292907714844,
+        "y": 719.7619762420654,
+        "z": "998e256c.383a68",
+        "wires": []
+    },
+    {
+        "id": "9ce29364.07fb2",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 210.4761962890625,
+        "y": 460.47620010375977,
+        "z": "998e256c.383a68",
+        "wires": [
+            [
+                "ebececd6.1026b",
+                "54acb947.6d1b38",
+                "bfee9804.6c0148"
+            ]
+        ]
+    },
+    {
+        "id": "54acb947.6d1b38",
+        "type": "switchNode",
+        "name": "switch svc-action",
+        "xml": "<switch test='`$port-mirror-topology-operation-input.sdnc-request-header.svc-action`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 441.6072006225586,
+        "y": 554.1666126251221,
+        "z": "998e256c.383a68",
+        "wires": [
+            [
+                "9f0b8dfc.816dd",
+                "82c23d93.b7d7",
+                "e505f3f7.aa204"
+            ]
+        ]
+    },
+    {
+        "id": "9f0b8dfc.816dd",
+        "type": "outcome",
+        "name": "assign",
+        "xml": "<outcome value='assign'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 668.5120277404785,
+        "y": 458.27380752563477,
+        "z": "998e256c.383a68",
+        "wires": [
+            [
+                "2ad1988f.1143d8"
+            ]
+        ]
+    },
+    {
+        "id": "82c23d93.b7d7",
+        "type": "outcome",
+        "name": "activate",
+        "xml": "<outcome value='activate'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 670.8929710388184,
+        "y": 554.1071853637695,
+        "z": "998e256c.383a68",
+        "wires": [
+            [
+                "466d0a0d.e04164"
+            ]
+        ]
+    },
+    {
+        "id": "e505f3f7.aa204",
+        "type": "outcome",
+        "name": "deactivate",
+        "xml": "<outcome value='deactivate'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 681.0119705200195,
+        "y": 662.38099193573,
+        "z": "998e256c.383a68",
+        "wires": [
+            [
+                "96380117.be36b"
+            ]
+        ]
+    },
+    {
+        "id": "2ad1988f.1143d8",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 830.5952682495117,
+        "y": 456.60713958740234,
+        "z": "998e256c.383a68",
+        "wires": [
+            [
+                "177e7ab7.0ce115"
+            ]
+        ]
+    },
+    {
+        "id": "466d0a0d.e04164",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 832.1429786682129,
+        "y": 554.1071720123291,
+        "z": "998e256c.383a68",
+        "wires": [
+            [
+                "7f516513.455d1c"
+            ]
+        ]
+    },
+    {
+        "id": "96380117.be36b",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 831.8452835083008,
+        "y": 661.1309719085693,
+        "z": "998e256c.383a68",
+        "wires": [
+            [
+                "13957fa3.88e25"
+            ]
+        ]
+    },
+    {
+        "id": "177e7ab7.0ce115",
+        "type": "call",
+        "name": "call port-mirror-topology-operation-assign-async",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='port-mirror-topology-operation-assign-async' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1120.464241027832,
+        "y": 457.59524154663086,
+        "z": "998e256c.383a68",
+        "wires": [
+            [
+                "1a4cc975.1b2247",
+                "b35c3cc9.bb03f"
+            ]
+        ]
+    },
+    {
+        "id": "1a4cc975.1b2247",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1399.464298248291,
+        "y": 431.16667556762695,
+        "z": "998e256c.383a68",
+        "wires": [
+            [
+                "16832c61.62f464"
+            ]
+        ]
+    },
+    {
+        "id": "16832c61.62f464",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\n",
+        "comments": "",
+        "x": 1569.4642753601074,
+        "y": 430.2738227844238,
+        "z": "998e256c.383a68",
+        "wires": []
+    },
+    {
+        "id": "7f516513.455d1c",
+        "type": "call",
+        "name": "call port-mirror-topology-operation-activate-async",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='port-mirror-topology-operation-activate-async' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1123.0356483459473,
+        "y": 552.4999494552612,
+        "z": "998e256c.383a68",
+        "wires": [
+            [
+                "7f417dcf.734f54",
+                "fca0cc7f.bd36a"
+            ]
+        ]
+    },
+    {
+        "id": "7f417dcf.734f54",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1398.0357055664062,
+        "y": 532.7380599975586,
+        "z": "998e256c.383a68",
+        "wires": [
+            [
+                "a3e8a6c3.07ff68"
+            ]
+        ]
+    },
+    {
+        "id": "a3e8a6c3.07ff68",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\n",
+        "comments": "",
+        "x": 1571.3688049316406,
+        "y": 533.5118827819824,
+        "z": "998e256c.383a68",
+        "wires": []
+    },
+    {
+        "id": "13957fa3.88e25",
+        "type": "call",
+        "name": "call port-mirror-topology-operation-deactivate-async",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='port-mirror-topology-operation-deactivate-async' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1118.2737312316895,
+        "y": 659.8809108734131,
+        "z": "998e256c.383a68",
+        "wires": [
+            [
+                "7add57e7.9fb0f8",
+                "4139181f.e48488"
+            ]
+        ]
+    },
+    {
+        "id": "7add57e7.9fb0f8",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1396.6070365905762,
+        "y": 633.4523601531982,
+        "z": "998e256c.383a68",
+        "wires": [
+            [
+                "8660da39.e0eb58"
+            ]
+        ]
+    },
+    {
+        "id": "8660da39.e0eb58",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\n",
+        "comments": "",
+        "x": 1566.6070137023926,
+        "y": 632.5595073699951,
+        "z": "998e256c.383a68",
+        "wires": []
+    },
+    {
+        "id": "b35c3cc9.bb03f",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1407.0833587646484,
+        "y": 482.4999809265137,
+        "z": "998e256c.383a68",
+        "wires": [
+            [
+                "f1dd6375.9f61a"
+            ]
+        ]
+    },
+    {
+        "id": "f1dd6375.9f61a",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"Cannot find assign async DG\" />\n<parameter name='ack-final' value='Y' />\n",
+        "comments": "",
+        "x": 1568.749885559082,
+        "y": 480.8333110809326,
+        "z": "998e256c.383a68",
+        "wires": []
+    },
+    {
+        "id": "fca0cc7f.bd36a",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1403.7499809265137,
+        "y": 582.4999647140503,
+        "z": "998e256c.383a68",
+        "wires": [
+            [
+                "27ae87c4.a7ddf8"
+            ]
+        ]
+    },
+    {
+        "id": "27ae87c4.a7ddf8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"Cannot find activate async DG\" />\n<parameter name='ack-final' value='Y' />\n",
+        "comments": "",
+        "x": 1565.4165077209473,
+        "y": 580.8332948684692,
+        "z": "998e256c.383a68",
+        "wires": []
+    },
+    {
+        "id": "4139181f.e48488",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1407.0833206176758,
+        "y": 682.4999656677246,
+        "z": "998e256c.383a68",
+        "wires": [
+            [
+                "e88f3c47.44e4a"
+            ]
+        ]
+    },
+    {
+        "id": "e88f3c47.44e4a",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"Cannot find deactivate async DG\" />\n<parameter name='ack-final' value='Y' />\n",
+        "comments": "",
+        "x": 1568.7498474121094,
+        "y": 680.8332958221436,
+        "z": "998e256c.383a68",
+        "wires": []
+    },
+    {
+        "id": "128027e6.192c18",
+        "type": "outcome",
+        "name": "VPROBE",
+        "xml": "<outcome value='VPROBE'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 698.6666946411133,
+        "y": 322.6190576553345,
+        "z": "998e256c.383a68",
+        "wires": [
+            [
+                "cd4c0b74.504af8"
+            ]
+        ]
+    },
+    {
+        "id": "1eb71011.f8c4a",
+        "type": "outcome",
+        "name": "vprobe",
+        "xml": "<outcome value='vprobe'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 691.9999847412109,
+        "y": 275.95241832733154,
+        "z": "998e256c.383a68",
+        "wires": [
+            [
+                "cd4c0b74.504af8"
+            ]
+        ]
+    },
+    {
+        "id": "a5cbc01.2308c4",
+        "type": "outcome",
+        "name": "PPROBE",
+        "xml": "<outcome value='PPROBE'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 698.3333168029785,
+        "y": 227.61908435821533,
+        "z": "998e256c.383a68",
+        "wires": [
+            [
+                "a2746b29.559da8"
+            ]
+        ]
+    },
+    {
+        "id": "2aa25b78.6a9eb4",
+        "type": "outcome",
+        "name": "pprobe",
+        "xml": "<outcome value='pprobe'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 691.6666488647461,
+        "y": 182.61909198760986,
+        "z": "998e256c.383a68",
+        "wires": [
+            [
+                "a2746b29.559da8"
+            ]
+        ]
+    },
+    {
+        "id": "a2746b29.559da8",
+        "type": "set",
+        "name": "set to pprobe",
+        "xml": "<set>\n<parameter name='port-mirror-topology-operation-input.configuration-information.configuration-sub-type' value='pprobe' />\n",
+        "comments": "",
+        "x": 884.9999542236328,
+        "y": 197.6190938949585,
+        "z": "998e256c.383a68",
+        "wires": []
+    },
+    {
+        "id": "d46212f.e1543f",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 692.0000038146973,
+        "y": 369.28574657440186,
+        "z": "998e256c.383a68",
+        "wires": [
+            [
+                "cd4c0b74.504af8"
+            ]
+        ]
+    },
+    {
+        "id": "cd4c0b74.504af8",
+        "type": "set",
+        "name": "set to vprobe",
+        "xml": "<set>\n<parameter name='port-mirror-topology-operation-input.configuration-information.configuration-sub-type' value='vprobe' />\n",
+        "comments": "",
+        "x": 884.9999313354492,
+        "y": 310.952431678772,
+        "z": "998e256c.383a68",
+        "wires": []
+    },
+    {
+        "id": "bfee9804.6c0148",
+        "type": "switchNode",
+        "name": "switch configuration-sub-type",
+        "xml": "<switch test='`$port-mirror-topology-operation-input.configuration-information.configuration-sub-type`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 478.3333206176758,
+        "y": 275.95237731933594,
+        "z": "998e256c.383a68",
+        "wires": [
+            [
+                "2aa25b78.6a9eb4",
+                "a5cbc01.2308c4",
+                "1eb71011.f8c4a",
+                "128027e6.192c18",
+                "d46212f.e1543f"
+            ]
+        ]
+    }
+]

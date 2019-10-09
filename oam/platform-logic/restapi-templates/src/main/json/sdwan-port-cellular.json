@@ -1,0 +1,18 @@
+{
+    "ports": [
+        {
+            "portType": ${prop.wan.portType},
+            "portNumber": ${prop.wan.portNumber},
+            "deviceId": ${prop.wan.deviceId},
+            "portSwitch": "layer3-port",
+            "linkInfo": {
+                 "linkType": "Cellular",
+                 "cellular": {
+                     "apn" : ${prop.wan.apn-name}
+                 },
+                 "atm": null,
+                 "ethernet": null                 
+            }
+        }
+    ]
+}

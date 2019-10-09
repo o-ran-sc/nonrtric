@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<% if (header == 'gamma') { %>
+  <title>SDN-C AdminPortal</title>
+<% } else if(header == 'sdn-mlc'){ %>
+  <title>SDNC-MLC AdminPortal</title>
+<% } else { %>
+  <title>SDN-C AdminPortal</title>
+<% } %>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+</head>
+<body class="container">
+
+<div class="actions" style="padding:0px 25px;">
+<% if (header == 'gamma') { %>
+  <h2>SDN-C Admin Portal</h2>
+<% } else if(header == 'sdn-mlc'){ %>
+  <h2>SDNC-MLC Admin Portal</h2>
+<% } else { %>
+  <h2>SDN-C Admin Portal</h2>
+<% } %>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+        if (result.code.length > 0) {
+            if ( result.code == 'success' ) { %>
+                <div class='alert alert-success' role='alert'><%=result.msg %></div>
+            <% } else { %>
+                <div class='alert alert-danger' role='danger'><%=result.msg %></div>
+            <% } %>
+        <% } %>
+<% } %>
+
+<p><a href="/login">Click here to login</a></p>
+
+
+<footer>
+         <% include ../partials/footer %>
+</footer>
+
+</body>
+</html>

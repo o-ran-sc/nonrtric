@@ -1,0 +1,84 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='pnf-topology-operation-activate' mode='sync'>
+        <block atomic="true">
+            <switch test='`$pnf-topology-operation-input.request-information.request-action`'>
+                <outcome value='CreatePnfInstance'>
+                    <block></block>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="If svc-action is 'activate' then request-action must be 'CreatePnfInstance'" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$service-data.pnfs.pnf_length`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="404" />
+                        <parameter name="error-message" value="There are no PNFs in MD-SAL" />
+                    </return>
+                </outcome>
+            </switch>
+            <for index='idx' start='0' end='`$service-data.pnfs.pnf_length`' >
+                <switch test='`$service-data.pnfs.pnf[$idx].pnf-id == $pnf-topology-operation-input.pnf-details.pnf-id`'>
+                    <outcome value='true'>
+                        <set>
+                            <parameter name='pnf-index' value='`$idx`' />
+                        </set>
+                    </outcome>
+                </switch>
+            </for>
+            <switch test='`$pnf-index`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="404" />
+                        <parameter name="error-message" value="'Could not find PNF ' + $pnf-topology-operation-input.pnf-details.pnf-id + ' in MD-SAL'" />
+                    </return>
+                </outcome>
+            </switch>
+            <update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+   resource="pnf"
+   key="pnf.pnf-id = $service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-topology.pnf-topology-identifier-structure.pnf-id"
+   force="true" pfx="tmp.AnAI-data">
+                <parameter name="prov-status" value="NVTPROV" />
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error updating pnf in AAI" />
+                    </return>
+                </outcome>
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`'No pnf found in AAI with pnf-id = ' + $service-data.pnfs.pnf[$pnf-index].pnf-id`" />
+                    </return>
+                </outcome>
+            </update>
+            <set>
+                <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.sdnc-request-header.' value='$pnf-topology-operation-input.sdnc-request-header.' />
+                <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.request-information.' value='$pnf-topology-operation-input.request-information.' />
+                <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.service-information.' value='$pnf-topology-operation-input.service-information.' />
+                <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-details.' value='$pnf-topology-operation-input.pnf-details.' />
+                <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-request-input.' value='$pnf-topology-operation-input.pnf-request-input.' />
+            </set>
+            <set>
+                <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-level-oper-status.order-status' value='Created' />
+                <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-level-oper-status.last-rpc-action' value='`$pnf-topology-operation-input.sdnc-request-header.svc-action`' />
+                <parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-level-oper-status.last-action' value='`$pnf-topology-operation-input.request-information.request-action`' />
+            </set>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="`$error-message`" />
+            </return>
+        </block>
+    </method>
+</service-logic>

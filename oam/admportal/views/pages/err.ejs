@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>SDN-C AdminPortal</title>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+</head>
+<body class="container">
+
+<div class="actions" style="padding:0px 25px;">
+<h2>System Error</h2>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+        if (result.code.length > 0) {
+            if ( result.code == 'success' ) { %>
+                <div class='alert alert-success' role='alert'><%=result.msg %></div>
+            <% } else { %>
+                <div class='alert alert-danger' role='danger'><%=result.msg %></div>
+            <% } %>
+        <% } %>
+<% } %>
+
+
+<footer>
+	 <% include ../partials/footer %>
+</footer>
+    
+</body>
+</html>
+

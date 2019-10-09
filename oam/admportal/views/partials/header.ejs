@@ -1,0 +1,11 @@
+<% if (header == 'gamma') { %>
+  <% include ../partials/gammaHeader %>
+<% } else if(header == 'sdn-mlc'){ %>
+  <% include ../partials/sdnmlcHeader %>
+<% } else if(header == 'sdn-fc'){ %>
+  <% include ../partials/sdnfcHeader %>
+<% } else { %>
+  <% include ../partials/gammaHeader %>
+<% } %>
+
+

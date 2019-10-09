@@ -1,0 +1,211 @@
+[
+  {
+    "id":"d81e50c6.10867",
+    "type":"dgstart",
+    "name":"DGSTART",
+    "outputs":1,
+    "x":186,
+    "y":168,
+    "z":"ee2bc85b.58f498",
+    "wires":[
+      [
+        "794b3924.54ea18"
+      ]
+    ]
+  },
+  {
+    "id":"794b3924.54ea18",
+    "type":"service-logic",
+    "name":"GENERIC-RESOURCE-API ${project.version}",
+    "module":"GENERIC-RESOURCE-API",
+    "version":"${project.version}",
+    "comments":"Reserve/release IP",
+    "xml":"<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+    "outputs":1,
+    "x":369,
+    "y":257,
+    "z":"ee2bc85b.58f498",
+    "wires":[
+      [
+        "3876df34.9cbea"
+      ]
+    ]
+  },
+  {
+    "id":"3876df34.9cbea",
+    "type":"method",
+    "name":"manage-ipaddr-assignment",
+    "xml":"<method rpc='manage-ipaddr-assignment' mode='sync'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":471,
+    "y":329,
+    "z":"ee2bc85b.58f498",
+    "wires":[
+      [
+        "255e6973.efa936"
+      ]
+    ]
+  },
+  {
+    "id":"eac5864f.de8f18",
+    "type":"switchNode",
+    "name":"switch $tmp.manageIpaddr.action",
+    "xml":"<switch test='`$tmp.manageIpaddr.action`'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":945,
+    "y":362,
+    "z":"ee2bc85b.58f498",
+    "wires":[
+      [
+        "980f17d0.c10a28",
+        "2fb21d9f.e9b6e2"
+      ]
+    ]
+  },
+  {
+    "id":"980f17d0.c10a28",
+    "type":"outcome",
+    "name":"reserve",
+    "xml":"<outcome value='reserve'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":1227,
+    "y":361,
+    "z":"ee2bc85b.58f498",
+    "wires":[
+      [
+        "ab295c0b.78142"
+      ]
+    ]
+  },
+  {
+    "id":"ab295c0b.78142",
+    "type":"block",
+    "name":"block : atomic",
+    "xml":"<block atomic='true'>",
+    "atomic":"true",
+    "comments":"",
+    "outputs":1,
+    "x":1399,
+    "y":363,
+    "z":"ee2bc85b.58f498",
+    "wires":[
+      [
+        "8fd400db.0432d"
+      ]
+    ]
+  },
+  {
+    "id":"8fd400db.0432d",
+    "type":"get-resource",
+    "name":"get-resource IPADDR from IPV4_ADDRESS_POOL",
+    "xml":"<get-resource plugin='`$tmp.sql.plugin`' resource='IPADDR' key=\"SELECT min(ipv4_addr) ip from IPV4_ADDRESS_POOL where universe = $tmp.manageIpaddr.pool and status='AVAILABLE'\" pfx=\"tmp.manageIpaddr\" >\n",
+    "comments":"",
+    "outputs":1,
+    "x":1680,
+    "y":364,
+    "z":"ee2bc85b.58f498",
+    "wires":[
+      [
+        "7fb7948a.ed39dc"
+      ]
+    ]
+  },
+  {
+    "id":"255e6973.efa936",
+    "type":"block",
+    "name":"block : atomic",
+    "xml":"<block atomic='true'>",
+    "atomic":"true",
+    "comments":"",
+    "outputs":1,
+    "x":703,
+    "y":328,
+    "z":"ee2bc85b.58f498",
+    "wires":[
+      [
+        "d5fece9.ea5c63",
+        "eac5864f.de8f18"
+      ]
+    ]
+  },
+  {
+    "id":"d5fece9.ea5c63",
+    "type":"set",
+    "name":"set sql plugin name",
+    "xml":"<set>\n<parameter name='tmp.sql.plugin' value='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' />\n",
+    "comments":"",
+    "x":910,
+    "y":287,
+    "z":"ee2bc85b.58f498",
+    "wires":[
+
+    ]
+  },
+  {
+    "id":"7fb7948a.ed39dc",
+    "type":"success",
+    "name":"success",
+    "xml":"<outcome value='success'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":1952,
+    "y":362,
+    "z":"ee2bc85b.58f498",
+    "wires":[
+      [
+        "7a9dcfdb.a10f9"
+      ]
+    ]
+  },
+  {
+    "id":"7a9dcfdb.a10f9",
+    "type":"save",
+    "name":"Mark ip address reserved",
+    "xml":"<save plugin='`$tmp.sql.plugin`' resource='IPADDR' key=\"UPDATE IPV4_ADDRESS_POOL set status='RESERVED' where universe='VGW' and ipv4_addr = $tmp.manageIpaddr.ip\" force='false'>\n\n",
+    "comments":"",
+    "outputs":1,
+    "x":2169,
+    "y":364,
+    "z":"ee2bc85b.58f498",
+    "wires":[
+      [
+
+      ]
+    ]
+  },
+  {
+    "id":"2fb21d9f.e9b6e2",
+    "type":"outcome",
+    "name":"release",
+    "xml":"<outcome value='release'>\n",
+    "comments":"",
+    "outputs":1,
+    "x":1225,
+    "y":428,
+    "z":"ee2bc85b.58f498",
+    "wires":[
+      [
+        "a8f883cf.1ee52"
+      ]
+    ]
+  },
+  {
+    "id":"a8f883cf.1ee52",
+    "type":"save",
+    "name":"Mark ipaddress available",
+    "xml":"<save plugin='`$tmp.sql.plugin`' resource='IPADDR' key=\"UPDATE IPV4_ADDRESS_POOL set status='AVAILABLE' where universe='VGW' and ipv4_addr = $tmp.manageIpaddr.ip\" force='false'>\n\n",
+    "comments":"",
+    "outputs":1,
+    "x":1411,
+    "y":431,
+    "z":"ee2bc85b.58f498",
+    "wires":[
+      [
+
+      ]
+    ]
+  }
+]

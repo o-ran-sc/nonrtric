@@ -1,0 +1,1028 @@
+[
+    {
+        "id": "d865558f.8efaa8",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 117.14286041259766,
+        "y": 84.28571319580078,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "846785d8.683638"
+            ]
+        ]
+    },
+    {
+        "id": "846785d8.683638",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 231.0952377319336,
+        "y": 124.52383422851562,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "d2d2a3b0.5e5cf"
+            ]
+        ]
+    },
+    {
+        "id": "d2d2a3b0.5e5cf",
+        "type": "method",
+        "name": "method port-mirror-topology-operation-mapping-vprobe",
+        "xml": "<method rpc='port-mirror-topology-operation-mapping-vprobe' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 258.42864990234375,
+        "y": 165.71428680419922,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "67b4d64c.e399f8"
+            ]
+        ]
+    },
+    {
+        "id": "95f0422f.b3d2c",
+        "type": "comment",
+        "name": "port-mirror-topology-operation-mapping-vprobe",
+        "info": "",
+        "comments": "",
+        "x": 511.4877166748047,
+        "y": 31.87205696105957,
+        "z": "660eb50b.12658c",
+        "wires": []
+    },
+    {
+        "id": "aa8038f.fd261c8",
+        "type": "for",
+        "name": "for each source vnfc-object",
+        "xml": "<for silentFailure='true' index='vnfc-so-idx' start='0' end='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 412.14302825927734,
+        "y": 834.618974685669,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "3837ea89.85c4d6"
+            ]
+        ]
+    },
+    {
+        "id": "3837ea89.85c4d6",
+        "type": "for",
+        "name": "for each source vnic",
+        "xml": "<for silentFailure='true' index='vnic-s-idx' start='0' end='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-so-idx].vnics.vnic_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 653.8096923828125,
+        "y": 834.0460891723633,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "833c3032.ce493"
+            ]
+        ]
+    },
+    {
+        "id": "8cb72a4d.cda468",
+        "type": "for",
+        "name": "for each dest vnfc-object",
+        "xml": "<for silentFailure='true' index='vnfc-do-idx' start='0' end='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1092.33349609375,
+        "y": 733.9510021209717,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "5e36f7e6.7d7318"
+            ]
+        ]
+    },
+    {
+        "id": "5e36f7e6.7d7318",
+        "type": "for",
+        "name": "for each dest vnic",
+        "xml": "<for silentFailure='true' index='vnic-d-idx' start='0' end='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1314.7146072387695,
+        "y": 733.3326072692871,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "13722054.5e929"
+            ]
+        ]
+    },
+    {
+        "id": "9c27bf76.2cc07",
+        "type": "switchNode",
+        "name": "enough capacity?",
+        "xml": "<switch test='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-so-idx].vnics.vnic[$vnic-s-idx].capacity.vnic-capacity\n  &lt;= $tmp.rem-cap`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1693.048080444336,
+        "y": 758.2370805740356,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "50e739ed.9ece08"
+            ]
+        ]
+    },
+    {
+        "id": "13722054.5e929",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1504.0004272460938,
+        "y": 732.5232133865356,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "5ec61bd2.c386d4",
+                "9c27bf76.2cc07"
+            ]
+        ]
+    },
+    {
+        "id": "5ec61bd2.c386d4",
+        "type": "set",
+        "name": "set remaining capacity",
+        "xml": "<set>\n<parameter name='tmp.rem-cap' value='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic[$vnic-d-idx].capacity.vnic-capacity\n  - $service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic[$vnic-d-idx].capacity.used-capacity`' />\n",
+        "comments": "",
+        "x": 1706.6194534301758,
+        "y": 705.8562164306641,
+        "z": "660eb50b.12658c",
+        "wires": []
+    },
+    {
+        "id": "50e739ed.9ece08",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1860.4287872314453,
+        "y": 757.6658725738525,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "ee37c9ea.374c38"
+            ]
+        ]
+    },
+    {
+        "id": "80910918.dbf9d8",
+        "type": "set",
+        "name": "add to used-capacity",
+        "xml": "<set>\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.save-vnfc-do-idx].vnics.vnic[$tmp.save-vnic-d-idx].capacity.used-capacity'\n  value='`$tmp.src-pps + $service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.save-vnfc-do-idx].vnics.vnic[$tmp.save-vnic-d-idx].capacity.used-capacity`' />\n",
+        "comments": "",
+        "x": 1082.3334579467773,
+        "y": 914.6179370880127,
+        "z": "660eb50b.12658c",
+        "wires": []
+    },
+    {
+        "id": "2a8d0015.ea3c6",
+        "type": "set",
+        "name": "set source-to-dest-map",
+        "xml": "<set>\n<parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].source-port-id'\n  value='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-so-idx].vnics.vnic[$vnic-s-idx].vnic-port-id`' />\n<parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].source-port-name'\n  value='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-so-idx].vnics.vnic[$vnic-s-idx].vnic-port-name`' />\n<parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].source-vserver-id'\n  value='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-so-idx].vserver-id`' />\n\n<parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].dest-port-id'\n  value='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.save-vnfc-do-idx].vnics.vnic[$tmp.save-vnic-d-idx].vnic-port-id`' />\n<parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].dest-port-name'\n  value='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.save-vnfc-do-idx].vnics.vnic[$tmp.save-vnic-d-idx].vnic-port-name`' />\n<parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].dest-vserver-id'\n  value='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.save-vnfc-do-idx].vserver-id`' />\n\n<parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].dest-ip-addresses.ip-addresses.ipv4-address'\n  value='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.save-vnfc-do-idx].vnics.vnic[$tmp.save-vnic-d-idx].vnic-ip-addresses.ip-addresses.ipv4-address`' />\n<parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].dest-ip-addresses.ip-addresses.ipv6-address'\n  value='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.save-vnfc-do-idx].vnics.vnic[$tmp.save-vnic-d-idx].vnic-ip-addresses.ip-addresses.ipv6-address`' />\n",
+        "comments": "",
+        "x": 1089.0001525878906,
+        "y": 957.9512882232666,
+        "z": "660eb50b.12658c",
+        "wires": []
+    },
+    {
+        "id": "342ed31a.7fb37c",
+        "type": "set",
+        "name": "set tmp.found-capacity=N",
+        "xml": "<set>\n<parameter name='tmp.found-capacity' value='N' />\n<parameter name='tmp.save-rem-cap' value='0' />\n",
+        "comments": "",
+        "x": 1097.0956268310547,
+        "y": 684.903995513916,
+        "z": "660eb50b.12658c",
+        "wires": []
+    },
+    {
+        "id": "d265eabd.0ec438",
+        "type": "switchNode",
+        "name": "switch found-capacity == N?",
+        "xml": "<switch test=\"`$tmp.found-capacity == 'N'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1100.428955078125,
+        "y": 799.9037551879883,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "16e3151a.db68db"
+            ]
+        ]
+    },
+    {
+        "id": "16e3151a.db68db",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1297.5717010498047,
+        "y": 800.2611198425293,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "78769168.05467"
+            ]
+        ]
+    },
+    {
+        "id": "833c3032.ce493",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 854.476448059082,
+        "y": 834.1895208358765,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "342ed31a.7fb37c",
+                "8cb72a4d.cda468",
+                "d265eabd.0ec438",
+                "80910918.dbf9d8",
+                "2a8d0015.ea3c6",
+                "7030b73e.7416d8"
+            ]
+        ]
+    },
+    {
+        "id": "9021e5af.5cc618",
+        "type": "set",
+        "name": "set map-idx to 0",
+        "xml": "<set>\n<parameter name='map-idx' value='0' />\n",
+        "comments": "",
+        "x": 379.2382507324219,
+        "y": 620.6177444458008,
+        "z": "660eb50b.12658c",
+        "wires": []
+    },
+    {
+        "id": "7030b73e.7416d8",
+        "type": "set",
+        "name": "increment map-idx",
+        "xml": "<set>\n<parameter name='map-idx' value='`$map-idx + 1`' />\n",
+        "comments": "",
+        "x": 1073.0000839233398,
+        "y": 1003.9514389038086,
+        "z": "660eb50b.12658c",
+        "wires": []
+    },
+    {
+        "id": "ee37c9ea.374c38",
+        "type": "switchNode",
+        "name": "is there an ipv4-address?",
+        "xml": "<switch test='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic[$vnic-d-idx].vnic-ip-addresses.ip-addresses.ipv4-address`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2050.3812103271484,
+        "y": 758.2372093200684,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "42d3f046.6533e",
+                "3e7e4f38.7c3b3"
+            ]
+        ]
+    },
+    {
+        "id": "42d3f046.6533e",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2250.381191253662,
+        "y": 756.8089141845703,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "9898c47b.17dc68"
+            ]
+        ]
+    },
+    {
+        "id": "9898c47b.17dc68",
+        "type": "switchNode",
+        "name": "is there an ipv6-address?",
+        "xml": "<switch test='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic[$vnic-d-idx].vnic-ip-addresses.ip-addresses.ipv6-address`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2444.6669692993164,
+        "y": 755.380163192749,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "7758eb3f.b453a4",
+                "bbcfc415.922a78"
+            ]
+        ]
+    },
+    {
+        "id": "7758eb3f.b453a4",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2637.524269104004,
+        "y": 753.951696395874,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "d7f88536.7fca88"
+            ]
+        ]
+    },
+    {
+        "id": "3e7e4f38.7c3b3",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2247.5240478515625,
+        "y": 803.9515285491943,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "2648638f.48dc3c"
+            ]
+        ]
+    },
+    {
+        "id": "bbcfc415.922a78",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2634.667018890381,
+        "y": 799.6659545898438,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "2648638f.48dc3c"
+            ]
+        ]
+    },
+    {
+        "id": "d7f88536.7fca88",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2794.667091369629,
+        "y": 751.094518661499,
+        "z": "660eb50b.12658c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "194fd5ff.1b122a",
+        "type": "comment",
+        "name": "Found a usable destination port",
+        "info": "",
+        "comments": "",
+        "x": 1118.4765014648438,
+        "y": 867.9990339279175,
+        "z": "660eb50b.12658c",
+        "wires": []
+    },
+    {
+        "id": "67b4d64c.e399f8",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 137.14286041259766,
+        "y": 805.9523487091064,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "9021e5af.5cc618",
+                "aa8038f.fd261c8",
+                "3812658a.229d9a",
+                "d45ff25c.78723",
+                "aba11878.3d0528",
+                "7f4adf17.47b08",
+                "e3e68421.71a8b8",
+                "a97afc7d.c209b",
+                "3600f5af.f19cca"
+            ]
+        ]
+    },
+    {
+        "id": "78769168.05467",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"`'No capacity for source interface '\n  + $service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-so-idx].vnics.vnic[$vnic-s-idx].vnic-port-id`\" />\n",
+        "comments": "",
+        "x": 1482.8097114562988,
+        "y": 801.4523735046387,
+        "z": "660eb50b.12658c",
+        "wires": []
+    },
+    {
+        "id": "3812658a.229d9a",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name='' value='' />\n",
+        "comments": "",
+        "x": 373.1429748535156,
+        "y": 1290.6190147399902,
+        "z": "660eb50b.12658c",
+        "wires": []
+    },
+    {
+        "id": "60f2dbb9.ae8cd4",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 712.142822265625,
+        "y": 289.2857131958008,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "8cddc4c2.57a498"
+            ]
+        ]
+    },
+    {
+        "id": "639eed7b.da1bd4",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 720.7142581939697,
+        "y": 332.57142639160156,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "608970aa.edcc1"
+            ]
+        ]
+    },
+    {
+        "id": "d45ff25c.78723",
+        "type": "get-resource",
+        "name": "get-resource VNICS_CAPACITY_GROUP",
+        "xml": "<get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key='select vnics_group_id\n    from VNICS_CAPACITY_GROUP\n    where service_instance_id = $tmp.service-instance-id\n    and nfc_naming_code = $tmp.dest-nfc-naming-code\n    and vnf_id = $tmp.dest-vnf-id'\n  pfx='db'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 459.21429443359375,
+        "y": 315.0477695465088,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "60f2dbb9.ae8cd4",
+                "639eed7b.da1bd4"
+            ]
+        ]
+    },
+    {
+        "id": "8cddc4c2.57a498",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"Failure reading VNICS_CAPACITY_GROUP table\" />\n",
+        "comments": "",
+        "x": 880.4761505126953,
+        "y": 287.61901664733887,
+        "z": "660eb50b.12658c",
+        "wires": []
+    },
+    {
+        "id": "608970aa.edcc1",
+        "type": "save",
+        "name": "save VNICS_CAPACITY_GROUP",
+        "xml": "<save plugin=\"org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource\" resource=\"SQL\"\n\tkey=\"insert into VNICS_CAPACITY_GROUP \n\t  (service_instance_id, nfc_naming_code, vnf_id)\n\t  VALUES ( $tmp.service-instance-id , $tmp.dest-nfc-naming-code , $tmp.dest-vnf-id )\"\n\tpfx='pfx' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 938.8094787597656,
+        "y": 330.95237255096436,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "94fe9e7b.6e187",
+                "a7412aee.970778"
+            ]
+        ]
+    },
+    {
+        "id": "94fe9e7b.6e187",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1170.4759979248047,
+        "y": 309.28586769104004,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "dae1ca1a.80ef58"
+            ]
+        ]
+    },
+    {
+        "id": "7f8c369a.933558",
+        "type": "execute",
+        "name": "printContext",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >\n<parameter name='filename' value='/var/tmp/bgb-vnics.log' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 364.4762268066406,
+        "y": 359.2857437133789,
+        "z": "660eb50b.12658c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "dae1ca1a.80ef58",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"Failure to insert record into VNICS_CAPACITY_GROUP table\" />\n",
+        "comments": "",
+        "x": 1322.1427421569824,
+        "y": 308.61905574798584,
+        "z": "660eb50b.12658c",
+        "wires": []
+    },
+    {
+        "id": "a7412aee.970778",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1173.8094940185547,
+        "y": 355.95239448547363,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "746962c4.c67a7c"
+            ]
+        ]
+    },
+    {
+        "id": "746962c4.c67a7c",
+        "type": "get-resource",
+        "name": "get-resource VNICS_CAPACITY_GROUP",
+        "xml": "<get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key='select vnics_group_id\n    from VNICS_CAPACITY_GROUP\n    where service_instance_id = $tmp.service-instance-id\n    and nfc_naming_code = $tmp.dest-nfc-naming-code\n    and vnf_id = $tmp.dest-vnf-id'\n  pfx='db'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1413.8095397949219,
+        "y": 354.2856864929199,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "5f3550c3.13f43"
+            ]
+        ]
+    },
+    {
+        "id": "5f3550c3.13f43",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1655.4761009216309,
+        "y": 352.6190195083618,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "c948a7c1.8a3228"
+            ]
+        ]
+    },
+    {
+        "id": "c948a7c1.8a3228",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"Failure reading VNICS_CAPACITY_GROUP table\" />\n",
+        "comments": "",
+        "x": 1823.8094291687012,
+        "y": 350.9523229598999,
+        "z": "660eb50b.12658c",
+        "wires": []
+    },
+    {
+        "id": "aba11878.3d0528",
+        "type": "for",
+        "name": "for each dest vnfc-object",
+        "xml": "<for silentFailure='true' index='vnfc-do-idx' start='0' end='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 407.14293670654297,
+        "y": 520.6189937591553,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "ba61fc56.2bff3"
+            ]
+        ]
+    },
+    {
+        "id": "ba61fc56.2bff3",
+        "type": "for",
+        "name": "for each dest vnic",
+        "xml": "<for silentFailure='true' index='vnic-d-idx' start='0' end='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 637.1430130004883,
+        "y": 520.6189823150635,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "3429f2b4.06a52e"
+            ]
+        ]
+    },
+    {
+        "id": "3429f2b4.06a52e",
+        "type": "get-resource",
+        "name": "get-resource VNICS_CAPACITY",
+        "xml": "<get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key='select available_capacity, vnic_capacity\n    from VNICS_CAPACITY\n    where vnics_group_id = $db.vnics-group-id\n    and vnic_port_name = $service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic[$vnic-d-idx].vnic-port-name'\n  pfx='db.vnics-capacity'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 883.8098297119141,
+        "y": 520.6189737319946,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "363cb986.7e0746",
+                "fda3755.4ca4688",
+                "6169bfbf.6fa9c"
+            ]
+        ]
+    },
+    {
+        "id": "363cb986.7e0746",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1107.1429595947266,
+        "y": 470.61901473999023,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "ce11a3a3.c1403"
+            ]
+        ]
+    },
+    {
+        "id": "ce11a3a3.c1403",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"Failure reading VNICS_CAPACITY_GROUP table\" />\n",
+        "comments": "",
+        "x": 1275.4762878417969,
+        "y": 468.9523181915283,
+        "z": "660eb50b.12658c",
+        "wires": []
+    },
+    {
+        "id": "fda3755.4ca4688",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1115.4762954711914,
+        "y": 523.9523372650146,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "41079a08.942214"
+            ]
+        ]
+    },
+    {
+        "id": "41079a08.942214",
+        "type": "save",
+        "name": "save VNICS_CAPACITY",
+        "xml": "<save plugin=\"org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource\" resource=\"SQL\"\n\tkey=\"insert into VNICS_CAPACITY \n\t  (vnics_group_id, vnic_port_name, available_capacity, vnic_capacity)\n\t  VALUES ( $db.vnics-group-id ,\n\t    $service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic[$vnic-d-idx].vnic-port-name ,\n\t    $service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic[$vnic-d-idx].capacity.vnic-capacity ,\n\t    $service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic[$vnic-d-idx].capacity.vnic-capacity\n\t    )\"\n\tpfx='pfx' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1312.1430053710938,
+        "y": 523.9523277282715,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "6a32b892.8f68f8"
+            ]
+        ]
+    },
+    {
+        "id": "6a32b892.8f68f8",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1510.476276397705,
+        "y": 522.2856945991516,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "a8fbb0ff.039e6"
+            ]
+        ]
+    },
+    {
+        "id": "a8fbb0ff.039e6",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"Failure to insert record into VNICS_CAPACITY table\" />\n",
+        "comments": "",
+        "x": 1662.1430206298828,
+        "y": 521.6188826560974,
+        "z": "660eb50b.12658c",
+        "wires": []
+    },
+    {
+        "id": "6169bfbf.6fa9c",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1115.476417541504,
+        "y": 580.6189975738525,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "91c7d1c5.6a47a"
+            ]
+        ]
+    },
+    {
+        "id": "91c7d1c5.6a47a",
+        "type": "set",
+        "name": "set vnic-capacity",
+        "xml": "<set>\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic[$vnic-d-idx].capacity.vnic-capacity'\n  value='`$db.vnics-capacity.available-capacity`' />\n",
+        "comments": "",
+        "x": 1285.4762573242188,
+        "y": 580.6189765930176,
+        "z": "660eb50b.12658c",
+        "wires": []
+    },
+    {
+        "id": "7f4adf17.47b08",
+        "type": "set",
+        "name": "set source-to-dest-map_length",
+        "xml": "<set>\n<parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map_length'\n  value='`$map-idx`' />\n",
+        "comments": "",
+        "x": 426.47618865966797,
+        "y": 1052.2857131958008,
+        "z": "660eb50b.12658c",
+        "wires": []
+    },
+    {
+        "id": "2648638f.48dc3c",
+        "type": "switchNode",
+        "name": "is this is most remaining capacity so far?",
+        "xml": "<switch test='`$tmp.rem-cap &gt; $tmp.save-rem-cap`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2254.47664642334,
+        "y": 880.6190948486328,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "813e25b7.580f58"
+            ]
+        ]
+    },
+    {
+        "id": "813e25b7.580f58",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2501.1432189941406,
+        "y": 878.9523334503174,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "56ba6414.9f4ccc"
+            ]
+        ]
+    },
+    {
+        "id": "56ba6414.9f4ccc",
+        "type": "set",
+        "name": "set found-capacity and save vnic",
+        "xml": "<set>\n<parameter name='tmp.found-capacity' value='Y' />\n<parameter name='tmp.save-vnfc-do-idx' value='`$vnfc-do-idx`' />\n<parameter name='tmp.save-vnic-d-idx' value='`$vnic-d-idx`' />\n<parameter name='tmp.save-rem-cap' value='`$tmp.rem-cap`' />\n",
+        "comments": "",
+        "x": 2757.8097610473633,
+        "y": 878.9523677825928,
+        "z": "660eb50b.12658c",
+        "wires": []
+    },
+    {
+        "id": "e3e68421.71a8b8",
+        "type": "for",
+        "name": "for each dest vnfc-object",
+        "xml": "<for silentFailure='true' index='vnfc-do-idx' start='0' end='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 409.80950927734375,
+        "y": 1112.2857131958008,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "e42814ea.b0ea28"
+            ]
+        ]
+    },
+    {
+        "id": "e42814ea.b0ea28",
+        "type": "for",
+        "name": "for each dest vnic",
+        "xml": "<for silentFailure='true' index='vnic-d-idx' start='0' end='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 639.8096008300781,
+        "y": 1112.285701751709,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "999a9dbf.6d329"
+            ]
+        ]
+    },
+    {
+        "id": "e98ed9b2.d66598",
+        "type": "update",
+        "name": "update VNICS_CAPACITY",
+        "xml": "<update plugin=\"org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource\" resource=\"SQL\"\nkey=\"update VNICS_CAPACITY\n     set available_capacity = $tmp.avail-capacity\n     where vnics_group_id = $db.vnics-group-id\n     and vnic_port_name = $service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic[$vnic-d-idx].vnic-port-name\n\" >",
+        "comments": "",
+        "outputs": 1,
+        "x": 1063.142837524414,
+        "y": 1163.9522199630737,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "e37dddbd.93743"
+            ]
+        ]
+    },
+    {
+        "id": "e37dddbd.93743",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1279.809413909912,
+        "y": 1162.2856788635254,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "9a4f7649.32e9d8"
+            ]
+        ]
+    },
+    {
+        "id": "9a4f7649.32e9d8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Failure updating VNICS_CAPACITY table\" />\n",
+        "comments": "",
+        "x": 1448.1427536010742,
+        "y": 1160.4287452697754,
+        "z": "660eb50b.12658c",
+        "wires": []
+    },
+    {
+        "id": "999a9dbf.6d329",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 826.4761505126953,
+        "y": 1110.6189651489258,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "59c4c4cf.8c1e7c",
+                "61833831.c63cb8",
+                "e98ed9b2.d66598"
+            ]
+        ]
+    },
+    {
+        "id": "59c4c4cf.8c1e7c",
+        "type": "get-resource",
+        "name": "get-resource VNICS_CAPACITY",
+        "xml": "<get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key='select available_capacity\n    from VNICS_CAPACITY\n    where vnics_group_id = $db.vnics-group-id\n    and vnic_port_name = $service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic[$vnic-d-idx].vnic-port-name'\n  pfx='db.vnics-capacity'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1081.4761085510254,
+        "y": 1060.618984222412,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "bcb1f86a.023148"
+            ]
+        ]
+    },
+    {
+        "id": "61833831.c63cb8",
+        "type": "set",
+        "name": "set new available capacity",
+        "xml": "<set>\n<parameter name='tmp.original-avail-capacity' value='`$db.vnics-capacity.available-capacity`' />\n<parameter name='tmp.original-used-capacity' value='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic[$vnic-d-idx].capacity.used-capacity`' />\n<parameter name='tmp.avail-capacity' value='`$db.vnics-capacity.available-capacity - $service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic[$vnic-d-idx].capacity.used-capacity`' />\n",
+        "comments": "",
+        "x": 1061.4761695861816,
+        "y": 1112.2856330871582,
+        "z": "660eb50b.12658c",
+        "wires": []
+    },
+    {
+        "id": "bcb1f86a.023148",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1304.8094635009766,
+        "y": 1058.9523391723633,
+        "z": "660eb50b.12658c",
+        "wires": [
+            [
+                "a87c2664.36e398"
+            ]
+        ]
+    },
+    {
+        "id": "a87c2664.36e398",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Failure reading VNICS_CAPACITY table\" />\n",
+        "comments": "",
+        "x": 1473.1428031921387,
+        "y": 1057.0954055786133,
+        "z": "660eb50b.12658c",
+        "wires": []
+    },
+    {
+        "id": "a97afc7d.c209b",
+        "type": "save",
+        "name": "save VNICS_CONFIGURATION_ID",
+        "xml": "<save plugin=\"org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource\" resource=\"SQL\"\n\tkey=\"insert into VNICS_CONFIGURATION_ID\n\t(configuration_id, vnics_group_id)\n\tvalues ( $tmp.configuration-id , $db.vnics-group-id )\"\n\tpfx='pfx' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 439.8095245361328,
+        "y": 1223.9523391723633,
+        "z": "660eb50b.12658c",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3600f5af.f19cca",
+        "type": "set",
+        "name": "set vnics-group-id",
+        "xml": "<set>\n<parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.vnics-group-id'\n  value='`$db.vnics-group-id`' />\n",
+        "comments": "",
+        "x": 383.4761962890625,
+        "y": 424.2857131958008,
+        "z": "660eb50b.12658c",
+        "wires": []
+    }
+]

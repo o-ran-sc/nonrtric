@@ -1,0 +1,624 @@
+[
+    {
+        "id": "a336222.57d48e",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 223.03125,
+        "y": 256.03125,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            [
+                "825ef52.3a00b08"
+            ]
+        ]
+    },
+    {
+        "id": "825ef52.3a00b08",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 583.0308990478516,
+        "y": 257.0312719345093,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            [
+                "b1e4bf68.32817"
+            ]
+        ]
+    },
+    {
+        "id": "b1e4bf68.32817",
+        "type": "method",
+        "name": "method:bbs-internet-profile-network-topology-operation-create-huawei",
+        "xml": "<method rpc='bbs-internet-profile-network-topology-operation-create-huawei' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 581.0309143066406,
+        "y": 477.0313491821289,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            [
+                "5c27c5cc.716a9c"
+            ]
+        ]
+    },
+    {
+        "id": "5c27c5cc.716a9c",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1005.0311126708984,
+        "y": 476.0313491821289,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            [
+                "df661865.6ac258",
+                "ace54c5f.9cbb7",
+                "b56478eb.baf7f8",
+                "67bc1d3.308aae4"
+            ]
+        ]
+    },
+    {
+        "id": "df661865.6ac258",
+        "type": "call",
+        "name": "call:bbs-internet-profile-network-topology-operation-common-huawei",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='bbs-internet-profile-network-topology-operation-common-huawei' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1521.0314025878906,
+        "y": 389.0312690734863,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ace54c5f.9cbb7",
+        "type": "execute",
+        "name": "execute:CreateInternetProfileInstance",
+        "xml": "<execute plugin=\"org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode\" method=\"sendRequest\">\n    <parameter name=\"templateFileName\" value=\"`$prop.restapi.templateDir + '/bbs-internet-profile-operation.json'`\" />\n    <parameter name=\"restapiUrl\" value=\"`$prop.sdncRestApi.thirdpartySdnc.url + '/CreateInternetProfileInstance'`\" />\n    <parameter name=\"contentType\" value=\"application/json\"/>\n    <parameter name=\"httpMethod\" value=\"post\"/>\n    <parameter name=\"responsePrefix\" value=\"service-result\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1410.6820373535156,
+        "y": 474.9920845031738,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            [
+                "d900182d.b78f38",
+                "632d7421.f9066c"
+            ]
+        ]
+    },
+    {
+        "id": "632d7421.f9066c",
+        "type": "outcome",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1712.0150184631348,
+        "y": 474.9920845031738,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            [
+                "ab6b3ce2.e4f21"
+            ]
+        ]
+    },
+    {
+        "id": "d900182d.b78f38",
+        "type": "outcome",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1721.0149307250977,
+        "y": 549.9920864105225,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            [
+                "3236773.1989488"
+            ]
+        ]
+    },
+    {
+        "id": "3236773.1989488",
+        "type": "switchNode",
+        "name": "switch:service-result",
+        "xml": "<switch test=\"`$service-result.errors.error[0].error-message`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1956.0310516357422,
+        "y": 549.0313816070557,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            [
+                "1a5d7765.109479",
+                "57a6d69.9382728"
+            ]
+        ]
+    },
+    {
+        "id": "ab6b3ce2.e4f21",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='ack-final' value='Y'/>\n<parameter name=\"error-code\" value=\"500\" />\n<parameter name=\"error-message\" value=\"Error failed to call CreateInternetProfileInstance\" />\n",
+        "comments": "",
+        "x": 2224.282148361206,
+        "y": 475.281587600708,
+        "z": "aab7ce65.cac3d",
+        "wires": []
+    },
+    {
+        "id": "1a5d7765.109479",
+        "type": "outcome",
+        "name": "Other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2182.031391143799,
+        "y": 550.0314750671387,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            [
+                "8eb57923.9623f8"
+            ]
+        ]
+    },
+    {
+        "id": "57a6d69.9382728",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2192.0310974121094,
+        "y": 636.0313415527344,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            [
+                "4e694f8b.fdd2b"
+            ]
+        ]
+    },
+    {
+        "id": "8eb57923.9623f8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='ack-final' value='Y'/>\n<parameter name=\"error-code\" value=\"500\" />\n<parameter name=\"error-message\" value=\"`'Error CreateInternetProfileInstance return: '+$service-result.errors.error[0].error-message`\" />\n\n",
+        "comments": "",
+        "x": 2368.5310592651367,
+        "y": 550.0313119888306,
+        "z": "aab7ce65.cac3d",
+        "wires": []
+    },
+    {
+        "id": "4e694f8b.fdd2b",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2350.197727203369,
+        "y": 637.0313167572021,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b56478eb.baf7f8",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+        "comments": "",
+        "x": 1315.5311737060547,
+        "y": 1274.031442642212,
+        "z": "aab7ce65.cac3d",
+        "wires": []
+    },
+    {
+        "id": "7577071d.7f2498",
+        "type": "save",
+        "name": "save:generic-vnf",
+        "xml": "<save plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" resource=\"generic-vnf\" key=\"generic-vnf.vnf-id = $vnf-id\" >\n<parameter name= \"vnf-id\" value = \"`$vnf-id`\"/>\n<parameter name=  \"vnf-name\" value = \"`$vnf-name`\"/>\n<parameter name=  \"vnf-type\" value = \"InternetProfile\"/>\n<parameter name=  \"service-id\" value = \"`$network-topology-operation-input.service-information.service-id`\"/>\n<parameter name=  \"prov-status\" value = \"ACTIVE\"/>\n<parameter name=  \"orchestration-status\" value = \"Active\"/>\n<parameter name=  \"is-closed-loop-disabled\" value = \"false\" />\n<parameter name=  \"model-invariant-id\" value = \"`$network-topology-operation-input.network-information.onap-model-information.model-invariant-uuid`\"/>\n<parameter name=  \"model-version-id\" value = \"`$network-topology-operation-input.network-information.onap-model-information.model-uuid`\"/>\n<parameter name=  \"model-customization-id\" value = \"`$network-topology-operation-input.network-information.onap-model-information.model-customization-uuid`\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1594.0624866485596,
+        "y": 940.062463760376,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            [
+                "de67643d.0a9048",
+                "508bcbf7.e76f04",
+                "840edff8.2907d"
+            ]
+        ]
+    },
+    {
+        "id": "de67643d.0a9048",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1830.2843418121338,
+        "y": 811.9512214660645,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            [
+                "fe5bd03.02c593"
+            ]
+        ]
+    },
+    {
+        "id": "508bcbf7.e76f04",
+        "type": "failure",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1841.260160446167,
+        "y": 871.9670777320862,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            [
+                "703dd65f.36e058"
+            ]
+        ]
+    },
+    {
+        "id": "fe5bd03.02c593",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Failure calling AAI to save generic-vnf\" />\n",
+        "comments": "",
+        "x": 2066.4268894195557,
+        "y": 811.5226864814758,
+        "z": "aab7ce65.cac3d",
+        "wires": []
+    },
+    {
+        "id": "703dd65f.36e058",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"generic-vnf instance does not exist in AAI\" />\n",
+        "comments": "",
+        "x": 2061.3076877593994,
+        "y": 872.4433922767639,
+        "z": "aab7ce65.cac3d",
+        "wires": []
+    },
+    {
+        "id": "840edff8.2907d",
+        "type": "outcome",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1834.8709659576416,
+        "y": 937.0935578346252,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d7aa4847.5acd58",
+        "type": "record",
+        "name": "log file",
+        "xml": " <record plugin=\"org.onap.ccsdk.sli.core.sli.recording.FileRecorder\">\n    <parameter name=\"file\" value=\"/opt/oak/logx.txt\" />\n    <parameter name=\"field1\" value=\"save generic-vnf success!\" />\n    ",
+        "comments": "",
+        "outputs": 1,
+        "x": 2042.8712196350098,
+        "y": 935.0936870574951,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5fc61219.65927c",
+        "type": "save",
+        "name": "save:metadata",
+        "xml": "<save plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" resource=\"service-instance:metadata\"\n key=\"service-instance.service-instance-id = $network-topology-operation-input.service-information.service-id  \n\tAND customer.global-customer-id = $network-topology-operation-input.service-information.global-customer-id\n\t  AND service-subscription.service-type = $network-topology-operation-input.service-information.subscription-service-type\n\t  AND service-instance.service-instance-id =  $network-topology-operation-input.service-information.service-instance-id\"  force=\"true\" pfx=\"tmp.AnAI-data\">\n    <parameter name=\"metadata.metadatum[0].metaname\" value=\"service-type\" />\n    <parameter name=\"metadata.metadatum[0].metaval\" value=\"`$prop.bbs.service_type`\" />\n    <parameter name=\"metadata.metadatum[1].metaname\" value=\"up-speed\" />\n    <parameter name=\"metadata.metadatum[1].metaval\" value=\"`$prop.bbs.up_speed`\" />\n    <parameter name=\"metadata.metadatum[2].metaname\" value=\"down-speed\" />\n    <parameter name=\"metadata.metadatum[2].metaval\" value=\"`$prop.bbs.down_speed`\" />\n    <parameter name=\"metadata.metadatum[3].metaname\" value=\"cvlan\" />\n    <parameter name=\"metadata.metadatum[3].metaval\" value=\"`$prop.bbs.c_vlan`\" />\n    <parameter name=\"metadata.metadatum[4].metaname\" value=\"svlan\" />\n    <parameter name=\"metadata.metadatum[4].metaval\" value=\"`$prop.bbs.s_vlan`\" />\n    <parameter name=\"metadata.metadatum[5].metaname\" value=\"expected-ont-id\" />\n    <parameter name=\"metadata.metadatum[5].metaval\" value=\"`$prop.bbs.ont_sn`\" />\n    <parameter name=\"metadata.metadatum[6].metaname\" value=\"rgw-mac-address\" />\n    <parameter name=\"metadata.metadatum[6].metaval\" value=\"`$prop.bbs.mac`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1592.5618381500244,
+        "y": 1092.0622310638428,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            [
+                "9b60d426.7e33d8",
+                "c2480a0e.1b1478",
+                "a17ec97.b6aa738"
+            ]
+        ]
+    },
+    {
+        "id": "9b60d426.7e33d8",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1823.037347793579,
+        "y": 1023.4268345832825,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            [
+                "54deb41c.97ae6c"
+            ]
+        ]
+    },
+    {
+        "id": "c2480a0e.1b1478",
+        "type": "failure",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1835.0135097503662,
+        "y": 1093.4427680969238,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            [
+                "15a91907.6a2f77"
+            ]
+        ]
+    },
+    {
+        "id": "54deb41c.97ae6c",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Failure calling AAI to save metadatum\" />\n",
+        "comments": "",
+        "x": 2063.1801433563232,
+        "y": 1021.998336315155,
+        "z": "aab7ce65.cac3d",
+        "wires": []
+    },
+    {
+        "id": "15a91907.6a2f77",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"metadatum instance does not exist in AAI\" />\n",
+        "comments": "",
+        "x": 2060.0610427856445,
+        "y": 1092.9190044403076,
+        "z": "aab7ce65.cac3d",
+        "wires": []
+    },
+    {
+        "id": "a17ec97.b6aa738",
+        "type": "outcome",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1829.6242198944092,
+        "y": 1163.5692076683044,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e577d9f5.accf98",
+        "type": "record",
+        "name": "log file",
+        "xml": " <record plugin=\"org.onap.ccsdk.sli.core.sli.recording.FileRecorder\">\n    <parameter name=\"file\" value=\"/opt/oak/logx.txt\" />\n    <parameter name=\"field1\" value=\"save metadatum success!\" />\n    ",
+        "comments": "",
+        "outputs": 1,
+        "x": 2040.6242198944092,
+        "y": 1163.5692076683044,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "67bc1d3.308aae4",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1289.196086883545,
+        "y": 814.0310153961182,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            [
+                "7577071d.7f2498",
+                "5fc61219.65927c",
+                "6fa2d919.edbe98",
+                "a47acb9b.a35478",
+                "3aa091fc.f969ae"
+            ]
+        ]
+    },
+    {
+        "id": "6fa2d919.edbe98",
+        "type": "set",
+        "name": "set:variables",
+        "xml": "<set>\n<parameter name='vnf-id' value=\"`$prop.random-data-list[3]`\"/>\n<parameter name='vnf-name' value=\"`'vnf-'+$prop.random-data-list[4]`\"/>\n",
+        "comments": "",
+        "x": 1577.1964359283447,
+        "y": 810.364013671875,
+        "z": "aab7ce65.cac3d",
+        "wires": []
+    },
+    {
+        "id": "a47acb9b.a35478",
+        "type": "execute",
+        "name": "execute:generate",
+        "xml": " <execute plugin=\"org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils\" method=\"generateUUID\">\n    <parameter name=\"ctx-destination\" value=\"prop.random-data\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1598.5606498718262,
+        "y": 736.061863899231,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            [
+                "b904a8e6.00ba98"
+            ]
+        ]
+    },
+    {
+        "id": "b904a8e6.00ba98",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1827.5605926513672,
+        "y": 737.0618381500244,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            [
+                "973e3b14.e96fb8"
+            ]
+        ]
+    },
+    {
+        "id": "973e3b14.e96fb8",
+        "type": "execute",
+        "name": "execute",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >\n    <parameter name=\"ctx_memory_result_key\" value=\"prop.random-data-list\"/>\n    <parameter name=\"original_string\" value=\"`$prop.random-data`\"/>\n    <parameter name=\"regex\" value=\"-\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2018.5606498718262,
+        "y": 735.0618381500244,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            [
+                "dd3fe058.06716"
+            ]
+        ]
+    },
+    {
+        "id": "61f078a0.340828",
+        "type": "record",
+        "name": "log file",
+        "xml": " <record plugin=\"org.onap.ccsdk.sli.core.sli.recording.FileRecorder\">\n    <parameter name=\"file\" value=\"/opt/oak/logx.txt\" />\n    <parameter name=\"field1\" value=\"`$prop.random-data`\" />\n    ",
+        "comments": "",
+        "outputs": 1,
+        "x": 2350.560712814331,
+        "y": 733.0618991851807,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "dd3fe058.06716",
+        "type": "outcome",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2185.56058883667,
+        "y": 734.0618686676025,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3aa091fc.f969ae",
+        "type": "save",
+        "name": "save:relationship",
+        "xml": "<save plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" resource=\"service-instance:relationship-list\" \n      key=\"service-instance.service-instance-id =  $network-topology-operation-input.service-information.service-id\n         AND customer.global-customer-id = $network-topology-operation-input.service-information.global-customer-id\n         AND service-subscription.service-type =  $network-topology-operation-input.service-information.subscription-service-type \n         AND service-instance.service-instance-id =  $network-topology-operation-input.service-information.service-instance-id\" force=\"true\" pfx=\"tmp.AnAI-data\">\n<parameter name=\"relationship-list.relationship[0].related-to\" value=\"generic-vnf\" />\n<parameter name=\"relationship-list.relationship[0].related-link\" value=\"`'/network/generic-vnfs/generic-vnf/' + $vnf-id`\" />\n<parameter name=\"relationship-list.relationship[0].relationship-data[0].relationship-key\" value=\"generic-vnf.vnf-id\" />\n<parameter name=\"relationship-list.relationship[0].relationship-data[0].relationship-value\" value=\"`$vnf-id`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1538.03125,
+        "y": 1312.03125,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            [
+                "3b4ae4d5.3b347c",
+                "987fe733.92a5d8",
+                "73836da.8f43494"
+            ]
+        ]
+    },
+    {
+        "id": "3b4ae4d5.3b347c",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1768.5067596435547,
+        "y": 1243.3958535194397,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            [
+                "2856d517.9eb7ba"
+            ]
+        ]
+    },
+    {
+        "id": "987fe733.92a5d8",
+        "type": "failure",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1780.4829216003418,
+        "y": 1313.411787033081,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            [
+                "43a5ebe7.d55dc4"
+            ]
+        ]
+    },
+    {
+        "id": "2856d517.9eb7ba",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Failure calling AAI to save metadatum\" />\n",
+        "comments": "",
+        "x": 2008.6495552062988,
+        "y": 1241.9673552513123,
+        "z": "aab7ce65.cac3d",
+        "wires": []
+    },
+    {
+        "id": "43a5ebe7.d55dc4",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"metadatum instance does not exist in AAI\" />\n",
+        "comments": "",
+        "x": 2005.5304546356201,
+        "y": 1312.8880233764648,
+        "z": "aab7ce65.cac3d",
+        "wires": []
+    },
+    {
+        "id": "73836da.8f43494",
+        "type": "outcome",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1775.0936317443848,
+        "y": 1383.5382266044617,
+        "z": "aab7ce65.cac3d",
+        "wires": [
+            []
+        ]
+    }
+]

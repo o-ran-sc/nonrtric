@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <parent>
+        <groupId>org.onap.ccsdk.parent</groupId>
+        <artifactId>odlparent-lite</artifactId>
+        <version>1.4.3</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>pom</packaging>
+    <groupId>org.onap.sdnc.oam</groupId>
+    <artifactId>installation-ueb-listener</artifactId>
+    <version>1.7.3-SNAPSHOT</version>
+
+    <name>sdnc-oam :: installation :: ${project.artifactId}</name>
+    <description>Creates ueb-listener Docker container</description>
+
+    <properties>
+        <image.name>onap/sdnc-ueb-listener-image</image.name>
+        <sdnc.project.version>${project.version}</sdnc.project.version>
+        <sdnc.build.timestamp>${maven.build.timestamp}</sdnc.build.timestamp>
+        <ccsdk.docker.version>0.6.3</ccsdk.docker.version>
+        <docker.buildArg.https_proxy>${https_proxy}</docker.buildArg.https_proxy>
+        <docker.push.phase>deploy</docker.push.phase>
+        <maven.build.timestamp.format>yyyyMMdd'T'HHmmss'Z'</maven.build.timestamp.format>
+    </properties>
+
+
+    <build>
+        <plugins>
+
+
+            <plugin>
+                <groupId>org.codehaus.groovy.maven</groupId>
+                <artifactId>gmaven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <source>${basedir}/../TagVersion.groovy</source>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.6</version>
+                <executions>
+                    <execution>
+                        <id>copy-dockerfile</id>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals><!-- here the phase you need -->
+                        <phase>validate</phase>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/docker-stage</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/docker</directory>
+                                    <includes>
+                                        <include>Dockerfile</include>
+                                    </includes>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>copy-scripts</id>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals><!-- here the phase you need -->
+                        <phase>validate</phase>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/docker-stage/opt/onap/sdnc/ueb-listener/bin</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/scripts</directory>
+                                    <includes>
+                                        <include>*.sh</include>
+                                    </includes>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>copy-properties</id>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals><!-- here the phase you need -->
+                        <phase>validate</phase>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/docker-stage/opt/onap/sdnc/data/properties</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/properties</directory>
+                                    <includes>
+                                        <include>*</include>
+                                    </includes>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack</id>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.onap.ccsdk.sli.northbound</groupId>
+                                    <artifactId>ueb-listener</artifactId>
+                                    <type>zip</type>
+                                    <version>${ccsdk.sli.northbound.version}</version>
+                                </artifactItem>
+                            </artifactItems>
+                            <outputDirectory>${basedir}/target/docker-stage/opt/onap/sdnc/ueb-listener</outputDirectory>
+                            <excludes>bin/**,**/*-javadoc.jar,**/*-sources.jar</excludes>
+                            <overWriteReleases>true</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>exec-maven-plugin</artifactId>
+                <groupId>org.codehaus.mojo</groupId>
+                <version>1.5.0</version>
+                <executions>
+
+
+
+                    <execution>
+                        <id>change shell permissions</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>/usr/bin/find</executable>
+                            <arguments>
+                                <argument>${basedir}/target/docker-stage/opt/onap/sdnc</argument>
+                                <argument>-name</argument>
+                                <argument>*.sh</argument>
+                                <argument>-exec</argument>
+                                <argument>chmod</argument>
+                                <argument>+x</argument>
+                                <argument>{}</argument>
+                                <argument>;</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
+    </build>
+
+    <profiles>
+        <profile>
+            <id>docker</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <version>0.28.0</version>
+                        <inherited>false</inherited>
+                        <configuration>
+                            <images>
+                                <image>
+                                    <name>${image.name}</name>
+                                    <build>
+                                        <cleanup>try</cleanup>
+                                        <dockerFileDir>${basedir}/target/docker-stage</dockerFileDir>
+                                        <dockerFile>Dockerfile</dockerFile>
+                                        <tags>
+                                            <tag>${project.docker.latestminortag.version}</tag>
+                                            <tag>${project.docker.latestfulltag.version}</tag>
+                                            <tag>${project.docker.latesttagtimestamp.version}</tag>
+                                        </tags>
+                                    </build>
+                                </image>
+                            </images>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>generate-images</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                            </execution>
+
+                            <execution>
+                                <id>push-images</id>
+                                <!--<phase>deploy</phase> -->
+                                <phase>${docker.push.phase}</phase>
+                                <goals>
+                                    <goal>build</goal>
+                                    <goal>push</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+    <organization>
+        <name>ONAP</name>
+    </organization>
+</project>

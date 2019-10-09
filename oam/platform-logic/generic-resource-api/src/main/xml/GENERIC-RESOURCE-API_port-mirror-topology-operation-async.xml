@@ -1,0 +1,88 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='port-mirror-topology-operation-async' mode='sync'>
+        <block atomic="true">
+            <switch test='`$port-mirror-topology-operation-input.configuration-information.configuration-sub-type`'>
+                <outcome value='pprobe'>
+                    <set>
+                        <parameter name='port-mirror-topology-operation-input.configuration-information.configuration-sub-type' value='pprobe' />
+                    </set>
+                </outcome>
+                <outcome value='PPROBE'>
+                    <set>
+                        <parameter name='port-mirror-topology-operation-input.configuration-information.configuration-sub-type' value='pprobe' />
+                    </set>
+                </outcome>
+                <outcome value='vprobe'>
+                    <set>
+                        <parameter name='port-mirror-topology-operation-input.configuration-information.configuration-sub-type' value='vprobe' />
+                    </set>
+                </outcome>
+                <outcome value='VPROBE'>
+                    <set>
+                        <parameter name='port-mirror-topology-operation-input.configuration-information.configuration-sub-type' value='vprobe' />
+                    </set>
+                </outcome>
+                <outcome value=''>
+                    <set>
+                        <parameter name='port-mirror-topology-operation-input.configuration-information.configuration-sub-type' value='vprobe' />
+                    </set>
+                </outcome>
+            </switch>
+            <switch test='`$port-mirror-topology-operation-input.sdnc-request-header.svc-action`'>
+                <outcome value='assign'>
+                    <block atomic="true">
+                        <call module='GENERIC-RESOURCE-API' rpc='port-mirror-topology-operation-assign-async' mode='sync' >
+                            <outcome value='failure'>
+                                <return status='failure'></return>
+                            </outcome>
+                            <outcome value='not-found'>
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value="Cannot find assign async DG" />
+                                    <parameter name='ack-final' value='Y' />
+                                </return>
+                            </outcome>
+                        </call>
+                    </block>
+                </outcome>
+                <outcome value='activate'>
+                    <block atomic="true">
+                        <call module='GENERIC-RESOURCE-API' rpc='port-mirror-topology-operation-activate-async' mode='sync' >
+                            <outcome value='failure'>
+                                <return status='failure'></return>
+                            </outcome>
+                            <outcome value='not-found'>
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value="Cannot find activate async DG" />
+                                    <parameter name='ack-final' value='Y' />
+                                </return>
+                            </outcome>
+                        </call>
+                    </block>
+                </outcome>
+                <outcome value='deactivate'>
+                    <block atomic="true">
+                        <call module='GENERIC-RESOURCE-API' rpc='port-mirror-topology-operation-deactivate-async' mode='sync' >
+                            <outcome value='failure'>
+                                <return status='failure'></return>
+                            </outcome>
+                            <outcome value='not-found'>
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value="Cannot find deactivate async DG" />
+                                    <parameter name='ack-final' value='Y' />
+                                </return>
+                            </outcome>
+                        </call>
+                    </block>
+                </outcome>
+            </switch>
+            <return status='success'>
+                <parameter name='ack-final' value='Y' />
+            </return>
+        </block>
+    </method>
+</service-logic>

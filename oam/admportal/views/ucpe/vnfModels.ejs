@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>SDN-C AdminPortal</title>
+<script class="init">
+    $(document).ready(function() {
+    $('#vnf_models').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+
+</head>
+<body>
+
+<div class="well well-sm">
+<h3>uCPE VNF Models</h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+        if (result.code.length > 0) {
+            if ( result.code == 'success' ) { %>
+                <div class='alert alert-success' role='alert'>
+                <%
+                for ( x in result.msg ){ %>
+                    <div><%= result.msg[x] %></div>
+                <% } %>
+                </div>
+            <% } else { %>
+                <div class='alert alert-danger' role='danger'>
+                <%
+                for ( x in result.msg ){ %>
+                    <div><%= result.msg[x] %></div>
+                <% } %>
+                </div>
+            <% } %>
+        <% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+
+<!--
+	 <% if (priv == 'A'){ %>
+    <div class="actions" style="padding:15px 0px;">
+    <button class="btn btn-primary" data-toggle="modal" data-target="#add_vnf_profile">
+      Add VNF Profile
+    </button>
+    </div>
+    <% } %>
+-->
+
+	<table id="vnf_models" class="table table-hover table-condensed">
+    <thead>
+        <tr>
+		  <th>*ATT PART NUMBER</th>
+		  <th>VNF_TYPE</th>
+		  <th>VENDOR_NAME</th>
+		  <th>VENDOR_PART_NUMBER</th>
+		  <th>VENDOR_MODEL</th>
+		  <th>VCPU_DEFAULT</th>
+		  <th>VCPU_MIN</th>
+		  <th>VCPU_MAX</th>
+		  <th>VMEMORY_DEFAULT</th>
+		  <th>VMEMORY_UNITS</th>
+		  <th>VMEMORY_MIN</th>
+		  <th>VMEMORY_MAX</th>
+		  <th>VDISK_DEFAULT</th>
+		  <th>VDISK_UNITS</th>
+		  <th>VDISK_MIN</th>
+		  <th>VDISK_MAX</th>
+		  <th>SPEED_UNITS</th>
+		  <th>SPEED</th>
+        </tr>
+    </thead>
+	<tbody>
+    <% rows.forEach( function(row) { %>
+        <tr>
+            <td><%= row.att_part_number %></td>
+            <td><%= row.vnf_type %></td>
+            <td><%= row.vendor_name %></td>
+            <td><%= row.vendor_part_number %></td>
+            <td><%= row.vendor_model %></td>
+            <td><%= row.vcpu_default %></td>
+            <td><%= row.vcpu_min %></td>
+            <td><%= row.vcpu_max %></td>
+            <td><%= row.vmemory_default %></td>
+            <td><%= row.vmemory_units %></td>
+            <td><%= row.vmemory_min %></td>
+            <td><%= row.vmemory_max %></td>
+            <td><%= row.vdisk_default %></td>
+            <td><%= row.vdisk_units %></td>
+            <td><%= row.vdisk_min %></td>
+            <td><%= row.vdisk_max %></td>
+            <td><%= row.speed_units %></td>
+            <td><%= row.speed %></td>
+        </tr>
+    <% }); %>
+    </tbody>
+    </table>
+
+</div>
+
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+
+</body>
+</html>
+

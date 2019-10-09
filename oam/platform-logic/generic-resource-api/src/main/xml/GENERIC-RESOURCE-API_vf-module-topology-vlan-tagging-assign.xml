@@ -1,0 +1,791 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='vf-module-topology-vlan-tagging-assign' mode='sync'>
+        <block atomic="true">
+            <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key="select distinct vmvm.vm_type, rg.group_uuid from VF_MODULE_TO_VFC_MAPPING vmvm, VFC_MODEL vm,
+  RESOURCE_GROUP_TO_TARGET_NODE_MAPPING rgm, RESOURCE_GROUP rg
+	where vf_module_customization_uuid = $vf-module-topology-operation-input.vf-module-information.onap-model-information.model-customization-uuid
+	and vmvm.vfc_customization_uuid = vm.customization_uuid
+	and vmvm.vm_type = vm.vm_type
+	and vm.uuid = rgm.target_node_uuid
+	and rgm.target_type = 'CVFC'
+	and rgm.group_uuid = rg.group_uuid"
+  pfx='db.group-uuids[]'>
+                <outcome value='failure'>
+                    <block atomic="true">
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="System error getting group uuids from DB" />
+                        </return>
+                    </block>
+                </outcome>
+                <outcome value='not-found'>
+                    <block atomic="true"></block>
+                </outcome>
+                <outcome value='success'>
+                    <block atomic="true">
+                        <for index='group-index' start='0' end='`$db.group-uuids_length`' >
+                            <block atomic="true">
+                                <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key="select attribute_name, attribute_value from ATTRIBUTE_VALUE_PAIR
+	where resource_uuid = $db.group-uuids[$group-index].group-uuid
+	and attribute_name in ('vfc_instance_group_function','vfc_parent_port_role','network_collection_function')"
+  pfx='db.parameters[]'>
+                                    <outcome value='failure'>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="System error getting parameters from ATTRIBUTE_VALUE_PAIR table" />
+                                        </return>
+                                    </outcome>
+                                    <outcome value='not-found'>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="`'Unable to find parameters ATTRIBUTE_VALUE_PAIR table for group ' + $db.group-uuids[$group-index].group-uuid`" />
+                                        </return>
+                                    </outcome>
+                                    <outcome value='success'>
+                                        <for index='parameter-index' start='0' end='`$db.parameters_length`' >
+                                            <switch test='`$db.parameters[$parameter-index].attribute-name`'>
+                                                <outcome value='vfc_parent_port_role'>
+                                                    <set>
+                                                        <parameter name='db.group-uuids[$group-index].vfc_parent_port_role' value='`$db.parameters[$parameter-index].attribute-value`' />
+                                                    </set>
+                                                </outcome>
+                                                <outcome value='vfc_instance_group_function'>
+                                                    <block atomic="true">
+                                                        <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils" method="startsWith" emitsOutcome='true' >
+                                                            <parameter name="source" value="`$db.parameters[$parameter-index].attribute-value`" />
+                                                            <parameter name="target" value="get_input=" />
+                                                            <outcome value='false'>
+                                                                <return status='failure'>
+                                                                    <parameter name='ack-final' value='Y'/>
+                                                                    <parameter name="error-code" value="500" />
+                                                                    <parameter name="error-message"
+      value="`'Parameter value for '
+        + $db.parameters[$parameter-index].attribute-name
+        + ' is '
+        + $db.parameters[$parameter-index].attribute-value
+        + ' but was expected to start with get_input='`" />
+                                                                </return>
+                                                            </outcome>
+                                                            <outcome value='true'>
+                                                                <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='substring'>
+                                                                    <parameter name='result' value='tmp.truncated-value' />
+                                                                    <parameter name='string' value='`$db.parameters[$parameter-index].attribute-value`' />
+                                                                    <parameter name='begin-index' value='10' />
+                                                                </execute>
+                                                            </outcome>
+                                                        </execute>
+                                                        <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key="select attribute_value from VF_MODULE_MODEL vmm, VF_MODEL vf, ATTRIBUTE_VALUE_PAIR avp
+	where vmm.customization_uuid = $vf-module-topology-operation-input.vf-module-information.onap-model-information.model-customization-uuid
+	and vmm.vf_customization_uuid = vf.customization_uuid
+	and vf.uuid = avp.resource_uuid
+	and vmm.vf_customization_uuid = avp.resource_customization_uuid
+	and avp.attribute_name = $tmp.truncated-value"
+  pfx='db.mapped-value'>
+                                                            <outcome value='failure'>
+                                                                <return status='failure'>
+                                                                    <parameter name='ack-final' value='Y'/>
+                                                                    <parameter name="error-code" value="500" />
+                                                                    <parameter name="error-message"
+      value="`'System error retrieving mapped parameter value for '
+        + $db.parameters[$parameter-index].attribute-name`" />
+                                                                </return>
+                                                            </outcome>
+                                                            <outcome value='not-found'>
+                                                                <return status='failure'>
+                                                                    <parameter name='ack-final' value='Y'/>
+                                                                    <parameter name="error-code" value="500" />
+                                                                    <parameter name="error-message"
+      value="`'Unable to find mapped parameter value for '
+        + $db.parameters[$parameter-index].attribute-name
+        + ' value '
+        + $tmp.truncated-value`" />
+                                                                </return>
+                                                            </outcome>
+                                                        </get-resource>
+                                                        <set>
+                                                            <parameter name='db.group-uuids[$group-index].vfc-instance-group-function' value='`$db.mapped-value.attribute-value`' />
+                                                        </set>
+                                                    </block>
+                                                </outcome>
+                                                <outcome value='network_collection_function'>
+                                                    <block atomic="true">
+                                                        <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils" method="startsWith" emitsOutcome='true' >
+                                                            <parameter name="source" value="`$db.parameters[$parameter-index].attribute-value`" />
+                                                            <parameter name="target" value="get_input=" />
+                                                            <outcome value='false'>
+                                                                <return status='failure'>
+                                                                    <parameter name='ack-final' value='Y'/>
+                                                                    <parameter name="error-code" value="500" />
+                                                                    <parameter name="error-message"
+      value="`'Parameter value for '
+        + $db.parameters[$parameter-index].attribute-name
+        + ' is '
+        + $db.parameters[$parameter-index].attribute-value
+        + ' but was expected to start with get_input='`" />
+                                                                </return>
+                                                            </outcome>
+                                                            <outcome value='true'>
+                                                                <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='substring'>
+                                                                    <parameter name='result' value='tmp.truncated-value' />
+                                                                    <parameter name='string' value='`$db.parameters[$parameter-index].attribute-value`' />
+                                                                    <parameter name='begin-index' value='10' />
+                                                                </execute>
+                                                            </outcome>
+                                                        </execute>
+                                                        <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key="select attribute_value from VF_MODULE_MODEL vmm, VF_MODEL vf, ATTRIBUTE_VALUE_PAIR avp
+	where vmm.customization_uuid = $vf-module-topology-operation-input.vf-module-information.onap-model-information.model-customization-uuid
+	and vmm.vf_customization_uuid = vf.customization_uuid
+	and vf.uuid = avp.resource_uuid
+	and vmm.vf_customization_uuid = avp.resource_customization_uuid
+	and avp.attribute_name = $tmp.truncated-value"
+  pfx='db.mapped-value'>
+                                                            <outcome value='failure'>
+                                                                <return status='failure'>
+                                                                    <parameter name='ack-final' value='Y'/>
+                                                                    <parameter name="error-code" value="500" />
+                                                                    <parameter name="error-message"
+      value="`'System error retrieving mapped parameter value for '
+        + $db.parameters[$parameter-index].attribute-name`" />
+                                                                </return>
+                                                            </outcome>
+                                                            <outcome value='not-found'>
+                                                                <return status='failure'>
+                                                                    <parameter name='ack-final' value='Y'/>
+                                                                    <parameter name="error-code" value="500" />
+                                                                    <parameter name="error-message"
+      value="`'Unable to find mapped parameter value for '
+        + $db.parameters[$parameter-index].attribute-name
+        + ' value '
+        + $tmp.truncated-value`" />
+                                                                </return>
+                                                            </outcome>
+                                                        </get-resource>
+                                                        <set>
+                                                            <parameter name='db.group-uuids[$group-index].network-collection-function' value='`$db.mapped-value.attribute-value`' />
+                                                        </set>
+                                                    </block>
+                                                </outcome>
+                                            </switch>
+                                        </for>
+                                    </outcome>
+                                </get-resource>
+                                <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+  resource="instance-groups" 
+  key="instance-group.instance-group-function = $db.group-uuids[$group-index].vfc-instance-group-function
+    AND instance-group.instance-group-type = 'VNFC'"
+  pfx='aai.instance-group' local-only='false' >
+                                    <outcome value='not-found'>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message"
+      value="`'Unable to find AAI instance-group for instance-group-function '
+        + $db.group-uuids[$group-index].vfc-instance-group-function
+        + ' and instance-group-type VNFC'`" />
+                                        </return>
+                                    </outcome>
+                                    <outcome value='failure'>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message"
+      value="`'System error getting AAI instance-group for instance-group-function '
+        + $db.group-uuids[$group-index].vfc-instance-group-function
+        + ' and instance-group-type VNFC'`" />
+                                        </return>
+                                    </outcome>
+                                </get-resource>
+                                <set>
+                                    <parameter name='found-instance-group' value='false' />
+                                </set>
+                                <for index='ig-index' start='0' end='`$aai.instance-group.instance-group_length`' >
+                                    <for index='rel-index' start='0' end='`$aai.instance-group.instance-group[$ig-index].relationship-list.relationship_length`' >
+                                        <for index='reldata-index' start='0' end='`$aai.instance-group.instance-group[$ig-index].relationship-list.relationship[$rel-index].relationship-data_length`' >
+                                            <switch test="`$aai.instance-group.instance-group[$ig-index].relationship-list.relationship[$rel-index].relationship-data[$reldata-index].relationship-key
+  == 'service-instance.service-instance-id'`">
+                                                <outcome value='true'>
+                                                    <switch test='`$aai.instance-group.instance-group[$ig-index].relationship-list.relationship[$rel-index].relationship-data[$reldata-index].relationship-value
+  == $service-data.service-information.service-instance-id`'>
+                                                        <outcome value='true'>
+                                                            <block>
+                                                                <set>
+                                                                    <parameter name='found-instance-group' value='true' />
+                                                                </set>
+                                                                <set>
+                                                                    <parameter name='aai-ig-index' value='`$ig-index`' />
+                                                                </set>
+                                                                <break/>
+                                                            </block>
+                                                        </outcome>
+                                                    </switch>
+                                                </outcome>
+                                            </switch>
+                                        </for>
+                                    </for>
+                                </for>
+                                <switch test='`$found-instance-group`'>
+                                    <outcome value='false'>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message"
+      value="`'Unable to find AAI instance-group for instance-group-function '
+        + $db.group-uuids[$group-index].vfc-instance-group-function
+        + ' and instance-group-type VNFC'`" />
+                                        </return>
+                                    </outcome>
+                                </switch>
+                                <switch test='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group_length`'>
+                                    <outcome value=''>
+                                        <set>
+                                            <parameter name='vvig-index' value='0' />
+                                        </set>
+                                    </outcome>
+                                    <outcome value='0'>
+                                        <break/>
+                                    </outcome>
+                                    <outcome value='Other'>
+                                        <block atomic="true">
+                                            <for index='vvig-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group_length`' >
+                                                <switch test='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].instance-group-id
+ == $aai.instance-group.instance-group[$aai-ig-index].id`'>
+                                                    <outcome value='true'>
+                                                        <return status='failure'>
+                                                            <parameter name='ack-final' value='Y'/>
+                                                            <parameter name="error-code" value="500" />
+                                                            <parameter name="error-message"
+      value="`'Instance group id '
+        + $aai.instance-group.instance-group[$aai-ig-index].id
+        + ' already exists in MD-SAL under vlan-vnfc-instance-groups'`" />
+                                                        </return>
+                                                    </outcome>
+                                                </switch>
+                                            </for>
+                                            <set>
+                                                <parameter name='vvig-index' value='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group_length`' />
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                                <set>
+                                    <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].instance-group-id'
+  value='`$aai.instance-group.instance-group[$aai-ig-index].id`' />
+                                    <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].instance-group-function'
+  value='`$db.group-uuids[$group-index].vfc-instance-group-function`' />
+                                    <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnf-id'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-id`' />
+                                </set>
+                                <set>
+                                    <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group_length'
+  value='`$vvig-index + 1`' />
+                                </set>
+                                <set>
+                                    <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vm-type'
+  value='`$db.group-uuids[$group-index].vm-type`' />
+                                </set>
+                                <set>
+                                    <parameter name='found-vm-type' value='false' />
+                                </set>
+                                <for index='vm-type-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm_length`' >
+                                    <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-type
+  == $db.group-uuids[$group-index].vm-type`'>
+                                        <outcome value='true'>
+                                            <block atomic="true">
+                                                <set>
+                                                    <parameter name='found-vm-type' value='true' />
+                                                </set>
+                                                <break/>
+                                            </block>
+                                        </outcome>
+                                    </switch>
+                                </for>
+                                <switch test='`$found-vm-type`'>
+                                    <outcome value='false'>
+                                        <block atomic="true">
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="`'TOSCA provided vm-type ' +
+      $db.group-uuids[$group-index].vm-type + ' but that was not found in vf-module-assignments.vms'`" />
+                                            </return>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                                <set>
+                                    <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc_length'
+  value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names_length`' />
+                                </set>
+                                <for index='vnfc-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names_length`' >
+                                    <block atomic="true">
+                                        <set>
+                                            <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnfc-name'
+  value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-name`' />
+                                        </set>
+                                        <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+   resource="instance-group:relationship-list"
+   key="instance-group.id = $tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].instance-group-id"
+   force="true" pfx="tmp.AnAI-data">
+                                            <parameter name="relationship-list.relationship[0].related-to" value="vnfc" />
+                                            <parameter name="relationship-list.relationship[0].related-link"
+      value="`'/aai/v$/network/vnfcs/vnfc/' +
+        $tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnfc-name`" />
+                                            <outcome value='failure'>
+                                                <block atomic="true">
+                                                    <return status='failure'>
+                                                        <parameter name='ack-final' value='Y'/>
+                                                        <parameter name="error-code" value="500" />
+                                                        <parameter name="error-message" value="System error creating instance-group relationship to vnfc" />
+                                                    </return>
+                                                </block>
+                                            </outcome>
+                                            <outcome value='not-found'>
+                                                <block atomic="true">
+                                                    <return status='failure'>
+                                                        <parameter name='ack-final' value='Y'/>
+                                                        <parameter name="error-code" value="500" />
+                                                        <parameter name="error-message" value="`'Not-found error relating instance group '
+      + $tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].instance-group-id
+      + ' to vnfc '
+      + $tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnfc-name`" />
+                                                    </return>
+                                                </block>
+                                            </outcome>
+                                        </save>
+                                        <set>
+                                            <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].data-created' value='true' />
+                                        </set>
+                                    </block>
+                                </for>
+                                <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key="select property_name from VF_MODULE_TO_VFC_MAPPING vmvm,
+    RESOURCE_POLICY_TO_TARGET_NODE_MAPPING rptnm, RESOURCE_POLICY rp
+	where vmvm.vf_module_customization_uuid = $vf-module-topology-operation-input.vf-module-information.onap-model-information.model-customization-uuid
+	AND vmvm.vm_type = $db.group-uuids[$group-index].vm-type
+	AND vmvm.vfc_customization_uuid = rptnm.target_node_uuid
+	AND rptnm.policy_uuid = rp.policy_uuid
+	AND rp.property_type = 'vlan_tag_policy'
+	AND rp.policy_type = 'ecomp.policies.External'
+	AND rp.property_source = 'Policy Manager'"
+  pfx='db.policy[]'>
+                                    <outcome value='failure'>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="`'Failure retrieving policy for vm-type ' + $db.group-uuids[$group-index].vm-type`" />
+                                        </return>
+                                    </outcome>
+                                    <outcome value='not-found'>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="`'Unable to find policy for vm-type ' + $db.group-uuids[$group-index].vm-type`" />
+                                        </return>
+                                    </outcome>
+                                </get-resource>
+                                <set>
+                                    <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[0].vnic-groups.vnic-group[0].vnic-interface-role'
+  value='`$db.group-uuids[$group-index].vfc_parent_port_role`' />
+                                    <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[0].vnic-groups.vnic-group[0].vlan-assignment-policy-name'
+  value='`$db.policy[0].property-name`' />
+                                    <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[0].vnic-groups.vnic-group[0].network-instance-group-function'
+  value='`$db.group-uuids[$group-index].network-collection-function`' />
+                                    <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[0].vnic-groups.vnic-group_length'
+  value='1' />
+                                </set>
+                                <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key="select vnrm.* from VF_MODULE_TO_VFC_MAPPING vmvm, VFC_TO_NETWORK_ROLE_MAPPING vnrm
+	where vmvm.vf_module_customization_uuid = $vf-module-topology-operation-input.vf-module-information.onap-model-information.model-customization-uuid
+	AND vmvm.vm_type = $db.group-uuids[$group-index].vm-type
+	AND vmvm.vfc_customization_uuid = vnrm.vfc_customization_uuid
+	AND vnrm.network_role_tag = $db.group-uuids[$group-index].vfc_parent_port_role"
+  pfx='db.vfc-to-network-role[]'>
+                                    <outcome value='failure'>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="`'Failure reading VFC_TO_NETWORK_ROLE_MAPPING for parent role ' + $db.group-uuids[$group-index].vfc_parent_port_role`" />
+                                        </return>
+                                    </outcome>
+                                    <outcome value='not-found'>
+                                        <return status='failure'>
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="`'Unable to find rows in VFC_TO_NETWORK_ROLE_MAPPING for parent role ' + $db.group-uuids[$group-index].vfc_parent_port_role`" />
+                                        </return>
+                                    </outcome>
+                                </get-resource>
+                                <for index='vnic-index' start='0' end='`$db.vfc-to-network-role_length`' >
+                                    <block>
+                                        <set>
+                                            <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[0].vnic-groups.vnic-group[0].vlan-vnics.vlan-vnic[$vnic-index].vnic-port-id'
+  value='`$vnic-index`' />
+                                        </set>
+                                    </block>
+                                </for>
+                                <set>
+                                    <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[0].vnic-groups.vnic-group[0].vlan-vnics.vlan-vnic_length'
+  value='`$db.vfc-to-network-role_length`' />
+                                </set>
+                                <set>
+                                    <parameter name='get-data-from-policy-input.policy-instance-name' value='`$db.policy[0].property-name`' />
+                                </set>
+                                <call module='GENERIC-RESOURCE-API' rpc='get-data-from-policy' mode='sync' >
+                                    <outcome value='failure'>
+                                        <return status='failure'></return>
+                                    </outcome>
+                                </call>
+                                <switch test='`$get-data-from-policy-output.precreate-sub-intf-num &gt; 0`'>
+                                    <outcome value='true'>
+                                        <call module='GENERIC-RESOURCE-API' rpc='assign-vlan-tags' mode='sync' >
+                                            <outcome value='failure'>
+                                                <return status='failure'></return>
+                                            </outcome>
+                                        </call>
+                                    </outcome>
+                                </switch>
+                                <for index='vnfc-index' start='1' end='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc_length`' >
+                                    <set>
+                                        <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnics-groups.'
+  value='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[0].vnics-groups.`' />
+                                    </set>
+                                </for>
+                                <set>
+                                    <parameter name='counter' value='0' />
+                                </set>
+                                <set>
+                                    <parameter name='seq-no' value='1' />
+                                </set>
+                                <for index='vnfc-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc_length`' >
+                                    <for index='vnic-group-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group_length`' >
+                                        <block atomic="true">
+                                            <set>
+                                                <parameter name='tmp.vt-ip.' value='' />
+                                            </set>
+                                            <set>
+                                                <parameter name='tmp.vt-ip.network-instance-group-function'
+  value='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].network-instance-group-function`' />
+                                                <parameter name='tmp.vt-ip.nf-role'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-topology-identifier-structure.nf-role`' />
+                                                <parameter name='tmp.vt-ip.vm-type'
+  value='`$db.group-uuids[$group-index].vm-type`' />
+                                                <parameter name='tmp.vt-ip.vnfc-name'
+  value='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnfc-name`' />
+                                                <parameter name='tmp.vt-ip.type'
+  value='FIXED' />
+                                                <parameter name='tmp.vt-ip.vf-module-id'
+  value='`$vf-module-topology-operation-input.vf-module-information.vf-module-id`' />
+                                            </set>
+                                            <for index='nig-index' start='0' end='`$service-data.network-instance-groups.network-instance-group_length`' >
+                                                <switch test='`$tmp.vt-ip.network-instance-group-id
+  == $service-data.network-instance-groups.network-instance-group[$nig-index].network-instance-group-id`'>
+                                                    <outcome value='true'>
+                                                        <switch test='`$get-data-from-policy-output.ip-assignment`'>
+                                                            <outcome value='shared'>
+                                                                <for silentFailure='true' index='subnet-index' start='0'
+  end='`$service-data.network-instance-groups.network-instance-group[$nig-index].subnets_length`' >
+                                                                    <block atomic="true">
+                                                                        <set>
+                                                                            <parameter name='tmp.vt-ip.ip-version'
+  value='`$service-data.network-instance-groups.network-instance-group[$nig-index].subnets[$subnet-index].ip-version`' />
+                                                                            <parameter name='tmp.vt-ip.network-instance-group-id'
+  value='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].network-instance-group-id`' />
+                                                                            <parameter name='tmp.vt-ip.sequence-number'
+  value='`$seq-no`' />
+                                                                        </set>
+                                                                        <set>
+                                                                            <parameter name='counter' value='`$counter + 1`' />
+                                                                        </set>
+                                                                        <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-vlan-tagging-ip-addresses' mode='sync' >
+                                                                            <outcome value='failure'>
+                                                                                <return status='failure'></return>
+                                                                            </outcome>
+                                                                        </call>
+                                                                        <switch test='`$eipam-ip-block.plans_length`'>
+                                                                            <outcome value=''>
+                                                                                <block></block>
+                                                                            </outcome>
+                                                                            <outcome value='0'>
+                                                                                <block></block>
+                                                                            </outcome>
+                                                                            <outcome value='Other'>
+                                                                                <for index='vnic-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-vnics.vlan-vnic_length`' >
+                                                                                    <for index='sub-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-vnics.vlan-vnic[$vnic-index].vnic-sub-interfaces.sub-interface-network-data_length`' >
+                                                                                        <block>
+                                                                                            <switch test='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-vnics.vlan-vnic[$vnic-index].vnic-sub-interfaces.sub-interface-network-data[$sub-index].network-information-items.network-information-item_length`'>
+                                                                                                <outcome value=''>
+                                                                                                    <set>
+                                                                                                        <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-vnics.vlan-vnic[$vnic-index].vnic-sub-interfaces.sub-interface-network-data[$sub-index].network-information-items.network-information-item_length'
+  value='1' />
+                                                                                                        <parameter name='tmp.index' value='0' />
+                                                                                                    </set>
+                                                                                                </outcome>
+                                                                                                <outcome value='0'>
+                                                                                                    <set>
+                                                                                                        <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-vnics.vlan-vnic[$vnic-index].vnic-sub-interfaces.sub-interface-network-data[$sub-index].network-information-items.network-information-item_length'
+  value='1' />
+                                                                                                        <parameter name='tmp.index' value='0' />
+                                                                                                    </set>
+                                                                                                </outcome>
+                                                                                                <outcome value='1'>
+                                                                                                    <set>
+                                                                                                        <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-vnics.vlan-vnic[$vnic-index].vnic-sub-interfaces.sub-interface-network-data[$sub-index].network-information-items.network-information-item_length'
+  value='2' />
+                                                                                                        <parameter name='tmp.index' value='1' />
+                                                                                                    </set>
+                                                                                                </outcome>
+                                                                                            </switch>
+                                                                                            <set>
+                                                                                                <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-vnics.vlan-vnic[$vnic-index].vnic-sub-interfaces.sub-interface-network-data[$sub-index].network-information-items.network-information-item[$tmp.index].network-ips.network-ip[0]'
+  value='`$eipam-ip-block.plans[0].requests[0].ip-prefix`' />
+                                                                                                <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-vnics.vlan-vnic[$vnic-index].vnic-sub-interfaces.sub-interface-network-data[$sub-index].network-information-items.network-information-item[$tmp.index].network-ips.network-ip_length'
+  value='1' />
+                                                                                                <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-vnics.vlan-vnic[$vnic-index].vnic-sub-interfaces.sub-interface-network-data[$sub-index].network-information-items.network-information-item[$tmp.index].ip-version'
+  value='`$tmp.vt-ip.ip-version`' />
+                                                                                                <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-vnics.vlan-vnic[$vnic-index].vnic-sub-interfaces.sub-interface-network-data[$sub-index].network-information-items.network-information-item[$tmp.index].ip-count'
+  value='1' />
+                                                                                                <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-vnics.vlan-vnic[$vnic-index].vnic-sub-interfaces.sub-interface-network-data[$sub-index].network-information-items.network-information-item[$tmp.index].use-dhcp'
+  value='N' />
+                                                                                            </set>
+                                                                                            <switch test='`$tmp.vt-ip.ip-version`'>
+                                                                                                <outcome value='ipv4'>
+                                                                                                    <set>
+                                                                                                        <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-common-ip-addresses.ip-addresses.ipv4-address'
+  value='`$eipam-ip-block.plans[0].requests[0].ip-prefix`' />
+                                                                                                    </set>
+                                                                                                </outcome>
+                                                                                                <outcome value='ipv6'>
+                                                                                                    <set>
+                                                                                                        <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-common-ip-addresses.ip-addresses.ipv6-address'
+  value='`$eipam-ip-block.plans[0].requests[0].ip-prefix`' />
+                                                                                                    </set>
+                                                                                                </outcome>
+                                                                                            </switch>
+                                                                                        </block>
+                                                                                    </for>
+                                                                                </for>
+                                                                            </outcome>
+                                                                        </switch>
+                                                                        <set>
+                                                                            <parameter name='seq-no' value='`$seq-no + 1`' />
+                                                                        </set>
+                                                                        <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >
+                                                                            <parameter name='filename' value="`'/var/tmp/bgb-eipam.log' + $counter`" />
+                                                                        </execute>
+                                                                    </block>
+                                                                </for>
+                                                            </outcome>
+                                                            <outcome value='unique'>
+                                                                <for silentFailure='true' index='subnet-index' start='0'
+  end='`$service-data.network-instance-groups.network-instance-group[$nig-index].subnets_length`' >
+                                                                    <for index='vnic-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-vnics.vlan-vnic_length`' >
+                                                                        <set>
+                                                                            <parameter name='tmp.vt-ip.ip-version'
+  value='`$service-data.network-instance-groups.network-instance-group[$nig-index].subnets[$subnet-index].ip-version`' />
+                                                                        </set>
+                                                                        <for index='sub-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-vnics.vlan-vnic[$vnic-index].vnic-sub-interfaces.sub-interface-network-data_length`' >
+                                                                            <block atomic="true">
+                                                                                <set>
+                                                                                    <parameter name='tmp.vt-ip.network-id'
+  value='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-vnics.vlan-vnic[$vnic-index].vnic-sub-interfaces.sub-interface-network-data[$sub-index].network-id`' />
+                                                                                    <parameter name='tmp.vt-ip.sequence-number'
+  value='`$seq-no`' />
+                                                                                </set>
+                                                                                <set>
+                                                                                    <parameter name='counter' value='`$counter + 1`' />
+                                                                                </set>
+                                                                                <call module='GENERIC-RESOURCE-API' rpc='vf-module-topology-vlan-tagging-ip-addresses' mode='sync' >
+                                                                                    <outcome value='failure'>
+                                                                                        <return status='failure'></return>
+                                                                                    </outcome>
+                                                                                </call>
+                                                                                <switch test='`$eipam-ip-block.plans_length`'>
+                                                                                    <outcome value=''>
+                                                                                        <block></block>
+                                                                                    </outcome>
+                                                                                    <outcome value='0'>
+                                                                                        <block></block>
+                                                                                    </outcome>
+                                                                                    <outcome value='Other'>
+                                                                                        <block>
+                                                                                            <switch test='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-vnics.vlan-vnic[$vnic-index].vnic-sub-interfaces.sub-interface-network-data[$sub-index].network-information-items.network-information-item_length`'>
+                                                                                                <outcome value=''>
+                                                                                                    <set>
+                                                                                                        <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-vnics.vlan-vnic[$vnic-index].vnic-sub-interfaces.sub-interface-network-data[$sub-index].network-information-items.network-information-item_length'
+  value='1' />
+                                                                                                        <parameter name='tmp.index' value='0' />
+                                                                                                    </set>
+                                                                                                </outcome>
+                                                                                                <outcome value='0'>
+                                                                                                    <set>
+                                                                                                        <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-vnics.vlan-vnic[$vnic-index].vnic-sub-interfaces.sub-interface-network-data[$sub-index].network-information-items.network-information-item_length'
+  value='1' />
+                                                                                                        <parameter name='tmp.index' value='0' />
+                                                                                                    </set>
+                                                                                                </outcome>
+                                                                                                <outcome value='1'>
+                                                                                                    <set>
+                                                                                                        <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-vnics.vlan-vnic[$vnic-index].vnic-sub-interfaces.sub-interface-network-data[$sub-index].network-information-items.network-information-item_length'
+  value='2' />
+                                                                                                        <parameter name='tmp.index' value='1' />
+                                                                                                    </set>
+                                                                                                </outcome>
+                                                                                            </switch>
+                                                                                            <set>
+                                                                                                <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-vnics.vlan-vnic[$vnic-index].vnic-sub-interfaces.sub-interface-network-data[$sub-index].network-information-items.network-information-item[$tmp.index].network-ips.network-ip[0]'
+  value='`$eipam-ip-block.plans[0].requests[0].ip-prefix`' />
+                                                                                                <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-vnics.vlan-vnic[$vnic-index].vnic-sub-interfaces.sub-interface-network-data[$sub-index].network-information-items.network-information-item[$tmp.index].network-ips.network-ip_length'
+  value='1' />
+                                                                                                <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-vnics.vlan-vnic[$vnic-index].vnic-sub-interfaces.sub-interface-network-data[$sub-index].network-information-items.network-information-item[$tmp.index].ip-version'
+  value='`$tmp.vt-ip.ip-version`' />
+                                                                                                <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-vnics.vlan-vnic[$vnic-index].vnic-sub-interfaces.sub-interface-network-data[$sub-index].network-information-items.network-information-item[$tmp.index].ip-count'
+  value='1' />
+                                                                                                <parameter name='tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-vnics.vlan-vnic[$vnic-index].vnic-sub-interfaces.sub-interface-network-data[$sub-index].network-information-items.network-information-item[$tmp.index].use-dhcp'
+  value='N' />
+                                                                                            </set>
+                                                                                        </block>
+                                                                                    </outcome>
+                                                                                </switch>
+                                                                                <set>
+                                                                                    <parameter name='seq-no' value='`$seq-no + 1`' />
+                                                                                </set>
+                                                                            </block>
+                                                                        </for>
+                                                                    </for>
+                                                                </for>
+                                                            </outcome>
+                                                            <outcome value='Other'>
+                                                                <return status='failure'>
+                                                                    <parameter name='error-code' value='500' />
+                                                                    <parameter name='error-message' value="`'From policy: ip-assignment is '
+  + $get-data-from-policy-output.ip-assignment
+  + ' but must be unique or shared'`" />
+                                                                </return>
+                                                            </outcome>
+                                                        </switch>
+                                                    </outcome>
+                                                </switch>
+                                            </for>
+                                        </block>
+                                    </for>
+                                </for>
+                                <for index='vnfc-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc_length`' >
+                                    <for index='vm-vnfc-index' start='0'
+  end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names_length`' >
+                                        <switch test='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnfc-name
+  == $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vm-vnfc-index].vnfc-name`'>
+                                            <outcome value='true'>
+                                                <for index='vnic-group-index' start='0'
+  end='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group_length`' >
+                                                    <block>
+                                                        <set>
+                                                            <parameter name='vnfc-network-index' value='-1' />
+                                                        </set>
+                                                        <for index='vn-index' start='0'
+  end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data_length`' >
+                                                            <switch test='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vnic-interface-role
+  == $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vn-index].vnfc-network-role`'>
+                                                                <outcome value='true'>
+                                                                    <block>
+                                                                        <set>
+                                                                            <parameter name='vnfc-network-index' value='`$vn-index`' />
+                                                                        </set>
+                                                                        <break/>
+                                                                    </block>
+                                                                </outcome>
+                                                            </switch>
+                                                        </for>
+                                                        <switch test='`$vnfc-network-index`'>
+                                                            <outcome value='-1'>
+                                                                <return status='failure'>
+                                                                    <parameter name='error-code' value='500' />
+                                                                    <parameter name='error-message' value="`'Cannot find vnfc-network for network role '
+  + $tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vnic-interface-role`" />
+                                                                </return>
+                                                            </outcome>
+                                                            <outcome value='Other'>
+                                                                <block>
+                                                                    <set>
+                                                                        <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vn-index].vnfc-network-role.vnfc-type'
+  value='`$db.group-uuids[$group-index].vm-type`' />
+                                                                    </set>
+                                                                    <for index='vnic-index' start='0'
+  end='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-vnics.vlan-vnic_length`' >
+                                                                        <block>
+                                                                            <set>
+                                                                                <parameter name='vnfc-port-index' value='-1' />
+                                                                            </set>
+                                                                            <for silentFailure='true' index='v-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vn-index].vnfc-ports.vnfc-port_length`' >
+                                                                                <switch test='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-vnics.vlan-vnic[$vnic-index].vnic-port-id
+  == $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vn-index].vnfc-ports.vnfc-port[$v-index].vnfc-port-id`'>
+                                                                                    <outcome value='true'>
+                                                                                        <block>
+                                                                                            <set>
+                                                                                                <parameter name='vnfc-port-index' value='`$v-index`' />
+                                                                                            </set>
+                                                                                            <break/>
+                                                                                        </block>
+                                                                                    </outcome>
+                                                                                </switch>
+                                                                            </for>
+                                                                            <switch test='`$vnfc-port-index`'>
+                                                                                <outcome value='-1'>
+                                                                                    <block>
+                                                                                        <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vn-index].vnfc-ports.vnfc-port_length`'>
+                                                                                            <outcome value=''>
+                                                                                                <set>
+                                                                                                    <parameter name='vnfc-port-index' value='0' />
+                                                                                                </set>
+                                                                                            </outcome>
+                                                                                            <outcome value='Other'>
+                                                                                                <set>
+                                                                                                    <parameter name='vnfc-port-index' value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vn-index].vnfc-ports.vnfc-port_length`' />
+                                                                                                </set>
+                                                                                            </outcome>
+                                                                                        </switch>
+                                                                                        <set>
+                                                                                            <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vn-index].vnfc-ports.vnfc-port[$vnfc-port-index].vnfc-port-id'
+  value='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-vnics.vlan-vnic[$vnic-index].vnic-port-id`' />
+                                                                                            <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vn-index].vnfc-ports.vnfc-port[$vnfc-port-index].common-sub-interface-role'
+  value='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vnic-interface-role`' />
+                                                                                        </set>
+                                                                                        <set>
+                                                                                            <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vn-index].vnfc-ports.vnfc-port_length'
+  value='`$vnfc-port-index + 1`' />
+                                                                                        </set>
+                                                                                    </block>
+                                                                                </outcome>
+                                                                                <outcome value='Other'></outcome>
+                                                                            </switch>
+                                                                            <set>
+                                                                                <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vn-index].vnfc-ports.vnfc-port[$vnfc-port-index].vnic-sub-interfaces.'
+  value='`$tmp.vf-module-topology.vf-module-assignments.vlan-vnfc-instance-groups.vlan-vnfc-instance-group[$vvig-index].vnfcs.vnfc[$vnfc-index].vnic-groups.vnic-group[$vnic-group-index].vlan-vnics.vlan-vnic[$vnic-index].vnic-sub-interfaces.`' />
+                                                                            </set>
+                                                                        </block>
+                                                                    </for>
+                                                                </block>
+                                                            </outcome>
+                                                        </switch>
+                                                    </block>
+                                                </for>
+                                            </outcome>
+                                        </switch>
+                                    </for>
+                                </for>
+                            </block>
+                        </for>
+                    </block>
+                </outcome>
+            </get-resource>
+            <return status='success'></return>
+        </block>
+    </method>
+</service-logic>

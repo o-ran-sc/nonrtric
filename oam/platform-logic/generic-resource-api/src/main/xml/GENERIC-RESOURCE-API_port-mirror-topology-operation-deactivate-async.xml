@@ -1,0 +1,373 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='port-mirror-topology-operation-deactivate-async' mode='sync'>
+        <block atomic="true">
+            <set>
+                <parameter name='tmp.configuration-id' value='`$port-mirror-topology-operation-input.configuration-information.configuration-id`' />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                <parameter name='contextPrefix' value='prop' />
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$prop.restapi.pm-configuration`"/>
+                <parameter name="outputPath" value="tmp.pmc-url"/>
+                <parameter name="target" value="{configuration-id}"/>
+                <parameter name="replacement" value="`$tmp.configuration-id`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.pmc-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='GET' />
+                <parameter name="responsePrefix" value="pm-mdsal" />
+                <outcome value='success'>
+                    <block></block>
+                </outcome>
+                <outcome value='failure'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name="error-message" value="Failed to read port-mirror-configuration from MD-SAL" />
+                        </set>
+                        <block atomic="true">
+                            <configure activate="true" adaptor="com.att.sdnctl.sli.adaptor.mso.MSOAdaptor" key="__READ_FROM_PARAMETERS__">
+                                <parameter name="notification-url" value="`$port-mirror-topology-operation-input.sdnc-request-header.svc-notification-url`" />
+                                <parameter name="input.ack-final-indicator" value="Y" />
+                                <parameter name="input.response-code" value="500" />
+                                <parameter name="input.response-message" value="`$error-message`" />
+                                <parameter name="input.svc-request-id" value="`$port-mirror-topology-operation-input.sdnc-request-header.svc-request-id`" />
+                                <parameter name="input.service-information.service-type" value="`$port-mirror-topology-operation-input.service-information.subscription-service-type`" />
+                                <parameter name="input.service-information.service-instance-id" value="`$port-mirror-topology-operation-input.service-information.service-instance-id`" />
+                            </configure>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="`'$error-message'`" />
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+                <outcome value='not-found'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name="error-message" value="Cannot find port-mirror-configuration in MD-SAL" />
+                        </set>
+                        <block atomic="true">
+                            <configure activate="true" adaptor="com.att.sdnctl.sli.adaptor.mso.MSOAdaptor" key="__READ_FROM_PARAMETERS__">
+                                <parameter name="notification-url" value="`$port-mirror-topology-operation-input.sdnc-request-header.svc-notification-url`" />
+                                <parameter name="input.ack-final-indicator" value="Y" />
+                                <parameter name="input.response-code" value="500" />
+                                <parameter name="input.response-message" value="`$error-message`" />
+                                <parameter name="input.svc-request-id" value="`$port-mirror-topology-operation-input.sdnc-request-header.svc-request-id`" />
+                                <parameter name="input.service-information.service-type" value="`$port-mirror-topology-operation-input.service-information.subscription-service-type`" />
+                                <parameter name="input.service-information.service-instance-id" value="`$port-mirror-topology-operation-input.service-information.service-instance-id`" />
+                            </configure>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="`'$error-message'`" />
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+            </execute>
+            <set>
+                <parameter name='pm.configuration-id' value='`$tmp.configuration-id`' />
+                <parameter name='pm.configuration-data.' value='`$pm-mdsal.port-mirror-configuration[0].configuration-data.`' />
+            </set>
+            <set>
+                <parameter name='tmp.configuration-sub-type' value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.probe-type`' />
+            </set>
+            <set>
+                <parameter name='pm.configuration-data.configuration-operation-information.sdnc-request-header.'
+  value='`$port-mirror-topology-operation-input.sdnc-request-header.`' />
+            </set>
+            <for silentFailure='true' index='src-idx' start='0' end='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map_length`' >
+                <block atomic="true">
+                    <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                        <parameter name='api-name' value='port-mirroring' />
+                        <parameter name='api-action' value='disable' />
+                        <parameter name='resp-prefix' value='contrailResp' />
+                        <parameter name='display-name'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-port-name`' />
+                        <parameter name='contrail-virtual-machine-interface-name'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-port-name`' />
+                        <parameter name='contrail-virtual-machine-interface-id'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-port-id`' />
+                        <parameter name='policy-name'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-port-name`' />
+                        <parameter name='default-domain' value='default-domain' />
+                        <parameter name='default-project'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.tenant`' />
+                        <parameter name='cloud-region-id'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.cloud-region-id`' />
+                        <parameter name='cloud-owner'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.cloud-owner`' />
+                        <outcome value='success'>
+                            <set>
+                                <parameter name='contrail-set[$src-idx]' value='true' />
+                            </set>
+                        </outcome>
+                        <outcome value='failure'>
+                            <block atomic="true">
+                                <set>
+                                    <parameter name="error-message" value="`'Failed to update policy in Contrail. '+ $contrailResp.resp-code + ':' +$contrailResp.resp-message `" />
+                                </set>
+                                <block atomic="true">
+                                    <configure activate="true" adaptor="com.att.sdnctl.sli.adaptor.mso.MSOAdaptor" key="__READ_FROM_PARAMETERS__">
+                                        <parameter name="notification-url" value="`$port-mirror-topology-operation-input.sdnc-request-header.svc-notification-url`" />
+                                        <parameter name="input.ack-final-indicator" value="Y" />
+                                        <parameter name="input.response-code" value="500" />
+                                        <parameter name="input.response-message" value="`$error-message`" />
+                                        <parameter name="input.svc-request-id" value="`$port-mirror-topology-operation-input.sdnc-request-header.svc-request-id`" />
+                                        <parameter name="input.service-information.service-type" value="`$port-mirror-topology-operation-input.service-information.subscription-service-type`" />
+                                        <parameter name="input.service-information.service-instance-id" value="`$port-mirror-topology-operation-input.service-information.service-instance-id`" />
+                                    </configure>
+                                    <return status='failure'>
+                                        <parameter name='ack-final' value='Y'/>
+                                        <parameter name="error-code" value="500" />
+                                        <parameter name="error-message" value="`'$error-message'`" />
+                                    </return>
+                                </block>
+                            </block>
+                        </outcome>
+                    </execute>
+                    <update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+   resource="l-interface"
+   key="cloud-region.cloud-region-id = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.cloud-region-id
+     AND cloud-region.cloud-owner = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.cloud-owner
+     AND tenant.tenant-id = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.tenant-id
+     AND vserver.vserver-id = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-vserver-id
+     AND l-interface.interface-name = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-port-name"
+   force="true" pfx="tmp.AnAI-data">
+                        <parameter name="is-port-mirrored" value="false" />
+                        <outcome value='not-found'>
+                            <block atomic="true">
+                                <set>
+                                    <parameter name="error-message" value="`'Failed to update l-interface object in AAI for interface ' + $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-port-name`" />
+                                </set>
+                                <block atomic="true">
+                                    <configure activate="true" adaptor="com.att.sdnctl.sli.adaptor.mso.MSOAdaptor" key="__READ_FROM_PARAMETERS__">
+                                        <parameter name="notification-url" value="`$port-mirror-topology-operation-input.sdnc-request-header.svc-notification-url`" />
+                                        <parameter name="input.ack-final-indicator" value="Y" />
+                                        <parameter name="input.response-code" value="500" />
+                                        <parameter name="input.response-message" value="`$error-message`" />
+                                        <parameter name="input.svc-request-id" value="`$port-mirror-topology-operation-input.sdnc-request-header.svc-request-id`" />
+                                        <parameter name="input.service-information.service-type" value="`$port-mirror-topology-operation-input.service-information.subscription-service-type`" />
+                                        <parameter name="input.service-information.service-instance-id" value="`$port-mirror-topology-operation-input.service-information.service-instance-id`" />
+                                    </configure>
+                                    <return status='failure'>
+                                        <parameter name='ack-final' value='Y'/>
+                                        <parameter name="error-code" value="500" />
+                                        <parameter name="error-message" value="`'$error-message'`" />
+                                    </return>
+                                </block>
+                            </block>
+                        </outcome>
+                        <outcome value='failure'>
+                            <block atomic="true">
+                                <set>
+                                    <parameter name="error-message" value="`'Failed to update l-interface object in AAI for interface ' + $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-port-name`" />
+                                </set>
+                                <block atomic="true">
+                                    <configure activate="true" adaptor="com.att.sdnctl.sli.adaptor.mso.MSOAdaptor" key="__READ_FROM_PARAMETERS__">
+                                        <parameter name="notification-url" value="`$port-mirror-topology-operation-input.sdnc-request-header.svc-notification-url`" />
+                                        <parameter name="input.ack-final-indicator" value="Y" />
+                                        <parameter name="input.response-code" value="500" />
+                                        <parameter name="input.response-message" value="`$error-message`" />
+                                        <parameter name="input.svc-request-id" value="`$port-mirror-topology-operation-input.sdnc-request-header.svc-request-id`" />
+                                        <parameter name="input.service-information.service-type" value="`$port-mirror-topology-operation-input.service-information.subscription-service-type`" />
+                                        <parameter name="input.service-information.service-instance-id" value="`$port-mirror-topology-operation-input.service-information.service-instance-id`" />
+                                    </configure>
+                                    <return status='failure'>
+                                        <parameter name='ack-final' value='Y'/>
+                                        <parameter name="error-code" value="500" />
+                                        <parameter name="error-message" value="`'$error-message'`" />
+                                    </return>
+                                </block>
+                            </block>
+                        </outcome>
+                        <outcome value='success'>
+                            <set>
+                                <parameter name='l-interface-set[$src-idx]' value='true' />
+                            </set>
+                        </outcome>
+                    </update>
+                </block>
+            </for>
+            <switch test='`$tmp.configuration-sub-type`'>
+                <outcome value='vprobe'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name='cto-api.default-domain' value='default-domain' />
+                            <parameter name='cto-api.default-project'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.tenant`' />
+                            <parameter name='cto-api.cloud-region-id'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.cloud-region-id`' />
+                            <parameter name='cto-api.contrail-route-allotted-resource-id'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.route-allotted-resource-id`' />
+                            <parameter name='cto-api.src-contrail-network-fqdn'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-network-fqdn`' />
+                            <parameter name='cto-api.collector-contrail-network-fqdn'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.dest-network-fqdn`' />
+                            <parameter name='cto-api.rollback-flag' value='false' />
+                            <parameter name='cto-api.owning-entity'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.owning-entity`' />
+                        </set>
+                        <call module='GENERIC-RESOURCE-API' rpc='api-contrail-route-topology-operation-deactivate' mode='sync' >
+                            <outcome value='failure'>
+                                <block atomic="true">
+                                    <configure activate="true" adaptor="com.att.sdnctl.sli.adaptor.mso.MSOAdaptor" key="__READ_FROM_PARAMETERS__">
+                                        <parameter name="notification-url" value="`$port-mirror-topology-operation-input.sdnc-request-header.svc-notification-url`" />
+                                        <parameter name="input.ack-final-indicator" value="Y" />
+                                        <parameter name="input.response-code" value="500" />
+                                        <parameter name="input.response-message" value="`$error-message`" />
+                                        <parameter name="input.svc-request-id" value="`$port-mirror-topology-operation-input.sdnc-request-header.svc-request-id`" />
+                                        <parameter name="input.service-information.service-type" value="`$port-mirror-topology-operation-input.service-information.subscription-service-type`" />
+                                        <parameter name="input.service-information.service-instance-id" value="`$port-mirror-topology-operation-input.service-information.service-instance-id`" />
+                                    </configure>
+                                    <return status='failure'>
+                                        <parameter name='ack-final' value='Y'/>
+                                        <parameter name="error-code" value="500" />
+                                        <parameter name="error-message" value="`'$error-message'`" />
+                                    </return>
+                                </block>
+                            </outcome>
+                        </call>
+                    </block>
+                </outcome>
+            </switch>
+            <update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+   resource="configuration"
+   key="configuration.configuration-id = $tmp.configuration-id"
+   force="true" pfx="tmp.AnAI-data">
+                <parameter name="operational-status" value="out-of-service-path" />
+                <outcome value='not-found'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name="error-message" value="Unable to find configuration object in AAI" />
+                        </set>
+                        <block atomic="true">
+                            <configure activate="true" adaptor="com.att.sdnctl.sli.adaptor.mso.MSOAdaptor" key="__READ_FROM_PARAMETERS__">
+                                <parameter name="notification-url" value="`$port-mirror-topology-operation-input.sdnc-request-header.svc-notification-url`" />
+                                <parameter name="input.ack-final-indicator" value="Y" />
+                                <parameter name="input.response-code" value="500" />
+                                <parameter name="input.response-message" value="`$error-message`" />
+                                <parameter name="input.svc-request-id" value="`$port-mirror-topology-operation-input.sdnc-request-header.svc-request-id`" />
+                                <parameter name="input.service-information.service-type" value="`$port-mirror-topology-operation-input.service-information.subscription-service-type`" />
+                                <parameter name="input.service-information.service-instance-id" value="`$port-mirror-topology-operation-input.service-information.service-instance-id`" />
+                            </configure>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="`'$error-message'`" />
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+                <outcome value='failure'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name="error-message" value="Failure updating configuration object in AAI" />
+                        </set>
+                        <block atomic="true">
+                            <configure activate="true" adaptor="com.att.sdnctl.sli.adaptor.mso.MSOAdaptor" key="__READ_FROM_PARAMETERS__">
+                                <parameter name="notification-url" value="`$port-mirror-topology-operation-input.sdnc-request-header.svc-notification-url`" />
+                                <parameter name="input.ack-final-indicator" value="Y" />
+                                <parameter name="input.response-code" value="500" />
+                                <parameter name="input.response-message" value="`$error-message`" />
+                                <parameter name="input.svc-request-id" value="`$port-mirror-topology-operation-input.sdnc-request-header.svc-request-id`" />
+                                <parameter name="input.service-information.service-type" value="`$port-mirror-topology-operation-input.service-information.subscription-service-type`" />
+                                <parameter name="input.service-information.service-instance-id" value="`$port-mirror-topology-operation-input.service-information.service-instance-id`" />
+                            </configure>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="`'$error-message'`" />
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+            </update>
+            <set>
+                <parameter name='pm.configuration-data.configuration-oper-status.order-status'
+  value='Created' />
+                <parameter name='pm.configuration-data.configuration-oper-status.last-action'
+  value='`$port-mirror-topology-operation-input.request-information.request-action`' />
+                <parameter name='pm.configuration-data.configuration-oper-status.last-rpc-action'
+  value='`$port-mirror-topology-operation-input.sdnc-request-header.svc-action`' />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.portmirrorconfig.templatefile`" />
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.pmc-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='PUT' />
+                <parameter name="responsePrefix" value="mdsal-pmc" />
+                <outcome value='success'>
+                    <block></block>
+                </outcome>
+                <outcome value='failure'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name="error-message" value="Error updating md-sal for port-mirror-configuration" />
+                        </set>
+                        <block atomic="true">
+                            <configure activate="true" adaptor="com.att.sdnctl.sli.adaptor.mso.MSOAdaptor" key="__READ_FROM_PARAMETERS__">
+                                <parameter name="notification-url" value="`$port-mirror-topology-operation-input.sdnc-request-header.svc-notification-url`" />
+                                <parameter name="input.ack-final-indicator" value="Y" />
+                                <parameter name="input.response-code" value="500" />
+                                <parameter name="input.response-message" value="`$error-message`" />
+                                <parameter name="input.svc-request-id" value="`$port-mirror-topology-operation-input.sdnc-request-header.svc-request-id`" />
+                                <parameter name="input.service-information.service-type" value="`$port-mirror-topology-operation-input.service-information.subscription-service-type`" />
+                                <parameter name="input.service-information.service-instance-id" value="`$port-mirror-topology-operation-input.service-information.service-instance-id`" />
+                            </configure>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="`'$error-message'`" />
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+                <outcome value='not-found'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name="error-message" value="Error updating md-sal for port-mirror-configuration" />
+                        </set>
+                        <block atomic="true">
+                            <configure activate="true" adaptor="com.att.sdnctl.sli.adaptor.mso.MSOAdaptor" key="__READ_FROM_PARAMETERS__">
+                                <parameter name="notification-url" value="`$port-mirror-topology-operation-input.sdnc-request-header.svc-notification-url`" />
+                                <parameter name="input.ack-final-indicator" value="Y" />
+                                <parameter name="input.response-code" value="500" />
+                                <parameter name="input.response-message" value="`$error-message`" />
+                                <parameter name="input.svc-request-id" value="`$port-mirror-topology-operation-input.sdnc-request-header.svc-request-id`" />
+                                <parameter name="input.service-information.service-type" value="`$port-mirror-topology-operation-input.service-information.subscription-service-type`" />
+                                <parameter name="input.service-information.service-instance-id" value="`$port-mirror-topology-operation-input.service-information.service-instance-id`" />
+                            </configure>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="`'$error-message'`" />
+                            </return>
+                        </block>
+                    </block>
+                </outcome>
+            </execute>
+            <configure activate="true" adaptor="com.att.sdnctl.sli.adaptor.mso.MSOAdaptor" key="__READ_FROM_PARAMETERS__">
+                <parameter name="notification-url" value="`$port-mirror-topology-operation-input.sdnc-request-header.svc-notification-url`" />
+                <parameter name="input.ack-final-indicator" value="Y" />
+                <parameter name="input.response-code" value="200" />
+                <parameter name="input.svc-request-id" value="`$port-mirror-topology-operation-input.sdnc-request-header.svc-request-id`" />
+                <parameter name="input.service-information.service-type" value="`$port-mirror-topology-operation-input.service-information.subscription-service-type`" />
+                <parameter name="input.service-information.service-instance-id" value="`$port-mirror-topology-operation-input.service-information.service-instance-id`" />
+            </configure>
+            <return status='success'>
+                <parameter name='error-code' value='200' />
+            </return>
+        </block>
+    </method>
+</service-logic>

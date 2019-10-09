@@ -1,0 +1,25 @@
+{
+    "bpgAsNum": 65101,
+    "vpnType": "dsvpn",
+    "siteScale":"30",
+    "dsvpnIPpool": ["100.1.0.0/16"],
+    "innerTunnelIPpool": [
+      "101.1.0.0/16"
+    ],
+    "interConnectIPpool": "102.1.0.0/16",
+    "transportNetworks": [
+      {
+        "name": "net001",
+        "routingDomain": "routing001",
+        "description": "string"
+      }
+    ],
+    "routingDomain":[{
+    	"name": "routing001",
+    	"ipsecEncryption":false
+    }],
+    "ipsecEncryptionParameter": {
+      "encrptionAlgorithm":"AES128",
+      "preSharedKey": "Admin@12134=========================================="
+    }
+}

@@ -1,0 +1,95 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='aai-get-network-instance-group' mode='sync'>
+        <block atomic="true">
+            <set>
+                <parameter name='aaiapi.output.collection-customization-uuid' value='' />
+                <parameter name='aaiapi.output.collection-name' value='' />
+                <parameter name='aaiapi.output.collection-function' value='' />
+                <parameter name='aaiapi.output.collection.collection-id' value='' />
+            </set>
+            <switch test='`$aaiapi.input.network-instance-group-id`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error aaiapi.input.network-instance-group-id is NULL" />
+                    </return>
+                </outcome>
+                <outcome value='Other'>
+                    <block atomic="true">
+                        <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="instance-group" 
+		key="instance-group.id = $aaiapi.input.network-instance-group-id" 
+		local-only="false" 
+		pfx="tmp.AnAI.networkInstanceGroup">
+                            <outcome value='failure'>
+                                <return status='failure'>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="`'Error retrieving network instance group with id=' + $aaiapi.input.network-instance-group-id + ' from AnAI'`" />
+                                </return>
+                            </outcome>
+                            <outcome value='not-found'>
+                                <return status='failure'>
+                                    <parameter name="error-code" value="404" />
+                                    <parameter name="error-message" value="`'network instance group id: ' + $aaiapi.input.network-instance-group-id + 'not found in AnAI'`" />
+                                </return>
+                            </outcome>
+                        </get-resource>
+                        <for silentFailure='true' index='ridx' start='0' end="`$tmp.AnAI.networkInstanceGroup.relationship-list.relationship_length`" >
+                            <for silentFailure='true' index='rdidx' start='0' end="`$tmp.AnAI.networkInstanceGroup.relationship-list.relationship[$ridx].relationship-data_length`" >
+                                <switch test='`$tmp.AnAI.networkInstanceGroup.relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-key`'>
+                                    <outcome value='collection.collection-id'>
+                                        <block atomic="true">
+                                            <set>
+                                                <parameter name='aaiapi.output.collection.collection-id' value='`$tmp.AnAI.networkInstanceGroup.relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-value`' />
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                            </for>
+                        </for>
+                        <switch test='`$aaiapi.output.collection.collection-id`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name="error-code" value="404" />
+                                    <parameter name="error-message" value="`'network instance group id: ' + $aaiapi.input.network-instance-group-id + ' collection not found in AnAI'`" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="collection" 
+		key="collection.collection-id = $aaiapi.output.collection.collection-id" 
+		local-only="false" 
+		pfx="tmp.AnAI.collection">
+                            <outcome value='failure'>
+                                <return status='failure'>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="`'Error retrieving collection with id=' + $aaiapi.output.collection.collection-id + ' from AnAI'`" />
+                                </return>
+                            </outcome>
+                            <outcome value='not-found'>
+                                <return status='failure'>
+                                    <parameter name="error-code" value="404" />
+                                    <parameter name="error-message" value="`'collection: ' + $aaiapi.output.collection.collection-id + 'not found in AnAI'`" />
+                                </return>
+                            </outcome>
+                            <outcome value='success'>
+                                <block atomic="true">
+                                    <set>
+                                        <parameter name='aaiapi.output.collection-customization-uuid' value='`$tmp.AnAI.collection.collection-customization-id`' />
+                                        <parameter name='aaiapi.output.collection-name' value='`$tmp.AnAI.collection.collection-name`' />
+                                        <parameter name='aaiapi.output.collection-function' value='`$tmp.AnAI.collection.collection-function`' />
+                                    </set>
+                                    <return status='success'>
+                                        <parameter name='' value='' />
+                                    </return>
+                                </block>
+                            </outcome>
+                        </get-resource>
+                    </block>
+                </outcome>
+            </switch>
+        </block>
+    </method>
+</service-logic>

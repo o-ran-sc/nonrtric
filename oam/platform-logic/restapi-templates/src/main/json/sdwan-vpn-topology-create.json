@@ -1,0 +1,11 @@
+{
+    "vpnId": ${prop.vpn1Id},
+    "areas": [
+        {
+            "name": "area1",
+            "areaType": "backbone",
+            "topologyType": ${prop.topology}
+        }
+    ]
+}
+

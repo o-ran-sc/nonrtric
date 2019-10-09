@@ -1,0 +1,1593 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='auto-ip-assignment' mode='sync'>
+        <block atomic="true">
+            <switch test='`$auto-ip-assignment-input.aic-cloud-region`'>
+                <outcome value=''>
+                    <return status="failure">
+                        <parameter name="ack-final" value="Y" />
+                        <parameter name="error-code" value="500"/>
+                        <parameter name="error-message" value="auto-ip-assignment-input.aic-cloud-region is null" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$auto-ip-assignment-input.vf-module.model-customization-uuid`'>
+                <outcome value=''>
+                    <return status="failure">
+                        <parameter name="ack-final" value="Y" />
+                        <parameter name="error-code" value="500"/>
+                        <parameter name="error-message" value="auto-ip-assignment-input.vf-module.model-customization-uuid is null" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$auto-ip-assignment-input.vf-module-id`'>
+                <outcome value=''>
+                    <return status="failure">
+                        <parameter name="ack-final" value="Y" />
+                        <parameter name="error-code" value="500"/>
+                        <parameter name="error-message" value="auto-ip-assignment-input.vf-module-id is null" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$auto-ip-assignment-input.service-instance-id`'>
+                <outcome value=''>
+                    <return status="failure">
+                        <parameter name="ack-final" value="Y" />
+                        <parameter name="error-code" value="500"/>
+                        <parameter name="error-message" value="auto-ip-assignment-input.service-instance-id is null" />
+                    </return>
+                </outcome>
+            </switch>
+            <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT * from VF_MODULE_MODEL WHERE customization_uuid = $auto-ip-assignment-input.vf-module.model-customization-uuid'
+  pfx='db1.vf-module-model'>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error reading VF_MODULE_MODEL table" />
+                    </return>
+                </outcome>
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="404" />
+                        <parameter name="error-message" value="`'No model found for VF module customization UUID ' + $vnf-topology-operation-input.vnf-request-information.model-customization-uuid`" />
+                    </return>
+                </outcome>
+            </get-resource>
+            <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+	key='SELECT * from VF_MODULE_TO_VFC_MAPPING WHERE vf_module_customization_uuid = $auto-ip-assignment-input.vf-module.model-customization-uuid 
+		AND vm_count > 0'
+  pfx='db1.vf-module-to-vfc-mapping[]'>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error reading VF_MODULE_TO_VFC_MAPPING table" />
+                    </return>
+                </outcome>
+                <outcome value='not-found'>
+                    <set>
+                        <parameter name='db1.vf-module-to-vfc-mapping_length' value='0' />
+                    </set>
+                </outcome>
+            </get-resource>
+            <block atomic='true'>
+                <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="cloud-region" 
+		key="cloud-region.cloud-owner = $prop.cloud-region.cloud-owner AND 
+		     cloud-region.cloud-region-id = $auto-ip-assignment-input.aic-cloud-region AND
+		     depth = '0'"
+        pfx='aai.cloud-region' >
+                    <outcome value='not-found'>
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="404" />
+                            <parameter name="error-message" value="`'aic-cloud-region, '+ $generate-fqpn-input.aic-cloud-region + ' not found in AAI'`" />
+                        </return>
+                    </outcome>
+                    <outcome value='failure'>
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="Error retrieving cloud region from AAI" />
+                        </return>
+                    </outcome>
+                </get-resource>
+                <switch test='`$aai.cloud-region.relationship-list.relationship_length`'>
+                    <outcome value='0'>
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="cloud-region missing relationships in AAI" />
+                        </return>
+                    </outcome>
+                    <outcome value=''>
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="500" />
+                            <parameter name="error-message" value="cloud-region missing relationships in AAI" />
+                        </return>
+                    </outcome>
+                </switch>
+                <for index='ridx' start='0' end='`$aai.cloud-region.relationship-list.relationship_length`' >
+                    <for silentFailure='false' index='rdidx' start='0' end="`$aai.cloud-region.relationship-list.relationship[$ridx].relationship-data_length`" >
+                        <switch test='`$aai.cloud-region.relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-key`'>
+                            <outcome value='complex.physical-location-id'>
+                                <block atomic='true'>
+                                    <block>
+                                        <set>
+                                            <parameter name='tmp.aic-clli' value='`$aai.cloud-region.relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-value`' />
+                                        </set>
+                                        <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='substring'>
+                                            <parameter name='result' value='tmp.truncated.clli8' />
+                                            <parameter name='string' value='`$tmp.aic-clli`' />
+                                            <parameter name='begin-index' value='0' />
+                                            <parameter name='end-index' value='8' />
+                                        </execute>
+                                        <set>
+                                            <parameter name='generate-FQPN-input.location-clli8' value='`$tmp.truncated.clli8`' />
+                                        </set>
+                                    </block>
+                                    <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="complex" 
+		key="complex.physical-location-id = $aai.cloud-region.relationship-list.relationship[$ridx].relationship-data[$rdidx].relationship-value"
+    pfx='aai.complex' >
+                                        <outcome value='not-found'>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="Complex not found in AAI" />
+                                            </return>
+                                        </outcome>
+                                        <outcome value='failure'>
+                                            <return status='failure'>
+                                                <parameter name='ack-final' value='Y'/>
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="Error retrieving complex from AAI" />
+                                            </return>
+                                        </outcome>
+                                    </get-resource>
+                                    <set>
+                                        <parameter name='generate-FQPN-input.complex-region' value='`$aai.complex.region`' />
+                                    </set>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </for>
+                </for>
+                <set>
+                    <parameter name='generate-FQPN-input.aic-cloud-region' 
+	value='`$auto-ip-assignment-input.aic-cloud-region`' />
+                </set>
+            </block>
+            <set>
+                <parameter name='tmp.network-role-query-results_length' value='0' />
+            </set>
+            <set>
+                <parameter name='eipam-ip-block.plans_length' value = '0' />
+                <parameter name='query-aai-l3-network-by-network-role-output.' value = '' />
+            </set>
+            <set>
+                <parameter name='qridx' value = '0' />
+            </set>
+            <set>
+                <parameter name='pidx' value = '0' />
+            </set>
+            <for index='vm-type-index' start='0' end='`$db1.vf-module-to-vfc-mapping_length`' >
+                <block atomic="true">
+                    <set>
+                        <parameter name='vm-type-loop' value = 'START' />
+                        <parameter name='tmp.vm-type' value = '`$db1.vf-module-to-vfc-mapping[$vm-type-index].vm-type`' />
+                    </set>
+                    <set>
+                        <parameter name='tmp.db1.' value = '' />
+                    </set>
+                    <set>
+                        <parameter name='db1.vfc-to-network-role-mapping.' value = '' />
+                    </set>
+                    <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+	key='SELECT * from VFC_TO_NETWORK_ROLE_MAPPING WHERE vfc_customization_uuid = $db1.vf-module-to-vfc-mapping[$vm-type-index].vfc-customization-uuid 
+		AND (ipv4_count > 0 OR ipv6_count > 0 OR ipv4_floating_count > 0 OR ipv6_floating_count > 0)'
+	pfx='db1.vfc-to-network-role-mapping[]'>
+                        <outcome value='not-found'>
+                            <set>
+                                <parameter name='db1.vfc-to-network-role-mapping_length' value='0' />
+                            </set>
+                        </outcome>
+                        <outcome value='failure'>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="Error reading VFC_TO_NETWORK_ROLE_MAPPING table" />
+                            </return>
+                        </outcome>
+                    </get-resource>
+                    <set>
+                        <parameter name='tmp.qresult.network-role' value = '`$tmp.network-role-query-results[$q].l3-network.network-role`' />
+                    </set>
+                    <for index='network-role-index' start='0' end='`$db1.vfc-to-network-role-mapping_length`' >
+                        <block atomic="true">
+                            <set>
+                                <parameter name='network-role-loop' value = 'START' />
+                            </set>
+                            <set>
+                                <parameter name='tmp.plan-index-to-be-incremented' value='false' />
+                            </set>
+                            <set>
+                                <parameter name='tmp.network-role.found' value = 'false' />
+                            </set>
+                            <set>
+                                <parameter name='tmp.db1.network-role' value = '`$db1.vfc-to-network-role-mapping[$network-role-index].network-role`' />
+                            </set>
+                            <set>
+                                <parameter name='tmp.db1.network-role-tag' value = '`$db1.vfc-to-network-role-mapping[$network-role-index].network-role-tag`' />
+                            </set>
+                            <block atomic='true'>
+                                <block>
+                                    <for index='q' start='0' end='`$tmp.network-role-query-results_length`' >
+                                        <set>
+                                            <parameter name='tmp.qresult.network-role' value = '`$tmp.network-role-query-results[$q].l3-network.network-role`' />
+                                        </set>
+                                        <switch test='`$tmp.qresult.network-role == $tmp.db1.network-role`' >
+                                            <outcome value='true'>
+                                                <block atomic='true'>
+                                                    <set>
+                                                        <parameter name='generate-FQPN-input.network-name' 
+	value='`$tmp.network-role-query-results[$q].l3-network.network-name`' />
+                                                        <parameter name='generate-FQPN-input.network-id' 
+	value='`$tmp.network-role-query-results[$q].l3-network.network-id`' />
+                                                    </set>
+                                                    <set>
+                                                        <parameter name='tmp.network-role.found' value = 'true' />
+                                                    </set>
+                                                    <set>
+                                                        <parameter name='query-results-found-index' value = '`$q`' />
+                                                    </set>
+                                                    <return status='failure'></return>
+                                                </block>
+                                            </outcome>
+                                        </switch>
+                                    </for>
+                                    <return status='success'></return>
+                                </block>
+                                <switch test='`$tmp.network-role.found`'>
+                                    <outcome value='false'>
+                                        <block atomic='true'>
+                                            <set>
+                                                <parameter name='query-aai-l3-network-by-network-role-input.aic-cloud-region' 
+	value='`$auto-ip-assignment-input.aic-cloud-region`' />
+                                                <parameter name='query-aai-l3-network-by-network-role-input.service-instance-id' 
+	value='`$auto-ip-assignment-input.service-instance-id`' />
+                                                <parameter name='query-aai-l3-network-by-network-role-input.network-role' 
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].network-role`' />
+                                                <!--
+filter options: service-instance-id, aic-cloud-region, null, Other (or any string)
+    - null or Other will filter by aic-cloud-region first, then service-instance-id
+<parameter name='query-aai-l3-network-by-network-role-input.filter' 
+	value='service-instance-id' />
+-->
+                                            </set>
+                                            <call module='GENERIC-RESOURCE-API' rpc='query-aai-l3-network-by-network-role' mode='sync' >
+                                                <outcome value='failure'>
+                                                    <return status="failure">
+                                                        <parameter name="ack-final" value="Y" />
+                                                        <parameter name="error-code" value="500"/>
+                                                        <parameter name="error-message" value="`'An error occured while querying AAI to retrieve l3-network by network-role: ' + $error-message`" />
+                                                    </return>
+                                                </outcome>
+                                            </call>
+                                            <set>
+                                                <parameter name='generate-FQPN-input.network-name' 
+	value='`$query-aai-l3-network-by-network-role-output.l3-network.network-name`' />
+                                                <parameter name='generate-FQPN-input.network-id' 
+	value='`$query-aai-l3-network-by-network-role-output.l3-network.network-id`' />
+                                            </set>
+                                            <set>
+                                                <parameter name='tmp.network-role-query-results[$qridx].l3-network.' 
+	value='`$query-aai-l3-network-by-network-role-output.l3-network.`' />
+                                                <parameter name='tmp.network-role-query-results[$qridx].l3-network.network-role-tag' 
+	value='`$tmp.db1.network-role-tag`' />
+                                                <!--
+<parameter name='tmp.network-role-query-results[$qridx].network-role' 
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].network-role`' /><parameter name='tmp.network-role-query-results[$qridx].network-name' 
+	value='`$query-aai-l3-network-by-network-role-output.l3-network.network-name`' />
+-->
+                                            </set>
+                                            <set>
+                                                <parameter name='eipam-ip-block.plans[$pidx].l3-network.' 
+	value='query-aai-l3-network-by-network-role-output.l3-network.' />
+                                            </set>
+                                            <set>
+                                                <parameter name='qridx' value='`$qridx + 1`' />
+                                            </set>
+                                            <set>
+                                                <parameter name='tmp.network-role-query-results_length' value='`$qridx`' />
+                                            </set>
+                                            <block atomic="true">
+                                                <set>
+                                                    <parameter name='ridx' value='0' />
+                                                </set>
+                                                <set>
+                                                    <parameter name='eipam-ip-block.plans[$pidx].network-role'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].network-role`' />
+                                                    <parameter name='eipam-ip-block.plans[$pidx].subnet-role'
+    value="`$db1.vfc-to-network-role-mapping[$network-role-index].subnet-role`" />
+                                                </set>
+                                                <switch test='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-ip-version`'>
+                                                    <outcome value='4'>
+                                                        <switch test='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-use-dhcp`'>
+                                                            <outcome value='N'>
+                                                                <switch test='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-count &gt; 0`'>
+                                                                    <outcome value='true'>
+                                                                        <block atomic='true'>
+                                                                            <set>
+                                                                                <parameter name='generate-FQPN-input.plan-name'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-address-plan-name`' />
+                                                                                <parameter name='generate-FQPN-input.network-role'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].network-role`' />
+                                                                                <parameter name='generate-FQPN-input.subnet-role'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].subnet-role`' />
+                                                                                <parameter name='generate-FQPN-input.vrf-name'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-vrf-name`' />
+                                                                                <!--
+<parameter name='generate-FQPN-input.plans-index' value='`$pidx`' /><parameter name='generate-FQPN-input.requests-index' value='`$ridx`' />
+-->
+                                                                            </set>
+                                                                            <call module='GENERIC-RESOURCE-API' rpc='generate-FQPN' mode='sync' >
+                                                                                <outcome value='failure'>
+                                                                                    <return status="failure">
+                                                                                        <parameter name="ack-final" value="Y" />
+                                                                                        <parameter name="error-code" value="500"/>
+                                                                                        <parameter name="error-message" value="`'An error occured while generating FQPN: '+ $error-message`" />
+                                                                                    </return>
+                                                                                </outcome>
+                                                                            </call>
+                                                                            <set>
+                                                                                <parameter name='eipam-ip-block.plans[$pidx].plan-name'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-address-plan-name`' />
+                                                                                <parameter name='eipam-ip-block.plans[$pidx].address-family'
+    value="`'ipv' + $db1.vfc-to-network-role-mapping[$network-role-index].ipv4-ip-version`" />
+                                                                            </set>
+                                                                            <set>
+                                                                                <parameter name='tmp.plan-index-to-be-incremented' value='true' />
+                                                                            </set>
+                                                                            <set>
+                                                                                <parameter name='tmp.client-key.seq' value='0' />
+                                                                            </set>
+                                                                            <for index='vm-index' start='0' end='`$db1.vf-module-to-vfc-mapping[$vm-type-index].vm-count`' >
+                                                                                <for index='ipv4-index' start='0' end='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-count`' >
+                                                                                    <block atomic='true'>
+                                                                                        <set>
+                                                                                            <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].ip-version'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-ip-version`' />
+                                                                                            <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].use-dhcp'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-use-dhcp`' />
+                                                                                        </set>
+                                                                                        <set>
+                                                                                            <parameter name='tmp.client-key.seq' value='`$tmp.client-key.seq + 1`' />
+                                                                                        </set>
+                                                                                        <block atomic='true'>
+                                                                                            <set>
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].'
+    value='generate-FQPN-output.' />
+                                                                                            </set>
+                                                                                            <set>
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].vm-type'
+    value='`$db1.vf-module-to-vfc-mapping[$vm-type-index].vm-type`' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].network-role'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].network-role`' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].subnet-role'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].subnet-role`' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].ip-type'
+    value='FIXED' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name'
+    value='`$auto-ip-assignment-input.vnf-topology.vnf-assignments.vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name`' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].vnfc-name'
+    value='`$auto-ip-assignment-input.vnf-topology.vnf-assignments.vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name`' />
+                                                                                            </set>
+                                                                                            <block>
+                                                                                                <switch test='`$tmp.client-key.seq &lt; 10`'>
+                                                                                                    <outcome value='true'>
+                                                                                                        <set>
+                                                                                                            <parameter name='tmp.client-key.padding' value='000' />
+                                                                                                        </set>
+                                                                                                    </outcome>
+                                                                                                    <outcome value='false'>
+                                                                                                        <switch test='`$tmp.client-key.seq &lt; 100`'>
+                                                                                                            <outcome value='true'>
+                                                                                                                <set>
+                                                                                                                    <parameter name='tmp.client-key.padding' value='00' />
+                                                                                                                </set>
+                                                                                                            </outcome>
+                                                                                                            <outcome value='false'>
+                                                                                                                <switch test='`$tmp.client-key.seq &lt; 1000`'>
+                                                                                                                    <outcome value='true'>
+                                                                                                                        <set>
+                                                                                                                            <parameter name='tmp.client-key.padding' value='0' />
+                                                                                                                        </set>
+                                                                                                                    </outcome>
+                                                                                                                    <outcome value='false'>
+                                                                                                                        <switch test='`$tmp.client-key.seq &lt; 10000`'>
+                                                                                                                            <outcome value='true'>
+                                                                                                                                <set>
+                                                                                                                                    <parameter name='tmp.client-key.padding' value='' />
+                                                                                                                                </set>
+                                                                                                                            </outcome>
+                                                                                                                        </switch>
+                                                                                                                    </outcome>
+                                                                                                                </switch>
+                                                                                                            </outcome>
+                                                                                                        </switch>
+                                                                                                    </outcome>
+                                                                                                </switch>
+                                                                                            </block>
+                                                                                            <set>
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].client-key'
+   value="`$eipam-ip-block.plans[$pidx].requests[$ridx].vm-type + '|' +
+			$eipam-ip-block.plans[$pidx].requests[$ridx].vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name + '|' +
+			$eipam-ip-block.plans[$pidx].requests[$ridx].network-role + '|' + 
+			$eipam-ip-block.plans[$pidx].requests[$ridx].subnet-role + '|' +
+			$eipam-ip-block.plans[$pidx].requests[$ridx].ip-type + '|' + 
+			$eipam-ip-block.plans[$pidx].requests[$ridx].ip-version + '|' +
+			$tmp.client-key.padding + $tmp.client-key.seq`"/>
+                                                                                                <!-- rdn|zrdm3amdns02testdns001|data|static|VIP|4|0001 -->
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].info'
+   value='`$auto-ip-assignment-input.vf-module-id`' />
+                                                                                            </set>
+                                                                                            <set>
+                                                                                                <parameter name='ridx' value='`$ridx + 1`' />
+                                                                                            </set>
+                                                                                            <set>
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests_length' value='`$ridx`' />
+                                                                                            </set>
+                                                                                        </block>
+                                                                                    </block>
+                                                                                </for>
+                                                                            </for>
+                                                                        </block>
+                                                                    </outcome>
+                                                                </switch>
+                                                            </outcome>
+                                                        </switch>
+                                                    </outcome>
+                                                </switch>
+                                                <switch test='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-ip-version`'>
+                                                    <outcome value='6'>
+                                                        <switch test='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-use-dhcp`'>
+                                                            <outcome value='N'>
+                                                                <switch test='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-count &gt; 0`'>
+                                                                    <outcome value='true'>
+                                                                        <block atomic='true'>
+                                                                            <set>
+                                                                                <parameter name='generate-FQPN-input.plan-name'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-address-plan-name`' />
+                                                                                <parameter name='generate-FQPN-input.network-role'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].network-role`' />
+                                                                                <parameter name='generate-FQPN-input.subnet-role'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].subnet-role`' />
+                                                                                <parameter name='generate-FQPN-input.vrf-name'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-vrf-name`' />
+                                                                                <!--
+<parameter name='generate-FQPN-input.plans-index' value='`$pidx`' /><parameter name='generate-FQPN-input.requests-index' value='`$ridx`' />
+-->
+                                                                            </set>
+                                                                            <call module='GENERIC-RESOURCE-API' rpc='generate-FQPN' mode='sync' >
+                                                                                <outcome value='failure'>
+                                                                                    <return status="failure">
+                                                                                        <parameter name="ack-final" value="Y" />
+                                                                                        <parameter name="error-code" value="500"/>
+                                                                                        <parameter name="error-message" value="`'An error occured while generating FQPN: '+ $error-message`" />
+                                                                                    </return>
+                                                                                </outcome>
+                                                                            </call>
+                                                                            <set>
+                                                                                <parameter name='eipam-ip-block.plans[$pidx].plan-name'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-address-plan-name`' />
+                                                                                <parameter name='eipam-ip-block.plans[$pidx].address-family'
+    value="`'ipv' + $db1.vfc-to-network-role-mapping[$network-role-index].ipv6-ip-version`" />
+                                                                            </set>
+                                                                            <set>
+                                                                                <parameter name='tmp.plan-index-to-be-incremented' value='true' />
+                                                                            </set>
+                                                                            <set>
+                                                                                <parameter name='tmp.client-key.seq' value='0' />
+                                                                            </set>
+                                                                            <for index='vm-index' start='0' end='`$db1.vf-module-to-vfc-mapping[$vm-type-index].vm-count`' >
+                                                                                <for index='ipv6-index' start='0' end='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-count`' >
+                                                                                    <block atomic='true'>
+                                                                                        <set>
+                                                                                            <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].ip-version'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-ip-version`' />
+                                                                                            <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].use-dhcp'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-use-dhcp`' />
+                                                                                        </set>
+                                                                                        <set>
+                                                                                            <parameter name='tmp.client-key.seq' value='`$tmp.client-key.seq + 1`' />
+                                                                                        </set>
+                                                                                        <block atomic='true'>
+                                                                                            <set>
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].'
+    value='generate-FQPN-output.' />
+                                                                                            </set>
+                                                                                            <set>
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].vm-type'
+    value='`$db1.vf-module-to-vfc-mapping[$vm-type-index].vm-type`' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].network-role'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].network-role`' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].subnet-role'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].subnet-role`' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].ip-type'
+    value='FIXED' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name'
+    value='`$auto-ip-assignment-input.vnf-topology.vnf-assignments.vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name`' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].vnfc-name'
+    value='`$auto-ip-assignment-input.vnf-topology.vnf-assignments.vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name`' />
+                                                                                            </set>
+                                                                                            <block>
+                                                                                                <switch test='`$tmp.client-key.seq &lt; 10`'>
+                                                                                                    <outcome value='true'>
+                                                                                                        <set>
+                                                                                                            <parameter name='tmp.client-key.padding' value='000' />
+                                                                                                        </set>
+                                                                                                    </outcome>
+                                                                                                    <outcome value='false'>
+                                                                                                        <switch test='`$tmp.client-key.seq &lt; 100`'>
+                                                                                                            <outcome value='true'>
+                                                                                                                <set>
+                                                                                                                    <parameter name='tmp.client-key.padding' value='00' />
+                                                                                                                </set>
+                                                                                                            </outcome>
+                                                                                                            <outcome value='false'>
+                                                                                                                <switch test='`$tmp.client-key.seq &lt; 1000`'>
+                                                                                                                    <outcome value='true'>
+                                                                                                                        <set>
+                                                                                                                            <parameter name='tmp.client-key.padding' value='0' />
+                                                                                                                        </set>
+                                                                                                                    </outcome>
+                                                                                                                    <outcome value='false'>
+                                                                                                                        <switch test='`$tmp.client-key.seq &lt; 10000`'>
+                                                                                                                            <outcome value='true'>
+                                                                                                                                <set>
+                                                                                                                                    <parameter name='tmp.client-key.padding' value='' />
+                                                                                                                                </set>
+                                                                                                                            </outcome>
+                                                                                                                        </switch>
+                                                                                                                    </outcome>
+                                                                                                                </switch>
+                                                                                                            </outcome>
+                                                                                                        </switch>
+                                                                                                    </outcome>
+                                                                                                </switch>
+                                                                                            </block>
+                                                                                            <set>
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].client-key'
+   value="`$eipam-ip-block.plans[$pidx].requests[$ridx].vm-type + '|' +
+			$eipam-ip-block.plans[$pidx].requests[$ridx].vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name + '|' +
+			$eipam-ip-block.plans[$pidx].requests[$ridx].network-role + '|' + 
+			$eipam-ip-block.plans[$pidx].requests[$ridx].subnet-role + '|' +
+			$eipam-ip-block.plans[$pidx].requests[$ridx].ip-type + '|' + 
+			$eipam-ip-block.plans[$pidx].requests[$ridx].ip-version + '|' +
+			$tmp.client-key.padding + $tmp.client-key.seq`"/>
+                                                                                                <!-- rdn|zrdm3amdns02testdns001|data|static|VIP|4|0001 -->
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].info'
+   value='`$auto-ip-assignment-input.vf-module-id`' />
+                                                                                            </set>
+                                                                                            <set>
+                                                                                                <parameter name='ridx' value='`$ridx + 1`' />
+                                                                                            </set>
+                                                                                            <set>
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests_length' value='`$ridx`' />
+                                                                                            </set>
+                                                                                        </block>
+                                                                                    </block>
+                                                                                </for>
+                                                                            </for>
+                                                                        </block>
+                                                                    </outcome>
+                                                                </switch>
+                                                            </outcome>
+                                                        </switch>
+                                                    </outcome>
+                                                </switch>
+                                                <switch test='`$tmp.plan-index-to-be-incremented`'>
+                                                    <outcome value='true'>
+                                                        <block>
+                                                            <set>
+                                                                <parameter name='pidx' value='`$pidx + 1`' />
+                                                            </set>
+                                                            <set>
+                                                                <parameter name="eipam-ip-block.plans_length" value="`$pidx`"/>
+                                                            </set>
+                                                        </block>
+                                                    </outcome>
+                                                </switch>
+                                            </block>
+                                        </block>
+                                    </outcome>
+                                    <outcome value='true'>
+                                        <block atomic='true'>
+                                            <set>
+                                                <parameter name='eipam-ip-block.plans[$pidx].l3-network.' 
+	value='tmp.network-role-query-results[$query-results-found-index].l3-network.' />
+                                            </set>
+                                            <block atomic="true">
+                                                <set>
+                                                    <parameter name='ridx' value='0' />
+                                                </set>
+                                                <set>
+                                                    <parameter name='eipam-ip-block.plans[$pidx].network-role'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].network-role`' />
+                                                    <parameter name='eipam-ip-block.plans[$pidx].subnet-role'
+    value="`$db1.vfc-to-network-role-mapping[$network-role-index].subnet-role`" />
+                                                </set>
+                                                <switch test='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-ip-version`'>
+                                                    <outcome value='4'>
+                                                        <switch test='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-use-dhcp`'>
+                                                            <outcome value='N'>
+                                                                <switch test='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-count &gt; 0`'>
+                                                                    <outcome value='true'>
+                                                                        <block atomic='true'>
+                                                                            <set>
+                                                                                <parameter name='generate-FQPN-input.plan-name'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-address-plan-name`' />
+                                                                                <parameter name='generate-FQPN-input.network-role'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].network-role`' />
+                                                                                <parameter name='generate-FQPN-input.subnet-role'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].subnet-role`' />
+                                                                                <parameter name='generate-FQPN-input.vrf-name'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-vrf-name`' />
+                                                                                <!--
+<parameter name='generate-FQPN-input.plans-index' value='`$pidx`' /><parameter name='generate-FQPN-input.requests-index' value='`$ridx`' />
+-->
+                                                                            </set>
+                                                                            <call module='GENERIC-RESOURCE-API' rpc='generate-FQPN' mode='sync' >
+                                                                                <outcome value='failure'>
+                                                                                    <return status="failure">
+                                                                                        <parameter name="ack-final" value="Y" />
+                                                                                        <parameter name="error-code" value="500"/>
+                                                                                        <parameter name="error-message" value="`'An error occured while generating FQPN: '+ $error-message`" />
+                                                                                    </return>
+                                                                                </outcome>
+                                                                            </call>
+                                                                            <set>
+                                                                                <parameter name='eipam-ip-block.plans[$pidx].plan-name'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-address-plan-name`' />
+                                                                                <parameter name='eipam-ip-block.plans[$pidx].address-family'
+    value="`'ipv' + $db1.vfc-to-network-role-mapping[$network-role-index].ipv4-ip-version`" />
+                                                                            </set>
+                                                                            <set>
+                                                                                <parameter name='tmp.plan-index-to-be-incremented' value='true' />
+                                                                            </set>
+                                                                            <set>
+                                                                                <parameter name='tmp.client-key.seq' value='0' />
+                                                                            </set>
+                                                                            <for index='vm-index' start='0' end='`$db1.vf-module-to-vfc-mapping[$vm-type-index].vm-count`' >
+                                                                                <for index='ipv4-index' start='0' end='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-count`' >
+                                                                                    <block atomic='true'>
+                                                                                        <set>
+                                                                                            <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].ip-version'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-ip-version`' />
+                                                                                            <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].use-dhcp'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-use-dhcp`' />
+                                                                                        </set>
+                                                                                        <set>
+                                                                                            <parameter name='tmp.client-key.seq' value='`$tmp.client-key.seq + 1`' />
+                                                                                        </set>
+                                                                                        <block atomic='true'>
+                                                                                            <set>
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].'
+    value='generate-FQPN-output.' />
+                                                                                            </set>
+                                                                                            <set>
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].vm-type'
+    value='`$db1.vf-module-to-vfc-mapping[$vm-type-index].vm-type`' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].network-role'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].network-role`' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].subnet-role'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].subnet-role`' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].ip-type'
+    value='FIXED' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name'
+    value='`$auto-ip-assignment-input.vnf-topology.vnf-assignments.vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name`' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].vnfc-name'
+    value='`$auto-ip-assignment-input.vnf-topology.vnf-assignments.vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name`' />
+                                                                                            </set>
+                                                                                            <block>
+                                                                                                <switch test='`$tmp.client-key.seq &lt; 10`'>
+                                                                                                    <outcome value='true'>
+                                                                                                        <set>
+                                                                                                            <parameter name='tmp.client-key.padding' value='000' />
+                                                                                                        </set>
+                                                                                                    </outcome>
+                                                                                                    <outcome value='false'>
+                                                                                                        <switch test='`$tmp.client-key.seq &lt; 100`'>
+                                                                                                            <outcome value='true'>
+                                                                                                                <set>
+                                                                                                                    <parameter name='tmp.client-key.padding' value='00' />
+                                                                                                                </set>
+                                                                                                            </outcome>
+                                                                                                            <outcome value='false'>
+                                                                                                                <switch test='`$tmp.client-key.seq &lt; 1000`'>
+                                                                                                                    <outcome value='true'>
+                                                                                                                        <set>
+                                                                                                                            <parameter name='tmp.client-key.padding' value='0' />
+                                                                                                                        </set>
+                                                                                                                    </outcome>
+                                                                                                                    <outcome value='false'>
+                                                                                                                        <switch test='`$tmp.client-key.seq &lt; 10000`'>
+                                                                                                                            <outcome value='true'>
+                                                                                                                                <set>
+                                                                                                                                    <parameter name='tmp.client-key.padding' value='' />
+                                                                                                                                </set>
+                                                                                                                            </outcome>
+                                                                                                                        </switch>
+                                                                                                                    </outcome>
+                                                                                                                </switch>
+                                                                                                            </outcome>
+                                                                                                        </switch>
+                                                                                                    </outcome>
+                                                                                                </switch>
+                                                                                            </block>
+                                                                                            <set>
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].client-key'
+   value="`$eipam-ip-block.plans[$pidx].requests[$ridx].vm-type + '|' +
+			$eipam-ip-block.plans[$pidx].requests[$ridx].vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name + '|' +
+			$eipam-ip-block.plans[$pidx].requests[$ridx].network-role + '|' + 
+			$eipam-ip-block.plans[$pidx].requests[$ridx].subnet-role + '|' +
+			$eipam-ip-block.plans[$pidx].requests[$ridx].ip-type + '|' + 
+			$eipam-ip-block.plans[$pidx].requests[$ridx].ip-version + '|' +
+			$tmp.client-key.padding + $tmp.client-key.seq`"/>
+                                                                                                <!-- rdn|zrdm3amdns02testdns001|data|static|VIP|4|0001 -->
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].info'
+   value='`$auto-ip-assignment-input.vf-module-id`' />
+                                                                                            </set>
+                                                                                            <set>
+                                                                                                <parameter name='ridx' value='`$ridx + 1`' />
+                                                                                            </set>
+                                                                                            <set>
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests_length' value='`$ridx`' />
+                                                                                            </set>
+                                                                                        </block>
+                                                                                    </block>
+                                                                                </for>
+                                                                            </for>
+                                                                        </block>
+                                                                    </outcome>
+                                                                </switch>
+                                                            </outcome>
+                                                        </switch>
+                                                    </outcome>
+                                                </switch>
+                                                <switch test='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-ip-version`'>
+                                                    <outcome value='6'>
+                                                        <switch test='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-use-dhcp`'>
+                                                            <outcome value='N'>
+                                                                <switch test='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-count &gt; 0`'>
+                                                                    <outcome value='true'>
+                                                                        <block atomic='true'>
+                                                                            <set>
+                                                                                <parameter name='generate-FQPN-input.plan-name'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-address-plan-name`' />
+                                                                                <parameter name='generate-FQPN-input.network-role'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].network-role`' />
+                                                                                <parameter name='generate-FQPN-input.subnet-role'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].subnet-role`' />
+                                                                                <parameter name='generate-FQPN-input.vrf-name'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-vrf-name`' />
+                                                                                <!--
+<parameter name='generate-FQPN-input.plans-index' value='`$pidx`' /><parameter name='generate-FQPN-input.requests-index' value='`$ridx`' />
+-->
+                                                                            </set>
+                                                                            <call module='GENERIC-RESOURCE-API' rpc='generate-FQPN' mode='sync' >
+                                                                                <outcome value='failure'>
+                                                                                    <return status="failure">
+                                                                                        <parameter name="ack-final" value="Y" />
+                                                                                        <parameter name="error-code" value="500"/>
+                                                                                        <parameter name="error-message" value="`'An error occured while generating FQPN: '+ $error-message`" />
+                                                                                    </return>
+                                                                                </outcome>
+                                                                            </call>
+                                                                            <set>
+                                                                                <parameter name='eipam-ip-block.plans[$pidx].plan-name'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-address-plan-name`' />
+                                                                                <parameter name='eipam-ip-block.plans[$pidx].address-family'
+    value="`'ipv' + $db1.vfc-to-network-role-mapping[$network-role-index].ipv6-ip-version`" />
+                                                                            </set>
+                                                                            <set>
+                                                                                <parameter name='tmp.plan-index-to-be-incremented' value='true' />
+                                                                            </set>
+                                                                            <set>
+                                                                                <parameter name='tmp.client-key.seq' value='0' />
+                                                                            </set>
+                                                                            <for index='vm-index' start='0' end='`$db1.vf-module-to-vfc-mapping[$vm-type-index].vm-count`' >
+                                                                                <for index='ipv6-index' start='0' end='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-count`' >
+                                                                                    <block atomic='true'>
+                                                                                        <set>
+                                                                                            <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].ip-version'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-ip-version`' />
+                                                                                            <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].use-dhcp'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-use-dhcp`' />
+                                                                                        </set>
+                                                                                        <set>
+                                                                                            <parameter name='tmp.client-key.seq' value='`$tmp.client-key.seq + 1`' />
+                                                                                        </set>
+                                                                                        <block atomic='true'>
+                                                                                            <set>
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].'
+    value='generate-FQPN-output.' />
+                                                                                            </set>
+                                                                                            <set>
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].vm-type'
+    value='`$db1.vf-module-to-vfc-mapping[$vm-type-index].vm-type`' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].network-role'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].network-role`' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].subnet-role'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].subnet-role`' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].ip-type'
+    value='FIXED' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name'
+    value='`$auto-ip-assignment-input.vnf-topology.vnf-assignments.vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name`' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].vnfc-name'
+    value='`$auto-ip-assignment-input.vnf-topology.vnf-assignments.vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name`' />
+                                                                                            </set>
+                                                                                            <block>
+                                                                                                <switch test='`$tmp.client-key.seq &lt; 10`'>
+                                                                                                    <outcome value='true'>
+                                                                                                        <set>
+                                                                                                            <parameter name='tmp.client-key.padding' value='000' />
+                                                                                                        </set>
+                                                                                                    </outcome>
+                                                                                                    <outcome value='false'>
+                                                                                                        <switch test='`$tmp.client-key.seq &lt; 100`'>
+                                                                                                            <outcome value='true'>
+                                                                                                                <set>
+                                                                                                                    <parameter name='tmp.client-key.padding' value='00' />
+                                                                                                                </set>
+                                                                                                            </outcome>
+                                                                                                            <outcome value='false'>
+                                                                                                                <switch test='`$tmp.client-key.seq &lt; 1000`'>
+                                                                                                                    <outcome value='true'>
+                                                                                                                        <set>
+                                                                                                                            <parameter name='tmp.client-key.padding' value='0' />
+                                                                                                                        </set>
+                                                                                                                    </outcome>
+                                                                                                                    <outcome value='false'>
+                                                                                                                        <switch test='`$tmp.client-key.seq &lt; 10000`'>
+                                                                                                                            <outcome value='true'>
+                                                                                                                                <set>
+                                                                                                                                    <parameter name='tmp.client-key.padding' value='' />
+                                                                                                                                </set>
+                                                                                                                            </outcome>
+                                                                                                                        </switch>
+                                                                                                                    </outcome>
+                                                                                                                </switch>
+                                                                                                            </outcome>
+                                                                                                        </switch>
+                                                                                                    </outcome>
+                                                                                                </switch>
+                                                                                            </block>
+                                                                                            <set>
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].client-key'
+   value="`$eipam-ip-block.plans[$pidx].requests[$ridx].vm-type + '|' +
+			$eipam-ip-block.plans[$pidx].requests[$ridx].vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name + '|' +
+			$eipam-ip-block.plans[$pidx].requests[$ridx].network-role + '|' + 
+			$eipam-ip-block.plans[$pidx].requests[$ridx].subnet-role + '|' +
+			$eipam-ip-block.plans[$pidx].requests[$ridx].ip-type + '|' + 
+			$eipam-ip-block.plans[$pidx].requests[$ridx].ip-version + '|' +
+			$tmp.client-key.padding + $tmp.client-key.seq`"/>
+                                                                                                <!-- rdn|zrdm3amdns02testdns001|data|static|VIP|4|0001 -->
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].info'
+   value='`$auto-ip-assignment-input.vf-module-id`' />
+                                                                                            </set>
+                                                                                            <set>
+                                                                                                <parameter name='ridx' value='`$ridx + 1`' />
+                                                                                            </set>
+                                                                                            <set>
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests_length' value='`$ridx`' />
+                                                                                            </set>
+                                                                                        </block>
+                                                                                    </block>
+                                                                                </for>
+                                                                            </for>
+                                                                        </block>
+                                                                    </outcome>
+                                                                </switch>
+                                                            </outcome>
+                                                        </switch>
+                                                    </outcome>
+                                                </switch>
+                                                <switch test='`$tmp.plan-index-to-be-incremented`'>
+                                                    <outcome value='true'>
+                                                        <block>
+                                                            <set>
+                                                                <parameter name='pidx' value='`$pidx + 1`' />
+                                                            </set>
+                                                            <set>
+                                                                <parameter name="eipam-ip-block.plans_length" value="`$pidx`"/>
+                                                            </set>
+                                                        </block>
+                                                    </outcome>
+                                                </switch>
+                                            </block>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                            </block>
+                        </block>
+                    </for>
+                </block>
+            </for>
+            <for index='vm-type-index' start='0' end='`$db1.vf-module-to-vfc-mapping_length`' >
+                <block atomic="true">
+                    <set>
+                        <parameter name='vm-type-floating-loop' value = 'START' />
+                        <parameter name='tmp.vm-type' value = '`$db1.vf-module-to-vfc-mapping[$vm-type-index].vm-type`' />
+                    </set>
+                    <set>
+                        <parameter name='db1.vfc-to-network-role-mapping.' value = '' />
+                    </set>
+                    <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+	key='SELECT * from VFC_TO_NETWORK_ROLE_MAPPING WHERE vfc_customization_uuid = $db1.vf-module-to-vfc-mapping[$vm-type-index].vfc-customization-uuid 
+		AND (ipv4_count > 0 OR ipv6_count > 0 OR ipv4_floating_count > 0 OR ipv6_floating_count > 0)'
+	pfx='db1.vfc-to-network-role-mapping[]'>
+                        <outcome value='not-found'>
+                            <set>
+                                <parameter name='db1.vfc-to-network-role-mapping_length' value='0' />
+                            </set>
+                        </outcome>
+                        <outcome value='failure'>
+                            <return status='failure'>
+                                <parameter name='ack-final' value='Y'/>
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="Error reading VFC_TO_NETWORK_ROLE_MAPPING table" />
+                            </return>
+                        </outcome>
+                    </get-resource>
+                    <set>
+                        <parameter name='tmp.db1.network-role' value = '' />
+                    </set>
+                    <for index='network-role-index' start='0' end='`$db1.vfc-to-network-role-mapping_length`' >
+                        <block atomic="true">
+                            <set>
+                                <parameter name='network-role-loop' value = 'START' />
+                            </set>
+                            <set>
+                                <parameter name='tmp.plan-index-to-be-incremented' value='false' />
+                            </set>
+                            <set>
+                                <parameter name='tmp.network-role.found' value = 'false' />
+                            </set>
+                            <set>
+                                <parameter name='tmp.db1.network-role' value = '`$db1.vfc-to-network-role-mapping[$network-role-index].network-role`' />
+                            </set>
+                            <block atomic="true">
+                                <block>
+                                    <for index='q' start='0' end='`$tmp.network-role-query-results_length`' >
+                                        <set>
+                                            <parameter name='tmp.qresult.network-role' value = '`$tmp.network-role-query-results[$q].l3-network.network-role`' />
+                                        </set>
+                                        <switch test='`$tmp.qresult.network-role == $tmp.db1.network-role`' >
+                                            <outcome value='true'>
+                                                <block atomic='true'>
+                                                    <set>
+                                                        <parameter name='generate-FQPN-input.network-name' 
+	value='`$tmp.network-role-query-results[$q].l3-network.network-name`' />
+                                                        <parameter name='generate-FQPN-input.network-id' 
+	value='`$tmp.network-role-query-results[$q].l3-network.network-id`' />
+                                                    </set>
+                                                    <set>
+                                                        <parameter name='tmp.network-role.found' value = 'true' />
+                                                    </set>
+                                                    <set>
+                                                        <parameter name='query-results-found-index' value = '`$q`' />
+                                                    </set>
+                                                    <return status='failure'></return>
+                                                </block>
+                                            </outcome>
+                                        </switch>
+                                    </for>
+                                    <return status='success'></return>
+                                </block>
+                                <switch test='`$tmp.network-role.found`'>
+                                    <outcome value='false'>
+                                        <block atomic='true'>
+                                            <set>
+                                                <parameter name='query-aai-l3-network-by-network-role-input.aic-cloud-region' 
+	value='`$auto-ip-assignment-input.aic-cloud-region`' />
+                                                <parameter name='query-aai-l3-network-by-network-role-input.service-instance-id' 
+	value='`$auto-ip-assignment-input.service-instance-id`' />
+                                                <parameter name='query-aai-l3-network-by-network-role-input.network-role' 
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].network-role`' />
+                                                <!--
+filter options: service-instance-id, aic-cloud-region, null, Other (or any string)
+    - null or Other will filter by aic-cloud-region first, then service-instance-id
+<parameter name='query-aai-l3-network-by-network-role-input.filter' 
+	value='service-instance-id' />
+-->
+                                            </set>
+                                            <call module='GENERIC-RESOURCE-API' rpc='query-aai-l3-network-by-network-role' mode='sync' >
+                                                <outcome value='failure'>
+                                                    <return status="failure">
+                                                        <parameter name="ack-final" value="Y" />
+                                                        <parameter name="error-code" value="500"/>
+                                                        <parameter name="error-message" value="`'An error occured while querying AAI to retrieve l3-network by network-role: ' + $error-message`" />
+                                                    </return>
+                                                </outcome>
+                                            </call>
+                                            <set>
+                                                <parameter name='generate-FQPN-input.network-name' 
+	value='`$query-aai-l3-network-by-network-role-output.l3-network.network-name`' />
+                                                <parameter name='generate-FQPN-input.network-id' 
+	value='`$query-aai-l3-network-by-network-role-output.l3-network.network-id`' />
+                                            </set>
+                                            <set>
+                                                <parameter name='tmp.network-role-query-results[$qridx].l3-network.' 
+	value='`$query-aai-l3-network-by-network-role-output.l3-network.`' />
+                                                <parameter name='tmp.network-role-query-results[$qridx].l3-network.network-role-tag' 
+	value='`$tmp.db1.network-role-tag`' />
+                                                <!--
+<parameter name='tmp.network-role-query-results[$qridx].network-role' 
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].network-role`' /><parameter name='tmp.network-role-query-results[$qridx].network-name' 
+	value='`$query-aai-l3-network-by-network-role-output.l3-network.network-name`' />
+-->
+                                            </set>
+                                            <set>
+                                                <parameter name='eipam-ip-block.plans[$pidx].l3-network.' 
+	value='query-aai-l3-network-by-network-role-output.l3-network.' />
+                                            </set>
+                                            <set>
+                                                <parameter name='qridx' value='`$qridx + 1`' />
+                                            </set>
+                                            <set>
+                                                <parameter name='tmp.network-role-query-results_length' value='`$qridx`' />
+                                            </set>
+                                            <block atomic="true">
+                                                <set>
+                                                    <parameter name='ridx' value='0' />
+                                                </set>
+                                                <set>
+                                                    <parameter name='eipam-ip-block.plans[$pidx].network-role'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].network-role`' />
+                                                    <parameter name='eipam-ip-block.plans[$pidx].subnet-role'
+    value="`$db1.vfc-to-network-role-mapping[$network-role-index].subnet-role`" />
+                                                </set>
+                                                <switch test='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-ip-version`'>
+                                                    <outcome value='4'>
+                                                        <switch test='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-use-dhcp`'>
+                                                            <outcome value='N'>
+                                                                <switch test='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-count &gt; 0`'>
+                                                                    <outcome value='true'>
+                                                                        <block atomic='true'>
+                                                                            <set>
+                                                                                <parameter name='generate-FQPN-input.plan-name'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-address-plan-name`' />
+                                                                                <parameter name='generate-FQPN-input.network-role'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].network-role`' />
+                                                                                <parameter name='generate-FQPN-input.subnet-role'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].subnet-role`' />
+                                                                                <parameter name='generate-FQPN-input.vrf-name'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-vrf-name`' />
+                                                                                <!--
+<parameter name='generate-FQPN-input.plans-index' value='`$pidx`' /><parameter name='generate-FQPN-input.requests-index' value='`$ridx`' />
+-->
+                                                                            </set>
+                                                                            <call module='GENERIC-RESOURCE-API' rpc='generate-FQPN' mode='sync' >
+                                                                                <outcome value='failure'>
+                                                                                    <return status="failure">
+                                                                                        <parameter name="ack-final" value="Y" />
+                                                                                        <parameter name="error-code" value="500"/>
+                                                                                        <parameter name="error-message" value="`'An error occured while generating FQPN: '+ $error-message`" />
+                                                                                    </return>
+                                                                                </outcome>
+                                                                            </call>
+                                                                            <set>
+                                                                                <parameter name='eipam-ip-block.plans[$pidx].plan-name'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-address-plan-name`' />
+                                                                                <parameter name='eipam-ip-block.plans[$pidx].address-family'
+    value="`'ipv' + $db1.vfc-to-network-role-mapping[$network-role-index].ipv4-ip-version`" />
+                                                                            </set>
+                                                                            <set>
+                                                                                <parameter name='tmp.plan-index-to-be-incremented' value='true' />
+                                                                            </set>
+                                                                            <set>
+                                                                                <parameter name='tmp.client-key.seq' value='0' />
+                                                                            </set>
+                                                                            <for index='vm-index' start='0' end='`$db1.vf-module-to-vfc-mapping[$vm-type-index].vm-count`' >
+                                                                                <for index='ipv4-index' start='0' end='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-count`' >
+                                                                                    <block atomic='true'>
+                                                                                        <set>
+                                                                                            <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].ip-version'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-ip-version`' />
+                                                                                            <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].use-dhcp'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-use-dhcp`' />
+                                                                                        </set>
+                                                                                        <set>
+                                                                                            <parameter name='tmp.client-key.seq' value='`$tmp.client-key.seq + 1`' />
+                                                                                        </set>
+                                                                                        <block atomic='true'>
+                                                                                            <set>
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].'
+    value='generate-FQPN-output.' />
+                                                                                            </set>
+                                                                                            <set>
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].vm-type'
+    value='`$db1.vf-module-to-vfc-mapping[$vm-type-index].vm-type`' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].network-role'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].network-role`' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].subnet-role'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].subnet-role`' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].ip-type'
+    value='FIXED' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name'
+    value='`$auto-ip-assignment-input.vnf-topology.vnf-assignments.vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name`' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].vnfc-name'
+    value='`$auto-ip-assignment-input.vnf-topology.vnf-assignments.vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name`' />
+                                                                                            </set>
+                                                                                            <block>
+                                                                                                <switch test='`$tmp.client-key.seq &lt; 10`'>
+                                                                                                    <outcome value='true'>
+                                                                                                        <set>
+                                                                                                            <parameter name='tmp.client-key.padding' value='000' />
+                                                                                                        </set>
+                                                                                                    </outcome>
+                                                                                                    <outcome value='false'>
+                                                                                                        <switch test='`$tmp.client-key.seq &lt; 100`'>
+                                                                                                            <outcome value='true'>
+                                                                                                                <set>
+                                                                                                                    <parameter name='tmp.client-key.padding' value='00' />
+                                                                                                                </set>
+                                                                                                            </outcome>
+                                                                                                            <outcome value='false'>
+                                                                                                                <switch test='`$tmp.client-key.seq &lt; 1000`'>
+                                                                                                                    <outcome value='true'>
+                                                                                                                        <set>
+                                                                                                                            <parameter name='tmp.client-key.padding' value='0' />
+                                                                                                                        </set>
+                                                                                                                    </outcome>
+                                                                                                                    <outcome value='false'>
+                                                                                                                        <switch test='`$tmp.client-key.seq &lt; 10000`'>
+                                                                                                                            <outcome value='true'>
+                                                                                                                                <set>
+                                                                                                                                    <parameter name='tmp.client-key.padding' value='' />
+                                                                                                                                </set>
+                                                                                                                            </outcome>
+                                                                                                                        </switch>
+                                                                                                                    </outcome>
+                                                                                                                </switch>
+                                                                                                            </outcome>
+                                                                                                        </switch>
+                                                                                                    </outcome>
+                                                                                                </switch>
+                                                                                            </block>
+                                                                                            <set>
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].client-key'
+   value="`$eipam-ip-block.plans[$pidx].requests[$ridx].vm-type + '|' +
+			$eipam-ip-block.plans[$pidx].requests[$ridx].vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name + '|' +
+			$eipam-ip-block.plans[$pidx].requests[$ridx].network-role + '|' + 
+			$eipam-ip-block.plans[$pidx].requests[$ridx].subnet-role + '|' +
+			$eipam-ip-block.plans[$pidx].requests[$ridx].ip-type + '|' + 
+			$eipam-ip-block.plans[$pidx].requests[$ridx].ip-version + '|' +
+			$tmp.client-key.padding + $tmp.client-key.seq`"/>
+                                                                                                <!-- rdn|zrdm3amdns02testdns001|data|static|VIP|4|0001 -->
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].info'
+   value='`$auto-ip-assignment-input.vf-module-id`' />
+                                                                                            </set>
+                                                                                            <set>
+                                                                                                <parameter name='ridx' value='`$ridx + 1`' />
+                                                                                            </set>
+                                                                                            <set>
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests_length' value='`$ridx`' />
+                                                                                            </set>
+                                                                                        </block>
+                                                                                    </block>
+                                                                                </for>
+                                                                            </for>
+                                                                        </block>
+                                                                    </outcome>
+                                                                </switch>
+                                                            </outcome>
+                                                        </switch>
+                                                    </outcome>
+                                                </switch>
+                                                <switch test='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-ip-version`'>
+                                                    <outcome value='6'>
+                                                        <switch test='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-use-dhcp`'>
+                                                            <outcome value='N'>
+                                                                <switch test='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-count &gt; 0`'>
+                                                                    <outcome value='true'>
+                                                                        <block atomic='true'>
+                                                                            <set>
+                                                                                <parameter name='generate-FQPN-input.plan-name'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-address-plan-name`' />
+                                                                                <parameter name='generate-FQPN-input.network-role'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].network-role`' />
+                                                                                <parameter name='generate-FQPN-input.subnet-role'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].subnet-role`' />
+                                                                                <parameter name='generate-FQPN-input.vrf-name'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-vrf-name`' />
+                                                                                <!--
+<parameter name='generate-FQPN-input.plans-index' value='`$pidx`' /><parameter name='generate-FQPN-input.requests-index' value='`$ridx`' />
+-->
+                                                                            </set>
+                                                                            <call module='GENERIC-RESOURCE-API' rpc='generate-FQPN' mode='sync' >
+                                                                                <outcome value='failure'>
+                                                                                    <return status="failure">
+                                                                                        <parameter name="ack-final" value="Y" />
+                                                                                        <parameter name="error-code" value="500"/>
+                                                                                        <parameter name="error-message" value="`'An error occured while generating FQPN: '+ $error-message`" />
+                                                                                    </return>
+                                                                                </outcome>
+                                                                            </call>
+                                                                            <set>
+                                                                                <parameter name='eipam-ip-block.plans[$pidx].plan-name'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-address-plan-name`' />
+                                                                                <parameter name='eipam-ip-block.plans[$pidx].address-family'
+    value="`'ipv' + $db1.vfc-to-network-role-mapping[$network-role-index].ipv6-ip-version`" />
+                                                                            </set>
+                                                                            <set>
+                                                                                <parameter name='tmp.plan-index-to-be-incremented' value='true' />
+                                                                            </set>
+                                                                            <set>
+                                                                                <parameter name='tmp.client-key.seq' value='0' />
+                                                                            </set>
+                                                                            <for index='vm-index' start='0' end='`$db1.vf-module-to-vfc-mapping[$vm-type-index].vm-count`' >
+                                                                                <for index='ipv6-index' start='0' end='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-count`' >
+                                                                                    <block atomic='true'>
+                                                                                        <set>
+                                                                                            <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].ip-version'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-ip-version`' />
+                                                                                            <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].use-dhcp'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-use-dhcp`' />
+                                                                                        </set>
+                                                                                        <set>
+                                                                                            <parameter name='tmp.client-key.seq' value='`$tmp.client-key.seq + 1`' />
+                                                                                        </set>
+                                                                                        <block atomic='true'>
+                                                                                            <set>
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].'
+    value='generate-FQPN-output.' />
+                                                                                            </set>
+                                                                                            <set>
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].vm-type'
+    value='`$db1.vf-module-to-vfc-mapping[$vm-type-index].vm-type`' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].network-role'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].network-role`' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].subnet-role'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].subnet-role`' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].ip-type'
+    value='FIXED' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name'
+    value='`$auto-ip-assignment-input.vnf-topology.vnf-assignments.vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name`' />
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].vnfc-name'
+    value='`$auto-ip-assignment-input.vnf-topology.vnf-assignments.vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name`' />
+                                                                                            </set>
+                                                                                            <block>
+                                                                                                <switch test='`$tmp.client-key.seq &lt; 10`'>
+                                                                                                    <outcome value='true'>
+                                                                                                        <set>
+                                                                                                            <parameter name='tmp.client-key.padding' value='000' />
+                                                                                                        </set>
+                                                                                                    </outcome>
+                                                                                                    <outcome value='false'>
+                                                                                                        <switch test='`$tmp.client-key.seq &lt; 100`'>
+                                                                                                            <outcome value='true'>
+                                                                                                                <set>
+                                                                                                                    <parameter name='tmp.client-key.padding' value='00' />
+                                                                                                                </set>
+                                                                                                            </outcome>
+                                                                                                            <outcome value='false'>
+                                                                                                                <switch test='`$tmp.client-key.seq &lt; 1000`'>
+                                                                                                                    <outcome value='true'>
+                                                                                                                        <set>
+                                                                                                                            <parameter name='tmp.client-key.padding' value='0' />
+                                                                                                                        </set>
+                                                                                                                    </outcome>
+                                                                                                                    <outcome value='false'>
+                                                                                                                        <switch test='`$tmp.client-key.seq &lt; 10000`'>
+                                                                                                                            <outcome value='true'>
+                                                                                                                                <set>
+                                                                                                                                    <parameter name='tmp.client-key.padding' value='' />
+                                                                                                                                </set>
+                                                                                                                            </outcome>
+                                                                                                                        </switch>
+                                                                                                                    </outcome>
+                                                                                                                </switch>
+                                                                                                            </outcome>
+                                                                                                        </switch>
+                                                                                                    </outcome>
+                                                                                                </switch>
+                                                                                            </block>
+                                                                                            <set>
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].client-key'
+   value="`$eipam-ip-block.plans[$pidx].requests[$ridx].vm-type + '|' +
+			$eipam-ip-block.plans[$pidx].requests[$ridx].vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name + '|' +
+			$eipam-ip-block.plans[$pidx].requests[$ridx].network-role + '|' + 
+			$eipam-ip-block.plans[$pidx].requests[$ridx].subnet-role + '|' +
+			$eipam-ip-block.plans[$pidx].requests[$ridx].ip-type + '|' + 
+			$eipam-ip-block.plans[$pidx].requests[$ridx].ip-version + '|' +
+			$tmp.client-key.padding + $tmp.client-key.seq`"/>
+                                                                                                <!-- rdn|zrdm3amdns02testdns001|data|static|VIP|4|0001 -->
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].info'
+   value='`$auto-ip-assignment-input.vf-module-id`' />
+                                                                                            </set>
+                                                                                            <set>
+                                                                                                <parameter name='ridx' value='`$ridx + 1`' />
+                                                                                            </set>
+                                                                                            <set>
+                                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests_length' value='`$ridx`' />
+                                                                                            </set>
+                                                                                        </block>
+                                                                                    </block>
+                                                                                </for>
+                                                                            </for>
+                                                                        </block>
+                                                                    </outcome>
+                                                                </switch>
+                                                            </outcome>
+                                                        </switch>
+                                                    </outcome>
+                                                </switch>
+                                                <switch test='`$tmp.plan-index-to-be-incremented`'>
+                                                    <outcome value='true'>
+                                                        <block>
+                                                            <set>
+                                                                <parameter name='pidx' value='`$pidx + 1`' />
+                                                            </set>
+                                                            <set>
+                                                                <parameter name="eipam-ip-block.plans_length" value="`$pidx`"/>
+                                                            </set>
+                                                        </block>
+                                                    </outcome>
+                                                </switch>
+                                            </block>
+                                        </block>
+                                    </outcome>
+                                    <outcome value='true'>
+                                        <block>
+                                            <set>
+                                                <parameter name='eipam-ip-block.plans[$pidx].l3-network.' 
+	value='tmp.network-role-query-results[$query-results-found-index].l3-network.' />
+                                            </set>
+                                            <block atomic="true">
+                                                <set>
+                                                    <parameter name='ridx' value='0' />
+                                                </set>
+                                                <set>
+                                                    <parameter name='eipam-ip-block.plans[$pidx].network-role'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].network-role`' />
+                                                    <parameter name='eipam-ip-block.plans[$pidx].subnet-role'
+    value="`$db1.vfc-to-network-role-mapping[$network-role-index].subnet-role`" />
+                                                </set>
+                                                <switch test='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-ip-version`'>
+                                                    <outcome value='4'>
+                                                        <switch test='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-use-dhcp`'>
+                                                            <outcome value='N'>
+                                                                <switch test='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-floating-count &gt; 0`'>
+                                                                    <outcome value='true'>
+                                                                        <block atomic='true'>
+                                                                            <set>
+                                                                                <parameter name='generate-FQPN-input.plan-name'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-address-plan-name`' />
+                                                                                <parameter name='generate-FQPN-input.subnet-role'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].subnet-role`' />
+                                                                                <parameter name='generate-FQPN-input.network-role'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].network-role`' />
+                                                                                <parameter name='generate-FQPN-input.vrf-name'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-vrf-name`' />
+                                                                                <!--
+<parameter name='generate-FQPN-input.plans-index' value='`$pidx`' /><parameter name='generate-FQPN-input.requests-index' value='`$ridx`' />
+-->
+                                                                            </set>
+                                                                            <call module='GENERIC-RESOURCE-API' rpc='generate-FQPN' mode='sync' >
+                                                                                <outcome value='failure'>
+                                                                                    <return status="failure">
+                                                                                        <parameter name="ack-final" value="Y" />
+                                                                                        <parameter name="error-code" value="500"/>
+                                                                                        <parameter name="error-message" value="`'An error occured while generating FQPN: '+ $error-message`" />
+                                                                                    </return>
+                                                                                </outcome>
+                                                                            </call>
+                                                                            <set>
+                                                                                <parameter name='eipam-ip-block.plans[$pidx].plan-name'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-address-plan-name`' />
+                                                                                <parameter name='eipam-ip-block.plans[$pidx].address-family'
+    value="`'ipv' + $db1.vfc-to-network-role-mapping[$network-role-index].ipv4-ip-version`" />
+                                                                            </set>
+                                                                            <set>
+                                                                                <parameter name='tmp.plan-index-to-be-incremented' value='true' />
+                                                                            </set>
+                                                                            <set>
+                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].ip-version'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-ip-version`' />
+                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].use-dhcp'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv4-use-dhcp`' />
+                                                                            </set>
+                                                                            <block atomic='true'>
+                                                                                <set>
+                                                                                    <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].'
+    value='generate-FQPN-output.' />
+                                                                                </set>
+                                                                                <set>
+                                                                                    <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].vm-type'
+    value='`$db1.vf-module-to-vfc-mapping[$vm-type-index].vm-type`' />
+                                                                                    <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].network-role'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].network-role`' />
+                                                                                    <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].subnet-role'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].subnet-role`' />
+                                                                                    <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].ip-type'
+    value='VIP' />
+                                                                                    <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].group-number'
+    value='1' />
+                                                                                    <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name'
+    value='`$auto-ip-assignment-input.vnf-topology.vnf-assignments.vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name`' />
+                                                                                    <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].vnfc-name'
+    value='`$auto-ip-assignment-input.vnf-topology.vnf-assignments.vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name`' />
+                                                                                </set>
+                                                                                <set>
+                                                                                    <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].client-key'
+   value="`$eipam-ip-block.plans[$pidx].requests[$ridx].vm-type + '|' +
+			$eipam-ip-block.plans[$pidx].requests[$ridx].network-role + '|' + 
+			$eipam-ip-block.plans[$pidx].requests[$ridx].subnet-role + '|' +
+			$eipam-ip-block.plans[$pidx].requests[$ridx].ip-type + '|' + 
+			$eipam-ip-block.plans[$pidx].requests[$ridx].ip-version + '|' + 
+			$eipam-ip-block.plans[$pidx].requests[$ridx].group-number + '|0001'`" />
+                                                                                    <!-- rdn|data|static|FIXED|4|1|0001 -->
+                                                                                    <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].info'
+   value='`$auto-ip-assignment-input.vf-module-id`' />
+                                                                                </set>
+                                                                                <set>
+                                                                                    <parameter name='ridx' value='`$ridx + 1`' />
+                                                                                </set>
+                                                                                <set>
+                                                                                    <parameter name='eipam-ip-block.plans[$pidx].requests_length' value='`$ridx`' />
+                                                                                </set>
+                                                                            </block>
+                                                                        </block>
+                                                                    </outcome>
+                                                                </switch>
+                                                            </outcome>
+                                                        </switch>
+                                                    </outcome>
+                                                </switch>
+                                                <switch test='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-ip-version`'>
+                                                    <outcome value='6'>
+                                                        <switch test='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-use-dhcp`'>
+                                                            <outcome value='N'>
+                                                                <switch test='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-floating-count &gt; 0`'>
+                                                                    <outcome value='true'>
+                                                                        <block atomic='true'>
+                                                                            <set>
+                                                                                <parameter name='generate-FQPN-input.plan-name'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-address-plan-name`' />
+                                                                                <parameter name='generate-FQPN-input.vrf-name'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-vrf-name`' />
+                                                                                <parameter name='generate-FQPN-input.subnet-role' 
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].subnet-role`' />
+                                                                                <parameter name='generate-FQPN-input.network-role'
+	value='`$db1.vfc-to-network-role-mapping[$network-role-index].network-role`' />
+                                                                                <!--
+<parameter name='generate-FQPN-input.plans-index' value='`$pidx`' /><parameter name='generate-FQPN-input.requests-index' value='`$ridx`' />
+-->
+                                                                            </set>
+                                                                            <call module='GENERIC-RESOURCE-API' rpc='generate-FQPN' mode='sync' >
+                                                                                <outcome value='failure'>
+                                                                                    <return status="failure">
+                                                                                        <parameter name="ack-final" value="Y" />
+                                                                                        <parameter name="error-code" value="500"/>
+                                                                                        <parameter name="error-message" value="`'An error occured while generating FQPN: '+ $error-message`" />
+                                                                                    </return>
+                                                                                </outcome>
+                                                                            </call>
+                                                                            <set>
+                                                                                <parameter name='tmp.plan-index-to-be-incremented' value='true' />
+                                                                            </set>
+                                                                            <set>
+                                                                                <parameter name='eipam-ip-block.plans[$pidx].plan-name'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-address-plan-name`' />
+                                                                                <parameter name='eipam-ip-block.plans[$pidx].address-family'
+    value="`'ipv' + $db1.vfc-to-network-role-mapping[$network-role-index].ipv6-ip-version`" />
+                                                                            </set>
+                                                                            <set>
+                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].ip-version'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-ip-version`' />
+                                                                                <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].use-dhcp'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].ipv6-use-dhcp`' />
+                                                                            </set>
+                                                                            <block atomic='true'>
+                                                                                <set>
+                                                                                    <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].'
+    value='generate-FQPN-output.' />
+                                                                                </set>
+                                                                                <set>
+                                                                                    <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].vm-type'
+    value='`$db1.vf-module-to-vfc-mapping[$vm-type-index].vm-type`' />
+                                                                                    <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].network-role'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].network-role`' />
+                                                                                    <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].subnet-role'
+    value='`$db1.vfc-to-network-role-mapping[$network-role-index].subnet-role`' />
+                                                                                    <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].ip-type'
+    value='VIP' />
+                                                                                    <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].group-number'
+    value='1' />
+                                                                                    <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name'
+    value='`$auto-ip-assignment-input.vnf-topology.vnf-assignments.vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name`' />
+                                                                                    <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].vnfc-name'
+    value='`$auto-ip-assignment-input.vnf-topology.vnf-assignments.vnf-vms[$vm-type-index].vm-names[$vm-index].vnfc-names[0].vnfc-name`' />
+                                                                                </set>
+                                                                                <set>
+                                                                                    <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].client-key'
+   value="`$eipam-ip-block.plans[$pidx].requests[$ridx].vm-type + '|' +
+			$eipam-ip-block.plans[$pidx].requests[$ridx].network-role + '|' + 
+			$eipam-ip-block.plans[$pidx].requests[$ridx].subnet-role + '|' +
+			$eipam-ip-block.plans[$pidx].requests[$ridx].ip-type + '|' + 
+			$eipam-ip-block.plans[$pidx].requests[$ridx].ip-version + '|' + 
+			$eipam-ip-block.plans[$pidx].requests[$ridx].group-number + '|0001'`" />
+                                                                                    <!-- rdn|data|static|FIXED|4|1|0001 -->
+                                                                                    <parameter name='eipam-ip-block.plans[$pidx].requests[$ridx].info'
+   value='`$auto-ip-assignment-input.vf-module-id`' />
+                                                                                </set>
+                                                                                <set>
+                                                                                    <parameter name='ridx' value='`$ridx + 1`' />
+                                                                                </set>
+                                                                                <set>
+                                                                                    <parameter name='eipam-ip-block.plans[$pidx].requests_length' value='`$ridx`' />
+                                                                                </set>
+                                                                            </block>
+                                                                        </block>
+                                                                    </outcome>
+                                                                </switch>
+                                                            </outcome>
+                                                        </switch>
+                                                    </outcome>
+                                                </switch>
+                                                <switch test='`$tmp.plan-index-to-be-incremented`'>
+                                                    <outcome value='true'>
+                                                        <block>
+                                                            <set>
+                                                                <parameter name='pidx' value='`$pidx + 1`' />
+                                                            </set>
+                                                            <set>
+                                                                <parameter name="eipam-ip-block.plans_length" value="`$pidx`"/>
+                                                            </set>
+                                                        </block>
+                                                    </outcome>
+                                                </switch>
+                                            </block>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                            </block>
+                        </block>
+                    </for>
+                </block>
+            </for>
+            <block atomic='true'>
+                <switch test='`$eipam-ip-block.plans_length &gt; 0`'>
+                    <outcome value='true'>
+                        <block atomic='true'>
+                            <switch test='`$auto-ip-assignment-input.service-type`'>
+                                <outcome value=''>
+                                    <set>
+                                        <parameter name='service-data.service-information.service-type' value='NA' />
+                                    </set>
+                                </outcome>
+                            </switch>
+                            <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="assignIPAddress">
+                                <outcome value='failure'>
+                                    <return status="failure">
+                                        <parameter name="ack-final" value="Y" />
+                                        <parameter name="error-code" value="500"/>
+                                        <parameter name="error-message" value="`'An error occured while obtaining ip addresses from EIPAM: ' + $error-message`" />
+                                    </return>
+                                </outcome>
+                            </execute>
+                        </block>
+                    </outcome>
+                </switch>
+            </block>
+        </block>
+    </method>
+</service-logic>

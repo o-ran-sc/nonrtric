@@ -1,0 +1,114 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='sdwan-vnf-topology-operation-wanport-create' mode='sync'>
+        <block atomic="true">
+            <switch test='`$service-data.vnfs.vnf_length`'>
+                <outcome value=''>
+                    <set>
+                        <parameter name='vnf-index' value='0' />
+                    </set>
+                </outcome>
+                <outcome value='Other'>
+                    <block>
+                        <set>
+                            <parameter name='vnf-index' value='`$service-data.vnfs.vnf_length`' />
+                        </set>
+                        <for index='idx' start='0' end='`$service-data.vnfs.vnf_length`' >
+                            <switch test='`$vnf-topology-operation-input.vnf-information.vnf-id == $service-data.vnfs.vnf[$idx].vnf-id`'>
+                                <outcome value='true'>
+                                    <return status='failure'>
+                                        <parameter name='ack-final' value='Y'/>
+                                        <parameter name="error-code" value="500" />
+                                        <parameter name="error-message" value="`'VNF id ' + $service-data.vnfs.vnf[$idx].vnf-id
+      + ' already exists, and has order status ' + $service-data.vnfs.vnf[$idx].vnf-data.vnf-level-oper-status.order-status`" />
+                                    </return>
+                                </outcome>
+                            </switch>
+                        </for>
+                    </block>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='service-data.vnfs.vnf_length' value='`$vnf-index + 1`' />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='generateUUID' >
+                <parameter name="ctx-destination" value="prop.vnf-index"/>
+            </execute>
+            <record plugin="org.onap.ccsdk.sli.core.sli.recording.FileRecorder">
+                <parameter name="file" value="/opt/opendaylight/current/data/log/svclogic.log"/>
+                <parameter name="field1" value="__TIMESTAMP__"/>
+                <parameter name="field2" value="sdwan-wanport-vnf-topology-operation-create"/>
+                <parameter name="field3" value="SDWAN-Config"/>
+            </record>
+            <for index="idx" start="0" end="`$vnf-topology-operation-input.vnf-request-input.vnf-input-parameters.param_length`">
+                <block>
+                    <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='split' >
+                        <parameter name="original_string" value='`$vnf-topology-operation-input.vnf-request-input.vnf-input-parameters.param[$idx].name`'/>
+                        <parameter name="regex" value="_"/>
+                        <parameter name="ctx_memory_result_key" value="param-prefix"/>
+                    </execute>
+                    <set>
+                        <parameter name="`vnf-topology-operation-input.vnf-request-input.vnf-input-parameters.param[$idx].name`" value='`$param-prefix[$param-prefix_length -1]`'/>
+                    </set>
+                </block>
+            </for>
+            <set>
+                <parameter name='vnf-request-input.' value='`$vnf-topology-operation-input.vnf-request-input.`' />
+            </set>
+            <call module='GENERIC-RESOURCE-API' rpc='sdwan-get-wan-param' mode='sync' ></call>
+            <set>
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-id' value='`$prop.vnf-index`' />
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.sdnc-request-header.' value='$vnf-topology-operation-input.sdnc-request-header.' />
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.request-information.' value='$vnf-topology-operation-input.request-information.' />
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.service-information.' value='$vnf-topology-operation-input.service-information.' />
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-information.' value='$vnf-topology-operation-input.vnf-information.' />
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-request-input.' value='$vnf-topology-operation-input.vnf-request-input.' />
+            </set>
+            <set>
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-level-oper-status.order-status' value='Created' />
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-level-oper-status.last-rpc-action' value='`$vnf-topology-operation-input.sdnc-request-header.svc-action`' />
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-level-oper-status.last-action' value='`$vnf-topology-operation-input.request-information.request-action`' />
+            </set>
+            <set>
+                <parameter name='vnfId' value='`$prop.vnf-index`' />
+                <parameter name="vnf-object-path" value="`'restconf/config/GENERIC-RESOURCE-API:services/service/'  + $vnf-topology-operation-input.service-information.service-instance-id  + '/service-data/vnfs/vnf/'  + $prop.vnf-index  + '/vnf-data/'` " />
+            </set>
+            <save plugin='org.onap.ccsdk.sli.adaptors.aai.AAIService' resource='wan-port-config' 
+      key='wan-port-config.wan-port-config-id = $prop.vnf-index' >
+                <parameter name="wan-port-config-id" value="`$prop.vnf-index`" />
+                <parameter name="wan-port-config-name" value="`$prop.wan.name`" />
+                <parameter name="device-id" value="`$prop.wan.deviceName`" />
+                <parameter name='vlan-id' value="`$prop.wan.vlanId`" />
+                <parameter name="ip-address" value="`$prop.wan.ipAddress`" />
+                <parameter name="provider-ip-address" value="`$prop.wan.providerIpAddress`" />
+                <parameter name="input-bandwidth" value="`$prop.wan.inputBandwidth`" />
+                <parameter name="output-bandwidth" value="`$prop.wan.outputBandwidth`" />
+                <parameter name="description" value="`$prop.wan.description`" />
+                <parameter name="port-type" value="`$prop.wan.portType`" />
+                <parameter name="port-number" value="`$prop.wan.portNumber`" />
+                <parameter name="transport-network-name" value="`$prop.wan.transportNetworkName`" />
+                <parameter name='operational-status' value='Created' />
+                <parameter name='model-customization-id' value='`$vnf-topology-operation-input.vnf-information.onap-model-information.model-customization-uuid`' />
+                <parameter name='model-invariant-id' value='`$vnf-topology-operation-input.vnf-information.onap-model-information.model-invariant-uuid`' />
+                <parameter name='model-version-id' value='`$vnf-topology-operation-input.vnf-information.onap-model-information.model-uuid`' />
+                <parameter name='selflink' value="`'restconf/config/GENERIC-RESOURCE-API:services/service/'  + $vnf-topology-operation-input.service-information.service-instance-id  + '/service-data/vnfs/vnf/'  + $prop.vnf-index  + '/vnf-data/'` " />
+            </save>
+            <save plugin='org.onap.ccsdk.sli.adaptors.aai.AAIService' resource='service-instance:relationship-list' 
+      key='service-instance.service-instance-id = $service-data.service-information.service-instance-id 
+         AND customer.global-customer-id = $service-data.vnfs.vnf[$vnf-index].vnf-data.service-information.global-customer-id 
+         AND service-subscription.service-type = $service-data.vnfs.vnf[$vnf-index].vnf-data.service-information.subscription-service-type' 
+      force="true" pfx="tmp.AnAI-data">
+                <parameter name="relationship-list.relationship[0].related-to" value="wan-port-config" />
+                <parameter name="relationship-list.relationship[0].related-link" value="`'/network/wan-port-configs/wan-port-config/' + $prop.vnf-index`" />
+                <parameter name="relationship-list.relationship[0].relationship-data[0].relationship-key" value="wan-port-config.wan-port-config-id" />
+                <parameter name="relationship-list.relationship[0].relationship-data[0].relationship-value" value="`$prop.vnf-index`" />
+            </save>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="`$error-message`" />
+            </return>
+        </block>
+    </method>
+</service-logic>

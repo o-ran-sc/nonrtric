@@ -1,0 +1,299 @@
+[
+    {
+        "id": "c3ce5a21.858818",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 156.80559539794922,
+        "y": 155.7499885559082,
+        "z": "a2906cac.f91a6",
+        "wires": [
+            [
+                "b7bd282e.ecbe08"
+            ]
+        ]
+    },
+    {
+        "id": "504ed4c1.19f72c",
+        "type": "method",
+        "name": "method  vf-module-topology-rollback",
+        "xml": "<method rpc='vf-module-topology-rollback' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 185.22228240966797,
+        "y": 103.1666612625122,
+        "z": "a2906cac.f91a6",
+        "wires": [
+            [
+                "c3ce5a21.858818"
+            ]
+        ]
+    },
+    {
+        "id": "bbc0a862.2012a8",
+        "type": "service-logic",
+        "name": "VNF-API ${project.version}",
+        "module": "VNF-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='VNF-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 262.3333435058594,
+        "y": 44.055559158325195,
+        "z": "a2906cac.f91a6",
+        "wires": [
+            [
+                "504ed4c1.19f72c"
+            ]
+        ]
+    },
+    {
+        "id": "dc5c5f1f.f5323",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 96.61115264892578,
+        "y": 43.888885498046875,
+        "z": "a2906cac.f91a6",
+        "wires": [
+            [
+                "bbc0a862.2012a8"
+            ]
+        ]
+    },
+    {
+        "id": "69f49ed4.8c74a",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n\t<parameter name=\"error-code\" value=\"200\" />",
+        "comments": "",
+        "x": 895.0556182861328,
+        "y": 508.4972972869873,
+        "z": "a2906cac.f91a6",
+        "wires": []
+    },
+    {
+        "id": "5f1c1e9f.c2fb3",
+        "type": "set",
+        "name": "set: order-status = Deleted",
+        "xml": "<set>\n\t<parameter name=\"vf-module-service-data.oper-status.order-status\" value=\"Deleted\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 930.8056182861328,
+        "y": 337.2751064300537,
+        "z": "a2906cac.f91a6",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "560147c0.dbc8c8",
+        "type": "switchNode",
+        "name": "switch: order-status = PendingCreate",
+        "xml": "<switch test=\"`$vf-module-service-data.oper-status.order-status == PendingCreate`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 963.6465606689453,
+        "y": 251.40388870239258,
+        "z": "a2906cac.f91a6",
+        "wires": [
+            [
+                "190a74c8.9c3ddb"
+            ]
+        ]
+    },
+    {
+        "id": "190a74c8.9c3ddb",
+        "type": "other",
+        "name": "false",
+        "xml": "<outcome value='false'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1195.2299423217773,
+        "y": 251.2372007369995,
+        "z": "a2906cac.f91a6",
+        "wires": [
+            [
+                "c8163813.24eb68"
+            ]
+        ]
+    },
+    {
+        "id": "c8163813.24eb68",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='error-code' value='400'/>\n\t<parameter name='error-message' value='Invalid order-status'/>",
+        "comments": "",
+        "x": 1347.5630722045898,
+        "y": 251.23726177215576,
+        "z": "a2906cac.f91a6",
+        "wires": []
+    },
+    {
+        "id": "9439ef4e.19bcf",
+        "type": "set",
+        "name": "set: last-action ",
+        "xml": "<set>\n\t<parameter name=\"vf-module-service-data.oper-status.last-action\" value=\"`$vf-modules-service-data.request-information.request-action`\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 892.5633125305176,
+        "y": 379.57069969177246,
+        "z": "a2906cac.f91a6",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2366439a.26ba4c",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1218.9041366577148,
+        "y": 204.1944456100464,
+        "z": "a2906cac.f91a6",
+        "wires": [
+            [
+                "378d2536.971caa"
+            ]
+        ]
+    },
+    {
+        "id": "378d2536.971caa",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='error-code' value='404'/>\n\t<parameter name='error-message' value=\"`'vf-module-id = ' + $vf-module-topology-operation-input.vf-module-request-information.vf-module-id + ' not found in SDNC'`\"/>",
+        "comments": "",
+        "x": 1378.9949569702148,
+        "y": 204.60354900360107,
+        "z": "a2906cac.f91a6",
+        "wires": []
+    },
+    {
+        "id": "97215d09.0cf54",
+        "type": "set",
+        "name": "set: last-order-status = order-status",
+        "xml": "<set>\n\t<parameter name=\"vf-module-service-data.oper-status.last-order-status\" value=\"`$vf-module-service-data.oper-status.order-status`\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 956.4496612548828,
+        "y": 294.59599781036377,
+        "z": "a2906cac.f91a6",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "98c2d38b.6194",
+        "type": "set",
+        "name": "Clear vf-module topology",
+        "xml": "<set>\n\t<parameter name=\"vf-module-service-data.\" value=\"\" /> \n",
+        "comments": "",
+        "outputs": 1,
+        "x": 925.9496612548828,
+        "y": 423.2626552581787,
+        "z": "a2906cac.f91a6",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "77cc369b.dab328",
+        "type": "switchNode",
+        "name": "switch:CONFIG == INPUT - vf-module-id",
+        "xml": "<switch test=\"`$vf-module-topology-operation-input.vf-module-request-information.vf-module-id == $vf-module-service-data.vf-module-id`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 975.0556182861328,
+        "y": 204.1944456100464,
+        "z": "a2906cac.f91a6",
+        "wires": [
+            [
+                "2366439a.26ba4c"
+            ]
+        ]
+    },
+    {
+        "id": "b7bd282e.ecbe08",
+        "type": "switchNode",
+        "name": "switch: order-status = PendingCreate",
+        "xml": "<switch test=\"`$vf-module-service-data.oper-status.order-status == PendingCreate`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 264.30560302734375,
+        "y": 202.69444942474365,
+        "z": "a2906cac.f91a6",
+        "wires": [
+            [
+                "d8a6efb4.1cae2"
+            ]
+        ]
+    },
+    {
+        "id": "d8a6efb4.1cae2",
+        "type": "other",
+        "name": "true",
+        "xml": "<outcome value='true'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 500.5555953979492,
+        "y": 203.44444274902344,
+        "z": "a2906cac.f91a6",
+        "wires": [
+            [
+                "d28acb25.7ef2e8"
+            ]
+        ]
+    },
+    {
+        "id": "d28acb25.7ef2e8",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 662.5555953979492,
+        "y": 203.44444274902344,
+        "z": "a2906cac.f91a6",
+        "wires": [
+            [
+                "77cc369b.dab328",
+                "560147c0.dbc8c8",
+                "97215d09.0cf54",
+                "5f1c1e9f.c2fb3",
+                "9439ef4e.19bcf",
+                "98c2d38b.6194",
+                "69f49ed4.8c74a",
+                "5a9a93a0.4a243c"
+            ]
+        ]
+    },
+    {
+        "id": "58f1f93f.d350c8",
+        "type": "comment",
+        "name": "request-action = VNFActivateRequest, svc-action = rollback",
+        "info": "",
+        "comments": "",
+        "x": 760.3056030273438,
+        "y": 80.44444465637207,
+        "z": "a2906cac.f91a6",
+        "wires": []
+    },
+    {
+        "id": "5a9a93a0.4a243c",
+        "type": "set",
+        "name": "Set final indicator to Y",
+        "xml": "<set>\n<parameter name=\"ack-final\" value=\"Y\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 916.6666259765625,
+        "y": 465.5555419921875,
+        "z": "a2906cac.f91a6",
+        "wires": [
+            []
+        ]
+    }
+]

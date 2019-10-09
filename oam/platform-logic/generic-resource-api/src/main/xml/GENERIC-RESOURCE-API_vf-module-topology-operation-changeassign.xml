@@ -1,0 +1,158 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='vf-module-topology-operation-changeassign' mode='sync'>
+        <block atomic="true">
+            <switch test='`$vf-module-topology-operation-input.request-information.request-action`'>
+                <outcome value='CreateVfModuleInstance'>
+                    <block></block>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="If svc-action is 'changeassign' then request-action must be 'CreateVfModuleInstance'" />
+                    </return>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='vnf-index' value='-1' />
+            </set>
+            <switch test='`$service-data.vnfs.vnf_length`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="There are no VNFs defined in MD-SAL" />
+                    </return>
+                </outcome>
+                <outcome value='Other'>
+                    <for index='idx' start='0' end='`$service-data.vnfs.vnf_length`' >
+                        <switch test='`$service-data.vnfs.vnf[$idx].vnf-id == $vf-module-topology-operation-input.vnf-information.vnf-id`'>
+                            <outcome value='true'>
+                                <block>
+                                    <set>
+                                        <parameter name='vnf-index' value='`$idx`' />
+                                    </set>
+                                    <break/>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </for>
+                </outcome>
+            </switch>
+            <switch test='`$vnf-index`'>
+                <outcome value='-1'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`'Unable to find VNF ID ' + $vf-module-topology-operation-input.vnf-information.vnf-id + ' in MD-SAL'`" />
+                    </return>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='vf-module-index' value='-1' />
+            </set>
+            <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module_length`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`'There are no VF modules defined in MD-SAL for VNF ' + $vf-module-topology-operation-input.vnf-information.vnf-id`" />
+                    </return>
+                </outcome>
+                <outcome value='Other'>
+                    <for index='idx' start='0' end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module_length`' >
+                        <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$idx].vf-module-id == $vf-module-topology-operation-input.vf-module-information.vf-module-id`'>
+                            <outcome value='true'>
+                                <block>
+                                    <set>
+                                        <parameter name='vf-module-index' value='`$idx`' />
+                                    </set>
+                                    <break/>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </for>
+                </outcome>
+            </switch>
+            <switch test='`$vf-module-index`'>
+                <outcome value='-1'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`'Unable to find VF module ID ' + $vf-module-topology-operation-input.vf-module-information.vf-module-id + ' in MD-SAL'`" />
+                    </return>
+                </outcome>
+            </switch>
+            <call module='GENERIC-RESOURCE-API' rpc='self-serve-vf-module-forking-logic' mode='sync' ></call>
+            <switch test="`$ss.self-serve-flag`">
+                <outcome value='true'>
+                    <call module='GENERIC-RESOURCE-API' rpc='self-serve-vfmodule-changeassign' mode='sync' >
+                        <outcome value='failure'>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500' />
+                                <parameter name='error-message' value="`'Encountered error performing changeassign for self-serve vf-module resources with error: '+ $error-message`" />
+                            </return>
+                        </outcome>
+                        <outcome value='success'>
+                            <return status='success'>
+                                <parameter name="ack-final-indicator" value="Y" />
+                                <parameter name="error-code" value="200" />
+                                <parameter name="error-message" value="`$error-message`" />
+                            </return>
+                        </outcome>
+                    </call>
+                </outcome>
+                <outcome value='false'>
+                    <block atomic="true">
+                        <switch test='`$vf-module-topology-operation-input.vf-module-information.onap-model-information.model-customization-uuid`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="vf-module-information.onap-model-information.model-customization-uuid is a required input" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT * from VF_MODULE_MODEL WHERE customization_uuid = $vf-module-topology-operation-input.vf-module-information.onap-model-information.model-customization-uuid'
+  pfx='db.vf-module-model'>
+                            <outcome value='failure'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="Error reading VF_MODULE_MODEL table" />
+                                </return>
+                            </outcome>
+                            <outcome value='not-found'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="`'No model found for VF module customization UUID ' + $vf-module-topology-operation-input.vf-module-information.onap-model-information.model-customization-uuid`" />
+                                </return>
+                            </outcome>
+                        </get-resource>
+                        <set>
+                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-information.onap-model-information.'
+   value='$vf-module-topology-operation-input.vf-module-information.onap-model-information.' />
+                        </set>
+                        <set>
+                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-level-oper-status.order-status'
+  value='Created' />
+                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-level-oper-status.last-rpc-action'
+  value='`$vf-module-topology-operation-input.sdnc-request-header.svc-action`' />
+                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-level-oper-status.last-action'
+  value='`$vf-module-topology-operation-input.request-information.request-action`' />
+                        </set>
+                        <return status='success'>
+                            <parameter name="ack-final-indicator" value="Y" />
+                            <parameter name="error-code" value="200" />
+                            <parameter name="error-message" value="`$error-message`" />
+                        </return>
+                    </block>
+                </outcome>
+            </switch>
+        </block>
+    </method>
+</service-logic>

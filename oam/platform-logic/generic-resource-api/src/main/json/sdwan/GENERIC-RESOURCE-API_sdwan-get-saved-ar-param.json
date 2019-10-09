@@ -1,0 +1,199 @@
+[
+  {
+    "id": "3dce5aae.d1aee6",
+    "type": "dgstart",
+    "name": "DGSTART",
+    "outputs": 1,
+    "x": 156,
+    "y": 74,
+    "z": "15a92351.612ddd",
+    "wires": [
+      [
+        "aa9eff05.9e62c"
+      ]
+    ]
+  },
+  {
+    "id": "aa9eff05.9e62c",
+    "type": "service-logic",
+    "name": "GENERIC-RESOURCE-API ${project.version}",
+    "module": "GENERIC-RESOURCE-API",
+    "version": "${project.version}",
+    "comments": "",
+    "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+    "outputs": 1,
+    "x": 368.00000381469727,
+    "y": 146.0000171661377,
+    "z": "15a92351.612ddd",
+    "wires": [
+      [
+        "b770609e.14977"
+      ]
+    ]
+  },
+  {
+    "id": "b770609e.14977",
+    "type": "method",
+    "name": "sdwan-get-saved-ar-param",
+    "xml": "<method rpc='sdwan-get-saved-ar-param' mode='sync'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 356.0001220703125,
+    "y": 234,
+    "z": "15a92351.612ddd",
+    "wires": [
+      [
+        "a63eeccf.054de"
+      ]
+    ]
+  },
+  {
+    "id": "a63eeccf.054de",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 363.00001525878906,
+    "y": 320.0000581741333,
+    "z": "15a92351.612ddd",
+    "wires": [
+      [
+        "cef1b9ba.94d2a8"
+      ]
+    ]
+  },
+  {
+    "id": "cef1b9ba.94d2a8",
+    "type": "for",
+    "name": "for each sdwan-get-request-input-param",
+    "xml": "<for index='idx' start='0' end='`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param_length`' >\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 399.6667785644531,
+    "y": 402.666654586792,
+    "z": "15a92351.612ddd",
+    "wires": [
+      [
+        "c63bf491.f9e008"
+      ]
+    ]
+  },
+  {
+    "id": "c63bf491.f9e008",
+    "type": "block",
+    "name": "block",
+    "xml": "<block>\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 664.5002822875977,
+    "y": 312.00004625320435,
+    "z": "15a92351.612ddd",
+    "wires": [
+      [
+        "2cd7df9b.ab1b",
+        "10f6f64f.edbe1a",
+        "95d1c864.f5bfb8"
+      ]
+    ]
+  },
+  {
+    "id": "2cd7df9b.ab1b",
+    "type": "switchNode",
+    "name": "switch sdwanVpnName",
+    "xml": "<switch test=\"`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].name == 'sdwanVpnName'`\">",
+    "comments": "",
+    "outputs": 1,
+    "x": 886.5000534057617,
+    "y": 216.0000514984131,
+    "z": "15a92351.612ddd",
+    "wires": [
+      [
+        "2a8eb492.677abc"
+      ]
+    ]
+  },
+  {
+    "id": "2a8eb492.677abc",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1073.5000534057617,
+    "y": 212.0000514984131,
+    "z": "15a92351.612ddd",
+    "wires": [
+      [
+        "e2c23ccb.74de1"
+      ]
+    ]
+  },
+  {
+    "id": "e2c23ccb.74de1",
+    "type": "set",
+    "name": "set sdwanVpnName",
+    "xml": "<set>\n<parameter name='prop.connection-attachment.sdwanVpnName' value='`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 1241.5000534057617,
+    "y": 212.6000576019287,
+    "z": "15a92351.612ddd",
+    "wires": []
+  },
+  {
+    "id": "10f6f64f.edbe1a",
+    "type": "switchNode",
+    "name": "switch role",
+    "xml": "<switch test=\"`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].name == 'role'`\">",
+    "comments": "",
+    "outputs": 1,
+    "x": 849.0105400085449,
+    "y": 280.00007152557373,
+    "z": "15a92351.612ddd",
+    "wires": [
+      [
+        "ab95aeff.fed7f"
+      ]
+    ]
+  },
+  {
+    "id": "ab95aeff.fed7f",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1074.010482788086,
+    "y": 271.0000514984131,
+    "z": "15a92351.612ddd",
+    "wires": [
+      [
+        "73eae7d6.c393c8"
+      ]
+    ]
+  },
+  {
+    "id": "73eae7d6.c393c8",
+    "type": "set",
+    "name": "set role",
+    "xml": "<set>\n<parameter name='prop.connection-attachment.role' value='`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 1242.010482788086,
+    "y": 271.6000576019287,
+    "z": "15a92351.612ddd",
+    "wires": []
+  },
+  {
+    "id": "95d1c864.f5bfb8",
+    "type": "returnSuccess",
+    "name": "return success",
+    "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+    "comments": "",
+    "x": 863.0002212524414,
+    "y": 344.000036239624,
+    "z": "15a92351.612ddd",
+    "wires": []
+  }
+]

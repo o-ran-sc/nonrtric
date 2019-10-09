@@ -1,0 +1,148 @@
+<!--
+  ============LICENSE_START=======================================================
+  openECOMP : SDN-C
+  ================================================================================
+  Copyright (C) 2017 AT&T Intellectual Property. All rights
+  						reserved.
+  ================================================================================
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+       http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  ============LICENSE_END=========================================================
+  -->
+
+<service-logic xmlns="http://www.onap.org/sdnc/svclogic"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.onap.org/sdnc/svclogic ./svclogic.xsd" module='VNF-API' version='${project.version}'><method rpc='vnf-topology-assign-vfmodule' mode='sync'>
+<block atomic="true"><switch test="`$preload-data.oper-status.order-status == PendingAssignment`">
+<!--
+leaf order-status {
+    type enumeration {
+        enum "Active";
+        enum "PendingAssignment";
+        enum "PendingCreate";
+        enum "PendingUpdate";
+        enum "Deleted";
+    }
+}
+--><outcome value='false'><return status='failure'>
+    <parameter name='error-code' value='400'/>
+    <parameter name='error-message' value='Invalid preload-data order status'/></return></outcome></switch><set>
+    <parameter name="service-data." value="preload-data." /></set><set>
+    <parameter name="service-data." value="vnf-topology-operation-input." /></set><set>
+    <parameter name="service-data.vnf-id" value="`$vnf-topology-operation-input.vnf-request-information.vnf-id`"/>
+    <parameter name="service-data.service-information.service-instance-id" value="`$vnf-topology-operation-input.service-information.service-instance-id`"/>
+    <parameter name="service-data.vnf-request-information.vnf-id" value="`$vnf-topology-operation-input.vnf-request-information.vnf-id`"/>
+    <parameter name="service-data.vnf-topology-information.vnf-topology-identifier.vnf-id" value="`$vnf-topology-operation-input.vnf-request-information.vnf-id`"/></set><switch test="`$preload-data.vnf-topology-information.vnf-assignments.vnf-networks_length`"><outcome value=''><set>
+<parameter name = "preload-data.vnf-topology-information.vnf-assignments.vnf-networks_length" value="0" />
+</set></outcome></switch><for index="j" start="0" end="`$preload-data.vnf-topology-information.vnf-assignments.vnf-networks_length`"><block atomic="true">
+<set>
+<parameter name='tmp.usePreload' value='1' />
+<parameter name='tmp.AnAI.l3network.' value='' />
+</set><switch test="`$vnf-topology-operation-input.vnf-request-information.vnf-networks_length`"><outcome value=''><set>
+<parameter name='vnf-topology-operation-input.vnf-request-information.vnf-networks_length' value='0' />
+</set></outcome></switch><block atomic="true">
+<for index="i" start="0" end="`$vnf-topology-operation-input.vnf-request-information.vnf-networks_length`"><switch test="`$preload-data.vnf-topology-information.vnf-assignments.vnf-networks[$j].network-role == $vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].network-role`"><outcome value='true'>
+<block atomic="true">
+<set>
+<parameter name='tmp.usePreload' value='0' />
+</set><switch test="`$vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].network-id == '' or $vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].network-id == '0'`"><outcome value='false'><get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+    resource="l3-network"
+        key="l3-network.network-id = $vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].network-id"
+        local-only="false"
+        pfx="tmp.AnAI.l3network">
+<outcome value='failure'>
+<return status='failure'>
+<parameter name='error-code' value='500' />
+<parameter name='error-message' value="`'Failed to query AnAI for l3-network with network-id = ' + $vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].network-id`"  />
+</return></outcome><outcome value='not-found'>
+<set>
+<parameter name='tmp.usePreload' value='1' />
+</set></outcome></get-resource></outcome><outcome value='true'>
+<switch test="`$vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].network-name == '' or $vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].network-name == '0'`"><outcome value='true'>
+<set>
+<parameter name='tmp.usePreload' value='1' />
+</set></outcome><outcome value='false'><get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+    resource="l3-network"
+        key="l3-network.network-name = $vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].network-name"
+        local-only="false"
+        pfx="tmp.AnAI.l3network">
+
+<outcome value='failure'>
+<return status='failure'>
+<parameter name='error-code' value='500' />
+<parameter name='error-message' value="`'Failed to query AnAI for l3-network with network-name = ' + $vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].network-name`"  />
+</return></outcome><outcome value='not-found'>
+<set>
+<parameter name='tmp.usePreload' value='1' />
+</set></outcome></get-resource></outcome></switch></outcome></switch><switch test="`$tmp.usePreload == 0`"><outcome value='true'>
+<block>
+<switch test="`$service-data.vnf-topology-information.vnf-assignments.vnf-networks_length`"><outcome value=''>
+<set>
+    <parameter name="service-data.vnf-topology-information.vnf-assignments.vnf-networks_length" value = "0" /></set></outcome></switch><for index="k" start="0" end="`$service-data.vnf-topology-information.vnf-assignments.vnf-networks_length`"><switch test="`$service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].network-role == $vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].network-role`"><outcome value='true'>
+<block>
+<set>
+<parameter name="service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].network-name" value="`$tmp.AnAI.l3network.network-name`" />
+<parameter name="service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].network-id" value="`$tmp.AnAI.l3network.network-id`" />
+<parameter name="service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].neutron-id" value="`$tmp.AnAI.l3network.neutron-network-id`" />
+<parameter name="service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].contrail-network-fqdn" value="`$tmp.AnAI.l3network.contrail-network-fqdn`" />
+</set><switch test="`$vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].subnet-id != ''`"><outcome value='true'>
+<set>
+<parameter name="service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].subnet-id" value="`$vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].subnet-id`" /></set></outcome><outcome value='false'>
+<switch test="`$vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].subnet-name != ''`"><outcome value='true'>
+<switch test="`$tmp.AnAI.l3network.subnets.subnet_length != ''`"><outcome value='true'>
+<for index="i" start="0" end="`$tmp.AnAI.l3network.subnets.subnet_length`"><switch test="`$tmp.AnAI.l3network.subnets.subnet[$i].subnet-name == $vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].subnet-name`"><outcome value='true'>
+<set>
+<parameter name="service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].subnet-id" value="`$tmp.AnAI.l3network.subnets.subnet[$i].neutron-subnet-id`" /></set></outcome></switch></for></outcome></switch></outcome></switch></outcome></switch><switch test="`$vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].ipv6-subnet-id != ''`"><outcome value='true'>
+<set>
+<parameter name="service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].ipv6-subnet-id" value="`$vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].ipv6-subnet-id`" /></set></outcome><outcome value='false'>
+<switch test="`$vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].ipv6-subnet-name != ''`"><outcome value='true'>
+<switch test="`$tmp.AnAI.l3network.subnets.subnet_length != ''`"><outcome value='true'>
+<for index="i" start="0" end="`$tmp.AnAI.l3network.subnets.subnet_length`"><switch test="`$tmp.AnAI.l3network.subnets.subnet[$i].subnet-name == $vnf-topology-operation-input.vnf-request-information.vnf-networks[$i].ipv6-subnet-name`"><outcome value='true'>
+<set>
+<parameter name="service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].ipv6-subnet-id" value="`$tmp.AnAI.l3network.subnets.subnet[$i].neutron-subnet-id`" /></set></outcome></switch></for></outcome></switch></outcome></switch></outcome></switch></block></outcome></switch></for></block></outcome></switch></block></outcome></switch></for><switch test="`$tmp.usePreload == 1`"><outcome value='true'><block atomic="true">
+<get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+    resource="l3-network"
+        key="l3-network.network-name = $preload-data.vnf-topology-information.vnf-assignments.vnf-networks[$j].network-name"
+        local-only="false"
+        pfx="tmp.AnAI.l3network">
+<outcome value='not-found'>
+<return status='failure'>
+<parameter name='error-code' value='500' />
+<parameter name='error-message' value="`'PRELOAD network-name = ' + $preload-data.vnf-topology-information.vnf-assignments.vnf-networks[$j].network-name + ' not found in AnAI'`"  />
+</return></outcome><outcome value='failure'>
+<return status='failure'>
+<parameter name='error-code' value='500' />
+<parameter name='error-message' value="`'Failed to query AnAI for l3-network with network-name = ' + $vnf-topology-operation-input.vnf-request-information.vnf-networks[$j].network-name`"  />
+</return></outcome><outcome value='success'>
+<switch test="`$tmp.AnAI.l3network.network-id == ''`"><outcome value='true'><return status='failure'>
+<parameter name='error-code' value='500' />
+<parameter name='error-message' value="`'An error occurred while querying l3-network with network-name = ' + $preload-data.vnf-topology-information.vnf-assignments.vnf-networks[$j].network-name + ' , it is likely that there are more than one l3-newtork object with the same network-name in AnAI.'`"  />
+</return></outcome></switch></outcome></get-resource><switch test="`$service-data.vnf-topology-information.vnf-assignments.vnf-networks_length`"><outcome value=''>
+<set>
+    <parameter name="service-data.vnf-topology-information.vnf-assignments.vnf-networks_length" value = "0" /></set></outcome></switch><for index="k" start="0" end="`$service-data.vnf-topology-information.vnf-assignments.vnf-networks_length`"><switch test="`$service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].network-role == $preload-data.vnf-topology-information.vnf-assignments.vnf-networks[$j].network-role`"><outcome value='true'>
+<block>
+<set>
+<parameter name="service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].network-name" value="`$tmp.AnAI.l3network.network-name`" />
+<parameter name="service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].network-id" value="`$tmp.AnAI.l3network.network-id`" />
+<parameter name="service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].neutron-id" value="`$tmp.AnAI.l3network.neutron-network-id`" />
+<parameter name="service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].contrail-network-fqdn" value="`$tmp.AnAI.l3network.contrail-network-fqdn`" />
+
+</set><switch test="`$service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].subnet-id == ''`"><outcome value='true'>
+<switch test="`$service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].subnet-name != ''`"><outcome value='true'>
+<switch test="`$tmp.AnAI.l3network.subnets.subnet_length != ''`"><outcome value='true'>
+<for index="i" start="0" end="`$tmp.AnAI.l3network.subnets.subnet_length`"><switch test="`$tmp.AnAI.l3network.subnets.subnet[$i].subnet-name == $service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].subnet-name`"><outcome value='true'>
+<set>
+<parameter name="service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].subnet-id" value="`$tmp.AnAI.l3network.subnets.subnet[$i].neutron-subnet-id`" /></set></outcome></switch></for></outcome></switch></outcome></switch></outcome></switch><switch test="`$service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].ipv6-subnet-id == ''`"><outcome value='true'>
+<switch test="`$service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].ipv6-subnet-name != ''`"><outcome value='true'>
+<switch test="`$tmp.AnAI.l3network.subnets.subnet_length != ''`"><outcome value='true'>
+<for index="i" start="0" end="`$tmp.AnAI.l3network.subnets.subnet_length`"><switch test="`$tmp.AnAI.l3network.subnets.subnet[$i].subnet-name == $service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].ipv6-subnet-name`"><outcome value='true'>
+<set>
+<parameter name="service-data.vnf-topology-information.vnf-assignments.vnf-networks[$k].ipv6-subnet-id" value="`$tmp.AnAI.l3network.subnets.subnet[$i].neutron-subnet-id`" /></set></outcome></switch></for></outcome></switch></outcome></switch></outcome></switch></block></outcome></switch></for></block></outcome></switch></block></block></for><return status='success'>
+    <parameter name="error-code" value="200" /></return></block></method></service-logic>

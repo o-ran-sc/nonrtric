@@ -1,0 +1,98 @@
+<div class="modal fade" id="add_owbc_properties" tabindex="-1" role="dialog"
+        aria-labelledby="add_owbc_properties_label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Add OWBC Properties</h4>
+          </div>
+          <div class="modal-body">
+            <form name="addForm" role="form" action="/tunnel/addOwbcProperties" method="POST">
+              <div class="form-group">
+                <label for="nf_controller_id">*Controller ID</label>
+                <input type="text" class="form-control" maxlength="255" name="nf_controller_id" id="nf_controller_id" placeholder="varchar(255)">
+              </div>
+              <div class="form-group">
+                <label for="nf_base_uri">*Base URL</label>
+                <input type="text" class="form-control" maxlength="255" name="nf_base_uri" id="nf_base_uri" placeholder="varchar(255)">
+              </div>
+              <div class="form-group">
+                <label for="nf_service_create_extension">*Service Create Extension</label>
+                <input type="text" class="form-control" maxlength="255" name="nf_service_create_extension" id="nf_service_create_extension" placeholder="varchar(255)">
+              </div>
+              <div class="form-group">
+                <label for="nf_service_delete_extension">*Service Delete Extension</label>
+                <input type="text" class="form-control" maxlength="255" name="nf_service_delete_extension" id="nf_service_delete_extension" placeholder="varchar(255)">
+              </div>
+              <div class="form-group">
+                <label for="nf_auth_username">*Auth Username</label>
+                <input type="text" class="form-control" maxlength="80" name="nf_auth_username" id="nf_auth_username" placeholder="varchar(80)">
+              </div>
+              <div class="form-group">
+                <label for="nf_auth_password">*Auth Password</label>
+                <input type="password" class="form-control" maxlength="80" name="nf_auth_password" id="nf_auth_password" placeholder="varbinary(80)">
+              </div>
+              <div class="form-group">
+                <label for="nf_confirm_auth_password">*Confirm Auth Password</label>
+                <input type="password" class="form-control" maxlength="80" name="nf_confirm_auth_password" id="nf_confirm_auth_password" placeholder="varbinary(80)">
+              </div>
+              <div class="form-group">
+                <input type="hidden" name="nf_action" id="nf_action">
+                <button type="button" class="btn btn-primary" onclick="submitOwbcProperties(this.form);">Submit</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>
+
+   <div class="modal fade" id="update_owbc_properties" tabindex="-1" role="dialog" 
+		aria-labelledby="update_owbc_properties_label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Update OWBC Properties</h4>
+          </div>
+          <div class="modal-body">
+            <form role="form" action="/tunnel/updateOwbcProperties" method="POST">
+              <div class="form-group">
+                <label for="uf_controller_id">*Controller ID</label>
+                <input type="text" class="form-control" maxlength="255" name="uf_controller_id" id="uf_controller_id" placeholder="varchar(255)">
+              </div>
+              <div class="form-group">
+                <label for="uf_base_uri">*Base URL</label>
+                <input type="text" class="form-control" maxlength="255" name="uf_base_uri" id="uf_base_uri" placeholder="varchar(255)">
+              </div>
+              <div class="form-group">
+                <label for="uf_service_create_extension">*Service Create Extension</label>
+                <input type="text" class="form-control" maxlength="255" name="uf_service_create_extension" id="uf_service_create_extension" placeholder="varchar(255)">
+              </div>
+              <div class="form-group">
+                <label for="uf_service_delete_extension">*Service Delete Extension</label>
+                <input type="text" class="form-control" maxlength="255" name="uf_service_delete_extension" id="uf_service_delete_extension" placeholder="varchar(255)">
+              </div>
+              <div class="form-group">
+                <label for="uf_auth_username">*Auth Username</label>
+                <input type="text" class="form-control" maxlength="80" name="uf_auth_username" id="uf_auth_username" placeholder="varchar(80)">
+              </div>
+              <div class="form-group">
+                <label for="uf_auth_password">*Auth Password</label>
+                <input type="password" class="form-control" maxlength="80" name="uf_auth_password" id="uf_auth_password" placeholder="varbinary(80)">
+              </div>
+              <div class="form-group">
+                <label for="uf_confirm_auth_password">*Confirm Auth Password</label>
+                <input type="password" class="form-control" maxlength="80" name="uf_confirm_auth_password" id="uf_confirm_auth_password" placeholder="varbinary(80)">
+              </div>
+              <div class="form-group">
+				<input type="hidden" name="uf_action" id="uf_action">
+                <input type="hidden" name="uf_key_controller_id" id="uf_key_controller_id">
+                <button type="button" class="btn btn-primary" onclick="submitOwbcProperties(this.form);">Submit</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>

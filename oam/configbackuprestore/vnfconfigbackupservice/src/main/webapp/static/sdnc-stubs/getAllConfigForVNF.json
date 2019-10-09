@@ -1,0 +1,199 @@
+{
+  "preload-vnfs": {
+    "vnf-preload-list": [
+      {
+        "vnf-name": "vDNS-vIMS",
+        "vnf-type": "VimsClearwaterVsp..sproutScaling..module-1",
+        "vnf-version":"1.0",
+        "timeStamp":"2018-03-16",
+        "preload-data": {
+          "vnf-topology-information": {
+            "vnf-parameters": [
+              {
+                "vnf-parameter-name": "dn_range_length",
+                "vnf-parameter-value": "10000"
+              },
+              {
+                "vnf-parameter-name": "public_net_id",
+                "vnf-parameter-value": "d05b5f2a-37ce-4d75-810a-c7592a123ca3"
+              },
+              {
+                "vnf-parameter-name": "dn_range_start",
+                "vnf-parameter-value": "2425550000"
+              },
+              {
+                "vnf-parameter-name": "etcd_ip",
+                "vnf-parameter-value": "30.30.30.20"
+              },
+              {
+                "vnf-parameter-name": "zone",
+                "vnf-parameter-value": "me.cw-ngv.com"
+              },
+              {
+                "vnf-parameter-name": "dnssec_key",
+                "vnf-parameter-value": "9FPdYTWhk5+LbhrqtTPQKw=="
+              },
+              {
+                "vnf-parameter-name": "dns_ip",
+                "vnf-parameter-value": "30.30.30.9"
+              },
+              {
+                "vnf-parameter-name": "key_name",
+                "vnf-parameter-value": "sprout_scale_key1"
+              },
+              {
+                "vnf-parameter-name": "repo_url",
+                "vnf-parameter-value": "http://repo.cw-ngv.com/stable"
+              }
+            ],
+            "vnf-topology-identifier": {
+              "service-type": "dcdae039-b762-4f25-a4aa-92e6034cf3bd",
+              "vnf-type": "VimsClearwaterVsp..sproutScaling..module-1",
+              "generic-vnf-name": "vIMS-vnf-inst-1",
+              "generic-vnf-type": "vIMS-ClearWater-VSP 0",
+              "vnf-name": "vDNS-vIMS"
+            }
+          },
+          "oper-status": {
+            "order-status": "PendingAssignment"
+          },
+          "network-topology-information": {}
+        }
+      },
+      {
+        "vnf-name": "vDNS-vIMS",
+        "vnf-type": "VimsClearwaterVsp..sproutScaling..module-1",
+        "vnf-version":"2.0",
+        "timeStamp":"2018-03-17",
+        "preload-data": {
+          "vnf-topology-information": {
+            "vnf-parameters": [
+              {
+                "vnf-parameter-name": "dn_range_length",
+                "vnf-parameter-value": "20000"
+              },
+              {
+                "vnf-parameter-name": "public_net_id",
+                "vnf-parameter-value": "60dc8a1c-86b8-4cc4-b5c8-9b0272113c1f"
+              },
+              {
+                "vnf-parameter-name": "dn_range_start",
+                "vnf-parameter-value": "2425550111"
+              },
+              {
+                "vnf-parameter-name": "etcd_ip",
+                "vnf-parameter-value": "10.53.172.155"
+              },
+              {
+                "vnf-parameter-name": "zone",
+                "vnf-parameter-value": "me.cw-ngv.com"
+              },
+              {
+                "vnf-parameter-name": "dnssec_key",
+                "vnf-parameter-value": "9FPdYTWhk5+LbhrqtTPQKw=="
+              },
+              {
+                "vnf-parameter-name": "dns_ip",
+                "vnf-parameter-value": "10.53.172.152"
+              },
+              {
+                "vnf-parameter-name": "key_name",
+                "vnf-parameter-value": "vm1-key-vims"
+              },
+              {
+                "vnf-parameter-name": "repo_url",
+                "vnf-parameter-value": "http://repo.cw-ngv.com/stable"
+              }
+            ],
+            "vnf-topology-identifier": {
+              "service-type": "dcdae039-b762-4f25-a4aa-92e6034cf3bd",
+              "vnf-type": "VimsClearwaterVsp..base_clearwater..module-0",
+              "generic-vnf-name": "vIMS-vnf-inst-1",
+              "generic-vnf-type": "vIMS-ClearWater-VSP 0",
+              "vnf-name": "Vfmodule-vIMS"
+            }
+          },
+          "oper-status": {
+            "order-status": "PendingAssignment"
+          },
+          "network-topology-information": {}
+        }
+      },
+       {
+        "vnf-name": "vDNS-vIMS",
+        "vnf-type": "VimsClearwaterVsp..sproutScaling..module-1",
+        "vnf-version":"3.0",
+        "timeStamp":"2018-03-16",
+        "preload-data": {
+          "vnf-topology-information": {
+            "vnf-parameters": [
+              {
+                "vnf-parameter-name": "dn_range_length",
+                "vnf-parameter-value": "10000"
+              },
+              {
+                "vnf-parameter-name": "public_net_id",
+                "vnf-parameter-value": "d05b5f2a-37ce-4d75-810a-c7592a123ca3"
+              },
+              {
+                "vnf-parameter-name": "dn_range_start",
+                "vnf-parameter-value": "2425550000"
+              },
+              {
+                "vnf-parameter-name": "etcd_ip",
+                "vnf-parameter-value": "30.30.30.20"
+              },
+              {
+                "vnf-parameter-name": "zone",
+                "vnf-parameter-value": "me.cw-ngv.com"
+              },
+              {
+                "vnf-parameter-name": "dnssec_key",
+                "vnf-parameter-value": "9FPdYTWhk5+LbhrqtTPQKw=="
+              },
+              {
+                "vnf-parameter-name": "dns_ip",
+                "vnf-parameter-value": "30.30.30.9"
+              },
+              {
+                "vnf-parameter-name": "key_name",
+                "vnf-parameter-value": "sprout_scale_key1"
+              },
+              {
+                "vnf-parameter-name": "repo_url",
+                "vnf-parameter-value": "http://repo.cw-ngv.com/stable"
+              }
+            ],
+            "vnf-topology-identifier": {
+              "service-type": "dcdae039-b762-4f25-a4aa-92e6034cf3bd",
+              "vnf-type": "VimsClearwaterVsp..sproutScaling..module-1",
+              "generic-vnf-name": "vIMS-vnf-inst-1",
+              "generic-vnf-type": "vIMS-ClearWater-VSP 0",
+              "vnf-name": "vDNS-vIMS"
+            }
+          },
+          "oper-status": {
+            "order-status": "PendingAssignment"
+          },
+          "network-topology-information": {}
+        }
+      }
+    ]
+},
+    "status":200,
+   "config":{  
+      "method":"GET",
+      "transformRequest":[  
+         null
+      ],
+      "transformResponse":[  
+         null
+      ],
+      "params":"",
+      "headers":{  
+         "Accept":"application/json"
+      },
+      "url":"/getAllConfigForVNF/Thu Mar 15 2018 00:00:00 GMT+0530 (India Standard Time)/Fri Mar 16 2018 00:00:00 GMT+0530 (India Standard Time)/Router"
+   },
+   "statusText":""
+  }

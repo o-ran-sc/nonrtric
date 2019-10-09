@@ -1,0 +1,65 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc="generate-vpn-binding-id" mode="sync">
+        <block atomic="true">
+            <set>
+                <parameter name="tmp.local-variables.generate-vpn-binding-id." value="" />
+                <parameter name="tmp.return.generate-vpn-binding-id." value="" />
+            </set>
+            <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils" method="generateUUID" >
+                <parameter name="ctx-destination" value="tmp.return.generate-vpn-binding-id.uuid" />
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <!-- Used to work around execute node bug -->
+                        <parameter name="execute_failure" value="false" />
+                        <!-- return parameters -->
+                        <parameter name="error-message.generate-vpn-binding-id" value="An error occured while generating a UUID for VPN-BINDING." />
+                    </return>
+                </outcome>
+            </execute>
+            <for atomic="true" index="n" start="0" end="1" >
+                <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+              resource="vpn-binding"
+              key="vpn-binding.vpn-id = $tmp.return.generate-vpn-binding-id.uuid"
+              local-only="false"
+              pfx="tmp.local-variables.generate-vpn-binding-id.VPNBINDING" >
+                    <outcome value='success'>
+                        <block atomic='true'>
+                            <set>
+                                <parameter name="tmp.local-variables.generate-vpn-binding-id.is-unique" value="0" />
+                            </set>
+                            <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils" method="generateUUID" >
+                                <parameter name="ctx-destination" value="tmp.return.generate-vpn-binding-id.uuid" />
+                                <outcome value='failure'>
+                                    <return status="failure">
+                                        <!-- return parameters -->
+                                        <parameter name="error-message.generate-vpn-binding-id" value="An error occured while generating a UUID for VPN-BINDING." />
+                                    </return>
+                                </outcome>
+                            </execute>
+                        </block>
+                    </outcome>
+                    <outcome value='not-found'>
+                        <block></block>
+                    </outcome>
+                    <outcome value='failure'>
+                        <return status="failure">
+                            <!-- return parameters -->
+                            <parameter name="error-message.generate-vpn-binding-id" value="`'An error occured while checking if a generated vpn-binding-id was unique. vpn-id = ' + $tmp.local-variables.generate-vpn-binding-id.uuid`" />
+                        </return>
+                    </outcome>
+                    <outcome value="Other">
+                        <return status="failure">
+                            <!-- return parameters -->
+                            <parameter name="error-message.generate-vpn-binding-id" value="`'An error occured while checking if a generated vpn-binding-id was unique. vpn-id = ' + $tmp.local-variables.generate-vpn-binding-id.uuid`" />
+                        </return>
+                    </outcome>
+                </get-resource>
+            </for>
+            <set>
+                <parameter name="tmp.local-variables.generate-vpn-binding-id." value="" />
+            </set>
+        </block>
+    </method>
+</service-logic>

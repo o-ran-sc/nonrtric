@@ -1,0 +1,63 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='service-topology-operation-changeassign' mode='sync'>
+        <block atomic="true">
+            <switch test='`$service-topology-operation-input.request-information.request-action`'>
+                <outcome value='CreateServiceInstance'>
+                    <block></block>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="If svc-action is 'changeassign' then request-action must be 'CreateServiceInstance'" />
+                    </return>
+                </outcome>
+            </switch>
+            <switch test='`$service-data.service-topology.service-topology-identifier.service-instance-id`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="404" />
+                        <parameter name="error-message" value="`'Service ' + $service-topology-operation-input.service-information.service-instance-id + ' is not found'`" />
+                    </return>
+                </outcome>
+            </switch>
+            <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT * from SERVICE_MODEL WHERE service_uuid = $service-topology-operation-input.service-information.onap-model-information.model-uuid'
+  pfx='db.service-model'>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error reading SERVICE_MODEL table" />
+                    </return>
+                </outcome>
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`'No model found for service UUID ' + $service-topology-operation-input.service-information.onap-model-information.model-uuid`" />
+                    </return>
+                </outcome>
+            </get-resource>
+            <set>
+                <parameter name='service-data.service-topology.onap-model-information.'
+  value='`$service-topology-operation-input.service-information.onap-model-information.`' />
+            </set>
+            <set>
+                <parameter name='service-data.service-level-oper-status.order-status' value='Created' />
+                <parameter name='service-data.service-level-oper-status.last-rpc-action' value='changeassign' />
+                <parameter name='service-data.service-level-oper-status.last-action' value='CreateServiceInstance' />
+            </set>
+            <set>
+                <parameter name='service-object-path'
+ value="`'restconf/config/GENERIC-RESOURCE-API:services/service/'
+ + $service-topology-operation-input.service-information.service-instance-id
+ + '/service-data/service-topology/'`"/>
+            </set>
+            <return status='success'></return>
+        </block>
+    </method>
+</service-logic>

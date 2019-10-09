@@ -1,0 +1,921 @@
+[
+    {
+        "id": "51ff11de.938a4",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 119.00390625,
+        "y": 79.00390625,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "5f6a102e.b60f5"
+            ]
+        ]
+    },
+    {
+        "id": "5f6a102e.b60f5",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 331.00391006469727,
+        "y": 151.0039234161377,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "7e2e9718.c2ec58"
+            ]
+        ]
+    },
+    {
+        "id": "7e2e9718.c2ec58",
+        "type": "method",
+        "name": "wan-connection-topology-operation-create",
+        "xml": "<method rpc='wan-connection-topology-operation-create' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 319.0040283203125,
+        "y": 239.00390625,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "deadfdad.78a35"
+            ]
+        ]
+    },
+    {
+        "id": "8e544758.cf6458",
+        "type": "execute",
+        "name": "contains specification",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >\n    <parameter name=\"source\" value=\"`$network-topology-operation-input.network-information.onap-model-information.model-name`\"/>\n    <parameter name=\"target\" value=\"specification\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 323.0352020263672,
+        "y": 512.035210609436,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "2fd5af60.51a0e",
+                "b315221.5065ce"
+            ]
+        ]
+    },
+    {
+        "id": "be2720c6.087bc",
+        "type": "execute",
+        "name": "contains Fc",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >\n    <parameter name=\"source\" value=\"`$network-topology-operation-input.network-information.onap-model-information.model-name`\"/>\n    <parameter name=\"target\" value=\"Fc\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 511.0352783203125,
+        "y": 584.0352687835693,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "985af680.447708",
+                "9924596f.f95838"
+            ]
+        ]
+    },
+    {
+        "id": "39041604.4e8b9a",
+        "type": "execute",
+        "name": "contains Fd",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >\n    <parameter name=\"source\" value=\"`$network-topology-operation-input.network-information.onap-model-information.model-name`\"/>\n    <parameter name=\"target\" value=\"Fd\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 510.0351982116699,
+        "y": 661.035219669342,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "f64ebc8e.88ac",
+                "2b8cfc56.68f314"
+            ]
+        ]
+    },
+    {
+        "id": "2fd5af60.51a0e",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 560.0352325439453,
+        "y": 510.0351963043213,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b315221.5065ce",
+        "type": "outcomeTrue",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 306.0352668762207,
+        "y": 584.0352687835693,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "be2720c6.087bc"
+            ]
+        ]
+    },
+    {
+        "id": "985af680.447708",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 693.0352821350098,
+        "y": 585.0352520942688,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "4637df53.0968b"
+            ]
+        ]
+    },
+    {
+        "id": "f64ebc8e.88ac",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 705.0352821350098,
+        "y": 663.0352520942688,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "4637df53.0968b"
+            ]
+        ]
+    },
+    {
+        "id": "9924596f.f95838",
+        "type": "outcomeTrue",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 301.0352096557617,
+        "y": 665.0352411270142,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "39041604.4e8b9a"
+            ]
+        ]
+    },
+    {
+        "id": "e2a37c8a.52a28",
+        "type": "outcomeTrue",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 282.03532791137695,
+        "y": 840.035454750061,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "2ee04d47.b452f2"
+            ]
+        ]
+    },
+    {
+        "id": "c9f2e546.57c978",
+        "type": "execute",
+        "name": "execute Properties",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >\n    <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />\n    <parameter name='contextPrefix' value='prop' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 510.0039978027344,
+        "y": 359.0039253234863,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "deadfdad.78a35",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 225.00392150878906,
+        "y": 339.00390243530273,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "c9f2e546.57c978",
+                "9326fcfd.42d18",
+                "7b6cbacb.c940e4",
+                "a48d4fd2.b35f8"
+            ]
+        ]
+    },
+    {
+        "id": "9326fcfd.42d18",
+        "type": "switchNode",
+        "name": "switch network-id",
+        "xml": "<switch test='`$network-topology-operation-input.network-information.network-id`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 510.0039291381836,
+        "y": 297.00391578674316,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "661cfd5a.9af8f4"
+            ]
+        ]
+    },
+    {
+        "id": "661cfd5a.9af8f4",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 759.0040054321289,
+        "y": 236.00391578674316,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "e482d16b.f1f2a"
+            ]
+        ]
+    },
+    {
+        "id": "e482d16b.f1f2a",
+        "type": "execute",
+        "name": "generate network-id",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='generateUUID' >\n<parameter name=\"ctx-destination\" value=\"network-topology-operation-input.network-information.network-id\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1019.0040893554688,
+        "y": 239.00394344329834,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "4a8125e1.d928fc",
+                "1ef0b35a.df2b6d"
+            ]
+        ]
+    },
+    {
+        "id": "4a8125e1.d928fc",
+        "type": "failure",
+        "name": "Other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1272.0041427612305,
+        "y": 180.00391387939453,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "a3cf2f7c.aa153"
+            ]
+        ]
+    },
+    {
+        "id": "a3cf2f7c.aa153",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='' />\n<parameter name='error-message' value=\"An error occured while generation allotted resource ID\" />\n",
+        "comments": "",
+        "x": 1438.004150390625,
+        "y": 182.00393295288086,
+        "z": "ec4bf25e.dd6bb",
+        "wires": []
+    },
+    {
+        "id": "7b6cbacb.c940e4",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+        "comments": "",
+        "x": 386.0039749145508,
+        "y": 978.003942489624,
+        "z": "ec4bf25e.dd6bb",
+        "wires": []
+    },
+    {
+        "id": "2ee04d47.b452f2",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 474.0040092468262,
+        "y": 841.0040912628174,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a48d4fd2.b35f8",
+        "type": "block",
+        "name": "save-specification-block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 819.0039520263672,
+        "y": 513.0078201293945,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "2ef49dd5.a969b2",
+                "1ebbb5b1.ce49ea"
+            ]
+        ]
+    },
+    {
+        "id": "4637df53.0968b",
+        "type": "block",
+        "name": "find-specifications-block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 973.7539024353027,
+        "y": 617.0078229904175,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "4bb001a8.758d6"
+            ]
+        ]
+    },
+    {
+        "id": "4bb001a8.758d6",
+        "type": "switchNode",
+        "name": "switch service-data.networks_length",
+        "xml": "<switch test='`$service-data.networks.network_length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1329.2543029785156,
+        "y": 610.0078811645508,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "de42c02b.4d353",
+                "129498fa.fc8607"
+            ]
+        ]
+    },
+    {
+        "id": "de42c02b.4d353",
+        "type": "other",
+        "name": "Null",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1640.2542877197266,
+        "y": 576.0078916549683,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "1750133b.d0d30d"
+            ]
+        ]
+    },
+    {
+        "id": "129498fa.fc8607",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1354.2541885375977,
+        "y": 706.0078849499114,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "89c60eaa.e0a3b"
+            ]
+        ]
+    },
+    {
+        "id": "89c60eaa.e0a3b",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1498.6112327575684,
+        "y": 705.9443969433196,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "90d47eef.bffa5",
+                "6361d5f3.8fbc7c"
+            ]
+        ]
+    },
+    {
+        "id": "1750133b.d0d30d",
+        "type": "set",
+        "name": "set nidx and isExist",
+        "xml": "<set>\n<parameter name='nidx' value='0' />\n<parameter name='isExist' value='false' />",
+        "comments": "",
+        "x": 1815.7542419433594,
+        "y": 575.0079183871858,
+        "z": "ec4bf25e.dd6bb",
+        "wires": []
+    },
+    {
+        "id": "6361d5f3.8fbc7c",
+        "type": "set",
+        "name": "set nidx and isExist",
+        "xml": "<set>\n<parameter name='nidx' value='`$service-data.networks.network_length`' />\n<parameter name='isExist' value='false' />",
+        "comments": "",
+        "x": 1659.3098831176758,
+        "y": 664.5635662078857,
+        "z": "ec4bf25e.dd6bb",
+        "wires": []
+    },
+    {
+        "id": "90d47eef.bffa5",
+        "type": "for",
+        "name": "for each existing network",
+        "xml": "<for index='idx' start='0' end='`$nidx`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1687.7383117675781,
+        "y": 717.7856483459473,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "c0e01e64.557b7"
+            ]
+        ]
+    },
+    {
+        "id": "d6f28b6a.4c11f8",
+        "type": "set",
+        "name": "set nidx and isExist",
+        "xml": "<set>\n<parameter name='nidx' value='`$idx`' />\n<parameter name='isExist' value='true' />",
+        "comments": "",
+        "x": 1985.005386352539,
+        "y": 978.0086584091187,
+        "z": "ec4bf25e.dd6bb",
+        "wires": []
+    },
+    {
+        "id": "2ef49dd5.a969b2",
+        "type": "set",
+        "name": "set network in service-data",
+        "xml": "<set>\n<parameter name='service-data.networks.network[$nidx].network-id' value='`$network-topology-operation-input.network-information.network-id`' />\n<parameter name='service-data.networks.network[$nidx].network-data.sdnc-request-header.' value='`$network-topology-operation-input.sdnc-request-header.`' />\n<parameter name='service-data.networks.network[$nidx].network-data.request-information.' value='`$network-topology-operation-input.request-information.`' />\n<parameter name='service-data.networks.network[$nidx].network-data.service-information.' value='`$network-topology-operation-input.service-information.`' />\n<parameter name='service-data.networks.network[$nidx].network-data.network-information.' value='`$network-topology-operation-input.network-information.`' />\n<parameter name='service-data.networks.network[$nidx].network-data.network-request-input.' value='`$network-topology-operation-input.network-request-input.`' />\n<parameter name='service-data.networks.network_length' value='`$nidx+1`' />\n\n",
+        "comments": "",
+        "x": 1282.003921508789,
+        "y": 535.0078272819519,
+        "z": "ec4bf25e.dd6bb",
+        "wires": []
+    },
+    {
+        "id": "1ebbb5b1.ce49ea",
+        "type": "switchNode",
+        "name": "switch service-data.networks_length",
+        "xml": "<switch test='`$service-data.networks.network_length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1307.00390625,
+        "y": 349.0078139305115,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "71de1500.a0f5dc",
+                "84d10745.bd09d8"
+            ]
+        ]
+    },
+    {
+        "id": "71de1500.a0f5dc",
+        "type": "other",
+        "name": "Null",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1256.004005432129,
+        "y": 419.00785875320435,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "5a928df3.62e684"
+            ]
+        ]
+    },
+    {
+        "id": "5a928df3.62e684",
+        "type": "set",
+        "name": "set nidx",
+        "xml": "<set>\n<parameter name='nidx' value='0' />",
+        "comments": "",
+        "x": 1389.50390625,
+        "y": 418.0078430175781,
+        "z": "ec4bf25e.dd6bb",
+        "wires": []
+    },
+    {
+        "id": "84d10745.bd09d8",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1253.003791809082,
+        "y": 467.00785779953003,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "bf7c1ae3.a13b58"
+            ]
+        ]
+    },
+    {
+        "id": "bf7c1ae3.a13b58",
+        "type": "set",
+        "name": "set nidx",
+        "xml": "<set>\n<parameter name='nidx' value='`$service-data.networks.network_length`' />",
+        "comments": "",
+        "x": 1390.0597305297852,
+        "y": 463.56352281570435,
+        "z": "ec4bf25e.dd6bb",
+        "wires": []
+    },
+    {
+        "id": "89792a65.256368",
+        "type": "set",
+        "name": "set network in service-data",
+        "xml": "<set>\n<parameter name='network-topology-operation-input.network-request-input.network-input-parameters.param_length' value='`$input_param_length + $param_length`' />\n\n",
+        "comments": "",
+        "x": 2006.5061492919922,
+        "y": 1429.0049443244934,
+        "z": "ec4bf25e.dd6bb",
+        "wires": []
+    },
+    {
+        "id": "9e04e4be.367888",
+        "type": "block",
+        "name": "copy-specifications-block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1709.2545623779297,
+        "y": 1072.0042037963867,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "d6f28b6a.4c11f8",
+                "89792a65.256368",
+                "49104faa.41ebb",
+                "5f63a6d5.0f0808",
+                "4bcb87bc.b866b8"
+            ]
+        ]
+    },
+    {
+        "id": "49104faa.41ebb",
+        "type": "switchNode",
+        "name": "switch service-data.networks_length",
+        "xml": "<switch test='`$service-data.networks.network[$nidx].network-data.network-request-input.network-input-parameters.param_length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2057.0045013427734,
+        "y": 1059.0041122436523,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "4c3184c1.6619ac",
+                "2d5e7fd8.239cb"
+            ]
+        ]
+    },
+    {
+        "id": "4c3184c1.6619ac",
+        "type": "other",
+        "name": "Null",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2283.00435256958,
+        "y": 1034.0040397644043,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "cb121f91.6d21"
+            ]
+        ]
+    },
+    {
+        "id": "cb121f91.6d21",
+        "type": "set",
+        "name": "set param_length",
+        "xml": "<set>\n<parameter name='param_length' value='0' />",
+        "comments": "",
+        "x": 2469.5041885375977,
+        "y": 1032.0040455157869,
+        "z": "ec4bf25e.dd6bb",
+        "wires": []
+    },
+    {
+        "id": "2d5e7fd8.239cb",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2279.0043182373047,
+        "y": 1089.0040855407715,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "11ebe727.0ad829"
+            ]
+        ]
+    },
+    {
+        "id": "11ebe727.0ad829",
+        "type": "set",
+        "name": "set param_length",
+        "xml": "<set>\n<parameter name='param_length' value='`$service-data.networks.network[$nidx].network-data.network-request-input.network-input-parameters.param_length`' />",
+        "comments": "",
+        "x": 2467.7542572021484,
+        "y": 1089.0040702819824,
+        "z": "ec4bf25e.dd6bb",
+        "wires": []
+    },
+    {
+        "id": "5f63a6d5.0f0808",
+        "type": "for",
+        "name": "for each existing params",
+        "xml": "<for index='pidx' start='0' end='`$param_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2013.7548370361328,
+        "y": 1313.0043182373047,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "29a0bf72.ef8a9"
+            ]
+        ]
+    },
+    {
+        "id": "8a453e14.41bb8",
+        "type": "set",
+        "name": "set input_param_length",
+        "xml": "<set>\n<parameter name='input_param_length' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param_length`' />",
+        "comments": "",
+        "x": 2490.7548751831055,
+        "y": 1218.5042095184326,
+        "z": "ec4bf25e.dd6bb",
+        "wires": []
+    },
+    {
+        "id": "4bcb87bc.b866b8",
+        "type": "switchNode",
+        "name": "switch network-input-parameters_length",
+        "xml": "<switch test='`$network-topology-operation-input.network-request-input.network-input-parameters.param_length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2064.7544708251953,
+        "y": 1160.5040702819824,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "c56b0210.d9d6c",
+                "9e58091.eed84f8"
+            ]
+        ]
+    },
+    {
+        "id": "9e58091.eed84f8",
+        "type": "other",
+        "name": "Null",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2298.7543563842773,
+        "y": 1155.5040855407715,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "776789ac.4e1c88"
+            ]
+        ]
+    },
+    {
+        "id": "c56b0210.d9d6c",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2297.7544136047363,
+        "y": 1221.5040559768677,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "8a453e14.41bb8"
+            ]
+        ]
+    },
+    {
+        "id": "776789ac.4e1c88",
+        "type": "set",
+        "name": "set input_param_length",
+        "xml": "<set>\n<parameter name='input_param_length' value='0' />",
+        "comments": "",
+        "x": 2487.754325866699,
+        "y": 1156.5041007995605,
+        "z": "ec4bf25e.dd6bb",
+        "wires": []
+    },
+    {
+        "id": "29a0bf72.ef8a9",
+        "type": "set",
+        "name": "set specification_to_input_param",
+        "xml": "<set>\n<parameter name='network-topology-operation-input.network-request-input.network-input-parameters.param[$pidx+$input_param_length].' value='`$service-data.networks.network[$nidx].network-data.network-request-input.network-input-parameters.param[$pidx].`' />",
+        "comments": "",
+        "x": 2325.7544860839844,
+        "y": 1313.0043315887451,
+        "z": "ec4bf25e.dd6bb",
+        "wires": []
+    },
+    {
+        "id": "c0e01e64.557b7",
+        "type": "execute",
+        "name": "if contains specification",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains'  emitsOutcome='true' >\n    <parameter name=\"source\" value=\"`$service-data.networks.network[$idx].network-data.network-information.onap-model-information.model-name`\" />\n    <parameter name=\"target\" value=\"specification\"/>\n  \n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1670.5041275024414,
+        "y": 792.0040473937988,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "f0e3233e.fbb43"
+            ]
+        ]
+    },
+    {
+        "id": "3b74b5cb.6db12a",
+        "type": "execute",
+        "name": "if contains model-name",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains'  emitsOutcome='true' >\n    <parameter name=\"source\" value=\"`$service-data.networks.network[$idx].network-data.network-information.onap-model-information.model-name`\" />\n    <parameter name=\"target\" value=\"`$network-topology-operation-input.network-information.onap-model-information.model-name`\"/>\n  \n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1664.753921508789,
+        "y": 849.0039715766907,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "43e7c123.94da6"
+            ]
+        ]
+    },
+    {
+        "id": "f0e3233e.fbb43",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1861.7540111541748,
+        "y": 791.0039234161377,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "3b74b5cb.6db12a"
+            ]
+        ]
+    },
+    {
+        "id": "43e7c123.94da6",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1868.0040092468262,
+        "y": 846.0040340423584,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "9e04e4be.367888"
+            ]
+        ]
+    },
+    {
+        "id": "dc605cc5.0af61",
+        "type": "execute",
+        "name": "contains FcPort",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >\n    <parameter name=\"source\" value=\"`$network-topology-operation-input.network-information.onap-model-information.model-name`\"/>\n    <parameter name=\"target\" value=\"FcPort\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 502.00390625,
+        "y": 734.00390625,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "d20a2c0b.707f2",
+                "e2a37c8a.52a28"
+            ]
+        ]
+    },
+    {
+        "id": "d20a2c0b.707f2",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 697.0039901733398,
+        "y": 736.0039386749268,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "4637df53.0968b"
+            ]
+        ]
+    },
+    {
+        "id": "2b8cfc56.68f314",
+        "type": "outcomeTrue",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 293.00391387939453,
+        "y": 737.0038776397705,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "dc605cc5.0af61"
+            ]
+        ]
+    },
+    {
+        "id": "1ef0b35a.df2b6d",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1271.3373184204102,
+        "y": 270.00391387939453,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "f3103198.99ca3"
+            ]
+        ]
+    },
+    {
+        "id": "f3103198.99ca3",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1444.3372344970703,
+        "y": 265.00390625,
+        "z": "ec4bf25e.dd6bb",
+        "wires": [
+            [
+                "a4c91e95.e83ee"
+            ]
+        ]
+    },
+    {
+        "id": "a4c91e95.e83ee",
+        "type": "set",
+        "name": "set networkId and network-object-path",
+        "xml": "<set>\n<parameter name='networkId' value='`$network-topology-operation-input.network-information.network-id`' />\n<parameter name=\"network-object-path\" value=\"`'restconf/config/GENERIC-RESOURCE-API:services/service/'  + $network-topology-operation-input.service-information.service-instance-id  + '/service-data/networks/network/'  + $network-topology-operation-input.network-information.network-id  + '/network-data/'` \" />",
+        "comments": "",
+        "x": 1707.50390625,
+        "y": 264.00390625,
+        "z": "ec4bf25e.dd6bb",
+        "wires": []
+    }
+]

@@ -1,0 +1,1297 @@
+[
+    {
+        "id": "bed9c35d.e0ab8",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 116.00390625,
+        "y": 78.99999904632568,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "bdf50147.91929"
+            ]
+        ]
+    },
+    {
+        "id": "bdf50147.91929",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 328.00391006469727,
+        "y": 151.00001621246338,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "9e64bb35.81c5b8"
+            ]
+        ]
+    },
+    {
+        "id": "9e64bb35.81c5b8",
+        "type": "method",
+        "name": "wan-connection-topology-operation-deactivate",
+        "xml": "<method rpc='wan-connection-topology-operation-deactivate' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 316.0040283203125,
+        "y": 238.99999904632568,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "7ad810d3.cad88"
+            ]
+        ]
+    },
+    {
+        "id": "8a67a6d1.1bbf48",
+        "type": "execute",
+        "name": "execute Properties",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >\n    <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />\n    <parameter name='contextPrefix' value='prop' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 703.0041885375977,
+        "y": 323.0000705718994,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8ba9bac1.ee7e58",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+        "comments": "",
+        "x": 303.00392150878906,
+        "y": 1188.0002126693726,
+        "z": "add5ea55.8506d8",
+        "wires": []
+    },
+    {
+        "id": "7ad810d3.cad88",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 228.5041046142578,
+        "y": 680.0001344680786,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "5d609d23.b321b4",
+                "b02a1448.2abf08",
+                "8a67a6d1.1bbf48",
+                "8ba9bac1.ee7e58",
+                "9a0faf20.2fca7"
+            ]
+        ]
+    },
+    {
+        "id": "5d609d23.b321b4",
+        "type": "for",
+        "name": "for pidx..service-data.networks.network[]",
+        "xml": "<for index='pidx' start='0' end='`$service-data.networks.network_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 866.5043182373047,
+        "y": 480.00013303756714,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "402023c4.b7ccfc"
+            ]
+        ]
+    },
+    {
+        "id": "402023c4.b7ccfc",
+        "type": "switchNode",
+        "name": "switch network-id",
+        "xml": "<switch test=\"`$service-data.networks.network[$pidx].network-id == $network-topology-operation-input.network-information.network-id`\">\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 917.5042495727539,
+        "y": 553.0001649856567,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "2c64e469.ac5d6c"
+            ]
+        ]
+    },
+    {
+        "id": "2c64e469.ac5d6c",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1099.75435256958,
+        "y": 555.0002584457397,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "f806435c.0ee1b"
+            ]
+        ]
+    },
+    {
+        "id": "f806435c.0ee1b",
+        "type": "set",
+        "name": "set tmp.pidx and tmp.network-input-parameters",
+        "xml": "<set>\n<parameter name='tmp.pidx' value='`$pidx`' />\n<parameter name='tmp.network.' value='`$service-data.networks.network[$pidx].`' />\n<parameter name='tmp.network-input-parameters' value='`$service-data.networks.network[$pidx].network-data.network-request-input.network-input-parameters`' />\n<parameter name='tmp.found-network-input' value='true' />",
+        "comments": "",
+        "x": 1386.372314453125,
+        "y": 539.4290904998779,
+        "z": "add5ea55.8506d8",
+        "wires": []
+    },
+    {
+        "id": "b02a1448.2abf08",
+        "type": "set",
+        "name": "set tmp.found-network-input",
+        "xml": "<set>\n<parameter name='tmp.found-network-input' value='false' />",
+        "comments": "",
+        "x": 851.5042190551758,
+        "y": 405.00017070770264,
+        "z": "add5ea55.8506d8",
+        "wires": []
+    },
+    {
+        "id": "644b78b3.b56638",
+        "type": "switchNode",
+        "name": "switch found-network-input",
+        "xml": "<switch test=\"`$found-network-input`\">\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 588.5042037963867,
+        "y": 890.0002946853638,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "ab8a1407.b57258",
+                "b5ad9505.765198"
+            ]
+        ]
+    },
+    {
+        "id": "ab8a1407.b57258",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 820.5042953491211,
+        "y": 934.0004930496216,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "e70ec11.398ad4"
+            ]
+        ]
+    },
+    {
+        "id": "b5ad9505.765198",
+        "type": "outcomeTrue",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 821.2542343139648,
+        "y": 892.0003843307495,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "bc1e10df.495bf"
+            ]
+        ]
+    },
+    {
+        "id": "bc1e10df.495bf",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"404\" />\n    <parameter name=\"error-message\" value=\"Error: Network input parameters not found\" />\n    \n",
+        "comments": "",
+        "x": 992.2542343139648,
+        "y": 900.0003538131714,
+        "z": "add5ea55.8506d8",
+        "wires": []
+    },
+    {
+        "id": "e70ec11.398ad4",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 558.0040817260742,
+        "y": 1046.0002794265747,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "fa434270.08d4",
+                "229661c0.3323fe",
+                "6889ef74.f6656"
+            ]
+        ]
+    },
+    {
+        "id": "fa434270.08d4",
+        "type": "for",
+        "name": "for cidx..tmp.network.network-data.network-topology.network-parameters.network-parameter[]",
+        "xml": "<for index='cidx' start='0' end='`$tmp.network.network-data.network-topology.network-parameters.network-parameter_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1007.0039215087891,
+        "y": 1132.000135421753,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "25bfefbb.7b8a2"
+            ]
+        ]
+    },
+    {
+        "id": "467eb351.f8dd4c",
+        "type": "switchNode",
+        "name": "switch network-parameter-name == 'restapiUrl-deactivate'",
+        "xml": "<switch test=\"`$tmp.network.network-data.network-topology.network-parameters.network-parameter[$cxid].network-parameter-name == 'restapiUrl-deactivate'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1121.0039825439453,
+        "y": 1202.0001974105835,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "85fbba7c.c54258"
+            ]
+        ]
+    },
+    {
+        "id": "85fbba7c.c54258",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1394.0041046142578,
+        "y": 1201.0001554489136,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "3a92a803.532c08"
+            ]
+        ]
+    },
+    {
+        "id": "3a92a803.532c08",
+        "type": "set",
+        "name": "set tmp.thirdparty-sdnc-url",
+        "xml": "<set>\n<parameter name='tmp.restapiUrl' value='`$tmp.network.network-data.network-topology.network-parameters.network-parameter[$cxid].network-parameter-value`' />\n<parameter name='tmp.restapiUrl-found' value='true' />",
+        "comments": "",
+        "x": 1573.0040664672852,
+        "y": 1203.0002040863037,
+        "z": "add5ea55.8506d8",
+        "wires": []
+    },
+    {
+        "id": "ecb2328b.87404",
+        "type": "execute",
+        "name": "execute RestApiCallNode delete wan-connection",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n<parameter name=\"restapiUrl\" value=\"`$tmp.restapiUrl + $tmp.actualId`\" />\n<parameter name=\"restapiUser\" value=\"`$tmp.restapiUser`\" />\n<parameter name=\"restapiPassword\" value=\"`$tmp.restapiPassword`\" />\n<parameter name=\"format\" value=\"json\"/>\n<parameter name=\"httpMethod\" value=\"delete\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 895.2539520263672,
+        "y": 1934.000750541687,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "90bce824.a60af8",
+                "639417f4.3c8618",
+                "5e319e9.e03ce6"
+            ]
+        ]
+    },
+    {
+        "id": "e81bb98f.1bc1c8",
+        "type": "switchNode",
+        "name": "switch network-parameter-name == 'restapiUser'",
+        "xml": "<switch test=\"`$tmp.network.network-data.network-topology.network-parameters.network-parameter[$cxid].network-parameter-name == 'restapiUser'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1124.2539749145508,
+        "y": 1253.0001726150513,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "798bd507.61470c"
+            ]
+        ]
+    },
+    {
+        "id": "798bd507.61470c",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1390.2540893554688,
+        "y": 1255.000249862671,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "41e8b8a1.d5a1f8"
+            ]
+        ]
+    },
+    {
+        "id": "41e8b8a1.d5a1f8",
+        "type": "set",
+        "name": "set tmp.restapiUser",
+        "xml": "<set>\n<parameter name='tmp.restapiUser' value='`$tmp.network.network-data.network-topology.network-parameters.network-parameter[$cxid].network-parameter-value`' />\n<parameter name='tmp.restapiUser-found' value='true' />",
+        "comments": "",
+        "x": 1591.2541198730469,
+        "y": 1253.0002508163452,
+        "z": "add5ea55.8506d8",
+        "wires": []
+    },
+    {
+        "id": "9df47848.ecea98",
+        "type": "switchNode",
+        "name": "switch network-parameter-name == 'restapiPassword'",
+        "xml": "<switch test=\"`$tmp.network.network-data.network-topology.network-parameters.network-parameter[$cxid].network-parameter-name == 'restapiPassword'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1132.2540435791016,
+        "y": 1307.0000982284546,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "d16bb98.a2dc948"
+            ]
+        ]
+    },
+    {
+        "id": "d16bb98.a2dc948",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1409.2540550231934,
+        "y": 1305.0001306533813,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "55ba7bac.43a354"
+            ]
+        ]
+    },
+    {
+        "id": "55ba7bac.43a354",
+        "type": "set",
+        "name": "set tmp.restapiPassword",
+        "xml": "<set>\n<parameter name='tmp.restapiPassword' value='`$tmp.network.network-data.network-topology.network-parameters.network-parameter[$cxid].network-parameter-value`' />\n<parameter name='tmp.restapiPassword-found' value='true' />",
+        "comments": "",
+        "x": 1610.2540855407715,
+        "y": 1303.0001316070557,
+        "z": "add5ea55.8506d8",
+        "wires": []
+    },
+    {
+        "id": "229661c0.3323fe",
+        "type": "set",
+        "name": "set paras flags",
+        "xml": "<set>\n<parameter name='tmp.restapiUrl-found' value='false' />\n<parameter name='tmp.restapiUser-found' value='false' />\n<parameter name='tmp.restapiPassword-found' value='false' />\n<parameter name='tmp.thirdPartyAdaptorRpc-found' value='false' />\n<parameter name='tmp.actualId-found' value='false' />",
+        "comments": "",
+        "x": 794.0040893554688,
+        "y": 1047.00013256073,
+        "z": "add5ea55.8506d8",
+        "wires": []
+    },
+    {
+        "id": "6889ef74.f6656",
+        "type": "switchNode",
+        "name": "switch thirdPartyAdaptorRpc-found == 'true'",
+        "xml": "<switch test=\"`$tmp.thirdPartyAdaptorRpc-found == 'true'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 836.0039215087891,
+        "y": 1542.0001783370972,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "6070832b.4e05ac",
+                "ffaf6a87.b25588"
+            ]
+        ]
+    },
+    {
+        "id": "25bfefbb.7b8a2",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 778.0039215087891,
+        "y": 1313.0000486373901,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "467eb351.f8dd4c",
+                "e81bb98f.1bc1c8",
+                "9df47848.ecea98",
+                "6302da7e.dd2b84",
+                "28436b7c.b1fc44"
+            ]
+        ]
+    },
+    {
+        "id": "6070832b.4e05ac",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1098.0039405822754,
+        "y": 1504.0001153945923,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "7b671856.32cf38"
+            ]
+        ]
+    },
+    {
+        "id": "ffaf6a87.b25588",
+        "type": "outcomeTrue",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1099.003890991211,
+        "y": 1570.0000801086426,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "c985a158.801a7"
+            ]
+        ]
+    },
+    {
+        "id": "7b671856.32cf38",
+        "type": "call",
+        "name": "call thirdPartyAdaptorRpc",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='`$tmp.thirdPartyAdaptorRpc`' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1318.0039825439453,
+        "y": 1505.0001745224,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "dead764f.d92678",
+                "d7c6c9d5.2e7148",
+                "15e9a511.5d2bdb"
+            ]
+        ]
+    },
+    {
+        "id": "c985a158.801a7",
+        "type": "switchNode",
+        "name": "switch restapiUrl-found == 'true'",
+        "xml": "<switch test=\"`$tmp.restapiUrl-found == 'true'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 860.4548110961914,
+        "y": 1654.0068244934082,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "4213fed6.58526",
+                "b4e8bd7.9e5da4"
+            ]
+        ]
+    },
+    {
+        "id": "4213fed6.58526",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1111.4547958374023,
+        "y": 1652.0066204071045,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "1d6d17bd.ff2e18"
+            ]
+        ]
+    },
+    {
+        "id": "1d6d17bd.ff2e18",
+        "type": "switchNode",
+        "name": "switch restapiUser-found == 'true'",
+        "xml": "<switch test=\"`$tmp.restapiUser-found == 'true'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 838.4549102783203,
+        "y": 1721.228922843933,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "787ae8bc.8e3698",
+                "c501bbca.d35c78"
+            ]
+        ]
+    },
+    {
+        "id": "787ae8bc.8e3698",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1105.4548034667969,
+        "y": 1722.2286357879639,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "ccf93de2.220a9"
+            ]
+        ]
+    },
+    {
+        "id": "ccf93de2.220a9",
+        "type": "switchNode",
+        "name": "switch restapiPassword-found == 'true'",
+        "xml": "<switch test=\"`$tmp.restapiPassword-found == 'true'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 853.4548034667969,
+        "y": 1791.2288455963135,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "ef4e3315.b193a",
+                "ec2c6336.45952"
+            ]
+        ]
+    },
+    {
+        "id": "ef4e3315.b193a",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1113.4548034667969,
+        "y": 1791.2286357879639,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "5bfb0348.022b1c"
+            ]
+        ]
+    },
+    {
+        "id": "6302da7e.dd2b84",
+        "type": "switchNode",
+        "name": "switch network-parameter-name == 'thirdPartyAdaptorRpc-deactivate'",
+        "xml": "<switch test=\"`$tmp.network.network-data.network-topology.network-parameters.network-parameter[$cxid].network-parameter-name == 'thirdPartyAdaptorRpc-deactivate'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1150.010440826416,
+        "y": 1400.0064764022827,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "fd6dd8ea.6b1e08"
+            ]
+        ]
+    },
+    {
+        "id": "fd6dd8ea.6b1e08",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1461.0106582641602,
+        "y": 1404.006381034851,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "46687aa0.06bae4"
+            ]
+        ]
+    },
+    {
+        "id": "46687aa0.06bae4",
+        "type": "set",
+        "name": "set tmp.thirdPartyAdaptorRpc",
+        "xml": "<set>\n<parameter name='tmp.thirdPartyAdaptorRpc' value='`$tmp.network.network-data.network-topology.network-parameters.network-parameter[$cxid].network-parameter-value`' />\n<parameter name='tmp.thirdPartyAdaptorRpc-found' value='true' />",
+        "comments": "",
+        "x": 1656.010612487793,
+        "y": 1398.0065717697144,
+        "z": "add5ea55.8506d8",
+        "wires": []
+    },
+    {
+        "id": "15e9a511.5d2bdb",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1584.0103759765625,
+        "y": 1544.3398427963257,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "9fcd7153.d785c"
+            ]
+        ]
+    },
+    {
+        "id": "d7c6c9d5.2e7148",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1575.010425567627,
+        "y": 1512.8398685455322,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "9fcd7153.d785c"
+            ]
+        ]
+    },
+    {
+        "id": "dead764f.d92678",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1578.7604637145996,
+        "y": 1483.1969734206796,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "ab7968a5.26b8d8"
+            ]
+        ]
+    },
+    {
+        "id": "9fcd7153.d785c",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`'Error calling ' + $tmp.thirdPartyAdaptorRpc`\" />\n",
+        "comments": "",
+        "x": 1741.7604904174805,
+        "y": 1529.5899410247803,
+        "z": "add5ea55.8506d8",
+        "wires": []
+    },
+    {
+        "id": "ab7968a5.26b8d8",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1720.416431427002,
+        "y": 1479.3891426101327,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5e319e9.e03ce6",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1225.0103759765625,
+        "y": 1969.3398427963257,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "a7499ed5.48afb"
+            ]
+        ]
+    },
+    {
+        "id": "639417f4.3c8618",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1216.010425567627,
+        "y": 1937.8398685455322,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "a7499ed5.48afb"
+            ]
+        ]
+    },
+    {
+        "id": "90bce824.a60af8",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1219.7604637145996,
+        "y": 1908.1969734206796,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "8b51f6a8.9f1da8"
+            ]
+        ]
+    },
+    {
+        "id": "a7499ed5.48afb",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`'Error calling ' + $tmp.restapiUrl`\" />\n",
+        "comments": "",
+        "x": 1382.7604904174805,
+        "y": 1954.5899410247803,
+        "z": "add5ea55.8506d8",
+        "wires": []
+    },
+    {
+        "id": "8b51f6a8.9f1da8",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1361.416431427002,
+        "y": 1904.3891426101327,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b4e8bd7.9e5da4",
+        "type": "outcomeTrue",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1262.677001953125,
+        "y": 1619.4509267807007,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "e85c9352.a3eed"
+            ]
+        ]
+    },
+    {
+        "id": "e85c9352.a3eed",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"404\" />\n    <parameter name=\"error-message\" value=\"Error: 3rd party controller restapiUrl not found\" />\n    \n",
+        "comments": "",
+        "x": 1433.677001953125,
+        "y": 1627.4508962631226,
+        "z": "add5ea55.8506d8",
+        "wires": []
+    },
+    {
+        "id": "c501bbca.d35c78",
+        "type": "outcomeTrue",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1267.677001953125,
+        "y": 1698.4509267807007,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "ae06c9a.f856b38"
+            ]
+        ]
+    },
+    {
+        "id": "ae06c9a.f856b38",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"404\" />\n    <parameter name=\"error-message\" value=\"Error: 3rd party controller restapiUser not found\" />\n    \n",
+        "comments": "",
+        "x": 1438.677001953125,
+        "y": 1706.4508962631226,
+        "z": "add5ea55.8506d8",
+        "wires": []
+    },
+    {
+        "id": "ec2c6336.45952",
+        "type": "outcomeTrue",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1258.677001953125,
+        "y": 1769.4509267807007,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "ea3c7dab.c8829"
+            ]
+        ]
+    },
+    {
+        "id": "ea3c7dab.c8829",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"404\" />\n    <parameter name=\"error-message\" value=\"Error: 3rd party controller restapiPassword not found\" />\n    \n",
+        "comments": "",
+        "x": 1429.677001953125,
+        "y": 1777.4508962631226,
+        "z": "add5ea55.8506d8",
+        "wires": []
+    },
+    {
+        "id": "28436b7c.b1fc44",
+        "type": "switchNode",
+        "name": "switch network-parameter-name == 'actualId'",
+        "xml": "<switch test=\"`$tmp.network.network-data.network-topology.network-parameters.network-parameter[$cxid].network-parameter-name == 'actualId'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1136.0038757324219,
+        "y": 1354.999960899353,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "ff7b2584.cdcb58"
+            ]
+        ]
+    },
+    {
+        "id": "ff7b2584.cdcb58",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1413.0038871765137,
+        "y": 1352.9999933242798,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "4ffde6e.9995318"
+            ]
+        ]
+    },
+    {
+        "id": "4ffde6e.9995318",
+        "type": "set",
+        "name": "set tmp.actualId",
+        "xml": "<set>\n<parameter name='tmp.actualId' value='`$tmp.network.network-data.network-topology.network-parameters.network-parameter[$cxid].network-parameter-value`' />\n<parameter name='tmp.actualId-found' value='true' />",
+        "comments": "",
+        "x": 1614.0039176940918,
+        "y": 1350.999994277954,
+        "z": "add5ea55.8506d8",
+        "wires": []
+    },
+    {
+        "id": "5bfb0348.022b1c",
+        "type": "switchNode",
+        "name": "switch actualId-found == 'true'",
+        "xml": "<switch test=\"`$tmp.actualId-found == 'true'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 867.2261047363281,
+        "y": 1859.4444189071655,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "21d86096.fee9f",
+                "849bef82.9af23"
+            ]
+        ]
+    },
+    {
+        "id": "21d86096.fee9f",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1127.2261047363281,
+        "y": 1859.444209098816,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "ecb2328b.87404"
+            ]
+        ]
+    },
+    {
+        "id": "849bef82.9af23",
+        "type": "outcomeTrue",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1272.4483032226562,
+        "y": 1837.6665000915527,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "9362ad56.36a98"
+            ]
+        ]
+    },
+    {
+        "id": "9362ad56.36a98",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"404\" />\n    <parameter name=\"error-message\" value=\"Error: Wan Connection actualId not found\" />\n    \n",
+        "comments": "",
+        "x": 1443.4483032226562,
+        "y": 1845.6664695739746,
+        "z": "add5ea55.8506d8",
+        "wires": []
+    },
+    {
+        "id": "c8936a70.9f1118",
+        "type": "execute",
+        "name": "execute RestApiCallNode get wan-connection localId",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n<parameter name=\"templateFileName\" value=\"`$prop.restapi.templateDir + '/sotn_get_zte_template.json' `\" />\n<parameter name=\"restapiUrl\" value=\"http://10.80.80.21:8443/restconf/operations/ZTE-API-ConnectivityService:get-service-details\" />\n<parameter name=\"restapiUser\" value=\"admin\" />\n<parameter name=\"restapiPassword\" value=\"admin\" />\n<parameter name=\"format\" value=\"json\"/>\n<parameter name=\"httpMethod\" value=\"post\"/>\n<parameter name=\"responsePrefix\" value=\"restApiResult\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 801.25390625,
+        "y": 2170.003906726837,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "953b9364.6a04b",
+                "511ddd61.150c94",
+                "eb807b79.8d7c78"
+            ]
+        ]
+    },
+    {
+        "id": "eb807b79.8d7c78",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1131.0103302001953,
+        "y": 2205.342998981476,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "bd9032fd.3c50f"
+            ]
+        ]
+    },
+    {
+        "id": "511ddd61.150c94",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1122.0103797912598,
+        "y": 2173.8430247306824,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "bd9032fd.3c50f"
+            ]
+        ]
+    },
+    {
+        "id": "953b9364.6a04b",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1125.7604179382324,
+        "y": 2144.2001296058297,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "6c6c8390.edb91c"
+            ]
+        ]
+    },
+    {
+        "id": "bd9032fd.3c50f",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`'Error calling ' + $tmp.restapiUrl`\" />\n",
+        "comments": "",
+        "x": 1320.760482788086,
+        "y": 2268.5930428504944,
+        "z": "add5ea55.8506d8",
+        "wires": []
+    },
+    {
+        "id": "9a0faf20.2fca7",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 458.00390625,
+        "y": 2174.003906726837,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "c8936a70.9f1118",
+                "55f19580.60d50c",
+                "664842f0.f5459c",
+                "39b12b85.00f734"
+            ]
+        ]
+    },
+    {
+        "id": "756c6c69.207644",
+        "type": "set",
+        "name": "set localId",
+        "xml": "<set>\n<parameter name='localId' value='`$restApiResult.output.normal-service.name[0].value`' />",
+        "comments": "",
+        "x": 951.7539520263672,
+        "y": 2406.0039315223694,
+        "z": "add5ea55.8506d8",
+        "wires": []
+    },
+    {
+        "id": "6c6c8390.edb91c",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 838.75390625,
+        "y": 2333.003906726837,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "756c6c69.207644",
+                "adb3e76.6b84418"
+            ]
+        ]
+    },
+    {
+        "id": "adb3e76.6b84418",
+        "type": "execute",
+        "name": "execute RestApiCallNode delete wan-connection",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n<parameter name=\"templateFileName\" value=\"`$prop.restapi.templateDir + '/sotn_delete_zte_template.json' `\" />\n<parameter name=\"restapiUrl\" value=\"http://10.80.80.21:8443/restconf/operations/ZTE-API-ConnectivityService:delete-connectivity-service\" />\n<parameter name=\"restapiUser\" value=\"admin\" />\n<parameter name=\"restapiPassword\" value=\"admin\" />\n<parameter name=\"format\" value=\"json\"/>\n<parameter name=\"httpMethod\" value=\"post\"/>\n<parameter name=\"responsePrefix\" value=\"restApiResult\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1079.75390625,
+        "y": 2479.0039010047913,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "4a8e2d71.5792f4",
+                "3378e2f0.491d0e",
+                "baeb07bf.b350f8"
+            ]
+        ]
+    },
+    {
+        "id": "baeb07bf.b350f8",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1388.75390625,
+        "y": 2510.003906726837,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "bd9032fd.3c50f"
+            ]
+        ]
+    },
+    {
+        "id": "3378e2f0.491d0e",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1379.7539558410645,
+        "y": 2478.5039324760437,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "bd9032fd.3c50f"
+            ]
+        ]
+    },
+    {
+        "id": "4a8e2d71.5792f4",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1383.503993988037,
+        "y": 2448.861037351191,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "d69d9f76.9f753"
+            ]
+        ]
+    },
+    {
+        "id": "d69d9f76.9f753",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1532.7539710998535,
+        "y": 2448.0039010047913,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d4dcaf7.912a95",
+        "type": "set",
+        "name": "set sotnServiceId",
+        "xml": "<set>\n<parameter name='sotnServiceId' value='73aa6033-a43e-3162-9bc9-085edc2b5a10' />",
+        "comments": "",
+        "x": 1084.7539596557617,
+        "y": 2102.0040740966797,
+        "z": "add5ea55.8506d8",
+        "wires": []
+    },
+    {
+        "id": "55f19580.60d50c",
+        "type": "for",
+        "name": "for pidx..network-input-parameters[]",
+        "xml": "<for index='paidx' start='0' end='`$tmp.network.network-data.network-request-input.network-input-parameters.param_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 746.0039367675781,
+        "y": 2045.0039901733398,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "94cd2d2f.d6b96"
+            ]
+        ]
+    },
+    {
+        "id": "94cd2d2f.d6b96",
+        "type": "switchNode",
+        "name": "switch svc-action",
+        "xml": "<switch test=\"`$tmp.network.network-data.network-request-input.network-input-parameters.param[$paidx].name == 'localServiceId'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1018.0039367675781,
+        "y": 2052.00399017334,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "505d1c65.f95bd4"
+            ]
+        ]
+    },
+    {
+        "id": "505d1c65.f95bd4",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1192.0039367675781,
+        "y": 2057.00399017334,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "4e885a55.b3baf4"
+            ]
+        ]
+    },
+    {
+        "id": "4e885a55.b3baf4",
+        "type": "set",
+        "name": "set localServiceId",
+        "xml": "<set>\n<parameter name='localServiceId' value='`$tmp.network.network-data.network-request-input.network-input-parameters.param[$paidx].value`' />\n<parameter name='isLocalIdFound' value='true' />",
+        "comments": "",
+        "x": 1387.0039367675781,
+        "y": 2055.00399017334,
+        "z": "add5ea55.8506d8",
+        "wires": []
+    },
+    {
+        "id": "664842f0.f5459c",
+        "type": "switchNode",
+        "name": "switch isLocalIdFound",
+        "xml": "<switch test=\"`$isLocalIdFound`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 711.2539596557617,
+        "y": 2100.0040130615234,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "64a4311f.473ee"
+            ]
+        ]
+    },
+    {
+        "id": "64a4311f.473ee",
+        "type": "outcomeTrue",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 906.2539215087891,
+        "y": 2100.0040130615234,
+        "z": "add5ea55.8506d8",
+        "wires": [
+            [
+                "d4dcaf7.912a95"
+            ]
+        ]
+    },
+    {
+        "id": "39b12b85.00f734",
+        "type": "set",
+        "name": "set isLocalIdFound",
+        "xml": "<set>\n<parameter name='isLocalIdFound' value='false' />",
+        "comments": "",
+        "x": 688.25390625,
+        "y": 1997.00390625,
+        "z": "add5ea55.8506d8",
+        "wires": []
+    }
+]

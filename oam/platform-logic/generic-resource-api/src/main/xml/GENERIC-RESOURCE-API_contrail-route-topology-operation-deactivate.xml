@@ -1,0 +1,309 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='contrail-route-topology-operation-deactivate' mode='sync'>
+        <block atomic="true">
+            <set>
+                <parameter name='tmp.ar.allotted-resource-id' value='`$contrail-route-topology-operation-input.allotted-resource-information.allotted-resource-id`' />
+                <parameter name='tmp.ar.parent-service-instance-id' value='`$contrail-route-topology-operation-input.allotted-resource-information.parent-service-instance-id`' />
+                <parameter name='tmp.ar.sz-vnf-id' value='`$contrail-route-topology-operation-input.allotted-resource-data.security-zone-topology.security-zone-assignments.security-zone-vnf-id`' />
+            </set>
+            <set>
+                <parameter name='tmp.ar.self-link' value="`'restconf/config/GENERIC-RESOURCE-API:contrail-route-allotted-resources/contrail-route-allotted-resource/'
+ + $tmp.ar.allotted-resource-id
+ + '/allotted-resource-data/contrail-route-topology/'` " />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                <parameter name='contextPrefix' value='prop' />
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$prop.restapi.cr-allottedresource`"/>
+                <parameter name="outputPath" value="tmp.ar-url"/>
+                <parameter name="target" value="{allotted-resource-id}"/>
+                <parameter name="replacement" value="`$tmp.ar.allotted-resource-id`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='GET' />
+                <parameter name="responsePrefix" value="mdsal-ar" />
+                <outcome value='success'>
+                    <block atomic="true">
+                        <switch test='`$mdsal-ar.contrail-route-allotted-resource_length`'>
+                            <outcome value='1'>
+                                <block atomic='true'>
+                                    <set>
+                                        <parameter name='bk-cr-ar' value='$mdsal-ar.' />
+                                    </set>
+                                    <set>
+                                        <parameter name='ar.' value='$mdsal-ar.contrail-route-allotted-resource[0].' />
+                                    </set>
+                                    <set>
+                                        <parameter name='sz-ar.allotted-resource-data.allotted-resource-oper-status.last-action' value='`$sz-ar.allotted-resource-data.allotted-resource-operation-information.request-information.request-action`' />
+                                        <parameter name='sz-ar.allotted-resource-data.allotted-resource-oper-status.last-rpc-action' value='`$sz-ar.allotted-resource-status.rpc-action`' />
+                                        <parameter name='sz-ar.allotted-resource-data.allotted-resource-oper-status.last-svc-request-id' value='`$sz-ar.allotted-resource-data.allotted-resource-operation-information.sdnc-request-header.svc-request-id`' />
+                                    </set>
+                                </block>
+                            </outcome>
+                            <outcome value='Other'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="404" />
+                                    <parameter name="error-message" value="Error: Contrail Route not found" />
+                                </return>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+                <outcome value='Other'>
+                    <block atomic="true">
+                        <return status='failure'>
+                            <parameter name='ack-final' value='Y'/>
+                            <parameter name="error-code" value="404" />
+                            <parameter name="error-message" value="Error: Contrail Route not found" />
+                        </return>
+                    </block>
+                </outcome>
+            </execute>
+            <set>
+                <parameter name='ar.allotted-resource-id' value="`$tmp.ar.allotted-resource-id` " />
+                <parameter name='ar.allotted-resource-status.action' value="`$contrail-route-topology-operation-input.request-information.request-action` " />
+                <parameter name='ar.allotted-resource-status.rpc-name' value="contrail-route-topology-operation" />
+                <parameter name='ar.allotted-resource-status.rpc-action' value="`$contrail-route-topology-operation-input.sdnc-request-header.svc-action` " />
+                <parameter name='ar.allotted-resource-data.allotted-resource-operation-information.request-information.' value="`$contrail-route-topology-operation-input.request-information.` " />
+                <parameter name='ar.allotted-resource-data.allotted-resource-operation-information.sdnc-request-header.' value="`$contrail-route-topology-operation-input.sdnc-request-header.` " />
+                <parameter name='ar.allotted-resource-data.allotted-resource-operation-information.service-information.' value="`$contrail-route-topology-operation-input.service-information.` " />
+                <parameter name='ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.' value="`$contrail-route-topology-operation-input.allotted-resource-information.` " />
+                <parameter name='ar.allotted-resource-data.allotted-resource-operation-information.contrail-route-request-input.' value="`$contrail-route-topology-operation-input.contrail-route-request-input.` " />
+            </set>
+            <set>
+                <parameter name='ar-assignments.' value="`$ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.`" />
+            </set>
+            <switch test='`$ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.source-network.network-id`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error activating contrail route.  Source network not found" />
+                    </return>
+                </outcome>
+                <outcome value='Other'>
+                    <block>
+                        <switch test='`$service-data.networks.network_length`'>
+                            <outcome value=''>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="Error activating contrail route.  Source network not found" />
+                                </return>
+                            </outcome>
+                            <outcome value='Other'>
+                                <block atomic="true">
+                                    <for index='nidx' start='0' end='`$service-data.networks.network_length`' >
+                                        <switch test="`$service-data.networks.network[$nidx].network-id == $ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.source-network.network-id`">
+                                            <outcome value='true'>
+                                                <block>
+                                                    <set>
+                                                        <parameter name='tmp.ar.cloud-region-id' value='`$service-data.networks.network[$nidx].network-data.network-topology.aic-cloud-region`' />
+                                                    </set>
+                                                </block>
+                                            </outcome>
+                                            <outcome value='Other'>
+                                                <return status='failure'>
+                                                    <parameter name='ack-final' value='Y'/>
+                                                    <parameter name="error-code" value="500" />
+                                                    <parameter name="error-message" value="Error activating contrail route.  Source network not found" />
+                                                </return>
+                                            </outcome>
+                                        </switch>
+                                    </for>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </block>
+                </outcome>
+            </switch>
+            <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+		key="l3-network.network-id = $ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.source-network.network-id" 
+		local-only="false" 
+		pfx="aai.src-network">
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`'Error retrieving source network with network-id=' + $ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.source-network.network-id + ' from AnAI'`" />
+                    </return>
+                </outcome>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`'Error retrieving source network with network-id=' + $ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.source-network.network-id + ' from AnAI'`" />
+                    </return>
+                </outcome>
+                <outcome value='success'>
+                    <block atomic="true"></block>
+                </outcome>
+            </get-resource>
+            <set>
+                <parameter name='tmp.fq-name' value="`$ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.fq-name` " />
+            </set>
+            <set>
+                <parameter name='cloud-region-id' value='`$tmp.ar.cloud-region-id`' />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                <parameter name='api-name' value='network-policy' />
+                <parameter name='api-action' value='remove' />
+                <parameter name='resp-prefix' value='contrailResp' />
+                <parameter name='cloud-region-id' value='`$tmp.ar.cloud-region-id`' />
+                <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                <parameter name='contrail-network-policy-fq-name' value='`$ar-assignments.contrail-fq-name`' />
+                <parameter name='contrail-virtual-network-id' value='`$aai.src-network.contrail-network-fqdn`' />
+                <outcome value='success'>
+                    <block></block>
+                </outcome>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Failed to remove policy in Contrail from source network" />
+                    </return>
+                </outcome>
+            </execute>
+            <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+		key="l3-network.network-id = $ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.dest-network.network-id" 
+		local-only="false" 
+		pfx="aai.dest-network">
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`'Error retrieving destination network with network-id=' + $ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.source-network.network-id + ' from AnAI'`" />
+                    </return>
+                </outcome>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="`'Error retrieving destination network with network-id=' + $ar.allotted-resource-data.contrail-route-topology.contrail-route-assignments.source-network.network-id + ' from AnAI'`" />
+                    </return>
+                </outcome>
+                <outcome value='success'>
+                    <block atomic="true"></block>
+                </outcome>
+            </get-resource>
+            <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                <parameter name='api-name' value='network-policy' />
+                <parameter name='api-action' value='remove' />
+                <parameter name='resp-prefix' value='contrailResp' />
+                <parameter name='cloud-region-id' value='`$tmp.ar.cloud-region-id`' />
+                <parameter name='contrail-network-policy-id' value='`$ar-assignments.contrail-id`' />
+                <parameter name='contrail-network-policy-fq-name' value='`$ar-assignments.contrail-fq-name`' />
+                <parameter name='contrail-virtual-network-id' value='`$aai.dest-network.contrail-network-fqdn`' />
+                <outcome value='success'>
+                    <block></block>
+                </outcome>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Failed to remove policy in Contrail from dest network" />
+                    </return>
+                </outcome>
+            </execute>
+            <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="network-policy:relationship-list" 
+	key="network-policy.network-policy-id = $ar-assignments.contrail-id and related-to = 'l3-network' " >
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Failed to save network policy in AAI" />
+                    </return>
+                </outcome>
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Failed to save network policy in AAI" />
+                    </return>
+                </outcome>
+            </delete>
+            <set>
+                <parameter name='ar-assignments.vlan-tag' value="" />
+            </set>
+            <update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="allotted-resource" 
+		key="customer.global-customer-id = $service-data.service-information.global-customer-id AND
+			service-subscription.service-type = $service-data.service-information.subscription-service-type AND
+			service-instance.service-instance-id = $service-data.service-information.service-instance-id AND
+			allotted-resource.id = $tmp.ar.allotted-resource-id"
+        pfx='pfx' local-only='false' force='false'>
+                <parameter name="operational-status" value="out-of-service-path" />
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="AAI failed" />
+                    </return>
+                </outcome>
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="AAI failed" />
+                    </return>
+                </outcome>
+            </update>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='setTime' >
+                <parameter name="outputPath" value="tmp.current-time" />
+            </execute>
+            <set>
+                <parameter name='ar.allotted-resource-data.allotted-resource-oper-status.order-status' value='PendingDelete' />
+                <parameter name='ar.allotted-resource-data.allotted-resource-oper-status.last-action' value='`$contrail-route-topology-operation-input.request-information.request-action`' />
+                <parameter name='ar.allotted-resource-data.allotted-resource-oper-status.last-rpc-action' value='`$contrail-route-topology-operation-input.sdnc-request-header.svc-action`' />
+                <parameter name='ar.allotted-resource-data.allotted-resource-oper-status.last-svc-request-id' value='`$contrail-route-topology-operation-input.sdnc-request-header.svc-request-id`' />
+                <parameter name='ar.allotted-resource-data.allotted-resource-oper-status.create-timestamp' value='`$tmp.current-time`' />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='templateFileName' value="`$prop.restapi.templateDir + '/' + $prop.restapi.cr.templatefile`" />
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='PUT' />
+                <parameter name="responsePrefix" value="mdsal-ar" />
+                <outcome value='success'>
+                    <block></block>
+                </outcome>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error updating md-sal for contrail-route-allotted-resource" />
+                    </return>
+                </outcome>
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error updating md-sal for contrail-route-allotted-resource" />
+                    </return>
+                </outcome>
+            </execute>
+            <set>
+                <parameter name='allotted-resource-id' value='`$tmp.ar.allotted-resource-id`' />
+                <parameter name='contrail-route-object-path' value="`$tmp.ar.self-link`"/>
+                <parameter name='service-object-path' value="`'restconf/config/GENERIC-RESOURCE-API:services/service/'
+ + $contrail-route-topology-operation-input.service-information.service-instance-id
+ + '/service-data/service-topology/'`"/>
+            </set>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="`$error-message`" />
+            </return>
+        </block>
+    </method>
+</service-logic>

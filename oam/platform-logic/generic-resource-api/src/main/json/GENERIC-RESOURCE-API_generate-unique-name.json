@@ -1,0 +1,3695 @@
+[
+    {
+        "id": "15040625.d5f40a",
+        "type": "comment",
+        "name": "Validation of required data",
+        "info": "",
+        "comments": "",
+        "x": 1362.22216796875,
+        "y": 421.29468727111816,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "11c017ed.c4cc98",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 432.9722709655762,
+        "y": 26.69937038421631,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "9f71976e.e5c5f8"
+            ]
+        ]
+    },
+    {
+        "id": "4eedc095.04b8b",
+        "type": "method",
+        "name": "method generate-unique-name",
+        "xml": "<method rpc='generate-unique-name' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 565.8889999389648,
+        "y": 99.044602394104,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "360fc793.866bf8"
+            ]
+        ]
+    },
+    {
+        "id": "23286af8.e7fb96",
+        "type": "comment",
+        "name": "generate-unique-name",
+        "info": "Input arguments:\ngenerate-unique-name-input.index-table-name - name of INDEX table\ngenerate-unique-name-input.index-table-prefix-column - name of prefix column in above table\ngenerate-unique-name-input.name-table-name - name of table holding all generated names\ngenerate-unique-name-input.index-length - non-null digit if index should be fixed length\n\nOutput arguments:\ngenerate-unique-name-output.generated-name - generated name (null if error)\ngenerate-unique-name-output.error-message - error message (non-null if error)\n",
+        "comments": "",
+        "x": 1120.5314331054688,
+        "y": 20,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "d51fb171.df3c3",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 849.9960746765137,
+        "y": 1412.440560749599,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "aeb040b1.610fe",
+                "d5c2022c.eb55c",
+                "6937019b.7d45d",
+                "bcb4efa7.8fb4d",
+                "4d3aaea2.1682c",
+                "6c67d02f.17bf4",
+                "c51e026f.e6689",
+                "2d26f683.ab135a",
+                "f849cb78.2321f8",
+                "59510b56.12c9f4",
+                "3e63e2e.8d66c1e",
+                "c2125c33.cdb9e"
+            ]
+        ]
+    },
+    {
+        "id": "aeb040b1.610fe",
+        "type": "switchNode",
+        "name": "switch generate-unique-name-input.index-table-name",
+        "xml": "<switch test='`$generate-unique-name-input.index-table-name`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1298.8055572509766,
+        "y": 466.9048252105713,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "1286f8.7a830909"
+            ]
+        ]
+    },
+    {
+        "id": "1286f8.7a830909",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1628.805477142334,
+        "y": 466.9048147201538,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "c3b06eda.624f2"
+            ]
+        ]
+    },
+    {
+        "id": "c3b06eda.624f2",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='generate-unique-name-output.error-message' value='generate-unique-name-input.index-table-name not supplied' />\n",
+        "comments": "",
+        "x": 1802.1387977600098,
+        "y": 466.90480613708496,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "d5c2022c.eb55c",
+        "type": "switchNode",
+        "name": "switch generate-unique-name-input.index-table-prefix-column",
+        "xml": "<switch test='`$generate-unique-name-input.index-table-prefix-column`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1323.8055267333984,
+        "y": 510.23816108703613,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "8b8a2d3c.650b5"
+            ]
+        ]
+    },
+    {
+        "id": "8b8a2d3c.650b5",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1627.1387901306152,
+        "y": 510.2381401062012,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "2fce40e3.dcb3a"
+            ]
+        ]
+    },
+    {
+        "id": "2fce40e3.dcb3a",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='generate-unique-name-output.error-message' value='generate-unique-name-input.index-table-prefix-column not supplied' />\n",
+        "comments": "",
+        "x": 1800.4721069335938,
+        "y": 510.57148361206055,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "6937019b.7d45d",
+        "type": "switchNode",
+        "name": "switch generate-unique-name-input.name-table-type",
+        "xml": "<switch test='`$generate-unique-name-input.name-table-type`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1294.805534362793,
+        "y": 555.2381534576416,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "fe8ebb70.f12418"
+            ]
+        ]
+    },
+    {
+        "id": "fe8ebb70.f12418",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1627.1387310028076,
+        "y": 555.2381629943848,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "c450338.ed9f6d"
+            ]
+        ]
+    },
+    {
+        "id": "c450338.ed9f6d",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='generate-unique-name-output.error-message' value='generate-unique-name-input.name-table-type not supplied' />\n",
+        "comments": "",
+        "x": 1798.805507659912,
+        "y": 555.5714664459229,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "c51e026f.e6689",
+        "type": "get-resource",
+        "name": "get-resource current name index",
+        "xml": "<get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key=\"`$tmp.gun.sql`\" pfx='tmp.gun.prefixdb'>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1216.829387664795,
+        "y": 1114.0355405807495,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "2161e5d1.539e3a",
+                "b88e0290.6b67d",
+                "a98b0c69.c8ff5"
+            ]
+        ]
+    },
+    {
+        "id": "2161e5d1.539e3a",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1444.5198192596436,
+        "y": 1200.0594501495361,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "d996887b.f8a558"
+            ]
+        ]
+    },
+    {
+        "id": "d996887b.f8a558",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n    <parameter name=\"generate-unique-name-output.error-message\" value=\"`'Error reading the ' + $generate-unique-name-input.index-table-name + ' table'`\" />\n",
+        "comments": "",
+        "x": 1607.1389408111572,
+        "y": 1201.4881782531738,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "b684649d.306688",
+        "type": "for",
+        "name": "for idx from current index to list-end",
+        "xml": "<for index='tmp.gun.idx' start='`$tmp.gun.index-number`' end='`$tmp.gun.list-end`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1371.6627464294434,
+        "y": 1442.8571510314941,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "c4de9305.e3b5f"
+            ]
+        ]
+    },
+    {
+        "id": "bcb4efa7.8fb4d",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1134.2817420959473,
+        "y": 1442.857116154262,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "b684649d.306688",
+                "a13f9156.7cff2",
+                "187251ba.f9a6ce"
+            ]
+        ]
+    },
+    {
+        "id": "a13f9156.7cff2",
+        "type": "returnSuccess",
+        "name": "CATCH BREAK",
+        "xml": "<return status='success'>\n\n",
+        "comments": "",
+        "x": 1327.472242627825,
+        "y": 2467.2858533859253,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "4d3aaea2.1682c",
+        "type": "switchNode",
+        "name": "switch generate-unique-name-input.prefix",
+        "xml": "<switch test='`$generate-unique-name-input.prefix`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1260.4721755981445,
+        "y": 600.2381324768066,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "d42fa470.81ab78"
+            ]
+        ]
+    },
+    {
+        "id": "d42fa470.81ab78",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1627.8053646087646,
+        "y": 600.2381572723389,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "af0a5a6c.8f2da8"
+            ]
+        ]
+    },
+    {
+        "id": "af0a5a6c.8f2da8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='generate-unique-name-output.error-message' value='generate-unique-name-input.prefix not supplied' />\n",
+        "comments": "",
+        "x": 1800.4721412658691,
+        "y": 600.571460723877,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "6c67d02f.17bf4",
+        "type": "switchNode",
+        "name": "switch generate-unique-name-input.index-length",
+        "xml": "<switch test='`$generate-unique-name-input.index-length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1283.8055419921875,
+        "y": 735.2380743026733,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "185b25b7.55418a",
+                "208a685c.353108",
+                "d9e7f7d8.523f68",
+                "7ee1530f.9a7ebc",
+                "157b96c3.7936e9",
+                "26eda43b.2c3b5c",
+                "59274ef2.cf994"
+            ]
+        ]
+    },
+    {
+        "id": "185b25b7.55418a",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1627.1388549804688,
+        "y": 643.571460723877,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "d94c4d3c.5f17d"
+            ]
+        ]
+    },
+    {
+        "id": "157b96c3.7936e9",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1625.9007606506348,
+        "y": 918.809588432312,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "c70900c9.1665f"
+            ]
+        ]
+    },
+    {
+        "id": "208a685c.353108",
+        "type": "outcome",
+        "name": "1",
+        "xml": "<outcome value='1'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1624.0436630249023,
+        "y": 734.2857999801636,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "923d6c6a.e4f8d"
+            ]
+        ]
+    },
+    {
+        "id": "d9e7f7d8.523f68",
+        "type": "outcome",
+        "name": "2",
+        "xml": "<outcome value='2'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1624.0436477661133,
+        "y": 779.2857904434204,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "d39e047e.b0fc98"
+            ]
+        ]
+    },
+    {
+        "id": "7ee1530f.9a7ebc",
+        "type": "outcome",
+        "name": "3",
+        "xml": "<outcome value='3'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1622.3769836425781,
+        "y": 822.6191263198853,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "70f9e263.445b3c"
+            ]
+        ]
+    },
+    {
+        "id": "923d6c6a.e4f8d",
+        "type": "set",
+        "name": "set list-end = 10",
+        "xml": "<set>\n<parameter name='tmp.gun.list-end' value='10' />\n",
+        "comments": "",
+        "x": 1806.7103996276855,
+        "y": 734.2857885360718,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "d39e047e.b0fc98",
+        "type": "set",
+        "name": "set list-end = 100",
+        "xml": "<set>\n<parameter name='tmp.gun.list-end' value='100' />\n",
+        "comments": "",
+        "x": 1810.043628692627,
+        "y": 779.2857904434204,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "70f9e263.445b3c",
+        "type": "set",
+        "name": "set list-end = 1000",
+        "xml": "<set>\n<parameter name='tmp.gun.list-end' value='1000' />\n",
+        "comments": "",
+        "x": 1812.043628692627,
+        "y": 822.6191034317017,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "c70900c9.1665f",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='generate-unique-name-output.error-message' value='generate-unique-name-input.prefix not supplied' />\n",
+        "comments": "",
+        "x": 1796.9006843566895,
+        "y": 918.1429586410522,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "80595c6f.d370b",
+        "type": "set",
+        "name": "set new index number to 1",
+        "xml": "<set>\n<parameter name='tmp.gun.index-number' value='1' />\n",
+        "comments": "",
+        "x": 2311.0082054138184,
+        "y": 1163.4288799762726,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "d94c4d3c.5f17d",
+        "type": "set",
+        "name": "set list-end = 100000 (infinity basically)",
+        "xml": "<set>\n<parameter name='tmp.gun.list-end' value='100000' />\n",
+        "comments": "",
+        "x": 1876.1387939453125,
+        "y": 643.9048042297363,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "651d8bf.8378c74",
+        "type": "switchNode",
+        "name": "switch generate-unique-name-input.index-length",
+        "xml": "<switch test='`$generate-unique-name-input.index-length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1933.3293266296387,
+        "y": 1369.5237898145404,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "485a952f.4683ac",
+                "929353b9.9ddf2",
+                "fdae624e.d1e4d",
+                "f1fa6f3d.9cd86",
+                "c12d0b68.b45788"
+            ]
+        ]
+    },
+    {
+        "id": "485a952f.4683ac",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2217.6150703430176,
+        "y": 1220.9523973464966,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "93103f3e.f5587"
+            ]
+        ]
+    },
+    {
+        "id": "929353b9.9ddf2",
+        "type": "outcome",
+        "name": "1",
+        "xml": "<outcome value='1'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2215.948417663574,
+        "y": 1265.9524374008179,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "93103f3e.f5587"
+            ]
+        ]
+    },
+    {
+        "id": "fdae624e.d1e4d",
+        "type": "outcome",
+        "name": "2",
+        "xml": "<outcome value='2'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2215.948402404785,
+        "y": 1315.0000638961792,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "fe2daf39.916f2"
+            ]
+        ]
+    },
+    {
+        "id": "f1fa6f3d.9cd86",
+        "type": "outcome",
+        "name": "3",
+        "xml": "<outcome value='3'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2217.3770751953125,
+        "y": 1417.381145477295,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "9b7d9fc5.77d19"
+            ]
+        ]
+    },
+    {
+        "id": "93103f3e.f5587",
+        "type": "set",
+        "name": "set index-string to idx",
+        "xml": "<set>\n<parameter name='tmp.gun.index-string' value='`$tmp.gun.idx`' />\n",
+        "comments": "",
+        "x": 2402.615219116211,
+        "y": 1239.285740852356,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "fe2daf39.916f2",
+        "type": "switchNode",
+        "name": "switch idx < 10",
+        "xml": "<switch test='`$tmp.gun.idx &lt; 10`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2382.615032196045,
+        "y": 1314.9999618530273,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "1e14c0e7.34b7bf",
+                "837fdec7.0a022"
+            ]
+        ]
+    },
+    {
+        "id": "1e14c0e7.34b7bf",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2544.281665802002,
+        "y": 1288.3333349227905,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "3fe02145.d703be"
+            ]
+        ]
+    },
+    {
+        "id": "837fdec7.0a022",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2544.281623840332,
+        "y": 1336.6666707992554,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "461425f5.d0f43c"
+            ]
+        ]
+    },
+    {
+        "id": "3fe02145.d703be",
+        "type": "set",
+        "name": "set index-string to '0' + idx",
+        "xml": "<set>\n<parameter name='tmp.gun.index-string' value=\"`'' + '0' + $tmp.gun.idx`\" />\n",
+        "comments": "",
+        "x": 2735.9484252929688,
+        "y": 1287.6665620803833,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "461425f5.d0f43c",
+        "type": "set",
+        "name": "set index-string to idx",
+        "xml": "<set>\n<parameter name='tmp.gun.index-string' value='`$tmp.gun.idx`' />\n",
+        "comments": "",
+        "x": 2719.2816772460938,
+        "y": 1336.3332777023315,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "9b7d9fc5.77d19",
+        "type": "switchNode",
+        "name": "switch idx < 10",
+        "xml": "<switch test='`$tmp.gun.idx &lt; 10`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2385.7104110717773,
+        "y": 1415.7142734527588,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "e219ec7e.fe57c",
+                "ad55e1a8.b6075"
+            ]
+        ]
+    },
+    {
+        "id": "e219ec7e.fe57c",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2545.7103881835938,
+        "y": 1389.0476512908936,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "22b4d6dc.cf442a"
+            ]
+        ]
+    },
+    {
+        "id": "ad55e1a8.b6075",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2550.2340087890625,
+        "y": 1465.4762334823608,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "dbe69aa8.33eda8"
+            ]
+        ]
+    },
+    {
+        "id": "22b4d6dc.cf442a",
+        "type": "set",
+        "name": "set index-string to '00' + idx",
+        "xml": "<set>\n<parameter name='tmp.gun.index-string' value=\"`'' + '00' + $tmp.gun.idx`\" />\n",
+        "comments": "",
+        "x": 2740.710479736328,
+        "y": 1389.047542163304,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "dbe69aa8.33eda8",
+        "type": "switchNode",
+        "name": "switch idx < 100",
+        "xml": "<switch test='`$tmp.gun.idx &lt; 100`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2706.5673904418945,
+        "y": 1463.809594154358,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "f7ffce1d.63fe1",
+                "67fc8e98.639b9"
+            ]
+        ]
+    },
+    {
+        "id": "f7ffce1d.63fe1",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2863.567367553711,
+        "y": 1437.1429719924927,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "1c294f19.3865c1"
+            ]
+        ]
+    },
+    {
+        "id": "67fc8e98.639b9",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2863.567325592041,
+        "y": 1485.4763078689575,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "3ab4c683.87c0fa"
+            ]
+        ]
+    },
+    {
+        "id": "1c294f19.3865c1",
+        "type": "set",
+        "name": "set index-string to '0' + idx",
+        "xml": "<set>\n<parameter name='tmp.gun.index-string' value=\"`'' + '0' + $tmp.gun.idx`\" />\n",
+        "comments": "",
+        "x": 3056.2341537475586,
+        "y": 1436.8096265792847,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "3ab4c683.87c0fa",
+        "type": "set",
+        "name": "set index-string to idx",
+        "xml": "<set>\n<parameter name='tmp.gun.index-string' value='`$tmp.gun.idx`' />\n",
+        "comments": "",
+        "x": 3040.2341384887695,
+        "y": 1485.1429300308228,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "c81549dd.4990b8",
+        "type": "set",
+        "name": "set generated-name to prefix + index-string",
+        "xml": "<set>\n<parameter name='tmp.gun.generated-name' value='`$generate-unique-name-input.prefix + $tmp.gun.index-string`' />\n",
+        "comments": "",
+        "x": 1917.329418182373,
+        "y": 1646.1904386792864,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "27f2f9ab.7e2c26",
+        "type": "comment",
+        "name": "First check from the current index to the max index",
+        "info": "",
+        "comments": "",
+        "x": 1334.9960899353027,
+        "y": 1381.1905197416033,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "4eb7a743.5209e8",
+        "type": "comment",
+        "name": "check if we've used this name before",
+        "info": "",
+        "comments": "",
+        "x": 1914.0439414978027,
+        "y": 1730.4765844345093,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "be62e7ae.90b8f8",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2021.662742614746,
+        "y": 1807.8573669706072,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "dfb2aa84.9b4598"
+            ]
+        ]
+    },
+    {
+        "id": "1d6bb1a2.44855e",
+        "type": "set",
+        "name": "set generate-unique-name-output.error-message",
+        "xml": "<set>\n<parameter name='generate-unique-name-output.error-message' value=\"`'Error reading the GENERIC_RESOURCE_NAME table'`\" />\n",
+        "comments": "",
+        "x": 2467.6149940490723,
+        "y": 1781.4286999021258,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "a5f867db.9d9558",
+        "type": "returnFailure",
+        "name": "BREAK",
+        "xml": "<return status='failure'>\n",
+        "comments": "",
+        "x": 2332.853240966797,
+        "y": 1826.428787640163,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "ad173e2b.5c512",
+        "type": "returnFailure",
+        "name": "BREAK",
+        "xml": "<return status='failure'>\n",
+        "comments": "",
+        "x": 2335.710262298584,
+        "y": 1921.3334783826556,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "c15de393.a41e9",
+        "type": "comment",
+        "name": "found one we can use",
+        "info": "",
+        "comments": "",
+        "x": 2153.5677185058594,
+        "y": 1852.381400517055,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "2d26f683.ab135a",
+        "type": "switchNode",
+        "name": "switch generate-unique-name-output.error-message",
+        "xml": "<switch test='`$generate-unique-name-output.error-message`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1209.5437147957937,
+        "y": 2679.2858324050903,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "77705736.9ef7c8",
+                "68085745.a74d48"
+            ]
+        ]
+    },
+    {
+        "id": "77705736.9ef7c8",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1482.8771231515066,
+        "y": 2652.6190843582153,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "bdffcfcf.9486c"
+            ]
+        ]
+    },
+    {
+        "id": "bdffcfcf.9486c",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1617.8771231515066,
+        "y": 2652.6190843582153,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "68085745.a74d48",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1482.8770888192312,
+        "y": 2702.6191053390503,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "2c4c0bf4.4ba724"
+            ]
+        ]
+    },
+    {
+        "id": "2c4c0bf4.4ba724",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n",
+        "comments": "",
+        "x": 1632.8770888192312,
+        "y": 2702.6191053390503,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "f849cb78.2321f8",
+        "type": "switchNode",
+        "name": "switch found-flag",
+        "xml": "<switch test='`$tmp.gun.found-flag`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1101.5437605721609,
+        "y": 3033.571455001831,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "f2e8b24d.e7494",
+                "c4268ba7.916128"
+            ]
+        ]
+    },
+    {
+        "id": "f2e8b24d.e7494",
+        "type": "outcome",
+        "name": "true",
+        "xml": "<outcome value='true'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1275.877100263323,
+        "y": 3033.5714559555054,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "db1278f8.147038"
+            ]
+        ]
+    },
+    {
+        "id": "b4aa117c.62303",
+        "type": "set",
+        "name": "set generate-unique-name-output.generated-name",
+        "xml": "<set>\n<parameter name='generate-unique-name-output.generated-name' value='`$tmp.gun.generated-name`' />\n",
+        "comments": "",
+        "x": 1746.5437147957937,
+        "y": 2878.5717420578003,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "144ff8a5.06a137",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n",
+        "comments": "",
+        "x": 1628.591284070696,
+        "y": 3215.952536582947,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "db1278f8.147038",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1427.5437300545827,
+        "y": 3032.904870033264,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "b4aa117c.62303",
+                "58767fb5.799f",
+                "7332878a.b6d298",
+                "144ff8a5.06a137",
+                "b3a55875.754e68"
+            ]
+        ]
+    },
+    {
+        "id": "3d4b23e4.f03d2c",
+        "type": "set",
+        "name": "set index-exists flag to false",
+        "xml": "<set>\n<parameter name='tmp.gun.index-exists' value='false' />\n",
+        "comments": "",
+        "x": 1778.8055992126465,
+        "y": 1080.8929452896118,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "7b63453a.f976cc",
+        "type": "set",
+        "name": "set index-exists flag to true",
+        "xml": "<set>\n<parameter name='tmp.gun.index-exists' value='true' />\n",
+        "comments": "",
+        "x": 1777.448543548584,
+        "y": 984.8214712142944,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "f97c717e.aeece",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1584.1628150939941,
+        "y": 1006.2500772476196,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "7b63453a.f976cc",
+                "dc9a064f.20c918"
+            ]
+        ]
+    },
+    {
+        "id": "58767fb5.799f",
+        "type": "switchNode",
+        "name": "switch index-exists",
+        "xml": "<switch test='`$tmp.gun.index-exists`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1642.3057234627859,
+        "y": 3010.714743614197,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "6a0af996.974498",
+                "6c8e2cbe.78d944"
+            ]
+        ]
+    },
+    {
+        "id": "6a0af996.974498",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1820.8770888192312,
+        "y": 2986.4290113449097,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "87bbd73a.280a98"
+            ]
+        ]
+    },
+    {
+        "id": "6c8e2cbe.78d944",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1820.8771040780202,
+        "y": 3033.571936607361,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "784e1241.16399c"
+            ]
+        ]
+    },
+    {
+        "id": "9bc6db3a.e853b8",
+        "type": "save",
+        "name": "save (update) name index",
+        "xml": "<save plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key=\"`$tmp.gun.sql`\" pfx='pfx'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2216.591413770403,
+        "y": 2987.857427597046,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "3aaf9849.6999f8"
+            ]
+        ]
+    },
+    {
+        "id": "853b68e5.628e58",
+        "type": "save",
+        "name": "save (insert) name index",
+        "xml": "<save plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key=\"`$tmp.gun.sql`\" pfx='pfx'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2209.4483931405202,
+        "y": 3082.1428956985474,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "8c884666.ad49c8"
+            ]
+        ]
+    },
+    {
+        "id": "3aaf9849.6999f8",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2409.4486143929616,
+        "y": 2987.857446670532,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "b2adf596.b14dc8"
+            ]
+        ]
+    },
+    {
+        "id": "8c884666.ad49c8",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2406.591184888567,
+        "y": 3080.7144117355347,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "a521b607.e28cf8"
+            ]
+        ]
+    },
+    {
+        "id": "7332878a.b6d298",
+        "type": "save",
+        "name": "save (insert) generated name",
+        "xml": "<save plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key=\"`$tmp.gun.sql`\" pfx='pfx'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1676.734319959368,
+        "y": 3169.2857179641724,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "ecbc8e26.1fa38"
+            ]
+        ]
+    },
+    {
+        "id": "ecbc8e26.1fa38",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1886.734251294817,
+        "y": 3169.2857694625854,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "1f5bf102.8c12af"
+            ]
+        ]
+    },
+    {
+        "id": "1f5bf102.8c12af",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n    <parameter name=\"generate-unique-name-output.error-message\" value=\"Failed insert into GENERIC_RESOURCE_NAME table\" />\n",
+        "comments": "",
+        "x": 2041.020067487444,
+        "y": 3169.285788536072,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "59510b56.12c9f4",
+        "type": "set",
+        "name": "set sql statement",
+        "xml": "<set>\n<parameter name='tmp.gun.sql' value=\"`'SELECT * from ' + $generate-unique-name-input.index-table-name\n+ ' WHERE ' + $generate-unique-name-input.index-table-prefix-column + ' = '\n+ '$generate-unique-name-input.prefix'`\" />\n",
+        "comments": "",
+        "x": 1172.734218597412,
+        "y": 964.8215706348419,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "c4de9305.e3b5f",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1613.805606842041,
+        "y": 1442.4286302839007,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "651d8bf.8378c74",
+                "c81549dd.4990b8",
+                "5cfa637b.4338bc",
+                "a3abe6b2.a53fb8"
+            ]
+        ]
+    },
+    {
+        "id": "dfb2aa84.9b4598",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2174.0437393188477,
+        "y": 1807.381286076137,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "1d6bb1a2.44855e",
+                "a5f867db.9d9558"
+            ]
+        ]
+    },
+    {
+        "id": "87bbd73a.280a98",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1998.1629011971609,
+        "y": 2963.571539878845,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "5830bf50.31dae",
+                "9bc6db3a.e853b8"
+            ]
+        ]
+    },
+    {
+        "id": "784e1241.16399c",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1995.305753980364,
+        "y": 3059.285858154297,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "853b68e5.628e58",
+                "88572550.cad9b8"
+            ]
+        ]
+    },
+    {
+        "id": "5830bf50.31dae",
+        "type": "set",
+        "name": "set sql statement",
+        "xml": "<set>\n<parameter name='tmp.gun.sql' value=\"`'update ' + $generate-unique-name-input.index-table-name\n+ ' set index_number = ' + $tmp.gun.index-string + ' where '\n+ $generate-unique-name-input.index-table-prefix-column\n+ ' = $generate-unique-name-input.prefix'`\" />\n",
+        "comments": "",
+        "x": 2186.7341826302663,
+        "y": 2939.285511493683,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "88572550.cad9b8",
+        "type": "set",
+        "name": "set sql statement",
+        "xml": "<set>\n<parameter name='tmp.gun.sql' value=\"`'insert into ' + $generate-unique-name-input.index-table-name\n+ '(' + $generate-unique-name-input.index-table-prefix-column + ', index_number) values ('\n+ ' $generate-unique-name-input.prefix , ' + $tmp.gun.index-string + ')'`\" />\n\n",
+        "comments": "",
+        "x": 2185.3057310921804,
+        "y": 3033.571328163147,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "96f6c88d.8b7e38",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2028.3294792175293,
+        "y": 1898.8097624097552,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "41d904c1.515ddc"
+            ]
+        ]
+    },
+    {
+        "id": "bf503344.2453a",
+        "type": "for",
+        "name": "for idx from 1 to current index",
+        "xml": "<for index='tmp.gun.idx' start='1' end='`$tmp.gun.index-number`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1828.1153014046804,
+        "y": 3705.5238943099976,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "d892995.bb30f68"
+            ]
+        ]
+    },
+    {
+        "id": "7c854eaa.cabde",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1614.4485479082377,
+        "y": 3705.523872920445,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "bf503344.2453a",
+                "9ffe82b8.b73ec"
+            ]
+        ]
+    },
+    {
+        "id": "9ffe82b8.b73ec",
+        "type": "returnSuccess",
+        "name": "CATCH BREAK",
+        "xml": "<return status='success'>\n\n",
+        "comments": "",
+        "x": 1779.0676939828054,
+        "y": 4280.524024963379,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "94f9f0ef.6fa0d",
+        "type": "switchNode",
+        "name": "switch generate-unique-name-input.index-length",
+        "xml": "<switch test='`$generate-unique-name-input.index-length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2375.781873975481,
+        "y": 3660.1906385421753,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "266ce65b.b0b66a",
+                "97bab24a.c840c",
+                "3d984119.5f033e",
+                "3e3c8d28.fe1a32"
+            ]
+        ]
+    },
+    {
+        "id": "266ce65b.b0b66a",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2655.781873975481,
+        "y": 3590.1906995773315,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "dfbbc1b8.5e5ce"
+            ]
+        ]
+    },
+    {
+        "id": "97bab24a.c840c",
+        "type": "outcome",
+        "name": "1",
+        "xml": "<outcome value='1'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2654.115221296038,
+        "y": 3635.190739631653,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "dfbbc1b8.5e5ce"
+            ]
+        ]
+    },
+    {
+        "id": "3d984119.5f033e",
+        "type": "outcome",
+        "name": "2",
+        "xml": "<outcome value='2'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2654.115309034075,
+        "y": 3688.5240869522095,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "deb2ba7e.8c5978"
+            ]
+        ]
+    },
+    {
+        "id": "3e3c8d28.fe1a32",
+        "type": "outcome",
+        "name": "3",
+        "xml": "<outcome value='3'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2654.1151869637624,
+        "y": 3785.1908197402954,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "eb7b9bc3.3d21f8"
+            ]
+        ]
+    },
+    {
+        "id": "dfbbc1b8.5e5ce",
+        "type": "set",
+        "name": "set index-string to idx",
+        "xml": "<set>\n<parameter name='tmp.gun.index-string' value='`$tmp.gun.idx`' />\n",
+        "comments": "",
+        "x": 2840.7820227486745,
+        "y": 3608.524043083191,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "deb2ba7e.8c5978",
+        "type": "switchNode",
+        "name": "switch idx < 10",
+        "xml": "<switch test='`$tmp.gun.idx &lt; 10`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2820.7819388253347,
+        "y": 3688.5239849090576,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "937abb25.5405e8",
+                "5f465025.bda92"
+            ]
+        ]
+    },
+    {
+        "id": "937abb25.5405e8",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2982.4485724312917,
+        "y": 3661.857357978821,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "b0abf2f9.7e53f"
+            ]
+        ]
+    },
+    {
+        "id": "5f465025.bda92",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2982.448530469622,
+        "y": 3710.1906938552856,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "ba4422ab.99ab3"
+            ]
+        ]
+    },
+    {
+        "id": "b0abf2f9.7e53f",
+        "type": "set",
+        "name": "set index-string to '0' + idx",
+        "xml": "<set>\n<parameter name='tmp.gun.index-string' value=\"`'' + '0' + $tmp.gun.idx`\" />\n",
+        "comments": "",
+        "x": 3174.1153319222585,
+        "y": 3661.1905851364136,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "ba4422ab.99ab3",
+        "type": "set",
+        "name": "set index-string to idx",
+        "xml": "<set>\n<parameter name='tmp.gun.index-string' value='`$tmp.gun.idx`' />\n",
+        "comments": "",
+        "x": 3157.4485838753835,
+        "y": 3709.857300758362,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "eb7b9bc3.3d21f8",
+        "type": "switchNode",
+        "name": "switch idx < 10",
+        "xml": "<switch test='`$tmp.gun.idx &lt; 10`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2822.4485228402273,
+        "y": 3783.5239477157593,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "14d2288c.c6a057",
+                "d8edd84e.af3bc8"
+            ]
+        ]
+    },
+    {
+        "id": "14d2288c.c6a057",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2982.4484999520437,
+        "y": 3756.857325553894,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "62627b5d.5978e4"
+            ]
+        ]
+    },
+    {
+        "id": "d8edd84e.af3bc8",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2984.1151564461843,
+        "y": 3831.857283592224,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "30bfdb15.2f8ad4"
+            ]
+        ]
+    },
+    {
+        "id": "62627b5d.5978e4",
+        "type": "set",
+        "name": "set index-string to '00' + idx",
+        "xml": "<set>\n<parameter name='tmp.gun.index-string' value=\"`'' + '00' + $tmp.gun.idx`\" />\n",
+        "comments": "",
+        "x": 3177.4485838753835,
+        "y": 3756.857300758362,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "30bfdb15.2f8ad4",
+        "type": "switchNode",
+        "name": "switch idx < 100",
+        "xml": "<switch test='`$tmp.gun.idx &lt; 100`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3140.4485380990163,
+        "y": 3830.190644264221,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "440bf02e.68e61",
+                "b8862f98.abf7a"
+            ]
+        ]
+    },
+    {
+        "id": "440bf02e.68e61",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3297.4485152108327,
+        "y": 3803.524022102356,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "ba35148d.b73588"
+            ]
+        ]
+    },
+    {
+        "id": "b8862f98.abf7a",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3297.448473249163,
+        "y": 3851.857357978821,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "e6bfcbc8.332388"
+            ]
+        ]
+    },
+    {
+        "id": "ba35148d.b73588",
+        "type": "set",
+        "name": "set index-string to '0' + idx",
+        "xml": "<set>\n<parameter name='tmp.gun.index-string' value=\"`'' + '0' + $tmp.gun.idx`\" />\n",
+        "comments": "",
+        "x": 3490.1153014046804,
+        "y": 3803.190676689148,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "e6bfcbc8.332388",
+        "type": "set",
+        "name": "set index-string to idx",
+        "xml": "<set>\n<parameter name='tmp.gun.index-string' value='`$tmp.gun.idx`' />\n",
+        "comments": "",
+        "x": 3474.1152861458913,
+        "y": 3851.523980140686,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "360242d5.db658e",
+        "type": "set",
+        "name": "set generated-name to prefix + index-string",
+        "xml": "<set>\n<parameter name='tmp.gun.generated-name' value='`$generate-unique-name-input.prefix + $tmp.gun.index-string`' />\n",
+        "comments": "",
+        "x": 2373.781957898821,
+        "y": 3908.857216835022,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "b69ff8cc.8d9308",
+        "type": "comment",
+        "name": "Wrapping around - now check from 1 to the original index",
+        "info": "",
+        "comments": "",
+        "x": 1805.4486220223562,
+        "y": 3635.0002088546753,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "47e5b18f.a8b23",
+        "type": "comment",
+        "name": "check if we've used this name before",
+        "info": "",
+        "comments": "",
+        "x": 2360.4964049203054,
+        "y": 4023.857490539551,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "ef79ae3c.17c5f",
+        "type": "get-resource",
+        "name": "get-resource name",
+        "xml": "<get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key=\"`$tmp.gun.sql`\" pfx='tmp.gun.namedb'>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2298.115221296038,
+        "y": 4164.571560450962,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "5a089be5.cf97a4",
+                "66a1cd31.360d64"
+            ]
+        ]
+    },
+    {
+        "id": "5a089be5.cf97a4",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2476.4486143929616,
+        "y": 4118.857397079468,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "c2df42b8.3c5f6"
+            ]
+        ]
+    },
+    {
+        "id": "abf5ee3d.5d0ca",
+        "type": "set",
+        "name": "set generate-unique-name-output.error-message",
+        "xml": "<set>\n<parameter name='generate-unique-name-output.error-message' value=\"Error reading the GENERIC_RESOURCE_NAME table\" />\n",
+        "comments": "",
+        "x": 2922.400865827288,
+        "y": 4092.4287300109863,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "ee79f6f.5d57b08",
+        "type": "returnFailure",
+        "name": "BREAK",
+        "xml": "<return status='failure'>\n",
+        "comments": "",
+        "x": 2787.6391127450124,
+        "y": 4137.428817749023,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "cbbbd754.515278",
+        "type": "switchNode",
+        "name": "switch generate-unique-name-output.error-message",
+        "xml": "<switch test='`$generate-unique-name-output.error-message`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1760.4961912972585,
+        "y": 4388.381100654602,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "73a8a16e.756ef",
+                "4bea28c3.456028"
+            ]
+        ]
+    },
+    {
+        "id": "73a8a16e.756ef",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2033.8295996529714,
+        "y": 4361.714352607727,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "590a39c2.d91d98"
+            ]
+        ]
+    },
+    {
+        "id": "590a39c2.d91d98",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2168.8295996529714,
+        "y": 4361.714352607727,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4bea28c3.456028",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2033.829565320696,
+        "y": 4411.714373588562,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "8722b32b.fe33e"
+            ]
+        ]
+    },
+    {
+        "id": "8722b32b.fe33e",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n",
+        "comments": "",
+        "x": 2183.829565320696,
+        "y": 4411.714373588562,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "8da20e83.48444",
+        "type": "switchNode",
+        "name": "switch found-flag",
+        "xml": "<switch test='`$tmp.gun.found-flag`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1642.2104704720632,
+        "y": 4567.905009269714,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "f9025718.d4df88"
+            ]
+        ]
+    },
+    {
+        "id": "f8c693e4.938fc",
+        "type": "comment",
+        "name": "if db name is null we found an index we can use",
+        "info": "",
+        "comments": "",
+        "x": 1808.9248106820241,
+        "y": 4517.428784370422,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "f9025718.d4df88",
+        "type": "outcome",
+        "name": "true",
+        "xml": "<outcome value='true'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1801.543791089739,
+        "y": 4567.90496635437,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "9c3c38a7.e59808"
+            ]
+        ]
+    },
+    {
+        "id": "8210dd08.26216",
+        "type": "set",
+        "name": "set generate-unique-name-output.generated-name",
+        "xml": "<set>\n<parameter name='generate-unique-name-output.generated-name' value='`$tmp.gun.generated-name`' />\n",
+        "comments": "",
+        "x": 2277.210455213274,
+        "y": 4516.238507270813,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "4dec686e.afd348",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n\n",
+        "comments": "",
+        "x": 2160.6865065438406,
+        "y": 4855.047978401184,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "9c3c38a7.e59808",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1968.2104857308523,
+        "y": 4566.238184928894,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "8210dd08.26216",
+                "9338bb2.be33d48",
+                "b455fb93.d28c68",
+                "4dec686e.afd348",
+                "144fc795.5db808"
+            ]
+        ]
+    },
+    {
+        "id": "9338bb2.be33d48",
+        "type": "switchNode",
+        "name": "switch index-exists",
+        "xml": "<switch test='`$tmp.gun.index-exists`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2172.9724638802663,
+        "y": 4648.3815088272095,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "530cf58c.b30b3c",
+                "997dbf86.ec5ba"
+            ]
+        ]
+    },
+    {
+        "id": "530cf58c.b30b3c",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2351.5438292367116,
+        "y": 4624.095776557922,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "88dfc88f.8aa898"
+            ]
+        ]
+    },
+    {
+        "id": "997dbf86.ec5ba",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2351.5438444955007,
+        "y": 4671.2387018203735,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "ae410bc8.d50898"
+            ]
+        ]
+    },
+    {
+        "id": "66b73d5a.256d54",
+        "type": "save",
+        "name": "save (update) name index",
+        "xml": "<save plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key=\"`$tmp.gun.sql`\" pfx='pfx'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2747.2581541878835,
+        "y": 4625.524192810059,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "d51a3ac.e56a6c8"
+            ]
+        ]
+    },
+    {
+        "id": "be1fac83.ec839",
+        "type": "save",
+        "name": "save (insert) name index",
+        "xml": "<save plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key=\"`$tmp.gun.sql`\" pfx='pfx'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2740.1151335580007,
+        "y": 4719.80966091156,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "414271a5.32692"
+            ]
+        ]
+    },
+    {
+        "id": "d51a3ac.e56a6c8",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2940.115354810442,
+        "y": 4625.524211883545,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "9e2a4e5b.2a075"
+            ]
+        ]
+    },
+    {
+        "id": "9e2a4e5b.2a075",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n    <parameter name=\"generate-unique-name-output.error-message\" value=\"`'Failed to update ' + $generate-unique-name-input.index-table-name + ' table'`\" />\n",
+        "comments": "",
+        "x": 3094.401171003069,
+        "y": 4625.524230957031,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "414271a5.32692",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2937.2579253060476,
+        "y": 4718.381176948547,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "3cd4c5c8.3c566a"
+            ]
+        ]
+    },
+    {
+        "id": "3cd4c5c8.3c566a",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n    <parameter name=\"generate-unique-name-output.error-message\" value=\"`'Failed to insert record into ' + $generate-unique-name-input.index-table-name + ' table'`\" />\n",
+        "comments": "",
+        "x": 3091.5437414986745,
+        "y": 4718.381196022034,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "b455fb93.d28c68",
+        "type": "save",
+        "name": "save (insert) generated name",
+        "xml": "<save plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key=\"`$tmp.gun.sql`\" pfx='pfx'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2207.4010603768484,
+        "y": 4806.952483177185,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "5344afb8.38666"
+            ]
+        ]
+    },
+    {
+        "id": "5344afb8.38666",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2417.4009917122976,
+        "y": 4806.952534675598,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "94a9b8e7.dc94f8"
+            ]
+        ]
+    },
+    {
+        "id": "94a9b8e7.dc94f8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n    <parameter name=\"generate-unique-name-output.error-message\" value=\"Failed insert into GENERIC_RESOURCE_NAME table\" />\n",
+        "comments": "",
+        "x": 2571.6868079049245,
+        "y": 4806.9525537490845,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "d892995.bb30f68",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2070.258146558489,
+        "y": 3704.0954084396362,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "94f9f0ef.6fa0d",
+                "360242d5.db658e",
+                "ef79ae3c.17c5f",
+                "72aa4efd.c0c88",
+                "6dd3f32a.b9635c"
+            ]
+        ]
+    },
+    {
+        "id": "c2df42b8.3c5f6",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2628.829611097063,
+        "y": 4118.381316184998,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "abf5ee3d.5d0ca",
+                "ee79f6f.5d57b08"
+            ]
+        ]
+    },
+    {
+        "id": "88dfc88f.8aa898",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2528.8296416146413,
+        "y": 4601.238305091858,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "947dd966.3194a8",
+                "66b73d5a.256d54"
+            ]
+        ]
+    },
+    {
+        "id": "ae410bc8.d50898",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2525.9724943978445,
+        "y": 4696.95262336731,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "be1fac83.ec839",
+                "6a923ca1.f35424"
+            ]
+        ]
+    },
+    {
+        "id": "947dd966.3194a8",
+        "type": "set",
+        "name": "set sql statement",
+        "xml": "<set>\n<parameter name='tmp.gun.sql' value=\"`'update ' + $generate-unique-name-input.index-table-name\n+ ' set index_number = ' + $tmp.gun.index-string + ' where '\n+ $generate-unique-name-input.index-table-prefix-column\n+ ' = $generate-unique-name-input.prefix'`\" />\n",
+        "comments": "",
+        "x": 2717.400923047747,
+        "y": 4576.952276706696,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "6a923ca1.f35424",
+        "type": "set",
+        "name": "set sql statement",
+        "xml": "<set>\n<parameter name='tmp.gun.sql' value=\"`'insert into ' + $generate-unique-name-input.index-table-name\n+ '(' + $generate-unique-name-input.index-table-prefix-column + ', index_number) values ('\n+ ' $generate-unique-name-input.prefix , ' + $tmp.gun.index-string + ')'`\" />\n\n",
+        "comments": "",
+        "x": 2715.972471509661,
+        "y": 4671.23809337616,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "66a1cd31.360d64",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2483.115350995745,
+        "y": 4209.809792518616,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "8688c71d.6f6348"
+            ]
+        ]
+    },
+    {
+        "id": "72aa4efd.c0c88",
+        "type": "set",
+        "name": "clear namedb.name",
+        "xml": "<set>\n<parameter name='tmp.gun.namedb.name' value='' />\n",
+        "comments": "",
+        "x": 2298.829534803118,
+        "y": 3959.8097257614136,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "f36b5bce.ce38d8",
+        "type": "switchNode",
+        "name": "switch generate-unique-name-input.index-length",
+        "xml": "<switch test='`$generate-unique-name-input.index-length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1743.1152479989187,
+        "y": 3538.1906385421753,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "81e22e00.c515a"
+            ]
+        ]
+    },
+    {
+        "id": "81e22e00.c515a",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1998.829580579485,
+        "y": 3539.0955476760864,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "76724a0a.7f9af4"
+            ]
+        ]
+    },
+    {
+        "id": "76724a0a.7f9af4",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n    <parameter name=\"generate-unique-name-output.error-message\" value=\"We have exhausted the naming index count\" />\n",
+        "comments": "",
+        "x": 2155.9724638802663,
+        "y": 3539.0955476760864,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "9b5b9cd9.fbaa6",
+        "type": "comment",
+        "name": "if we get here when there is no index length, then we have used up all 1000",
+        "info": "",
+        "comments": "",
+        "x": 1874.5438444955007,
+        "y": 3494.809862136841,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "8e750ec7.2ae83",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n    <parameter name=\"generate-unique-name-output.error-message\" value=\"We have exhausted the naming index count\" />\n",
+        "comments": "",
+        "x": 1636.543878827776,
+        "y": 4968.095459938049,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "3e63e2e.8d66c1e",
+        "type": "set",
+        "name": "set found-flag=false",
+        "xml": "<set>\n<parameter name='tmp.gun.found-flag' value='false' />\n",
+        "comments": "",
+        "x": 1178.4484672546387,
+        "y": 1258.0357694625854,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "2276b160.a9183e",
+        "type": "set",
+        "name": "set found-flag=true",
+        "xml": "<set>\n<parameter name='tmp.gun.found-flag' value='true' />\n",
+        "comments": "",
+        "x": 2372.6151809692383,
+        "y": 1873.0953306470599,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "41d904c1.515ddc",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2179.7580032348633,
+        "y": 1899.2382749829974,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "2276b160.a9183e",
+                "ad173e2b.5c512"
+            ]
+        ]
+    },
+    {
+        "id": "19972ef5.57be21",
+        "type": "returnFailure",
+        "name": "BREAK",
+        "xml": "<return status='failure'>\n",
+        "comments": "",
+        "x": 2787.972330365862,
+        "y": 4230.952507972717,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "e21c1774.c206a8",
+        "type": "comment",
+        "name": "found one we can use",
+        "info": "",
+        "comments": "",
+        "x": 2605.8297865731374,
+        "y": 4162.000430107117,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "eaee2222.dfde9",
+        "type": "set",
+        "name": "set found-flag=true",
+        "xml": "<set>\n<parameter name='tmp.gun.found-flag' value='true' />\n",
+        "comments": "",
+        "x": 2824.8772490365163,
+        "y": 4182.714360237122,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "8688c71d.6f6348",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2632.0200713021413,
+        "y": 4208.857304573059,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "eaee2222.dfde9",
+                "19972ef5.57be21"
+            ]
+        ]
+    },
+    {
+        "id": "3e4250a5.0ac4c",
+        "type": "switchNode",
+        "name": "switch generate-unique-name-input.supplied-name",
+        "xml": "<switch test='`$generate-unique-name-input.supplied-name`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 732.7340965270996,
+        "y": 290.7143205915179,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "d25a80d5.4e3b8",
+                "b7f46cb8.21a18"
+            ]
+        ]
+    },
+    {
+        "id": "d25a80d5.4e3b8",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 991.3055953979492,
+        "y": 317.85711615426203,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "d51fb171.df3c3"
+            ]
+        ]
+    },
+    {
+        "id": "b7f46cb8.21a18",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 991.3055725097656,
+        "y": 259.7142862592425,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "12ab5681.ce04d9"
+            ]
+        ]
+    },
+    {
+        "id": "130234ee.46d2ab",
+        "type": "switchNode",
+        "name": "switch generate-unique-name-input.name-table-type",
+        "xml": "<switch test='`$generate-unique-name-input.name-table-type`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1460.5912437438965,
+        "y": 196.42856734139582,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "15992563.c8c55b"
+            ]
+        ]
+    },
+    {
+        "id": "15992563.c8c55b",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1793.9244403839111,
+        "y": 196.42857687813898,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "47420284.6ade7c"
+            ]
+        ]
+    },
+    {
+        "id": "47420284.6ade7c",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='generate-unique-name-output.error-message' value='generate-unique-name-input.name-table-type not supplied' />\n",
+        "comments": "",
+        "x": 1965.5912170410156,
+        "y": 196.76188032967707,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "12ab5681.ce04d9",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1145.5912971496582,
+        "y": 259.2857164655413,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "130234ee.46d2ab",
+                "aabd4d90.16dd8",
+                "23a0ac.95990f54"
+            ]
+        ]
+    },
+    {
+        "id": "23a0ac.95990f54",
+        "type": "get-resource",
+        "name": "get-resource name",
+        "xml": "<get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key=\"`$tmp.gun.sql`\" pfx='tmp.gun.namedb'>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1354.1627082824707,
+        "y": 289.2857317243304,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "6d7e1700.805508",
+                "5e3c9b34.a10a74",
+                "65ca162d.6df4c8"
+            ]
+        ]
+    },
+    {
+        "id": "6d7e1700.805508",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1536.7817573547363,
+        "y": 276.42862742287775,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "2d9f6bb3.0fef44"
+            ]
+        ]
+    },
+    {
+        "id": "aabd4d90.16dd8",
+        "type": "set",
+        "name": "set sql statement",
+        "xml": "<set>\n<parameter name='tmp.gun.sql' value=\"`'SELECT * from GENERIC_RESOURCE_NAME WHERE type = $generate-unique-name-input.name-table-type'\n+ ' AND name = $generate-unique-name-input.supplied-name'`\" />\n",
+        "comments": "",
+        "x": 1347.734260559082,
+        "y": 241.6667494092669,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "5e3c9b34.a10a74",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1544.8771133422852,
+        "y": 321.6667379651751,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "ef3f7999.12f238"
+            ]
+        ]
+    },
+    {
+        "id": "2d9f6bb3.0fef44",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='generate-unique-name-output.error-message' value=\"`'Error reading the ' + $generate-unique-name-input.name-table-index + ' table'`\" />\n\n",
+        "comments": "",
+        "x": 1692.7341804504395,
+        "y": 276.00003283364435,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "65ca162d.6df4c8",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1537.0198822021484,
+        "y": 363.57143156869074,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "4d68280b.2d7b18"
+            ]
+        ]
+    },
+    {
+        "id": "4d68280b.2d7b18",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='generate-unique-name-output.error-message' value=\"`'The name ' + $generate-unique-name-input.supplied-name + ' has already been used'`\" />\n\n",
+        "comments": "",
+        "x": 1692.7341194152832,
+        "y": 362.999995640346,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "6ed6588d.7a0f78",
+        "type": "comment",
+        "name": "Caller supplied name - make sure it's not already used",
+        "info": "",
+        "comments": "",
+        "x": 1387.7699127197266,
+        "y": 154.1428575515747,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "ef3f7999.12f238",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1694.1628074645996,
+        "y": 322.1428446088519,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "553234b3.8d5a7c",
+                "be029280.19e4b"
+            ]
+        ]
+    },
+    {
+        "id": "be029280.19e4b",
+        "type": "save",
+        "name": "save (insert) generated name",
+        "xml": "<save plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key=\"`$tmp.gun.sql`\" pfx='pfx'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1934.1628074645996,
+        "y": 346.42858069283625,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "94aa6f8b.9aaf4"
+            ]
+        ]
+    },
+    {
+        "id": "94aa6f8b.9aaf4",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2144.162738800049,
+        "y": 346.42863219124933,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "98e91b64.eafea8"
+            ]
+        ]
+    },
+    {
+        "id": "98e91b64.eafea8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name=\"generate-unique-name-output.error-message\" value=\"Failed insert into GENERIC_RESOURCE_NAME table\" />\n",
+        "comments": "",
+        "x": 2298.448554992676,
+        "y": 346.42865126473566,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "553234b3.8d5a7c",
+        "type": "set",
+        "name": "set sql statement",
+        "xml": "<set>\n<parameter name='tmp.gun.sql' value=\"`'insert into GENERIC_RESOURCE_NAME values ( '\n+ ' $generate-unique-name-input.name-table-type , $generate-unique-name-input.supplied-name , null , null, $generate-unique-name-input.service-instance-id )'`\" />\n\n",
+        "comments": "",
+        "x": 1894.1627388000488,
+        "y": 296.4287580762591,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "b3a55875.754e68",
+        "type": "set",
+        "name": "set sql statement",
+        "xml": "<set>\n<parameter name='tmp.gun.sql' \n\tvalue=\"`'insert into GENERIC_RESOURCE_NAME values ( $generate-unique-name-input.name-table-type , $tmp.gun.generated-name , $generate-unique-name-input.prefix , ' + $tmp.gun.index-string + ' , $tmp.gun.transient )'`\" />\n\n",
+        "comments": "",
+        "x": 1638.1627791268484,
+        "y": 3122.857078552246,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "6dd3f32a.b9635c",
+        "type": "set",
+        "name": "set sql statement",
+        "xml": "<set>\n<parameter name='tmp.gun.sql' value=\"`'SELECT * from GENERIC_RESOURCE_NAME WHERE type = $generate-unique-name-input.name-table-type'\n+ ' AND name = $tmp.gun.generated-name'`\" />\n",
+        "comments": "",
+        "x": 2292.2581084115163,
+        "y": 4075.2382822036743,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "144fc795.5db808",
+        "type": "set",
+        "name": "set sql statement",
+        "xml": "<set>\n<parameter name='tmp.gun.sql' \n\tvalue=\"`'insert into GENERIC_RESOURCE_NAME values ( $generate-unique-name-input.name-table-type , $tmp.gun.generated-name , $generate-unique-name-input.prefix , ' + $tmp.gun.index-string + ' , $tmp.gun.transient )'`\" />\n\n",
+        "comments": "",
+        "x": 2167.972303662981,
+        "y": 4759.523810386658,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "b2adf596.b14dc8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n    <parameter name=\"generate-unique-name-output.error-message\" value=\"`'Failed to update ' + $generate-unique-name-input.index-table-name + ' table'`\" />\n",
+        "comments": "",
+        "x": 2561.019964490618,
+        "y": 2987.142795562744,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "a521b607.e28cf8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n    <parameter name=\"generate-unique-name-output.error-message\" value=\"`'Failed to insert record into ' + $generate-unique-name-input.index-table-name + ' table'`\" />\n",
+        "comments": "",
+        "x": 2558.1625769478933,
+        "y": 3080.4285764694214,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "c4268ba7.916128",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1280.1151068551198,
+        "y": 3397.8571519851685,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "59148c70.cdee34"
+            ]
+        ]
+    },
+    {
+        "id": "59148c70.cdee34",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1430.9485152108327,
+        "y": 4009.523675918579,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "f36b5bce.ce38d8",
+                "7c854eaa.cabde",
+                "cbbbd754.515278",
+                "8da20e83.48444",
+                "8e750ec7.2ae83",
+                "974e3eea.a57fc"
+            ]
+        ]
+    },
+    {
+        "id": "a98b0c69.c8ff5",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1445.0913696289062,
+        "y": 1005.5357429981232,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "f97c717e.aeece"
+            ]
+        ]
+    },
+    {
+        "id": "b88e0290.6b67d",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1451.6628875732422,
+        "y": 1112.1785898208618,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "4201eca6.c7d3f4"
+            ]
+        ]
+    },
+    {
+        "id": "4201eca6.c7d3f4",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1583.091438293457,
+        "y": 1111.607195854187,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "3d4b23e4.f03d2c",
+                "e19f8c74.cb7de"
+            ]
+        ]
+    },
+    {
+        "id": "a3abe6b2.a53fb8",
+        "type": "set",
+        "name": "set sql statement",
+        "xml": "<set>\n<parameter name='tmp.gun.sql' value=\"`'SELECT * from GENERIC_RESOURCE_NAME WHERE type = $generate-unique-name-input.name-table-type'\n+ ' AND name = $tmp.gun.generated-name'`\" />\n",
+        "comments": "",
+        "x": 1837.9365768432617,
+        "y": 1771.428593635559,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "5cfa637b.4338bc",
+        "type": "get-resource",
+        "name": "get-resource name",
+        "xml": "<get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key=\"`$tmp.gun.sql`\" pfx='tmp.gun.namedb'>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1839.3651847839355,
+        "y": 1858.5715169906616,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "be62e7ae.90b8f8",
+                "96f6c88d.8b7e38"
+            ]
+        ]
+    },
+    {
+        "id": "360fc793.866bf8",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 431.68655014038086,
+        "y": 265.00000381469727,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "3e4250a5.0ac4c",
+                "dcbeacf.6f2ab5"
+            ]
+        ]
+    },
+    {
+        "id": "dcbeacf.6f2ab5",
+        "type": "set",
+        "name": "clear variables",
+        "xml": "<set>\n<parameter name='generate-unique-name-output.error-message' value='' />\n<parameter name='generate-unique-name-output.generated-name' value='' />\n",
+        "comments": "",
+        "x": 619.0079803466797,
+        "y": 242.8571424484253,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "26eda43b.2c3b5c",
+        "type": "outcome",
+        "name": "0",
+        "xml": "<outcome value='0'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1624.1148872375488,
+        "y": 690.3571691513062,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "e3969b91.7deb58"
+            ]
+        ]
+    },
+    {
+        "id": "e3969b91.7deb58",
+        "type": "set",
+        "name": "set list-end = 0",
+        "xml": "<set>\n<parameter name='tmp.gun.list-end' value='0' />\n",
+        "comments": "",
+        "x": 1813.7815322875977,
+        "y": 690.3571462631226,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "187251ba.f9a6ce",
+        "type": "switchNode",
+        "name": "switch tmp.gun.noindex-flag",
+        "xml": "<switch test='`$tmp.gun.noindex-flag`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1388.6150038582937,
+        "y": 2054.000086784363,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "47d30b82.5fa434"
+            ]
+        ]
+    },
+    {
+        "id": "dc9a064f.20c918",
+        "type": "switchNode",
+        "name": "switch generate-unique-name-input.index-length",
+        "xml": "<switch test='`$generate-unique-name-input.index-length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1844.9008140563965,
+        "y": 1030.4285879135132,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "35b6590.63450a8",
+                "7a0d894c.1efd48"
+            ]
+        ]
+    },
+    {
+        "id": "35b6590.63450a8",
+        "type": "outcome",
+        "name": "0",
+        "xml": "<outcome value='0'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2111.1508140563965,
+        "y": 1058.6785898208618,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "ca199039.4ea94"
+            ]
+        ]
+    },
+    {
+        "id": "7a0d894c.1efd48",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2112.650810241699,
+        "y": 998.6785879135132,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "5e88e850.5de788"
+            ]
+        ]
+    },
+    {
+        "id": "5e88e850.5de788",
+        "type": "set",
+        "name": "increment index number",
+        "xml": "<set>\n<parameter name='tmp.gun.index-number' value='`$tmp.gun.prefixdb.index-number + 1`' />\n",
+        "comments": "",
+        "x": 2305.150810241699,
+        "y": 998.4285879135132,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "85418744.04a698",
+        "type": "set",
+        "name": "set  index number to 0",
+        "xml": "<set>\n<parameter name='tmp.gun.index-number' value='0' />\n",
+        "comments": "",
+        "x": 2449.1510581970215,
+        "y": 1060.4285879135132,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "e19f8c74.cb7de",
+        "type": "switchNode",
+        "name": "switch generate-unique-name-input.index-length",
+        "xml": "<switch test='`$generate-unique-name-input.index-length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1842.4008140563965,
+        "y": 1141.4285898208618,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "9925306e.7b5d6",
+                "4fb0aa57.8d75b4"
+            ]
+        ]
+    },
+    {
+        "id": "4fb0aa57.8d75b4",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2112.400810241699,
+        "y": 1163.4285898208618,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "80595c6f.d370b"
+            ]
+        ]
+    },
+    {
+        "id": "9925306e.7b5d6",
+        "type": "outcome",
+        "name": "0",
+        "xml": "<outcome value='0'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2112.400833129883,
+        "y": 1107.1785457134247,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "ca199039.4ea94"
+            ]
+        ]
+    },
+    {
+        "id": "ca199039.4ea94",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2261.150806427002,
+        "y": 1085.9285879135132,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "85418744.04a698",
+                "c639252a.452078"
+            ]
+        ]
+    },
+    {
+        "id": "c639252a.452078",
+        "type": "set",
+        "name": "set noindex-flag=true",
+        "xml": "<set>\n<parameter name='tmp.gun.noindex-flag' value='true' />\n",
+        "comments": "",
+        "x": 2448.650775909424,
+        "y": 1109.4285726547241,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "4139d69a.f19178",
+        "type": "set",
+        "name": "set generated-name to prefix",
+        "xml": "<set>\n<parameter name='tmp.gun.generated-name' value='`$generate-unique-name-input.prefix`' />\n",
+        "comments": "",
+        "x": 1991.650854383196,
+        "y": 2105.428624153137,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "47d30b82.5fa434",
+        "type": "outcome",
+        "name": "true",
+        "xml": "<outcome value='true'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1585.936540876116,
+        "y": 2054.000069618225,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "6400bec6.70c0b"
+            ]
+        ]
+    },
+    {
+        "id": "6400bec6.70c0b",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1737.3648970467702,
+        "y": 2054.0001916885376,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "1d2241eb.be7a9e",
+                "8c4f455f.ad7488",
+                "4139d69a.f19178",
+                "e298800b.28418"
+            ]
+        ]
+    },
+    {
+        "id": "8c4f455f.ad7488",
+        "type": "set",
+        "name": "set sql statement",
+        "xml": "<set>\n<parameter name='tmp.gun.sql' value=\"`'SELECT * from GENERIC_RESOURCE_NAME WHERE type = $generate-unique-name-input.name-table-type'\n+ ' AND name = $tmp.gun.generated-name'`\" />\n",
+        "comments": "",
+        "x": 1958.6389601571218,
+        "y": 2148.286027908325,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "1d2241eb.be7a9e",
+        "type": "get-resource",
+        "name": "get-resource name",
+        "xml": "<get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key=\"`$tmp.gun.sql`\" pfx='tmp.gun.namedb'>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1965.3533537728445,
+        "y": 2192.4287090301514,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "c3e26aa5.5a6ad8",
+                "f20ea659.abb5d8",
+                "ddda4cb5.69a3c"
+            ]
+        ]
+    },
+    {
+        "id": "c3e26aa5.5a6ad8",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2157.6509650094167,
+        "y": 2191.7145656858174,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "e6b7e26f.94d48"
+            ]
+        ]
+    },
+    {
+        "id": "f20ea659.abb5d8",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2164.3177016122,
+        "y": 2282.6669611249654,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "f1cf4980.556c18"
+            ]
+        ]
+    },
+    {
+        "id": "f1cf4980.556c18",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2347.1746297563823,
+        "y": 2282.0954637527466,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "825e78.6ae53188",
+                "caf8b992.a7b668"
+            ]
+        ]
+    },
+    {
+        "id": "caf8b992.a7b668",
+        "type": "returnFailure",
+        "name": "BREAK",
+        "xml": "<return status='failure'>\n",
+        "comments": "",
+        "x": 2503.126888820103,
+        "y": 2304.190667152405,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "825e78.6ae53188",
+        "type": "set",
+        "name": "set found-flag=true",
+        "xml": "<set>\n<parameter name='tmp.gun.found-flag' value='true' />\n",
+        "comments": "",
+        "x": 2540.0318074907573,
+        "y": 2255.952519416809,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "63ab1b54.3f87f4",
+        "type": "returnFailure",
+        "name": "BREAK",
+        "xml": "<return status='failure'>\n",
+        "comments": "",
+        "x": 2468.8414633614675,
+        "y": 2210.285986355373,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "b2a157a3.5da4b8",
+        "type": "set",
+        "name": "set generate-unique-name-output.error-message",
+        "xml": "<set>\n<parameter name='generate-unique-name-output.error-message' value=\"`'Error reading the GENERIC_RESOURCE_NAME table'`\" />\n",
+        "comments": "",
+        "x": 2603.603216443743,
+        "y": 2165.285898617336,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "e6b7e26f.94d48",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2310.0319617135183,
+        "y": 2191.238484791347,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "b2a157a3.5da4b8",
+                "63ab1b54.3f87f4"
+            ]
+        ]
+    },
+    {
+        "id": "c261792d.2d6c28",
+        "type": "comment",
+        "name": "found one we can use",
+        "info": "",
+        "comments": "",
+        "x": 2320.9843450273784,
+        "y": 2235.238589286804,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "412400cc.a3efa",
+        "type": "comment",
+        "name": "NEW",
+        "info": "",
+        "comments": "",
+        "x": 1517.9363158089773,
+        "y": 697.1428834370204,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "9e0fc23a.f7e51",
+        "type": "comment",
+        "name": "NEW",
+        "info": "",
+        "comments": "",
+        "x": 1387.3651237487793,
+        "y": 2019.7142505645752,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "e7d53672.156128",
+        "type": "comment",
+        "name": "NEW",
+        "info": "",
+        "comments": "",
+        "x": 1987.9365043640137,
+        "y": 997.1428213119507,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "c8a8f3.23f8271",
+        "type": "comment",
+        "name": "NEW",
+        "info": "",
+        "comments": "",
+        "x": 1980.7937278747559,
+        "y": 1111.4285726547241,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "e298800b.28418",
+        "type": "set",
+        "name": "set index-string to 0",
+        "xml": "<set>\n<parameter name='tmp.gun.index-string' value='0' />\n",
+        "comments": "",
+        "x": 1975.9364073617116,
+        "y": 2054.285785675049,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "974e3eea.a57fc",
+        "type": "switchNode",
+        "name": "switch tmp.gun.noindex-flag",
+        "xml": "<switch test='`$tmp.gun.noindex-flag`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1679.3651259286062,
+        "y": 3421.2859582901,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "7a90c21f.11fb9c"
+            ]
+        ]
+    },
+    {
+        "id": "7a90c21f.11fb9c",
+        "type": "outcome",
+        "name": "true",
+        "xml": "<outcome value='true'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1885.0794051034109,
+        "y": 3421.285864830017,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "fde97220.7206d"
+            ]
+        ]
+    },
+    {
+        "id": "fde97220.7206d",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n    <parameter name=\"generate-unique-name-output.error-message\" value=\"naming exhausted for input with index-length = 0\" />\n",
+        "comments": "",
+        "x": 2049.3652479989187,
+        "y": 3419.8571424484253,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "ddda4cb5.69a3c",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2159.8293882097514,
+        "y": 2338.14271068573,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "f1cf4980.556c18"
+            ]
+        ]
+    },
+    {
+        "id": "59274ef2.cf994",
+        "type": "outcome",
+        "name": "4",
+        "xml": "<outcome value='4'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1623.650779724121,
+        "y": 871.4285898208618,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "2c30bd52.6fca32"
+            ]
+        ]
+    },
+    {
+        "id": "2c30bd52.6fca32",
+        "type": "set",
+        "name": "set list-end = 10000",
+        "xml": "<set>\n<parameter name='tmp.gun.list-end' value='10000' />\n",
+        "comments": "",
+        "x": 1813.31742477417,
+        "y": 871.4285669326782,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "c12d0b68.b45788",
+        "type": "outcome",
+        "name": "4",
+        "xml": "<outcome value='4'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2207.9363975524902,
+        "y": 1584.2856855392456,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "6a0e3f0e.bdf0d"
+            ]
+        ]
+    },
+    {
+        "id": "6a0e3f0e.bdf0d",
+        "type": "switchNode",
+        "name": "switch idx < 10",
+        "xml": "<switch test='`$tmp.gun.idx &lt; 10`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2376.269733428955,
+        "y": 1582.6188135147095,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "e077a096.c90b5",
+                "3ba27764.7bb978"
+            ]
+        ]
+    },
+    {
+        "id": "e077a096.c90b5",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2544.8410606384277,
+        "y": 1535.5236520767212,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "6f52ffca.5f968"
+            ]
+        ]
+    },
+    {
+        "id": "3ba27764.7bb978",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2557.936367034912,
+        "y": 1660.9521493911743,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "532853bc.fe84cc"
+            ]
+        ]
+    },
+    {
+        "id": "c2125c33.cdb9e",
+        "type": "set",
+        "name": "set noindex-flag=false",
+        "xml": "<set>\n<parameter name='tmp.gun.noindex-flag' value='false' />\n",
+        "comments": "",
+        "x": 1190.7936058044434,
+        "y": 874.2857313156128,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "1a8e79c7.61ce76",
+        "type": "set",
+        "name": "set index-string to '00' + idx",
+        "xml": "<set>\n<parameter name='tmp.gun.index-string' value=\"`'' + '00' + $tmp.gun.idx`\" />\n",
+        "comments": "",
+        "x": 3100.793617248535,
+        "y": 1616.4285522188459,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "1afc6185.a5540e",
+        "type": "switchNode",
+        "name": "switch idx < 1000",
+        "xml": "<switch test='`$tmp.gun.idx &lt; 1000`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3063.7935638427734,
+        "y": 1695.7619800567627,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "a4f34d49.5db71",
+                "751b1f96.b3bdc"
+            ]
+        ]
+    },
+    {
+        "id": "a4f34d49.5db71",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3220.79354095459,
+        "y": 1669.0953578948975,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "5d36ed1a.607764"
+            ]
+        ]
+    },
+    {
+        "id": "751b1f96.b3bdc",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3220.79349899292,
+        "y": 1717.4286937713623,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "d68323fd.8707c"
+            ]
+        ]
+    },
+    {
+        "id": "5d36ed1a.607764",
+        "type": "set",
+        "name": "set index-string to '0' + idx",
+        "xml": "<set>\n<parameter name='tmp.gun.index-string' value=\"`'' + '0' + $tmp.gun.idx`\" />\n",
+        "comments": "",
+        "x": 3413.4603271484375,
+        "y": 1668.7620124816895,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "d68323fd.8707c",
+        "type": "set",
+        "name": "set index-string to idx",
+        "xml": "<set>\n<parameter name='tmp.gun.index-string' value='`$tmp.gun.idx`' />\n",
+        "comments": "",
+        "x": 3397.4603118896484,
+        "y": 1717.0953159332275,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "6f52ffca.5f968",
+        "type": "set",
+        "name": "set index-string to '000' + idx",
+        "xml": "<set>\n<parameter name='tmp.gun.index-string' value=\"`'' + '000' + $tmp.gun.idx`\" />\n",
+        "comments": "",
+        "x": 2752.2221069335938,
+        "y": 1535.142939567566,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "532853bc.fe84cc",
+        "type": "switchNode",
+        "name": "switch idx < 100",
+        "xml": "<switch test='`$tmp.gun.idx &lt; 100`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2726.650703430176,
+        "y": 1660.9049066816058,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "26118820.193aa8",
+                "e9a76d39.5370a"
+            ]
+        ]
+    },
+    {
+        "id": "26118820.193aa8",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2883.650680541992,
+        "y": 1616.2382845197405,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "1a8e79c7.61ce76"
+            ]
+        ]
+    },
+    {
+        "id": "e9a76d39.5370a",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2883.6506385803223,
+        "y": 1696.5716203962054,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "1afc6185.a5540e"
+            ]
+        ]
+    },
+    {
+        "id": "909034be.bcdcb8",
+        "type": "comment",
+        "name": "Change History",
+        "info": "iTrack 10767\n- insert new column (index, prefix, info)\niTrack 11252\n- use tmp.gun.index-string as opposed to tmp.gun.idx as prefix for GENERIC_RESOURCE_NAME insert",
+        "comments": "",
+        "x": 463.65077209472656,
+        "y": 401.4285840988159,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "895c17e1.4d8998",
+        "type": "comment",
+        "name": "iTrack 10767",
+        "info": "",
+        "comments": "",
+        "x": 1766.507999420166,
+        "y": 3105.714337348938,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "a16f0f71.a4d2c",
+        "type": "set",
+        "name": "set tmp.gun.transient",
+        "xml": "<set>\n<parameter name='tmp.gun.transient' value='TRANSIENT' />\n",
+        "comments": "",
+        "x": 1112.2221374511719,
+        "y": 2779.999990940094,
+        "z": "f2af2445.16fe78",
+        "wires": []
+    },
+    {
+        "id": "9f71976e.e5c5f8",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 720.8888549804688,
+        "y": 26.66666889190674,
+        "z": "f2af2445.16fe78",
+        "wires": [
+            [
+                "4eedc095.04b8b"
+            ]
+        ]
+    }
+]

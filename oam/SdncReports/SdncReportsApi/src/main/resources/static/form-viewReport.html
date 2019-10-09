@@ -1,0 +1,129 @@
+<!-- /*
+   * ============LICENSE_START=======================================================
+   * ONAP : SDNC-FEATURES
+   * ================================================================================
+   * Copyright 2018 TechMahindra
+   *=================================================================================
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *     http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   * ============LICENSE_END=========================================================
+   */
+    -->
+<div class="ReportMain" style="height:auto ;">  
+   <div class="heading"><img src="images/search.png" width=30 height="30" style="margin-left:5px;">&nbsp;&nbsp;Search For Historical Test Reports</div>
+   <form name="myForm">
+      <div class="row">
+         <div role="alert" style="margin-left:20px;margin-bottom:5px;">
+            <button class="btn btn-danger ReportNotification" ng-show="showError"><img src="images/error.png" width=25 height="25" class="ReportImgIcon">{{errorMessage}}</button>
+            <button class="btn btn-success ReportNotification" ng-show="showSuccess"><img src="images/success.png" width=30 height="30" class="ReportImgIcon">{{successMessage}}</button>
+            <button class="btn btn-warning ReportNotification" ng-show="showWarning"><img src="images/waning.png" width=35 height="25" class="ReportImgIcon">{{warningMessage}}</button>
+         </div>
+         <div class="column" style="background-color:#f2f2f2;width:40%;">
+            <label for="exampleInput" class="labeltext">Start Date</label>
+            <input type="date" id="exampleInput" name="input" ng-model="startdate.value"
+               placeholder="yyyy-MM-dd" style="margin-left:75px;width:170px;" required/>
+            <div role="alert">
+               <span class="error" ng-show="myForm.input.$error.required">
+               Required!</span>
+               <span class="error" ng-show="myForm.input.$error.date">
+               Not a valid date!</span>
+            </div>
+         </div>
+         <div class="column" style="background-color:#f2f2f2;margin-left:0px;width:50%;">
+            <label for="exampleEndInput" class="labeltext">End Date</label>
+            <input type="date" id="exampleEndInput" name="enddate" ng-model="enddate.value"
+               placeholder="yyyy-MM-dd" style="width:170px;" required/>
+            <div role="alert">
+               <span class="error" ng-show="myForm.input.$error.required">
+               Required!</span>
+               <span class="error" ng-show="myForm.input.$error.date">
+               Not a valid date!</span>
+            </div>
+         </div>
+      </div>
+      <div class="row">
+         <div class="column" style="background-color:#f2f2f2;width:90%;">
+            <label class="labeltext">Specify Device IP</label>
+            <input type="text" ng-model="deviceIP" name="text" style="margin-left:25px;width:170px;" required></input>
+            <div role="alert">
+               <span class="error" ng-show="myForm.text.$error.required">
+               Required!</span>
+               <span class="error" ng-show="myForm.text.$error.date">
+               Not a valid date!</span>
+            </div>
+         </div>
+      </div>
+      <div class="row">
+         <input type="submit" id="btnSubmit" ng-click="getReports(deviceIP,startdate.value,enddate.value)" style="width:120px;"></input>
+      </div>
+       <table class="tableDisplay" ng-show="ShowResult" id="tableToExport">
+      <tr class="first_row">
+         <th>SNo.
+         </th>
+         <th colspan="2" style="text-align:center;">TestName
+         </th>
+         <th>DeviceIP
+         </th>
+         <th>Timestamp
+         </th>
+         <th>Status
+         </th>
+         <th style="width:20%;">Statistics (%Loss)</th>
+         <th style="width:20%;">Average Time (ms)</th>
+         <th colspan="2" style="text-align:center;">Result
+         </th>
+      </tr>
+      <tr dir-paginate="test in objTestModel | itemsPerPage: 4">
+         <td>{{$index+1}}
+         </td>
+         <td><img src="{{(test.testname=='Network Layer') ? 'images/images.png': 'images/protocol.png'}}" width=40 height=30 ></img></td>
+         <td>{{test.testname}}
+         </td>
+         <td>{{test.deviceIP}}
+         </td>
+         <td>{{test.timeStamp}}
+         </td>
+         <td>{{test.executionDetails.status | uppercase}}
+         </td>
+          <td>{{test.executionDetails.statistics}}
+         </td>
+         </td>
+          <td>{{test.executionDetails.avgTime}}
+         </td>
+         <td>{{test.result}}</td>
+         <td><img src="{{(test.result=='pass'||'reachable') ? 'images/success.png': 'images/FailImage.png'}}" width=30 height=25></img>       
+      </tr>
+   </table>
+   </form>
+     
+   <div class="row">
+      <div class="column">
+         <dir-pagination-controls ng-show="pagination"
+            max-size="5"
+            direction-links="true"
+            boundary-links="true" >
+         </dir-pagination-controls>
+      </div>
+      <div class="column" style="margin-top:10px;" ng-show="ShowResult"> 
+         <span class='arrowRed'>&#8594;</span>
+         <label class="labeltext">UnReachable</label>&nbsp;&nbsp;
+         <span class='arrowGreen'>&#8594;</span>
+         <label class="labeltext">Reachable</label>
+      </div>
+   </div>
+   <div class="row">          
+      <button type="button" ng-csv="objTestModel" class="btndownload" ng-show="ShowResult" filename="fileName.csv" csv-column-order="csvOrder" csv-header="['TestName','DeviceIP','TimeStamp','Status','Statistics','AvgTime','Result']">Download</button>
+      <img src="images/downloadImage.png" width=30 height="30" ng-show="ShowResult" style="margin-left:5px;">
+   </div>
+</div>
+</body>
+</html>

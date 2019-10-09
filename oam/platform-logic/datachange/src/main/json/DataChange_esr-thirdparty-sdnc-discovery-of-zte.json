@@ -1,0 +1,1316 @@
+[
+    {
+        "id": "5f902aaa.7aa9a4",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 96,
+        "y": 111,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "a24e36d1.cffe88"
+            ]
+        ]
+    },
+    {
+        "id": "a24e36d1.cffe88",
+        "type": "service-logic",
+        "name": "DataChange ${project.version}",
+        "module": "DataChange",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='DataChange' version='${project.version}'>",
+        "outputs": 1,
+        "x": 200,
+        "y": 200,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "62181046.00897"
+            ]
+        ]
+    },
+    {
+        "id": "62181046.00897",
+        "type": "method",
+        "name": "method esr-thirdparty-sdnc-discovery-of-zte",
+        "xml": "<method rpc='esr-thirdparty-sdnc-discovery-of-zte' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 268,
+        "y": 298,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "bc55b20f.579c9"
+            ]
+        ]
+    },
+    {
+        "id": "bc55b20f.579c9",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 192,
+        "y": 405,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "f7cce3b7.da11f"
+            ]
+        ]
+    },
+    {
+        "id": "f7cce3b7.da11f",
+        "type": "switchNode",
+        "name": "switch aai-event-trigger",
+        "xml": "<switch test=\"`$data-change-notification-input.aai-event-trigger`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 394,
+        "y": 405,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "feebd6bc.652fa8",
+                "274f1a37.9e7186"
+            ]
+        ]
+    },
+    {
+        "id": "feebd6bc.652fa8",
+        "type": "outcome",
+        "name": "update",
+        "xml": "<outcome value='Update'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 622,
+        "y": 360,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "3a6c0212.670f4e"
+            ]
+        ]
+    },
+    {
+        "id": "274f1a37.9e7186",
+        "type": "outcome",
+        "name": "delete",
+        "xml": "<outcome value='delete'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 620,
+        "y": 528,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "9093c48f.404368"
+            ]
+        ]
+    },
+    {
+        "id": "9093c48f.404368",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 795,
+        "y": 528,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3a6c0212.670f4e",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 774,
+        "y": 360,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "8c1f6548.e5e568"
+            ]
+        ]
+    },
+    {
+        "id": "8c1f6548.e5e568",
+        "type": "switchNode",
+        "name": "switch type",
+        "xml": "<switch test=\"`$zte.prop.sdncRestApi.type`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 943,
+        "y": 360,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "74951572.ebdc6c",
+                "eaaeda12.faa678"
+            ]
+        ]
+    },
+    {
+        "id": "74951572.ebdc6c",
+        "type": "outcome",
+        "name": "SOTN",
+        "xml": "<outcome value='SOTN'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1119,
+        "y": 295,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "c610ea22.d44298"
+            ]
+        ]
+    },
+    {
+        "id": "eaaeda12.faa678",
+        "type": "outcome",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1113,
+        "y": 417,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "c3125ba4.7ffdb8"
+            ]
+        ]
+    },
+    {
+        "id": "c3125ba4.7ffdb8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='ack-final' value='Y'/>\n<parameter name='error-code' value=\"500\" />\n<parameter name='error-message' value=\"`'Unsupported type = ' + $prop.sdncRestApi.type`\" />\n",
+        "comments": "",
+        "x": 1305,
+        "y": 417,
+        "z": "540d3add.6d0b44",
+        "wires": []
+    },
+    {
+        "id": "c610ea22.d44298",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1305,
+        "y": 295,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "93e42ee3.ef7c9",
+                "14a63f8c.fb75e",
+                "16563079.8d5e2"
+            ]
+        ]
+    },
+    {
+        "id": "93e42ee3.ef7c9",
+        "type": "execute",
+        "name": "execute RestApiCallNode Get ZTE Topology",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n<parameter name=\"templateFileName\" value=\"`$prop.restapi.templateDir + '/getzteodutopotemplate.json'`\" />\n<parameter name=\"restapiUrl\" value=\"`$zte.prop.sdncRestApi.thirdpartySdnc.url + '/restconf/operations/ZTE-API-Topology:get-topology-details'`\" />\n<parameter name=\"restapiUser\" value=\"`$zte.prop.sdncRestApi.thirdpartySdnc.user`\" />\n<parameter name=\"restapiPassword\" value=\"`$zte.prop.sdncRestApi.thirdpartySdnc.password`\" />\n<parameter name=\"format\" value=\"json\"/>\n<parameter name=\"httpMethod\" value=\"POST\"/>\n<parameter name=\"responsePrefix\" value=\"ztetopology\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1625,
+        "y": 203,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "7009dab5.0199f4",
+                "e43c55f6.204948"
+            ]
+        ]
+    },
+    {
+        "id": "7009dab5.0199f4",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1907,
+        "y": 148,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "2945e727.0d1da8"
+            ]
+        ]
+    },
+    {
+        "id": "e43c55f6.204948",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1905,
+        "y": 248,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "775e4e34.10584"
+            ]
+        ]
+    },
+    {
+        "id": "2945e727.0d1da8",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 2106,
+        "y": 147,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "775e4e34.10584",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='ack-final' value='Y'/>\n<parameter name=\"error-code\" value=\"500\" />\n<parameter name=\"error-message\" value=\"Error executing Get odutopo rest api\" />\n",
+        "comments": "",
+        "x": 2101,
+        "y": 248,
+        "z": "540d3add.6d0b44",
+        "wires": []
+    },
+    {
+        "id": "14a63f8c.fb75e",
+        "type": "for",
+        "name": "for each topology",
+        "xml": "<for index='nidx' start='0' end='`$ztetopology.output.topology.node-ref-id_length`' >",
+        "comments": "",
+        "outputs": 1,
+        "x": 1533,
+        "y": 336,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "5cd977af.6d2188"
+            ]
+        ]
+    },
+    {
+        "id": "4b8d1cd8.c32504",
+        "type": "update",
+        "name": "save network-resource",
+        "xml": "<save plugin='org.onap.ccsdk.sli.adaptors.aai.AAIService' resource='network-resource'  \n     key='network-resource.network-id = $prop.zte.network-id' >\n<parameter name='network-id' value='`$prop.zte.network-id`' />\n<parameter name='client-id' value='`$prop.zte.client-id`' />\n<parameter name='te-topo-id' value='`$prop.zte.topo-id`' />\n<parameter name='provider-id' value='`$prop.zte.provider-id`' />",
+        "comments": "",
+        "outputs": 1,
+        "x": 1637,
+        "y": 664,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4a607014.a17fa",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1362,
+        "y": 562,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5d5e9d41.c00664",
+        "type": "execute",
+        "name": "execute RestApiCallNode Get ZTE oduTopology",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n<parameter name=\"templateFileName\" value=\"`$prop.restapi.templateDir + '/getzteodutoponodetemplate.json'`\" />\n<parameter name=\"restapiUrl\" value=\"`$zte.prop.sdncRestApi.thirdpartySdnc.url + '/restconf/operations/ZTE-API-Topology:get-topology-details'`\" />\n<parameter name=\"restapiUser\" value=\"`$zte.prop.sdncRestApi.thirdpartySdnc.user`\" />\n<parameter name=\"restapiPassword\" value=\"`$zte.prop.sdncRestApi.thirdpartySdnc.password`\" />\n<parameter name=\"format\" value=\"json\"/>\n<parameter name=\"httpMethod\" value=\"POST\"/>\n<parameter name=\"responsePrefix\" value=\"ztetopologynode\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2023,
+        "y": 414,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "ddc8baae.4921b8",
+                "66e109c3.50ba98"
+            ]
+        ]
+    },
+    {
+        "id": "66e109c3.50ba98",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2321,
+        "y": 495,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "6aaa8b79.149894"
+            ]
+        ]
+    },
+    {
+        "id": "ddc8baae.4921b8",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2319,
+        "y": 414,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "72846c1a.17d914"
+            ]
+        ]
+    },
+    {
+        "id": "72846c1a.17d914",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='ack-final' value='Y'/>\n<parameter name=\"error-code\" value=\"500\" />\n<parameter name=\"error-message\" value=\"Error executing Get odutopo node rest api\" />\n",
+        "comments": "",
+        "x": 2510,
+        "y": 414,
+        "z": "540d3add.6d0b44",
+        "wires": []
+    },
+    {
+        "id": "48652b97.2fedc4",
+        "type": "for",
+        "name": "for each oduTopology node",
+        "xml": "<for index='pidx' start='0' end='`$ztetopologynode.output.topology.node-ref-id_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1649,
+        "y": 749,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "2d5905b0.3495ea"
+            ]
+        ]
+    },
+    {
+        "id": "453fd3.8bd4502c",
+        "type": "update",
+        "name": "save pnf",
+        "xml": "<save plugin='org.onap.ccsdk.sli.adaptors.aai.AAIService' resource='pnf' \n      key='pnf.pnf-name = $ztetopologynodedetails.output.node.uuid' >\n<parameter name='pnf-name' value='`$ztetopologynodedetails.output.node.uuid`' />\n<parameter name='pnf-id' value='`$ztetopologynodedetails.output.node.uuid`' />\n<parameter name='operational-status' value=\"up\" />\n<parameter name='admin-status' value=\"up\" />\n<parameter name='in-maint' value='true' />\n\n\n\n\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2738,
+        "y": 818,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c9e69fe4.50fcd",
+        "type": "execute",
+        "name": "execute RestApiCallNode Get ZTE oduTopology Node details",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n<parameter name=\"templateFileName\" value=\"`$prop.restapi.templateDir + '/getzteodutoponodedetailstemplate.json'`\" />\n<parameter name=\"restapiUrl\" value=\"`$zte.prop.sdncRestApi.thirdpartySdnc.url + '/restconf/operations/ZTE-API-Topology:get-node-details'`\" />\n<parameter name=\"restapiUser\" value=\"`$zte.prop.sdncRestApi.thirdpartySdnc.user`\" />\n<parameter name=\"restapiPassword\" value=\"`$zte.prop.sdncRestApi.thirdpartySdnc.password`\" />\n<parameter name=\"format\" value=\"json\"/>\n<parameter name=\"httpMethod\" value=\"POST\"/>\n<parameter name=\"responsePrefix\" value=\"ztetopologynodedetails\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2251,
+        "y": 748,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "e85faec3.821",
+                "68392c6a.4e1674"
+            ]
+        ]
+    },
+    {
+        "id": "e85faec3.821",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1711,
+        "y": 833,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "854a7fc2.bfea9"
+            ]
+        ]
+    },
+    {
+        "id": "854a7fc2.bfea9",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='ack-final' value='Y'/>\n<parameter name=\"error-code\" value=\"500\" />\n<parameter name=\"error-message\" value=\"Error executing Get odutopo node details rest api\" />\n",
+        "comments": "",
+        "x": 1861,
+        "y": 833,
+        "z": "540d3add.6d0b44",
+        "wires": []
+    },
+    {
+        "id": "68392c6a.4e1674",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1709,
+        "y": 938,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "109fc05a.9da5c"
+            ]
+        ]
+    },
+    {
+        "id": "109fc05a.9da5c",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1892,
+        "y": 938,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "588ee473.9cb17c",
+                "6075f692.b2caa8",
+                "22a310d5.11293",
+                "7e2199ff.99b1c8"
+            ]
+        ]
+    },
+    {
+        "id": "6075f692.b2caa8",
+        "type": "save",
+        "name": "save pnf relationship to network-resource in AAI",
+        "xml": "<save plugin='org.onap.ccsdk.sli.adaptors.aai.AAIService' resource='pnf:relationship-list' \n      key='pnf.pnf-name = $ztetopologynodedetails.output.node.uuid' force=\"true\" pfx=\"tmp.AnAI-data\">\n<parameter name=\"relationship-list.relationship[0].related-to\" value=\"network-resource\" />\n<parameter name=\"relationship-list.relationship[0].related-link\" value=\"`'/network/network-resources/network-resource/' + $prop.zte.network-id`\" />\n<parameter name=\"relationship-list.relationship[0].relationship-data[0].relationship-key\" value=\"network-resource.network-id\" />\n<parameter name=\"relationship-list.relationship[0].relationship-data[0].relationship-value\" value=\"`$prop.zte.network-id`\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 2187,
+        "y": 1027,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "22a310d5.11293",
+        "type": "save",
+        "name": "save pnf relation with esr-thirdparty-sdnc",
+        "xml": "<save plugin='org.onap.ccsdk.sli.adaptors.aai.AAIService' resource='esr-thirdparty-sdnc:relationship-list' \n      key='esr-thirdparty-sdnc.thirdparty-sdnc-id = $zte.prop.sdncRestApi.thirdpartySdnc.id' \n      force=\"true\" pfx=\"tmp.AnAI-data\">\n<parameter name=\"relationship-list.relationship[0].related-to\" value=\"pnf\" />\n<parameter name=\"relationship-list.relationship[0].related-link\" value=\"`'/network/pnfs/pnf/' + $ztetopologynodedetails.output.node.uuid`\" />\n<parameter name=\"relationship-list.relationship[0].relationship-data[0].relationship-key\" value=\"pnf.pnf-name\" />\n<parameter name=\"relationship-list.relationship[0].relationship-data[0].relationship-value\" value=\"`$ztetopologynodedetails.output.node.uuid`\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2161,
+        "y": 1094,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f00776db.4dbaf8",
+        "type": "execute",
+        "name": "execute RestApiCallNode Get ZTE oduTopology Node edge point details",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n<parameter name=\"templateFileName\" value=\"`$prop.restapi.templateDir + '/getzteodutoponodenepdetailstemplate.json'`\" />\n<parameter name=\"restapiUrl\" value=\"`$zte.prop.sdncRestApi.thirdpartySdnc.url + '/restconf/operations/ZTE-API-Topology:get-node-edge-point-details'`\" />\n<parameter name=\"restapiUser\" value=\"`$zte.prop.sdncRestApi.thirdpartySdnc.user`\" />\n<parameter name=\"restapiPassword\" value=\"`$zte.prop.sdncRestApi.thirdpartySdnc.password`\" />\n<parameter name=\"format\" value=\"json\"/>\n<parameter name=\"httpMethod\" value=\"POST\"/>\n<parameter name=\"responsePrefix\" value=\"ztetopologynodenepdetails\"/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2792,
+        "y": 1275,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "345328c1.c40d08",
+                "72be01d7.1258c"
+            ]
+        ]
+    },
+    {
+        "id": "6e627eca.00e4a",
+        "type": "for",
+        "name": "for each oduTopology node nep name",
+        "xml": "<for index='tidx' start='0' end='`$ztetopologynodenepdetails.output.node-edge-point.name_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2663,
+        "y": 1510,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "7cffba09.0e7a94"
+            ]
+        ]
+    },
+    {
+        "id": "7cffba09.0e7a94",
+        "type": "execute",
+        "name": "contains client",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' >\n    <parameter name=\"source\" value=\"`$ztetopologynodenepdetails.node-edge-point.name[tidx].value`\"/>\n    <parameter name=\"target\" value=\"client\"/>\n    ",
+        "comments": "",
+        "outputs": 1,
+        "x": 2976,
+        "y": 1510,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "36d5c2cc.d55c4e",
+                "c6db88ea.32d128"
+            ]
+        ]
+    },
+    {
+        "id": "72be01d7.1258c",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2386,
+        "y": 1510,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "6e627eca.00e4a"
+            ]
+        ]
+    },
+    {
+        "id": "345328c1.c40d08",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2386,
+        "y": 1419,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "fc122084.5176a"
+            ]
+        ]
+    },
+    {
+        "id": "fc122084.5176a",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='ack-final' value='Y'/>\n<parameter name=\"error-code\" value=\"500\" />\n<parameter name=\"error-message\" value=\"Error executing Get odutopo node edge point details rest api\" />\n",
+        "comments": "",
+        "x": 2739,
+        "y": 1417,
+        "z": "540d3add.6d0b44",
+        "wires": []
+    },
+    {
+        "id": "2aeff331.c3498c",
+        "type": "set",
+        "name": "set zte unique-ltpId",
+        "xml": "<set>\n<parameter name='zte-unique-ltpId' value=\"`'nodeId-' + $ztetopologynodedetails.output.node.uuid + '-ltpId-' + $ztetopologynodenepdetails.output.node-edge-point.uuid`\" />\n",
+        "comments": "",
+        "x": 3687,
+        "y": 1510,
+        "z": "540d3add.6d0b44",
+        "wires": []
+    },
+    {
+        "id": "62e34399.97db9c",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 3473,
+        "y": 1510,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "2aeff331.c3498c",
+                "873e3131.8335a",
+                "f75f21b7.efa77"
+            ]
+        ]
+    },
+    {
+        "id": "e8680f6b.26d67",
+        "type": "update",
+        "name": "save p-interface",
+        "xml": "<save plugin='org.onap.ccsdk.sli.adaptors.aai.AAIService' resource='p-interface' \n      key='pnf.pnf-name = $ztetopologynodedetails.output.node.uuid\n      AND p-interface.interface-name = $zte-unique-ltpId' >      \n<parameter name='interface-name' value='`$zte-unique-ltpId`' />\n<parameter name='network-ref' value=\"`'providerId/' + $prop.zte.provider-id + '/topologyId/' + $prop.zte.topo-id + '/clientId/' + $prop.zte.client-id`\" />\n<parameter name='transparent' value=\"true\" />\n<parameter name='speed-value' value='`$zte-bandwidth`' />\n<parameter name='operational-status' value=\"up\" />\n<parameter name='in-maint' value=\"true\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 4112,
+        "y": 1702,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "eed25adb.58f488",
+                "67b16207.7b846c"
+            ]
+        ]
+    },
+    {
+        "id": "209b7c79.7331c4",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 3469,
+        "y": 1436,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "eed25adb.58f488",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 4300,
+        "y": 1636,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "e4358a9c.200a58"
+            ]
+        ]
+    },
+    {
+        "id": "67b16207.7b846c",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 4300,
+        "y": 1701,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "6efad235.03a13c"
+            ]
+        ]
+    },
+    {
+        "id": "e4358a9c.200a58",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 4489,
+        "y": 1635,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "588ee473.9cb17c",
+        "type": "switchNode",
+        "name": "switch",
+        "xml": "<switch test=\"`$ztetopologynodedetails.output.node.global-state-pac.operational-state == 'ENABLED'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2062,
+        "y": 937,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "e2329ee1.9a7b6",
+                "eaec1cbd.8f432"
+            ]
+        ]
+    },
+    {
+        "id": "e2329ee1.9a7b6",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2263,
+        "y": 886,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "67b87346.c6a5bc"
+            ]
+        ]
+    },
+    {
+        "id": "eaec1cbd.8f432",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2262,
+        "y": 957,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "a037a75a.ae6708"
+            ]
+        ]
+    },
+    {
+        "id": "67b87346.c6a5bc",
+        "type": "switchNode",
+        "name": "switch",
+        "xml": "<switch test=\"`$ztetopologynodedetails.output.node.global-state-pac.administrative-state == 'LOCKED'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2419,
+        "y": 886,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "ba21f30c.c4435",
+                "ab98b4e0.12a4f8"
+            ]
+        ]
+    },
+    {
+        "id": "a037a75a.ae6708",
+        "type": "switchNode",
+        "name": "switch",
+        "xml": "<switch test=\"`$ztetopologynodedetails.output.node.global-state-pac.administrative-state == 'LOCKED'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2420,
+        "y": 957,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "90096244.386ff",
+                "b1e15aa1.abad48"
+            ]
+        ]
+    },
+    {
+        "id": "ba21f30c.c4435",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2582,
+        "y": 818,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "453fd3.8bd4502c"
+            ]
+        ]
+    },
+    {
+        "id": "ab98b4e0.12a4f8",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2585,
+        "y": 886,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "1c144406.5ea9fc"
+            ]
+        ]
+    },
+    {
+        "id": "90096244.386ff",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2586,
+        "y": 957,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "65322994.d1f668"
+            ]
+        ]
+    },
+    {
+        "id": "b1e15aa1.abad48",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2587,
+        "y": 1026,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "97879765.7b8ac8"
+            ]
+        ]
+    },
+    {
+        "id": "1c144406.5ea9fc",
+        "type": "update",
+        "name": "save pnf",
+        "xml": "<save plugin='org.onap.ccsdk.sli.adaptors.aai.AAIService' resource='pnf' \n      key='pnf.pnf-name = $ztetopologynodedetails.output.node.uuid' >\n<parameter name='pnf-name' value='`$ztetopologynodedetails.output.node.uuid`' />\n<parameter name='pnf-id' value='`$ztetopologynodedetails.output.node.uuid`' />\n<parameter name='operational-status' value=\"up\" />\n<parameter name='admin-status' value=\"down\" />\n<parameter name='in-maint' value='true' />\n\n\n\n\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2738,
+        "y": 886,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "65322994.d1f668",
+        "type": "update",
+        "name": "save pnf",
+        "xml": "<save plugin='org.onap.ccsdk.sli.adaptors.aai.AAIService' resource='pnf' \n      key='pnf.pnf-name = $ztetopologynodedetails.output.node.uuid' >\n<parameter name='pnf-name' value='`$ztetopologynodedetails.output.node.uuid`' />\n<parameter name='pnf-id' value='`$ztetopologynodedetails.output.node.uuid`' />\n<parameter name='operational-status' value=\"down\" />\n<parameter name='admin-status' value=\"up\" />\n<parameter name='in-maint' value='true' />\n\n\n\n\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2735,
+        "y": 957,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "97879765.7b8ac8",
+        "type": "update",
+        "name": "save pnf",
+        "xml": "<save plugin='org.onap.ccsdk.sli.adaptors.aai.AAIService' resource='pnf' \n      key='pnf.pnf-name = $ztetopologynodedetails.output.node.uuid' >\n<parameter name='pnf-name' value='`$ztetopologynodedetails.output.node.uuid`' />\n<parameter name='pnf-id' value='`$ztetopologynodedetails.output.node.uuid`' />\n<parameter name='operational-status' value=\"down\" />\n<parameter name='admin-status' value=\"down\" />\n<parameter name='in-maint' value='true' />\n\n\n\n\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2736,
+        "y": 1026,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "873e3131.8335a",
+        "type": "switchNode",
+        "name": "test operational-state",
+        "xml": "<switch test=\"`$ztetopologynodedetails.output.node.global-state-pac.operational-state == 'ENABLED'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3687,
+        "y": 1699,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "dad7304e.123b4",
+                "cce973ee.e8539"
+            ]
+        ]
+    },
+    {
+        "id": "dad7304e.123b4",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3903,
+        "y": 1702,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "e8680f6b.26d67"
+            ]
+        ]
+    },
+    {
+        "id": "cce973ee.e8539",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3906,
+        "y": 1816,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "a9bffbab.0baeb8"
+            ]
+        ]
+    },
+    {
+        "id": "a9bffbab.0baeb8",
+        "type": "update",
+        "name": "save p-interface",
+        "xml": "<save plugin='org.onap.ccsdk.sli.adaptors.aai.AAIService' resource='p-interface' \n      key='pnf.pnf-name = $ztetopologynodedetails.output.node.uuid\n      AND p-interface.interface-name = $zte-unique-ltpId' >      \n<parameter name='interface-name' value='`$zte-unique-ltpId`' />\n<parameter name='network-ref' value=\"`'providerId/' + $prop.zte.provider-id + '/topologyId/' + $prop.zte.topo-id + '/clientId/' + $prop.zte.client-id`\" />\n<parameter name='transparent' value=\"true\" />\n<parameter name='speed-value' value='`$zte-bandwidth`' />\n<parameter name='operational-status' value=\"down\" />\n<parameter name='in-maint' value=\"true\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 4113,
+        "y": 1816,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "a6acf286.7190a",
+                "655a7457.79319c"
+            ]
+        ]
+    },
+    {
+        "id": "a6acf286.7190a",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 4301,
+        "y": 1816,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "f73009af.d52ca8"
+            ]
+        ]
+    },
+    {
+        "id": "655a7457.79319c",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 4298,
+        "y": 1877,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "367baa79.63cc46"
+            ]
+        ]
+    },
+    {
+        "id": "f73009af.d52ca8",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 4487,
+        "y": 1816,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6efad235.03a13c",
+        "type": "update",
+        "name": "save p-interface",
+        "xml": "<save plugin='org.onap.ccsdk.sli.adaptors.aai.AAIService' resource='p-interface' \n      key='pnf.pnf-name = $ztetopologynodedetails.output.node.uuid\n      AND p-interface.interface-name = $zte-unique-ltpId' >      \n<parameter name='interface-name' value='`$zte-unique-ltpId`' />\n<parameter name='network-ref' value=\"`'providerId/' + $prop.zte.provider-id + '/topologyId/' + $prop.zte.topo-id + '/clientId/' + $prop.zte.client-id`\" />\n<parameter name='transparent' value=\"true\" />\n<parameter name='speed-value' value='`$zte-bandwidth`' />\n<parameter name='operational-status' value=\"up\" />\n<parameter name='in-maint' value=\"true\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 4520,
+        "y": 1701,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "367baa79.63cc46",
+        "type": "update",
+        "name": "save p-interface",
+        "xml": "<save plugin='org.onap.ccsdk.sli.adaptors.aai.AAIService' resource='p-interface' \n      key='pnf.pnf-name = $ztetopologynodedetails.output.node.uuid\n      AND p-interface.interface-name = $zte-unique-ltpId' >      \n<parameter name='interface-name' value='`$zte-unique-ltpId`' />\n<parameter name='network-ref' value=\"`'providerId/' + $prop.zte.provider-id + '/topologyId/' + $prop.zte.topo-id + '/clientId/' + $prop.zte.client-id`\" />\n<parameter name='transparent' value=\"true\" />\n<parameter name='speed-value' value='`$zte-bandwidth`' />\n<parameter name='operational-status' value=\"up\" />\n<parameter name='in-maint' value=\"true\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 4514,
+        "y": 1877,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "bcbc6e2c.3314",
+        "type": "set",
+        "name": "set params",
+        "xml": "<set>\n<parameter name='prop.zte.network-id' value=\"zteNetwork\" />\n<parameter name='prop.zte.client-id' value=\"zteClient1\" />\n<parameter name='prop.zte.topo-id' value=\"zteTopo1\" />\n<parameter name='prop.zte.provider-id' value=\"zteProvider1\" />\n",
+        "comments": "",
+        "x": 1604,
+        "y": 597,
+        "z": "540d3add.6d0b44",
+        "wires": []
+    },
+    {
+        "id": "2d5905b0.3495ea",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1871,
+        "y": 749,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "c9e69fe4.50fcd",
+                "69930609.325f68"
+            ]
+        ]
+    },
+    {
+        "id": "69930609.325f68",
+        "type": "set",
+        "name": "set odutopo node name",
+        "xml": "<set>\n<parameter name='prop.zte.odutopo.node.name' value='`$ztetopologynode.output.topology.node-ref-id[$pidx]`' />\n",
+        "comments": "",
+        "x": 2135,
+        "y": 674,
+        "z": "540d3add.6d0b44",
+        "wires": []
+    },
+    {
+        "id": "e65cd4cb.61e0c8",
+        "type": "set",
+        "name": "set odutopo node nep uuid",
+        "xml": "<set>\n<parameter name='prop.zte.odutopo.node.nep.uuid' value='`$ztetopologynodedetails.output.node.node-edge-point-id[$ridx]`' />\n",
+        "comments": "",
+        "x": 2652,
+        "y": 1158,
+        "z": "540d3add.6d0b44",
+        "wires": []
+    },
+    {
+        "id": "7e2199ff.99b1c8",
+        "type": "for",
+        "name": "for each oduTopology node nep",
+        "xml": "<for index='ridx' start='0' end='`$ztetopologynodedetails.output.node.node-edge-point-id_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2132,
+        "y": 1159,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "cf240b59.497fb8"
+            ]
+        ]
+    },
+    {
+        "id": "cf240b59.497fb8",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2397,
+        "y": 1158,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "e65cd4cb.61e0c8",
+                "f00776db.4dbaf8"
+            ]
+        ]
+    },
+    {
+        "id": "f75f21b7.efa77",
+        "type": "set",
+        "name": "set zte bandwidth",
+        "xml": "<set>\n<parameter name='zte-bandwidth' value='`1250000000 * $ztetopologynodenepdetails.output.node-edge-point.lp[0].odu-nep-pac.odu-capacity`' />\n",
+        "comments": "",
+        "x": 3679,
+        "y": 1598,
+        "z": "540d3add.6d0b44",
+        "wires": []
+    },
+    {
+        "id": "16563079.8d5e2",
+        "type": "execute",
+        "name": "execute Properties",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >\n    <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />\n    <parameter name='contextPrefix' value='prop' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1551,
+        "y": 114,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ca881019.9ce88",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1353,
+        "y": 664,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "bcbc6e2c.3314",
+                "4b8d1cd8.c32504",
+                "48652b97.2fedc4"
+            ]
+        ]
+    },
+    {
+        "id": "6aaa8b79.149894",
+        "type": "switchNode",
+        "name": "switch",
+        "xml": "<switch test=\"`$ztetopologynode.output.topology.layer-protocol-name[0] == 'ODU'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1059,
+        "y": 562,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "3cbcd27b.e8a5ce",
+                "e7e2532e.34e23"
+            ]
+        ]
+    },
+    {
+        "id": "e7e2532e.34e23",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1204,
+        "y": 664,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "ca881019.9ce88"
+            ]
+        ]
+    },
+    {
+        "id": "3cbcd27b.e8a5ce",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1206,
+        "y": 562,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "4a607014.a17fa"
+            ]
+        ]
+    },
+    {
+        "id": "9b66d171.8f74a",
+        "type": "set",
+        "name": "set topo name",
+        "xml": "<set>\n<parameter name='prop.zte.odutopo.name' value='`$ztetopology.output.topology.node-ref-id[$nidx]`' />\n",
+        "comments": "",
+        "x": 1916,
+        "y": 336,
+        "z": "540d3add.6d0b44",
+        "wires": []
+    },
+    {
+        "id": "5cd977af.6d2188",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1725,
+        "y": 336,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "9b66d171.8f74a",
+                "5d5e9d41.c00664"
+            ]
+        ]
+    },
+    {
+        "id": "36d5c2cc.d55c4e",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3216,
+        "y": 1510,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "62e34399.97db9c"
+            ]
+        ]
+    },
+    {
+        "id": "c6db88ea.32d128",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3210,
+        "y": 1437,
+        "z": "540d3add.6d0b44",
+        "wires": [
+            [
+                "209b7c79.7331c4"
+            ]
+        ]
+    }
+]

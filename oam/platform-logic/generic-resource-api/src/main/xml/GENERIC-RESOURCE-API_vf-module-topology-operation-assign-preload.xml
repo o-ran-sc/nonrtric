@@ -1,0 +1,559 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='vf-module-topology-operation-assign-preload' mode='sync'>
+        <block atomic="true">
+            <set>
+                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vf-modules.vf-module[$vf-module-index].vf-module-data.vf-module-information.from-preload' value='true' />
+            </set>
+            <set>
+                <parameter name='tmp.vf-module-topology.'
+  value='`$mdsal-preload.preload-list[0].preload-data.preload-vf-module-topology-information.vf-module-topology.`' />
+            </set>
+            <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT * from VF_MODULE_TO_VFC_MAPPING WHERE vf_module_customization_uuid = $vf-module-topology-operation-input.vf-module-information.onap-model-information.model-customization-uuid'
+  pfx='db.vf-module-to-vfc-mapping[]'>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="Error reading VF_MODULE_TO_VFC_MAPPING table" />
+                    </return>
+                </outcome>
+                <outcome value='not-found'>
+                    <set>
+                        <parameter name='db.vf-module-to-vfc-mapping_length' value='0' />
+                    </set>
+                </outcome>
+            </get-resource>
+            <for silentFailure='true' index='vm-type-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm_length`' >
+                <block atomic="true">
+                    <set>
+                        <parameter name='db-vm-type-index' value='-1' />
+                    </set>
+                    <for index='tmp-idx' start='0' end='`$db.vf-module-to-vfc-mapping_length`' >
+                        <switch test='`$db.vf-module-to-vfc-mapping[$tmp-idx].vm-type
+  == $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-type`'>
+                            <outcome value='true'>
+                                <block>
+                                    <set>
+                                        <parameter name='db-vm-type-index' value='`$tmp-idx`' />
+                                    </set>
+                                    <break/>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </for>
+                    <switch test='`$db-vm-type-index`'>
+                        <outcome value='-1'>
+                            <block atomic="true">
+                                <for silentFailure='true' index='vm-type-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm_length`' >
+                                    <for silentFailure='true' index='vnfc-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names_length`' >
+                                        <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-name`'>
+                                            <outcome value=''>
+                                                <block></block>
+                                            </outcome>
+                                            <outcome value='Other'>
+                                                <block atomic="true">
+                                                    <set>
+                                                        <parameter name='naming-policy-generate-name-input.naming-type' value='VNFC' />
+                                                        <parameter name='naming-policy-generate-name-input.context-id' value='`$vf-module-topology-operation-input.vf-module-information.vf-module-id`' />
+                                                        <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                                    </set>
+                                                    <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                                </block>
+                                            </outcome>
+                                        </switch>
+                                    </for>
+                                </for>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="`'Preload data contains vm-type ' + $tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-type + ' but VF_MODULE_TO_VFC_MAPPING table does not have this vm-type'`" />
+                                </return>
+                            </block>
+                        </outcome>
+                    </switch>
+                    <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT * from VFC_MODEL WHERE customization_uuid = $db.vf-module-to-vfc-mapping[$vm-type-index].vfc-customization-uuid'
+  pfx='db.vfc-model'>
+                        <outcome value='failure'>
+                            <block atomic="true">
+                                <for silentFailure='true' index='vm-type-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm_length`' >
+                                    <for silentFailure='true' index='vnfc-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names_length`' >
+                                        <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-name`'>
+                                            <outcome value=''>
+                                                <block></block>
+                                            </outcome>
+                                            <outcome value='Other'>
+                                                <block atomic="true">
+                                                    <set>
+                                                        <parameter name='naming-policy-generate-name-input.naming-type' value='VNFC' />
+                                                        <parameter name='naming-policy-generate-name-input.context-id' value='`$vf-module-topology-operation-input.vf-module-information.vf-module-id`' />
+                                                        <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                                    </set>
+                                                    <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                                </block>
+                                            </outcome>
+                                        </switch>
+                                    </for>
+                                </for>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="Error reading VFC_MODEL table" />
+                                </return>
+                            </block>
+                        </outcome>
+                        <outcome value='not-found'>
+                            <block atomic="true">
+                                <for silentFailure='true' index='vm-type-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm_length`' >
+                                    <for silentFailure='true' index='vnfc-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names_length`' >
+                                        <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-name`'>
+                                            <outcome value=''>
+                                                <block></block>
+                                            </outcome>
+                                            <outcome value='Other'>
+                                                <block atomic="true">
+                                                    <set>
+                                                        <parameter name='naming-policy-generate-name-input.naming-type' value='VNFC' />
+                                                        <parameter name='naming-policy-generate-name-input.context-id' value='`$vf-module-topology-operation-input.vf-module-information.vf-module-id`' />
+                                                        <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                                    </set>
+                                                    <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                                </block>
+                                            </outcome>
+                                        </switch>
+                                    </for>
+                                </for>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="`'No entries found in VFC_MODEL table for customization UUID ' + $db.vf-module-to-vfc-mapping[$db-vm-index].vfc_customization_uuid`" />
+                                </return>
+                            </block>
+                        </outcome>
+                    </get-resource>
+                    <set>
+                        <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].nfc-naming-code'
+  value='`$db.vfc-model.nfc-naming-code`' />
+                        <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].nfc-function'
+  value='`$db.vfc-model.nfc-function`' />
+                        <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].invariant-uuid'
+  value='`$db.vfc-model.invariant-uuid`' />
+                        <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].uuid'
+  value='`$db.vfc-model.uuid`' />
+                    </set>
+                    <set>
+                        <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names_length'
+  value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-count`' />
+                    </set>
+                    <switch test='`$db.vfc-model.naming-policy`'>
+                        <outcome value=''>
+                            <for index='vm-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-count`' >
+                                <set>
+                                    <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vm-index].vnfc-name'
+  value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vm-name[$vm-type-index]`' />
+                                </set>
+                            </for>
+                        </outcome>
+                        <outcome value='Other'>
+                            <for index='vm-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-count`' >
+                                <block atomic="true">
+                                    <set>
+                                        <parameter name='naming-policy-generate-name-input.policy-instance-name' value='`$db.vfc-model.naming-policy`' />
+                                        <parameter name='naming-policy-generate-name-input.naming-type' value='VNFC' />
+                                        <parameter name='naming-policy-generate-name-input.context-id' value='`$vf-module-topology-operation-input.vf-module-information.vf-module-id`' />
+                                        <parameter name='naming-policy-generate-name-input.query-parameter' value='`$db.vf-module-to-vfc-mapping[$vm-type-index].vf-module-customization-uuid`' />
+                                        <parameter name='naming-policy-generate-name-input.action' value='ASSIGN' />
+                                        <parameter name='naming-policy-generate-name-input.vnf-name' value='`$vf-module-topology-operation-input.vnf-information.vnf-id`' />
+                                        <parameter name='naming-policy-generate-name-input.vm-name' value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vm-name[$vm-index]`' />
+                                    </set>
+                                    <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' >
+                                        <outcome value='failure'>
+                                            <block atomic="true">
+                                                <for silentFailure='true' index='vm-type-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm_length`' >
+                                                    <for silentFailure='true' index='vnfc-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names_length`' >
+                                                        <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-name`'>
+                                                            <outcome value=''>
+                                                                <block></block>
+                                                            </outcome>
+                                                            <outcome value='Other'>
+                                                                <block atomic="true">
+                                                                    <set>
+                                                                        <parameter name='naming-policy-generate-name-input.naming-type' value='VNFC' />
+                                                                        <parameter name='naming-policy-generate-name-input.context-id' value='`$vf-module-topology-operation-input.vf-module-information.vf-module-id`' />
+                                                                        <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                                                    </set>
+                                                                    <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                                                </block>
+                                                            </outcome>
+                                                        </switch>
+                                                    </for>
+                                                </for>
+                                                <return status='failure'>
+                                                    <parameter name='ack-final' value='Y'/>
+                                                    <parameter name="error-code" value="500" />
+                                                    <parameter name="error-message" value="`'Unable to generate VNFC name: ' + $error-message`" />
+                                                </return>
+                                            </block>
+                                        </outcome>
+                                        <outcome value='success'>
+                                            <set>
+                                                <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vm-index].vnfc-name'
+  value='`$naming-policy-generate-name-output.vnfc-name`' />
+                                            </set>
+                                        </outcome>
+                                    </call>
+                                </block>
+                            </for>
+                        </outcome>
+                    </switch>
+                </block>
+            </for>
+            <for silentFailure='true' index='vm-type-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm_length`' >
+                <for silentFailure='true' index='vnfc-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names_length`' >
+                    <block>
+                        <set>
+                            <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data_length'
+  value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network_length`' />
+                        </set>
+                        <for silentFailure='true' index='vm-network-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network_length`' >
+                            <block>
+                                <set>
+                                    <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vm-network-index].vnfc-network-role'
+  value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].network-role`' />
+                                </set>
+                                <set>
+                                    <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vm-network-index].vnfc-subnet[0].vnfc-subnet-role'
+  value='NA' />
+                                    <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vm-network-index].vnfc-subnet_length'
+  value='1' />
+                                </set>
+                                <set>
+                                    <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vm-network-index].vnfc-subnet[0].vnfc-ip-assignments_length'
+  value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].network-information-items.network-information-item_length`' />
+                                </set>
+                                <for silentFailure='true' index='ip-version-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].network-information-items.network-information-item_length`' >
+                                    <block>
+                                        <set>
+                                            <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vm-network-index].vnfc-subnet[0].vnfc-ip-assignments[$ip-version-index].vnfc-address-family'
+  value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].network-information-items.network-information-item[$ip-version-index].ip-version`' />
+                                            <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vm-network-index].vnfc-subnet[0].vnfc-ip-assignments[$ip-version-index].vnfc-subnet-dhcp'
+  value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].network-information-items.network-information-item[$ip-version-index].use-dhcp`' />
+                                            <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vm-network-index].vnfc-subnet[0].vnfc-ip-assignments[$ip-version-index].vnfc-subnet-ip-count'
+  value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].network-information-items.network-information-item[$ip-version-index].ip-count`' />
+                                        </set>
+                                        <for silentFailure='true' index='ip-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].network-information-items.network-information-item[$ip-version-index].network-ips.network-ip_length`' >
+                                            <set>
+                                                <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vm-network-index].vnfc-subnet[0].vnfc-ip-assignments[$ip-version-index].vnfc-subnet-ips[$ip-index].vnfc-ip-address'
+  value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].network-information-items.network-information-item[$ip-version-index].network-ips.network-ip[$ip-index]`' />
+                                                <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-networks.vnfc-network-data[$vm-network-index].vnfc-subnet[0].vnfc-ip-assignments[$ip-version-index].vnfc-subnet-ips[$ip-index].ip-type'
+  value='FIXED' />
+                                            </set>
+                                        </for>
+                                    </block>
+                                </for>
+                            </block>
+                        </for>
+                    </block>
+                </for>
+            </for>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >
+                <parameter name='filename' value='/var/tmp/bgb-preload-x.log' />
+            </execute>
+            <for silentFailure='true' index='vnf-network-index' start='0'
+  end='`$mdsal-preload.preload-list[0].preload-data.preload-vf-module-topology-information.vnf-resource-assignments.vnf-networks.vnf-network_length`' >
+                <block atomic="true">
+                    <set>
+                        <parameter name='found-network-name' value='false' />
+                    </set>
+                    <for silentFailure='true' index='ex-vnf-network-index' start='0'
+  end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network_length`' >
+                        <switch test='`$mdsal-preload.preload-list[0].preload-data.preload-vf-module-topology-information.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].network-name
+  == $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$ex-vnf-network-index].network-name`'>
+                            <outcome value='true'>
+                                <block atomic="true">
+                                    <set>
+                                        <parameter name='found-network-name' value='true' />
+                                    </set>
+                                    <break/>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </for>
+                    <switch test='`$found-network-name`'>
+                        <outcome value='true'>
+                            <switch test='`$mdsal-preload.preload-list[0].preload-data.preload-vf-module-topology-information.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].network-role
+  == $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$ex-vnf-network-index].network-role`'>
+                                <outcome value='false'>
+                                    <block atomic="true">
+                                        <set>
+                                            <parameter name='cur-vnf-network-index'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network_length`' />
+                                        </set>
+                                        <set>
+                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$cur-vnf-network-index].network-role'
+  value='`$mdsal-preload.preload-list[0].preload-data.preload-vf-module-topology-information.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].network-role`' />
+                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$cur-vnf-network-index].network-name'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$ex-vnf-network-index].network-name`' />
+                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$cur-vnf-network-index].network-id'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$ex-vnf-network-index].network-id`' />
+                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$cur-vnf-network-index].neutron-id'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$ex-vnf-network-index].neutron-id`' />
+                                        </set>
+                                        <set>
+                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network_length'
+  value='`$cur-vnf-network-index + 1`' />
+                                        </set>
+                                        <set>
+                                            <parameter name='cur-subnet-index' value='0' />
+                                        </set>
+                                        <switch test="`$mdsal-preload.preload-list[0].preload-data.preload-vf-module-topology-information.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].subnets-data.subnet-data[0].sdnc-subnet-id`">
+                                            <outcome value=''>
+                                                <block atomic="true">
+                                                    <for index='ex-subnet-index' start='0'
+  end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$ex-vnf-network-index].subnets-data.subnet-data_length`' >
+                                                        <set>
+                                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$cur-vnf-network-index].subnets-data.subnet-data[$ex-subnet-index].sdnc-subnet-id'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$ex-vnf-network-index].subnets-data.subnet-data[$ex-subnet-index].sdnc-subnet-id`' />
+                                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$cur-vnf-network-index].subnets-data.subnet-data[$ex-subnet-index].subnet-id'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$ex-vnf-network-index].subnets-data.subnet-data[$ex-subnet-index].subnet-id`' />
+                                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$cur-vnf-network-index].subnets-data.subnet-data[$ex-subnet-index].ip-version'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$ex-vnf-network-index].subnets-data.subnet-data[$ex-subnet-index].ip-version`' />
+                                                            <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$cur-vnf-network-index].subnets-data.subnet-data[$ex-subnet-index].subnet-name'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$ex-vnf-network-index].subnets-data.subnet-data[$ex-subnet-index].subnet-name`' />
+                                                        </set>
+                                                    </for>
+                                                    <set>
+                                                        <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$cur-vnf-network-index].subnets-data.subnet-data_length'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$ex-vnf-network-index].subnets-data.subnet-data_length`' />
+                                                    </set>
+                                                </block>
+                                            </outcome>
+                                            <outcome value='Other'>
+                                                <block atomic="true">
+                                                    <for index='subnet-index' start='0'
+  end='`$mdsal-preload.preload-list[0].preload-data.preload-vf-module-topology-information.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].subnets-data.subnet-data_length`' >
+                                                        <block atomic="true">
+                                                            <set>
+                                                                <parameter name='tmp.found-match' value='false' />
+                                                            </set>
+                                                            <for index='ex-subnet-index' start='0'
+  end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$ex-vnf-network-index].subnets-data.subnet-data_length`' >
+                                                                <switch test='`$mdsal-preload.preload-list[0].preload-data.preload-vf-module-topology-information.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].subnets-data.subnet-data[$subnet-index].ip-version
+  == $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$ex-vnf-network-index].subnets-data.subnet-data[$ex-subnet-index].ip-version`'>
+                                                                    <outcome value='true'>
+                                                                        <block atomic="true">
+                                                                            <set>
+                                                                                <parameter name='match' value='true' />
+                                                                            </set>
+                                                                            <switch test='`$mdsal-preload.preload-list[0].preload-data.preload-vf-module-topology-information.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].subnets-data.subnet-data[$subnet-index].subnet-id`'>
+                                                                                <outcome value=''>
+                                                                                    <block></block>
+                                                                                </outcome>
+                                                                                <outcome value='Other'>
+                                                                                    <switch test='`$mdsal-preload.preload-list[0].preload-data.preload-vf-module-topology-information.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].subnets-data.subnet-data[$subnet-index].subnet-id
+  == $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$ex-vnf-network-index].subnets-data.subnet-data[$ex-subnet-index].subnet-id`'>
+                                                                                        <outcome value='false'>
+                                                                                            <set>
+                                                                                                <parameter name='match' value='false' />
+                                                                                            </set>
+                                                                                        </outcome>
+                                                                                    </switch>
+                                                                                </outcome>
+                                                                            </switch>
+                                                                            <switch test='`$mdsal-preload.preload-list[0].preload-data.preload-vf-module-topology-information.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].subnets-data.subnet-data[$subnet-index].subnet-name`'>
+                                                                                <outcome value=''>
+                                                                                    <block></block>
+                                                                                </outcome>
+                                                                                <outcome value='Other'>
+                                                                                    <switch test='`$mdsal-preload.preload-list[0].preload-data.preload-vf-module-topology-information.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].subnets-data.subnet-data[$subnet-index].subnet-name
+  == $service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$ex-vnf-network-index].subnets-data.subnet-data[$ex-subnet-index].subnet-name`'>
+                                                                                        <outcome value='false'>
+                                                                                            <set>
+                                                                                                <parameter name='match' value='false' />
+                                                                                            </set>
+                                                                                        </outcome>
+                                                                                    </switch>
+                                                                                </outcome>
+                                                                            </switch>
+                                                                            <switch test='`$match`'>
+                                                                                <outcome value='true'>
+                                                                                    <block atomic="true">
+                                                                                        <set>
+                                                                                            <parameter name='tmp.found-match' value='true' />
+                                                                                        </set>
+                                                                                        <break/>
+                                                                                    </block>
+                                                                                </outcome>
+                                                                            </switch>
+                                                                        </block>
+                                                                    </outcome>
+                                                                </switch>
+                                                            </for>
+                                                            <switch test='`$tmp.found-match`'>
+                                                                <outcome value='false'>
+                                                                    <block atomic="true">
+                                                                        <for silentFailure='true' index='vm-type-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm_length`' >
+                                                                            <for silentFailure='true' index='vnfc-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names_length`' >
+                                                                                <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-name`'>
+                                                                                    <outcome value=''>
+                                                                                        <block></block>
+                                                                                    </outcome>
+                                                                                    <outcome value='Other'>
+                                                                                        <block atomic="true">
+                                                                                            <set>
+                                                                                                <parameter name='naming-policy-generate-name-input.naming-type' value='VNFC' />
+                                                                                                <parameter name='naming-policy-generate-name-input.context-id' value='`$vf-module-topology-operation-input.vf-module-information.vf-module-id`' />
+                                                                                                <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                                                                            </set>
+                                                                                            <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                                                                        </block>
+                                                                                    </outcome>
+                                                                                </switch>
+                                                                            </for>
+                                                                        </for>
+                                                                        <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >
+                                                                            <parameter name='filename' value='/var/tmp/bgb-preloadxxx.log' />
+                                                                        </execute>
+                                                                        <return status='failure'>
+                                                                            <parameter name='ack-final' value='Y'/>
+                                                                            <parameter name="error-code" value="500" />
+                                                                            <parameter name="error-message" value="`'Could not find subnet match for network-name '
+      + $mdsal-preload.preload-list[0].preload-data.preload-vf-module-topology-information.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].network-name`" />
+                                                                        </return>
+                                                                    </block>
+                                                                </outcome>
+                                                            </switch>
+                                                            <set>
+                                                                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$cur-vnf-network-index].subnets-data.subnet-data[$cur-subnet-index].sdnc-subnet-id'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$ex-vnf-network-index].subnets-data.subnet-data[$ex-subnet-index].sdnc-subnet-id`' />
+                                                                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$cur-vnf-network-index].subnets-data.subnet-data[$cur-subnet-index].subnet-id'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$ex-vnf-network-index].subnets-data.subnet-data[$ex-subnet-index].subnet-id`' />
+                                                                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$cur-vnf-network-index].subnets-data.subnet-data[$cur-subnet-index].ip-version'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$ex-vnf-network-index].subnets-data.subnet-data[$ex-subnet-index].ip-version`' />
+                                                                <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$cur-vnf-network-index].subnets-data.subnet-data[$cur-subnet-index].subnet-name'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$ex-vnf-network-index].subnets-data.subnet-data[$ex-subnet-index].subnet-name`' />
+                                                            </set>
+                                                            <set>
+                                                                <parameter name='cur-subnet-index' value='`$cur-subnet-index + 1`' />
+                                                            </set>
+                                                        </block>
+                                                    </for>
+                                                    <set>
+                                                        <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$cur-vnf-network-index].subnets-data.subnet-data_length'
+  value='`$cur-subnet-index`' />
+                                                    </set>
+                                                </block>
+                                            </outcome>
+                                        </switch>
+                                    </block>
+                                </outcome>
+                            </switch>
+                        </outcome>
+                        <outcome value='false'>
+                            <block atomic="true">
+                                <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network_length`'>
+                                    <outcome value=''>
+                                        <set>
+                                            <parameter name='cur-vnf-network-index' value='0' />
+                                        </set>
+                                    </outcome>
+                                    <outcome value='0'>
+                                        <set>
+                                            <parameter name='cur-vnf-network-index' value='0' />
+                                        </set>
+                                    </outcome>
+                                    <outcome value='Other'>
+                                        <set>
+                                            <parameter name='cur-vnf-network-index'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network_length`' />
+                                        </set>
+                                    </outcome>
+                                </switch>
+                                <set>
+                                    <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$cur-vnf-network-index].network-role'
+  value='`$mdsal-preload.preload-list[0].preload-data.preload-vf-module-topology-information.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].network-role`' />
+                                    <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$cur-vnf-network-index].network-name'
+  value='`$mdsal-preload.preload-list[0].preload-data.preload-vf-module-topology-information.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].network-name`' />
+                                    <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$cur-vnf-network-index].network-id'
+  value='`$mdsal-preload.preload-list[0].preload-data.preload-vf-module-topology-information.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].network-id`' />
+                                    <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$cur-vnf-network-index].neutron-id'
+  value='`$mdsal-preload.preload-list[0].preload-data.preload-vf-module-topology-information.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].neutron-id`' />
+                                </set>
+                                <set>
+                                    <parameter name='service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network_length'
+  value='`$cur-vnf-network-index + 1`' />
+                                </set>
+                            </block>
+                        </outcome>
+                    </switch>
+                </block>
+            </for>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >
+                <parameter name='filename' value='/var/tmp/bgb-preload.log' />
+            </execute>
+            <for silentFailure='true' index='vm-type-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm_length`' >
+                <for index='vm-network-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network_length`' >
+                    <block atomic="true">
+                        <set>
+                            <parameter name='found-network' value='false' />
+                        </set>
+                        <set>
+                            <parameter name='tmp.network-role'
+  value='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].network-role`' />
+                        </set>
+                        <for index='vnf-network-index' start='0'
+  end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network_length`' >
+                            <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].network-role
+  == $tmp.network-role`'>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <set>
+                                            <parameter name='tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-networks.vm-network[$vm-network-index].network-id'
+  value='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-resource-assignments.vnf-networks.vnf-network[$vnf-network-index].network-id`' />
+                                        </set>
+                                        <set>
+                                            <parameter name='found-network' value='true' />
+                                        </set>
+                                        <break/>
+                                    </block>
+                                </outcome>
+                            </switch>
+                        </for>
+                        <switch test='`$found-network`'>
+                            <outcome value='false'>
+                                <block atomic="true">
+                                    <for silentFailure='true' index='vm-type-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm_length`' >
+                                        <for silentFailure='true' index='vnfc-index' start='0' end='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names_length`' >
+                                            <switch test='`$tmp.vf-module-topology.vf-module-assignments.vms.vm[$vm-type-index].vm-names.vnfc-names[$vnfc-index].vnfc-name`'>
+                                                <outcome value=''>
+                                                    <block></block>
+                                                </outcome>
+                                                <outcome value='Other'>
+                                                    <block atomic="true">
+                                                        <set>
+                                                            <parameter name='naming-policy-generate-name-input.naming-type' value='VNFC' />
+                                                            <parameter name='naming-policy-generate-name-input.context-id' value='`$vf-module-topology-operation-input.vf-module-information.vf-module-id`' />
+                                                            <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                                        </set>
+                                                        <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                                                    </block>
+                                                </outcome>
+                                            </switch>
+                                        </for>
+                                    </for>
+                                    <return status='failure'>
+                                        <parameter name='error-code' value='500' />
+                                        <parameter name='error-message' value="`'Unable to find network-id for network with network-role ' + $tmp.network-role`" />
+                                    </return>
+                                </block>
+                            </outcome>
+                        </switch>
+                    </block>
+                </for>
+            </for>
+        </block>
+    </method>
+</service-logic>

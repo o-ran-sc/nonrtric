@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>SDN-C AdminPortal</title>
+
+<script class="init">
+    $(document).ready(function() {
+    $('#nb_vlan_ranges').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+
+</head>
+<body>
+
+<div class="well well-sm">
+<h3>NetBond VLAN Ranges</h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){ 
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+<div class="container-fluid">
+
+	 <% if(priv == 'A'){ %>
+        <div class="actions" style="padding:15px 0px;">
+            <button class="btn btn-primary" data-toggle="modal" data-target="#add_vlan_range">
+            Add Range
+            </button>
+        </div>
+    <% } %>
+
+	<table id="nb_vlan_ranges" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+          <th>Vlan Plan Id</th>
+          <th>Purpose</th>
+		  <th>Range Start</th>
+		  <th>Range End</th>
+		  <th>Plan Type</th>
+	      <th>Pool Generated</th>
+		  <% if(priv == 'A'){ %>
+		  <th>Action</th>
+		  <% } %>
+        </tr>
+      </thead>
+      <tbody>
+      <% rows.forEach( function(row) { %> 
+        <tr>
+            <td><%= row.vlan_plan_id %></td>
+            <td><%= row.purpose %></td>
+            <td><%= row.range_start %></td>
+            <td><%= row.range_end %></td>
+            <td><%= row.plan_type %></td>
+            <td><%= row.generated %></td>
+            <td>
+				<% if (row.generated == 'N' && priv == 'A'){ %>
+               		<button type="button" class="btn btn-default btn-xs" onclick="generateVlanPool();">Generate Pool</button>
+				<% } else { %>
+               		<button type="button" class="btn btn-default btn-xs disabled" 
+					onclick="generateVlanPool('<%= row.purpose %>', '<%= row.vlan_plan_id %>',
+						'<%= row.range_start %>', '<%= row.range_end %>',
+						'<%= row.plan_type %>');">Generate Pool</button>
+				<% } %>
+				<% if (row.generated == 'N'){ %>
+               		<button type="button" class="btn btn-default btn-xs disabled" onclick="viewNbVlanPool('<%= row.vlan_plan_id %>','<%= row.range_start %>', '<%= row.range_end %>');">View Pool</button>
+				<% } else { %>
+               		<button type="button" class="btn btn-default btn-xs" onclick="viewNbVlanPool('<%= row.vlan_plan_id %>','<%= row.range_start %>', '<%= row.range_end %>');">View Pool</button>
+				<% } %>
+				<% if(priv == 'A') { %>
+               		<button type="button" class="btn btn-default btn-xs" 
+						onclick="deleteNbVlanRange('<%= row.vlan_plan_id %>',
+						'<%= row.plan_type %>', '<%= row.purpose %>', '<%= row.range_start %>',
+						'<%= row.range_end %>');">Delete</button>
+				<% } %>
+            </td>
+        </tr>
+    <% }); %>
+      </tbody>
+    </table>
+</div>
+
+<% include ../partials/nb_vlan_range %>
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+<script type="text/javascript">
+
+function generateVlanPool(purpose,vlan_plan_id,range_start,range_end,plan_type)
+{
+	var url_string = encodeURI("/gamma/generateNbVlanPool?vlan_plan_id=" + vlan_plan_id
+		+ "&range_start=" + range_start + "&range_end=" + range_end 
+		+ "&plan_type=" + plan_type + "&purpose=" + purpose);
+	location.assign(url_string);
+	return;
+}
+function viewNbVlanPool(vlan_plan_id, range_start, range_end)
+{
+	var url_string = encodeURI("/gamma/getNbVlanPool?vlan_plan_id=" + vlan_plan_id
+		+ "&range_start=" + range_start + "&range_end=" + range_end);
+	location.assign(url_string);
+	return;
+}
+function deleteNbVlanRange(vlan_plan_id,plan_type,purpose,range_start,range_end) {
+
+    bootbox.confirm({
+        message: "Are you sure you want to delete this VLAN Range[" + vlan_plan_id + "]",
+        callback: function(result) {
+            if ( result )
+            {
+				var url_string = encodeURI(
+					"/gamma/deleteNbVlanRange?vlan_plan_id=" + vlan_plan_id
+					+ "&plan_type=" + plan_type + "&purpose=" + purpose
+					+ "&range_start=" + range_start + "&range_end=" + range_end);
+                location.assign(url_string);
+            }
+            return;
+        },
+        buttons: {
+            cancel: {
+                label: "Cancel"
+            },
+            confirm: {
+                label: "Yes"
+            }
+        }
+    });
+}
+
+function saveNbVlanRange(form)
+{
+    var errorMsg='';
+    var plan_type = form.nf_plan_type.value;
+    var purpose = form.nf_purpose.value;
+	var range_start = form.nf_range_start.value;
+	var range_end = form.nf_range_end.value;
+
+    if ( (range_start == null) || (range_start == "") || isblank(range_start) )
+    {
+        errorMsg += 'Range Start is required.<br>';
+    }
+    if ( (range_end == null) || (range_end == "") || isblank(range_start) )
+    {
+        errorMsg += 'Range End is required.<br>';
+    }
+    if( errorMsg.length > 0 ) {
+        bootbox.alert(errorMsg);
+        return;
+    }
+
+	if ( !$.isNumeric(range_start) ) {
+        bootbox.alert('Range Start is not a number.');
+        return;
+    }
+	if ( !$.isNumeric(range_end) ) {
+        bootbox.alert('Range End is not a number.');
+        return;
+    }
+	var r_start = Number(range_start);
+	var r_end = Number(range_end);
+
+	if ( r_end < r_start )
+	{
+		bootbox.alert('Range End must be greater than Range Start.');
+		return;
+	}
+
+   	form.submit();
+}
+
+</script>
+
+</body>
+</html>
+

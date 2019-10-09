@@ -1,0 +1,424 @@
+[
+    {
+        "id": "d3b3a7ea.d04d08",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 133.3333282470703,
+        "y": 79.63588523864746,
+        "z": "6dfe2c1.a0003d4",
+        "wires": [
+            [
+                "46bb10f7.5c3fb"
+            ]
+        ]
+    },
+    {
+        "id": "46bb10f7.5c3fb",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 248.61903381347656,
+        "y": 121.54066467285156,
+        "z": "6dfe2c1.a0003d4",
+        "wires": [
+            [
+                "11b944cd.c96c5b"
+            ]
+        ]
+    },
+    {
+        "id": "11b944cd.c96c5b",
+        "type": "method",
+        "name": "method pnf-topology-operation-assign",
+        "xml": "<method rpc='pnf-topology-operation-assign' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 243.92864990234375,
+        "y": 165.55255317687988,
+        "z": "6dfe2c1.a0003d4",
+        "wires": [
+            [
+                "ce6b8a58.b8d3e8"
+            ]
+        ]
+    },
+    {
+        "id": "7e923496.314c4c",
+        "type": "comment",
+        "name": "pnf-topology-operation-assign",
+        "info": "",
+        "comments": "",
+        "x": 535.5948638916016,
+        "y": 41.38888931274414,
+        "z": "6dfe2c1.a0003d4",
+        "wires": []
+    },
+    {
+        "id": "2c8dd484.c334bc",
+        "type": "switchNode",
+        "name": "switch request-action",
+        "xml": "<switch test='`$pnf-topology-operation-input.request-information.request-action`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 627.2143096923828,
+        "y": 309.0287160873413,
+        "z": "6dfe2c1.a0003d4",
+        "wires": [
+            [
+                "e97259d0.1af158",
+                "413f5d48.571fc4"
+            ]
+        ]
+    },
+    {
+        "id": "e97259d0.1af158",
+        "type": "outcome",
+        "name": "CreatePnfInstance",
+        "xml": "<outcome value='CreatePnfInstance'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 880.9286041259766,
+        "y": 286.1715974807739,
+        "z": "6dfe2c1.a0003d4",
+        "wires": [
+            [
+                "f6bc9eb4.5cc37"
+            ]
+        ]
+    },
+    {
+        "id": "413f5d48.571fc4",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 842.9285697937012,
+        "y": 331.88592529296875,
+        "z": "6dfe2c1.a0003d4",
+        "wires": [
+            [
+                "514d78e9.baa838"
+            ]
+        ]
+    },
+    {
+        "id": "f6bc9eb4.5cc37",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1065.785732269287,
+        "y": 286.17162704467773,
+        "z": "6dfe2c1.a0003d4",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "514d78e9.baa838",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"If svc-action is 'assign' then request-action must be 'CreatePnfInstance'\" />\n",
+        "comments": "",
+        "x": 1082.9285774230957,
+        "y": 331.8858833312988,
+        "z": "6dfe2c1.a0003d4",
+        "wires": []
+    },
+    {
+        "id": "4388ff9d.ce7d6",
+        "type": "get-resource",
+        "name": "get-resource VF_MODEL",
+        "xml": "<get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key='SELECT * from VF_MODEL WHERE customization_uuid = $pnf-topology-operation-input.pnf-details.onap-model-information.model-customization-uuid'\n  pfx='db.vf-model'>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 639.5476150512695,
+        "y": 400.17158603668213,
+        "z": "6dfe2c1.a0003d4",
+        "wires": [
+            [
+                "512ab575.220ccc",
+                "3a1614d2.3eacec"
+            ]
+        ]
+    },
+    {
+        "id": "6dc29919.0f2208",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`'No model found for VF customization UUID ' + $pnf-topology-operation-input.pnf-details.onap-model-information.model-customization-uuid`\" />\n",
+        "comments": "",
+        "x": 1080.9760932922363,
+        "y": 423.60007190704346,
+        "z": "6dfe2c1.a0003d4",
+        "wires": []
+    },
+    {
+        "id": "512ab575.220ccc",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 840.3333129882812,
+        "y": 380.55242347717285,
+        "z": "6dfe2c1.a0003d4",
+        "wires": [
+            [
+                "d5d2d14c.f67aa"
+            ]
+        ]
+    },
+    {
+        "id": "3a1614d2.3eacec",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 848.9047431945801,
+        "y": 424.83813667297363,
+        "z": "6dfe2c1.a0003d4",
+        "wires": [
+            [
+                "6dc29919.0f2208"
+            ]
+        ]
+    },
+    {
+        "id": "d5d2d14c.f67aa",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error reading VF_MODEL table\" />\n",
+        "comments": "",
+        "x": 1080.333293914795,
+        "y": 378.695330619812,
+        "z": "6dfe2c1.a0003d4",
+        "wires": []
+    },
+    {
+        "id": "95465986.653a28",
+        "type": "execute",
+        "name": "execute PropertiesNode",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >\n    <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />\n    <parameter name='contextPrefix' value='prop' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 635.1190948486328,
+        "y": 182.314471244812,
+        "z": "6dfe2c1.a0003d4",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ce6b8a58.b8d3e8",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 353.41272735595703,
+        "y": 309.5079708099365,
+        "z": "6dfe2c1.a0003d4",
+        "wires": [
+            [
+                "2c8dd484.c334bc",
+                "4388ff9d.ce7d6",
+                "95465986.653a28",
+                "6cdfcbff.124fe4",
+                "4f7127f2.481f58"
+            ]
+        ]
+    },
+    {
+        "id": "6cdfcbff.124fe4",
+        "type": "switchNode",
+        "name": "switch input cloud-owner",
+        "xml": "<switch test='`$pnf-topology-operation-input.pnf-request-input.cloud-owner`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 635.8333511352539,
+        "y": 237.55254077911377,
+        "z": "6dfe2c1.a0003d4",
+        "wires": [
+            [
+                "fbe3ca5c.624b78",
+                "12f9e0f5.d15d1f"
+            ]
+        ]
+    },
+    {
+        "id": "fbe3ca5c.624b78",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 819.1667251586914,
+        "y": 207.55252933502197,
+        "z": "6dfe2c1.a0003d4",
+        "wires": [
+            [
+                "c50e0e6c.80923"
+            ]
+        ]
+    },
+    {
+        "id": "12f9e0f5.d15d1f",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 818.9286308288574,
+        "y": 248.5050230026245,
+        "z": "6dfe2c1.a0003d4",
+        "wires": [
+            [
+                "6843bdbc.1eb674"
+            ]
+        ]
+    },
+    {
+        "id": "c50e0e6c.80923",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 954.1666793823242,
+        "y": 205.88586902618408,
+        "z": "6dfe2c1.a0003d4",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6843bdbc.1eb674",
+        "type": "set",
+        "name": "set prop.cloud-region.cloud-owner",
+        "xml": "<set>\n<parameter name='prop.cloud-region.cloud-owner' value='`$pnf-topology-operation-input.pnf-request-input.cloud-owner`' />\n",
+        "comments": "",
+        "x": 1035.8333358764648,
+        "y": 247.55255031585693,
+        "z": "6dfe2c1.a0003d4",
+        "wires": []
+    },
+    {
+        "id": "940a3bec.b79db8",
+        "type": "call",
+        "name": "call self-serve-pnf-assign",
+        "xml": "<call module='GENERIC-RESOURCE-API' rpc='self-serve-pnf-assign' mode='sync' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 848.5553359985352,
+        "y": 596.4128832817078,
+        "z": "6dfe2c1.a0003d4",
+        "wires": [
+            [
+                "ee11637d.64cc5"
+            ]
+        ]
+    },
+    {
+        "id": "22ef4f33.3ca9c",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n<parameter name=\"error-message\" value=\"`'Failed to create self-serve assignment for pnf with pnf-id=' + $pnf-topology-operation-input.pnf-details.pnf-id + ' with error: ' + $error-message`\" />\n",
+        "comments": "",
+        "x": 1232.6267127990723,
+        "y": 596.4128336906433,
+        "z": "6dfe2c1.a0003d4",
+        "wires": []
+    },
+    {
+        "id": "d7499e88.a3c54",
+        "type": "comment",
+        "name": "SELF-SERVE FORK",
+        "info": "",
+        "comments": "",
+        "x": 758.174690246582,
+        "y": 547.6151220798492,
+        "z": "6dfe2c1.a0003d4",
+        "wires": []
+    },
+    {
+        "id": "ee11637d.64cc5",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1053.8529167175293,
+        "y": 595.9009146690369,
+        "z": "6dfe2c1.a0003d4",
+        "wires": [
+            [
+                "22ef4f33.3ca9c"
+            ]
+        ]
+    },
+    {
+        "id": "8085154e.65e6a8",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+        "comments": "",
+        "x": 820.9642715454102,
+        "y": 750.5674510002136,
+        "z": "6dfe2c1.a0003d4",
+        "wires": []
+    },
+    {
+        "id": "4326ce02.3a255",
+        "type": "set",
+        "name": "set pnf-level-oper-status to PendingCreate",
+        "xml": "<set>\n<parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-level-oper-status.order-status' value='PendingCreate' />\n<parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-level-oper-status.last-rpc-action' value='`$pnf-topology-operation-input.sdnc-request-header.svc-action`' />\n<parameter name='service-data.pnfs.pnf[$pnf-index].pnf-data.pnf-level-oper-status.last-action' value='`$pnf-topology-operation-input.request-information.request-action`' />",
+        "comments": "",
+        "x": 959.0277328491211,
+        "y": 649.15491771698,
+        "z": "6dfe2c1.a0003d4",
+        "wires": []
+    },
+    {
+        "id": "b05b3263.f3526",
+        "type": "execute",
+        "name": "printContext",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='printContext' >\n<parameter name='filename' value='/var/tmp/ss-pnf-assign.log' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 810.8689994812012,
+        "y": 698.3447003364563,
+        "z": "6dfe2c1.a0003d4",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4f7127f2.481f58",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 599.535530090332,
+        "y": 667.8531589508057,
+        "z": "6dfe2c1.a0003d4",
+        "wires": [
+            [
+                "940a3bec.b79db8",
+                "8085154e.65e6a8",
+                "b05b3263.f3526"
+            ]
+        ]
+    }
+]

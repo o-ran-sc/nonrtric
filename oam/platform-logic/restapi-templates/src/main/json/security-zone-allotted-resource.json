@@ -1,0 +1,78 @@
+{
+	"security-zone-allotted-resource": [{
+		"allotted-resource-id": ${sz-ar.allotted-resource-id},
+		"allotted-resource-data": {
+			"security-zone-topology": {
+				"allotted-resource-identifiers": {
+					"consuming-service-instance-id": ${sz-ar.allotted-resource-data.security-zone-topology.allotted-resource-identifiers.consuming-service-instance-id},
+					"allotted-resource-name": ${sz-ar.allotted-resource-data.security-zone-topology.allotted-resource-identifiers.allotted-resource-name},
+					"allotted-resource-id": ${sz-ar.allotted-resource-data.security-zone-topology.allotted-resource-identifiers.allotted-resource-id},
+					"parent-service-instance-id": ${sz-ar.allotted-resource-data.security-zone-topology.allotted-resource-identifiers.parent-service-instance-id},
+					"allotted-resource-type": ${sz-ar.allotted-resource-data.security-zone-topology.allotted-resource-identifiers.allotted-resource-type}
+				},
+				"onap-model-information": {
+					"model-invariant-uuid": ${sz-ar.allotted-resource-data.security-zone-topology.onap-model-information.model-invariant-uuid},
+					"model-customization-uuid": ${sz-ar.allotted-resource-data.security-zone-topology.onap-model-information.model-customization-uuid},
+					"model-uuid": ${sz-ar.allotted-resource-data.security-zone-topology.onap-model-information.model-uuid},
+					"model-version": ${sz-ar.allotted-resource-data.security-zone-topology.onap-model-information.model-version}
+				},
+				"security-zone-assignments": {
+					"trusted-network-role": ${sz-ar.allotted-resource-data.security-zone-topology.security-zone-assignments.trusted-network-role},
+					"security-zone-name-trusted": ${sz-ar.allotted-resource-data.security-zone-topology.security-zone-assignments.security-zone-name-trusted},
+					"security-zone-name-untrusted": ${sz-ar.allotted-resource-data.security-zone-topology.security-zone-assignments.security-zone-name-untrusted},
+					"untrusted-network-role": ${sz-ar.allotted-resource-data.security-zone-topology.security-zone-assignments.untrusted-network-role},
+					"security-zone-service-instance-id" : ${sz-ar.allotted-resource-data.security-zone-topology.security-zone-assignments.security-zone-service-instance-id},
+					"security-zone-vnf-id" : ${sz-ar.allotted-resource-data.security-zone-topology.security-zone-assignments.security-zone-vnf-id},
+					"vlan-tag": ${sz-ar.allotted-resource-data.security-zone-topology.security-zone-assignments.vlan-tag}
+				},
+				"security-zone-parameters": {
+				}
+				
+			},
+			"allotted-resource-operation-information": {
+			"allotted-resource-information": {
+      				"allotted-resource-id": ${sz-ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.allotted-resource-id},
+					"allotted-resource-type": ${sz-ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.allotted-resource-type},
+					"parent-service-instance-id": ${sz-ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.parent-service-instance-id},
+					"onap-model-information": {
+						"model-invariant-uuid": ${sz-ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.onap-model-information.model-invariant-uuid},
+						"model-customization-uuid": ${sz-ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.onap-model-information.model-customization-uuid},
+						"model-uuid": ${sz-ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.onap-model-information.model-uuid},
+						"model-version": ${sz-ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.onap-model-information.model-version}
+      				}
+    			},
+    			"sdnc-request-header": {
+      				"svc-request-id": ${sz-ar.allotted-resource-data.allotted-resource-operation-information.sdnc-request-header.svc-request-id},
+      				"svc-action": ${sz-ar.allotted-resource-data.allotted-resource-operation-information.sdnc-request-header.svc-action}
+    			},
+				"request-information": {
+					"request-id": ${sz-ar.allotted-resource-data.allotted-resource-operation-information.request-information.request-id},
+					"source": ${sz-ar.allotted-resource-data.allotted-resource-operation-information.request-information.source},
+					"order-version": ${sz-ar.allotted-resource-data.allotted-resource-operation-information.request-information.order-version},
+					"order-number": ${sz-ar.allotted-resource-data.allotted-resource-operation-information.request-information.order-number},
+					"notification-url": ${sz-ar.allotted-resource-data.allotted-resource-operation-information.request-information.notification-url},
+					"request-action": ${sz-ar.allotted-resource-data.allotted-resource-operation-information.request-information.request-action}
+				},
+				"security-zone-request-input": {
+					"vlan-tag": ${sz-ar.allotted-resource-data.allotted-resource-operation-information.security-zone-request-input.vlan-tag},
+					"trusted-network-role" : ${sz-ar.allotted-resource-data.allotted-resource-operation-information.security-zone-request-input.trusted-network-role},
+					"untrusted-network-role" : ${sz-ar.allotted-resource-data.allotted-resource-operation-information.security-zone-request-input.untrusted-network-role}
+    			}
+			},
+			"allotted-resource-oper-status": {
+				"last-action": ${sz-ar.allotted-resource-data.allotted-resource-oper-status.last-action},
+				"modify-timestamp": ${sz-ar.allotted-resource-data.allotted-resource-oper-status.modify-timestamp},
+				"last-order-status": ${sz-ar.allotted-resource-data.allotted-resource-oper-status.last-order-status},
+				"create-timestamp": ${sz-ar.allotted-resource-data.allotted-resource-oper-status.create-timestamp},
+				"order-status": ${sz-ar.allotted-resource-data.allotted-resource-oper-status.order-status},
+				"last-rpc-action": ${sz-ar.allotted-resource-data.allotted-resource-oper-status.last-rpc-action},
+				"last-svc-request-id": ${sz-ar.allotted-resource-data.allotted-resource-oper-status.last-svc-request-id}
+			}
+		},
+		"allotted-resource-status" : {
+			"action": ${sz-ar.allotted-resource-status.action},
+			"rpc-name": ${sz-ar.allotted-resource-status.rpc-name},
+			"rpc-action": ${sz-ar.allotted-resource-status.rpc-action}
+		}
+	}]
+}

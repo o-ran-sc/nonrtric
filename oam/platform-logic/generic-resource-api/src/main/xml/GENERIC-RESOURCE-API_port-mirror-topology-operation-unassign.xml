@@ -1,0 +1,153 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='port-mirror-topology-operation-unassign' mode='sync'>
+        <block atomic="true">
+            <set>
+                <parameter name='tmp.configuration-id' value='`$port-mirror-topology-operation-input.configuration-information.configuration-id`' />
+                <parameter name='tmp.service-instance-id' value='`$port-mirror-topology-operation-input.service-information.service-instance-id`' />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                <parameter name='contextPrefix' value='prop' />
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$prop.restapi.pm-configuration`"/>
+                <parameter name="outputPath" value="tmp.pmc-url"/>
+                <parameter name="target" value="{configuration-id}"/>
+                <parameter name="replacement" value="`$tmp.configuration-id`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.pmc-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='GET' />
+                <parameter name="responsePrefix" value="pm-mdsal" />
+                <outcome value='success'>
+                    <switch test='`$pm-mdsal.port-mirror-configuration_length == 1`'>
+                        <outcome value='false'>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500' />
+                                <parameter name='error-message' value="`'Cannot find port-mirror-configuration ' + $tmp.configuration-id`" />
+                            </return>
+                        </outcome>
+                    </switch>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value="`'Cannot find port-mirror-configuration ' + $tmp.configuration-id`" />
+                    </return>
+                </outcome>
+            </execute>
+            <switch test="`$pm-mdsal.port-mirror-configuration[0].configuration-data.configuration-oper-status.order-status == 'Created'`">
+                <outcome value='false'>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value="`'Order status is ' + $mdsal-pmc.port-mirror-configuration[0].configuration-data.configuration-oper-status.order-status + ' but must be Created'`" />
+                    </return>
+                </outcome>
+            </switch>
+            <set>
+                <parameter name='pm.configuration-id' value='`$tmp.configuration-id`' />
+                <parameter name='pm.configuration-data.' value='`$pm-mdsal.port-mirror-configuration[0].configuration-data.`' />
+            </set>
+            <set>
+                <parameter name='tmp.configuration-sub-type' value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.probe-type`' />
+            </set>
+            <switch test='`$tmp.configuration-sub-type`'>
+                <outcome value='vprobe'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name='cto-api.default-domain' value='default-domain' />
+                            <parameter name='cto-api.default-project'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.tenant`' />
+                            <parameter name='cto-api.cloud-region-id'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.cloud-region-id`' />
+                            <parameter name='cto-api.contrail-route-allotted-resource-id'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.route-allotted-resource-id`' />
+                            <parameter name='cto-api.rollback-flag' value='false' />
+                            <parameter name='cto-api.configuration-id' value='`$tmp.configuration-id`' />
+                            <parameter name='cto-api.owning-entity'
+  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.owning-entity`' />
+                        </set>
+                        <call module='GENERIC-RESOURCE-API' rpc='api-contrail-route-topology-operation-delete' mode='sync' >
+                            <outcome value='failure'>
+                                <return status='failure'></return>
+                            </outcome>
+                        </call>
+                        <call module='GENERIC-RESOURCE-API' rpc='port-mirror-rollback-capacity-db' mode='sync' >
+                            <outcome value='failure'>
+                                <return status='failure'></return>
+                            </outcome>
+                        </call>
+                    </block>
+                </outcome>
+            </switch>
+            <for silentFailure='true' index='src-idx' start='0' end='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map_length`' >
+                <block atomic="true">
+                    <set>
+                        <parameter name='tmp.link-name' value="`'PMC_' + $tmp.configuration-id
+  + '_Source' + $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-port-name
+  + '_Dest' + $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].dest-port-name`" />
+                    </set>
+                    <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="logical-link" 
+	key="logical-link.link-name = $tmp.link-name" >
+                        <outcome value='failure'>
+                            <block atomic="true">
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value="`'Failed to delete logical-link in AAI: ' + $tmp.link-name`" />
+                                </return>
+                            </block>
+                        </outcome>
+                        <outcome value='not-found'>
+                            <block atomic="true"></block>
+                        </outcome>
+                    </delete>
+                </block>
+            </for>
+            <update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService"
+   resource="configuration"
+   key="configuration.configuration-id = $tmp.configuration-id"
+   force="true" pfx="tmp.AnAI-data">
+                <parameter name="operational-status" value="out-of-service-path" />
+                <outcome value='not-found'>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value="Unable to find configuration object in AAI" />
+                    </return>
+                </outcome>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value="Failure updating configuration object in AAI" />
+                    </return>
+                </outcome>
+            </update>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.pmc-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='DELETE' />
+                <parameter name="responsePrefix" value="mdsal-pmc" />
+                <outcome value='success'>
+                    <block></block>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value="Failed to delete port-mirror-configuration object in MD-SAL" />
+                    </return>
+                </outcome>
+            </execute>
+            <return status='success'>
+                <parameter name='error-code' value='200' />
+                <parameter name='ack-final' value='Y' />
+            </return>
+        </block>
+    </method>
+</service-logic>

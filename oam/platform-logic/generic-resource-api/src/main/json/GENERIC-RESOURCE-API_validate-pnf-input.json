@@ -1,0 +1,573 @@
+[
+    {
+        "id": "94367b34.4993c8",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 244.44442749023438,
+        "y": 363.3055624961853,
+        "z": "8b598434.ddbeb8",
+        "wires": [
+            [
+                "e96f0aba.6a2158",
+                "145655c7.5c421a",
+                "740fde80.5f9e8",
+                "a75da30.d5ab06",
+                "6154264e.c73678",
+                "4710ed3d.659744"
+            ]
+        ]
+    },
+    {
+        "id": "e96f0aba.6a2158",
+        "type": "switchNode",
+        "name": "switch svc-request-id",
+        "xml": "<switch test='`$pnf-topology-operation-input.sdnc-request-header.svc-request-id`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 502.20633697509766,
+        "y": 321.13589811325073,
+        "z": "8b598434.ddbeb8",
+        "wires": [
+            [
+                "b12a28ac.b7b9b8"
+            ]
+        ]
+    },
+    {
+        "id": "b12a28ac.b7b9b8",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 727.9206314086914,
+        "y": 321.135901927948,
+        "z": "8b598434.ddbeb8",
+        "wires": [
+            [
+                "8cc94a69.eb44f8"
+            ]
+        ]
+    },
+    {
+        "id": "8cc94a69.eb44f8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"sdnc-request-header.svc-request-id is a required input\" />\n",
+        "comments": "",
+        "x": 879.3491973876953,
+        "y": 321.13590002059937,
+        "z": "8b598434.ddbeb8",
+        "wires": []
+    },
+    {
+        "id": "145655c7.5c421a",
+        "type": "switchNode",
+        "name": "switch svc-action",
+        "xml": "<switch test='`$pnf-topology-operation-input.sdnc-request-header.svc-action`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 490.7777001517161,
+        "y": 279.7073296819415,
+        "z": "8b598434.ddbeb8",
+        "wires": [
+            [
+                "35e01edd.5783a2"
+            ]
+        ]
+    },
+    {
+        "id": "35e01edd.5783a2",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 726.4920518057688,
+        "y": 278.27872746331354,
+        "z": "8b598434.ddbeb8",
+        "wires": [
+            [
+                "6beabba6.32f4f4"
+            ]
+        ]
+    },
+    {
+        "id": "6beabba6.32f4f4",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"sdnc-request-header.svc-action is a required input\" />\n",
+        "comments": "",
+        "x": 876.492025102888,
+        "y": 278.2787370000567,
+        "z": "8b598434.ddbeb8",
+        "wires": []
+    },
+    {
+        "id": "740fde80.5f9e8",
+        "type": "switchNode",
+        "name": "switch request-action",
+        "xml": "<switch test='`$pnf-topology-operation-input.request-information.request-action`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 500.7777535574778,
+        "y": 363.9930447850909,
+        "z": "8b598434.ddbeb8",
+        "wires": [
+            [
+                "ef526c4a.39c59"
+            ]
+        ]
+    },
+    {
+        "id": "ef526c4a.39c59",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 727.9206270490376,
+        "y": 363.99305568422596,
+        "z": "8b598434.ddbeb8",
+        "wires": [
+            [
+                "c2c067b2.6d5ab8"
+            ]
+        ]
+    },
+    {
+        "id": "c2c067b2.6d5ab8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"request-information.request-action is a required input\" />\n",
+        "comments": "",
+        "x": 879.3491930280416,
+        "y": 363.99305377687733,
+        "z": "8b598434.ddbeb8",
+        "wires": []
+    },
+    {
+        "id": "79e4afb1.99cc8",
+        "type": "switchNode",
+        "name": "switch model-customization-id",
+        "xml": "<switch test='`$pnf-topology-operation-input.pnf-details.onap-model-information.model-customization-uuid`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1119.242275238037,
+        "y": 511.4218182563782,
+        "z": "8b598434.ddbeb8",
+        "wires": [
+            [
+                "e37ed67.814bf28"
+            ]
+        ]
+    },
+    {
+        "id": "e37ed67.814bf28",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1324.242275238037,
+        "y": 511.4218010902405,
+        "z": "8b598434.ddbeb8",
+        "wires": [
+            [
+                "d757cb77.2c7958"
+            ]
+        ]
+    },
+    {
+        "id": "d757cb77.2c7958",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"pnf-details.onap-model-information.model-customization-uuid is a required input\" />\n",
+        "comments": "",
+        "x": 1475.670841217041,
+        "y": 511.42179918289185,
+        "z": "8b598434.ddbeb8",
+        "wires": []
+    },
+    {
+        "id": "a14b5bac.e97828",
+        "type": "switchNode",
+        "name": "switch tenant",
+        "xml": "<switch test='`$pnf-topology-operation-input.pnf-request-input.tenant`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1065.0993537902832,
+        "y": 552.8503289222717,
+        "z": "8b598434.ddbeb8",
+        "wires": [
+            [
+                "9f4a40d4.27fdf"
+            ]
+        ]
+    },
+    {
+        "id": "9f4a40d4.27fdf",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1322.8136711120605,
+        "y": 552.8503632545471,
+        "z": "8b598434.ddbeb8",
+        "wires": [
+            [
+                "21e1ea3d.d3d876"
+            ]
+        ]
+    },
+    {
+        "id": "21e1ea3d.d3d876",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"pnf-request-input.tenant is a required input\" />\n",
+        "comments": "",
+        "x": 1474.2422370910645,
+        "y": 552.8503613471985,
+        "z": "8b598434.ddbeb8",
+        "wires": []
+    },
+    {
+        "id": "c290417a.999bd",
+        "type": "comment",
+        "name": "Validation of required fields",
+        "info": "",
+        "comments": "",
+        "x": 650.7777099609375,
+        "y": 235.42161226272583,
+        "z": "8b598434.ddbeb8",
+        "wires": []
+    },
+    {
+        "id": "a75da30.d5ab06",
+        "type": "switchNode",
+        "name": "switch svc-action",
+        "xml": "<switch test='`$pnf-topology-operation-input.sdnc-request-header.svc-action`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 484.7658462524414,
+        "y": 553.1003041267395,
+        "z": "8b598434.ddbeb8",
+        "wires": [
+            [
+                "ade91738.c2dee8"
+            ]
+        ]
+    },
+    {
+        "id": "ade91738.c2dee8",
+        "type": "outcome",
+        "name": "assign",
+        "xml": "<outcome value='assign'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 661.8491668701172,
+        "y": 552.6836438179016,
+        "z": "8b598434.ddbeb8",
+        "wires": [
+            [
+                "9de99c30.2439d"
+            ]
+        ]
+    },
+    {
+        "id": "9de99c30.2439d",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 858.5157775878906,
+        "y": 552.6836438179016,
+        "z": "8b598434.ddbeb8",
+        "wires": [
+            [
+                "79e4afb1.99cc8",
+                "a14b5bac.e97828",
+                "5a47ef2e.17f48"
+            ]
+        ]
+    },
+    {
+        "id": "621027e3.a05c68",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 163.19443729945579,
+        "y": 107.9692120552063,
+        "z": "8b598434.ddbeb8",
+        "wires": [
+            [
+                "fd592892.32a8c8"
+            ]
+        ]
+    },
+    {
+        "id": "fd592892.32a8c8",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 276.48014286586204,
+        "y": 148.20732355117798,
+        "z": "8b598434.ddbeb8",
+        "wires": [
+            [
+                "80133c43.3b152"
+            ]
+        ]
+    },
+    {
+        "id": "80133c43.3b152",
+        "type": "method",
+        "name": "method validate-pnf-input",
+        "xml": "<method rpc='validate-pnf-input' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 211.87306431361594,
+        "y": 189.21920824050903,
+        "z": "8b598434.ddbeb8",
+        "wires": [
+            [
+                "94367b34.4993c8"
+            ]
+        ]
+    },
+    {
+        "id": "f8dbb90e.a422b8",
+        "type": "comment",
+        "name": "validate-pnf-input",
+        "info": "",
+        "comments": "",
+        "x": 557.5392935616628,
+        "y": 55.55555582046509,
+        "z": "8b598434.ddbeb8",
+        "wires": []
+    },
+    {
+        "id": "6154264e.c73678",
+        "type": "switchNode",
+        "name": "switch service-instance-id",
+        "xml": "<switch test='`$pnf-topology-operation-input.service-information.service-instance-id`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 513.8015845162527,
+        "y": 408.05557107925415,
+        "z": "8b598434.ddbeb8",
+        "wires": [
+            [
+                "2ce54a7d.5835b6"
+            ]
+        ]
+    },
+    {
+        "id": "2ce54a7d.5835b6",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 726.2301657540456,
+        "y": 408.0555672645569,
+        "z": "8b598434.ddbeb8",
+        "wires": [
+            [
+                "53191b49.840e74"
+            ]
+        ]
+    },
+    {
+        "id": "53191b49.840e74",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"service-information.service-instance-id is a required input\" />\n",
+        "comments": "",
+        "x": 877.6587317330495,
+        "y": 408.05556535720825,
+        "z": "8b598434.ddbeb8",
+        "wires": []
+    },
+    {
+        "id": "4710ed3d.659744",
+        "type": "switchNode",
+        "name": "switch pnf-id",
+        "xml": "<switch test='`$pnf-topology-operation-input.pnf-details.pnf-id`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 471.3015937805176,
+        "y": 451.555561542511,
+        "z": "8b598434.ddbeb8",
+        "wires": [
+            [
+                "a413f663.792248"
+            ]
+        ]
+    },
+    {
+        "id": "a413f663.792248",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 726.5873031616211,
+        "y": 450.12699365615845,
+        "z": "8b598434.ddbeb8",
+        "wires": [
+            [
+                "9bbe7c79.3b76c"
+            ]
+        ]
+    },
+    {
+        "id": "9bbe7c79.3b76c",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"pnf-details.pnf-id is a required input\" />\n",
+        "comments": "",
+        "x": 878.015869140625,
+        "y": 450.1269917488098,
+        "z": "8b598434.ddbeb8",
+        "wires": []
+    },
+    {
+        "id": "5a47ef2e.17f48",
+        "type": "switchNode",
+        "name": "switch aic-cloud-region",
+        "xml": "<switch test='`$pnf-topology-operation-input.pnf-request-input.aic-cloud-region`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1094.444435119629,
+        "y": 595.1269860267639,
+        "z": "8b598434.ddbeb8",
+        "wires": [
+            [
+                "38bfd2ff.c329ae"
+            ]
+        ]
+    },
+    {
+        "id": "38bfd2ff.c329ae",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1321.1587524414062,
+        "y": 595.1270203590393,
+        "z": "8b598434.ddbeb8",
+        "wires": [
+            [
+                "be8a7d3e.b1956"
+            ]
+        ]
+    },
+    {
+        "id": "be8a7d3e.b1956",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"pnf-request-input.aic-cloud-region is a required input\" />\n",
+        "comments": "",
+        "x": 1472.5873184204102,
+        "y": 595.1270184516907,
+        "z": "8b598434.ddbeb8",
+        "wires": []
+    },
+    {
+        "id": "cbe7b870.eb2778",
+        "type": "switchNode",
+        "name": "switch model-customization-id",
+        "xml": "<switch test='`$pnf-topology-operation-input.pnf-details.onap-model-information.model-customization-uuid`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1089.9205780029297,
+        "y": 710.317467212677,
+        "z": "8b598434.ddbeb8",
+        "wires": [
+            [
+                "a468752f.474808"
+            ]
+        ]
+    },
+    {
+        "id": "a468752f.474808",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1294.9205780029297,
+        "y": 710.3174500465393,
+        "z": "8b598434.ddbeb8",
+        "wires": [
+            [
+                "b9bc06be.f3a6e8"
+            ]
+        ]
+    },
+    {
+        "id": "b9bc06be.f3a6e8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"pnf-details.onap-model-information.model-customization-uuid is a required input\" />\n",
+        "comments": "",
+        "x": 1446.3491439819336,
+        "y": 710.3174481391907,
+        "z": "8b598434.ddbeb8",
+        "wires": []
+    },
+    {
+        "id": "23854a15.854736",
+        "type": "outcome",
+        "name": "changeassign",
+        "xml": "<outcome value='changeassign'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 679.8607978820801,
+        "y": 710.2460265159607,
+        "z": "8b598434.ddbeb8",
+        "wires": [
+            [
+                "9784e04d.64388"
+            ]
+        ]
+    },
+    {
+        "id": "9784e04d.64388",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 859.8607864379883,
+        "y": 710.2459931373596,
+        "z": "8b598434.ddbeb8",
+        "wires": [
+            [
+                "cbe7b870.eb2778"
+            ]
+        ]
+    },
+    {
+        "id": "cc3011b2.e59d9",
+        "type": "comment",
+        "name": "model-customization-uuid validation moved to changeassign DG",
+        "info": "",
+        "comments": "",
+        "x": 739.4444274902344,
+        "y": 675.5555663108826,
+        "z": "8b598434.ddbeb8",
+        "wires": []
+    }
+]

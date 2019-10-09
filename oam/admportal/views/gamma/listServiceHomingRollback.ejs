@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>SDN-C AdminPortal</title>
+</head>
+<body>
+
+<div class="well well-sm">
+<h3>Service Homing Rollback</h3>
+<p>(This table data was saved during the last import of SERVICE_HOMING data.)</p>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+	<table class="table table-hover table-condensed">
+      <thead>
+        <tr>
+		  <th>Service Type</th>
+          <th>LATA</th>
+		  <th>Hubbing City Type</th>
+          <th>Latitude</th>
+          <th>Longitude</th>
+          <th>Primary Site Name</th>
+          <th>Secondary Site Name</th>
+          <th>Tertiary Site Name</th>
+        </tr>
+      </thead>
+      <tbody>
+      <% var i=0; rows.forEach( function(row) { %> 
+        <tr>
+            <td><%= row.service_type %></td>
+            <td><%= row.lata %></td>
+            <td><%= row.hubbing_city_type%></td>
+            <td><%= row.latitude %></td>
+            <td><%= row.longitude %></td>
+            <td><%= row.primary_aic_site_name %></td>
+            <td><%= row.secondary_aic_site_name %></td>
+            <td><%= row.tertiary_aic_site_name %></td>
+        </tr>
+    <% i++; }); %>
+      </tbody>
+    </table>
+
+	 <div class container>
+        <p><%= i %> rows in table.</p>
+    </div>
+
+	<% if (priv == 'A') { %>
+	<button type="button" class="btn btn-default"
+                onclick="rollback();">Rollback</button>
+	<% } %>
+</div>
+
+<footer>
+    <% include ../partials/footer %>
+</footer>
+<script type="text/javascript">
+
+function rollback()
+{
+	bootbox.confirm({
+		message: "This Rollback will overlay the current SERVICE_HOMING table.  Are you sure you want to Rollback the SERVICE_HOMING table?",
+		callback: function(result){
+			if(result)
+			{
+				location.assign("/gamma/rollbackServiceHoming");
+			}
+			return;
+		},
+		buttons: {
+			cancel: {
+				label: "Cancel"
+			},
+			confirm:{
+				label: "Yes"
+			}
+		}
+	});
+}
+
+</script>
+
+
+</body>
+</html>
+

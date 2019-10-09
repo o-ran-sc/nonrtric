@@ -1,0 +1,26 @@
+<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='VNF-API' version='${project.version}'><method rpc='vnf-instance-topology-operation' mode='sync'>
+<block atomic="true"><switch test="`$vnf-instance-topology-operation-input.vnf-instance-request-information.vnf-instance-name`"><outcome value='Other'><switch test="`$vnf-instance-preload-data.vnf-instance-topology-information.vnf-instance-identifiers.vnf-instance-name`"><outcome value='Other'><switch test="`$vnf-instance-topology-operation-input.vnf-instance-request-information.vnf-instance-name == $vnf-instance-preload-data.vnf-instance-topology-information.vnf-instance-identifiers.vnf-instance-name`"><outcome value='false'>
+<return status='failure'>
+	<parameter name='error-code' value='404'/>
+	<parameter name='error-message' value='vnf-instance-name from input not found in vnf-instance-preload-data'/></return></outcome></switch></outcome><outcome value=''><return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='No preload data found to match vnf-instance-name from input'/></return></outcome></switch></outcome><outcome value=''><return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='vnf-instance-name is required'/></return></outcome></switch><switch test="`$vnf-instance-topology-operation-input.vnf-instance-request-information.vnf-model-id`"><outcome value='Other'><switch test="`$vnf-instance-preload-data.vnf-instance-topology-information.vnf-instance-identifiers.vnf-model-id`"><outcome value='Other'><switch test="`$vnf-instance-topology-operation-input.vnf-instance-request-information.vnf-model-id == $vnf-instance-preload-data.vnf-instance-topology-information.vnf-instance-identifiers.vnf-model-id`"><outcome value='false'>
+<return status='failure'>
+	<parameter name='error-code' value='404'/>
+	<parameter name='error-message' value='request.vnf-model-id not found in vnf-instance-preload-data'/></return></outcome></switch></outcome><outcome value=''><return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='No preload data found to match vnf-model-id from input'/></return></outcome></switch></outcome><outcome value=''><return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='vnf-model-id is required'/></return></outcome></switch><switch test="`$vnf-instance-topology-operation-input.vnf-instance-request-information.vnf-instance-id`"><outcome value='0'><return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='vf-instance-id cannot be NULL or 0'/></return></outcome><outcome value=''><return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='vf-instance-id cannot be NULL or 0'/></return></outcome></switch><switch test="`$vnf-instance-topology-operation-input.vnf-instance-request-information.aic-cloud-region`"><outcome value=''><return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='aic-cloud-region cannot be NULL'/></return></outcome></switch><switch test="`$vnf-instance-topology-operation-input.sdnc-request-header.svc-action`">
+<outcome value='assign'><call module='VNF-API' rpc='vnf-instance-topology-assign' mode='sync' ></call></outcome><outcome value='changeassign'><call module='VNF-API' rpc='vnf-instance-topology-changeassign' mode='sync' ></call></outcome><outcome value='activate'><call module='VNF-API' rpc='vnf-instance-topology-activate' mode='sync' ></call></outcome><outcome value='rollback'><call module='VNF-API' rpc='vnf-instance-topology-rollback' mode='sync' ></call></outcome><outcome value='delete'><call module='VNF-API' rpc='vnf-instance-topology-delete' mode='sync' ></call></outcome><outcome value='Other'><return status='failure'>
+	<parameter name='error-code' value='400'/>
+	<parameter name='error-message' value='svc-action not recognized'/>
+</return></outcome></switch></block></method></service-logic>

@@ -1,0 +1,481 @@
+[
+  {
+    "id": "e738f63f.208ea8",
+    "type": "dgstart",
+    "name": "DGSTART",
+    "outputs": 1,
+    "x": 87.00390625,
+    "y": 55.857561140786856,
+    "z": "d1658b32.d98238",
+    "wires": [
+      [
+        "80341a9d.8eb738"
+      ]
+    ]
+  },
+  {
+    "id": "80341a9d.8eb738",
+    "type": "service-logic",
+    "name": "GENERIC-RESOURCE-API ${project.version}",
+    "module": "GENERIC-RESOURCE-API",
+    "version": "${project.version}",
+    "comments": "",
+    "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+    "outputs": 1,
+    "x": 341.50390625,
+    "y": 55.857561140786856,
+    "z": "d1658b32.d98238",
+    "wires": [
+      [
+        "5110d08c.83594"
+      ]
+    ]
+  },
+  {
+    "id": "5110d08c.83594",
+    "type": "method",
+    "name": "sdwan-network-topology-operation-create",
+    "xml": "<method rpc='sdwan-network-topology-operation-create' mode='sync'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 340.50390625,
+    "y": 155.85756114078686,
+    "z": "d1658b32.d98238",
+    "wires": [
+      [
+        "a22e3b13.76c488"
+      ]
+    ]
+  },
+  {
+    "id": "a22e3b13.76c488",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 480.50390625,
+    "y": 255.85756114078686,
+    "z": "d1658b32.d98238",
+    "wires": [
+      [
+        "f691075.4d857f8",
+        "cb88cbb7.42bd98",
+        "8ba6b398.46ed6",
+        "346ae50a.91fcda",
+        "9b181769.a4b628",
+        "e7358faf.a402d",
+        "dbb7121b.abe6a",
+        "fdf26bca.f03768",
+        "a7873db9.8b28e",
+        "d8cec38f.bc599",
+        "74be5192.2ede4"
+      ]
+    ]
+  },
+  {
+    "id": "f691075.4d857f8",
+    "type": "call",
+    "name": "call GENERIC-RESOURCE-API:validate-sdwan-network-input-parameters",
+    "xml": "<call module='GENERIC-RESOURCE-API' rpc='validate-sdwan-network-input-parameters' mode='sync' >\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 910.5039176940918,
+    "y": 73.63531306339428,
+    "z": "d1658b32.d98238",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "cb88cbb7.42bd98",
+    "type": "record",
+    "name": "record",
+    "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.FileRecorder\">\n<parameter name=\"file\" value=\"/opt/opendaylight/current/data/log/svclogic.log\"/>\n<parameter name=\"field1\" value=\"__TIMESTAMP__\"/>\n<parameter name=\"field2\" value=\"sdwan-network-topology-operation-create\"/>\n<parameter name=\"field3\" value=\"SDWAN-Config\"/>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 704.0595626831055,
+    "y": 251.07977294921875,
+    "z": "d1658b32.d98238",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "8ba6b398.46ed6",
+    "type": "execute",
+    "name": "execute generate prop.sdwan.network-id",
+    "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='generateUUID' >\n<parameter name=\"ctx-destination\" value=\"prop.sdwan.network-id\"/>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 806.5039138793945,
+    "y": 117.63531541824341,
+    "z": "d1658b32.d98238",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "346ae50a.91fcda",
+    "type": "switchNode",
+    "name": "switch service-data.networks_length",
+    "xml": "<switch test='`$service-data.networks.network_length`'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 795.0595626831055,
+    "y": 211.07977294921875,
+    "z": "d1658b32.d98238",
+    "wires": [
+      [
+        "5636a9a3.7efe68",
+        "b63f0739.980f28"
+      ]
+    ]
+  },
+  {
+    "id": "5636a9a3.7efe68",
+    "type": "other",
+    "name": "Null",
+    "xml": "<outcome value=''>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1024.0595626831055,
+    "y": 191.07977294921875,
+    "z": "d1658b32.d98238",
+    "wires": [
+      [
+        "c36e2515.dba218"
+      ]
+    ]
+  },
+  {
+    "id": "b63f0739.980f28",
+    "type": "other",
+    "name": "other",
+    "xml": "<outcome value='Other'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1024.0595626831055,
+    "y": 231.07977294921875,
+    "z": "d1658b32.d98238",
+    "wires": [
+      [
+        "75983c07.a5a874"
+      ]
+    ]
+  },
+  {
+    "id": "c36e2515.dba218",
+    "type": "set",
+    "name": "set nidx",
+    "xml": "<set>\n<parameter name='nidx' value='0' />\n",
+    "comments": "",
+    "x": 1166.5595626831055,
+    "y": 191.07977294921875,
+    "z": "d1658b32.d98238",
+    "wires": []
+  },
+  {
+    "id": "99e46d9c.cb058",
+    "type": "set",
+    "name": "set nidx",
+    "xml": "<set>\n<parameter name='nidx' value='`$service-data.networks.network_length`' />\n",
+    "comments": "",
+    "x": 1300.1150817871094,
+    "y": 192.63538265228271,
+    "z": "d1658b32.d98238",
+    "wires": []
+  },
+  {
+    "id": "9b181769.a4b628",
+    "type": "set",
+    "name": "set network in service-data",
+    "xml": "<set>\n<parameter name='service-data.networks.network[$nidx].network-id' value='`$prop.sdwan.network-id`' />\n<parameter name='service-data.networks.network[$nidx].network-data.sdnc-request-header.' value='`$network-topology-operation-input.sdnc-request-header.`' />\n<parameter name='service-data.networks.network[$nidx].network-data.request-information.' value='`$network-topology-operation-input.request-information.`' />\n<parameter name='service-data.networks.network[$nidx].network-data.service-information.' value='`$network-topology-operation-input.service-information.`' />\n<parameter name='service-data.networks.network[$nidx].network-data.network-information.' value='`$network-topology-operation-input.network-information.`' />\n<parameter name='service-data.networks.network[$nidx].network-data.network-request-input.' value='`$network-topology-operation-input.network-request-input.`' />\n<parameter name='service-data.networks.network_length' value='`$nidx+1`' />\n\n",
+    "comments": "",
+    "x": 765.5595626831055,
+    "y": 291.07977294921875,
+    "z": "d1658b32.d98238",
+    "wires": []
+  },
+  {
+    "id": "e7358faf.a402d",
+    "type": "set",
+    "name": "set networkId and network-object-path",
+    "xml": "<set>\n<parameter name='networkId' value='`$prop.sdwan.network-id`' />\n<parameter name=\"network-object-path\" value=\"`'restconf/config/GENERIC-RESOURCE-API:services/service/'  + $network-topology-operation-input.service-information.service-instance-id  + '/service-data/networks/network/'  + $prop.sdwan.network-id  + '/network-data/'` \" />",
+    "comments": "",
+    "x": 801.0595626831055,
+    "y": 331.07977294921875,
+    "z": "d1658b32.d98238",
+    "wires": []
+  },
+  {
+    "id": "dbb7121b.abe6a",
+    "type": "returnSuccess",
+    "name": "return success",
+    "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+    "comments": "",
+    "x": 725.7264022827148,
+    "y": 500.7464985847473,
+    "z": "d1658b32.d98238",
+    "wires": []
+  },
+  {
+    "id": "fdf26bca.f03768",
+    "type": "set",
+    "name": "set network-level-oper-status",
+    "xml": "<set>\n<parameter name='service-data.networks.network[$nidx].network-data.network-level-oper-status.order-status' value='Created' />\n<parameter name='service-data.networks.network[$nidx].network-data.network-level-oper-status.last-rpc-action' value='`$network-topology-operation-input.sdnc-request-header.svc-action`' />\n<parameter name='service-data.networks.network[$nidx].network-data.network-level-oper-status.last-action' value='`$network-topology-operation-input.request-information.request-action`' />",
+    "comments": "",
+    "x": 772.5595626831055,
+    "y": 371.07977294921875,
+    "z": "d1658b32.d98238",
+    "wires": []
+  },
+  {
+    "id": "713ce360.f628ac",
+    "type": "for",
+    "name": "for each existing network",
+    "xml": "<for index='idx' start='0' end='`$nidx`' >\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1169.5436248779297,
+    "y": 335.8575248424895,
+    "z": "d1658b32.d98238",
+    "wires": [
+      [
+        "eb4807cf.0d23d8"
+      ]
+    ]
+  },
+  {
+    "id": "75983c07.a5a874",
+    "type": "block",
+    "name": "block",
+    "xml": "<block>\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 1168.4166069030762,
+    "y": 231.01628494262695,
+    "z": "d1658b32.d98238",
+    "wires": [
+      [
+        "713ce360.f628ac",
+        "99e46d9c.cb058"
+      ]
+    ]
+  },
+  {
+    "id": "eb4807cf.0d23d8",
+    "type": "switchNode",
+    "name": "switch networkid found",
+    "xml": "<switch test=\"`$service-data.networks.network[$idx].network-id == $network-topology-operation-input.network-information.network-id`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1444.829345703125,
+    "y": 335.4290275280364,
+    "z": "d1658b32.d98238",
+    "wires": [
+      [
+        "ad204630.0981b8"
+      ]
+    ]
+  },
+  {
+    "id": "ad204630.0981b8",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1345.5595436096191,
+    "y": 394.00045868800953,
+    "z": "d1658b32.d98238",
+    "wires": [
+      [
+        "5de29638.c9b308"
+      ]
+    ]
+  },
+  {
+    "id": "e4848432.b300d8",
+    "type": "comment",
+    "name": "make sure this network doesn't exist already",
+    "info": "",
+    "comments": "",
+    "x": 1393.1943550109863,
+    "y": 294.11158224986866,
+    "z": "d1658b32.d98238",
+    "wires": []
+  },
+  {
+    "id": "5de29638.c9b308",
+    "type": "returnFailure",
+    "name": "return failure",
+    "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"network-topology-operation-input.network-request-input.network-id already found in service-data\" />\n",
+    "comments": "",
+    "x": 1493.3096466064453,
+    "y": 393.85765075683594,
+    "z": "d1658b32.d98238",
+    "wires": []
+  },
+  {
+    "id": "3a8170a.8edea9",
+    "type": "block",
+    "name": "block",
+    "xml": "<block>\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 1459.961139678955,
+    "y": 163.6353702545166,
+    "z": "d1658b32.d98238",
+    "wires": [
+      [
+        "5e4af687.3413b8",
+        "267dff81.9df9a"
+      ]
+    ]
+  },
+  {
+    "id": "5e4af687.3413b8",
+    "type": "switchNode",
+    "name": "switch name",
+    "xml": "<switch test=\"`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].name == 'name'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1648.1829833984375,
+    "y": 145.96867442131042,
+    "z": "d1658b32.d98238",
+    "wires": [
+      [
+        "e9584cec.7c047"
+      ]
+    ]
+  },
+  {
+    "id": "e9584cec.7c047",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1835.1829833984375,
+    "y": 141.96867442131042,
+    "z": "d1658b32.d98238",
+    "wires": [
+      [
+        "4f9d1895.e6c898"
+      ]
+    ]
+  },
+  {
+    "id": "4f9d1895.e6c898",
+    "type": "set",
+    "name": "set name",
+    "xml": "<set>\n<parameter name='prop.name' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 1985.1831130981445,
+    "y": 140.5686810016632,
+    "z": "d1658b32.d98238",
+    "wires": []
+  },
+  {
+    "id": "267dff81.9df9a",
+    "type": "switchNode",
+    "name": "switch topology",
+    "xml": "<switch test=\"`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].name == 'topology'`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1659.0226440429688,
+    "y": 185.9686725139618,
+    "z": "d1658b32.d98238",
+    "wires": [
+      [
+        "a3ecb652.b268e8"
+      ]
+    ]
+  },
+  {
+    "id": "a3ecb652.b268e8",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1829.0226440429688,
+    "y": 181.9686725139618,
+    "z": "d1658b32.d98238",
+    "wires": [
+      [
+        "5ddbd0bc.06582"
+      ]
+    ]
+  },
+  {
+    "id": "5ddbd0bc.06582",
+    "type": "set",
+    "name": "set topology",
+    "xml": "<set>\n<parameter name='prop.topology' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 2016.3560848236084,
+    "y": 180.42982935905457,
+    "z": "d1658b32.d98238",
+    "wires": []
+  },
+  {
+    "id": "a7873db9.8b28e",
+    "type": "for",
+    "name": "for loop i - Network input parameters",
+    "xml": "<for index=\"idx\" start=\"0\" end=\"`$network-topology-operation-input.network-request-input.network-input-parameters.param_length`\">\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 797.7383041381836,
+    "y": 161.41310119628906,
+    "z": "d1658b32.d98238",
+    "wires": [
+      [
+        "3a8170a.8edea9"
+      ]
+    ]
+  },
+  {
+    "id": "3a427aaa.1513f6",
+    "type": "comment",
+    "name": "TODO: Recheck AAI schemas",
+    "info": "",
+    "comments": "",
+    "x": 769.0351867675781,
+    "y": 20,
+    "z": "d1658b32.d98238",
+    "wires": []
+  },
+  {
+    "id": "d8cec38f.bc599",
+    "type": "save",
+    "name": "save sdwan vpn resource in AAI",
+    "xml": "<save plugin='org.onap.ccsdk.sli.adaptors.aai.AAIService' resource='sdwan-vpn' \n      key='sdwan-vpn.sdwan-vpn-id = $prop.sdwan.network-id' >\n<parameter name='sdwan-vpn-id' value='`$prop.sdwan.network-id`' />\n<parameter name='sdwan-vpn-name' value='`$prop.name`' />\n<parameter name='topology' value='`$prop.topology`' />\n<parameter name='operational-status' value='Created' />\n<parameter name='model-customization-id' value='`$network-topology-operation-input.network-information.onap-model-information.model-customization-uuid`' />\n<parameter name='model-invariant-id' value='`$network-topology-operation-input.network-information.onap-model-information.model-invariant-uuid`' />\n<parameter name='model-version-id' value='`$network-topology-operation-input.network-information.onap-model-information.model-uuid`' />\n<parameter name='selflink' value=\"`'restconf/config/GENERIC-RESOURCE-API:services/service/'  + $network-topology-operation-input.service-information.service-instance-id  + '/service-data/networks/network/'  + $prop.sdwan.network-id  + '/network-data/'` \" />",
+    "comments": "",
+    "outputs": 1,
+    "x": 782.0038986206055,
+    "y": 410.57261514663696,
+    "z": "d1658b32.d98238",
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "74be5192.2ede4",
+    "type": "save",
+    "name": "save service relationship in AAI",
+    "xml": "<save plugin='org.onap.ccsdk.sli.adaptors.aai.AAIService' resource='service-instance:relationship-list' \n      key='service-instance.service-instance-id = $service-data.service-information.service-instance-id \n         AND customer.global-customer-id = $service-data.networks.network[$nidx].network-data.service-information.global-customer-id \n         AND service-subscription.service-type = $service-data.networks.network[$nidx].network-data.service-information.subscription-service-type' \n      force=\"true\" pfx=\"tmp.AnAI-data\">\n<parameter name=\"relationship-list.relationship[0].related-to\" value=\"sdwan-vpn\" />\n<parameter name=\"relationship-list.relationship[0].related-link\" value=\"`'/network/sdwan-vpns/sdwan-vpn/' + $prop.sdwan.network-id`\" />\n<parameter name=\"relationship-list.relationship[0].relationship-data[0].relationship-key\" value=\"sdwan-vpn.id\" />\n<parameter name=\"relationship-list.relationship[0].relationship-data[0].relationship-value\" value=\"`$prop.sdwan.network-id`\" />",
+    "comments": "",
+    "outputs": 1,
+    "x": 778.00390625,
+    "y": 457.57258653640747,
+    "z": "d1658b32.d98238",
+    "wires": [
+      []
+    ]
+  }
+]

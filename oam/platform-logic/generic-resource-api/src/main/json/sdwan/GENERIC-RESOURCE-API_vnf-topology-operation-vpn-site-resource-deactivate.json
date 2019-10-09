@@ -1,0 +1,433 @@
+[
+    {
+        "id": "82c84658.77d1d8",
+        "type": "method",
+        "name": "method vnf-topology-operation-vpn-site-resource-deactivate",
+        "xml": "<method rpc='vnf-topology-operation-vpn-site-resource-deactivate' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 259,
+        "y": 212.99999639671296,
+        "z": "655c6ddc.e1d044",
+        "wires": [
+            [
+                "20631342.a0c9ec"
+            ]
+        ]
+    },
+    {
+        "id": "d37f40ab.ae426",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 138.5713882446289,
+        "y": 49,
+        "z": "655c6ddc.e1d044",
+        "wires": [
+            [
+                "90866c8c.0566b"
+            ]
+        ]
+    },
+    {
+        "id": "90866c8c.0566b",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 237.85708618164062,
+        "y": 123.23810789268464,
+        "z": "655c6ddc.e1d044",
+        "wires": [
+            [
+                "82c84658.77d1d8"
+            ]
+        ]
+    },
+    {
+        "id": "20631342.a0c9ec",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 239.23804473876953,
+        "y": 384.66666814964265,
+        "z": "655c6ddc.e1d044",
+        "wires": [
+            [
+                "223e8ad6.61f2e6",
+                "7a1d8d04.0ea1a4",
+                "fb28da85.68b248",
+                "638a26a6.3e9618",
+                "30cf2c07.d44e14",
+                "fbfde082.6174",
+                "c6ba194.447c2e8"
+            ]
+        ]
+    },
+    {
+        "id": "223e8ad6.61f2e6",
+        "type": "set",
+        "name": "set vnf-level-oper-status to PendingDelete",
+        "xml": "<set>\n<parameter name='service-data.vnfs.vnf[$tmp.vidx].vnf-data.vnf-level-oper-status.order-status' value='PendingDelete' />\n<parameter name='service-data.vnfs.vnf[$tmp.vidx].vnf-data.vnf-level-oper-status.last-rpc-action' value='`$vnf-topology-operation-input.sdnc-request-header.svc-action`' />\n<parameter name='service-data.vnfs.vnf[$tmp.vidx].vnf-data.vnf-level-oper-status.last-action' value='`$vnf-topology-operation-input.request-information.request-action`' />",
+        "comments": "",
+        "x": 647.3849029541016,
+        "y": 533.670627951622,
+        "z": "655c6ddc.e1d044",
+        "wires": []
+    },
+    {
+        "id": "7a1d8d04.0ea1a4",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+        "comments": "",
+        "x": 573.5716247558594,
+        "y": 642.5970582962036,
+        "z": "655c6ddc.e1d044",
+        "wires": []
+    },
+    {
+        "id": "fb28da85.68b248",
+        "type": "set",
+        "name": "set vnf-index and vnf-object-path",
+        "xml": "<set>\n<parameter name='vnfId' value='`$vnf-topology-operation-input.vnf-information.vnf-id`' />\n<parameter name=\"vnf-object-path\" value=\"`'restconf/config/GENERIC-RESOURCE-API:services/service/'  + $vnf-topology-operation-input.service-information.service-instance-id  + '/service-data/vnfs/vnf/'  + $vnf-topology-operation-input.vnf-information.vnf-id  + '/vnf-data/'` \" />",
+        "comments": "",
+        "x": 624.5716247558594,
+        "y": 489.5968955755234,
+        "z": "655c6ddc.e1d044",
+        "wires": []
+    },
+    {
+        "id": "638a26a6.3e9618",
+        "type": "switchNode",
+        "name": "switch service-data.vnfs.vnf_length",
+        "xml": "<switch test='`$service-data.vnfs.vnf_length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 669.0000610351562,
+        "y": 274.00000545661896,
+        "z": "655c6ddc.e1d044",
+        "wires": [
+            [
+                "3f139002.12bae",
+                "6579ac8.d79e654",
+                "9fa8cca.2d7cf3"
+            ]
+        ]
+    },
+    {
+        "id": "9fa8cca.2d7cf3",
+        "type": "outcome",
+        "name": "0",
+        "xml": "<outcome value='0'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 927.9689559936523,
+        "y": 235.96876499336213,
+        "z": "655c6ddc.e1d044",
+        "wires": [
+            [
+                "4d9ccf75.fe9af"
+            ]
+        ]
+    },
+    {
+        "id": "4d9ccf75.fe9af",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"vnf-topology-operation-input.vnf-request-input.vnf-id not found in service-data\" />\n",
+        "comments": "",
+        "x": 1082.7778434753418,
+        "y": 254.88903352897614,
+        "z": "655c6ddc.e1d044",
+        "wires": []
+    },
+    {
+        "id": "3f139002.12bae",
+        "type": "other",
+        "name": "Null",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 921.0000953674316,
+        "y": 275.00008651893586,
+        "z": "655c6ddc.e1d044",
+        "wires": [
+            [
+                "4d9ccf75.fe9af"
+            ]
+        ]
+    },
+    {
+        "id": "6579ac8.d79e654",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 914.0005035400391,
+        "y": 308.0000903336331,
+        "z": "655c6ddc.e1d044",
+        "wires": [
+            [
+                "4494b904.813828"
+            ]
+        ]
+    },
+    {
+        "id": "4494b904.813828",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1061.2700462341309,
+        "y": 308.55473539512604,
+        "z": "655c6ddc.e1d044",
+        "wires": [
+            [
+                "2347d15a.1d922e",
+                "d97f0a58.4e7db8"
+            ]
+        ]
+    },
+    {
+        "id": "2347d15a.1d922e",
+        "type": "for",
+        "name": "for vidx..service-data.vnfs.vnf_length[]",
+        "xml": "<for index='vidx' start='0' end='`$service-data.vnfs.vnf_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1307.2861633300781,
+        "y": 315.4286558357999,
+        "z": "655c6ddc.e1d044",
+        "wires": [
+            [
+                "ca1a5a9.775eaa8"
+            ]
+        ]
+    },
+    {
+        "id": "ca1a5a9.775eaa8",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1526.6357955932617,
+        "y": 314.9687359062955,
+        "z": "655c6ddc.e1d044",
+        "wires": [
+            [
+                "66b63707.1820b8"
+            ]
+        ]
+    },
+    {
+        "id": "66b63707.1820b8",
+        "type": "switchNode",
+        "name": "switch vnfid found",
+        "xml": "<switch test=\"`$service-data.vnfs.vnf[$vidx].vnf-id == $vnf-topology-operation-input.vnf-information.vnf-id`\">\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1680.7153930664062,
+        "y": 314.67881796043366,
+        "z": "655c6ddc.e1d044",
+        "wires": [
+            [
+                "ae7ef72d.e51818"
+            ]
+        ]
+    },
+    {
+        "id": "ae7ef72d.e51818",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1856.6675148010254,
+        "y": 314.57150003593415,
+        "z": "655c6ddc.e1d044",
+        "wires": [
+            [
+                "502325a8.6e120c"
+            ]
+        ]
+    },
+    {
+        "id": "502325a8.6e120c",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2005.312973022461,
+        "y": 302.97913000267,
+        "z": "655c6ddc.e1d044",
+        "wires": [
+            [
+                "1a1e9503.dc6a5b"
+            ]
+        ]
+    },
+    {
+        "id": "1a1e9503.dc6a5b",
+        "type": "set",
+        "name": "set tmp.vidx and ctx.vnf-data",
+        "xml": "<set>\n<parameter name='tmp.vidx' value='`$vidx`' />\n<parameter name='ctx.vnf-data.' value='`$service-data.vnfs.vnf[$vidx].`' />\n",
+        "comments": "",
+        "x": 2267.1997680664062,
+        "y": 280.3215563027188,
+        "z": "655c6ddc.e1d044",
+        "wires": []
+    },
+    {
+        "id": "d97f0a58.4e7db8",
+        "type": "switchNode",
+        "name": "switch tmp.vidx ",
+        "xml": "<switch test=\"`$tmp.vidx`\">\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1250.0000228881836,
+        "y": 369.99999353569,
+        "z": "655c6ddc.e1d044",
+        "wires": [
+            [
+                "aa55c60d.624e08"
+            ]
+        ]
+    },
+    {
+        "id": "aa55c60d.624e08",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1405.4286499023438,
+        "y": 369.57137701194733,
+        "z": "655c6ddc.e1d044",
+        "wires": [
+            [
+                "d6654813.27fba8"
+            ]
+        ]
+    },
+    {
+        "id": "d6654813.27fba8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"vnf-topology-operation-input.vnf-request-input.vnf-id not found in service-data\" />\n",
+        "comments": "",
+        "x": 1550.8573913574219,
+        "y": 369.7143146721646,
+        "z": "655c6ddc.e1d044",
+        "wires": []
+    },
+    {
+        "id": "30cf2c07.d44e14",
+        "type": "switchNode",
+        "name": "switch vnf-level-oper-status",
+        "xml": "<switch test='`$service-data.vnfs.vnf[$tmp.vidx].vnf-data.vnf-level-oper-status.order-status`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 618.0000762939453,
+        "y": 382.88902044296265,
+        "z": "655c6ddc.e1d044",
+        "wires": [
+            [
+                "d1af1362.431e7",
+                "a3563b5d.54f858"
+            ]
+        ]
+    },
+    {
+        "id": "d1af1362.431e7",
+        "type": "outcome",
+        "name": "outcome Active",
+        "xml": "<outcome value='Active'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 863.8333702087402,
+        "y": 384.00011825561523,
+        "z": "655c6ddc.e1d044",
+        "wires": [
+            [
+                "e723a3c3.7cd85"
+            ]
+        ]
+    },
+    {
+        "id": "e723a3c3.7cd85",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1077.139762878418,
+        "y": 393.32530784606934,
+        "z": "655c6ddc.e1d044",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a3563b5d.54f858",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 841.8333892822266,
+        "y": 434.00012969970703,
+        "z": "655c6ddc.e1d044",
+        "wires": [
+            [
+                "5cde8b39.a2f424"
+            ]
+        ]
+    },
+    {
+        "id": "5cde8b39.a2f424",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`'VNF is not in appropriate state for activate. Current state is ' + $service-data.vnfs.vnf[$tmp.nidx].vnf-data.vnf-level-oper-status.order-status`\" />",
+        "comments": "",
+        "x": 1001.3331565856934,
+        "y": 437.0001287460327,
+        "z": "655c6ddc.e1d044",
+        "wires": []
+    },
+    {
+        "id": "fbfde082.6174",
+        "type": "set",
+        "name": "copy input data to service data",
+        "xml": "<set>\n<!--parameter name='service-data.vnfs.vnf[$tmp.vidx].vnf-id' value='`$vnf-topology-operation-input.vnf-information.vnf-id`' /-->\n<parameter name='service-data.vnfs.vnf[$tmp.vidx].vnf-data.sdnc-request-header.' value='$vnf-topology-operation-input.sdnc-request-header.' />\n<parameter name='service-data.vnfs.vnf[$tmp.vidx].vnf-data.request-information.' value='$vnf-topology-operation-input.request-information.' />\n<parameter name='service-data.vnfs.vnf[$tmp.vidx].vnf-data.service-information.' value='$vnf-topology-operation-input.service-information.' />",
+        "comments": "",
+        "x": 627.0065612792969,
+        "y": 442.010435461998,
+        "z": "655c6ddc.e1d044",
+        "wires": []
+    },
+    {
+        "id": "c6ba194.447c2e8",
+        "type": "save",
+        "name": "update AnAI - vnf-instance.orchestration-status",
+        "xml": "<update plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\tresource=\"generic-vnf\"   \n\t\tkey=\"generic-vnf.vnf-id = $vnfId\" >\n<parameter name=\"orchestration-status\" value=\"PendingDelete\" />\n<parameter name=\"vnf-type\" value=\"some vnf-type\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 669.0064239501953,
+        "y": 588.0105141401291,
+        "z": "655c6ddc.e1d044",
+        "wires": [
+            []
+        ]
+    }
+]

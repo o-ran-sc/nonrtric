@@ -1,0 +1,704 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='wan-connection-topology-operation-activate' mode='sync'>
+        <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >
+            <parameter name="source" value="`$network-topology-operation-input.network-information.onap-model-information.model-name`"/>
+            <parameter name="target" value="specification"/>
+            <outcome value='true'>
+                <return status='success'>
+                    <parameter name="ack-final-indicator" value="Y" />
+                    <parameter name="error-code" value="200" />
+                    <parameter name="error-message" value="`$error-message`" />
+                </return>
+            </outcome>
+            <outcome value='false'>
+                <block atomic="true">
+                    <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                        <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                        <parameter name='contextPrefix' value='prop' />
+                    </execute>
+                    <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >
+                        <parameter name="source" value="`$network-topology-operation-input.network-information.onap-model-information.model-name`"/>
+                        <parameter name="target" value="Fc"/>
+                        <outcome value='true'>
+                            <block atomic="true">
+                                <set>
+                                    <parameter name='needOof' value='false' />
+                                </set>
+                                <for index='aidx' start='0' end='`$network-topology-operation-input.network-request-input.network-input-parameters.param_length`' >
+                                    <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >
+                                        <parameter name="source" value="`$network-topology-operation-input.network-request-input.network-input-parameters.param[$aidx].name`"/>
+                                        <parameter name="target" value="fcport"/>
+                                        <outcome value='true'>
+                                            <set>
+                                                <parameter name='needOof' value='true' />
+                                            </set>
+                                        </outcome>
+                                    </execute>
+                                </for>
+                                <switch test="`$needOof`">
+                                    <outcome value='true'>
+                                        <block>
+                                            <block atomic="true">
+                                                <set>
+                                                    <parameter name='sotnFcPortListLength' value='0' />
+                                                </set>
+                                                <for index='sIdx' start='0' end='`$service-data.networks.network_length`' >
+                                                    <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >
+                                                        <parameter name="source" value="`$service-data.networks.network[$sIdx].network-data.network-information.onap-model-information.model-name`"/>
+                                                        <parameter name="target" value="sotn"/>
+                                                        <outcome value='true'>
+                                                            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >
+                                                                <parameter name="source" value="`$service-data.networks.network[$sIdx].network-data.network-information.onap-model-information.model-name`"/>
+                                                                <parameter name="target" value="FcPort"/>
+                                                                <outcome value='true'>
+                                                                    <block atomic="true">
+                                                                        <set>
+                                                                            <parameter name='tmp.sotnFcPortList[`$sotnFcPortListLength`]' value='`$sIdx`' />
+                                                                        </set>
+                                                                        <for index='paramIdx' start='0' end='`$service-data.networks.network[$sIdx].network-data.network-request-input.network-input-parameters.param_length`' >
+                                                                            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >
+                                                                                <parameter name="source" value="`$service-data.networks.network[$sIdx].network-data.network-request-input.network-input-parameters.param[$paramIdx].name`"/>
+                                                                                <parameter name="target" value="address"/>
+                                                                                <outcome value='true'>
+                                                                                    <block atomic="true">
+                                                                                        <set>
+                                                                                            <parameter name='sotnFcPortAddress' value='`$service-data.networks.network[$sIdx].network-data.network-request-input.network-input-parameters.param[$paramIdx].value`' />
+                                                                                        </set>
+                                                                                        <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                                                                            <parameter name='restapiUrl' value="`$prop.oss.url + '/oss/inventory?location=' + $sotnFcPortAddress`"/>
+                                                                                            <parameter name='format' value='json' />
+                                                                                            <parameter name='customHttpHeaders' value="X-FromAppId=MSO" />
+                                                                                            <parameter name='httpMethod' value='GET' />
+                                                                                            <parameter name="responsePrefix" value="temp.oss.accessTPs" />
+                                                                                            <outcome value='success'>
+                                                                                                <switch test="`$temp.oss.accessTPs_length`">
+                                                                                                    <outcome value='Other'>
+                                                                                                        <block atomic="true">
+                                                                                                            <switch test='`$temp.accessTPs_length`'>
+                                                                                                                <outcome value=''>
+                                                                                                                    <set>
+                                                                                                                        <parameter name='tp_length' value='0' />
+                                                                                                                    </set>
+                                                                                                                </outcome>
+                                                                                                                <outcome value='Other'>
+                                                                                                                    <set>
+                                                                                                                        <parameter name='tp_length' value='`$temp.accessTPs_length`' />
+                                                                                                                    </set>
+                                                                                                                </outcome>
+                                                                                                            </switch>
+                                                                                                            <for index='idx' start='0' end='`$temp.oss.accessTPs_length`' >
+                                                                                                                <set>
+                                                                                                                    <parameter name='`temp.accessTPs[$idx + $tp_length].`' value='`$temp.oss.accessTPs[$idx].`' />
+                                                                                                                </set>
+                                                                                                            </for>
+                                                                                                            <set>
+                                                                                                                <parameter name='temp.accessTPs_length' value='`$temp.accessTPs_length + $temp.oss.accessTPs_length`' />
+                                                                                                            </set>
+                                                                                                        </block>
+                                                                                                    </outcome>
+                                                                                                </switch>
+                                                                                            </outcome>
+                                                                                        </execute>
+                                                                                    </block>
+                                                                                </outcome>
+                                                                            </execute>
+                                                                        </for>
+                                                                    </block>
+                                                                </outcome>
+                                                            </execute>
+                                                        </outcome>
+                                                    </execute>
+                                                </for>
+                                            </block>
+                                            <switch test="`$temp.accessTPs_length >= 2`">
+                                                <outcome value='true'>
+                                                    <block atomic="true">
+                                                        <set>
+                                                            <parameter name='prop.connection-attachment.access-topology-id' value='`$temp.accessTPs[0].access-topology-id`' />
+                                                            <parameter name='prop.connection-attachment.access-client-id' value='`$temp.accessTPs[0].access-client-id`' />
+                                                            <parameter name='prop.connection-attachment.access-provider-id' value='`$temp.accessTPs[0].access-provider-id`' />
+                                                            <parameter name='prop.connection-attachment.access-node-id' value='`$temp.accessTPs[0].access-node-id`' />
+                                                            <parameter name='prop.connection-attachment.access-ltp-id' value='`$temp.accessTPs[0].access-ltp-id`' />
+                                                            <parameter name='prop.remote.connection-attachment.access-topology-id' value='`$temp.accessTPs[1].access-topology-id`' />
+                                                            <parameter name='prop.remote.connection-attachment.access-client-id' value='`$temp.accessTPs[1].access-client-id`' />
+                                                            <parameter name='prop.remote.connection-attachment.access-provider-id' value='`$temp.accessTPs[1].access-provider-id`' />
+                                                            <parameter name='prop.remote.connection-attachment.access-node-id' value='`$temp.accessTPs[1].access-node-id`' />
+                                                            <parameter name='prop.remote.connection-attachment.access-ltp-id' value='`$temp.accessTPs[1].access-ltp-id`' />
+                                                        </set>
+                                                        <for index='paidx' start='0' end='`$tmp.network-input-parameters.param_length`' >
+                                                            <block>
+                                                                <switch test="`$tmp.network-input-parameters.param[$paidx].name == 'name'`">
+                                                                    <outcome value='true'>
+                                                                        <set>
+                                                                            <parameter name='template.name' value='`$tmp.network-input-parameters.param[$paidx].value`' />
+                                                                        </set>
+                                                                    </outcome>
+                                                                </switch>
+                                                                <switch test="`$tmp.network-input-parameters.param[$paidx].name == 'service-type'`">
+                                                                    <outcome value='true'>
+                                                                        <set>
+                                                                            <parameter name='template.service-type' value='`$tmp.network-input-parameters.param[$paidx].value`' />
+                                                                        </set>
+                                                                    </outcome>
+                                                                </switch>
+                                                                <switch test="`$tmp.network-input-parameters.param[$paidx].name == 'total-size'`">
+                                                                    <outcome value='true'>
+                                                                        <set>
+                                                                            <parameter name='template.total-size' value='`$tmp.network-input-parameters.param[$paidx].value`' />
+                                                                        </set>
+                                                                    </outcome>
+                                                                </switch>
+                                                                <switch test="`$tmp.network-input-parameters.param[$paidx].name == 'pir'`">
+                                                                    <outcome value='true'>
+                                                                        <set>
+                                                                            <parameter name='template.pir' value='`$tmp.network-input-parameters.param[$paidx].value`' />
+                                                                        </set>
+                                                                    </outcome>
+                                                                </switch>
+                                                                <switch test="`$tmp.network-input-parameters.param[$paidx].name == 'cbs'`">
+                                                                    <outcome value='true'>
+                                                                        <set>
+                                                                            <parameter name='template.cbs' value='`$tmp.network-input-parameters.param[$paidx].value`' />
+                                                                        </set>
+                                                                    </outcome>
+                                                                </switch>
+                                                                <switch test="`$tmp.network-input-parameters.param[$paidx].name == 'pbs'`">
+                                                                    <outcome value='true'>
+                                                                        <set>
+                                                                            <parameter name='template.pbs' value='`$tmp.network-input-parameters.param[$paidx].value`' />
+                                                                        </set>
+                                                                    </outcome>
+                                                                </switch>
+                                                                <switch test="`$tmp.network-input-parameters.param[$paidx].name == 'couplingFlag'`">
+                                                                    <outcome value='true'>
+                                                                        <set>
+                                                                            <parameter name='template.couplingFlag' value='`$tmp.network-input-parameters.param[$paidx].value`' />
+                                                                        </set>
+                                                                    </outcome>
+                                                                </switch>
+                                                                <switch test="`$tmp.network-input-parameters.param[$paidx].name == 'colorAware'`">
+                                                                    <outcome value='true'>
+                                                                        <set>
+                                                                            <parameter name='template.colorAware' value='`$tmp.network-input-parameters.param[$paidx].value`' />
+                                                                        </set>
+                                                                    </outcome>
+                                                                </switch>
+                                                                <switch test="`$tmp.network-input-parameters.param[$paidx].name == 'route-objective-function'`">
+                                                                    <outcome value='true'>
+                                                                        <set>
+                                                                            <parameter name='template.route-objective-function' value='`$tmp.network-input-parameters.param[$paidx].value`' />
+                                                                        </set>
+                                                                    </outcome>
+                                                                </switch>
+                                                                <switch test="`$tmp.network-input-parameters.param[$paidx].name == 'diversity-policy'`">
+                                                                    <outcome value='true'>
+                                                                        <set>
+                                                                            <parameter name='template.diversity-policy' value='`$tmp.network-input-parameters.param[$paidx].value`' />
+                                                                        </set>
+                                                                    </outcome>
+                                                                </switch>
+                                                            </block>
+                                                        </for>
+                                                        <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                                            <parameter name="templateFileName" value="`$prop.restapi.templateDir + '/' + $prop.restapi.oof-getpath.templatefile`" />
+                                                            <parameter name="restapiUrl" value="`$prop.restapi.connection-oof-url`" />
+                                                            <parameter name="restapiUser" value="`$prop.oof.user`" />
+                                                            <parameter name="restapiPassword" value="`$prop.oof.password`" />
+                                                            <parameter name="format" value="json"/>
+                                                            <parameter name="httpMethod" value="post"/>
+                                                            <parameter name="responsePrefix" value="oof"/>
+                                                            <parameter name="trustStoreFileName" value="/opt/onap/sdnc/data/stores/truststore.openecomp.client.jks"/>
+                                                            <parameter name="trustStorePassword" value="adminadmin"/>
+                                                            <parameter name="keyStoreFileName" value="/opt/onap/sdnc/data/stores/sdnc.p12"/>
+                                                            <parameter name="keyStorePassword" value="adminadmin"/>
+                                                            <parameter name='customHttpHeaders' value="`'X-ACCESS-TOKEN=' + $prop.sdncRestApi.token_id`" />
+                                                            <outcome value='failure'></outcome>
+                                                            <outcome value='success'>
+                                                                <for index='vidx' start='0' end='`$oof.vpns_length`' >
+                                                                    <block atomic="true">
+                                                                        <set>
+                                                                            <parameter name='oof.vpn.' value='`$oof.vpns[$vidx].`' />
+                                                                        </set>
+                                                                        <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="pnf" 
+		key="pnf.pnf-name = $oof.vpn.access-node-id 
+		AND depth = '0'"
+        pfx='tmp.aai.pnf' local-only='false' >
+                                                                            <outcome value='success'>
+                                                                                <set>
+                                                                                    <parameter name='tmp.thirdparty-sdnc-id' value="`$tmp.aai.pnf.relationship-list.relationship[0].relationship-data[0].relationship-value`" />
+                                                                                </set>
+                                                                            </outcome>
+                                                                            <outcome value='not-found'>
+                                                                                <return status='failure'>
+                                                                                    <parameter name='ack-final' value='Y'/>
+                                                                                    <parameter name="error-code" value="500" />
+                                                                                    <parameter name="error-message" value="`'An error occurred while querying pnf from AnAI with pnf-name = ' + $prop.connection-attachement.access-node-id`" />
+                                                                                </return>
+                                                                            </outcome>
+                                                                            <outcome value='Other'>
+                                                                                <return status='failure'>
+                                                                                    <parameter name='ack-final' value='Y'/>
+                                                                                    <parameter name="error-code" value="500" />
+                                                                                    <parameter name="error-message" value="`'Unexpected error occurred while querying pnf from AnAI with pnf-name = ' + $prop.connection-attachement.access-node-id`" />
+                                                                                </return>
+                                                                            </outcome>
+                                                                        </get-resource>
+                                                                        <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="esr-thirdparty-sdnc" 
+		key="esr-thirdparty-sdnc.thirdparty-sdnc-id = $tmp.thirdparty-sdnc-id AND 
+		     depth = '1'"
+        pfx='tmp.aai.esr-thirdparty-sdnc' local-only='false' >
+                                                                            <outcome value='success'>
+                                                                                <set>
+                                                                                    <parameter name='prop.sdncRestApi.thirdpartySdnc.url' value="`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].service-url`" />
+                                                                                    <parameter name='prop.sdncRestApi.thirdpartySdnc.user' value="`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].user-name`" />
+                                                                                    <parameter name='prop.sdncRestApi.thirdpartySdnc.password' value="`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].password`" />
+                                                                                </set>
+                                                                            </outcome>
+                                                                            <outcome value='not-found'>
+                                                                                <return status='failure'>
+                                                                                    <parameter name='ack-final' value='Y'/>
+                                                                                    <parameter name="error-code" value="500" />
+                                                                                    <parameter name="error-message" value="`'An error occurred while querying esr-thirdparty-sdnc from AnAI with thirdparty-sdnc-id = ' + $tmp.thirdparty-sdnc-id`" />
+                                                                                </return>
+                                                                            </outcome>
+                                                                            <outcome value='Other'>
+                                                                                <return status='failure'>
+                                                                                    <parameter name='ack-final' value='Y'/>
+                                                                                    <parameter name="error-code" value="500" />
+                                                                                    <parameter name="error-message" value="`'Unexpected error occurred while querying esr-thirdparty-sdnc from AnAI with thirdparty-sdnc-id = ' + $tmp.thirdparty-sdnc-id`" />
+                                                                                </return>
+                                                                            </outcome>
+                                                                        </get-resource>
+                                                                        <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                                                            <parameter name="templateFileName" value="`$prop.restapi.templateDir + '/sotn-api-ConnectivityService.json'`" />
+                                                                            <parameter name="restapiUrl" value="`$prop.sdncRestApi.thirdpartySdnc.url + '/restconf/operations/ZTE-API-ConnectivityService:create-connectivity-service'`" />
+                                                                            <parameter name="restapiUser" value="`$prop.sdncRestApi.thirdpartySdnc.user`" />
+                                                                            <parameter name="restapiPassword" value="`$prop.sdncRestApi.thirdpartySdnc.password`" />
+                                                                            <parameter name="format" value="json"/>
+                                                                            <parameter name="httpMethod" value="patch"/>
+                                                                            <parameter name="responsePrefix" value="vpn-result"/>
+                                                                            <parameter name="trustStoreFileName" value="/opt/onap/sdnc/data/stores/truststore.openecomp.client.jks"/>
+                                                                            <parameter name="trustStorePassword" value="adminadmin"/>
+                                                                            <parameter name="keyStoreFileName" value="/opt/onap/sdnc/data/stores/sdnc.p12"/>
+                                                                            <parameter name="keyStorePassword" value="adminadmin"/>
+                                                                            <parameter name='customHttpHeaders' value="`'X-ACCESS-TOKEN=' + $prop.sdncRestApi.token_id`" />
+                                                                            <outcome value='failure'>
+                                                                                <return status='failure'>
+                                                                                    <parameter name='ack-final' value='Y'/>
+                                                                                    <parameter name="error-code" value="500" />
+                                                                                    <parameter name="error-message" value="Error executing Create vpn rest api" />
+                                                                                </return>
+                                                                            </outcome>
+                                                                            <outcome value='success'>
+                                                                                <block atomic="true"></block>
+                                                                            </outcome>
+                                                                        </execute>
+                                                                    </block>
+                                                                </for>
+                                                            </outcome>
+                                                        </execute>
+                                                    </block>
+                                                </outcome>
+                                            </switch>
+                                        </block>
+                                    </outcome>
+                                    <outcome value='false'>
+                                        <block atomic="true">
+                                            <set>
+                                                <parameter name='tmp.restapiUrl-found' value='false' />
+                                                <parameter name='tmp.restapiUser-found' value='false' />
+                                                <parameter name='tmp.restapiPassword-found' value='false' />
+                                                <parameter name='tmp.templateFileName-found' value='false' />
+                                                <parameter name='tmp.thirdPartyAdaptorRpc-found' value='false' />
+                                            </set>
+                                            <for index='cxid' start='0' end='`$network-topology-operation-input.network-request-input.network-input-parameters.param_length`' >
+                                                <block atomic="true">
+                                                    <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >
+                                                        <parameter name="source" value="`$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].name`"/>
+                                                        <parameter name="target" value="thirdPartySdncId"/>
+                                                        <outcome value='true'>
+                                                            <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="esr-thirdparty-sdnc" 
+		key="esr-thirdparty-sdnc.thirdparty-sdnc-id = `$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].value` AND 
+		     depth = '1'"
+        pfx='tmp.aai.esr-thirdparty-sdnc' local-only='false' >
+                                                                <outcome value='success'>
+                                                                    <set>
+                                                                        <parameter name='prop.thirdpartySdnc-found' value='true' />
+                                                                        <parameter name='prop.sdncRestApi.thirdpartySdnc.url' value="`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].service-url`" />
+                                                                        <parameter name='prop.sdncRestApi.thirdpartySdnc.user' value="`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].user-name`" />
+                                                                        <parameter name='prop.sdncRestApi.thirdpartySdnc.password' value="`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].password`" />
+                                                                    </set>
+                                                                </outcome>
+                                                                <outcome value='not-found'>
+                                                                    <set>
+                                                                        <parameter name='prop.thirdpartySdnc-found' value='false' />
+                                                                    </set>
+                                                                </outcome>
+                                                                <outcome value='Other'>
+                                                                    <set>
+                                                                        <parameter name='prop.thirdpartySdnc-found' value='false' />
+                                                                    </set>
+                                                                </outcome>
+                                                            </get-resource>
+                                                        </outcome>
+                                                        <outcome value='false'>
+                                                            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >
+                                                                <parameter name="source" value="`$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].name`"/>
+                                                                <parameter name="target" value="templateFileName"/>
+                                                                <outcome value='true'>
+                                                                    <set>
+                                                                        <parameter name='tmp.templateFileName' value="`$prop.restapi.templateDir + '/' + $network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].value`" />
+                                                                        <parameter name='tmp.templateFileName-found' value='true' />
+                                                                    </set>
+                                                                </outcome>
+                                                                <outcome value='false'>
+                                                                    <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >
+                                                                        <parameter name="source" value="`$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].name`"/>
+                                                                        <parameter name="target" value="restapiUrl"/>
+                                                                        <outcome value='true'>
+                                                                            <set>
+                                                                                <parameter name='tmp.restapiUrl' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].value`' />
+                                                                                <parameter name='tmp.restapiUrl-found' value='true' />
+                                                                            </set>
+                                                                        </outcome>
+                                                                    </execute>
+                                                                </outcome>
+                                                            </execute>
+                                                        </outcome>
+                                                    </execute>
+                                                    <set>
+                                                        <parameter name='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].name`' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].value`' />
+                                                    </set>
+                                                </block>
+                                            </for>
+                                            <return status='success'>
+                                                <parameter name="ack-final-indicator" value="Y" />
+                                                <parameter name="error-code" value="200" />
+                                                <parameter name="error-message" value="`$error-message`" />
+                                            </return>
+                                            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                                <parameter name="templateFileName" value="`$tmp.templateFileName`" />
+                                                <parameter name="restapiUrl" value="`$prop.sdncRestApi.thirdpartySdnc.url + $tmp.restapiUrl`" />
+                                                <parameter name="restapiUser" value="admin" />
+                                                <parameter name="restapiPassword" value="admin" />
+                                                <parameter name="format" value="json"/>
+                                                <parameter name="httpMethod" value="post"/>
+                                                <parameter name="responsePrefix" value="restApi-result"/>
+                                                <outcome value='success'>
+                                                    <for index='sIdx' start='0' end='`$service-data.networks.network_length`' >
+                                                        <switch test='`$service-data.networks.network[$sIdx].network-id == $network-topology-operation-input.network-information.network-id`'>
+                                                            <outcome value='true'>
+                                                                <block atomic="true">
+                                                                    <set>
+                                                                        <parameter name='paraIndx' value='`$service-data.networks.network[$sIdx].network-data.network-request-input.network-input-parameters.param_length`' />
+                                                                    </set>
+                                                                    <set>
+                                                                        <parameter name='`$service-data.networks.network[$sIdx].network-data.network-request-input.network-input-parameters.param[$paraIndx].name`' value='localServiceId' />
+                                                                        <parameter name='`$service-data.networks.network[$sIdx].network-data.network-request-input.network-input-parameters.param[$paraIndx].value`' value='`$restApi-result.output.service.uuid`' />
+                                                                    </set>
+                                                                </block>
+                                                            </outcome>
+                                                        </switch>
+                                                    </for>
+                                                </outcome>
+                                                <outcome value='failure'>
+                                                    <return status='failure'>
+                                                        <parameter name='ack-final' value='Y'/>
+                                                        <parameter name="error-code" value="500" />
+                                                        <parameter name="error-message" value="`'Error calling ' + $tmp.restapiUrl`" />
+                                                    </return>
+                                                </outcome>
+                                                <outcome value='not-found'>
+                                                    <return status='failure'>
+                                                        <parameter name='ack-final' value='Y'/>
+                                                        <parameter name="error-code" value="500" />
+                                                        <parameter name="error-message" value="`'Error calling ' + $tmp.restapiUrl`" />
+                                                    </return>
+                                                </outcome>
+                                            </execute>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                            </block>
+                        </outcome>
+                        <outcome value='false'>
+                            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >
+                                <parameter name="source" value="`$network-topology-operation-input.network-information.onap-model-information.model-name`"/>
+                                <parameter name="target" value="Fd"/>
+                                <outcome value='true'>
+                                    <block atomic="true">
+                                        <set>
+                                            <parameter name='tmp.restapiUrl-found' value='false' />
+                                            <parameter name='tmp.restapiUser-found' value='false' />
+                                            <parameter name='tmp.restapiPassword-found' value='false' />
+                                            <parameter name='tmp.templateFileName-found' value='false' />
+                                            <parameter name='tmp.thirdPartyAdaptorRpc-found' value='false' />
+                                        </set>
+                                        <for index='cxid' start='0' end='`$network-topology-operation-input.network-request-input.network-input-parameters.param_length`' >
+                                            <block atomic="true">
+                                                <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >
+                                                    <parameter name="source" value="`$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].name`"/>
+                                                    <parameter name="target" value="thirdPartySdncId"/>
+                                                    <outcome value='true'>
+                                                        <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="esr-thirdparty-sdnc" 
+		key="esr-thirdparty-sdnc.thirdparty-sdnc-id = `$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].value` AND 
+		     depth = '1'"
+        pfx='tmp.aai.esr-thirdparty-sdnc' local-only='false' >
+                                                            <outcome value='success'>
+                                                                <set>
+                                                                    <parameter name='prop.thirdpartySdnc-found' value='true' />
+                                                                    <parameter name='prop.sdncRestApi.thirdpartySdnc.url' value="`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].service-url`" />
+                                                                    <parameter name='prop.sdncRestApi.thirdpartySdnc.user' value="`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].user-name`" />
+                                                                    <parameter name='prop.sdncRestApi.thirdpartySdnc.password' value="`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].password`" />
+                                                                </set>
+                                                            </outcome>
+                                                            <outcome value='not-found'>
+                                                                <set>
+                                                                    <parameter name='prop.thirdpartySdnc-found' value='false' />
+                                                                </set>
+                                                            </outcome>
+                                                            <outcome value='Other'>
+                                                                <set>
+                                                                    <parameter name='prop.thirdpartySdnc-found' value='false' />
+                                                                </set>
+                                                            </outcome>
+                                                        </get-resource>
+                                                    </outcome>
+                                                    <outcome value='false'>
+                                                        <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >
+                                                            <parameter name="source" value="`$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].name`"/>
+                                                            <parameter name="target" value="templateFileName"/>
+                                                            <outcome value='true'>
+                                                                <set>
+                                                                    <parameter name='tmp.templateFileName' value="`$prop.restapi.templateDir + '/' + $network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].value`" />
+                                                                    <parameter name='tmp.templateFileName-found' value='true' />
+                                                                </set>
+                                                            </outcome>
+                                                            <outcome value='false'>
+                                                                <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >
+                                                                    <parameter name="source" value="`$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].name`"/>
+                                                                    <parameter name="target" value="restapiUrl"/>
+                                                                    <outcome value='true'>
+                                                                        <set>
+                                                                            <parameter name='tmp.restapiUrl' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].value`' />
+                                                                            <parameter name='tmp.restapiUrl-found' value='true' />
+                                                                        </set>
+                                                                    </outcome>
+                                                                </execute>
+                                                            </outcome>
+                                                        </execute>
+                                                    </outcome>
+                                                </execute>
+                                                <set>
+                                                    <parameter name='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].name`' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].value`' />
+                                                </set>
+                                            </block>
+                                        </for>
+                                        <return status='success'>
+                                            <parameter name="ack-final-indicator" value="Y" />
+                                            <parameter name="error-code" value="200" />
+                                            <parameter name="error-message" value="`$error-message`" />
+                                        </return>
+                                        <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                            <parameter name="templateFileName" value="`$tmp.templateFileName`" />
+                                            <parameter name="restapiUrl" value="`$prop.sdncRestApi.thirdpartySdnc.url + $tmp.restapiUrl`" />
+                                            <parameter name="restapiUser" value="admin" />
+                                            <parameter name="restapiPassword" value="admin" />
+                                            <parameter name="format" value="json"/>
+                                            <parameter name="httpMethod" value="post"/>
+                                            <parameter name="responsePrefix" value="restApi-result"/>
+                                            <outcome value='success'>
+                                                <for index='sIdx' start='0' end='`$service-data.networks.network_length`' >
+                                                    <switch test='`$service-data.networks.network[$sIdx].network-id == $network-topology-operation-input.network-information.network-id`'>
+                                                        <outcome value='true'>
+                                                            <block atomic="true">
+                                                                <set>
+                                                                    <parameter name='paraIndx' value='`$service-data.networks.network[$sIdx].network-data.network-request-input.network-input-parameters.param_length`' />
+                                                                </set>
+                                                                <set>
+                                                                    <parameter name='`$service-data.networks.network[$sIdx].network-data.network-request-input.network-input-parameters.param[$paraIndx].name`' value='localServiceId' />
+                                                                    <parameter name='`$service-data.networks.network[$sIdx].network-data.network-request-input.network-input-parameters.param[$paraIndx].value`' value='`$restApi-result.output.service.uuid`' />
+                                                                </set>
+                                                            </block>
+                                                        </outcome>
+                                                    </switch>
+                                                </for>
+                                            </outcome>
+                                            <outcome value='failure'>
+                                                <return status='failure'>
+                                                    <parameter name='ack-final' value='Y'/>
+                                                    <parameter name="error-code" value="500" />
+                                                    <parameter name="error-message" value="`'Error calling ' + $tmp.restapiUrl`" />
+                                                </return>
+                                            </outcome>
+                                            <outcome value='not-found'>
+                                                <return status='failure'>
+                                                    <parameter name='ack-final' value='Y'/>
+                                                    <parameter name="error-code" value="500" />
+                                                    <parameter name="error-message" value="`'Error calling ' + $tmp.restapiUrl`" />
+                                                </return>
+                                            </outcome>
+                                        </execute>
+                                    </block>
+                                </outcome>
+                                <outcome value='false'>
+                                    <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >
+                                        <parameter name="source" value="`$network-topology-operation-input.network-information.onap-model-information.model-name`"/>
+                                        <parameter name="target" value="FcPort"/>
+                                        <outcome value='true'>
+                                            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >
+                                                <parameter name="source" value="`$network-topology-operation-input.network-information.onap-model-information.model-name`"/>
+                                                <parameter name="target" value="sitewan"/>
+                                                <outcome value='true'>
+                                                    <block atomic="true">
+                                                        <set>
+                                                            <parameter name='tmp.restapiUrl-found' value='false' />
+                                                            <parameter name='tmp.restapiUser-found' value='false' />
+                                                            <parameter name='tmp.restapiPassword-found' value='false' />
+                                                            <parameter name='tmp.templateFileName-found' value='false' />
+                                                            <parameter name='tmp.thirdPartyAdaptorRpc-found' value='false' />
+                                                        </set>
+                                                        <for index='cxid' start='0' end='`$network-topology-operation-input.network-request-input.network-input-parameters.param_length`' >
+                                                            <block atomic="true">
+                                                                <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >
+                                                                    <parameter name="source" value="`$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].name`"/>
+                                                                    <parameter name="target" value="thirdPartySdncId"/>
+                                                                    <outcome value='true'>
+                                                                        <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+		resource="esr-thirdparty-sdnc" 
+		key="esr-thirdparty-sdnc.thirdparty-sdnc-id = `$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].value` AND 
+		     depth = '1'"
+        pfx='tmp.aai.esr-thirdparty-sdnc' local-only='false' >
+                                                                            <outcome value='success'>
+                                                                                <set>
+                                                                                    <parameter name='prop.thirdpartySdnc-found' value='true' />
+                                                                                    <parameter name='prop.sdncRestApi.thirdpartySdnc.url' value="`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].service-url`" />
+                                                                                    <parameter name='prop.sdncRestApi.thirdpartySdnc.user' value="`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].user-name`" />
+                                                                                    <parameter name='prop.sdncRestApi.thirdpartySdnc.password' value="`$tmp.aai.esr-thirdparty-sdnc.esr-system-info-list.esr-system-info[0].password`" />
+                                                                                </set>
+                                                                            </outcome>
+                                                                            <outcome value='not-found'>
+                                                                                <set>
+                                                                                    <parameter name='prop.thirdpartySdnc-found' value='false' />
+                                                                                </set>
+                                                                            </outcome>
+                                                                            <outcome value='Other'>
+                                                                                <set>
+                                                                                    <parameter name='prop.thirdpartySdnc-found' value='false' />
+                                                                                </set>
+                                                                            </outcome>
+                                                                        </get-resource>
+                                                                    </outcome>
+                                                                    <outcome value='false'>
+                                                                        <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >
+                                                                            <parameter name="source" value="`$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].name`"/>
+                                                                            <parameter name="target" value="templateFileName"/>
+                                                                            <outcome value='true'>
+                                                                                <set>
+                                                                                    <parameter name='tmp.templateFileName' value="`$prop.restapi.templateDir + '/' + $network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].value`" />
+                                                                                    <parameter name='tmp.templateFileName-found' value='true' />
+                                                                                </set>
+                                                                            </outcome>
+                                                                            <outcome value='false'>
+                                                                                <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='contains' emitsOutcome='true' >
+                                                                                    <parameter name="source" value="`$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].name`"/>
+                                                                                    <parameter name="target" value="restapiUrl"/>
+                                                                                    <outcome value='true'>
+                                                                                        <set>
+                                                                                            <parameter name='tmp.restapiUrl' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].value`' />
+                                                                                            <parameter name='tmp.restapiUrl-found' value='true' />
+                                                                                        </set>
+                                                                                    </outcome>
+                                                                                </execute>
+                                                                            </outcome>
+                                                                        </execute>
+                                                                    </outcome>
+                                                                </execute>
+                                                                <set>
+                                                                    <parameter name='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].name`' value='`$network-topology-operation-input.network-request-input.network-input-parameters.param[$cxid].value`' />
+                                                                </set>
+                                                            </block>
+                                                        </for>
+                                                        <return status='success'>
+                                                            <parameter name="ack-final-indicator" value="Y" />
+                                                            <parameter name="error-code" value="200" />
+                                                            <parameter name="error-message" value="`$error-message`" />
+                                                        </return>
+                                                        <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                                                            <parameter name="templateFileName" value="`$tmp.templateFileName`" />
+                                                            <parameter name="restapiUrl" value="`$prop.sdncRestApi.thirdpartySdnc.url + $tmp.restapiUrl`" />
+                                                            <parameter name="restapiUser" value="admin" />
+                                                            <parameter name="restapiPassword" value="admin" />
+                                                            <parameter name="format" value="json"/>
+                                                            <parameter name="httpMethod" value="post"/>
+                                                            <parameter name="responsePrefix" value="restApi-result"/>
+                                                            <outcome value='success'>
+                                                                <for index='sIdx' start='0' end='`$service-data.networks.network_length`' >
+                                                                    <switch test='`$service-data.networks.network[$sIdx].network-id == $network-topology-operation-input.network-information.network-id`'>
+                                                                        <outcome value='true'>
+                                                                            <block atomic="true">
+                                                                                <set>
+                                                                                    <parameter name='paraIndx' value='`$service-data.networks.network[$sIdx].network-data.network-request-input.network-input-parameters.param_length`' />
+                                                                                </set>
+                                                                                <set>
+                                                                                    <parameter name='`$service-data.networks.network[$sIdx].network-data.network-request-input.network-input-parameters.param[$paraIndx].name`' value='localServiceId' />
+                                                                                    <parameter name='`$service-data.networks.network[$sIdx].network-data.network-request-input.network-input-parameters.param[$paraIndx].value`' value='`$restApi-result.output.service.uuid`' />
+                                                                                </set>
+                                                                            </block>
+                                                                        </outcome>
+                                                                    </switch>
+                                                                </for>
+                                                            </outcome>
+                                                            <outcome value='failure'>
+                                                                <return status='failure'>
+                                                                    <parameter name='ack-final' value='Y'/>
+                                                                    <parameter name="error-code" value="500" />
+                                                                    <parameter name="error-message" value="`'Error calling ' + $tmp.restapiUrl`" />
+                                                                </return>
+                                                            </outcome>
+                                                            <outcome value='not-found'>
+                                                                <return status='failure'>
+                                                                    <parameter name='ack-final' value='Y'/>
+                                                                    <parameter name="error-code" value="500" />
+                                                                    <parameter name="error-message" value="`'Error calling ' + $tmp.restapiUrl`" />
+                                                                </return>
+                                                            </outcome>
+                                                        </execute>
+                                                    </block>
+                                                </outcome>
+                                                <outcome value='false'>
+                                                    <block>
+                                                        <return status='success'>
+                                                            <parameter name="ack-final-indicator" value="Y" />
+                                                            <parameter name="error-code" value="200" />
+                                                            <parameter name="error-message" value="`$error-message`" />
+                                                        </return>
+                                                    </block>
+                                                </outcome>
+                                            </execute>
+                                        </outcome>
+                                        <outcome value='false'>
+                                            <block>
+                                                <return status='success'>
+                                                    <parameter name="ack-final-indicator" value="Y" />
+                                                    <parameter name="error-code" value="200" />
+                                                    <parameter name="error-message" value="`$error-message`" />
+                                                </return>
+                                            </block>
+                                        </outcome>
+                                    </execute>
+                                </outcome>
+                            </execute>
+                        </outcome>
+                    </execute>
+                </block>
+            </outcome>
+        </execute>
+    </method>
+</service-logic>

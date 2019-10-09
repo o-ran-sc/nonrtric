@@ -1,0 +1,57 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='port-mirror-topology-operation-activate-sync' mode='sync'>
+        <block atomic="true">
+            <set>
+                <parameter name='tmp.pm.configuration-id' value='`$port-mirror-topology-operation-input.configuration-information.configuration-id`' />
+            </set>
+            <execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >
+                <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />
+                <parameter name='contextPrefix' value='prop' />
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >
+                <parameter name="source" value="`$prop.restapi.pm-configuration`"/>
+                <parameter name="outputPath" value="tmp.pmc-url"/>
+                <parameter name="target" value="{configuration-id}"/>
+                <parameter name="replacement" value="`$tmp.pm.configuration-id`"/>
+            </execute>
+            <execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >
+                <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.pmc-url`' />
+                <parameter name='restapiUser' value='`$prop.controller.user`' />
+                <parameter name='restapiPassword' value='`$prop.controller.pwd`' />
+                <parameter name='format' value='json' />
+                <parameter name='httpMethod' value='GET' />
+                <parameter name="responsePrefix" value="mdsal-pmc" />
+                <outcome value='success'>
+                    <switch test='`$mdsal-pmc.port-mirror-configuration_length == 1`'>
+                        <outcome value='false'>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500' />
+                                <parameter name='error-message' value="`'Cannot find port-mirror-configuration ' + $tmp.pm.configuration-id`" />
+                            </return>
+                        </outcome>
+                    </switch>
+                </outcome>
+                <outcome value='Other'>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value="`'Cannot find port-mirror-configuration ' + $tmp.pm.configuration-id`" />
+                    </return>
+                </outcome>
+            </execute>
+            <switch test="`$mdsal-pmc.port-mirror-configuration[0].configuration-data.configuration-oper-status.order-status == 'Created'`">
+                <outcome value='false'>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value="`'Order status is ' + $mdsal-pmc.port-mirror-configuration[0].configuration-data.configuration-oper-status.order-status + ' but must be Created'`" />
+                    </return>
+                </outcome>
+            </switch>
+            <return status='success'>
+                <parameter name='error-code' value='200' />
+                <parameter name='ack-final' value='N' />
+            </return>
+        </block>
+    </method>
+</service-logic>

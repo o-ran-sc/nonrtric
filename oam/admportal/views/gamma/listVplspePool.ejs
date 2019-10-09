@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>SDN-C AdminPortal</title>
+
+<script class="init">
+    $(document).ready(function() {
+    $('#vplspe_pool').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+
+</head>
+<body>
+
+<div class="well well-sm">
+<h3>VPLSPE Pool</h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+<div class="container-fluid">
+	<table id="vplspe_pool" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+          <th>VPLSPE Name</th>
+          <th>AIC Site ID</th>
+          <th>Availability Zone</th>
+		  <th>Interface Name</th>
+          <th>Interface Speed</th>
+          <th>Interface Units</th>
+          <th>Loopback IPV4 Address</th>
+          <th>VLAN ID Outer</th>
+          <th>VPLSPE UUID</th>
+          <th>Image Filename</th>
+          <th>Prov Status</th>
+          <th>Vendor</th>
+		  <% if(priv == 'A'){ %>
+		  <th>Action</th>
+		  <% } %>
+        </tr>
+      </thead>
+      <tbody>
+      <% rows.forEach( function(row) { %> 
+        <tr>
+            <td><%= row.vplspe_name %></td>
+            <td><%= row.aic_site_id %></td>
+            <td><%= row.availability_zone %></td>
+            <td><%= row.physical_intf_name %></td>
+            <td><%= row.physical_intf_speed %></td>
+            <td><%= row.physical_intf_units %></td>
+            <td><%= row.loopback0_ipv4_address %></td>
+            <td><%= row.vlan_id_outer %></td>
+            <td><%= row.vplspe_uuid %></td>
+            <td><%= row.image_filename %></td>
+            <td><%= row.provisioning_status %></td>
+            <td><%= row.vendor %></td>
+			<% if(priv == 'A') { %>
+            <td>
+				<button type="button" class="btn btn-default btn-xs"
+                    onclick="updateVplspePool('<%=row.aic_site_id %>','<%= row.availability_zone %>','<%= row.vplspe_name %>','<%= row.physical_intf_name %>','<%= row.physical_intf_speed %>','<%= row.physical_intf_units %>','<%= row.loopback0_ipv4_address %>','<%= row.vlan_id_outer %>','<%= row.vplspe_uuid %>','<%= row.image_filename %>','<%= row.provisioning_status %>','<%= row.vendor %>');">Update</button>
+				<button type="button" class="btn btn-default btn-xs"
+                   onclick="deleteVplspePool('<%= row.vplspe_name %>','<%=row.aic_site_id %>','<%= row.availability_zone %>','<%= row.physical_intf_name %>');">Delete</button>
+            </td>
+            <% } %>
+
+        </tr>
+    <% }); %>
+      </tbody>
+    </table>
+
+<!--
+	<% if(priv == 'A'){ %>
+	<div class="actions" style="padding:0px 25px;">
+	<form method="POST" action="/gamma/uploadVplspePool" enctype="multipart/form-data">
+		<div class="form-group">
+    		<label for="dest">File input</label>
+    		<input name="filename" type="file" id="dest">
+    		<p class="help-block">Choose a file to upload.</p>
+  		</div>
+		<% if(priv == 'A') { %>
+            <button type="button" class="btn btn-default"
+                onclick="uploadFile(this.form);">Upload File</button>
+        <% } else { %>
+            <button type="button" class="btn btn-default disabled"
+                onclick="uploadFile(this.form);">Upload File</button>
+        <% } %>
+
+	</form>
+	</div>
+	<% } %>
+-->
+</div>
+
+<% include ../partials/update_vplspe_pool %>
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+<script type="text/javascript">
+function updateVplspePool(aic_site_id,availability_zone,vplspe_name,physical_intf_name,physical_intf_speed,physical_intf_units,loopback0_ipv4_address,vlan_id_outer,vplspe_uuid,image_filename,provisioning_status,vendor) {
+
+    document.getElementById('uf_aic_site_id').value=aic_site_id;
+    document.getElementById('uf_availability_zone').value=availability_zone
+    document.getElementById('uf_vplspe_name').value=vplspe_name;
+    document.getElementById('uf_physical_intf_name').value=physical_intf_name;
+    document.getElementById('uf_physical_intf_speed').value=physical_intf_speed;
+    document.getElementById('uf_physical_intf_units').value=physical_intf_units;
+    document.getElementById('uf_loopback0_ipv4_address').value=loopback0_ipv4_address;
+    document.getElementById('uf_vlan_id_outer').value=vlan_id_outer;
+    document.getElementById('uf_vplspe_uuid').value=vplspe_uuid;
+    document.getElementById('uf_image_filename').value=image_filename;
+    document.getElementById('uf_provisioning_status').value=provisioning_status;
+    document.getElementById('uf_vendor').value=vendor;
+
+    document.getElementById('uf_key_aic_site_id').value=aic_site_id;
+    document.getElementById('uf_key_vplspe_name').value=vplspe_name;
+    document.getElementById('uf_key_availability_zone').value=availability_zone
+    document.getElementById('uf_key_physical_intf_name').value=physical_intf_name;
+    $('#update_vplspe_pool_modal').modal('show');
+}
+
+function deleteVplspePool(vplspe_name,aic_site_id,availability_zone,physical_intf_name) {
+
+    bootbox.confirm({
+        message: "Are you sure you want to delete VPLSPE [" + vplspe_name + "][" + aic_site_id + "][" + availability_zone + "][" + physical_intf_name + "] ?",
+        callback: function(result) {
+            if ( result )
+            {
+                location.assign("/gamma/deleteVplspePool?aic_site_id=" + aic_site_id + "&vplspe_name=" + vplspe_name + "&availability_zone=" + availability_zone + "&physical_intf_name=" + physical_intf_name);
+            }
+            return;
+        },
+        buttons: {
+            cancel: {
+                label: "Cancel"
+            },
+            confirm: {
+                label: "Yes"
+            }
+        }
+    });
+}
+</script>
+
+</body>
+</html>
+

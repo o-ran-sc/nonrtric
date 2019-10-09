@@ -1,0 +1,19 @@
+---
+distribution_type: 'container'
+container_release_tag: '1.7.3'
+project: 'sdnc-oam'
+log_dir: 'sdnc-oam-maven-docker-stage-elalto/5/'
+ref: 845ff019964af8cd799861ccd47fc44182041675
+containers:
+    - name: 'sdnc-ansible-server-image'
+      version: '1.7.3-STAGING-20190920T222921Z'
+    - name: 'sdnc-aaf-image'
+      version: '1.7.3-STAGING-20190920T222921Z'
+    - name: 'sdnc-image'
+      version: '1.7.3-STAGING-20190920T222921Z'
+    - name: 'admportal-sdnc-image'
+      version: '1.7.3-STAGING-20190920T222921Z'
+    - name: 'sdnc-ueb-listener-image'
+      version: '1.7.3-STAGING-20190920T222921Z'
+    - name: 'sdnc-dmaap-listener-image'
+      version: '1.7.3-STAGING-20190920T222921Z'

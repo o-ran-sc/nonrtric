@@ -1,0 +1,243 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='port-mirror-topology-operation-mapping-vprobe' mode='sync'>
+        <block atomic="true">
+            <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='select vnics_group_id
+    from VNICS_CAPACITY_GROUP
+    where service_instance_id = $tmp.service-instance-id
+    and nfc_naming_code = $tmp.dest-nfc-naming-code
+    and vnf_id = $tmp.dest-vnf-id'
+  pfx='db'>
+                <outcome value='failure'>
+                    <return status='failure'>
+                        <parameter name='error-code' value='500' />
+                        <parameter name='error-message' value="Failure reading VNICS_CAPACITY_GROUP table" />
+                    </return>
+                </outcome>
+                <outcome value='not-found'>
+                    <save plugin="org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource" resource="SQL"
+	key="insert into VNICS_CAPACITY_GROUP 
+	  (service_instance_id, nfc_naming_code, vnf_id)
+	  VALUES ( $tmp.service-instance-id , $tmp.dest-nfc-naming-code , $tmp.dest-vnf-id )"
+	pfx='pfx' >
+                        <outcome value='failure'>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500' />
+                                <parameter name='error-message' value="Failure to insert record into VNICS_CAPACITY_GROUP table" />
+                            </return>
+                        </outcome>
+                        <outcome value='success'>
+                            <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='select vnics_group_id
+    from VNICS_CAPACITY_GROUP
+    where service_instance_id = $tmp.service-instance-id
+    and nfc_naming_code = $tmp.dest-nfc-naming-code
+    and vnf_id = $tmp.dest-vnf-id'
+  pfx='db'>
+                                <outcome value='failure'>
+                                    <return status='failure'>
+                                        <parameter name='error-code' value='500' />
+                                        <parameter name='error-message' value="Failure reading VNICS_CAPACITY_GROUP table" />
+                                    </return>
+                                </outcome>
+                            </get-resource>
+                        </outcome>
+                    </save>
+                </outcome>
+            </get-resource>
+            <set>
+                <parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.vnics-group-id'
+  value='`$db.vnics-group-id`' />
+            </set>
+            <for silentFailure='true' index='vnfc-do-idx' start='0' end='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object_length`' >
+                <for silentFailure='true' index='vnic-d-idx' start='0' end='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic_length`' >
+                    <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='select available_capacity, vnic_capacity
+    from VNICS_CAPACITY
+    where vnics_group_id = $db.vnics-group-id
+    and vnic_port_name = $service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic[$vnic-d-idx].vnic-port-name'
+  pfx='db.vnics-capacity'>
+                        <outcome value='failure'>
+                            <return status='failure'>
+                                <parameter name='error-code' value='500' />
+                                <parameter name='error-message' value="Failure reading VNICS_CAPACITY_GROUP table" />
+                            </return>
+                        </outcome>
+                        <outcome value='not-found'>
+                            <save plugin="org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource" resource="SQL"
+	key="insert into VNICS_CAPACITY 
+	  (vnics_group_id, vnic_port_name, available_capacity, vnic_capacity)
+	  VALUES ( $db.vnics-group-id ,
+	    $service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic[$vnic-d-idx].vnic-port-name ,
+	    $service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic[$vnic-d-idx].capacity.vnic-capacity ,
+	    $service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic[$vnic-d-idx].capacity.vnic-capacity
+	    )"
+	pfx='pfx' >
+                                <outcome value='failure'>
+                                    <return status='failure'>
+                                        <parameter name='error-code' value='500' />
+                                        <parameter name='error-message' value="Failure to insert record into VNICS_CAPACITY table" />
+                                    </return>
+                                </outcome>
+                            </save>
+                        </outcome>
+                        <outcome value='success'>
+                            <set>
+                                <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic[$vnic-d-idx].capacity.vnic-capacity'
+  value='`$db.vnics-capacity.available-capacity`' />
+                            </set>
+                        </outcome>
+                    </get-resource>
+                </for>
+            </for>
+            <set>
+                <parameter name='map-idx' value='0' />
+            </set>
+            <for silentFailure='true' index='vnfc-so-idx' start='0' end='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object_length`' >
+                <for silentFailure='true' index='vnic-s-idx' start='0' end='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-so-idx].vnics.vnic_length`' >
+                    <block atomic="true">
+                        <set>
+                            <parameter name='tmp.found-capacity' value='N' />
+                            <parameter name='tmp.save-rem-cap' value='0' />
+                        </set>
+                        <for silentFailure='true' index='vnfc-do-idx' start='0' end='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object_length`' >
+                            <for silentFailure='true' index='vnic-d-idx' start='0' end='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic_length`' >
+                                <block atomic="true">
+                                    <set>
+                                        <parameter name='tmp.rem-cap' value='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic[$vnic-d-idx].capacity.vnic-capacity
+  - $service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic[$vnic-d-idx].capacity.used-capacity`' />
+                                    </set>
+                                    <switch test='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-so-idx].vnics.vnic[$vnic-s-idx].capacity.vnic-capacity
+  &lt;= $tmp.rem-cap`'>
+                                        <outcome value='true'>
+                                            <switch test='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic[$vnic-d-idx].vnic-ip-addresses.ip-addresses.ipv4-address`'>
+                                                <outcome value=''>
+                                                    <switch test='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic[$vnic-d-idx].vnic-ip-addresses.ip-addresses.ipv6-address`'>
+                                                        <outcome value=''>
+                                                            <block atomic="true"></block>
+                                                        </outcome>
+                                                        <outcome value='Other'>
+                                                            <switch test='`$tmp.rem-cap &gt; $tmp.save-rem-cap`'>
+                                                                <outcome value='true'>
+                                                                    <set>
+                                                                        <parameter name='tmp.found-capacity' value='Y' />
+                                                                        <parameter name='tmp.save-vnfc-do-idx' value='`$vnfc-do-idx`' />
+                                                                        <parameter name='tmp.save-vnic-d-idx' value='`$vnic-d-idx`' />
+                                                                        <parameter name='tmp.save-rem-cap' value='`$tmp.rem-cap`' />
+                                                                    </set>
+                                                                </outcome>
+                                                            </switch>
+                                                        </outcome>
+                                                    </switch>
+                                                </outcome>
+                                                <outcome value='Other'>
+                                                    <switch test='`$tmp.rem-cap &gt; $tmp.save-rem-cap`'>
+                                                        <outcome value='true'>
+                                                            <set>
+                                                                <parameter name='tmp.found-capacity' value='Y' />
+                                                                <parameter name='tmp.save-vnfc-do-idx' value='`$vnfc-do-idx`' />
+                                                                <parameter name='tmp.save-vnic-d-idx' value='`$vnic-d-idx`' />
+                                                                <parameter name='tmp.save-rem-cap' value='`$tmp.rem-cap`' />
+                                                            </set>
+                                                        </outcome>
+                                                    </switch>
+                                                </outcome>
+                                            </switch>
+                                        </outcome>
+                                    </switch>
+                                </block>
+                            </for>
+                        </for>
+                        <switch test="`$tmp.found-capacity == 'N'`">
+                            <outcome value='true'>
+                                <return status='failure'>
+                                    <parameter name='error-code' value='500' />
+                                    <parameter name='error-message' value="`'No capacity for source interface '
+  + $service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-so-idx].vnics.vnic[$vnic-s-idx].vnic-port-id`" />
+                                </return>
+                            </outcome>
+                        </switch>
+                        <set>
+                            <parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.save-vnfc-do-idx].vnics.vnic[$tmp.save-vnic-d-idx].capacity.used-capacity'
+  value='`$tmp.src-pps + $service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.save-vnfc-do-idx].vnics.vnic[$tmp.save-vnic-d-idx].capacity.used-capacity`' />
+                        </set>
+                        <set>
+                            <parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].source-port-id'
+  value='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-so-idx].vnics.vnic[$vnic-s-idx].vnic-port-id`' />
+                            <parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].source-port-name'
+  value='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-so-idx].vnics.vnic[$vnic-s-idx].vnic-port-name`' />
+                            <parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].source-vserver-id'
+  value='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-so-idx].vserver-id`' />
+                            <parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].dest-port-id'
+  value='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.save-vnfc-do-idx].vnics.vnic[$tmp.save-vnic-d-idx].vnic-port-id`' />
+                            <parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].dest-port-name'
+  value='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.save-vnfc-do-idx].vnics.vnic[$tmp.save-vnic-d-idx].vnic-port-name`' />
+                            <parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].dest-vserver-id'
+  value='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.save-vnfc-do-idx].vserver-id`' />
+                            <parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].dest-ip-addresses.ip-addresses.ipv4-address'
+  value='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.save-vnfc-do-idx].vnics.vnic[$tmp.save-vnic-d-idx].vnic-ip-addresses.ip-addresses.ipv4-address`' />
+                            <parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$map-idx].dest-ip-addresses.ip-addresses.ipv6-address'
+  value='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.save-vnfc-do-idx].vnics.vnic[$tmp.save-vnic-d-idx].vnic-ip-addresses.ip-addresses.ipv6-address`' />
+                        </set>
+                        <set>
+                            <parameter name='map-idx' value='`$map-idx + 1`' />
+                        </set>
+                    </block>
+                </for>
+            </for>
+            <set>
+                <parameter name='pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map_length'
+  value='`$map-idx`' />
+            </set>
+            <for silentFailure='true' index='vnfc-do-idx' start='0' end='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object_length`' >
+                <for silentFailure='true' index='vnic-d-idx' start='0' end='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic_length`' >
+                    <block atomic="true">
+                        <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='select available_capacity
+    from VNICS_CAPACITY
+    where vnics_group_id = $db.vnics-group-id
+    and vnic_port_name = $service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic[$vnic-d-idx].vnic-port-name'
+  pfx='db.vnics-capacity'>
+                            <outcome value='failure'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="Failure reading VNICS_CAPACITY table" />
+                                </return>
+                            </outcome>
+                        </get-resource>
+                        <set>
+                            <parameter name='tmp.original-avail-capacity' value='`$db.vnics-capacity.available-capacity`' />
+                            <parameter name='tmp.original-used-capacity' value='`$service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic[$vnic-d-idx].capacity.used-capacity`' />
+                            <parameter name='tmp.avail-capacity' value='`$db.vnics-capacity.available-capacity - $service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic[$vnic-d-idx].capacity.used-capacity`' />
+                        </set>
+                        <update plugin="org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource" resource="SQL"
+key="update VNICS_CAPACITY
+     set available_capacity = $tmp.avail-capacity
+     where vnics_group_id = $db.vnics-group-id
+     and vnic_port_name = $service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$vnfc-do-idx].vnics.vnic[$vnic-d-idx].vnic-port-name
+" >
+                            <outcome value='failure'>
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="Failure updating VNICS_CAPACITY table" />
+                                </return>
+                            </outcome>
+                        </update>
+                    </block>
+                </for>
+            </for>
+            <save plugin="org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource" resource="SQL"
+	key="insert into VNICS_CONFIGURATION_ID
+	(configuration_id, vnics_group_id)
+	values ( $tmp.configuration-id , $db.vnics-group-id )"
+	pfx='pfx' ></save>
+            <return status='success'>
+                <parameter name='' value='' />
+            </return>
+        </block>
+    </method>
+</service-logic>

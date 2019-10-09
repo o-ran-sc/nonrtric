@@ -1,0 +1,54 @@
+   <div class="modal fade" id="update_aic_avail_zone_modal" tabindex="-1" role="dialog" 
+		aria-labelledby="update_aic_avail_zone_label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Update AIC Availability Zone Pool</h4>
+          </div>
+          <div class="modal-body">
+            <form role="form" action="/gamma/updateAicAvailZone" method="POST">
+              <div class="form-group">
+                <label for="uf_aic_site_id">AIC Site ID</label>
+                <input type="text" class="form-control" name="uf_aic_site_id" id="uf_aic_site_id">
+              </div>
+              <div class="form-group">
+                <label for="uf_availability_zone">Availability Zone</label>
+                <input type="text" class="form-control" name="uf_availability_zone" id="uf_availability_zone">
+              </div>
+              <div class="form-group">
+                <label for="uf_token">Token</label>
+                <input type="text" class="form-control" name="uf_token" id="uf_token">
+              </div>
+              <div class="form-group">
+                <label for="uf_service_type">Service Type</label>
+                <input type="text" class="form-control" name="uf_service_type" id="uf_service_type">
+              </div>
+              <div class="form-group">
+                <label for="uf_status">Status</label>
+                <input type="text" class="form-control" name="uf_status" id="uf_status">
+              </div>
+              <div class="form-group">
+                <label for="uf_vnf_id">VNF ID</label>
+                <input type="text" class="form-control" name="uf_vnf_id" id="uf_vnf_id">
+              </div>
+              <div class="form-group">
+                <label for="uf_vnf_type">VNF Type</label>
+                <input type="text" class="form-control" name="uf_vnf_type" id="uf_vnf_type">
+              </div>
+              <div class="form-group">
+                <label for="uf_hypervisor">Hypervisor</label>
+                <input type="text" class="form-control" name="uf_hypervisor" id="uf_hypervisor">
+              </div>
+              <div class="form-group">
+				<input type="hidden" name="uf_key_aic_site_id" id="uf_key_aic_site_id">
+				<input type="hidden" name="uf_key_availability_zone" id="uf_key_availability_zone">
+				<input type="hidden" name="uf_key_token" id="uf_key_token">
+                <button type="submit" class="btn btn-primary">Submit</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>

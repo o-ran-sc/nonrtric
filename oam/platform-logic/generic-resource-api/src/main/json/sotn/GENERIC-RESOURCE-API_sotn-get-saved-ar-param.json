@@ -1,0 +1,481 @@
+[
+  {
+    "id": "78c3c512.2a5cfc",
+    "type": "dgstart",
+    "name": "DGSTART",
+    "outputs": 1,
+    "x": 113.03125,
+    "y": 43.03125,
+    "z": "be273250.67063",
+    "wires": [
+      [
+        "c8295f65.8fc4c"
+      ]
+    ]
+  },
+  {
+    "id": "c8295f65.8fc4c",
+    "type": "service-logic",
+    "name": "GENERIC-RESOURCE-API ${project.version}",
+    "module": "GENERIC-RESOURCE-API",
+    "version": "${project.version}",
+    "comments": "",
+    "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+    "outputs": 1,
+    "x": 325.03125381469727,
+    "y": 115.0312671661377,
+    "z": "be273250.67063",
+    "wires": [
+      [
+        "cb959304.88093"
+      ]
+    ]
+  },
+  {
+    "id": "cb959304.88093",
+    "type": "method",
+    "name": "sotnt-get-saved-ar-param",
+    "xml": "<method rpc='sotn-get-saved-ar-param' mode='sync'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 313.0313720703125,
+    "y": 203.03125,
+    "z": "be273250.67063",
+    "wires": [
+      [
+        "f53a4fe7.e10d8"
+      ]
+    ]
+  },
+  {
+    "id": "f53a4fe7.e10d8",
+    "type": "block",
+    "name": "block : atomic",
+    "xml": "<block atomic=\"true\">\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 320.03126525878906,
+    "y": 289.0313081741333,
+    "z": "be273250.67063",
+    "wires": [
+      [
+        "cb3c00be.eadaf"
+      ]
+    ]
+  },
+  {
+    "id": "cb3c00be.eadaf",
+    "type": "for",
+    "name": "for each sotn-get-request-input-param",
+    "xml": "<for index='idx' start='0' end='`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param_length`' >\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 356.6980285644531,
+    "y": 371.697904586792,
+    "z": "be273250.67063",
+    "wires": [
+      [
+        "9fceee94.c7352"
+      ]
+    ]
+  },
+  {
+    "id": "9fceee94.c7352",
+    "type": "block",
+    "name": "block",
+    "xml": "<block>\n",
+    "atomic": "false",
+    "comments": "",
+    "outputs": 1,
+    "x": 621.5315322875977,
+    "y": 281.03129625320435,
+    "z": "be273250.67063",
+    "wires": [
+      [
+        "ac9e17c4.666db8",
+        "68c68212.dc993c",
+        "66615c8e.b750a4",
+        "4a64e3ec.0803bc",
+        "d49b138b.9b447",
+        "1f7b915.12bc26f",
+        "fcc00482.9d4728",
+        "be269c99.3195",
+        "d97ebcd8.acf64"
+      ]
+    ]
+  },
+  {
+    "id": "ac9e17c4.666db8",
+    "type": "switchNode",
+    "name": "switch sotnVpnName",
+    "xml": "<switch test=\"`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].name == 'sotnVpnName'`\">",
+    "comments": "",
+    "outputs": 1,
+    "x": 848.53125,
+    "y": 79.03128051757812,
+    "z": "be273250.67063",
+    "wires": [
+      [
+        "4f0e4c80.dde4f4"
+      ]
+    ]
+  },
+  {
+    "id": "4f0e4c80.dde4f4",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1035.53125,
+    "y": 75.03128051757812,
+    "z": "be273250.67063",
+    "wires": [
+      [
+        "ca00e2af.bb58d"
+      ]
+    ]
+  },
+  {
+    "id": "ca00e2af.bb58d",
+    "type": "set",
+    "name": "set sotnVpnName",
+    "xml": "<set>\n<parameter name='prop.connection-attachment.sotnVpnName' value='`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 1203.53125,
+    "y": 75.63128662109375,
+    "z": "be273250.67063",
+    "wires": [
+
+    ]
+  },
+  {
+    "id": "68c68212.dc993c",
+    "type": "switchNode",
+    "name": "switch access-provider-id",
+    "xml": "<switch test=\"`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].name == 'access-provider-id'`\">",
+    "comments": "",
+    "outputs": 1,
+    "x": 849.0416793823242,
+    "y": 138.03128051757812,
+    "z": "be273250.67063",
+    "wires": [
+      [
+        "a284600c.21032"
+      ]
+    ]
+  },
+  {
+    "id": "a284600c.21032",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1036.0416793823242,
+    "y": 134.03128051757812,
+    "z": "be273250.67063",
+    "wires": [
+      [
+        "226a73cd.788cbc"
+      ]
+    ]
+  },
+  {
+    "id": "226a73cd.788cbc",
+    "type": "set",
+    "name": "set access-provider-id",
+    "xml": "<set>\n<parameter name='prop.connection-attachment.access-provider-id' value='`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 1204.0416793823242,
+    "y": 134.63128662109375,
+    "z": "be273250.67063",
+    "wires": [
+
+    ]
+  },
+  {
+    "id": "66615c8e.b750a4",
+    "type": "switchNode",
+    "name": "switch access-client-id",
+    "xml": "<switch test=\"`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].name == 'access-client-id'`\">",
+    "comments": "",
+    "outputs": 1,
+    "x": 851.0417404174805,
+    "y": 191.04170036315918,
+    "z": "be273250.67063",
+    "wires": [
+      [
+        "2b01edeb.bc12c2"
+      ]
+    ]
+  },
+  {
+    "id": "2b01edeb.bc12c2",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1038.0417404174805,
+    "y": 187.04170036315918,
+    "z": "be273250.67063",
+    "wires": [
+      [
+        "ce9ed833.dd9e08"
+      ]
+    ]
+  },
+  {
+    "id": "ce9ed833.dd9e08",
+    "type": "set",
+    "name": "set access-client-id",
+    "xml": "<set>\n<parameter name='prop.connection-attachment.access-client-id' value='`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 1206.0417404174805,
+    "y": 187.6417064666748,
+    "z": "be273250.67063",
+    "wires": [
+
+    ]
+  },
+  {
+    "id": "4a64e3ec.0803bc",
+    "type": "switchNode",
+    "name": "switch access-topology-id",
+    "xml": "<switch test=\"`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].name == 'access-topology-id'`\">",
+    "comments": "",
+    "outputs": 1,
+    "x": 847.0417404174805,
+    "y": 257.0417003631592,
+    "z": "be273250.67063",
+    "wires": [
+      [
+        "cd0931d.fc24dd"
+      ]
+    ]
+  },
+  {
+    "id": "cd0931d.fc24dd",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1034.0417404174805,
+    "y": 253.04170036315918,
+    "z": "be273250.67063",
+    "wires": [
+      [
+        "ae46664c.2ac008"
+      ]
+    ]
+  },
+  {
+    "id": "ae46664c.2ac008",
+    "type": "set",
+    "name": "set access-topology-id",
+    "xml": "<set>\n<parameter name='prop.connection-attachment.access-topology-id' value='`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 1202.0417404174805,
+    "y": 253.6417064666748,
+    "z": "be273250.67063",
+    "wires": [
+
+    ]
+  },
+  {
+    "id": "d49b138b.9b447",
+    "type": "switchNode",
+    "name": "switch access-node-id",
+    "xml": "<switch test=\"`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].name == 'access-node-id'`\">",
+    "comments": "",
+    "outputs": 1,
+    "x": 852.0417404174805,
+    "y": 311.04169845581055,
+    "z": "be273250.67063",
+    "wires": [
+      [
+        "c9b215fc.9adfd8"
+      ]
+    ]
+  },
+  {
+    "id": "c9b215fc.9adfd8",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1039.0417404174805,
+    "y": 307.04169845581055,
+    "z": "be273250.67063",
+    "wires": [
+      [
+        "faf7a4cf.251418"
+      ]
+    ]
+  },
+  {
+    "id": "faf7a4cf.251418",
+    "type": "set",
+    "name": "set access-node-id",
+    "xml": "<set>\n<parameter name='prop.connection-attachment.access-node-id' value='`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 1207.0417404174805,
+    "y": 307.6417045593262,
+    "z": "be273250.67063",
+    "wires": [
+
+    ]
+  },
+  {
+    "id": "1f7b915.12bc26f",
+    "type": "switchNode",
+    "name": "switch access-ltp-id",
+    "xml": "<switch test=\"`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].name == 'access-ltp-id'`\">",
+    "comments": "",
+    "outputs": 1,
+    "x": 854.0417404174805,
+    "y": 373.04165840148926,
+    "z": "be273250.67063",
+    "wires": [
+      [
+        "672f4f35.c2cfa"
+      ]
+    ]
+  },
+  {
+    "id": "672f4f35.c2cfa",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1041.0417404174805,
+    "y": 369.04165840148926,
+    "z": "be273250.67063",
+    "wires": [
+      [
+        "f006294d.d5f238"
+      ]
+    ]
+  },
+  {
+    "id": "f006294d.d5f238",
+    "type": "set",
+    "name": "set access-ltp-id",
+    "xml": "<set>\n<parameter name='prop.connection-attachment.access-ltp-id' value='`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 1209.0417404174805,
+    "y": 369.6416645050049,
+    "z": "be273250.67063",
+    "wires": [
+
+    ]
+  },
+  {
+    "id": "fcc00482.9d4728",
+    "type": "switchNode",
+    "name": "switch clientSignal",
+    "xml": "<switch test=\"`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].name == 'clientSignal'`\">",
+    "comments": "",
+    "outputs": 1,
+    "x": 858.0417404174805,
+    "y": 439.0416650772095,
+    "z": "be273250.67063",
+    "wires": [
+      [
+        "c5ace371.7d146"
+      ]
+    ]
+  },
+  {
+    "id": "c5ace371.7d146",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1045.0417404174805,
+    "y": 435.0416650772095,
+    "z": "be273250.67063",
+    "wires": [
+      [
+        "6652e4bd.26a58c"
+      ]
+    ]
+  },
+  {
+    "id": "6652e4bd.26a58c",
+    "type": "set",
+    "name": "set clientSignal",
+    "xml": "<set>\n<parameter name='prop.connection-attachment.clientSignal' value='`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 1213.0417404174805,
+    "y": 435.6416711807251,
+    "z": "be273250.67063",
+    "wires": [
+
+    ]
+  },
+  {
+    "id": "be269c99.3195",
+    "type": "returnSuccess",
+    "name": "return success",
+    "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+    "comments": "",
+    "x": 851.0313720703125,
+    "y": 553.031268119812,
+    "z": "be273250.67063",
+    "wires": [
+
+    ]
+  },
+  {
+    "id": "d97ebcd8.acf64",
+    "type": "switchNode",
+    "name": "switch cVLAN",
+    "xml": "<switch test=\"`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].name == 'cVLAN'`\">",
+    "comments": "",
+    "outputs": 1,
+    "x": 857.03125,
+    "y": 491.0312194824219,
+    "z": "be273250.67063",
+    "wires": [
+      [
+        "b35b1b6b.cc2e38"
+      ]
+    ]
+  },
+  {
+    "id": "b35b1b6b.cc2e38",
+    "type": "outcomeTrue",
+    "name": "true",
+    "xml": "<outcome value='true'>\n",
+    "comments": "",
+    "outputs": 1,
+    "x": 1044.03125,
+    "y": 487.0312194824219,
+    "z": "be273250.67063",
+    "wires": [
+      [
+        "d9b42ffa.b44df"
+      ]
+    ]
+  },
+  {
+    "id": "d9b42ffa.b44df",
+    "type": "set",
+    "name": "set cVLAN",
+    "xml": "<set>\n<parameter name='prop.connection-attachment.cVLAN' value='`$connection-attachment-ar.allotted-resource-data.allotted-resource-operation-information.connection-attachment-request-input.param[$idx].value`' />\n",
+    "comments": "",
+    "x": 1212.03125,
+    "y": 487.6312255859375,
+    "z": "be273250.67063",
+    "wires": [
+
+    ]
+  }
+]

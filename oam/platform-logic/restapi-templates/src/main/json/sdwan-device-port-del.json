@@ -1,0 +1,7 @@
+{
+    "ports": [
+        {
+            "id": ${prop.wan.devicePortId},            
+        }
+    ]
+}

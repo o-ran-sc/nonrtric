@@ -1,0 +1,68 @@
+   <div class="modal fade" id="oper-status-modal" tabindex="-1" role="dialog" aria-labelledby="oper-status-modal-label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="oper-status-modal-label">oper-status</h4>
+          </div>
+          <div class="modal-body">
+            <form id="oper_status_form" role="form" action="" method="POST">
+              <div class="form-group">
+                <label for="order_status">order-status</label>
+                <input type="text" class="form-control" name="order_status" id="order_status">
+              </div>
+              <div class="form-group">
+                <label for="modify_timestamp">modify-timestamp</label>
+                <input type="text" class="form-control" name="modify_timestamp" id="modify_timestamp">
+              </div>
+              <div class="form-group">
+                <label for="last_svc_request_id">last-svc-request-id</label>
+                <input type="text" class="form-control" name="last_svc_request_id" id="last_svc_request_id">
+              </div>
+              <div class="form-group">
+                <label for="last_sub_action">last-sub-action</label>
+                <input type="text" class="form-control" name="last_sub_action" id="last_sub_action">
+              </div>
+              <div class="form-group">
+                <label for="t_defaulted_v6_vrlan">t-defaulted-v6-vrlan</label>
+                <input type="text" class="form-control" name="t_defaulted_v6_vrlan" id="t_defaulted_v6_vrlan">
+              </div>
+              <div class="form-group">
+                <label for="last_action">last-action</label>
+                <input type="text" class="form-control" name="last_action" id="last_action">
+              </div>
+              <div class="form-group">
+                <label for="create_timestamp">create-timestamp</label>
+                <input type="text" class="form-control" name="create_timestamp" id="create_timestamp">
+              </div>
+              <div class="form-group">
+                <label for="maintenance_indicator">maintenance-indicator</label>
+                <input type="text" class="form-control" name="maintenance_indicator" id="maintenance_indicator">
+              </div>
+              <div class="form-group">
+                <label for="last_order_status">last-order-status</label>
+                <input type="text" class="form-control" name="last_order_status" id="last_order_status">
+              </div>
+
+<!--
+              <div class="form-group">
+				<input type="hidden" name="uf_action" id="uf_action">
+                <button type="button" class="btn btn-primary" onclick="submit(this.form);">Submit</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+-->
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>
+
+<script type="text/javascript">
+function submit(form){
+	$('#service-status-modal').modal('hide');
+	form.action = form.uf_action.value;
+	form.submit();
+	return;
+}
+</script>
+

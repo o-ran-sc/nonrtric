@@ -1,0 +1,31 @@
+<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'><method rpc='get-vnf-api-parent-instance' mode='sync'>
+<block atomic="true"><get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.mdsal.ConfigResource' resource='VNF-API' key='vnfs' pfx='tmp.vnfdata' >
+</get-resource><for index='vnfidx' start='0' end='`$tmp.vnfdata.vnfs.vnf-list_length`' >
+
+
+<block>
+<set>
+<parameter name='tmp.debug.tmp.search.parent-service-instance-id' value='`$tmp.search.parent-service-instance-id`' />
+</set><switch test='`$tmp.vnfdata.vnfs.vnf-list[$vnfidx].service-data.service-information.service-instance-id == $tmp.search.parent-service-instance-id`'>
+
+
+<outcome value='true'>
+<block>
+<set>
+<parameter name='tmp.debug.service-instance.id1' value='`$tmp.vnfdata.vnfs.vnf-list[$vnfidx].service-data.service-information.service-instance-id`' />
+<parameter name='tmp.debug.service-instance.id2' value='`$tmp.search.parent-service-instance-id`' />
+<parameter name='tmp.debug.service-instance.id3.vnf-id' value='`$tmp.vnfdata.vnfs.vnf-list[$vnfidx].vnf-id`' />
+
+
+
+</set><set>
+<parameter name='tmp.old-service-data.vnf-id' value='`$tmp.vnfdata.vnfs.vnf-list[$vnfidx].vnf-id`' />
+</set><get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.mdsal.ConfigResource' resource='VNF-API' key='vnfs/vnf-list/$tmp.vnfdata.vnfs.vnf-list[$vnfidx].vnf-id/service-data/' pfx='parent-service-instance' >
+																													
+						<outcome value='failure'>
+<return status='failure'>
+	<parameter name='ack-final' value='Y'/>
+	<parameter name="error-code" value="500" />
+    <parameter name="error-message" 
+    value="`'No entry found for parent service instance id ' + $tmp.ar.parent-service-instance-id + '.'`" />
+</return></outcome></get-resource><break></break></block></outcome></switch></block></for></block></method></service-logic>

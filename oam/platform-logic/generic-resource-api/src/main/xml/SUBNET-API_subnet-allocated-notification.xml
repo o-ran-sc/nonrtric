@@ -1,0 +1,626 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='SUBNET-API' version='${project.version}'>
+    <method rpc='subnet-allocated-notification' mode='sync'>
+        <block>
+            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                <parameter name="logger" value="message-log"/>
+                <parameter name="field1" value="__TIMESTAMP__"/>
+                <parameter name="field2" value="subnet-allocated-notification"/>
+                <parameter name="field3" value="`$eipam-ip-block.request-id`"/>
+                <parameter name="field4" value="`$eipam-ip-block.entity-id`"/>
+                <parameter name="field5" value="`$eipam-ip-block.ptnii-name`"/>
+                <parameter name="field6" value="`$eipam-ip-block.ip-address`"/>
+                <parameter name="field7" value="`$eipam-ip-block.prefix-length`"/>
+                <parameter name="field8" value="`$eipam-ip-block.status`"/>
+                <parameter name="field9" value="`$tmp.key-value`"/>
+            </record>
+            <!--Need to know which ipv version to get the plan name from the network-model.-->
+            <switch test="`$eipam-ip-block.ptnii-name`">
+                <!--If there's ptnii-name, then it's Gamma service-->
+                <outcome value='Other'>
+                    <block>
+                        <configure adaptor="com.att.sdnctl.sli.adaptor.ncs.ncsAdaptor" key="SNIIR" activate="true">
+                            <parameter name="input.request-id" value="`$eipam-ip-block.request-id`" />
+                            <parameter name="input.source" value="SDNC" />
+                            <parameter name="input.ptnii-name" value="`$eipam-ip-block.ptnii-name`" />
+                            <parameter name="input.ip-address" value="`$eipam-ip-block.ip-address`" />
+                            <parameter name="input.mask" value="`$eipam-ip-block.prefix-length`" />
+                            <outcome value="success">
+                                <block>
+                                    <save 
+	plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' 
+	resource='SQL'
+	key="UPDATE EIPAM_IP_SUBNETS
+             SET status = 'PENDING-ACTIVE'
+             WHERE entity_id = $eipam-ip-block.entity-id ; "
+    force='true'
+        pfx='pfx.eipam-subnet-row'></save>
+                                    <set>
+                                        <parameter name="eipam-ip-block.status" value="PENDING-ACTIVE" />
+                                    </set>
+                                    <save plugin="org.onap.ccsdk.sli.adaptors.resource.mdsal.ConfigResource" resource="eipam-ip-block">
+                                        <parameter name="eipam-ip-block.status" value="PENDING-ACTIVE" />
+                                    </save>
+                                    <return status="success"></return>
+                                </block>
+                            </outcome>
+                            <outcome value="Other">
+                                <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="deletePool">
+                                    <outcome value="success">
+                                        <block>
+                                            <set>
+                                                <parameter name="eipam-ip-block.status" value="DELETED" />
+                                            </set>
+                                            <return status="failure">
+                                                <parameter name="error-code" value="1000" />
+                                                <parameter name="error-message" value="IpBlockInstall failure and deletePool deleted in EIPAM" />
+                                            </return>
+                                        </block>
+                                    </outcome>
+                                    <outcome value="Other">
+                                        <block>
+                                            <save 
+	plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' 
+	resource='SQL'
+	key="UPDATE EIPAM_IP_SUBNETS
+             SET 
+             status = 'ERROR',
+             dealloc_failure = 'deletePool failed in response to NCS_IP_SUBNET_INSTALL_ERROR'
+             WHERE entity_id = $eipam-ip-block.entity-id ; "
+    force='true'
+        pfx='pfx.eipam-subnet-row'></save>
+                                            <set>
+                                                <parameter name="eipam-ip-block.status" value="NCS_IP_SUBNET_INSTALL_ERROR" />
+                                            </set>
+                                            <update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" resource="generic-vnf" key="generic-vnf.vnf-id = $tmp.vpe-pool.vpe-id" pfx="vpe-after">
+                                                <parameter name="operational-status" value="NCS_IP_SUBNET_INSTALL_ERROR" />
+                                                <parameter name="summary-status" value="`$aai-summary-status-message`" />
+                                                <parameter name="prov-status" value="PREPROV" />
+                                            </update>
+                                            <return status="failure">
+                                                <parameter name="error-code" value="1000" />
+                                                <parameter name="error-message" value="IpBlockInstall failure and deletePool failed in EIPAM, need to manually delete" />
+                                            </return>
+                                        </block>
+                                    </outcome>
+                                </execute>
+                            </outcome>
+                        </configure>
+                    </block>
+                </outcome>
+                <!--If no ptnii-name, check if VIPR or SRIOV-->
+                <outcome value=''>
+                    <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils" method="startsWith" emitsOutcome='true' >
+                        <parameter name="source" value="`toUpperCase($eipam-ip-block.plan-name)`" />
+                        <parameter name="target" value="AIC_" />
+                        <outcome value='false'>
+                            <return status="failure">
+                                <parameter name="error-code" value="500" />
+                                <parameter name="error-message" value="Unknown Address Plan - not supported!" />
+                            </return>
+                        </outcome>
+                        <outcome value='true'>
+                            <block atomic='true'>
+                                <get-resource
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="SELECT * FROM EIPAM_IP_POOLS where plan_name = $eipam-ip-block.plan-name and level = 2 and key_value = $tmp.level2-key-value ;"
+        pfx='tmp.eipam-pool-row'>
+                                    <outcome value='failure'>
+                                        <block atomic='true'>
+                                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                <parameter name="logger" value="message-log"/>
+                                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                                <parameter name="field2" value="subnet-allocated-notification"/>
+                                                <parameter name="field3" value="`$eipam-ip-block.request-id`"/>
+                                                <parameter name="field4" value="`$eipam-ip-block.entity-id`"/>
+                                                <parameter name="field5" value="`$eipam-ip-block.ptnii-name`"/>
+                                                <parameter name="field6" value="`$eipam-ip-block.ip-address`"/>
+                                                <parameter name="field7" value="`$eipam-ip-block.prefix-length`"/>
+                                                <parameter name="field8" value="`$eipam-ip-block.status`"/>
+                                                <parameter name="field9" value="Failed to find this record in DB!"/>
+                                            </record>
+                                            <return status="failure">
+                                                <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="Unknown EIPAM pool - not found in DB!" />
+                                            </return>
+                                        </block>
+                                    </outcome>
+                                    <outcome value="not-found">
+                                        <block atomic='true'>
+                                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                <parameter name="logger" value="message-log"/>
+                                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                                <parameter name="field2" value="subnet-allocated-notification"/>
+                                                <parameter name="field3" value="`$eipam-ip-block.request-id`"/>
+                                                <parameter name="field4" value="`$eipam-ip-block.entity-id`"/>
+                                                <parameter name="field5" value="`$eipam-ip-block.ptnii-name`"/>
+                                                <parameter name="field6" value="`$eipam-ip-block.ip-address`"/>
+                                                <parameter name="field7" value="`$eipam-ip-block.prefix-length`"/>
+                                                <parameter name="field8" value="`$eipam-ip-block.status`"/>
+                                                <parameter name="field9" value="This record is not found in DB!"/>
+                                            </record>
+                                            <return status="failure">
+                                                <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="Unknown EIPAM pool - not found in DB!" />
+                                            </return>
+                                        </block>
+                                    </outcome>
+                                </get-resource>
+                                <!--initial subnet should exists-->
+                                <get-resource
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="SELECT * from EIPAM_IP_SUBNETS s, EIPAM_IP_SUBNET_KEYS k WHERE s.plan_name = $eipam-ip-block.plan-name and s.entity_id = k.entity_id and k.level = 2 and k.key_value = $tmp.level2-key-value and s.address_family = $tmp.version ; "
+        pfx='pfx.eipam-initial-subnet'>
+                                    <outcome value='failure'>
+                                        <return status="failure">
+                                            <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                            <parameter name="error-code" value="500"/>
+                                            <parameter name="error-message" value="Query to DB table EIPAM_IP_SUBNET_KEYS and EIPAM_IP_SUBNETS failed." />
+                                        </return>
+                                    </outcome>
+                                    <outcome value="not-found">
+                                        <return status="failure">
+                                            <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                            <parameter name="error-code" value="500"/>
+                                            <parameter name="error-message" value="Initial subnet not found, cannot auto extend." />
+                                        </return>
+                                    </outcome>
+                                </get-resource>
+                                <!--check if new subnet already exists, possibly from previous attempt.-->
+                                <get-resource
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="SELECT * from EIPAM_IP_SUBNETS s WHERE s.plan_name = $eipam-ip-block.plan-name and s.entity_id = $eipam-ip-block.entity-id and s.ip_address = $eipam-ip-block.ip-address ; "
+        pfx='pfx.eipam-subnet-with-same-ip'>
+                                    <outcome value='failure'>
+                                        <return status="failure">
+                                            <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                            <parameter name="error-code" value="500"/>
+                                            <parameter name="error-message" value="Query to DB table EIPAM_IP_SUBNET_KEYS and EIPAM_IP_SUBNETS failed." />
+                                        </return>
+                                    </outcome>
+                                    <outcome value="not-found"></outcome>
+                                </get-resource>
+                                <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+		key="l3-network.network-id = $pfx.eipam-initial-subnet.network-id" 
+		local-only="false" 
+		pfx="aai.l3-network">
+                                    <outcome value='not-found'>
+                                        <return status='failure'>
+                                            <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                            <parameter name="error-code" value="404" />
+                                            <parameter name="error-message" value="'l3-network with network-id=' + $pfx.eipam-initial-subnet.network-id + 'Not found in AnAI'" />
+                                        </return>
+                                    </outcome>
+                                    <outcome value='failure'>
+                                        <return status='failure'>
+                                            <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="'Error retrieving l3-network with network-id=' + $pfx.eipam-initial-subnet.network-id + 'from AnAI'" />
+                                        </return>
+                                    </outcome>
+                                </get-resource>
+                                <set>
+                                    <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                </set>
+                                <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNETS
+             SET
+             entity_id = $eipam-ip-block.entity-id ,
+             service_type = $pfx.eipam-initial-subnet.service-type ,
+             ip_address = $eipam-ip-block.ip-prefix ,
+             prefix_length = $eipam-ip-block.mask ,
+             plan_name = $eipam-ip-block.plan-name ,
+             status = 'PENDING_ACTIVE' ,
+             pool_id = $pfx.eipam-initial-subnet.pool-id ,
+             address_family = $pfx.eipam-initial-subnet.address-family ,
+             network_id = $pfx.eipam-initial-subnet.network-id ; "
+    force='true'
+        pfx='pfx.eipam-new-subnet'>
+                                    <outcome value='failure'>
+                                        <return status="failure">
+                                            <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                            <parameter name="error-code" value="500"/>
+                                            <parameter name="error-message" value="Insert to DB table EIPAM_IP_SUBNETS failed." />
+                                        </return>
+                                    </outcome>
+                                    <outcome value='success'></outcome>
+                                </save>
+                                <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNET_KEYS
+             SET
+             entity_id = $eipam-ip-block.entity-id ,
+             key_name = $tmp.level1-key-name ,
+             key_value = $tmp.level1-key-value ,
+             level = 1 ; "
+    force='true'
+        pfx='pfx.eipam-subnet-level1'>
+                                    <outcome value='success'></outcome>
+                                    <outcome value='failure'>
+                                        <return status="failure">
+                                            <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                            <parameter name="error-code" value="500"/>
+                                            <parameter name="error-message" value="Insert to DB table EIPAM_IP_SUBNET_KEYS failed." />
+                                        </return>
+                                    </outcome>
+                                </save>
+                                <save
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="INSERT EIPAM_IP_SUBNET_KEYS
+             SET
+             entity_id = $eipam-ip-block.entity-id ,
+             key_name = $tmp.level2-key-name ,
+             key_value = $tmp.level2-key-value ,
+             level = 2 ; "
+    force='true'
+        pfx='pfx.eipam-subnet-level2'>
+                                    <outcome value='success'></outcome>
+                                    <outcome value='failure'>
+                                        <return status="failure">
+                                            <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                            <parameter name="error-code" value="500"/>
+                                            <parameter name="error-message" value="Insert to DB table EIPAM_IP_SUBNET_KEYS failed." />
+                                        </return>
+                                    </outcome>
+                                </save>
+                                <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                    <parameter name="logger" value="message-log"/>
+                                    <parameter name="field1" value="__TIMESTAMP__"/>
+                                    <parameter name="field2" value="Added an entry for subnet-allocated-notification in EIPAM_IP_SUBNETS and EIPAM_IP_SUBNET_KEYS"/>
+                                    <parameter name="field3" value="`$eipam-ip-block.request-id`"/>
+                                    <parameter name="field4" value="`$eipam-ip-block.entity-id`"/>
+                                    <parameter name="field5" value="`$pfx.eipam-initial-subnet.network-id`"/>
+                                    <parameter name="field6" value="`$eipam-ip-block.ip-address`"/>
+                                    <parameter name="field7" value="`$eipam-ip-block.prefix-length`"/>
+                                    <parameter name="field8" value="`$eipam-ip-block.status`"/>
+                                    <parameter name="field9" value="`$tmp.key-value`"/>
+                                </record>
+                                <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="subnet" 
+		key="l3-network.network-id = $pfx.eipam-initial-subnet.network-id
+			AND subnet.subnet-id = $eipam-ip-block.entity-id"
+		local-only="false" 
+		pfx="tmp.aai-initial-subnet">
+                                    <outcome value='not-found'>
+                                        <return status='failure'>
+                                            <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                            <parameter name="error-code" value="404" />
+                                            <parameter name="error-message" value="'l3-network with network-id=' + $pfx.eipam-initial-subnet.network-id + ' And subnet-id=' + $eipam-ip-block.entity-id + ' is Not found in AnAI'" />
+                                        </return>
+                                    </outcome>
+                                    <outcome value='failure'>
+                                        <return status='failure'>
+                                            <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="'Error retrieving l3-network with network-id=' + $pfx.eipam-initial-subnet.network-id + ' And subnet-id=' + $eipam-ip-block.entity-id  + ' from AnAI'" />
+                                        </return>
+                                    </outcome>
+                                </get-resource>
+                                <switch test='`$aai.l3-network.subnets.subnet_length`'>
+                                    <outcome value=''>
+                                        <return status='failure'>
+                                            <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                            <parameter name="error-code" value="404" />
+                                            <parameter name="error-message" value="'No subnets found in AAI for network-id=' + $pfx.eipam-initial-subnet.network-id" />
+                                        </return>
+                                    </outcome>
+                                    <outcome value='Other'>
+                                        <set>
+                                            <parameter name='tmp.l3-network.subnet.subnet-name' value="`$aai.l3-network.network-name + '_S' + $aai.l3-network.subnets.subnet_length`" />
+                                        </set>
+                                    </outcome>
+                                </switch>
+                                <execute plugin="com.att.sdnctl.sli.plugin.ipAddressTools.IpAddressTool" method="getSubnetAddresses">
+                                    <parameter name="ipAddress" value="`$eipam-ip-block.ip-prefix`" />
+                                    <parameter name="ipVersion" value="`tmp.version`" />
+                                    <parameter name="subnet" value="`$eipam-ip-block.prefix-length`" />
+                                    <parameter name="ctxGateway" value="tmp.return.generate.gateway-address" />
+                                    <parameter name="ctxDhcpStart" value="tmp.return.generate.dhcp-start-address" />
+                                    <parameter name="ctxDhcpEnd" value="tmp.return.generate.dhcp-end-address" />
+                                    <outcome value='failure'>
+                                        <return status='failure'>
+                                            <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                            <parameter name='ack-final' value='Y'/>
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="Failed to generate gateway addresses using IpAddressTools" />
+                                        </return>
+                                    </outcome>
+                                </execute>
+                                <switch test='`$tmp.aai-initial-subnet.dhcp-enabled`'>
+                                    <outcome value='Y'>
+                                        <block atomic="true">
+                                            <set>
+                                                <parameter name='tmp.l3-network.subnet.dhcp-enabled' value='true' />
+                                                <parameter name='tmp.l3-network.subnet.dhcp-start' value='`$tmp.return.generate.dhcp-start-address`' />
+                                                <parameter name='tmp.l3-network.subnet.dhcp-end' value='`$tmp.return.generate.dhcp-end-address`' />
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                    <outcome value='N'>
+                                        <block atomic="true">
+                                            <set>
+                                                <parameter name='tmp.l3-network.subnet.dhcp-enabled' value='false' />
+                                                <parameter name='tmp.l3-network.subnet.dhcp-start' value='' />
+                                                <parameter name='tmp.l3-network.subnet.dhcp-end' value='' />
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                                <save plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="subnet" 
+		key="l3-network.network-id = $pfx.eipam-initial-subnet.network-id 
+			AND subnet.subnet-id = $eipam-ip-block.entity-id" >
+                                    <!-- Create l3-network object -->
+                                    <parameter name="network-id" value="`$pfx.eipam-initial-subnet.network-id`" />
+                                    <parameter name="subnet-id" value="`$eipam-ip-block.entity-id`" />
+                                    <parameter name="subnet-name" value="`$tmp.l3-network.subnet.subnet-name`" />
+                                    <parameter name="gateway-address" value="`$tmp.return.generate.gateway-address`" />
+                                    <parameter name="network-start-address" value="`$eipam-ip-block.ip-prefix`" />
+                                    <parameter name="cidr-mask" value="`$eipam-ip-block.prefix-length`" />
+                                    <parameter name="ip-version" value="`$tmp.version`" />
+                                    <parameter name="dhcp-start" value="`$tmp.l3-network.subnet.dhcp-start`" />
+                                    <parameter name="dhcp-end" value="`$tmp.l3-network.subnet.dhcp-end`" />
+                                    <parameter name="dhcp-enabled" value="`$tmp.l3-network.subnet.dhcp-enabled`" />
+                                    <parameter name="orchestration-status" value="PendingCreate" />
+                                    <outcome value='failure'>
+                                        <return status='failure'>
+                                            <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                            <parameter name="error-code" value="500" />
+                                            <parameter name="error-message" value="'Cannot save subnet with l3 network-id=' + $pfx.eipam-initial-subnet.network-id + ' And subnet-id=' + $eipam-ip-block.entity-id  + ' in AnAI'" />
+                                        </return>
+                                    </outcome>
+                                    <outcome value='not-found'></outcome>
+                                </save>
+                                <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                    <parameter name="logger" value="message-log"/>
+                                    <parameter name="field1" value="__TIMESTAMP__"/>
+                                    <parameter name="field2" value="Added a subnetin AAI"/>
+                                    <parameter name="field3" value="`$eipam-ip-block.request-id`"/>
+                                    <parameter name="field4" value="`$eipam-ip-block.entity-id`"/>
+                                    <parameter name="field5" value="`$pfx.eipam-initial-subnet.network-id`"/>
+                                    <parameter name="field6" value="`$eipam-ip-block.ip-address`"/>
+                                    <parameter name="field7" value="`$eipam-ip-block.prefix-length`"/>
+                                    <parameter name="field8" value="`$eipam-ip-block.status`"/>
+                                    <parameter name="field9" value="`$tmp.key-value`"/>
+                                </record>
+                                <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                                    <parameter name='api-name' value='subnet' />
+                                    <parameter name='api-action' value='add' />
+                                    <parameter name='resp-prefix' value='contrailResp' />
+                                    <parameter name='contrail-virtual-network-id' value='`$pfx.eipam-initial-subnet.network-id`' />
+                                    <parameter name='ip-prefix' value='`$eipam-ip-block.ip-prefix`' />
+                                    <parameter name='ip-prefix-len' value='`$eipam-ip-block.prefix-length`' />
+                                    <parameter name='dns-server-address' value='0.0.0.0' />
+                                    <parameter name='enable-dhcp' value='`$tmp.l3-network.subnet.dhcp-enabled`' />
+                                    <parameter name='default-gateway' value='`$tmp.return.generate.gateway-address`' />
+                                    <parameter name='subnet-name' value='`$tmp.l3-network.subnet.subnet-name`' />
+                                    <parameter name='start' value='`$tmp.l3-network.subnet.dhcp-start`' />
+                                    <parameter name='end' value='`$tmp.l3-network.subnet.dhcp-end`' />
+                                    <outcome value='success'>
+                                        <block></block>
+                                    </outcome>
+                                    <outcome value='failure'>
+                                        <block>
+                                            <set>
+                                                <parameter name="eipam-ip-block.status" value="ERROR" />
+                                            </set>
+                                            <save 
+	plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' 
+	resource='SQL'
+	key="UPDATE EIPAM_IP_SUBNETS
+             SET status = 'ERROR'
+             WHERE entity_id = $eipam-ip-block.entity-id ; "
+    force='true'
+        pfx='pfx.eipam-subnet-row'>
+                                                <outcome value='failure'>
+                                                    <return status="failure">
+                                                        <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                                        <parameter name="error-code" value="500"/>
+                                                        <parameter name="error-message" value="An error occured while updating subnet to ERROR in mysql." />
+                                                    </return>
+                                                </outcome>
+                                                <outcome value="not-found">
+                                                    <return status="failure">
+                                                        <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                                        <parameter name="error-code" value="500"/>
+                                                        <parameter name="error-message" value="An error occured while updating subnet to ERROR in mysql." />
+                                                    </return>
+                                                </outcome>
+                                            </save>
+                                            <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="subnet" 
+	key="l3-network.network-id = $pfx.eipam-initial-subnet.network-id
+				AND subnet.subnet-id = $eipam-ip-block.entity-id"></delete>
+                                            <save plugin="org.onap.ccsdk.sli.adaptors.resource.mdsal.ConfigResource" resource="eipam-ip-block">
+                                                <parameter name="eipam-ip-block.status" value="ERROR" />
+                                            </save>
+                                            <return status='failure'>
+                                                <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="`'Failed to create subnet in Contrail. '+ $contrailResp.resp-code + ':' +$contrailResp.resp-message `" />
+                                            </return>
+                                        </block>
+                                    </outcome>
+                                </execute>
+                                <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                    <parameter name="logger" value="message-log"/>
+                                    <parameter name="field1" value="__TIMESTAMP__"/>
+                                    <parameter name="field2" value="Added a subnet in Contrail"/>
+                                    <parameter name="field3" value="`$eipam-ip-block.request-id`"/>
+                                    <parameter name="field4" value="`$eipam-ip-block.entity-id`"/>
+                                    <parameter name="field5" value="`$pfx.eipam-initial-subnet.network-id`"/>
+                                    <parameter name="field6" value="`$eipam-ip-block.ip-address`"/>
+                                    <parameter name="field7" value="`$eipam-ip-block.prefix-length`"/>
+                                    <parameter name="field8" value="`$eipam-ip-block.status`"/>
+                                    <parameter name="field9" value="`$tmp.key-value`"/>
+                                </record>
+                                <update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="subnet" 
+		key="l3-network.network-id = $pfx.eipam-initial-subnet.network-id 
+			AND subnet.subnet-id = $eipam-ip-block.entity-id" >
+                                    <parameter name="orchestration-status" value="Created" />
+                                    <outcome value='not-found'></outcome>
+                                    <outcome value='failure'>
+                                        <block>
+                                            <record plugin="org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder">
+                                                <parameter name="logger" value="message-log"/>
+                                                <parameter name="field1" value="__TIMESTAMP__"/>
+                                                <parameter name="field2" value="Update status to Created failed in AAI"/>
+                                                <parameter name="field3" value="`$eipam-ip-block.request-id`"/>
+                                                <parameter name="field4" value="`$eipam-ip-block.entity-id`"/>
+                                                <parameter name="field5" value="`$pfx.eipam-initial-subnet.network-id`"/>
+                                                <parameter name="field6" value="`$eipam-ip-block.ip-address`"/>
+                                                <parameter name="field7" value="`$eipam-ip-block.prefix-length`"/>
+                                                <parameter name="field8" value="`$eipam-ip-block.status`"/>
+                                                <parameter name="field9" value="`$tmp.key-value`"/>
+                                            </record>
+                                            <save 
+	plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' 
+	resource='SQL'
+	key="UPDATE EIPAM_IP_SUBNETS
+             SET status = 'ERROR'
+             WHERE entity_id = $eipam-ip-block.entity-id ; "
+    force='true'
+        pfx='pfx.eipam-subnet-row'>
+                                                <outcome value='failure'>
+                                                    <return status="failure">
+                                                        <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                                        <parameter name="error-code" value="500"/>
+                                                        <parameter name="error-message" value="An error occured while updating subnet to ERROR in mysql." />
+                                                    </return>
+                                                </outcome>
+                                                <outcome value="not-found">
+                                                    <return status="failure">
+                                                        <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                                        <parameter name="error-code" value="500"/>
+                                                        <parameter name="error-message" value="An error occured while updating subnet to ERROR in mysql." />
+                                                    </return>
+                                                </outcome>
+                                            </save>
+                                            <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="subnet" 
+	key="l3-network.network-id = $pfx.eipam-initial-subnet.network-id
+				AND subnet.subnet-id = $eipam-ip-block.entity-id"></delete>
+                                            <execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >
+                                                <parameter name='api-name' value='subnet' />
+                                                <parameter name='api-action' value='delete' />
+                                                <parameter name='resp-prefix' value='contrailResp' />
+                                                <parameter name='contrail-virtual-network-id' value='`$pfx.eipam-initial-subnet.network-id`' />
+                                                <parameter name='ip-prefix' value='`$eipam-ip-block.ip-prefix`' />
+                                                <outcome value='failure'>
+                                                    <return status='failure'>
+                                                        <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                                        <parameter name="error-code" value="500" />
+                                                        <parameter name="error-message" value="`'Failed to delete subnet in Contrail. '+ $contrailResp.resp-code + ':' +$contrailResp.resp-message `" />
+                                                    </return>
+                                                </outcome>
+                                            </execute>
+                                            <set>
+                                                <parameter name="eipam-ip-block.status" value="ERROR" />
+                                            </set>
+                                            <return status='failure'>
+                                                <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                                <parameter name="error-code" value="500" />
+                                                <parameter name="error-message" value="'Cannot save subnet status to Created with l3 network-id=' + $pfx.eipam-initial-subnet.network-id + ' And subnet-id=' + $eipam-ip-block.entity-id  + ' in AnAI'" />
+                                            </return>
+                                        </block>
+                                    </outcome>
+                                </update>
+                                <save 
+	plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' 
+	resource='SQL'
+	key="UPDATE EIPAM_IP_SUBNETS
+             SET status = 'CREATED'
+             WHERE entity_id = $eipam-ip-block.entity-id ; "
+    force='true'
+        pfx='pfx.eipam-subnet-row'>
+                                    <outcome value='failure'>
+                                        <return status="failure">
+                                            <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                            <parameter name="error-code" value="500"/>
+                                            <parameter name="error-message" value="An error occured while updating subnet to CREATED in mysql." />
+                                        </return>
+                                    </outcome>
+                                    <outcome value="not-found">
+                                        <return status="failure">
+                                            <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                            <parameter name="error-code" value="500"/>
+                                            <parameter name="error-message" value="An error occured while updating subnet to CREATED in mysql." />
+                                        </return>
+                                    </outcome>
+                                </save>
+                                <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="activateSubnet">
+                                    <outcome value='failure'>
+                                        <return status="failure">
+                                            <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                            <parameter name="error-code" value="500"/>
+                                            <parameter name="error-message" value="An error occured while activating subnet in EIPAM." />
+                                        </return>
+                                    </outcome>
+                                </execute>
+                                <save 
+	plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' 
+	resource='SQL'
+	key="UPDATE EIPAM_IP_SUBNETS
+             SET status = 'ACTIVE'
+             WHERE entity_id = $eipam-ip-block.entity-id ; "
+    force='true'
+        pfx='pfx.eipam-subnet-row'>
+                                    <outcome value='failure'>
+                                        <return status="failure">
+                                            <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                            <parameter name="error-code" value="500"/>
+                                            <parameter name="error-message" value="An error occured while updating subnet to active in mysql." />
+                                        </return>
+                                    </outcome>
+                                    <outcome value="not-found">
+                                        <return status="failure">
+                                            <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                            <parameter name="error-code" value="500"/>
+                                            <parameter name="error-message" value="An error occured while updating subnet to active in mysql." />
+                                        </return>
+                                    </outcome>
+                                    <outcome value='success'></outcome>
+                                </save>
+                                <update plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="subnet" 
+		key="l3-network.network-id = $aai.l3-network.network-id 
+			AND subnet.subnet-id = $eipam-ip-block.entity-id" >
+                                    <parameter name="orchestration-status" value="Created" />
+                                    <outcome value='failure'>
+                                        <return status="failure">
+                                            <parameter name="error-code" value="500"/>
+                                            <parameter name="error-message" value="Failure updating orchestration-status in AAI for subnet." />
+                                        </return>
+                                    </outcome>
+                                    <outcome value="not-found">
+                                        <return status="failure">
+                                            <parameter name="error-code" value="500"/>
+                                            <parameter name="error-message" value="Failure updating orchestration-status in AAI for subnet.  Subnet not found." />
+                                        </return>
+                                    </outcome>
+                                </update>
+                                <return status="success">
+                                    <parameter name='eipam-ip-block.request-id' value="`$eipam-ip-block.entity-id + '-' + $aai.l3-network.contrail-network-fqdn`" />
+                                </return>
+                            </block>
+                        </outcome>
+                    </execute>
+                </outcome>
+            </switch>
+        </block>
+    </method>
+</service-logic>

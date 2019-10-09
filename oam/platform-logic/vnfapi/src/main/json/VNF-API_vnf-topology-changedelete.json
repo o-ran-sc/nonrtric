@@ -1,0 +1,269 @@
+[
+    {
+        "id": "793c9be.5fc6b64",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 268.7654113769531,
+        "y": 201.6666717529297,
+        "z": "3dd6ebc6.a724f4",
+        "wires": [
+            [
+                "7a4e0a99.334ed4",
+                "e4ca79b3.d28a88",
+                "1cd82265.55c3be",
+                "3ae9090d.f22816",
+                "dec0e9d5.73e028",
+                "d825c0c4.1d4a1",
+                "407cc4f8.57aaec",
+                "af3c9c59.5186d"
+            ]
+        ]
+    },
+    {
+        "id": "4d73e6f.4df7218",
+        "type": "method",
+        "name": "method vnf-topology-changedelete",
+        "xml": "<method rpc='vnf-topology-changedelete' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 329.4320983886719,
+        "y": 127.83333683013916,
+        "z": "3dd6ebc6.a724f4",
+        "wires": [
+            [
+                "793c9be.5fc6b64"
+            ]
+        ]
+    },
+    {
+        "id": "7a4e0a99.334ed4",
+        "type": "switchNode",
+        "name": "switch: order-status = Active",
+        "xml": "<switch test=\"'$service-data.oper-status.order-status == Active'\">\n\n<!--\nleaf order-status {\n\ttype enumeration {\n\t\tenum \"Active\";\n\t\tenum \"PendingAssignment\";\n\t\tenum \"PendingCreate\";\n\t\tenum \"PendingUpdate\";\n\t\tenum \"Deleted\";\n\t}\n}\n-->",
+        "comments": "",
+        "outputs": 1,
+        "x": 564.0987243652344,
+        "y": 259.9998321533203,
+        "z": "3dd6ebc6.a724f4",
+        "wires": [
+            [
+                "ce1b152f.c5c3d8"
+            ]
+        ]
+    },
+    {
+        "id": "20352e7f.4c6aa2",
+        "type": "service-logic",
+        "name": "VNF-API ${project.version}",
+        "module": "VNF-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='VNF-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 399.43206787109375,
+        "y": 81.83334445953369,
+        "z": "3dd6ebc6.a724f4",
+        "wires": [
+            [
+                "4d73e6f.4df7218"
+            ]
+        ]
+    },
+    {
+        "id": "ce1b152f.c5c3d8",
+        "type": "other",
+        "name": "false",
+        "xml": "<outcome value='false'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 784.4320983886719,
+        "y": 260.33314514160156,
+        "z": "3dd6ebc6.a724f4",
+        "wires": [
+            [
+                "ba2b0430.95ba08"
+            ]
+        ]
+    },
+    {
+        "id": "6ebec187.42b24",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 236.26541137695312,
+        "y": 81.666672706604,
+        "z": "3dd6ebc6.a724f4",
+        "wires": [
+            [
+                "20352e7f.4c6aa2"
+            ]
+        ]
+    },
+    {
+        "id": "ba2b0430.95ba08",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='error-code' value='400'/>\n\t<parameter name='error-message' value='Invalid last-order-status'/>",
+        "comments": "",
+        "x": 943.7652282714844,
+        "y": 260.33319091796875,
+        "z": "3dd6ebc6.a724f4",
+        "wires": []
+    },
+    {
+        "id": "e4ca79b3.d28a88",
+        "type": "set",
+        "name": "set: order-status = PendingDelete",
+        "xml": "<set>\n\t<parameter name=\"service-data.oper-status.order-status\" value=\"PendingDelete\"/>",
+        "comments": "",
+        "x": 579.265380859375,
+        "y": 421.66664123535156,
+        "z": "3dd6ebc6.a724f4",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1cd82265.55c3be",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n\t<parameter name=\"error-code\" value=\"200\" />\n",
+        "comments": "",
+        "x": 525.2654113769531,
+        "y": 588.6666412353516,
+        "z": "3dd6ebc6.a724f4",
+        "wires": []
+    },
+    {
+        "id": "edf99f91.a8ecc",
+        "type": "comment",
+        "name": "Update VNF status to PendingDelete",
+        "info": "",
+        "comments": "",
+        "x": 1137.5987854003906,
+        "y": 72.55556964874268,
+        "z": "3dd6ebc6.a724f4",
+        "wires": []
+    },
+    {
+        "id": "b076f9c8.0ae248",
+        "type": "comment",
+        "name": "VNF-TOPOLOGY-CHANGEDELETE",
+        "info": "",
+        "comments": "",
+        "x": 833.1543121337891,
+        "y": 72.22222900390625,
+        "z": "3dd6ebc6.a724f4",
+        "wires": []
+    },
+    {
+        "id": "2780acb6.663784",
+        "type": "comment",
+        "name": "request-action = DisconnectVNFRequest, svc-action = changedelete",
+        "info": "",
+        "comments": "",
+        "x": 966.0431518554688,
+        "y": 108.3333387374878,
+        "z": "3dd6ebc6.a724f4",
+        "wires": []
+    },
+    {
+        "id": "d825c0c4.1d4a1",
+        "type": "set",
+        "name": "set: last-action ",
+        "xml": "<set>\n\t<parameter name=\"service-data.oper-status.last-action\" value=\"`$service-data.request-information.request-action`\"/>",
+        "comments": "",
+        "x": 522.2654113769531,
+        "y": 475.66664123535156,
+        "z": "3dd6ebc6.a724f4",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3ae9090d.f22816",
+        "type": "switchNode",
+        "name": "switch:vnf-id   config == input",
+        "xml": "<switch test=\"`$vnf-topology-operation-input.vnf-request-information.vnf-id == $service-data.vnf-id`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 561.4018096923828,
+        "y": 202.8586196899414,
+        "z": "3dd6ebc6.a724f4",
+        "wires": [
+            [
+                "34619221.3001ae"
+            ]
+        ]
+    },
+    {
+        "id": "34619221.3001ae",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 783.8563232421875,
+        "y": 203.04042434692383,
+        "z": "3dd6ebc6.a724f4",
+        "wires": [
+            [
+                "eb0b61e2.b88"
+            ]
+        ]
+    },
+    {
+        "id": "eb0b61e2.b88",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='error-code' value='400'/>\n\t<parameter name='error-message' value='vnf-id not found'/>",
+        "comments": "",
+        "x": 941.9472274780273,
+        "y": 202.94952201843262,
+        "z": "3dd6ebc6.a724f4",
+        "wires": []
+    },
+    {
+        "id": "dec0e9d5.73e028",
+        "type": "set",
+        "name": "set: last-order-status = order-status",
+        "xml": "<set>\n\t<parameter name=\"service-data.oper-status.last-order-status\" value=\"`$service-data.oper-status.order-status`\"/>",
+        "comments": "",
+        "x": 584.4017639160156,
+        "y": 370.8585968017578,
+        "z": "3dd6ebc6.a724f4",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "407cc4f8.57aaec",
+        "type": "set",
+        "name": "set: service-data = input",
+        "xml": "<set>\n\t<parameter name=\"service-data.\" value=\"vnf-topology-operation-input.\" /> \n",
+        "comments": "",
+        "x": 553.4017639160156,
+        "y": 529.8585357666016,
+        "z": "3dd6ebc6.a724f4",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "af3c9c59.5186d",
+        "type": "save",
+        "name": "update generic-vnf status to pending-delete",
+        "xml": "<update plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\" \n\tresource=\"generic-vnf\" \n\t\tkey=\"generic-vnf.vnf-id = $vnf-topology-operation-input.vnf-request-information.generic-vnf-id\" \n\tforce=\"true\" \n\tlocal-only=\"false\" >\n\t<parameter name=\"orchestration-status\" value=\"pending-delete\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 611.7352142333984,
+        "y": 315.85854721069336,
+        "z": "3dd6ebc6.a724f4",
+        "wires": [
+            []
+        ]
+    }
+]

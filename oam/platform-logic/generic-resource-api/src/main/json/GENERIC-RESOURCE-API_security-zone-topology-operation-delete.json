@@ -1,0 +1,563 @@
+[
+    {
+        "id": "6b945847.1c8628",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 187,
+        "y": 84,
+        "z": "cab86701.408c88",
+        "wires": [
+            [
+                "46c9c550.08ddbc"
+            ]
+        ]
+    },
+    {
+        "id": "46c9c550.08ddbc",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 283.2380790710449,
+        "y": 144.95239067077637,
+        "z": "cab86701.408c88",
+        "wires": [
+            [
+                "33033a6c.777e46"
+            ]
+        ]
+    },
+    {
+        "id": "33033a6c.777e46",
+        "type": "method",
+        "name": "security-zone-topology-operation-delete",
+        "xml": "<method rpc='security-zone-topology-operation-delete' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 329.15485763549805,
+        "y": 180.19044589996338,
+        "z": "cab86701.408c88",
+        "wires": [
+            [
+                "71a136f2.4a6ae8"
+            ]
+        ]
+    },
+    {
+        "id": "71a136f2.4a6ae8",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 237.47619247436523,
+        "y": 323.5237879753113,
+        "z": "cab86701.408c88",
+        "wires": [
+            [
+                "d473982e.2073e8",
+                "21b535a4.6f3cfa",
+                "58735763.200388",
+                "67dca0c.5203f6",
+                "d4bebd02.2ac6",
+                "ed3aea18.ac56a8",
+                "ce33759f.7f8848",
+                "af4ea7a7.5e99e8",
+                "dd978c58.19189",
+                "a078b88c.279298",
+                "1469e91d.b421d7",
+                "4a2606ec.007d08"
+            ]
+        ]
+    },
+    {
+        "id": "21b535a4.6f3cfa",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name=\"ack-final-indicator\" value=\"Y\" />\n<parameter name=\"error-code\" value=\"200\" />\n<parameter name=\"error-message\" value=\"`$error-message`\" />\n",
+        "comments": "",
+        "x": 504.0001106262207,
+        "y": 993.2145080566406,
+        "z": "cab86701.408c88",
+        "wires": []
+    },
+    {
+        "id": "d473982e.2073e8",
+        "type": "set",
+        "name": "set output to api handler",
+        "xml": "<set>\n<parameter name='allotted-resource-id' value='`$tmp.ar.allotted-resource-id`' />\n<parameter name='security-zone-object-path' value=\"`$tmp.ar.self-link`\"/>\n<parameter name='service-object-path' value=\"`'restconf/config/GENERIC-RESOURCE-API:services/service/'\n + $security-zone-topology-operation-input.service-information.service-instance-id\n + '/service-data/service-topology/'`\"/>\n \n",
+        "comments": "",
+        "x": 532.7540245056152,
+        "y": 957.3370542526245,
+        "z": "cab86701.408c88",
+        "wires": []
+    },
+    {
+        "id": "dd978c58.19189",
+        "type": "set",
+        "name": "set allotted-resource-oper-status",
+        "xml": "<set>\n<parameter name='sz-ar.allotted-resource-data.allotted-resource-oper-status.order-status' value='PendingDelete' />\n<parameter name='sz-ar.allotted-resource-data.allotted-resource-oper-status.last-action' value='`$security-zone-topology-operation-input.request-information.request-action`' />\n<parameter name='sz-ar.allotted-resource-data.allotted-resource-oper-status.last-rpc-action' value='`$security-zone-topology-operation-input.sdnc-request-header.svc-action`' />\n<parameter name='sz-ar.allotted-resource-data.allotted-resource-oper-status.last-svc-request-id' value='`$security-zone-topology-operation-input.sdnc-request-header.svc-request-id`' />\n<parameter name='sz-ar.allotted-resource-data.allotted-resource-oper-status.create-timestamp' value='`$tmp.current-time`' />\n",
+        "comments": "",
+        "x": 543.7542190551758,
+        "y": 704.0514001846313,
+        "z": "cab86701.408c88",
+        "wires": []
+    },
+    {
+        "id": "67dca0c.5203f6",
+        "type": "set",
+        "name": "set tmp.ar.self-link",
+        "xml": "<set>\n<parameter name='tmp.ar.self-link' value=\"`'restconf/config/GENERIC-RESOURCE-API:security-zone-allotted-resources/security-zone-allotted-resource/'\n + $tmp.ar.allotted-resource-id\n + '/allotted-resource-data/security-zone-topology/'` \" />\n\n",
+        "comments": "",
+        "x": 499.73806381225586,
+        "y": 297.33332538604736,
+        "z": "cab86701.408c88",
+        "wires": []
+    },
+    {
+        "id": "58735763.200388",
+        "type": "set",
+        "name": "set tmp.ar.allotted-resource-id,etc",
+        "xml": "<set>\n<parameter name='tmp.ar.allotted-resource-id' value='`$security-zone-topology-operation-input.allotted-resource-information.allotted-resource-id`' />\n<parameter name='tmp.ar.parent-service-instance-id' value='`$security-zone-topology-operation-input.allotted-resource-information.parent-service-instance-id`' />\n<parameter name='tmp.ar.sz-vnf-id' value='`$security-zone-topology-operation-input.allotted-resource-data.security-zone-topology.security-zone-assignments.security-zone-vnf-id`' />\n\n\n",
+        "comments": "",
+        "x": 546.9973258972168,
+        "y": 263.59259128570557,
+        "z": "cab86701.408c88",
+        "wires": []
+    },
+    {
+        "id": "d4bebd02.2ac6",
+        "type": "execute",
+        "name": "execute Properties",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >\n    <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />\n    <parameter name='contextPrefix' value='prop' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 505.9934196472168,
+        "y": 333.23152446746826,
+        "z": "cab86701.408c88",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ce33759f.7f8848",
+        "type": "execute",
+        "name": "execute RestApiCallNode - Get AR by id",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />\n    <parameter name='restapiUser' value='`$prop.controller.user`' />\n    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='GET' />\n    <parameter name=\"responsePrefix\" value=\"mdsal-ar\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 568.5187530517578,
+        "y": 494.4594917297363,
+        "z": "cab86701.408c88",
+        "wires": [
+            [
+                "3d6ff871.1b6728",
+                "c68f9183.6fe9"
+            ]
+        ]
+    },
+    {
+        "id": "ed3aea18.ac56a8",
+        "type": "execute",
+        "name": "generate allotted-resource url",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$prop.restapi.sz-allottedresource`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.ar-url\"/>\n    <parameter name=\"target\" value=\"{allotted-resource-id}\"/>\n    <parameter name=\"replacement\" value=\"`$tmp.ar.allotted-resource-id`\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 534.0648536682129,
+        "y": 393.0172290802002,
+        "z": "cab86701.408c88",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3d6ff871.1b6728",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 825.8148918151855,
+        "y": 493.26725220680237,
+        "z": "cab86701.408c88",
+        "wires": [
+            [
+                "cae924d0.c91d68"
+            ]
+        ]
+    },
+    {
+        "id": "e3d80d76.f38b6",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 846.837329864502,
+        "y": 900.432332418859,
+        "z": "cab86701.408c88",
+        "wires": [
+            [
+                "e5182ef1.2930a"
+            ]
+        ]
+    },
+    {
+        "id": "408d7749.7bfef8",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 837.8373794555664,
+        "y": 868.9323581680655,
+        "z": "cab86701.408c88",
+        "wires": [
+            [
+                "e5182ef1.2930a"
+            ]
+        ]
+    },
+    {
+        "id": "a26d7c72.44fcc",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 841.5874176025391,
+        "y": 839.2894630432129,
+        "z": "cab86701.408c88",
+        "wires": [
+            [
+                "e6e17eb6.e762c"
+            ]
+        ]
+    },
+    {
+        "id": "e5182ef1.2930a",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"Error updating md-sal for security-zone-allotted-resource\" />\n",
+        "comments": "",
+        "x": 1007.5874176025391,
+        "y": 869.6823820099235,
+        "z": "cab86701.408c88",
+        "wires": []
+    },
+    {
+        "id": "cae924d0.c91d68",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1006.8148460388184,
+        "y": 493.7672016620636,
+        "z": "cab86701.408c88",
+        "wires": [
+            [
+                "a06def86.57a78",
+                "2d0ecbe9.d56c34"
+            ]
+        ]
+    },
+    {
+        "id": "a06def86.57a78",
+        "type": "switchNode",
+        "name": "switch sz length",
+        "xml": "<switch test='`$mdsal-ar.security-zone-allotted-resource_length`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1252.6720924377441,
+        "y": 528.052964925766,
+        "z": "cab86701.408c88",
+        "wires": [
+            [
+                "ef02f832.92b468"
+            ]
+        ]
+    },
+    {
+        "id": "ef02f832.92b468",
+        "type": "other",
+        "name": "outcome 1",
+        "xml": "<outcome value='1'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1443.6720962524414,
+        "y": 528.0529625415802,
+        "z": "cab86701.408c88",
+        "wires": [
+            [
+                "6ff8e752.374018"
+            ]
+        ]
+    },
+    {
+        "id": "b7d42ce2.9a481",
+        "type": "set",
+        "name": "set sz-ar from get",
+        "xml": "<set>\n<parameter name='sz-ar.' value='$mdsal-ar.security-zone-allotted-resource[0].' />\n",
+        "comments": "",
+        "x": 1843.5292320251465,
+        "y": 528.6243867874146,
+        "z": "cab86701.408c88",
+        "wires": []
+    },
+    {
+        "id": "6ff8e752.374018",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic='true'>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1614.5290794372559,
+        "y": 528.6244316101074,
+        "z": "cab86701.408c88",
+        "wires": [
+            [
+                "b7d42ce2.9a481",
+                "63e31730.e27918",
+                "d8d35b13.b628f8"
+            ]
+        ]
+    },
+    {
+        "id": "63e31730.e27918",
+        "type": "set",
+        "name": "set oper-status",
+        "xml": "<set>\n<parameter name='sz-ar.allotted-resource-data.allotted-resource-oper-status.last-action' value='`$sz-ar.allotted-resource-data.allotted-resource-operation-information.request-information.request-action`' />\n<parameter name='sz-ar.allotted-resource-data.allotted-resource-oper-status.last-rpc-action' value='`$sz-ar.allotted-resource-status.rpc-action`' />\n<parameter name='sz-ar.allotted-resource-data.allotted-resource-oper-status.last-svc-request-id' value='`$sz-ar.allotted-resource-data.allotted-resource-operation-information.sdnc-request-header.svc-request-id`' />\n\n",
+        "comments": "",
+        "x": 1841.5294761657715,
+        "y": 596.0529508590698,
+        "z": "cab86701.408c88",
+        "wires": []
+    },
+    {
+        "id": "bed5b961.bd6788",
+        "type": "comment",
+        "name": "GET security-zone-allotted-resource from mdsal",
+        "info": "",
+        "comments": "",
+        "x": 593.8148155212402,
+        "y": 457.7671926021576,
+        "z": "cab86701.408c88",
+        "wires": []
+    },
+    {
+        "id": "d8d35b13.b628f8",
+        "type": "switchNode",
+        "name": "switch order-status",
+        "xml": "<switch test='`$sz-ar.allotted-resource-data.allotted-resource-oper-status.order-status`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1851.52925491333,
+        "y": 561.6243848800659,
+        "z": "cab86701.408c88",
+        "wires": [
+            [
+                "55b36fbc.52943",
+                "19d63441.492dec"
+            ]
+        ]
+    },
+    {
+        "id": "55b36fbc.52943",
+        "type": "outcome",
+        "name": "outcome Created",
+        "xml": "<outcome value='Created'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2063.1292114257812,
+        "y": 522.6243848800659,
+        "z": "cab86701.408c88",
+        "wires": [
+            [
+                "27c47993.316bb6"
+            ]
+        ]
+    },
+    {
+        "id": "19d63441.492dec",
+        "type": "outcome",
+        "name": "outcome Other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2088.8435859680176,
+        "y": 558.052975654602,
+        "z": "cab86701.408c88",
+        "wires": [
+            [
+                "27c47993.316bb6"
+            ]
+        ]
+    },
+    {
+        "id": "f3aeefda.cd911",
+        "type": "comment",
+        "name": "Set allotted-resource-identifiers",
+        "info": "",
+        "comments": "",
+        "x": 549.3386383056641,
+        "y": 548.3386459350586,
+        "z": "cab86701.408c88",
+        "wires": []
+    },
+    {
+        "id": "2d0ecbe9.d56c34",
+        "type": "set",
+        "name": "save backup copy of mdsal-ar for rollback",
+        "xml": "<set>\n<parameter name='bk-sz-ar' value='$mdsal-ar.' />\n",
+        "comments": "",
+        "x": 1332.3864250183105,
+        "y": 493.76729369163513,
+        "z": "cab86701.408c88",
+        "wires": []
+    },
+    {
+        "id": "33868ac7.abca26",
+        "type": "comment",
+        "name": "Create urls for restapi",
+        "info": "",
+        "comments": "",
+        "x": 504.9576606750488,
+        "y": 362.6243562698364,
+        "z": "cab86701.408c88",
+        "wires": []
+    },
+    {
+        "id": "e6e17eb6.e762c",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 983.2433853149414,
+        "y": 835.481632232666,
+        "z": "cab86701.408c88",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2b3604ae.317ccc",
+        "type": "comment",
+        "name": "TO DO: vnf/put parent",
+        "info": "",
+        "comments": "",
+        "x": 517.2433776855468,
+        "y": 769.4815540313718,
+        "z": "cab86701.408c88",
+        "wires": []
+    },
+    {
+        "id": "af4ea7a7.5e99e8",
+        "type": "execute",
+        "name": "execute getTime",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils' method='setTime' >\n    <parameter name=\"outputPath\" value=\"tmp.current-time\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 491.24338150024414,
+        "y": 665.4815549850464,
+        "z": "cab86701.408c88",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c68f9183.6fe9",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 825.5766868591309,
+        "y": 529.4814250469208,
+        "z": "cab86701.408c88",
+        "wires": [
+            [
+                "336a662a.c1025a"
+            ]
+        ]
+    },
+    {
+        "id": "336a662a.c1025a",
+        "type": "block",
+        "name": "block: atomic",
+        "xml": "<block atomic=\"true\">\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1005.5766372680664,
+        "y": 530.1479756832123,
+        "z": "cab86701.408c88",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a078b88c.279298",
+        "type": "set",
+        "name": "set id",
+        "xml": "<set>\n<parameter name='sz-ar.allotted-resource-id' value=\"`$tmp.ar.allotted-resource-id` \" />\n<parameter name='sz-ar.allotted-resource-status.action' value=\"`$security-zone-topology-operation-input.request-information.request-action` \" />\n<parameter name='sz-ar.allotted-resource-status.rpc-name' value=\"security-zone-topology-operation\" />\n<parameter name='sz-ar.allotted-resource-status.rpc-action' value=\"`$security-zone-topology-operation-input.sdnc-request-header.svc-action` \" />\n<parameter name='sz-ar.allotted-resource-data.allotted-resource-operation-information.request-information.' value=\"`$security-zone-topology-operation-input.request-information.` \" />\n<parameter name='sz-ar.allotted-resource-data.allotted-resource-operation-information.sdnc-request-header.' value=\"`$security-zone-topology-operation-input.sdnc-request-header.` \" />\n<parameter name='sz-ar.allotted-resource-data.allotted-resource-operation-information.service-information.' value=\"`$security-zone-topology-operation-input.service-information.` \" />\n<parameter name='sz-ar.allotted-resource-data.allotted-resource-operation-information.allotted-resource-information.' value=\"`$security-zone-topology-operation-input.allotted-resource-information.` \" />\n<parameter name='sz-ar.allotted-resource-data.allotted-resource-operation-information.security-zone-request-input.' value=\"`$security-zone-topology-operation-input.security-zone-request-input.` \" />",
+        "comments": "",
+        "x": 474.24342346191406,
+        "y": 585.1481666564941,
+        "z": "cab86701.408c88",
+        "wires": []
+    },
+    {
+        "id": "27c47993.316bb6",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2277.5997276306152,
+        "y": 524.0000190734863,
+        "z": "cab86701.408c88",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1469e91d.b421d7",
+        "type": "execute",
+        "name": "execute RestApiCallNode - PUT AR by id",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='templateFileName' value=\"`$prop.restapi.templateDir + '/' + $prop.restapi.sz.templatefile`\" />\n    <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.ar-url`' />\n    <parameter name='restapiUser' value='`$prop.controller.user`' />\n    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='PUT' />\n    <parameter name=\"responsePrefix\" value=\"mdsal-ar\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 574.0000152587891,
+        "y": 850.0000247955322,
+        "z": "cab86701.408c88",
+        "wires": [
+            [
+                "a26d7c72.44fcc",
+                "408d7749.7bfef8",
+                "e3d80d76.f38b6"
+            ]
+        ]
+    },
+    {
+        "id": "4a2606ec.007d08",
+        "type": "set",
+        "name": "clear sz-ar-assignments",
+        "xml": "<set>\n<parameter name='sz-ar-assignments.' value=\"\" />\n\n\n\n",
+        "comments": "",
+        "x": 518,
+        "y": 736,
+        "z": "cab86701.408c88",
+        "wires": []
+    }
+]

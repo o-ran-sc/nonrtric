@@ -1,0 +1,39 @@
+{
+"accessE2Eservice" : {
+                "serviceID" : "",
+                "subscriberInfo" : {
+                        "accessID" : "",
+                        "extendParas" : {},
+"dpName":""
+                },
+                "aEnd" : {
+                        "endNeName" : "",
+                        "endPort" : "",
+                        "extendParas" : {
+                                "ontSN" :  ${prop.bbs.ONTSN},
+                                "cVlanID" : ${prop.bbs.CVLAN}
+                        }
+                },
+                "zEnd" : {
+                        "endNeName" : "",
+                        "endPort" : "",
+                        "extendParas" : {
+                                "sVlanID" :  ${prop.bbs.SVLAN}
+                        }
+                },
+                "serviceInfo" : {
+                        "serviceBasciInfo" : {
+                                "serviceType" : "HSI"
+                        },
+                        "hsiServiceInfo" : {
+                                "hsiServiceType" : ${prop.bbs.HsiType},
+                                "hsiPackage" : ${prop.bbs.HsiPackage},
+                                "lineProfileName" : "",
+                                "serviceProfileName" : "",
+                                "vaProfileName" : "",
+                                "trafficProfileName" : "",
+                                "extendParas" : {}
+                        }
+                }
+        }
+}

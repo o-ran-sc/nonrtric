@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<service-logic xmlns="http://www.onap.org/sdnc/svclogic" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.onap.org/sdnc/svclogic ./svclogic.xsd" module="GENERIC-RESOURCE-API" version="${project.version}">
+  <method rpc="wan-connection-topology-operation-create" mode="sync"> 
+    <block atomic="true">
+      <switch test="`$network-topology-operation-input.network-information.network-id`"> 
+        <outcome value="">
+          <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliPluginUtils" method="generateUUID"> 
+            <parameter name="ctx-destination" value="network-topology-operation-input.network-information.network-id"/>  
+            <outcome value="failure"> 
+              <return status="failure"> 
+                <parameter name="error-code" value=""/>  
+                <parameter name="error-message" value="An error occured while generation allotted resource ID"/> 
+              </return>
+            </outcome>
+          </execute>
+        </outcome>
+        <outcome value="Other"></outcome>
+      </switch>
+      <execute plugin="org.onap.ccsdk.sli.plugins.prop.PropertiesNode" method="readProperties"> 
+        <parameter name="fileName" value="%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties"/>  
+        <parameter name="contextPrefix" value="prop"/> 
+      </execute>
+      <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils" method="contains"> 
+        <parameter name="source" value="`$network-topology-operation-input.network-information.onap-model-information.model-name`"/>  
+        <parameter name="target" value="specification"/>  
+        <outcome value="true"> 
+          <block atomic="true">
+            <switch test="`$service-data.networks.network_length`"> 
+              <outcome value=""> 
+                <set> 
+                  <parameter name="nidx" value="0"/>
+                </set>
+              </outcome>
+              <outcome value="Other"> 
+                <set> 
+                  <parameter name="nidx" value="`$service-data.networks.network_length`"/>
+                </set>
+              </outcome>
+            </switch>
+            <set> 
+              <parameter name="service-data.networks.network[$nidx].network-id" value="`$network-topology-operation-input.network-information.network-id`"/>  
+              <parameter name="service-data.networks.network[$nidx].network-data.sdnc-request-header." value="`$network-topology-operation-input.sdnc-request-header.`"/>  
+              <parameter name="service-data.networks.network[$nidx].network-data.request-information." value="`$network-topology-operation-input.request-information.`"/>  
+              <parameter name="service-data.networks.network[$nidx].network-data.service-information." value="`$network-topology-operation-input.service-information.`"/>  
+              <parameter name="service-data.networks.network[$nidx].network-data.network-information." value="`$network-topology-operation-input.network-information.`"/>  
+              <parameter name="service-data.networks.network[$nidx].network-data.network-request-input." value="`$network-topology-operation-input.network-request-input.`"/>  
+              <parameter name="service-data.networks.network_length" value="`$nidx+1`"/> 
+            </set>
+          </block>
+        </outcome>
+        <outcome value="false"> 
+          <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils" method="contains"> 
+            <parameter name="source" value="`$network-topology-operation-input.network-information.onap-model-information.model-name`"/>  
+            <parameter name="target" value="FC"/>  
+            <outcome value="true"> 
+              <block atomic="true">
+                <switch test="`$service-data.networks.network_length`"> 
+                  <outcome value=""> 
+                    <set> 
+                      <parameter name="nidx" value="0"/>  
+                      <parameter name="isExist" value="false"/>
+                    </set>
+                  </outcome>
+                  <outcome value="Other"> 
+                    <block> 
+                      <set> 
+                        <parameter name="nidx" value="`$service-data.networks.network_length`"/>  
+                        <parameter name="isExist" value="false"/>
+                      </set>
+                      <for index="idx" start="0" end="`$nidx`"> 
+                        <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils" method="contains" emitsOutcome="true"> 
+                          <parameter name="source" value="`$service-data.networks.network[$idx].network-data.network-information.onap-model-information.model-name`"/>  
+                          <parameter name="target" value="specification"/>  
+                          <outcome value="true"> 
+                            <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils" method="contains" emitsOutcome="true"> 
+                              <parameter name="source" value="`$service-data.networks.network[$idx].network-data.network-information.onap-model-information.model-name`"/>  
+                              <parameter name="target" value="`$network-topology-operation-input.network-information.onap-model-information.model-name`"/>  
+                              <outcome value="true"> 
+                                <block atomic="true">
+                                  <set> 
+                                    <parameter name="nidx" value="`$idx`"/>  
+                                    <parameter name="isExist" value="true"/>
+                                  </set>
+                                  <switch test="`$service-data.networks.network[$nidx].network-data.network-request-input.network-input-parameters.param_length`"> 
+                                    <outcome value=""> 
+                                      <set> 
+                                        <parameter name="param_length" value="0"/>
+                                      </set>
+                                    </outcome>
+                                    <outcome value="Other"> 
+                                      <set> 
+                                        <parameter name="param_length" value="`$service-data.networks.network[$nidx].network-data.network-request-input.network-input-parameters.param_length`"/>
+                                      </set>
+                                    </outcome>
+                                  </switch>
+                                  <switch test="`$network-topology-operation-input.network-request-input.network-input-parameters.param_length`"> 
+                                    <outcome value=""> 
+                                      <set> 
+                                        <parameter name="input_param_length" value="0"/>
+                                      </set>
+                                    </outcome>
+                                    <outcome value="Other"> 
+                                      <set> 
+                                        <parameter name="input_param_length" value="`$network-topology-operation-input.network-request-input.network-input-parameters.param_length`"/>
+                                      </set>
+                                    </outcome>
+                                  </switch>
+                                  <for index="pidx" start="0" end="`$param_length`"> 
+                                    <set> 
+                                      <parameter name="network-topology-operation-input.network-request-input.network-input-parameters.param[$pidx+$input_param_length]." value="`$service-data.networks.network[$nidx].network-data.network-request-input.network-input-parameters.param[$pidx].`"/>
+                                    </set>
+                                  </for>
+                                  <set> 
+                                    <parameter name="network-topology-operation-input.network-request-input.network-input-parameters.param_length" value="`$input_param_length + $param_length`"/> 
+                                  </set>
+                                </block>
+                              </outcome>
+                            </execute>
+                          </outcome>
+                        </execute>
+                      </for>
+                    </block>
+                  </outcome>
+                </switch>
+              </block>
+            </outcome>
+            <outcome value="false"> 
+              <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils" method="contains"> 
+                <parameter name="source" value="`$network-topology-operation-input.network-information.onap-model-information.model-name`"/>  
+                <parameter name="target" value="FD"/>  
+                <outcome value="true"> 
+                  <block atomic="true">
+                    <switch test="`$service-data.networks.network_length`"> 
+                      <outcome value=""> 
+                        <set> 
+                          <parameter name="nidx" value="0"/>  
+                          <parameter name="isExist" value="false"/>
+                        </set>
+                      </outcome>
+                      <outcome value="Other"> 
+                        <block> 
+                          <set> 
+                            <parameter name="nidx" value="`$service-data.networks.network_length`"/>  
+                            <parameter name="isExist" value="false"/>
+                          </set>
+                          <for index="idx" start="0" end="`$nidx`"> 
+                            <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils" method="contains" emitsOutcome="true"> 
+                              <parameter name="source" value="`$service-data.networks.network[$idx].network-data.network-information.onap-model-information.model-name`"/>  
+                              <parameter name="target" value="specification"/>  
+                              <outcome value="true"> 
+                                <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils" method="contains" emitsOutcome="true"> 
+                                  <parameter name="source" value="`$service-data.networks.network[$idx].network-data.network-information.onap-model-information.model-name`"/>  
+                                  <parameter name="target" value="`$network-topology-operation-input.network-information.onap-model-information.model-name`"/>  
+                                  <outcome value="true"> 
+                                    <block atomic="true">
+                                      <set> 
+                                        <parameter name="nidx" value="`$idx`"/>  
+                                        <parameter name="isExist" value="true"/>
+                                      </set>
+                                      <switch test="`$service-data.networks.network[$nidx].network-data.network-request-input.network-input-parameters.param_length`"> 
+                                        <outcome value=""> 
+                                          <set> 
+                                            <parameter name="param_length" value="0"/>
+                                          </set>
+                                        </outcome>
+                                        <outcome value="Other"> 
+                                          <set> 
+                                            <parameter name="param_length" value="`$service-data.networks.network[$nidx].network-data.network-request-input.network-input-parameters.param_length`"/>
+                                          </set>
+                                        </outcome>
+                                      </switch>
+                                      <switch test="`$network-topology-operation-input.network-request-input.network-input-parameters.param_length`"> 
+                                        <outcome value=""> 
+                                          <set> 
+                                            <parameter name="input_param_length" value="0"/>
+                                          </set>
+                                        </outcome>
+                                        <outcome value="Other"> 
+                                          <set> 
+                                            <parameter name="input_param_length" value="`$network-topology-operation-input.network-request-input.network-input-parameters.param_length`"/>
+                                          </set>
+                                        </outcome>
+                                      </switch>
+                                      <for index="pidx" start="0" end="`$param_length`"> 
+                                        <set> 
+                                          <parameter name="network-topology-operation-input.network-request-input.network-input-parameters.param[$pidx+$input_param_length]." value="`$service-data.networks.network[$nidx].network-data.network-request-input.network-input-parameters.param[$pidx].`"/>
+                                        </set>
+                                      </for>
+                                      <set> 
+                                        <parameter name="network-topology-operation-input.network-request-input.network-input-parameters.param_length" value="`$input_param_length + $param_length`"/> 
+                                      </set>
+                                    </block>
+                                  </outcome>
+                                </execute>
+                              </outcome>
+                            </execute>
+                          </for>
+                        </block>
+                      </outcome>
+                    </switch>
+                  </block>
+                </outcome>
+                <outcome value="false"> 
+                  <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils" method="contains"> 
+                    <parameter name="source" value="`$network-topology-operation-input.network-information.onap-model-information.model-name`"/>  
+                    <parameter name="target" value="FcPort"/>  
+                    <outcome value="true"> 
+                      <block atomic="true">
+                        <switch test="`$service-data.networks.network_length`"> 
+                          <outcome value=""> 
+                            <set> 
+                              <parameter name="nidx" value="0"/>  
+                              <parameter name="isExist" value="false"/>
+                            </set>
+                          </outcome>
+                          <outcome value="Other"> 
+                            <block> 
+                              <set> 
+                                <parameter name="nidx" value="`$service-data.networks.network_length`"/>  
+                                <parameter name="isExist" value="false"/>
+                              </set>
+                              <for index="idx" start="0" end="`$nidx`"> 
+                                <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils" method="contains" emitsOutcome="true"> 
+                                  <parameter name="source" value="`$service-data.networks.network[$idx].network-data.network-information.onap-model-information.model-name`"/>  
+                                  <parameter name="target" value="specification"/>  
+                                  <outcome value="true"> 
+                                    <execute plugin="org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils" method="contains" emitsOutcome="true"> 
+                                      <parameter name="source" value="`$service-data.networks.network[$idx].network-data.network-information.onap-model-information.model-name`"/>  
+                                      <parameter name="target" value="`$network-topology-operation-input.network-information.onap-model-information.model-name`"/>  
+                                      <outcome value="true"> 
+                                        <block atomic="true">
+                                          <set> 
+                                            <parameter name="nidx" value="`$idx`"/>  
+                                            <parameter name="isExist" value="true"/>
+                                          </set>
+                                          <switch test="`$service-data.networks.network[$nidx].network-data.network-request-input.network-input-parameters.param_length`"> 
+                                            <outcome value=""> 
+                                              <set> 
+                                                <parameter name="param_length" value="0"/>
+                                              </set>
+                                            </outcome>
+                                            <outcome value="Other"> 
+                                              <set> 
+                                                <parameter name="param_length" value="`$service-data.networks.network[$nidx].network-data.network-request-input.network-input-parameters.param_length`"/>
+                                              </set>
+                                            </outcome>
+                                          </switch>
+                                          <switch test="`$network-topology-operation-input.network-request-input.network-input-parameters.param_length`"> 
+                                            <outcome value=""> 
+                                              <set> 
+                                                <parameter name="input_param_length" value="0"/>
+                                              </set>
+                                            </outcome>
+                                            <outcome value="Other"> 
+                                              <set> 
+                                                <parameter name="input_param_length" value="`$network-topology-operation-input.network-request-input.network-input-parameters.param_length`"/>
+                                              </set>
+                                            </outcome>
+                                          </switch>
+                                          <for index="pidx" start="0" end="`$param_length`"> 
+                                            <set> 
+                                              <parameter name="network-topology-operation-input.network-request-input.network-input-parameters.param[$pidx+$input_param_length]." value="`$service-data.networks.network[$nidx].network-data.network-request-input.network-input-parameters.param[$pidx].`"/>
+                                            </set>
+                                          </for>
+                                          <set> 
+                                            <parameter name="network-topology-operation-input.network-request-input.network-input-parameters.param_length" value="`$input_param_length + $param_length`"/> 
+                                          </set>
+                                        </block>
+                                      </outcome>
+                                    </execute>
+                                  </outcome>
+                                </execute>
+                              </for>
+                            </block>
+                          </outcome>
+                        </switch>
+                      </block>
+                    </outcome>
+                    <outcome value="false"> 
+                      <block></block>
+                    </outcome>
+                  </execute>
+                </outcome>
+              </execute>
+            </outcome>
+          </execute>
+        </outcome>
+      </execute>
+      <return status="success"> 
+        <parameter name="ack-final-indicator" value="Y"/>  
+        <parameter name="error-code" value="200"/>  
+        <parameter name="error-message" value="`$error-message`"/> 
+      </return>
+    </block>
+  </method>
+</service-logic>

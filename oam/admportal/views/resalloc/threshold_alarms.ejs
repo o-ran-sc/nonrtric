@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+  <script type="text/javascript" src="/javascripts/admportal.js" async></script>
+  <title>SDN-C AdminPortal</title>
+<script class="init">
+    $(document).ready(function() {
+    $('#threshold_alarms').DataTable( {
+        "order": [[ 0, "asc" ]]
+    } );
+} );
+</script>
+
+</head>
+<body>
+
+<div class="well well-sm">
+<h3>Threshold Alarms</h3>
+</div>
+
+<% if ( typeof result != 'undefined' ) {
+		if (result.code.length > 0) { 
+			if ( result.code == 'success' ) { %>
+				<div class='alert alert-success' role='alert'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } else { %> 
+				<div class='alert alert-danger' role='danger'>
+				<%
+				for ( x in result.msg ){ %>
+					<div><%= result.msg[x] %></div>
+				<% } %>
+				</div>
+			<% } %>
+		<% } %>
+<% } %>
+
+<% if( typeof privilege != 'undefined'){
+    var priv = privilege.privilege;
+} else {
+    var priv = 'A';
+} %>
+
+
+<div class="container-fluid">
+
+	<% if (priv == 'A'){ %>
+		<div class="actions" style="padding:15px 0px;">
+    	<button class="btn btn-primary" data-toggle="modal" data-target="#add_threshold_alarm">
+      	Add Threshold Alarm
+    	</button>
+		</div>
+	<% } %>
+
+	<table id="threshold_alarms" class="table table-hover table-condensed">
+      <thead>
+        <tr>
+		  <th>*Resource Threshold ID</th>
+		  <th>*Resource Rule ID</th>
+          <th>Threshold Expression</th>
+		  <th>Threshold Message</th>
+		   <% if(priv == 'A'){ %>
+          <th>Action</th>
+          <% } %>
+        </tr>
+      </thead>
+      <tbody>
+      <% rows.forEach( function(row) { %> 
+        <tr>
+            <td><%= row.resource_threshold_id %></td>
+            <td><%= row.resource_rule_id %></td>
+            <td><%= row.threshold_expression %></td>
+            <td><%= row.threshold_message %></td>
+			<% if(priv == 'A') { %>
+            <td>
+				<button type="button" class="btn btn-default btn-xs"
+                    onclick="updateThresholdAlarm('<%= row.resource_threshold_id %>','<%=row.resource_rule_id %>','<%= row.threshold_expression %>','<%= row.threshold_message %>');">Update</button>
+				<button type="button" class="btn btn-default btn-xs"
+                   onclick="deleteThresholdAlarm('<%= row.resource_threshold_id %>');">Delete</button>
+            </td>
+            <% } %>
+
+        </tr>
+    <% }); %>
+      </tbody>
+    </table>
+
+</div>
+
+<% include ../partials/threshold_alarm %>
+<footer>
+    <% include ../partials/footer %>
+</footer>
+
+<script type="text/javascript">
+function submitThresholdAlarm(form)
+{
+    var resource_rule_id = '';
+	var threshold_expression = '';
+	var threshold_message = '';
+    var errorMsg = '';
+
+    if ( form.name == 'addForm' )
+    {
+		resource_rule_id = form.nf_resource_rule_id;
+		threshold_expression = form.nf_threshold_expression;
+		threshold_message = form.nf_threshold_message;
+    }
+    else
+    {
+		resource_rule_id = form.uf_resource_rule_id;
+		threshold_expression = form.uf_threshold_expression;
+		threshold_message = form.uf_threshold_message;
+    }
+    if ( (resource_rule_id.value == null) || (resource_rule_id.value == "") || isblank(resource_rule_id.value) )
+    {
+        errorMsg += 'Resource Rule ID is required.\n';
+    }
+    if ( (threshold_expression.value == null) || (threshold_expression.value == "") || isblank(threshold_expression.value) )
+    {
+        errorMsg += 'Threshold Expression is required.\n';
+    }
+    if ( (threshold_message.value == null) || (threshold_message.value == "") || isblank(threshold_message.value) )
+    {
+        errorMsg += 'Threshold Message is required.\n';
+    }
+    if( errorMsg.length > 0 ) {
+        alert(errorMsg);
+        return;
+    }
+
+    if ( !isDigit(resource_rule_id.value) )
+    {
+        alert('Resource Rule ID must be a number.');
+        return;
+    }
+
+    form.submit();
+}
+
+function updateThresholdAlarm(resource_threshold_id,resource_rule_id,threshold_expression,threshold_message) {
+
+    document.getElementById('uf_resource_threshold_id').value=resource_threshold_id;
+    document.getElementById('uf_resource_rule_id').value=resource_rule_id;
+    document.getElementById('uf_threshold_expression').value=threshold_expression;
+    document.getElementById('uf_threshold_message').value=threshold_message;
+
+    document.getElementById('uf_key_resource_threshold_id').value=resource_threshold_id;
+
+    $('#update_threshold_alarm').modal('show');
+}
+
+function deleteThresholdAlarm(resource_threshold_id) {
+
+    bootbox.confirm({
+        message: "Are you sure you want to delete Threshold Alarm [" + resource_threshold_id + "]",
+        callback: function(result) {
+            if ( result )
+            {
+				location.assign("/resalloc/deleteThresholdAlarm?resource_threshold_id=" + resource_threshold_id);
+            }
+            return;
+        },
+        buttons: {
+            cancel: {
+                label: "Cancel"
+            },
+            confirm: {
+                label: "Yes"
+            }
+        }
+    });
+}
+
+</script>
+
+</body>
+</html>
+

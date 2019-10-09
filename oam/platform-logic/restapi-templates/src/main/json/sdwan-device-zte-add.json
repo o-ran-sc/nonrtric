@@ -1,0 +1,13 @@
+{
+    "devices": [
+        {
+            "esn": ${prop.device.esn},
+            "deviceModel": ${prop.device.deviceModel},
+            "name": ${prop.device.name},
+            "siteId": null,
+            "description": ${prop.device.description},
+            "systemIp": ${prop.device.systemIP},
+            "tags": null
+        }
+    ]
+}

@@ -1,0 +1,840 @@
+[
+    {
+        "id": "afa5c42a.a2ebf8",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 128.75,
+        "y": 86.25,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "cf1c9dc9.bb2d2"
+            ]
+        ]
+    },
+    {
+        "id": "cf1c9dc9.bb2d2",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 242.36902618408203,
+        "y": 126.48811340332031,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "6b44ec68.545204"
+            ]
+        ]
+    },
+    {
+        "id": "6b44ec68.545204",
+        "type": "method",
+        "name": "method port-mirror-topology-operation-disable",
+        "xml": "<method rpc='port-mirror-topology-operation-disable' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 240.17862701416016,
+        "y": 166.25,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "7aa285f3.503f3c"
+            ]
+        ]
+    },
+    {
+        "id": "de981556.6c92f8",
+        "type": "comment",
+        "name": "port-mirror-topology-operation-disable",
+        "info": "",
+        "comments": "",
+        "x": 523.094856262207,
+        "y": 33.83634376525879,
+        "z": "dca5409f.4b488",
+        "wires": []
+    },
+    {
+        "id": "7aa285f3.503f3c",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 173.75,
+        "y": 765.5357189178467,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "5e62ea77.c8eff4",
+                "1f8e4075.61402",
+                "cc6aae5f.3a8c5",
+                "186fa0f2.58675f",
+                "81aa6fa5.1e0db",
+                "3bcc9f6e.a7792",
+                "c7696869.d71998",
+                "2ba101b7.37177e",
+                "303f390e.c7fa26",
+                "3cd84440.1100cc",
+                "8e3809f5.0badf8",
+                "327c0b68.fb42d4"
+            ]
+        ]
+    },
+    {
+        "id": "5e62ea77.c8eff4",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name='error-code' value='200' />\n<parameter name='ack-final' value='Y' />",
+        "comments": "",
+        "x": 455.60711669921875,
+        "y": 1303.8689861297607,
+        "z": "dca5409f.4b488",
+        "wires": []
+    },
+    {
+        "id": "1f8e4075.61402",
+        "type": "set",
+        "name": "set tmp.configuration-id",
+        "xml": "<set>\n<parameter name='tmp.configuration-id' value='`$port-mirror-topology-operation-input.configuration-information.configuration-id`' />\n\n",
+        "comments": "",
+        "x": 481.5594940185547,
+        "y": 231.01191997528076,
+        "z": "dca5409f.4b488",
+        "wires": []
+    },
+    {
+        "id": "cc6aae5f.3a8c5",
+        "type": "execute",
+        "name": "execute readProperties",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >\n    <parameter name='fileName' value='%SDNC_CONFIG_DIR%/generic-resource-api-dg.properties' />\n    <parameter name='contextPrefix' value='prop' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 483.2738037109375,
+        "y": 273.86901473999023,
+        "z": "dca5409f.4b488",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "186fa0f2.58675f",
+        "type": "execute",
+        "name": "generate port-mirror-configuration url",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.core.slipluginutils.SliStringUtils' method='replace' >\n    <parameter name=\"source\" value=\"`$prop.restapi.pm-configuration`\"/>\n    <parameter name=\"outputPath\" value=\"tmp.pmc-url\"/>\n    <parameter name=\"target\" value=\"{configuration-id}\"/>\n    <parameter name=\"replacement\" value=\"`$tmp.configuration-id`\"/>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 523.273811340332,
+        "y": 315.2975902557373,
+        "z": "dca5409f.4b488",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "81aa6fa5.1e0db",
+        "type": "execute",
+        "name": "execute RestApiCallNode - get port-mirror-configuration",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='restapiUrl' value='`$prop.controller.url + $tmp.pmc-url`' />\n    <parameter name='restapiUser' value='`$prop.controller.user`' />\n    <parameter name='restapiPassword' value='`$prop.controller.pwd`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='GET' />\n    <parameter name=\"responsePrefix\" value=\"pm-mdsal\" />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 581.8452758789062,
+        "y": 379.5833988189697,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "5160c826.6574f8",
+                "58ec2f2e.df96f"
+            ]
+        ]
+    },
+    {
+        "id": "5160c826.6574f8",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 879.9983978271484,
+        "y": 350.3912477493286,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "e5e068e4.dd8428"
+            ]
+        ]
+    },
+    {
+        "id": "58ec2f2e.df96f",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 877.5595359802246,
+        "y": 399.58334159851074,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "41f30bac.7dc954"
+            ]
+        ]
+    },
+    {
+        "id": "41f30bac.7dc954",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"`'Cannot find port-mirror-configuration ' + $tmp.configuration-id`\" />\n",
+        "comments": "",
+        "x": 1391.84521484375,
+        "y": 396.72620391845703,
+        "z": "dca5409f.4b488",
+        "wires": []
+    },
+    {
+        "id": "3bcc9f6e.a7792",
+        "type": "switchNode",
+        "name": "switch order-status == 'Active'",
+        "xml": "<switch test=\"`$pm-mdsal.port-mirror-configuration[0].configuration-data.configuration-oper-status.order-status == 'Active'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 505.8928909301758,
+        "y": 503.3928031921387,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "3fc32962.070946"
+            ]
+        ]
+    },
+    {
+        "id": "e5e068e4.dd8428",
+        "type": "switchNode",
+        "name": "switch length == 1",
+        "xml": "<switch test='`$pm-mdsal.port-mirror-configuration_length == 1`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1058.9880981445312,
+        "y": 349.5833559036255,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "f5f6996c.652fe8"
+            ]
+        ]
+    },
+    {
+        "id": "f5f6996c.652fe8",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1228.9881286621094,
+        "y": 349.58334732055664,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "41f30bac.7dc954"
+            ]
+        ]
+    },
+    {
+        "id": "3fc32962.070946",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 734.4643020629883,
+        "y": 503.3928909301758,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "db0e50e6.2c8ce"
+            ]
+        ]
+    },
+    {
+        "id": "db0e50e6.2c8ce",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"`'Order status is ' + $mdsal-pmc.port-mirror-configuration[0].configuration-data.configuration-oper-status.order-status + ' but must be Active'`\" />\n",
+        "comments": "",
+        "x": 895.8928909301758,
+        "y": 501.9643020629883,
+        "z": "dca5409f.4b488",
+        "wires": []
+    },
+    {
+        "id": "49639130.bcbb1",
+        "type": "comment",
+        "name": "rpc-port-mirror-1130",
+        "info": "",
+        "comments": "",
+        "x": 443.75,
+        "y": 560.2976331710815,
+        "z": "dca5409f.4b488",
+        "wires": []
+    },
+    {
+        "id": "5bedfddc.e597c4",
+        "type": "comment",
+        "name": "step 1 - call contrail to turn off packet mirroring",
+        "info": "",
+        "comments": "",
+        "x": 551.3690643310547,
+        "y": 758.869083404541,
+        "z": "dca5409f.4b488",
+        "wires": []
+    },
+    {
+        "id": "640a7569.398d7c",
+        "type": "comment",
+        "name": "step 2 - set is-port-mirroring in A&AI ",
+        "info": "",
+        "comments": "",
+        "x": 502.79759216308594,
+        "y": 1148.5834102630615,
+        "z": "dca5409f.4b488",
+        "wires": []
+    },
+    {
+        "id": "219abf57.0c159",
+        "type": "comment",
+        "name": "Find the source port",
+        "info": "",
+        "comments": "",
+        "x": 459.9404231480189,
+        "y": 601.7262674059186,
+        "z": "dca5409f.4b488",
+        "wires": []
+    },
+    {
+        "id": "c7696869.d71998",
+        "type": "for",
+        "name": "for each mapped source port",
+        "xml": "<for index='idx' start='0' end='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 504.2261505126953,
+        "y": 641.7262935638428,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "d3eaa14b.aea04"
+            ]
+        ]
+    },
+    {
+        "id": "d3eaa14b.aea04",
+        "type": "switchNode",
+        "name": "switch mapped source port id == input source port id",
+        "xml": "<switch test='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$idx].source-port-id\n  == $port-mirror-topology-operation-input.port-mirror-configuration-request-input.source-port.source-port-id`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 857.0833282470703,
+        "y": 640.2976245880127,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "c2e13495.7d0978"
+            ]
+        ]
+    },
+    {
+        "id": "c2e13495.7d0978",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1132.797565460205,
+        "y": 638.8691053390503,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "e115b87b.36f0f8"
+            ]
+        ]
+    },
+    {
+        "id": "640f5b27.a577f4",
+        "type": "set",
+        "name": "set src-idx",
+        "xml": "<set>\n<parameter name='src-idx' value='`$idx`' />\n",
+        "comments": "",
+        "x": 1482.797492980957,
+        "y": 614.5833559036255,
+        "z": "dca5409f.4b488",
+        "wires": []
+    },
+    {
+        "id": "e115b87b.36f0f8",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1285.6547088623047,
+        "y": 637.4405879974365,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "640f5b27.a577f4",
+                "a7ee3026.a6e8"
+            ]
+        ]
+    },
+    {
+        "id": "a7ee3026.a6e8",
+        "type": "break",
+        "name": "break",
+        "xml": "<break>\n",
+        "comments": "",
+        "x": 1455.6546821594238,
+        "y": 660.2977313995361,
+        "z": "dca5409f.4b488",
+        "wires": []
+    },
+    {
+        "id": "2ba101b7.37177e",
+        "type": "switchNode",
+        "name": "switch src-idx",
+        "xml": "<switch test='`$src-idx`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 454.46424102783203,
+        "y": 708.8691101074219,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "58ac3aae.bc8044"
+            ]
+        ]
+    },
+    {
+        "id": "58ac3aae.bc8044",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 672.7975921630859,
+        "y": 707.4405879974365,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "d5822713.a71b88"
+            ]
+        ]
+    },
+    {
+        "id": "d5822713.a71b88",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"`'Unable to find source port ' + $port-mirror-topology-operation-input.port-mirror-configuration-request-input.source-port.source-port-id + ' in MD-SAL'`\" />\n",
+        "comments": "",
+        "x": 827.0832977294922,
+        "y": 706.011999130249,
+        "z": "dca5409f.4b488",
+        "wires": []
+    },
+    {
+        "id": "327c0b68.fb42d4",
+        "type": "execute",
+        "name": "execute ContrailAdaptor to disable port mirroring",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.contrail.ContrailAdaptor' method='sendContrailRequest' emitsOutcome='true' >\n<parameter name='api-name' value='port-mirroring' />\n<parameter name='api-action' value='disable' />\n<parameter name='resp-prefix' value='contrailResp' />\n<parameter name='display-name'\n  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-port-name`' />\n<parameter name='contrail-virtual-machine-interface-name'\n  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-port-name`' />\n<parameter name='contrail-virtual-machine-interface-id'\n  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-port-id`' />\n<parameter name='default-domain' value='default-domain' />\n<parameter name='default-project'\n  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.tenant`' />\n<parameter name='traffic-direction' value='both' />\n<parameter name='analyzer-ip-address'\n  value='`$tmp.analyzer.ip-address`' />\n<parameter name='udp-port' value='8099' />\n<parameter name='routing-instance'\n  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.dest-network-fqdn`' />\n<parameter name='local-preference' value='1' />\n<parameter name='cloud-region-id'\n  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.cloud-region-id`' />\n<parameter name='cloud-owner'\n  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.cloud-owner`' />\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 564.7978134155273,
+        "y": 1069.9178819656372,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "eaf862d4.043dd",
+                "c50ee7c7.395c58"
+            ]
+        ]
+    },
+    {
+        "id": "eaf862d4.043dd",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 839.083438873291,
+        "y": 1095.6321649551392,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "b5b4127.7ba46f"
+            ]
+        ]
+    },
+    {
+        "id": "303f390e.c7fa26",
+        "type": "switchNode",
+        "name": "switch ipv4-address",
+        "xml": "<switch test='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].dest-ip-addresses.ip-addresses.ipv4-address`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 471.94065856933594,
+        "y": 812.7750616073608,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "8298b662.2d9938",
+                "87756d33.8ea47"
+            ]
+        ]
+    },
+    {
+        "id": "87756d33.8ea47",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 637.6548538208008,
+        "y": 854.2036333084106,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "1bac5e62.5c03a2"
+            ]
+        ]
+    },
+    {
+        "id": "8298b662.2d9938",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 640.5120010375977,
+        "y": 811.3465251922607,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "9156cd31.843db"
+            ]
+        ]
+    },
+    {
+        "id": "9156cd31.843db",
+        "type": "set",
+        "name": "set tmp.analyzer.ip-address",
+        "xml": "<set>\n<parameter name='tmp.analyzer.ip-address'\n  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].dest-ip-addresses.ip-addresses.ipv4-address`' />\n",
+        "comments": "",
+        "x": 831.9406890869141,
+        "y": 809.9179544448853,
+        "z": "dca5409f.4b488",
+        "wires": []
+    },
+    {
+        "id": "1bac5e62.5c03a2",
+        "type": "switchNode",
+        "name": "switch ipv6-address",
+        "xml": "<switch test='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].dest-ip-addresses.ip-addresses.ipv6-address`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 809.0835189819336,
+        "y": 854.2035989761353,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "fa2aeb48.7c5db8",
+                "b61120a5.93b57"
+            ]
+        ]
+    },
+    {
+        "id": "b61120a5.93b57",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 970.5121078491211,
+        "y": 897.0607767105103,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "9b289fea.447ed"
+            ]
+        ]
+    },
+    {
+        "id": "fa2aeb48.7c5db8",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 973.369255065918,
+        "y": 854.2036685943604,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "9a995b34.8ffdf8"
+            ]
+        ]
+    },
+    {
+        "id": "9a995b34.8ffdf8",
+        "type": "set",
+        "name": "set tmp.analyzer.ip-address",
+        "xml": "<set>\n<parameter name='tmp.analyzer.ip-address'\n  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].dest-ip-addresses.ip-addresses.ipv6-address`' />\n",
+        "comments": "",
+        "x": 1164.7979431152344,
+        "y": 852.7750978469849,
+        "z": "dca5409f.4b488",
+        "wires": []
+    },
+    {
+        "id": "9b289fea.447ed",
+        "type": "switchNode",
+        "name": "switch vipv4-address",
+        "xml": "<switch test='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].dest-ip-addresses.ip-addresses.vipv4-address`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1141.940773010254,
+        "y": 897.0607423782349,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "b626a219.807f2",
+                "62515cbb.2125a4"
+            ]
+        ]
+    },
+    {
+        "id": "62515cbb.2125a4",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1304.797752380371,
+        "y": 937.0607767105103,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "2e6d6d0b.171e12"
+            ]
+        ]
+    },
+    {
+        "id": "b626a219.807f2",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1306.2263145446777,
+        "y": 895.6323432922363,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "71b7c0e4.601d3"
+            ]
+        ]
+    },
+    {
+        "id": "71b7c0e4.601d3",
+        "type": "set",
+        "name": "set tmp.analyzer.ip-address",
+        "xml": "<set>\n<parameter name='tmp.analyzer.ip-address'\n  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].dest-ip-addresses.ip-addresses.vipv4-address`' />\n",
+        "comments": "",
+        "x": 1499.0835876464844,
+        "y": 892.7750978469849,
+        "z": "dca5409f.4b488",
+        "wires": []
+    },
+    {
+        "id": "2e6d6d0b.171e12",
+        "type": "switchNode",
+        "name": "switch vipv6-address",
+        "xml": "<switch test='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].dest-ip-addresses.ip-addresses.vipv6-address`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1476.226417541504,
+        "y": 937.0607423782349,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "c630f236.09afb",
+                "d62a09ce.06cd18"
+            ]
+        ]
+    },
+    {
+        "id": "d62a09ce.06cd18",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1643.369285583496,
+        "y": 978.4893655776978,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "cf52a216.7bcba"
+            ]
+        ]
+    },
+    {
+        "id": "c630f236.09afb",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1644.7978477478027,
+        "y": 937.0609321594238,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "a5b80d6a.ee8af"
+            ]
+        ]
+    },
+    {
+        "id": "a5b80d6a.ee8af",
+        "type": "set",
+        "name": "set tmp.analyzer.ip-address",
+        "xml": "<set>\n<parameter name='tmp.analyzer.ip-address'\n  value='`$pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].dest-ip-addresses.ip-addresses.vipv6-address`' />\n",
+        "comments": "",
+        "x": 1837.6551208496094,
+        "y": 934.2036867141724,
+        "z": "dca5409f.4b488",
+        "wires": []
+    },
+    {
+        "id": "c50ee7c7.395c58",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 841.940616607666,
+        "y": 1048.489239692688,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "e0872973.76a968"
+            ]
+        ]
+    },
+    {
+        "id": "e0872973.76a968",
+        "type": "set",
+        "name": "set contrail-set[]",
+        "xml": "<set>\n<parameter name='contrail-set[$src-idx]' value='true' />\n",
+        "comments": "",
+        "x": 997.6548233032227,
+        "y": 1047.0607719421387,
+        "z": "dca5409f.4b488",
+        "wires": []
+    },
+    {
+        "id": "3cd84440.1100cc",
+        "type": "save",
+        "name": "update l-interface object",
+        "xml": "<update plugin=\"org.onap.ccsdk.sli.adaptors.aai.AAIService\"\n   resource=\"l-interface\"\n   key=\"cloud-region.cloud-region-id = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.cloud-region-id\n     AND cloud-region.cloud-owner = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.cloud-owner\n     AND tenant.tenant-id = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.tenant-id\n     AND vserver.vserver-id = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-vserver-id\n     AND l-interface.interface-name = $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-port-name\"\n   force=\"true\" pfx=\"tmp.AnAI-data\">\n<parameter name=\"is-port-mirrored\" value=\"false\" />",
+        "comments": "",
+        "outputs": 1,
+        "x": 489.3213806152344,
+        "y": 1215.5833673477173,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "8a4455b4.e26628",
+                "6a76abbb.425c24"
+            ]
+        ]
+    },
+    {
+        "id": "8a4455b4.e26628",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 692.0119781494141,
+        "y": 1241.3455305099487,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "ae976edd.7993e"
+            ]
+        ]
+    },
+    {
+        "id": "6a76abbb.425c24",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 700.5834274291992,
+        "y": 1196.3457250595093,
+        "z": "dca5409f.4b488",
+        "wires": [
+            [
+                "ae976edd.7993e"
+            ]
+        ]
+    },
+    {
+        "id": "cf52a216.7bcba",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"`'No dest addresses stored for source port ' + $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-port-name`\" />\n",
+        "comments": "",
+        "x": 1787.3213348388672,
+        "y": 981.250036239624,
+        "z": "dca5409f.4b488",
+        "wires": []
+    },
+    {
+        "id": "b5b4127.7ba46f",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"`'Failed to update policy in Contrail. '+ $contrailResp.resp-code + ':' +$contrailResp.resp-message `\" />\n",
+        "comments": "",
+        "x": 985.6546478271484,
+        "y": 1094.5834102630615,
+        "z": "dca5409f.4b488",
+        "wires": []
+    },
+    {
+        "id": "ae976edd.7993e",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"`'Failed to update l-interface object in AAI for interface ' + $pm.configuration-data.port-mirror-configuration-topology.port-mirror-configuration-assignments.source-to-dest-maps.source-to-dest-map[$src-idx].source-port-name`\" />\n",
+        "comments": "",
+        "x": 855.6546478271484,
+        "y": 1217.9166622161865,
+        "z": "dca5409f.4b488",
+        "wires": []
+    },
+    {
+        "id": "8e3809f5.0badf8",
+        "type": "set",
+        "name": "set pm",
+        "xml": "<set>\n<parameter name='pm.configuration-id' value='`$tmp.configuration-id`' />\n<parameter name='pm.configuration-data.' value='`$pm-mdsal.port-mirror-configuration[0].configuration-data.`' />\n",
+        "comments": "",
+        "x": 432.55950927734375,
+        "y": 439.1071090698242,
+        "z": "dca5409f.4b488",
+        "wires": []
+    }
+]

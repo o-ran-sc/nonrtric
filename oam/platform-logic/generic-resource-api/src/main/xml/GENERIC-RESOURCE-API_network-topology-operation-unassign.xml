@@ -1,0 +1,443 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='network-topology-operation-unassign' mode='sync'>
+        <block atomic="true">
+            <switch test='`$service-data.networks.network[$nidx].network-data.network-information.from-preload`'>
+                <outcome value='true'>
+                    <block atomic="true">
+                        <get-resource plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+		key="l3-network.network-id = $network-topology-operation-input.network-information.network-id" 
+		local-only="false" 
+		pfx="aai.l3-network">
+                            <outcome value='success'>
+                                <block atomic="true">
+                                    <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+	key="l3-network.network-id = $network-topology-operation-input.network-information.network-id">
+                                        <outcome value='failure'>
+                                            <return status="failure">
+                                                <parameter name="error-code" value="500"/>
+                                                <parameter name="error-message" value="An error occured while deleting network from AAI" />
+                                            </return>
+                                        </outcome>
+                                    </delete>
+                                </block>
+                            </outcome>
+                            <outcome value='not-found'></outcome>
+                            <outcome value='failure'>
+                                <return status='failure'>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="'Error retrieving l3-network with network-id=' + $network-topology-operation-input.network-request-information.network-id + 'from AnAI'" />
+                                </return>
+                            </outcome>
+                        </get-resource>
+                    </block>
+                </outcome>
+                <outcome value='Other'>
+                    <switch test='`$network-data.network-topology.network-topology-identifier-structure.network-instance-group-id`'>
+                        <outcome value=''>
+                            <block atomic="true">
+                                <get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'
+  key='SELECT * from NETWORK_MODEL WHERE customization_uuid = $service-data.networks.network[$nidx].network-data.network-information.onap-model-information.model-customization-uuid
+  and service_uuid = $service-data.networks.network[$nidx].network-data.service-information.onap-model-information.model-uuid'
+  pfx='network-model'></get-resource>
+                                <set>
+                                    <parameter name="tmp.level1-key-value" value=""/>
+                                    <parameter name="tmp.level1inuse" value="false" />
+                                    <parameter name="pidx" value="0" />
+                                    <parameter name="pidx-len" value="0" />
+                                </set>
+                                <get-resource
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="SELECT * from EIPAM_IP_SUBNETS s, EIPAM_IP_SUBNET_KEYS k WHERE s.network_id = $network-topology-operation-input.network-information.network-id and s.entity_id = k.entity_id ; "
+        pfx='tmp.eipam-subnet-row[]'>
+                                    <outcome value='failure'>
+                                        <return status="failure">
+                                            <parameter name="tmp.eipam-error" value="true" />
+                                            <parameter name="error-code" value="500"/>
+                                            <parameter name="error-message" value="Query to DB table EIPAM_IP_SUBNET_KEYS and EIPAM_IP_SUBNETS failed." />
+                                        </return>
+                                    </outcome>
+                                    <outcome value='success'>
+                                        <block atomic='true'>
+                                            <for silentFailure='true' index='esidx' start='0' end='`$tmp.eipam-subnet-row_length`' >
+                                                <block atomic="true">
+                                                    <switch test='`$tmp.eipam-subnet-row[$esidx].level`'>
+                                                        <outcome value='1'>
+                                                            <block atomic="true">
+                                                                <set>
+                                                                    <parameter name="tmp.level1-key-value[$pidx]" value="`$tmp.eipam-subnet-row[$esidx].key-value`"/>
+                                                                </set>
+                                                                <set>
+                                                                    <parameter name="tmp.plan-name[$pidx]" value="`$tmp.eipam-subnet-row[$esidx].plan-name`"/>
+                                                                </set>
+                                                                <set>
+                                                                    <parameter name="pidx" value="`$pidx + 1`"/>
+                                                                </set>
+                                                                <set>
+                                                                    <parameter name="pidx-len" value="`$pidx`"/>
+                                                                </set>
+                                                            </block>
+                                                        </outcome>
+                                                        <outcome value='Other'>
+                                                            <block atomic="true"></block>
+                                                        </outcome>
+                                                    </switch>
+                                                </block>
+                                            </for>
+                                        </block>
+                                    </outcome>
+                                    <outcome value="not-found">
+                                        <block atomic='true'></block>
+                                    </outcome>
+                                </get-resource>
+                                <set>
+                                    <parameter name="eipam-ip-block.network-id" value="`$network-topology-operation-input.network-information.network-id`" />
+                                    <parameter name="eipam-ip-block.level" value='2' />
+                                    <parameter name="eipam-ip-block.entity-id" value='' />
+                                </set>
+                                <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="deallocateAllSubnets">
+                                    <outcome value='failure'>
+                                        <return status="failure">
+                                            <parameter name="tmp.eipam-error" value="true" />
+                                            <parameter name="error-code" value="500"/>
+                                            <parameter name="error-message" value="An error occured while deallocating subnets in EIPAM." />
+                                        </return>
+                                    </outcome>
+                                </execute>
+                                <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="deletePoolByNetworkLevel">
+                                    <outcome value='failure'>
+                                        <return status="failure">
+                                            <parameter name="tmp.eipam-error" value="true" />
+                                            <parameter name="error-code" value="500"/>
+                                            <parameter name="error-message" value="An error occured while deleting level 2 plans in EIPAM." />
+                                        </return>
+                                    </outcome>
+                                </execute>
+                                <for silentFailure='true' index='npidx' start='0' end='`$pidx-len`' >
+                                    <block atomic="true">
+                                        <set>
+                                            <parameter name="tmp.level1-key-value" value="`$tmp.level1-key-value[$npidx]`" />
+                                            <parameter name="tmp.plan-name" value="`$tmp.plan-name[$npidx]`" />
+                                        </set>
+                                        <switch test='`$tmp.level1-key-value`'>
+                                            <outcome value=''>
+                                                <block atomic='true'></block>
+                                            </outcome>
+                                            <outcome value='Other'>
+                                                <block atomic='true'>
+                                                    <switch test='`$network-model`'>
+                                                        <outcome value=''></outcome>
+                                                        <outcome value='Other'>
+                                                            <block atomic='true'>
+                                                                <switch test="`$network-model.use-ipv4`">
+                                                                    <outcome value='Y'>
+                                                                        <block atomic="true">
+                                                                            <set>
+                                                                                <parameter name='tmp.plan-name' value='`$network-model.eipam-v4-address-plan`' />
+                                                                            </set>
+                                                                            <get-resource
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="SELECT * from EIPAM_IP_POOLS p, EIPAM_IP_SUBNETS s, EIPAM_IP_SUBNET_KEYS k 
+        WHERE p.level = 2 
+        and p.plan_name = $tmp.plan-name
+        and k.level = 1 
+        and p.pool_id = s.pool_id and s.entity_id = k.entity_id 
+        and k.key_value = $tmp.level1-key-value  ; "
+        pfx='tmp.level2pool[]'>
+                                                                                <outcome value='failure'>
+                                                                                    <return status="failure">
+                                                                                        <parameter name="tmp.eipam-error" value="true" />
+                                                                                        <parameter name="error-code" value="500"/>
+                                                                                        <parameter name="error-message" value="Query to DB table EIPAM_IP_SUBNET_KEYS and EIPAM_IP_SUBNETS failed." />
+                                                                                    </return>
+                                                                                </outcome>
+                                                                                <outcome value='success'>
+                                                                                    <block atomic='true'>
+                                                                                        <set>
+                                                                                            <parameter name="tmp.level1inuse" value="true" />
+                                                                                        </set>
+                                                                                    </block>
+                                                                                </outcome>
+                                                                                <outcome value="not-found">
+                                                                                    <block atomic='true'>
+                                                                                        <get-resource
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="SELECT * from EIPAM_IP_POOLS p, EIPAM_IP_SUBNETS s, EIPAM_IP_SUBNET_KEYS k 
+        WHERE p.level = 1 
+        and p.plan_name = $tmp.plan-name
+        and k.level = 1 
+        and p.pool_id = s.pool_id and s.entity_id = k.entity_id 
+        and k.key_value = $tmp.level1-key-value  ; "
+        pfx='tmp.level1pool[]'>
+                                                                                            <outcome value='failure'>
+                                                                                                <return status="failure">
+                                                                                                    <parameter name="tmp.eipam-error" value="true" />
+                                                                                                    <parameter name="error-code" value="500"/>
+                                                                                                    <parameter name="error-message" value="Query to DB table EIPAM_IP_SUBNET_KEYS and EIPAM_IP_SUBNETS failed." />
+                                                                                                </return>
+                                                                                            </outcome>
+                                                                                            <outcome value='success'>
+                                                                                                <block atomic='true'>
+                                                                                                    <for silentFailure='true' index='lidx' start='0' end='`$tmp.level1pool_length`' >
+                                                                                                        <block atomic='true'>
+                                                                                                            <set>
+                                                                                                                <parameter name='eipam-ip-block.entity-id' value='`$tmp.level1pool[$lidx].entity-id`' />
+                                                                                                                <parameter name='eipam-ip-block.ip-address' value='`$tmp.level1pool[$lidx].ip-address`' />
+                                                                                                                <parameter name='eipam-ip-block.mask' value='`$tmp.level1pool[$lidx].prefix-length`' />
+                                                                                                                <parameter name="eipam-ip-block.network-id" value="`$tmp.level1pool[$lidx].network-id`" />
+                                                                                                                <parameter name="eipam-ip-block.pool-id" value="`$tmp.level1pool[$lidx].pool-id`" />
+                                                                                                                <parameter name="eipam-ip-block.level" value='1' />
+                                                                                                            </set>
+                                                                                                            <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                                                                            <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="deallocateSubnet">
+                                                                                                                <outcome value='failure'>
+                                                                                                                    <return status="failure">
+                                                                                                                        <parameter name="tmp.eipam-error" value="true" />
+                                                                                                                        <parameter name="error-code" value="500"/>
+                                                                                                                        <parameter name="error-message" value="An error occured while deallocating subnet in EIPAM." />
+                                                                                                                    </return>
+                                                                                                                </outcome>
+                                                                                                            </execute>
+                                                                                                            <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                                                                            <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="deletePoolByPoolId">
+                                                                                                                <outcome value='failure'>
+                                                                                                                    <return status="failure">
+                                                                                                                        <parameter name="tmp.eipam-error" value="true" />
+                                                                                                                        <parameter name="error-code" value="500"/>
+                                                                                                                        <parameter name="error-message" value="An error occured while deleting pool in EIPAM." />
+                                                                                                                    </return>
+                                                                                                                </outcome>
+                                                                                                            </execute>
+                                                                                                        </block>
+                                                                                                    </for>
+                                                                                                </block>
+                                                                                            </outcome>
+                                                                                            <outcome value="not-found">
+                                                                                                <block atomic='true'></block>
+                                                                                            </outcome>
+                                                                                        </get-resource>
+                                                                                    </block>
+                                                                                </outcome>
+                                                                            </get-resource>
+                                                                        </block>
+                                                                    </outcome>
+                                                                </switch>
+                                                                <switch test="`$network-model.use-ipv6`">
+                                                                    <outcome value='Y'>
+                                                                        <block atomic="true">
+                                                                            <set>
+                                                                                <parameter name='tmp.plan-name' value='`$network-model.eipam-v6-address-plan`' />
+                                                                            </set>
+                                                                            <get-resource
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="SELECT * from EIPAM_IP_POOLS p, EIPAM_IP_SUBNETS s, EIPAM_IP_SUBNET_KEYS k 
+        WHERE p.level = 2 
+        and p.plan_name = $tmp.plan-name
+        and k.level = 1 
+        and p.pool_id = s.pool_id and s.entity_id = k.entity_id 
+        and k.key_value = $tmp.level1-key-value  ; "
+        pfx='tmp.level2pool[]'>
+                                                                                <outcome value='failure'>
+                                                                                    <return status="failure">
+                                                                                        <parameter name="tmp.eipam-error" value="true" />
+                                                                                        <parameter name="error-code" value="500"/>
+                                                                                        <parameter name="error-message" value="Query to DB table EIPAM_IP_SUBNET_KEYS and EIPAM_IP_SUBNETS failed." />
+                                                                                    </return>
+                                                                                </outcome>
+                                                                                <outcome value='success'>
+                                                                                    <block atomic='true'>
+                                                                                        <set>
+                                                                                            <parameter name="tmp.level1inuse" value="true" />
+                                                                                        </set>
+                                                                                    </block>
+                                                                                </outcome>
+                                                                                <outcome value="not-found">
+                                                                                    <block atomic='true'>
+                                                                                        <get-resource
+        plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource'
+        resource='SQL'
+        key="SELECT * from EIPAM_IP_POOLS p, EIPAM_IP_SUBNETS s, EIPAM_IP_SUBNET_KEYS k 
+        WHERE p.level = 1 
+        and p.plan_name = $tmp.plan-name
+        and k.level = 1 
+        and p.pool_id = s.pool_id and s.entity_id = k.entity_id 
+        and k.key_value = $tmp.level1-key-value  ; "
+        pfx='tmp.level1pool[]'>
+                                                                                            <outcome value='failure'>
+                                                                                                <return status="failure">
+                                                                                                    <parameter name="tmp.eipam-error" value="true" />
+                                                                                                    <parameter name="error-code" value="500"/>
+                                                                                                    <parameter name="error-message" value="Query to DB table EIPAM_IP_SUBNET_KEYS and EIPAM_IP_SUBNETS failed." />
+                                                                                                </return>
+                                                                                            </outcome>
+                                                                                            <outcome value='success'>
+                                                                                                <block atomic='true'>
+                                                                                                    <for silentFailure='true' index='lidx' start='0' end='`$tmp.level1pool_length`' >
+                                                                                                        <block atomic='true'>
+                                                                                                            <set>
+                                                                                                                <parameter name='eipam-ip-block.entity-id' value='`$tmp.level1pool[$lidx].entity-id`' />
+                                                                                                                <parameter name='eipam-ip-block.ip-address' value='`$tmp.level1pool[$lidx].ip-address`' />
+                                                                                                                <parameter name='eipam-ip-block.mask' value='`$tmp.level1pool[$lidx].prefix-length`' />
+                                                                                                                <parameter name="eipam-ip-block.network-id" value="`$tmp.level1pool[$lidx].network-id`" />
+                                                                                                                <parameter name="eipam-ip-block.pool-id" value="`$tmp.level1pool[$lidx].pool-id`" />
+                                                                                                                <parameter name="eipam-ip-block.level" value='1' />
+                                                                                                            </set>
+                                                                                                            <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                                                                            <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="deallocateSubnet">
+                                                                                                                <outcome value='failure'>
+                                                                                                                    <return status="failure">
+                                                                                                                        <parameter name="tmp.eipam-error" value="true" />
+                                                                                                                        <parameter name="error-code" value="500"/>
+                                                                                                                        <parameter name="error-message" value="An error occured while deallocating subnet in EIPAM." />
+                                                                                                                    </return>
+                                                                                                                </outcome>
+                                                                                                            </execute>
+                                                                                                            <!--subnet and subnet_keys are deleted in the EIPAMPlugin-->
+                                                                                                            <execute plugin="com.att.sdnctl.sli.plugin.eipam.EIPAMPlugin" method="deletePoolByPoolId">
+                                                                                                                <outcome value='failure'>
+                                                                                                                    <return status="failure">
+                                                                                                                        <parameter name="tmp.eipam-error" value="true" />
+                                                                                                                        <parameter name="error-code" value="500"/>
+                                                                                                                        <parameter name="error-message" value="An error occured while deleting pool in EIPAM." />
+                                                                                                                    </return>
+                                                                                                                </outcome>
+                                                                                                            </execute>
+                                                                                                        </block>
+                                                                                                    </for>
+                                                                                                </block>
+                                                                                            </outcome>
+                                                                                            <outcome value="not-found">
+                                                                                                <block atomic='true'></block>
+                                                                                            </outcome>
+                                                                                        </get-resource>
+                                                                                    </block>
+                                                                                </outcome>
+                                                                            </get-resource>
+                                                                        </block>
+                                                                    </outcome>
+                                                                </switch>
+                                                            </block>
+                                                        </outcome>
+                                                    </switch>
+                                                </block>
+                                            </outcome>
+                                        </switch>
+                                    </block>
+                                </for>
+                                <switch test='`$service-data.networks.network_length`'>
+                                    <outcome value='1'>
+                                        <block atomic="true">
+                                            <set>
+                                                <parameter name="service-data.networks." value=""/>
+                                            </set>
+                                            <set>
+                                                <parameter name="service-data.networks.network_length" value="0"/>
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                    <outcome value='Other'>
+                                        <block atomic="true">
+                                            <set>
+                                                <parameter name="tmp.new_length" value="`$service-data.networks.network_length - 1`"/>
+                                            </set>
+                                            <for silentFailure='true' index='snidx' start='`$tmp.nidx + 1`' end='`$service-data.networks.network_length`' >
+                                                <block atomic="true">
+                                                    <set>
+                                                        <parameter name="tmp.newidx" value="`$snidx - 1`"/>
+                                                    </set>
+                                                    <set>
+                                                        <parameter name="service-data.networks.network[$tmp.newidx]." value="$service-data.networks.network[$snidx]." />
+                                                    </set>
+                                                </block>
+                                            </for>
+                                            <set>
+                                                <parameter name="service-data.networks.network_length" value="`$service-data.networks.network_length - 1`"/>
+                                            </set>
+                                            <set>
+                                                <parameter name="service-data.networks.network[$tmp.new_length]." value=""/>
+                                            </set>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                                <delete plugin="org.onap.ccsdk.sli.adaptors.aai.AAIService" 
+	resource="l3-network" 
+	key="l3-network.network-id = $network-topology-operation-input.network-information.network-id">
+                                    <outcome value='failure'>
+                                        <return status="failure">
+                                            <parameter name="error-code" value="500"/>
+                                            <parameter name="error-message" value="An error occured while deleting network from AAI" />
+                                        </return>
+                                    </outcome>
+                                </delete>
+                                <set>
+                                    <parameter name='naming-policy-generate-name-input.context-id' value='`$network-topology-operation-input.network-information.network-id`' />
+                                    <parameter name='naming-policy-generate-name-input.naming-type' value='NETWORK' />
+                                    <parameter name='naming-policy-generate-name-input.action' value='DELETE' />
+                                </set>
+                                <call module='GENERIC-RESOURCE-API' rpc='naming-policy-generate-name' mode='sync' ></call>
+                            </block>
+                        </outcome>
+                        <outcome value='Other'>
+                            <block atomic="true">
+                                <return status='failure'>
+                                    <parameter name='ack-final' value='Y'/>
+                                    <parameter name="error-code" value="500" />
+                                    <parameter name="error-message" value="network collection activate failed" />
+                                </return>
+                            </block>
+                        </outcome>
+                    </switch>
+                </outcome>
+            </switch>
+            <switch test='`$service-data.networks.network_length`'>
+                <outcome value='1'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name="service-data.networks." value=""/>
+                        </set>
+                        <set>
+                            <parameter name="service-data.networks.network_length" value="0"/>
+                        </set>
+                    </block>
+                </outcome>
+                <outcome value='Other'>
+                    <block atomic="true">
+                        <set>
+                            <parameter name="tmp.new_length" value="`$service-data.networks.network_length - 1`"/>
+                        </set>
+                        <for silentFailure='true' index='snidx' start='`$tmp.nidx + 1`' end='`$service-data.networks.network_length`' >
+                            <block atomic="true">
+                                <set>
+                                    <parameter name="tmp.newidx" value="`$snidx - 1`"/>
+                                </set>
+                                <set>
+                                    <parameter name="service-data.networks.network[$tmp.newidx]." value="$service-data.networks.network[$snidx]." />
+                                </set>
+                            </block>
+                        </for>
+                        <set>
+                            <parameter name="service-data.networks.network_length" value="`$service-data.networks.network_length - 1`"/>
+                        </set>
+                        <set>
+                            <parameter name="service-data.networks.network[$tmp.new_length]." value=""/>
+                        </set>
+                    </block>
+                </outcome>
+            </switch>
+            <return status='success'>
+                <parameter name="ack-final-indicator" value="Y" />
+                <parameter name="error-code" value="200" />
+                <parameter name="error-message" value="`$error-message`" />
+            </return>
+        </block>
+    </method>
+</service-logic>

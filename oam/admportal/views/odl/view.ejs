@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>SDN-C AdminPortal</title>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <% include ../partials/head %>
+  <% include ../partials/header %>
+</head>
+<body class="container">
+
+<div class="actions" style="padding:0px 25px;">
+<h2>Worklist Orders - Request ID:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%= response_obj.requests[0]['svc-request-id'] %></h2>
+</div>
+
+<div class="actions" style="padding:15px 0px;">
+	<button type="button" class="btn btn-primary aria-expanded="false" 
+			onclick="viewVNF('/odl/getvnf?request=<%= response_obj.requests[0]['svc-request-id'] %>')">VNF</button>
+</div>
+
+
+<div class="table-responsive">
+    <table class="table table-bordered">
+      <colgroup>
+        <col class="col-xs-1">
+        <col class="col-xs-7">
+      </colgroup>
+      <tbody>
+        <tr>
+          <th scope="row">Instance ID</th>
+          <td><%= response_obj.requests[0]['svc-instance-id'] %></td>
+        </tr>
+        <tr>
+          <th scope="row">Action</th>
+          <td><%= response_obj.requests[0]['svc-action'] %></td>
+        </tr>
+        <tr>
+          <th scope="row">VNF Type</th>
+          <td><%= response_obj.requests[0]['svc-vnf-type'] %></td>
+        </tr>
+        <tr>
+          <th scope="row">Notification URL</th>
+          <td><%= response_obj.requests[0]['svc-notification-url'] %></td>
+        </tr>
+        <tr>
+          <th scope="row">VNF Name</th>
+          <td><%= response_obj.requests[0].vnf['vnf-name'] %></td>
+        </tr>
+        <tr>
+          <th scope="row">VNF IPv4 Addr</th>
+          <td><%= response_obj.requests[0].vnf['vnf-oam-ipv4-addr'] %></td>
+        </tr>
+        <tr>
+          <th scope="row">VNF Type</th>
+          <td><%= response_obj.requests[0].vnf['vnf-type'] %></td>
+        </tr>
+        <tr>
+          <th scope="row">VNF Status</th>
+          <td><%= response_obj.requests[0].vnf['vnf-status'] %></td>
+        </tr>
+        <tr>
+          <th scope="row">AIC Site ID</th>
+          <td><%= response_obj.requests[0].vnf['aic-site-id'] %></td>
+        </tr>
+        <tr>
+          <th scope="row">Availability Zone</th>
+          <td><%= response_obj.requests[0].vnf['availability-zone'] %></td>
+        </tr>
+        <tr>
+          <th scope="row">Network Connection(s)</th>
+          <td><pre><%= JSON.stringify(response_obj.requests[0].vnf['network-connections'],null,4) %></pre></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+   <% include ../partials/form %>
+
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+<script type="text/javascript">
+function viewVNF( requestid ) {
+alert(requestid);
+	location.assign(requestid);
+}
+</script>
+
+</body>
+</html>
+

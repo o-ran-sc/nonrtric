@@ -1,0 +1,1646 @@
+[
+    {
+        "id": "29cb883a.884228",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 1334.4443359375,
+        "y": 20.416664123535156,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "888a84ae.33c888"
+            ]
+        ]
+    },
+    {
+        "id": "ed968adc.8ee998",
+        "type": "method",
+        "name": "method rollback-generated-names",
+        "xml": "<method rpc='rollback-generated-names' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1459.5157623291016,
+        "y": 91.84523582458496,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "75650b62.fb7214"
+            ]
+        ]
+    },
+    {
+        "id": "75650b62.fb7214",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1458.7300567626953,
+        "y": 173.2738151550293,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "5556f19b.f5219",
+                "19ce5e74.e19aa2",
+                "d35c0a8.e055af8",
+                "37f63bc9.9d3f04",
+                "b6ebcdec.0165b"
+            ]
+        ]
+    },
+    {
+        "id": "5556f19b.f5219",
+        "type": "switchNode",
+        "name": "switch rollback-generated-names-input.context-id",
+        "xml": "<switch test='`$rollback-generated-names-input.context-id`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1780.2776489257812,
+        "y": 172.33332443237305,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "49e2a20b.aa74ac"
+            ]
+        ]
+    },
+    {
+        "id": "19ce5e74.e19aa2",
+        "type": "switchNode",
+        "name": "switch rollback-generated-names-input.naming-type",
+        "xml": "<switch test='`$rollback-generated-names-input.naming-type`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1787.444351196289,
+        "y": 232.16666793823242,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "19ba8656.ba40ea",
+                "fbafb911.c1a228",
+                "aaaeba77.eb1d38",
+                "c6b37ac7.e80618",
+                "1516480b.27b978",
+                "943b3579.515908",
+                "ffdb86fd.ed9ae8",
+                "f9d65524.73d078"
+            ]
+        ]
+    },
+    {
+        "id": "49e2a20b.aa74ac",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2058.694351196289,
+        "y": 172.91666793823242,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "7ab1c055.bf769"
+            ]
+        ]
+    },
+    {
+        "id": "7ab1c055.bf769",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"rollback-generated-names-input.context-id can not be null\" />\n",
+        "comments": "",
+        "x": 2225.3486518859863,
+        "y": 172.31190013885498,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "19ba8656.ba40ea",
+        "type": "outcome",
+        "name": "NULL",
+        "xml": "<outcome value=''>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2102.1943359375,
+        "y": 231.91666412353516,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "6acbae14.16e77"
+            ]
+        ]
+    },
+    {
+        "id": "6acbae14.16e77",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"rollback-generated-names-input.naming-type can not be null\" />\n",
+        "comments": "",
+        "x": 2268.4443550109863,
+        "y": 231.91666793823242,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "fbafb911.c1a228",
+        "type": "outcome",
+        "name": "VM_INSTANCE",
+        "xml": "<outcome value='VM_INSTANCE'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2130.1943740844727,
+        "y": 279.52380752563477,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "14f5428c.d3dd3d"
+            ]
+        ]
+    },
+    {
+        "id": "aaaeba77.eb1d38",
+        "type": "outcome",
+        "name": "VNFC_INSTANCE",
+        "xml": "<outcome value='VNFC_INSTANCE'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2140.444366455078,
+        "y": 327.0238094329834,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "b191361f.e39258"
+            ]
+        ]
+    },
+    {
+        "id": "14f5428c.d3dd3d",
+        "type": "set",
+        "name": "set tmp.rb.naming-index-table-name and prefix column, grn.type",
+        "xml": "<set>\n<parameter name='rollback-generated-names.index-table-name' value='NAMING_POLICY_VM_NAME_INDEX' />\n<parameter name='rollback-generated-names.index-table.name-prefix-column' value='vm_name_prefix' />\n",
+        "comments": "",
+        "x": 2551.694351196289,
+        "y": 279.66666984558105,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "b191361f.e39258",
+        "type": "set",
+        "name": "set tmp.rb.naming-index-table-name and prefix column, grn.type",
+        "xml": "<set>\n<parameter name='rollback-generated-names.index-table-name' value='NAMING_POLICY_VNFC_NAME_INDEX' />\n<parameter name='rollback-generated-names.index-table.name-prefix-column' value='vnfc_name_prefix' />\n\n",
+        "comments": "",
+        "x": 2553.944351196289,
+        "y": 326.9166717529297,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "c6b37ac7.e80618",
+        "type": "outcome",
+        "name": "Other",
+        "xml": "<outcome value='Other'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2107.6943359375,
+        "y": 571.1666641235352,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "f1c08b0d.d43858"
+            ]
+        ]
+    },
+    {
+        "id": "f1c08b0d.d43858",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='ack-final' value='Y'/>\n\t<parameter name=\"error-code\" value=\"500\" />\n    <parameter name=\"error-message\" value=\"`'Unknown rollbck-generated-name-input.naming-type: ' + $rollback-generated-names-input.naming-type`\" />\n",
+        "comments": "",
+        "x": 2273.9443550109863,
+        "y": 571.1666679382324,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "1f6886e.08cdb79",
+        "type": "set",
+        "name": "set tmp.rb.sql",
+        "xml": "<set>\n<parameter name='tmp.rb.sql' \n\tvalue=\"`'SELECT * from ' + $rollback-generated-names.index-table-name \n\t\t+ ' WHERE ' + $rollback-generated-names.index-table.name-prefix-column \n\t\t+ ' = $tmp.rb.grn.prefix'`\" />",
+        "comments": "",
+        "x": 2301.110996246338,
+        "y": 1108.2499651908875,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "9103eac2.da1f88",
+        "type": "get-resource",
+        "name": "GET INDEX TABLE.index_number",
+        "xml": "<get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key=\"`$tmp.rb.sql`\" pfx='db.grn.index-table'>\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2369.78946685791,
+        "y": 1156.1190004348755,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "4bac1a75.3bf994",
+                "9830d2f4.14e32"
+            ]
+        ]
+    },
+    {
+        "id": "bf055860.21dff8",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 2110.1109924316406,
+        "y": 1108.7499656677246,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "1f6886e.08cdb79",
+                "9103eac2.da1f88"
+            ]
+        ]
+    },
+    {
+        "id": "dba5c1eb.6b22f",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-message' value=\"`'Error reading the '\n\t+ $rollback-generated-names.index-table-name \n\t+ ' table with ' + $rollback-generated-names.name-prefix-column\n\t+ ' = ' + $tmp.rb.grn.prefix \n\t+ '. MANUAL clean up is required!'`\" />\n\n",
+        "comments": "",
+        "x": 2786.361000061035,
+        "y": 1157.0000743865967,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "aa4a319e.2aea6",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-message' value=\"`'No entries found in ' \n\t+ $rollback-generated-names.index-table-name \n\t+ ' with ' \n\t+ $rollback-generated-names.name-prefix-column \n\t+ ' = ' \n\t+ $tmp.rb.grn.prefix `\" />\n\n",
+        "comments": "",
+        "x": 2786.03946685791,
+        "y": 1202.7857494354248,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "4bac1a75.3bf994",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2613.361000061035,
+        "y": 1156.5000743865967,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "dba5c1eb.6b22f"
+            ]
+        ]
+    },
+    {
+        "id": "9830d2f4.14e32",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2620.206401824951,
+        "y": 1202.9882164001465,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "aa4a319e.2aea6"
+            ]
+        ]
+    },
+    {
+        "id": "37f63bc9.9d3f04",
+        "type": "get-resource",
+        "name": "GET GENERIC_RESOURCE_NAME distinct prefix",
+        "xml": "<get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n\tkey='SELECT distinct prefix from GENERIC_RESOURCE_NAME WHERE type = $rollback-generated-names-input.naming-type  \n\t\tAND context_id = $rollback-generated-names-input.context-id'\n  pfx='db.grn.distinct-prefix[]'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 1778.1109619140625,
+        "y": 692.9999885559082,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "6cb3df87.7e0ec",
+                "727c9c85.dfe244"
+            ]
+        ]
+    },
+    {
+        "id": "6cb3df87.7e0ec",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2057.8609619140625,
+        "y": 692.9999809265137,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "5c66740e.eb157c"
+            ]
+        ]
+    },
+    {
+        "id": "5c66740e.eb157c",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='error-code' value='500'/>\n\t<parameter name='error-message' value=\"Encountered error reading GENERIC_RESOURCE_NAME table to retrieve distinct prefix\"/>",
+        "comments": "",
+        "x": 2227.3609619140625,
+        "y": 692.9999809265137,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "727c9c85.dfe244",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2065.860939025879,
+        "y": 739.4999742507935,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "1fa487d3.8ad6e8"
+            ]
+        ]
+    },
+    {
+        "id": "314b583f.7203e8",
+        "type": "comment",
+        "name": "pfx = db.grn.distinct-prefix[]",
+        "info": "",
+        "comments": "",
+        "x": 1770.3610076904297,
+        "y": 730.4999885559082,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "b6ebcdec.0165b",
+        "type": "for",
+        "name": "for each distinct prefix",
+        "xml": "<for index='prefix-index' start='0' end='`$db.grn.distinct-prefix_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1682.6109924316406,
+        "y": 855.4999713897705,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "615652ba.fc923c"
+            ]
+        ]
+    },
+    {
+        "id": "e5feeac4.d67ae8",
+        "type": "get-resource",
+        "name": "GET GENERIC_RESOURCE_NAME  (name_index)",
+        "xml": "<get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n\tkey='SELECT * from GENERIC_RESOURCE_NAME WHERE type = $rollback-generated-names-input.naming-type   \n\t\tAND context_id = $rollback-generated-names-input.context-id \n\t\tAND prefix = $tmp.rb.grn.prefix order by name_index'\n  pfx='db.grn.subset[]'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2227.6109886169434,
+        "y": 995.2499618530273,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "3b74e0d1.8867b",
+                "cd385c50.732c1"
+            ]
+        ]
+    },
+    {
+        "id": "3b74e0d1.8867b",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2545.3609886169434,
+        "y": 995.2499542236328,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "de6cfc01.eec5b"
+            ]
+        ]
+    },
+    {
+        "id": "de6cfc01.eec5b",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='error-code' value='500'/>\n\t<parameter name='error-message' value=\"Encountered error reading GENERIC_RESOURCE_NAME table\"/>",
+        "comments": "",
+        "x": 2714.8609886169434,
+        "y": 995.2499542236328,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "cd385c50.732c1",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2553.3609657287598,
+        "y": 1041.7499475479126,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "92b03b04.367558"
+            ]
+        ]
+    },
+    {
+        "id": "92b03b04.367558",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='error-code' value='500'/>\n\t<parameter name='error-message' value=\"`'No entry found in GENERIC_RESOURCE_NAME where context_id = ' + $rollback-generated-names-input.context-id + ' and type = ' + $rollback-generated-names-input.naming-type + ' and prefix = ' + $db.grn.distinct-prefix[$prefix-index].prefix`\"/>",
+        "comments": "",
+        "x": 2716.6110038757324,
+        "y": 1041.499963760376,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "aec883e2.d2ce2",
+        "type": "comment",
+        "name": "pfx = db.grn.subset[]",
+        "info": "",
+        "comments": "",
+        "x": 2298.6110038757324,
+        "y": 1032.7499713897705,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "615652ba.fc923c",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1892.860984802246,
+        "y": 855.2499618530273,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "e5feeac4.d67ae8",
+                "d73de031.6f6f9",
+                "bf055860.21dff8",
+                "5b7f4beb.293b54",
+                "5bc6188.f631ce8",
+                "71d6da4f.c71d64",
+                "1bd95123.da921f",
+                "300df04b.286a1",
+                "c3fa064.1eee4f8",
+                "6647f1a8.2eba5",
+                "5693c8f8.d296b8"
+            ]
+        ]
+    },
+    {
+        "id": "d73de031.6f6f9",
+        "type": "set",
+        "name": "set tmp.rb.grn.prefix",
+        "xml": "<set>\n<parameter name='tmp.rb.grn.prefix' value='`$db.grn.distinct-prefix[$prefix-index].prefix`' />\n",
+        "comments": "",
+        "x": 2130.1109733581543,
+        "y": 945.9999675750732,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "6dc0d5b7.e8b79c",
+        "type": "switchNode",
+        "name": "switch: tmp.rb.net-index == 0",
+        "xml": "<switch test=\"`$tmp.rb.net-index == 0`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2589.027786254883,
+        "y": 1406.0832901000977,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "ae547b4c.5ee188",
+                "de514521.1f6668"
+            ]
+        ]
+    },
+    {
+        "id": "ab812023.4d106",
+        "type": "comment",
+        "name": "pfx = db.grn.index-table",
+        "info": "",
+        "comments": "",
+        "x": 2405.8609771728516,
+        "y": 1192.7499542236328,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "5bc6188.f631ce8",
+        "type": "set",
+        "name": "set tmp.rb.grn.max-index",
+        "xml": "<set>\n<parameter name='tmp.rb.grn.max-index' \n\tvalue='`$db.grn.subset[$db.grn.subset_length - 1].name-index`' />\n",
+        "comments": "",
+        "x": 2138.6109924316406,
+        "y": 1262.7499685287476,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "5b7f4beb.293b54",
+        "type": "set",
+        "name": "clear tmp.rb.",
+        "xml": "<set>\n<parameter name='tmp.rb.' value='' />\n",
+        "comments": "",
+        "x": 2105.1109580993652,
+        "y": 899.2499523162842,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "d35c0a8.e055af8",
+        "type": "set",
+        "name": "clear db.grn.",
+        "xml": "<set>\n<parameter name='db.grn.' value='' />\n",
+        "comments": "",
+        "x": 1661.249885559082,
+        "y": 639.4444446563721,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "71d6da4f.c71d64",
+        "type": "set",
+        "name": "clear db.grn.subset.",
+        "xml": "<set>\n<parameter name='db.grn.subset.' value='' />\n",
+        "comments": "",
+        "x": 2126.1109924316406,
+        "y": 855.499960899353,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "f019211a.03f21",
+        "type": "set",
+        "name": "set tmp.rb.sql for delete",
+        "xml": "<set>\n<parameter name='tmp.rb.sql' \n\tvalue=\"`'DELETE from ' + $rollback-generated-names.index-table-name \n\t\t+ ' WHERE ' + $rollback-generated-names.index-table.name-prefix-column \n\t\t+ ' = $tmp.rb.grn.prefix'`\" />\n\t\t\n<!--\n+ ' = $tmp.rb.grn.prefix AND index_number = $db.grn.index-table.index-number'`\" />\n-->\t\t\t\t",
+        "comments": "",
+        "x": 3201.777618408203,
+        "y": 1406.08327293396,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "28704354.57816c",
+        "type": "get-resource",
+        "name": "DELETE from INDEX TABLE",
+        "xml": "<update plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key=\"`$tmp.rb.sql`\">\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3217.9561462402344,
+        "y": 1451.7023067474365,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "2a3eafed.800b2",
+                "9929948e.80baa8"
+            ]
+        ]
+    },
+    {
+        "id": "f41ba658.f134a8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-message' value=\"`'Error deleting '\n\t+ $rollback-generated-names.index-table-name \n\t+ ' WHERE ' + $rollback-generated-names.name-prefix-column \n\t+ ' = ' + $tmp.rb.grn.prefix \n\t+ ' AND index_number = ' + $db.index-table.index-number\n\t+ '. MANUAL clean up is required!'`\" />\n\n",
+        "comments": "",
+        "x": 3626.5276794433594,
+        "y": 1451.5833806991577,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "2a3eafed.800b2",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3453.5276794433594,
+        "y": 1452.0833806991577,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "f41ba658.f134a8"
+            ]
+        ]
+    },
+    {
+        "id": "9929948e.80baa8",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3460.3730812072754,
+        "y": 1498.5715227127075,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "ce9cb4be.d8f5e8"
+            ]
+        ]
+    },
+    {
+        "id": "138bb542.26235b",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 2969.277671813965,
+        "y": 1405.8332901000977,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "f019211a.03f21",
+                "28704354.57816c"
+            ]
+        ]
+    },
+    {
+        "id": "1bd95123.da921f",
+        "type": "set",
+        "name": "set tmp.rb.delta-index = index-number - max-index",
+        "xml": "<set>\n<parameter name='tmp.rb.delta-index' \n\tvalue='`$db.grn.index-table.index-number - $tmp.rb.grn.max-index`' />\n",
+        "comments": "",
+        "x": 2216.6109924316406,
+        "y": 1307.9999675750732,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "ae547b4c.5ee188",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2802.7776489257812,
+        "y": 1406.0832710266113,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "138bb542.26235b"
+            ]
+        ]
+    },
+    {
+        "id": "6647f1a8.2eba5",
+        "type": "get-resource",
+        "name": "DELETE from GENERIC_RESOURCE_NAME",
+        "xml": "<delete plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n\tkey='DELETE from GENERIC_RESOURCE_NAME WHERE type = $rollback-generated-names-input.naming-type  \n\t\tAND context_id = $rollback-generated-names-input.context-id \n\t\tAND prefix = $tmp.rb.grn.prefix'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2199.4562072753906,
+        "y": 1743.9523639678955,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "c5dfbac3.eb7ac8",
+                "d5e547a5.1eafc8"
+            ]
+        ]
+    },
+    {
+        "id": "c240b414.e47518",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-message' value=\"`'Error deleting GENERIC_RESOURCE_NAME WHERE type = '\n\t+ $rollback-generated-names-input.naming-type  \n\t+ ' AND context_id = ' + $rollback-generated-names-input.context-id \n\t+ ' AND prefix = '+ $tmp.rb.grn.prefix\n\t+ '. MANUAL clean up is required!'`\" />\n\n",
+        "comments": "",
+        "x": 2651.0277404785156,
+        "y": 1744.8334379196167,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "c5dfbac3.eb7ac8",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2478.0277404785156,
+        "y": 1744.3334379196167,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "c240b414.e47518"
+            ]
+        ]
+    },
+    {
+        "id": "d5e547a5.1eafc8",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2484.8730850219727,
+        "y": 1790.8216247558594,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "a4121e26.ea489"
+            ]
+        ]
+    },
+    {
+        "id": "c25429a5.1b65a8",
+        "type": "comment",
+        "name": "Delete prefix from INDEX TABLE",
+        "info": "",
+        "comments": "",
+        "x": 3472.0277557373047,
+        "y": 1408.0833444595337,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "4b654cba.5ced54",
+        "type": "comment",
+        "name": "Silence SUCCESS",
+        "info": "",
+        "comments": "",
+        "x": 3717.027687072754,
+        "y": 1510.083288192749,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "ce9cb4be.d8f5e8",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 3609.2776832580566,
+        "y": 1498.3332901000977,
+        "z": "aa630329.50a53",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "de514521.1f6668",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2801.777732849121,
+        "y": 1591.3333129882812,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "e961bcf0.f03cb"
+            ]
+        ]
+    },
+    {
+        "id": "666b02e.502d0fc",
+        "type": "comment",
+        "name": "index_number > $db.grn.subset_length; i.e hole in the middle. DO NOTHING",
+        "info": "",
+        "comments": "",
+        "x": 2392.5277557373047,
+        "y": 1530.083345413208,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "b133d8d2.574fa8",
+        "type": "comment",
+        "name": "Silence SUCCESS",
+        "info": "",
+        "comments": "",
+        "x": 2741.027587890625,
+        "y": 1802.3333225250244,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "a4121e26.ea489",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2633.2775840759277,
+        "y": 1790.583324432373,
+        "z": "aa630329.50a53",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "300df04b.286a1",
+        "type": "switchNode",
+        "name": "switch: tmp.rb.delta-index == 0",
+        "xml": "<switch test=\"`$tmp.rb.delta-index == 0`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2155.0276641845703,
+        "y": 1406.333288192749,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "ebc810ff.c3a11",
+                "cc537a09.f92948"
+            ]
+        ]
+    },
+    {
+        "id": "ebc810ff.c3a11",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2382.2776489257812,
+        "y": 1406.3332710266113,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "6dc0d5b7.e8b79c"
+            ]
+        ]
+    },
+    {
+        "id": "9160dc95.b9431",
+        "type": "set",
+        "name": "set tmp.rb.sql for update",
+        "xml": "<set>\n<parameter name='tmp.rb.sql' \n\tvalue=\"`'UPDATE ' + $rollback-generated-names.index-table-name \n\t\t+ ' set index_number = ' + $tmp.rb.net-index\n\t\t+ ' WHERE ' + $rollback-generated-names.index-table.name-prefix-column \n\t\t+ ' = $tmp.rb.grn.prefix'`\" />",
+        "comments": "",
+        "x": 3208.527687072754,
+        "y": 1591.3332977294922,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "d2204951.3f5048",
+        "type": "get-resource",
+        "name": "Update INDEX TABLE",
+        "xml": "<update plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key=\"`$tmp.rb.sql`\">\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3204.706214904785,
+        "y": 1636.9523315429688,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "e86d1619.af6ed8",
+                "79602d4f.9dc9b4"
+            ]
+        ]
+    },
+    {
+        "id": "3686c0ec.5662b",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-message' value=\"`'Error updating  '\n\t+ $rollback-generated-names.index-table-name + '.index_number = ' \n\t+ $tmp.rb.net-index\n\t+ ' WHERE ' + $rollback-generated-names.name-prefix-column \n\t+ ' = ' + $tmp.rb.grn.prefix\n\t+ '. MANUAL clean up is required!'`\" />\n\n",
+        "comments": "",
+        "x": 3610.27774810791,
+        "y": 1636.83340549469,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "e86d1619.af6ed8",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3418.27774810791,
+        "y": 1637.33340549469,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "3686c0ec.5662b"
+            ]
+        ]
+    },
+    {
+        "id": "79602d4f.9dc9b4",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3425.123149871826,
+        "y": 1683.8215475082397,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "3686c0ec.5662b"
+            ]
+        ]
+    },
+    {
+        "id": "e961bcf0.f03cb",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic='true'>",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 2969.0277404785156,
+        "y": 1591.0833148956299,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "9160dc95.b9431",
+                "d2204951.3f5048"
+            ]
+        ]
+    },
+    {
+        "id": "d4cb9489.bfce78",
+        "type": "comment",
+        "name": "Update prefix from INDEX TABLE",
+        "info": "",
+        "comments": "",
+        "x": 3160.52774810791,
+        "y": 1669.5833106040955,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "c3fa064.1eee4f8",
+        "type": "set",
+        "name": "set tmp.rb.net-index = index-number - $db.grn.subset_length",
+        "xml": "<set>\n<parameter name='tmp.rb.net-index' \n\tvalue='`$db.grn.index-table.index-number - $db.grn.subset_length`' />\n",
+        "comments": "",
+        "x": 2247.3609771728516,
+        "y": 1355.4999523162842,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "1fda938f.3dbb9c",
+        "type": "comment",
+        "name": "index_number == max index",
+        "info": "",
+        "comments": "",
+        "x": 2032.8609924316406,
+        "y": 1449.2499694824219,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "d76b3389.44a7f",
+        "type": "comment",
+        "name": "index_number == $db.grn.subset_length",
+        "info": "",
+        "comments": "",
+        "x": 2660.3609924316406,
+        "y": 1366.7499694824219,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "cc537a09.f92948",
+        "type": "outcomeFalse",
+        "name": "false",
+        "xml": "<outcome value='false'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2390.3609924316406,
+        "y": 1575.4999685287476,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "a8f99767.daacf8"
+            ]
+        ]
+    },
+    {
+        "id": "a8f99767.daacf8",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2534.111000061035,
+        "y": 1575.7499713897705,
+        "z": "aa630329.50a53",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2d578494.cd5f7c",
+        "type": "comment",
+        "name": "Change History",
+        "info": "iTrack SDNGC-10767\n- new DG to rollback generated-names",
+        "comments": "",
+        "x": 1813.1943435668945,
+        "y": 65.41666603088379,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "3d5fa372.a6850c",
+        "type": "set",
+        "name": "set tmp.rb.naming-index-table-name, index-table.prefix column, grn.type",
+        "xml": "<set>\n<parameter name='rollback-generated-names.index-table-name' value='EIPAM_CLIENT_KEY_INDEX' />\n<parameter name='rollback-generated-names.index-table.name-prefix-column' value='vnf_name_prefix' />\n",
+        "comments": "",
+        "x": 2579.4443359375,
+        "y": 377.41666412353516,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "1516480b.27b978",
+        "type": "outcome",
+        "name": "CLIENT_KEY",
+        "xml": "<outcome value='CLIENT_KEY'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2127.194351196289,
+        "y": 377.0238037109375,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "3d5fa372.a6850c"
+            ]
+        ]
+    },
+    {
+        "id": "943b3579.515908",
+        "type": "outcome",
+        "name": "NETWORK_INSTANCE",
+        "xml": "<outcome value='NETWORK_INSTANCE'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2158.972099304199,
+        "y": 427.2777690887451,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "83af09d2.c65ec8"
+            ]
+        ]
+    },
+    {
+        "id": "ffdb86fd.ed9ae8",
+        "type": "outcome",
+        "name": "SERVICE_INSTANCE",
+        "xml": "<outcome value='SERVICE_INSTANCE'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2157.083236694336,
+        "y": 476.2777853012085,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "1c77760e.ecb7ea"
+            ]
+        ]
+    },
+    {
+        "id": "f9d65524.73d078",
+        "type": "outcome",
+        "name": "VNF_INSTANCE",
+        "xml": "<outcome value='VNF_INSTANCE'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2140.972099304199,
+        "y": 522.2777843475342,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "e200beea.7beb8"
+            ]
+        ]
+    },
+    {
+        "id": "2e594a51.7adc16",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2481.4800338745117,
+        "y": 1888.095199584961,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "dc507a17.e1ccd8"
+            ]
+        ]
+    },
+    {
+        "id": "dc507a17.e1ccd8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n\t<parameter name='error-code' value='500'/>\n\t<parameter name='error-message' value=\"Encountered error reading GENERIC_RESOURCE_NAME table\"/>",
+        "comments": "",
+        "x": 2650.9800338745117,
+        "y": 1888.095199584961,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "72a18f01.deeb5",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2489.480010986328,
+        "y": 1934.5951929092407,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "43bd72cf.d1989c"
+            ]
+        ]
+    },
+    {
+        "id": "5826c7ee.56a468",
+        "type": "comment",
+        "name": "pfx = db.grn.prefix[]",
+        "info": "",
+        "comments": "",
+        "x": 2214.730049133301,
+        "y": 1925.5952167510986,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "5693c8f8.d296b8",
+        "type": "get-resource",
+        "name": "GET GENERIC_RESOURCE_NAME  (prefix)",
+        "xml": "<get-resource plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n\tkey='SELECT * from GENERIC_RESOURCE_NAME WHERE type = $rollback-generated-names-input.naming-type    \n\t\tAND prefix = $tmp.rb.grn.prefix order by name_index'\n  pfx='db.grn.prefix[]'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2193.730026245117,
+        "y": 1887.845220565796,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "2e594a51.7adc16",
+                "72a18f01.deeb5",
+                "97a75732.8d1778"
+            ]
+        ]
+    },
+    {
+        "id": "97a75732.8d1778",
+        "type": "success",
+        "name": "success",
+        "xml": "<outcome value='success'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2483.015769958496,
+        "y": 2077.5595169067383,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "af5d42dd.241e1"
+            ]
+        ]
+    },
+    {
+        "id": "af5d42dd.241e1",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2632.6587142944336,
+        "y": 2077.702341079712,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "255e4edf.8d20f2",
+                "46080842.900648"
+            ]
+        ]
+    },
+    {
+        "id": "ad49ad2b.b9ff7",
+        "type": "comment",
+        "name": "Clean up holes in INDEX TABLE",
+        "info": "",
+        "comments": "",
+        "x": 1951.694351196289,
+        "y": 1831.6666927337646,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "f4c9b7ed.c5e8b8",
+        "type": "set",
+        "name": "set tmp.rb.sql for delete",
+        "xml": "<set>\n<parameter name='tmp.rb.sql' \n\tvalue=\"`'DELETE from ' + $rollback-generated-names.index-table-name \n\t\t+ ' WHERE ' + $rollback-generated-names.index-table.name-prefix-column \n\t\t+ ' = $tmp.rb.grn.prefix'`\" />\n\t\t\n<!--\n+ ' = $tmp.rb.grn.prefix AND index_number = $db.grn.index-table.index-number'`\" />\n-->\t\t\t\t",
+        "comments": "",
+        "x": 2890.4800720214844,
+        "y": 1934.5952682495117,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "9004f393.79866",
+        "type": "get-resource",
+        "name": "DELETE from INDEX TABLE",
+        "xml": "<update plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key=\"`$tmp.rb.sql`\">\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2906.6585998535156,
+        "y": 1980.2143020629883,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "e6d51ffb.da5ef",
+                "e74e9d15.6e515"
+            ]
+        ]
+    },
+    {
+        "id": "8b317be0.6cea48",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-message' value=\"`'Error deleting '\n\t+ $rollback-generated-names.index-table-name \n\t+ ' WHERE ' + $rollback-generated-names.name-prefix-column \n\t+ ' = ' + $tmp.rb.grn.prefix \n\t+ ' AND index_number = ' + $db.index-table.index-number`\" />\n\n",
+        "comments": "",
+        "x": 3297.2301330566406,
+        "y": 1980.0953760147095,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "e6d51ffb.da5ef",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3124.2301330566406,
+        "y": 1980.5953760147095,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "8b317be0.6cea48"
+            ]
+        ]
+    },
+    {
+        "id": "e74e9d15.6e515",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3131.0755348205566,
+        "y": 2027.0835180282593,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "9ba26a8.310e298"
+            ]
+        ]
+    },
+    {
+        "id": "77aa82ec.ea575c",
+        "type": "comment",
+        "name": "Delete prefix from INDEX TABLE",
+        "info": "",
+        "comments": "",
+        "x": 3160.730209350586,
+        "y": 1936.5953397750854,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "2d8ded7b.a5e7e2",
+        "type": "comment",
+        "name": "Silence SUCCESS",
+        "info": "",
+        "comments": "",
+        "x": 3387.730140686035,
+        "y": 2038.5952835083008,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "9ba26a8.310e298",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 3279.980136871338,
+        "y": 2026.8452854156494,
+        "z": "aa630329.50a53",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "43bd72cf.d1989c",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2637.1943588256836,
+        "y": 1934.9166927337646,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "f4c9b7ed.c5e8b8",
+                "9004f393.79866"
+            ]
+        ]
+    },
+    {
+        "id": "255e4edf.8d20f2",
+        "type": "set",
+        "name": "set tmp.rb.grn.last-max-index",
+        "xml": "<set>\n<parameter name='tmp.rb.grn.last-max-index' \n\tvalue='`$db.grn.prefix[$db.grn.prefix_length - 1].name-index`' />\n",
+        "comments": "",
+        "x": 2855.6943588256836,
+        "y": 2077.916696548462,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "46080842.900648",
+        "type": "switchNode",
+        "name": "switch: index_number > last-max-index",
+        "xml": "<switch test=\"`$tmp.rb.net-index > $tmp.rb.grn.last-max-index`\">",
+        "comments": "",
+        "outputs": 1,
+        "x": 2884.944366455078,
+        "y": 2121.916696548462,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "88ac47d8.6bb598"
+            ]
+        ]
+    },
+    {
+        "id": "88ac47d8.6bb598",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3124.9443359375,
+        "y": 2121.416664123535,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "c1f045de.3e28c8"
+            ]
+        ]
+    },
+    {
+        "id": "ee302e41.39dd1",
+        "type": "set",
+        "name": "set tmp.rb.sql for update",
+        "xml": "<set>\n<parameter name='tmp.rb.sql' \n\tvalue=\"`'UPDATE ' + $rollback-generated-names.index-table-name \n\t\t+ ' set index_number = ' + $tmp.rb.grn.last-max-index\n\t\t+ ' WHERE ' + $rollback-generated-names.index-table.name-prefix-column \n\t\t+ ' = $tmp.rb.grn.prefix'`\" />",
+        "comments": "",
+        "x": 3473.194366455078,
+        "y": 2121.416696548462,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "b61cd1a1.4af9b",
+        "type": "get-resource",
+        "name": "Update  INDEX TABLE",
+        "xml": "<update plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n  key=\"`$tmp.rb.sql`\">\n\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3469.3728942871094,
+        "y": 2166.0357303619385,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "5241d984.6b2458",
+                "19f1dadd.4da2c5"
+            ]
+        ]
+    },
+    {
+        "id": "2583f2fc.38be4e",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-message' value=\"`'Error updating  '\n\t+ $rollback-generated-names.index-table-name + '.index_number = ' \n\t+ $tmp.rb.grn.last-max-index\n\t+ ' WHERE ' + $rollback-generated-names.name-prefix-column \n\t+ ' = ' + $tmp.rb.grn.prefix`\" />\n\n",
+        "comments": "",
+        "x": 3851.9443740844727,
+        "y": 2166.9169409275055,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "5241d984.6b2458",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3678.9444274902344,
+        "y": 2166.4168043136597,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "2583f2fc.38be4e"
+            ]
+        ]
+    },
+    {
+        "id": "19f1dadd.4da2c5",
+        "type": "not-found",
+        "name": "not-found",
+        "xml": "<outcome value='not-found'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 3685.7898292541504,
+        "y": 2212.9049463272095,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "2583f2fc.38be4e"
+            ]
+        ]
+    },
+    {
+        "id": "370184fa.2c436c",
+        "type": "comment",
+        "name": "Update prefix from INDEX TABLE",
+        "info": "",
+        "comments": "",
+        "x": 3425.1944274902344,
+        "y": 2198.666709423065,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "c1f045de.3e28c8",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 3274.4443359375,
+        "y": 2121.666664123535,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "ee302e41.39dd1",
+                "b61cd1a1.4af9b"
+            ]
+        ]
+    },
+    {
+        "id": "1fa487d3.8ad6e8",
+        "type": "set",
+        "name": "set db.grn.distinct-prefix_length = 0",
+        "xml": "<set>\n<parameter name='db.grn.distinct-prefix_length' value='0' />\n",
+        "comments": "",
+        "x": 2298.194351196289,
+        "y": 739.6666774749756,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "888a84ae.33c888",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 1609.0277099609375,
+        "y": 20,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "ed968adc.8ee998"
+            ]
+        ]
+    },
+    {
+        "id": "e200beea.7beb8",
+        "type": "set",
+        "name": "set tmp.rb.naming-index-table-name and prefix column, grn.type",
+        "xml": "<set>\n<parameter name='rollback-generated-names.index-table-name' value='VNF_NAME_INDEX' />\n<parameter name='rollback-generated-names.index-table.name-prefix-column' \n\tvalue='vnf_name_prefix' />\n\n",
+        "comments": "",
+        "x": 2671.805435180664,
+        "y": 555.3333234786987,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "83af09d2.c65ec8",
+        "type": "set",
+        "name": "set tmp.rb.naming-index-table-name and prefix column, grn.type",
+        "xml": "<set>\n<parameter name='rollback-generated-names.index-table-name' \n\tvalue='NETWORK_INSTANCE_NAME_INDEX' />\n<parameter name='rollback-generated-names.index-table.name-prefix-column' \n\tvalue='network_instance_name_prefix' />\n\n",
+        "comments": "",
+        "x": 2557.6943359375,
+        "y": 426.66666412353516,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "98dce5f3.4de788",
+        "type": "set",
+        "name": "set tmp.rb.naming-index-table-name and prefix column, grn.type",
+        "xml": "<set>\n<parameter name='rollback-generated-names.index-table-name' \n\tvalue='SERVICE_INSTANCE_NAME_INDEX' />\n<parameter name='rollback-generated-names.index-table.name-prefix-column' \n\tvalue='service_instance_name_prefix' />\n\n",
+        "comments": "",
+        "x": 2741.027633666992,
+        "y": 474.4444389343262,
+        "z": "aa630329.50a53",
+        "wires": []
+    },
+    {
+        "id": "1c77760e.ecb7ea",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 2356.6666666666665,
+        "y": 474.44444444444446,
+        "z": "aa630329.50a53",
+        "wires": [
+            [
+                "98dce5f3.4de788",
+                "3647a166.a299ee"
+            ]
+        ]
+    },
+    {
+        "id": "3647a166.a299ee",
+        "type": "get-resource",
+        "name": "DELETE service instance name",
+        "xml": "<delete plugin='org.onap.ccsdk.sli.adaptors.resource.sql.SqlResource' resource='SQL'\n\tkey='DELETE from GENERIC_RESOURCE_NAME WHERE type = $rollback-generated-names-input.naming-type  \n\t\tAND context_id = $rollback-generated-names-input.context-id AND prefix IS NULL AND name_index IS NULL'>",
+        "comments": "",
+        "outputs": 1,
+        "x": 2582.2221870422363,
+        "y": 512.222222328186,
+        "z": "aa630329.50a53",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7a0ecea1.020ae",
+        "type": "comment",
+        "name": "quick path to delete instance name",
+        "info": "If no prefix and name_index involved, it can be deleted now",
+        "comments": "",
+        "x": 2838.888832092285,
+        "y": 518.8889126777649,
+        "z": "aa630329.50a53",
+        "wires": []
+    }
+]

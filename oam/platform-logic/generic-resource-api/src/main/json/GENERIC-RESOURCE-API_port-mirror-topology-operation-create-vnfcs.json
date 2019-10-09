@@ -1,0 +1,1807 @@
+[
+    {
+        "id": "5824ca69.20e9b4",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 147.14285278320312,
+        "y": 91.42857360839844,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "2cdc778b.c440a8"
+            ]
+        ]
+    },
+    {
+        "id": "2cdc778b.c440a8",
+        "type": "service-logic",
+        "name": "GENERIC-RESOURCE-API ${project.version}",
+        "module": "GENERIC-RESOURCE-API",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>",
+        "outputs": 1,
+        "x": 261.09523010253906,
+        "y": 131.66669464111328,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "46a31529.575a3c"
+            ]
+        ]
+    },
+    {
+        "id": "46a31529.575a3c",
+        "type": "method",
+        "name": "method port-mirror-topology-operation-create-vnfc",
+        "xml": "<method rpc='port-mirror-topology-operation-create-vnfcs' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 271.4286346435547,
+        "y": 172.85714149475098,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "8349530a.566aa"
+            ]
+        ]
+    },
+    {
+        "id": "43c833c6.cbafdc",
+        "type": "comment",
+        "name": "port-mirror-topology-operation-create-vnfcs",
+        "info": "",
+        "comments": "",
+        "x": 541.4877090454102,
+        "y": 39.01491737365723,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "3348c9a8.a257a6",
+        "type": "set",
+        "name": "set vnfc data",
+        "xml": "<set>\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnfc-key'\n  value='`$tmp.AnAI-data.src-li.results[$src-li-idx].vnfc.vnfc-name`' />\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnfc-name'\n  value='`$tmp.AnAI-data.src-li.results[$src-li-idx].vnfc.vnfc-name`' />\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnf-id'\n  value='`$tmp.src-vnf-id`' />\n",
+        "comments": "",
+        "x": 1304.6427917480469,
+        "y": 147.76191902160645,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "82331627.da0c38",
+        "type": "comment",
+        "name": "look through relationships looking for the related vserver",
+        "info": "",
+        "comments": "",
+        "x": 1433.2144088745117,
+        "y": 192.04788208007812,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "606fe9e4.7d4348",
+        "type": "for",
+        "name": "for each relationship",
+        "xml": "<for index='rel-idx' start='0' end='`$tmp.AnAI-data.src-li.results[$src-li-idx].vnfc.relationship-list.relationship_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1324.642807006836,
+        "y": 276.3334903717041,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "9e428281.f398e"
+            ]
+        ]
+    },
+    {
+        "id": "9e428281.f398e",
+        "type": "switchNode",
+        "name": "switch related-to == vserver",
+        "xml": "<switch test=\"`$tmp.AnAI-data.src-li.results[$src-li-idx].vnfc.relationship-list.relationship[$rel-idx].related-to == 'vserver'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1576.0715980529785,
+        "y": 276.3334560394287,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "5e09ce32.afc1a"
+            ]
+        ]
+    },
+    {
+        "id": "5e09ce32.afc1a",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1780.3572387695312,
+        "y": 274.9052333831787,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "dd66f351.b4287"
+            ]
+        ]
+    },
+    {
+        "id": "e0bfd49.2991328",
+        "type": "set",
+        "name": "set tmp.vserver-id = 0",
+        "xml": "<set>\n<parameter name='tmp.vserver-id' value='0' />\n",
+        "comments": "",
+        "x": 1331.785789489746,
+        "y": 233.47638320922852,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "dd66f351.b4287",
+        "type": "for",
+        "name": "for each relationship-data",
+        "xml": "<for index='reldata-idx' start='0' end='`$tmp.AnAI-data.src-li.results[$src-li-idx].vnfc.relationship-list.relationship[$rel-idx].relationship-data_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1977.4999923706055,
+        "y": 273.4764881134033,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "b5847bc5.de5478"
+            ]
+        ]
+    },
+    {
+        "id": "b5847bc5.de5478",
+        "type": "switchNode",
+        "name": "switch relationship-key == 'vserver.vserver-id'",
+        "xml": "<switch test=\"`$tmp.AnAI-data.src-li.results[$src-li-idx].vnfc.relationship-list.relationship[$rel-idx].relationship-data[$reldata-idx].relationship-key == 'vserver.vserver-id'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2297.499885559082,
+        "y": 273.4763126373291,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "a19eabb8.56abc8"
+            ]
+        ]
+    },
+    {
+        "id": "a19eabb8.56abc8",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2546.0715713500977,
+        "y": 272.0476760864258,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "d675e632.b382f8"
+            ]
+        ]
+    },
+    {
+        "id": "d675e632.b382f8",
+        "type": "set",
+        "name": "set tmp.vserver-id",
+        "xml": "<set>\n<parameter name='tmp.vserver-id' value='`$tmp.AnAI-data.src-li.results[$src-li-idx].vnfc.relationship-list.relationship[$rel-idx].relationship-data[$reldata-idx].relationship-value`' />\n",
+        "comments": "",
+        "x": 2734.6432876586914,
+        "y": 270.6192045211792,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "54051de.b4315e4",
+        "type": "switchNode",
+        "name": "switch tmp.vserver-id == 0",
+        "xml": "<switch test='`$tmp.vserver-id == 0`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1346.0716094970703,
+        "y": 322.0478801727295,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "e73429c1.6d4a38"
+            ]
+        ]
+    },
+    {
+        "id": "e73429c1.6d4a38",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1546.0715713500977,
+        "y": 322.0476760864258,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "eb7b19a6.882228"
+            ]
+        ]
+    },
+    {
+        "id": "eb7b19a6.882228",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1693.2143936157227,
+        "y": 320.6192092895508,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "1c2292f9.558f2d"
+            ]
+        ]
+    },
+    {
+        "id": "987182b5.70dc7",
+        "type": "set",
+        "name": "set vserver data",
+        "xml": "<set>\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vserver-name'\n  value='`$tmp.AnAI-data.src-li.results[$src-vs-idx].vserver.vserver-name`' />\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vserver-id'\n  value='`$tmp.AnAI-data.src-li.results[$src-vs-idx].vserver.vserver-id`' />\n<parameter name='tmp.vs-idx' value='`$src-vs-idx`' />\n",
+        "comments": "",
+        "x": 2027.023666381836,
+        "y": 414.90478897094727,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "f30054d5.526208",
+        "type": "comment",
+        "name": "loop through the results array for this vserver",
+        "info": "",
+        "comments": "",
+        "x": 1395.3572463989258,
+        "y": 374.90478706359863,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "6ca675d9.0abacc",
+        "type": "for",
+        "name": "for each src result",
+        "xml": "<for index='src-vs-idx' start='0' end='`$tmp.AnAI-data.src-li.results_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1317.0238418579102,
+        "y": 416.5713577270508,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "6e5a5a11.67dc84"
+            ]
+        ]
+    },
+    {
+        "id": "6e5a5a11.67dc84",
+        "type": "switchNode",
+        "name": "is this our vserver?",
+        "xml": "<switch test='`$tmp.AnAI-data.src-li.results[$src-vs-idx].vserver.vserver-id == $tmp.vserver-id`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1513.6904678344727,
+        "y": 414.9048538208008,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "8c36a0ad.63b1a"
+            ]
+        ]
+    },
+    {
+        "id": "8c36a0ad.63b1a",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1683.690315246582,
+        "y": 414.90478801727295,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "4a784e6b.1a374"
+            ]
+        ]
+    },
+    {
+        "id": "4a784e6b.1a374",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1835.3572158813477,
+        "y": 414.9048538208008,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "987182b5.70dc7"
+            ]
+        ]
+    },
+    {
+        "id": "8ac121a2.f054f",
+        "type": "set",
+        "name": "increment tmp.vnfc-objects-idx",
+        "xml": "<set>\n<parameter name='tmp.vnfc-objects-idx' value='`$tmp.vnfc-objects-idx + 1`' />\n",
+        "comments": "",
+        "x": 1345.3574295043945,
+        "y": 833.9048900604248,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "d7d96f12.ed2bc",
+        "type": "comment",
+        "name": "now process l-interfaces for this vserver",
+        "info": "",
+        "comments": "",
+        "x": 1373.690486907959,
+        "y": 518.238260269165,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "41c41df3.5764a4",
+        "type": "for",
+        "name": "for each l-interface in this vserver",
+        "xml": "<for silentFailure='true' index='src-vli-idx' start='0' end='`$tmp.AnAI-data.src-li.results[$tmp.vs-idx].vserver.l-interfaces.l-interface_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1355.357105255127,
+        "y": 563.2381811141968,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "a318be8d.ca848"
+            ]
+        ]
+    },
+    {
+        "id": "a318be8d.ca848",
+        "type": "switchNode",
+        "name": "does network-name match?",
+        "xml": "<switch test='`$tmp.AnAI-data.src-li.results[$tmp.vs-idx].vserver.l-interfaces.l-interface[$src-vli-idx].network-name == $tmp.src-network-name`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1650.3572807312012,
+        "y": 563.2381000518799,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "5f6d71fd.e48f9"
+            ]
+        ]
+    },
+    {
+        "id": "5f6d71fd.e48f9",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1860.3571891784668,
+        "y": 561.5714912414551,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "1d86856b.8c8b0b"
+            ]
+        ]
+    },
+    {
+        "id": "c8b08bf3.2a97f8",
+        "type": "set",
+        "name": "set tmp.interface-ids_length to 0",
+        "xml": "<set>\n<parameter name='tmp.interface-ids_length' value='0' />\n",
+        "comments": "",
+        "x": 1368.6905250549316,
+        "y": 469.90484523773193,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "1d86856b.8c8b0b",
+        "type": "set",
+        "name": "save interface-id",
+        "xml": "<set>\n<parameter name='tmp.interface-ids[$tmp.interface-ids_length].interface-id' value='`$tmp.AnAI-data.src-li.results[$tmp.vs-idx].vserver.l-interfaces.l-interface[$src-vli-idx].interface-id`' />\n<parameter name='tmp.interface-ids_length' value='`$tmp.interface-ids_length + 1`' />\n",
+        "comments": "",
+        "x": 2037.0235176086426,
+        "y": 561.5718421936035,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "e8c47337.194cc",
+        "type": "for",
+        "name": "for each src result",
+        "xml": "<for silentFailure='true' index='src-rs-idx' start='0' end='`$tmp.AnAI-data.src-li.results_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1310.357265472412,
+        "y": 704.9046611785889,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "2add2962.c47056"
+            ]
+        ]
+    },
+    {
+        "id": "a0fd84a6.22f688",
+        "type": "comment",
+        "name": "loop through the results array for these l-interfaces",
+        "info": "",
+        "comments": "",
+        "x": 1400.357349395752,
+        "y": 663.2381839752197,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "ec2249aa.7fa5a8",
+        "type": "for",
+        "name": "for each saved interface-id",
+        "xml": "<for index='in-idx' start='0' end='`$tmp.interface-ids_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1907.024326324463,
+        "y": 734.9050178527832,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "eb709142.f8f52"
+            ]
+        ]
+    },
+    {
+        "id": "eb709142.f8f52",
+        "type": "switchNode",
+        "name": "interface-ids match?",
+        "xml": "<switch test='`$tmp.AnAI-data.src-li.results[$src-rs-idx].l-interface.interface-id == $tmp.interface-ids[$in-idx].interface-id`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2183.690845489502,
+        "y": 734.9047737121582,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "222ad245.d91fbe"
+            ]
+        ]
+    },
+    {
+        "id": "222ad245.d91fbe",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2372.024158477783,
+        "y": 733.2382411956787,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "d9617935.c2d7f8"
+            ]
+        ]
+    },
+    {
+        "id": "5c58f241.abac8c",
+        "type": "set",
+        "name": "set tmp.vnic-idx to 0",
+        "xml": "<set>\n<parameter name='tmp.vnic-idx' value='0' />\n",
+        "comments": "",
+        "x": 1315.3572273254395,
+        "y": 614.9049320220947,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "d9617935.c2d7f8",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2535.3572959899902,
+        "y": 733.2382411956787,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "13a3172d.4d7459",
+                "1f0a54c0.094a5b",
+                "3cf0366f.7afeaa",
+                "f2c3d29e.c6f01"
+            ]
+        ]
+    },
+    {
+        "id": "13a3172d.4d7459",
+        "type": "set",
+        "name": "set vnic-data",
+        "xml": "<set>\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic[$tmp.vnic-idx].vnic-port-id'\n  value='`$tmp.AnAI-data.src-li.results[$src-rs-idx].l-interface.interface-id`' />\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic[$tmp.vnic-idx].vnic-port-name'\n  value='`$tmp.AnAI-data.src-li.results[$src-rs-idx].l-interface.interface-name`' />\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic[$tmp.vnic-idx].capacity.vnic-capacity'\n  value='`$tmp.src-pps`' />\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic[$tmp.vnic-idx].capacity.used-capacity'\n  value='0' />\n",
+        "comments": "",
+        "x": 2727.023914337158,
+        "y": 618.2382650375366,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "1f0a54c0.094a5b",
+        "type": "switchNode",
+        "name": "is there an ipv4 address?",
+        "xml": "<switch test='`$tmp.AnAI-data.src-li.results[$src-rs-idx].l-interface.l3-interface-ipv4-address-list[0].l3-interface-ipv4-address`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2757.02388381958,
+        "y": 688.2382698059082,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "1f50864b.beb8da",
+                "3c7d317d.fb47fe"
+            ]
+        ]
+    },
+    {
+        "id": "1f50864b.beb8da",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2947.0236778259277,
+        "y": 663.2379951477051,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "2dbc1fdd.4e4df"
+            ]
+        ]
+    },
+    {
+        "id": "3c7d317d.fb47fe",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2947.023609161377,
+        "y": 714.6666679382324,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "aaeab78b.c2f038"
+            ]
+        ]
+    },
+    {
+        "id": "2dbc1fdd.4e4df",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 3077.0238151550293,
+        "y": 659.9048557281494,
+        "z": "f19c7219.1794b",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "aaeab78b.c2f038",
+        "type": "set",
+        "name": "set ipv4-address",
+        "xml": "<set>\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic[$tmp.vnic-idx].vnic-ip-addresses.ip-addresses.ipv4-address'\n  value='`$tmp.AnAI-data.src-li.results[$src-rs-idx].l-interface.l3-interface-ipv4-address-list[0].l3-interface-ipv4-address`' />\n",
+        "comments": "",
+        "x": 3108.690399169922,
+        "y": 713.2381896972656,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "2add2962.c47056",
+        "type": "switchNode",
+        "name": "is this an l-interface?",
+        "xml": "<switch test='`$tmp.AnAI-data.src-li.results[$src-rs-idx].l-interface.interface-name`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1517.0239067077637,
+        "y": 704.9048557281494,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "46e0a50b.cf81bc",
+                "4585ec47.df3ff4"
+            ]
+        ]
+    },
+    {
+        "id": "46e0a50b.cf81bc",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1688.6904029846191,
+        "y": 681.5714092254639,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "3af66484.84461c"
+            ]
+        ]
+    },
+    {
+        "id": "4585ec47.df3ff4",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1688.6903343200684,
+        "y": 733.0000820159912,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "ec2249aa.7fa5a8"
+            ]
+        ]
+    },
+    {
+        "id": "3af66484.84461c",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1825.357250213623,
+        "y": 679.9051780700684,
+        "z": "f19c7219.1794b",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3cf0366f.7afeaa",
+        "type": "switchNode",
+        "name": "is there an ipv6 address?",
+        "xml": "<switch test='`$tmp.AnAI-data.src-li.results[$src-rs-idx].l-interface.l3-interface-ipv6-address-list[0].l3-interface-ipv6-address`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2765.3567848205566,
+        "y": 783.2379112243652,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "be4e4b7c.467a88",
+                "804b95fe.663f68"
+            ]
+        ]
+    },
+    {
+        "id": "be4e4b7c.467a88",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2955.3565788269043,
+        "y": 758.2376365661621,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "631ba8b4.ea1db8"
+            ]
+        ]
+    },
+    {
+        "id": "804b95fe.663f68",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2955.3565101623535,
+        "y": 809.6663093566895,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "a7e10969.2b8498"
+            ]
+        ]
+    },
+    {
+        "id": "631ba8b4.ea1db8",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 3085.356716156006,
+        "y": 754.9044971466064,
+        "z": "f19c7219.1794b",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a7e10969.2b8498",
+        "type": "set",
+        "name": "set ipv6-address",
+        "xml": "<set>\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic[$tmp.vnic-idx].vnic-ip-addresses.ip-addresses.ipv6-address'\n  value='`$tmp.AnAI-data.src-li.results[$src-rs-idx].l-interface.l3-interface-ipv6-address-list[0].l3-interface-ipv6-address`' />\n",
+        "comments": "",
+        "x": 3117.0233001708984,
+        "y": 808.2378311157227,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "f2c3d29e.c6f01",
+        "type": "set",
+        "name": "increment tmp.vnic-idx",
+        "xml": "<set>\n<parameter name='tmp.vnic-idx' value='`$tmp.vnic-idx + 1`' />\n",
+        "comments": "",
+        "x": 2757.023723602295,
+        "y": 851.5715255737305,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "91cc5b8b.aca088",
+        "type": "set",
+        "name": "set vnic_length",
+        "xml": "<set>\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic_length' value='`$tmp.vnic-idx`' />\n",
+        "comments": "",
+        "x": 1299.0240173339844,
+        "y": 782.5716171264648,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "123870ef.b3952f",
+        "type": "set",
+        "name": "set vnfc data",
+        "xml": "<set>\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnfc-key'\n  value='`$tmp.AnAI-data.dest-li.results[$dest-li-idx].vnfc.vnfc-name`' />\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnfc-name'\n  value='`$tmp.AnAI-data.dest-li.results[$dest-li-idx].vnfc.vnfc-name`' />\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnf-id'\n  value='`$tmp.dest-vnf-id`' />\n",
+        "comments": "",
+        "x": 1310.0238456726074,
+        "y": 1004.9048719406128,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "e4346cd6.97483",
+        "type": "comment",
+        "name": "look through relationships looking for the related vserver",
+        "info": "",
+        "comments": "",
+        "x": 1438.5953941345215,
+        "y": 1049.190830230713,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "83d150b1.f8db",
+        "type": "for",
+        "name": "for each relationship",
+        "xml": "<for index='rel-idx' start='0' end='`$tmp.AnAI-data.dest-li.results[$dest-li-idx].vnfc.relationship-list.relationship_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1330.0237922668457,
+        "y": 1133.4764385223389,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "209db54.cb09b4a"
+            ]
+        ]
+    },
+    {
+        "id": "209db54.cb09b4a",
+        "type": "switchNode",
+        "name": "switch related-to == vserver",
+        "xml": "<switch test=\"`$tmp.AnAI-data.dest-li.results[$dest-li-idx].vnfc.relationship-list.relationship[$rel-idx].related-to == 'vserver'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1581.4525833129883,
+        "y": 1133.4764041900635,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "7c552a03.fc7b14"
+            ]
+        ]
+    },
+    {
+        "id": "7c552a03.fc7b14",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1785.738224029541,
+        "y": 1132.0481815338135,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "a8fd7c1c.969c7"
+            ]
+        ]
+    },
+    {
+        "id": "235462a5.9f39ae",
+        "type": "set",
+        "name": "set tmp.vserver-id = 0",
+        "xml": "<set>\n<parameter name='tmp.vserver-id' value='0' />\n",
+        "comments": "",
+        "x": 1337.1667747497559,
+        "y": 1090.6193313598633,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "a8fd7c1c.969c7",
+        "type": "for",
+        "name": "for each relationship-data",
+        "xml": "<for index='reldata-idx' start='0' end='`$tmp.AnAI-data.dest-li.results[$dest-li-idx].vnfc.relationship-list.relationship[$rel-idx].relationship-data_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1982.8809776306152,
+        "y": 1130.619436264038,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "43d73b86.214fd4"
+            ]
+        ]
+    },
+    {
+        "id": "43d73b86.214fd4",
+        "type": "switchNode",
+        "name": "switch relationship-key == 'vserver.vserver-id'",
+        "xml": "<switch test=\"`$tmp.AnAI-data.dest-li.results[$dest-li-idx].vnfc.relationship-list.relationship[$rel-idx].relationship-data[$reldata-idx].relationship-key == 'vserver.vserver-id'`\">\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2302.880870819092,
+        "y": 1130.6192607879639,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "231a2bce.bcbb84"
+            ]
+        ]
+    },
+    {
+        "id": "231a2bce.bcbb84",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2551.4525566101074,
+        "y": 1129.1906242370605,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "9fe17967.f5b968"
+            ]
+        ]
+    },
+    {
+        "id": "9fe17967.f5b968",
+        "type": "set",
+        "name": "set tmp.vserver-id",
+        "xml": "<set>\n<parameter name='tmp.vserver-id' value='`$tmp.AnAI-data.dest-li.results[$dest-li-idx].vnfc.relationship-list.relationship[$rel-idx].relationship-data[$reldata-idx].relationship-value`' />\n",
+        "comments": "",
+        "x": 2740.024272918701,
+        "y": 1127.762152671814,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "76d4ab8c.770d64",
+        "type": "switchNode",
+        "name": "switch tmp.vserver-id == 0",
+        "xml": "<switch test='`$tmp.vserver-id == 0`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1351.45259475708,
+        "y": 1179.1908283233643,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "9c3b827c.e3eb"
+            ]
+        ]
+    },
+    {
+        "id": "9c3b827c.e3eb",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1551.4525566101074,
+        "y": 1179.1906242370605,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "8034f537.34d3d8"
+            ]
+        ]
+    },
+    {
+        "id": "8034f537.34d3d8",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1698.5953788757324,
+        "y": 1177.7621574401855,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "cad58465.15d0d8"
+            ]
+        ]
+    },
+    {
+        "id": "ac94da67.d26988",
+        "type": "set",
+        "name": "set vserver data",
+        "xml": "<set>\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vserver-name'\n  value='`$tmp.AnAI-data.dest-li.results[$dest-vs-idx].vserver.vserver-name`' />\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vserver-id'\n  value='`$tmp.AnAI-data.dest-li.results[$dest-vs-idx].vserver.vserver-id`' />\n<parameter name='tmp.vs-idx' value='`$dest-vs-idx`' />\n",
+        "comments": "",
+        "x": 2032.4046516418457,
+        "y": 1272.047737121582,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "e4b70ec5.8f2a9",
+        "type": "comment",
+        "name": "loop through the results array for this vserver",
+        "info": "",
+        "comments": "",
+        "x": 1400.7382316589355,
+        "y": 1232.0477352142334,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "e2a88998.378818",
+        "type": "for",
+        "name": "for each dest result",
+        "xml": "<for index='dest-vs-idx' start='0' end='`$tmp.AnAI-data.dest-li.results_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1322.40482711792,
+        "y": 1273.7143058776855,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "df314dbf.690b8"
+            ]
+        ]
+    },
+    {
+        "id": "df314dbf.690b8",
+        "type": "switchNode",
+        "name": "is this our vserver?",
+        "xml": "<switch test='`$tmp.AnAI-data.dest-li.results[$dest-vs-idx].vserver.vserver-id == $tmp.vserver-id`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1519.0714530944824,
+        "y": 1272.0478019714355,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "86a1a4ed.2cf098"
+            ]
+        ]
+    },
+    {
+        "id": "86a1a4ed.2cf098",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1689.0713005065918,
+        "y": 1272.0477361679077,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "8b6fc22f.3dcc3"
+            ]
+        ]
+    },
+    {
+        "id": "8b6fc22f.3dcc3",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "comments": "",
+        "outputs": 1,
+        "x": 1840.7382011413574,
+        "y": 1272.0478019714355,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "ac94da67.d26988"
+            ]
+        ]
+    },
+    {
+        "id": "90d21ad7.30c428",
+        "type": "set",
+        "name": "increment tmp.vnfc-objects-idx",
+        "xml": "<set>\n<parameter name='tmp.vnfc-objects-idx' value='`$tmp.vnfc-objects-idx + 1`' />\n",
+        "comments": "",
+        "x": 1346.4526303609218,
+        "y": 1707.0479326248173,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "3e132354.6c030c",
+        "type": "comment",
+        "name": "now process l-interfaces for this vserver",
+        "info": "",
+        "comments": "",
+        "x": 1379.0714721679688,
+        "y": 1375.3812084197998,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "c6a1bfd5.14d78",
+        "type": "for",
+        "name": "for each l-interface in this vserver",
+        "xml": "<for silentFailure='true' index='dest-vli-idx' start='0' end='`$tmp.AnAI-data.dest-li.results[$tmp.vs-idx].vserver.l-interfaces.l-interface_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1360.7380905151367,
+        "y": 1420.3811292648315,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "4c51257f.df2efc"
+            ]
+        ]
+    },
+    {
+        "id": "4c51257f.df2efc",
+        "type": "switchNode",
+        "name": "does network-name match?",
+        "xml": "<switch test='`$tmp.AnAI-data.dest-li.results[$tmp.vs-idx].vserver.l-interfaces.l-interface[$dest-vli-idx].network-name == $tmp.dest-network-name`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1655.738265991211,
+        "y": 1420.3810482025146,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "5abbe265.18948c"
+            ]
+        ]
+    },
+    {
+        "id": "5abbe265.18948c",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1865.7381744384766,
+        "y": 1418.7144393920898,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "e4f63421.b0c1a8"
+            ]
+        ]
+    },
+    {
+        "id": "2d541d29.d0a102",
+        "type": "set",
+        "name": "set tmp.interface-ids_length to 0",
+        "xml": "<set>\n<parameter name='tmp.interface-ids_length' value='0' />\n",
+        "comments": "",
+        "x": 1374.0715103149414,
+        "y": 1327.0477933883667,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "e4f63421.b0c1a8",
+        "type": "set",
+        "name": "save interface-id",
+        "xml": "<set>\n<parameter name='tmp.interface-ids[$tmp.interface-ids_length].interface-id' value='`$tmp.AnAI-data.dest-li.results[$tmp.vs-idx].vserver.l-interfaces.l-interface[$dest-vli-idx].interface-id`' />\n<parameter name='tmp.interface-ids_length' value='`$tmp.interface-ids_length + 1`' />\n",
+        "comments": "",
+        "x": 2042.4045028686523,
+        "y": 1418.7147903442383,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "e9f4a063.9d98c",
+        "type": "for",
+        "name": "for each dest result",
+        "xml": "<for silentFailure='true' index='dest-rs-idx' start='0' end='`$tmp.AnAI-data.dest-li.results_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1315.7382507324219,
+        "y": 1562.0476093292236,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "fed6b918.7cd968"
+            ]
+        ]
+    },
+    {
+        "id": "610cc2be.f926dc",
+        "type": "comment",
+        "name": "loop through the results array for these l-interfaces",
+        "info": "",
+        "comments": "",
+        "x": 1405.7383346557617,
+        "y": 1520.3811321258545,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "48a3cd64.041674",
+        "type": "for",
+        "name": "for each saved interface-id",
+        "xml": "<for index='in-idx' start='0' end='`$tmp.interface-ids_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1912.4053115844727,
+        "y": 1592.047966003418,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "92f98492.7ed328"
+            ]
+        ]
+    },
+    {
+        "id": "92f98492.7ed328",
+        "type": "switchNode",
+        "name": "interface-ids match?",
+        "xml": "<switch test='`$tmp.AnAI-data.dest-li.results[$dest-rs-idx].l-interface.interface-id == $tmp.interface-ids[$in-idx].interface-id`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2189.0718307495117,
+        "y": 1592.047721862793,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "517f85ec.ab91fc"
+            ]
+        ]
+    },
+    {
+        "id": "517f85ec.ab91fc",
+        "type": "outcomeTrue",
+        "name": "true",
+        "xml": "<outcome value='true'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2377.405143737793,
+        "y": 1590.3811893463135,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "39165758.03b178"
+            ]
+        ]
+    },
+    {
+        "id": "39165758.03b178",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 2540.73828125,
+        "y": 1590.3811893463135,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "842c074b.07ce18",
+                "2c325a45.833636",
+                "5fbe9dd2.e72d64",
+                "793b650b.9d653c"
+            ]
+        ]
+    },
+    {
+        "id": "842c074b.07ce18",
+        "type": "set",
+        "name": "set vnic-data",
+        "xml": "<set>\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic[$tmp.vnic-idx].vnic-port-id'\n  value='`$tmp.AnAI-data.dest-li.results[$dest-rs-idx].l-interface.interface-id`' />\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic[$tmp.vnic-idx].vnic-port-name'\n  value='`$tmp.AnAI-data.dest-li.results[$dest-rs-idx].l-interface.interface-name`' />\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic[$tmp.vnic-idx].capacity.vnic-capacity'\n  value='`$tmp.dest-pps`' />\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic[$tmp.vnic-idx].capacity.used-capacity'\n  value='0' />\n",
+        "comments": "",
+        "x": 2732.404899597168,
+        "y": 1475.3812131881714,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "2c325a45.833636",
+        "type": "switchNode",
+        "name": "is there an ipv4 address?",
+        "xml": "<switch test='`$tmp.AnAI-data.dest-li.results[$dest-rs-idx].l-interface.l3-interface-ipv4-address-list[0].l3-interface-ipv4-address`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2762.40486907959,
+        "y": 1545.381217956543,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "bdca0e16.8e21d",
+                "8c69d401.782458"
+            ]
+        ]
+    },
+    {
+        "id": "bdca0e16.8e21d",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2952.4046630859375,
+        "y": 1520.3809432983398,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "5426f8f.a078708"
+            ]
+        ]
+    },
+    {
+        "id": "8c69d401.782458",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2952.4045944213867,
+        "y": 1571.8096160888672,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "8fc8ec37.c8388"
+            ]
+        ]
+    },
+    {
+        "id": "5426f8f.a078708",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 3082.404800415039,
+        "y": 1517.0478038787842,
+        "z": "f19c7219.1794b",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8fc8ec37.c8388",
+        "type": "set",
+        "name": "set ipv4-address",
+        "xml": "<set>\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic[$tmp.vnic-idx].vnic-ip-addresses.ip-addresses.ipv4-address'\n  value='`$tmp.AnAI-data.dest-li.results[$dest-rs-idx].l-interface.l3-interface-ipv4-address-list[0].l3-interface-ipv4-address`' />\n",
+        "comments": "",
+        "x": 3114.0713844299316,
+        "y": 1570.3811378479004,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "fed6b918.7cd968",
+        "type": "switchNode",
+        "name": "is this an l-interface?",
+        "xml": "<switch test='`$tmp.AnAI-data.dest-li.results[$dest-rs-idx].l-interface.interface-name`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1522.4048919677734,
+        "y": 1562.0478038787842,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "152788ba.9abfd7",
+                "3e5cc15c.dfb35e"
+            ]
+        ]
+    },
+    {
+        "id": "152788ba.9abfd7",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1694.071388244629,
+        "y": 1538.7143573760986,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "76c2fc68.9b0ac4"
+            ]
+        ]
+    },
+    {
+        "id": "3e5cc15c.dfb35e",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 1694.0713195800781,
+        "y": 1590.143030166626,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "48a3cd64.041674"
+            ]
+        ]
+    },
+    {
+        "id": "76c2fc68.9b0ac4",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 1830.7382354736328,
+        "y": 1537.0481262207031,
+        "z": "f19c7219.1794b",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "5fbe9dd2.e72d64",
+        "type": "switchNode",
+        "name": "is there an ipv6 address?",
+        "xml": "<switch test='`$tmp.AnAI-data.dest-li.results[$dest-rs-idx].l-interface.l3-interface-ipv6-address-list[0].l3-interface-ipv6-address`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2770.7377700805664,
+        "y": 1640.380859375,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "325f4269.cf67ce",
+                "73b0bf40.e62ed"
+            ]
+        ]
+    },
+    {
+        "id": "325f4269.cf67ce",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2960.737564086914,
+        "y": 1615.3805847167969,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "c084c706.7c4328"
+            ]
+        ]
+    },
+    {
+        "id": "73b0bf40.e62ed",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 2960.7374954223633,
+        "y": 1666.8092575073242,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "c275e616.f80bb8"
+            ]
+        ]
+    },
+    {
+        "id": "c084c706.7c4328",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 3090.7377014160156,
+        "y": 1612.0474452972412,
+        "z": "f19c7219.1794b",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c275e616.f80bb8",
+        "type": "set",
+        "name": "set ipv6-address",
+        "xml": "<set>\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic[$tmp.vnic-idx].vnic-ip-addresses.ip-addresses.ipv6-address'\n  value='`$tmp.AnAI-data.dest-li.results[$dest-rs-idx].l-interface.l3-interface-ipv6-address-list[0].l3-interface-ipv6-address`' />\n",
+        "comments": "",
+        "x": 3122.404285430908,
+        "y": 1665.3807792663574,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "793b650b.9d653c",
+        "type": "set",
+        "name": "increment tmp.vnic-idx",
+        "xml": "<set>\n<parameter name='tmp.vnic-idx' value='`$tmp.vnic-idx + 1`' />\n",
+        "comments": "",
+        "x": 2762.4047088623047,
+        "y": 1708.7144737243652,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "5c44dcd5.f007e4",
+        "type": "set",
+        "name": "set vnic_length",
+        "xml": "<set>\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object[$tmp.vnfc-objects-idx].vnics.vnic_length' value='`$tmp.vnic-idx`' />\n",
+        "comments": "",
+        "x": 1299.7858390808105,
+        "y": 1652.0479745864868,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "20ef598e.0d7d96",
+        "type": "set",
+        "name": "set tmp.vnic-idx to 0",
+        "xml": "<set>\n<parameter name='tmp.vnic-idx' value='0' />\n",
+        "comments": "",
+        "x": 1319.1903495788574,
+        "y": 1470.7381238937378,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "7b6db590.0533bc",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1094.6428413391113,
+        "y": 422.7619466781616,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "3348c9a8.a257a6",
+                "e0bfd49.2991328",
+                "606fe9e4.7d4348",
+                "54051de.b4315e4",
+                "6ca675d9.0abacc",
+                "c8b08bf3.2a97f8",
+                "41c41df3.5764a4",
+                "5c58f241.abac8c",
+                "e8c47337.194cc",
+                "91cc5b8b.aca088",
+                "8ac121a2.f054f"
+            ]
+        ]
+    },
+    {
+        "id": "58a52a03.d31b64",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 1114.6429290771484,
+        "y": 1339.2619905471802,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "123870ef.b3952f",
+                "235462a5.9f39ae",
+                "83d150b1.f8db",
+                "76d4ab8c.770d64",
+                "e2a88998.378818",
+                "2d541d29.d0a102",
+                "c6a1bfd5.14d78",
+                "20ef598e.0d7d96",
+                "e9f4a063.9d98c",
+                "5c44dcd5.f007e4",
+                "90d21ad7.30c428"
+            ]
+        ]
+    },
+    {
+        "id": "2f5a40e3.2a003",
+        "type": "for",
+        "name": "for each src result",
+        "xml": "<for silentFailure='true' index='src-li-idx' start='0' end='`$tmp.AnAI-data.src-li.results_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 367.14287240164595,
+        "y": 399.7619879586355,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "c366477a.0cdbb8"
+            ]
+        ]
+    },
+    {
+        "id": "c366477a.0cdbb8",
+        "type": "switchNode",
+        "name": "is this a vnfc?",
+        "xml": "<switch test='`$tmp.AnAI-data.src-li.results[$src-li-idx].vnfc.vnfc-name`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 564.2857295445033,
+        "y": 399.7619879586355,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "ddc5007b.1b588",
+                "a608af5f.6fd5"
+            ]
+        ]
+    },
+    {
+        "id": "ddc5007b.1b588",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 721.4286155700684,
+        "y": 374.04780673980713,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "7c63c4a2.9d900c"
+            ]
+        ]
+    },
+    {
+        "id": "a608af5f.6fd5",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 721.4285469055176,
+        "y": 425.4764795303345,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "7b6db590.0533bc"
+            ]
+        ]
+    },
+    {
+        "id": "4f639cf7.58b774",
+        "type": "set",
+        "name": "set tmp.vnfc-objects-idx to 0",
+        "xml": "<set>\n<parameter name='tmp.vnfc-objects-idx' value='0' />\n",
+        "comments": "",
+        "x": 398.1904830932617,
+        "y": 333.1906509399414,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "7c63c4a2.9d900c",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 881.4285888671875,
+        "y": 373.76209259033203,
+        "z": "f19c7219.1794b",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "efc92c11.ec21f",
+        "type": "set",
+        "name": "set vnfc-object length",
+        "xml": "<set>\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.src-vnfc-idx].vnfc-objects.vnfc-object_length' value='`$tmp.vnfc-objects-idx`' />\n",
+        "comments": "",
+        "x": 374.04761505126953,
+        "y": 462.1432113647461,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "34852a80.944a56",
+        "type": "for",
+        "name": "for each dest result",
+        "xml": "<for silentFailure='true' index='dest-li-idx' start='0' end='`$tmp.AnAI-data.dest-li.results_length`' >\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 372.38092041015625,
+        "y": 608.8096408843994,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "a2bdd99.cd4bc28"
+            ]
+        ]
+    },
+    {
+        "id": "a2bdd99.cd4bc28",
+        "type": "switchNode",
+        "name": "is this a vnfc?",
+        "xml": "<switch test='`$tmp.AnAI-data.dest-li.results[$dest-li-idx].vnfc.vnfc-name`'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 569.5237775530131,
+        "y": 608.8096408843994,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "419dcae6.90f094",
+                "5e261990.4e7538"
+            ]
+        ]
+    },
+    {
+        "id": "419dcae6.90f094",
+        "type": "other",
+        "name": "NULL",
+        "xml": "<outcome value=''>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 726.6666635785787,
+        "y": 583.0954596655711,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "ced72b08.7bdc78"
+            ]
+        ]
+    },
+    {
+        "id": "5e261990.4e7538",
+        "type": "other",
+        "name": "other",
+        "xml": "<outcome value='Other'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 726.6665949140279,
+        "y": 634.5241324560984,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "58a52a03.d31b64"
+            ]
+        ]
+    },
+    {
+        "id": "ced72b08.7bdc78",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 886.6666368756978,
+        "y": 582.809745516096,
+        "z": "f19c7219.1794b",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "304aeb73.a329f4",
+        "type": "set",
+        "name": "set tmp.vnfc-objects-idx to 0",
+        "xml": "<set>\n<parameter name='tmp.vnfc-objects-idx' value='0' />\n",
+        "comments": "",
+        "x": 399.04759216308594,
+        "y": 548.809534072876,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "38365fcd.6fd41",
+        "type": "set",
+        "name": "set vnfc-object length",
+        "xml": "<set>\n<parameter name='service-data.vnfc-instance-groups.vnfc-instance-group[$tmp.dest-vnfc-idx].vnfc-objects.vnfc-object_length' value='`$tmp.vnfc-objects-idx`' />\n",
+        "comments": "",
+        "x": 379.04759979248047,
+        "y": 680.4761505126953,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "8349530a.566aa",
+        "type": "block",
+        "name": "block : atomic",
+        "xml": "<block atomic=\"true\">",
+        "atomic": "true",
+        "outputs": 1,
+        "x": 149.6428680419922,
+        "y": 517.2620086669922,
+        "z": "f19c7219.1794b",
+        "wires": [
+            [
+                "4f639cf7.58b774",
+                "2f5a40e3.2a003",
+                "efc92c11.ec21f",
+                "304aeb73.a329f4",
+                "34852a80.944a56",
+                "38365fcd.6fd41",
+                "5befb22a.30546c"
+            ]
+        ]
+    },
+    {
+        "id": "5befb22a.30546c",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n",
+        "comments": "",
+        "x": 357.1428680419922,
+        "y": 742.2619209289551,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "1c2292f9.558f2d",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"`'Unable to find vserver related to vnfc ' + $tmp.AnAI-data.src-li.results[$src-li-idx].vnfc.vnfc-name`\" />\n",
+        "comments": "",
+        "x": 1864.1428604125977,
+        "y": 319.7619094848633,
+        "z": "f19c7219.1794b",
+        "wires": []
+    },
+    {
+        "id": "cad58465.15d0d8",
+        "type": "returnFailure",
+        "name": "return failure",
+        "xml": "<return status='failure'>\n<parameter name='error-code' value='500' />\n<parameter name='error-message' value=\"`'Unable to find vserver related to vnfc ' + $tmp.AnAI-data.dest-li.results[$dest-li-idx].vnfc.vnfc-name`\" />\n",
+        "comments": "",
+        "x": 1871.1428909301758,
+        "y": 1177.761926651001,
+        "z": "f19c7219.1794b",
+        "wires": []
+    }
+]

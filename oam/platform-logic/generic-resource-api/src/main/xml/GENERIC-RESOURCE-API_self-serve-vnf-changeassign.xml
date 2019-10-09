@@ -1,0 +1,70 @@
+<service-logic
+    xmlns='http://www.onap.org/sdnc/svclogic'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='GENERIC-RESOURCE-API' version='${project.version}'>
+    <method rpc='self-serve-vnf-changeassign' mode='sync'>
+        <block atomic='true'>
+            <switch test='`$vnf-topology-operation-input.vnf-request-input.vnf-input-parameters.param_length`'>
+                <outcome value=''>
+                    <return status='failure'>
+                        <parameter name='ack-final' value='Y'/>
+                        <parameter name="error-code" value="500" />
+                        <parameter name="error-message" value="no param name/value provided in vnf-request-input" />
+                    </return>
+                </outcome>
+            </switch>
+            <for index='i' start='0' end='`$vnf-topology-operation-input.vnf-request-input.vnf-input-parameters.param_length`' >
+                <switch test="`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param_length == ''`">
+                    <outcome value='false'>
+                        <block atomic='true'>
+                            <set>
+                                <parameter name='ss.input.param.found.in.service.param' value='false' />
+                            </set>
+                            <for index='j' start='0' end='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param_length`' >
+                                <switch test='`$service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$j].name == $vnf-topology-operation-input.vnf-request-input.vnf-input-parameters.param[$i].name`'>
+                                    <outcome value='true'>
+                                        <block atomic='true'>
+                                            <set>
+                                                <parameter name='`service-data.vnfs.vnf[$vnf-index].vnf-data.vnf-topology.vnf-parameters-data.param[$j].resource-resolution-data.status`' value='PENDING'/>
+                                                <parameter name='ss.input.param.index' value='`$i`' />
+                                                <parameter name='ss.service-data.param.index' value='`$j`' />
+                                                <parameter name='ss.input.param.found.in.service.param' value='true' />
+                                                <parameter name='ss.capability-type' value='vnf' />
+                                                <parameter name='ss.capability-action' value='changeassign' />
+                                            </set>
+                                            <call module='GENERIC-RESOURCE-API' rpc='self-serve-generate-name-changeassign' mode='sync' >
+                                                <outcome value='failure'>
+                                                    <return status='failure'>
+                                                        <parameter name='ack-final' value='Y'/>
+                                                        <parameter name="error-code" value="500" />
+                                                        <parameter name="error-message" value="Error from self-service-generate-name-changeassign" />
+                                                    </return>
+                                                </outcome>
+                                                <outcome value='not-found'>
+                                                    <return status='failure'>
+                                                        <parameter name='ack-final' value='Y'/>
+                                                        <parameter name="error-code" value="500" />
+                                                        <parameter name="error-message" value="Error from self-service-generate-name-changeassign" />
+                                                    </return>
+                                                </outcome>
+                                            </call>
+                                            <return status='success'></return>
+                                        </block>
+                                    </outcome>
+                                </switch>
+                            </for>
+                            <switch test='`$ss.input.param.found.in.service.param`'>
+                                <outcome value='false'>
+                                    <return status='failure'>
+                                        <parameter name='ack-final' value='Y'/>
+                                        <parameter name="error-code" value="500" />
+                                        <parameter name="error-message" value="No vnf-request-input.vnf-input-parameters.param[].name found in service-data." />
+                                    </return>
+                                </outcome>
+                            </switch>
+                        </block>
+                    </outcome>
+                </switch>
+            </for>
+        </block>
+    </method>
+</service-logic>

@@ -1,0 +1,164 @@
+[
+    {
+        "id": "c36c1e82.e47c",
+        "type": "method",
+        "name": "lock",
+        "xml": "<method rpc='lock' mode='sync'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 530,
+        "y": 121,
+        "z": "a439ae77.f8998",
+        "wires": [
+            [
+                "ea26f1ed.e963b"
+            ]
+        ]
+    },
+    {
+        "id": "4c2264b2.81a61c",
+        "type": "service-logic",
+        "name": "LCM ${project.version}",
+        "module": "LCM",
+        "version": "${project.version}",
+        "comments": "",
+        "xml": "<service-logic xmlns='http://www.onap.org/sdnc/svclogic' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='http://www.onap.org/sdnc/svclogic ./svclogic.xsd' module='LCM' version='${project.version}'>",
+        "outputs": 1,
+        "x": 300.99993896484375,
+        "y": 122,
+        "z": "a439ae77.f8998",
+        "wires": [
+            [
+                "c36c1e82.e47c"
+            ]
+        ]
+    },
+    {
+        "id": "a3360ab0.ce42c8",
+        "type": "returnSuccess",
+        "name": "return success",
+        "xml": "<return status='success'>\n<parameter name='status.code' value='400' />\n<parameter name='status.message' value='SDNC Lock Mock returns success'/>",
+        "comments": "",
+        "x": 383,
+        "y": 510,
+        "z": "a439ae77.f8998",
+        "wires": []
+    },
+    {
+        "id": "7e67863d.7c42f8",
+        "type": "dgstart",
+        "name": "DGSTART",
+        "outputs": 1,
+        "x": 98,
+        "y": 121,
+        "z": "a439ae77.f8998",
+        "wires": [
+            [
+                "4c2264b2.81a61c"
+            ]
+        ]
+    },
+    {
+        "id": "ea26f1ed.e963b",
+        "type": "block",
+        "name": "block",
+        "xml": "<block>\n",
+        "atomic": "false",
+        "comments": "",
+        "outputs": 1,
+        "x": 133.91668701171875,
+        "y": 275.0833435058594,
+        "z": "a439ae77.f8998",
+        "wires": [
+            [
+                "f1d5fb31.fa3878",
+                "625601b.39b33",
+                "786cf009.ea481",
+                "cd184491.d656e8",
+                "a3360ab0.ce42c8"
+            ]
+        ]
+    },
+    {
+        "id": "f1d5fb31.fa3878",
+        "type": "execute",
+        "name": "execute Properties",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.prop.PropertiesNode' method='readProperties' >\n    <parameter name='fileName' value='%SDNC_CONFIG_DIR%/lcm-dg.properties' />\n    <parameter name='contextPrefix' value='prop' />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 421,
+        "y": 260.0833435058594,
+        "z": "a439ae77.f8998",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "cd184491.d656e8",
+        "type": "execute",
+        "name": "execute DmaapMsg",
+        "xml": "<execute plugin='org.onap.ccsdk.sli.plugins.restapicall.RestapiCallNode' method='sendRequest' >\n    <parameter name='templateFileName' value=\"`$prop.restapi.templateDir + '/' + $prop.restapi.lcm.dmaap.publish.templatefile`\" />\n    <parameter name='restapiUrl' value='`$prop.lcm.dmaap.url`' />\n    <parameter name='restapiUser' value='`$prop.lcm.dmaap.user`' />\n    <parameter name='restapiPassword' value='`$prop.lcm.dmaap.password`' />\n    <parameter name='format' value='json' />\n    <parameter name='httpMethod' value='POST' />\n    <parameter name='contentType' value='application/json' />\n    <parameter name=\"responsePrefix\" value=\"lcm\" />\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 397,
+        "y": 437.0833435058594,
+        "z": "a439ae77.f8998",
+        "wires": [
+            [
+                "91133c94.04e29"
+            ]
+        ]
+    },
+    {
+        "id": "91133c94.04e29",
+        "type": "failure",
+        "name": "failure",
+        "xml": "<outcome value='failure'>\n",
+        "comments": "",
+        "outputs": 1,
+        "x": 606,
+        "y": 435.0833435058594,
+        "z": "a439ae77.f8998",
+        "wires": [
+            [
+                "f3b86bb6.9cf808"
+            ]
+        ]
+    },
+    {
+        "id": "f3b86bb6.9cf808",
+        "type": "record",
+        "name": "record",
+        "xml": "<record plugin=\"org.onap.ccsdk.sli.core.sli.recording.Slf4jRecorder\"> \n\t<parameter name=\"logger\" value=\"message-log\"/> \n\t<parameter name=\"field1\" value='Failed to Publish to DMaap'/>",
+        "comments": "",
+        "outputs": 1,
+        "x": 766,
+        "y": 435.0833435058594,
+        "z": "a439ae77.f8998",
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "786cf009.ea481",
+        "type": "set",
+        "name": "set",
+        "xml": "<set>\n<parameter name='lcm-dmaap.version' value='`$prop.lcm.dmaap.version`'/>\n<parameter name='lcm-dmaap.correlation-id' value=\"`$lock-input.common-header.request-id + '-' + $lock-input.common-header.sub-request-id`\"/>\n<parameter name='lcm-dmaap.partition' value='`$prop.lcm.dmaap.partition`'/>\n<parameter name='lcm-dmaap.rpc-name' value='lock'/>\n<parameter name='lcm-dmaap.type' value='`$prop.lcm.dmaap.type`'/>\n<parameter name='lcm-dmaap.timestamp' value='`$lock-input.common-header.timestamp`'/>\n<parameter name='lcm-dmaap.api-ver' value='`$lock-input.common-header.api-ver`'/>\n<parameter name='lcm-dmaap.originator-id' value='`$lock-input.common-header.originator-id`'/>\n<parameter name='lcm-dmaap.request-id' value='`$lock-input.common-header.originator-id`'/>\n<parameter name='lcm-dmaap.sub-request-id' value='`$lock-input.common-header.sub-request-id`'/>\n<parameter name='lcm-dmaap.flags.mode' value='`$lock-input.common-header.flags.mode`'/>\n<parameter name='lcm-dmaap.flags.force' value='`$lock-input.common-header.flags.force`'/>\n<parameter name='lcm-dmaap.flags.ttl' value='`$lock-input.common-header.flags.ttl`'/>\n<parameter name='lcm-dmaap.status.code' value='400' />\n<parameter name='lcm-dmaap.status.message' value='SDNC Lock Mock returns success'/>\n",
+        "comments": "",
+        "x": 369,
+        "y": 369.0833435058594,
+        "z": "a439ae77.f8998",
+        "wires": []
+    },
+    {
+        "id": "625601b.39b33",
+        "type": "set",
+        "name": "set default status value",
+        "xml": "<set>\n<parameter name='status.code' value='200' />\n<parameter name='status.message' value='unexpected return from DG' />\n",
+        "comments": "",
+        "x": 423,
+        "y": 312,
+        "z": "a439ae77.f8998",
+        "wires": []
+    }
+]

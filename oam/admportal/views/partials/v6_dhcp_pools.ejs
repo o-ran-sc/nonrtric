@@ -1,0 +1,50 @@
+   <div class="modal fade" id="v6-dhcp-pools-modal" tabindex="-1" role="dialog" 
+		aria-labelledby="v6-dhcp-pools-modal-label" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">v6-dhcp-pools</h4>
+          </div>
+          <div class="modal-body">
+            <form role="form" action="" method="POST">
+              <div class="form-group">
+                <label for="v6_dhcp_relay_next_hop_address">v6-dhcp-relay-next-hop-address</label>
+                <input type="text" class="form-control" name="v6_dhcp_relay_next_hop_address" id="v6_dhcp_relay_next_hop_address">
+              </div>
+              <div class="form-group">
+                <label for="v6_dhcp_pool_prefix">v6-dhcp-pool-prefix</label>
+                <input type="text" class="form-control" name="v6_dhcp_pool_prefix" id="v6_dhcp_pool_prefix">
+              </div>
+              <div class="form-group">
+                <label for="v6_dhcp_pool_prefix_length">v6-dhcp-pool-prefix-length</label>
+                <input type="text" class="form-control" name="v6_dhcp_pool_prefix_length" id="v6_dhcp_pool_prefix_length">
+              </div>
+              <div class="form-group">
+                <label for="v6_dhcp_relay_gateway_address">v6-dhcp-relay-gateway-address</label>
+                <input type="text" class="form-control" name="v6_dhcp_relay_gateway_address" id="v6_dhcp_relay_gateway_address">
+              </div>
+
+<!--
+              <div class="form-group">
+				<input type="hidden" name="svc_instance_id" id="svc_instance_id">
+				<input type="hidden" name="uf_action" id="uf_action">
+                <button type="button" class="btn btn-primary" onclick="submit(this.form);">Submit</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+              </div>
+-->
+           </form>
+          </div>
+      </div>
+    </div>
+  </div>
+
+<script type="text/javascript">
+function submit(form){
+	$('#v6-dhcp-pools-modal').modal('hide');
+	form.action = form.uf_action.value;
+	form.submit();
+	return;
+}
+</script>
+

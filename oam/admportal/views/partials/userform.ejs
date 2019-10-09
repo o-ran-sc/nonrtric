@@ -1,0 +1,42 @@
+<div class="modal fade" id="myUserModal" tabindex="-1" role="dialog" aria-labelledby="myUserModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="myUserModalLabel">Update User</h4>
+			</div>
+			<div class="modal-body">
+				<form id="updateForm" name="updateForm" role="form" action="/user/updateUser" method="POST">
+					<div class="form-group">
+						<label for="uf_email">Email</label>
+						<input type="email" class="form-control" name="uf_email" id="uf_email" />
+					</div>
+					<div class="form-group">
+						<label for="uf_password">Password</label>
+						<input type="password" class="form-control" name="uf_password" id="uf_password" />
+					</div>
+					<div class="form-group">
+						<label for="uf_confirm_password">Confirm Password</label>
+						<input type="password" class="form-control" name="uf_confirm_password" id="uf_confirm_password" />
+					</div>
+					<div class="form-group">
+						<label for="uf_privilege">Privilege</label>
+						<select class="form-control" name="uf_privilege" id="uf_privilege">
+							<option value=admin>Administrator</option>
+							<option value=readonly>Readonly</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<input type="hidden" name="uf_action" id="uf_action" />
+						<input type="hidden" name="_csrf" value="<%= privilege.csrfToken %>" />
+						<input type="hidden" name="uf_key_email" id="uf_key_email" />
+						<button type="button" class="btn btn-primary" onclick="submitUserAdmin(this.form);">Submit</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+
