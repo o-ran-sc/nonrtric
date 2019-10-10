@@ -1,6 +1,6 @@
-# O-RAN-SC Non-RealTime RIC
+# O-RAN-SC Non-RealTime RIC - A1 Controller
 
-The O-RAN SC Non-RealTime RIC provides support non-real-time intelligent radio resource management, higher layer procedure optimization, policy optimization in RAN, and providing guidance, parameters, policies and AI/ML models to support the operation of RIC near-RT to achieve higher-level non-real-time objectives.
+SDNC provides Northbound Interface for A1 operation to do policy management on XAPPS's in Near-RealTime RIC's.
 
 Please see the documentation in the docs/ folder
 

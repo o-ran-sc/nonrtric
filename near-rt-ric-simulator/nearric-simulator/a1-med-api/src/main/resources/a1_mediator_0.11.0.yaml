@@ -1,0 +1,388 @@
+# ==================================================================================
+#       Copyright (c) 2019 Nokia
+#       Copyright (c) 2018-2019 AT&T Intellectual Property.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#          http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+# ==================================================================================
+openapi: 3.0.0
+info:
+  version: 0.11.0
+  title: RIC A1
+paths:
+  '/a1-p/healthcheck':
+    get:
+      description: >
+        Perform a healthcheck on a1
+      tags:
+        - A1 Mediator
+      operationId: a1.controller.get_healthcheck
+      responses:
+        200:
+          description: >
+            A1 is healthy.
+            Anything other than a 200 should be considered a1 as failing
+
+  '/a1-p/policytypes/':
+    get:
+      description: "Get a list of all registered policy type ids"
+      tags:
+        - A1 Mediator
+      operationId: a1.controller.get_all_policy_types
+      responses:
+        200:
+          description: "list of all registered policy type ids"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/policy_type_id"
+              example: [20000, 20020]
+
+  '/a1-p/policytypes/{policy_type_id}':
+    parameters:
+      - name: policy_type_id
+        in: path
+        required: true
+        schema:
+          "$ref": "#/components/schemas/policy_type_id"
+    get:
+      description: >
+        Get this policy type
+      tags:
+        - A1 Mediator
+      operationId: a1.controller.get_policy_type
+      responses:
+        '200':
+          description: "policy type successfully found"
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/policy_type_schema"
+        '404':
+          description: >
+            policy type not found
+    delete:
+      description: >
+        Delete this policy type. Can only be performed if there are no instances of this type
+      tags:
+        - A1 Mediator
+      operationId: a1.controller.delete_policy_type
+      responses:
+        '204':
+          description: >
+            policy type successfully deleted
+        '400':
+          description: >
+            Policy type cannot be deleted because there are instances
+            All instances must be removed before a policy type can be deleted
+        '404':
+          description: >
+            policy type not found
+    put:
+      description: >
+        Create a new policy type .
+        Replace is not currently allowed; to replace, for now do a DELETE and then a PUT again.
+
+      tags:
+        - A1 Mediator
+      operationId: a1.controller.create_policy_type
+      requestBody:
+        content:
+          application/json:
+            schema:
+               "$ref": "#/components/schemas/policy_type_schema"
+            example:
+              name: admission_control_policy
+              description: various parameters to control admission of dual connection
+              policy_type_id: 20000
+              create_schema:
+                $schema: 'http://json-schema.org/draft-07/schema#'
+                type: object
+                properties:
+                  enforce:
+                    type: boolean
+                    default: true
+                  window_length:
+                    type: integer
+                    default: 1
+                    minimum: 1
+                    maximum: 60
+                    description: Sliding window length (in minutes)
+                  blocking_rate:
+                    type: number
+                    default: 10
+                    minimum: 1
+                    maximum: 100
+                    description: '% Connections to block'
+                  trigger_threshold:
+                    type: integer
+                    default: 10
+                    minimum: 1
+                    description: Minimum number of events in window to trigger blocking
+                additionalProperties: false
+
+      responses:
+        '201':
+          description: "policy type successfully created"
+        '400':
+          description: "illegal ID, or object already existed"
+
+  '/a1-p/policytypes/{policy_type_id}/policies':
+    parameters:
+      - name: policy_type_id
+        in: path
+        required: true
+        schema:
+          "$ref": "#/components/schemas/policy_type_id"
+    get:
+      description: "get a list of all policy instance ids for this policy type id"
+      tags:
+        - A1 Mediator
+      operationId: a1.controller.get_all_instances_for_type
+      responses:
+        200:
+          description: "list of all policy instance ids for this policy type id"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/policy_instance_id"
+              example: ["3d2157af-6a8f-4a7c-810f-38c2f824bf12", "06911bfc-c127-444a-8eb1-1bffad27cc3d"]
+
+
+  '/a1-p/policytypes/{policy_type_id}/policies/{policy_instance_id}':
+    parameters:
+      - name: policy_type_id
+        in: path
+        required: true
+        schema:
+          "$ref": "#/components/schemas/policy_type_id"
+
+      - name: policy_instance_id
+        in: path
+        required: true
+        schema:
+          "$ref": "#/components/schemas/policy_instance_id"
+
+    get:
+      description: >
+        Retrieve the policy instance
+
+      tags:
+        - A1 Mediator
+      operationId: a1.controller.get_policy_instance
+      responses:
+        '200':
+          description: >
+            The policy instance.
+            the schema of this object is defined by the create_schema field of the policy type
+          content:
+            application/json:
+              schema:
+                type: object
+        '404':
+          description: >
+            there is no policy instance with this policy_instance_id or there is no policy type with this policy_type_id
+
+    delete:
+      description: >
+        Delete this policy instance
+
+      tags:
+        - A1 Mediator
+      operationId: a1.controller.delete_policy_instance
+      responses:
+        '204':
+          description: >
+            policy instance successfully deleted
+        '404':
+          description: >
+            there is no policy instance with this policy_instance_id
+            or there is no policy type with this policy_type_id
+
+    put:
+      description: >
+        Create or replace a policy instance of type policy_type_id.
+        The schema of the PUT body is defined by the create_schema field of the policy type.
+
+      tags:
+        - A1 Mediator
+      operationId: a1.controller.create_or_replace_policy_instance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              description: >
+                  the schema of this object is defined by the create_schema field of the policy type
+            example:
+              enforce: true
+              window_length: 10
+              blocking_rate: 20
+              trigger_threshold: 10
+
+      responses:
+        '201':
+          description: >
+            Policy instance created
+        '400':
+          description: >
+            Bad PUT body for this policy instance
+        '404':
+          description: >
+            There is no policy type with this policy_type_id
+
+  '/a1-p/policytypes/{policy_type_id}/policies/{policy_instance_id}/status':
+    parameters:
+      - name: policy_type_id
+        in: path
+        required: true
+        schema:
+          "$ref": "#/components/schemas/policy_type_id"
+
+      - name: policy_instance_id
+        in: path
+        required: true
+        schema:
+          "$ref": "#/components/schemas/policy_instance_id"
+
+    get:
+      description: >
+        Retrieve the policy instance status across all handlers of the policy
+
+      tags:
+        - A1 Mediator
+      operationId: a1.controller.get_policy_instance_status
+      responses:
+        '200':
+          description: >
+            The policy instance status.
+            Returns a vector of statuses, where each contains a handler_id (opaque id of a RIC component that implements this policy) and the policy status as returned by that handler
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    handler_id:
+                      type: string
+                    status:
+                      type: string
+              example:
+                [{"handler_id": "1234-5678", "status" : "OK"}, {"handler_id": "abc-def", "status" : "NOT IMPLEMENTED"}]
+        '404':
+          description: >
+            there is no policy instance with this policy_instance_id or there is no policy type with this policy_type_id
+
+
+components:
+  schemas:
+    policy_type_schema:
+      type: object
+      required:
+      - name
+      - description
+      - policy_type_id
+      - create_schema
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+          description: name of the policy type
+        description:
+          type: string
+          description: description of the policy type
+        policy_type_id:
+          description: the integer of the policy type
+          type: integer
+        create_schema:
+          type: object
+          description: >
+            jsonschema (following http://json-schema.org/draft-07/schema) of the CREATE payload to be sent to handlers of this policy
+
+    policy_type_id:
+      description: >
+        represents a policy type identifier. Currently this is restricted to an integer range.
+      type: integer
+      minimum: 20000
+      maximum: 21024
+
+    policy_instance_id:
+      description: >
+        represents a policy instance identifier. UUIDs are advisable but can be any string
+      type: string
+      example: "3d2157af-6a8f-4a7c-810f-38c2f824bf12"
+
+    downstream_message_schema:
+      type: object
+      required:
+        - operation
+        - policy_type_id
+        - policy_instance_id
+        - payload
+      additionalProperties: false
+      properties:
+        operation:
+          description: the operation being performed
+          type: string
+          enum:
+            - CREATE
+            - DELETE
+            - UPDATE
+            - READ
+        policy_type_id:
+          "$ref": "#/components/schemas/policy_type_id"
+        policy_instance_id:
+          "$ref": "#/components/schemas/policy_instance_id"
+        payload:
+          description: payload for this operation
+          type: object
+      example:
+        operation: CREATE
+        policy_type_id: 12345678
+        policy_instance_id: 3d2157af-6a8f-4a7c-810f-38c2f824bf12
+        payload:
+          enforce: true
+          window_length: 10
+          blocking_rate: 20
+          trigger_threshold: 10
+
+    downstream_notification_schema:
+      type: object
+      required:
+        - policy_type_id
+        - policy_instance_id
+        - handler_id
+        - status
+      additionalProperties: false
+      properties:
+        policy_type_id:
+          "$ref": "#/components/schemas/policy_type_id"
+        policy_instance_id:
+          "$ref": "#/components/schemas/policy_instance_id"
+        handler_id:
+          description: >
+            id of the policy handler
+          type: string
+        status:
+          description: >
+            the status of this policy instance in this handler
+          type: string
+      example:
+        policy_type_id: 12345678
+        policy_instance_id: 3d2157af-6a8f-4a7c-810f-38c2f824bf12
+        handler_id: 1234-5678
+        status: OK
