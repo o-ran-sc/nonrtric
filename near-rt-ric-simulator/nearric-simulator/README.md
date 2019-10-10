@@ -1,10 +1,11 @@
-# O-RAN-SC Non-RealTime RIC
+# O-RAN-SC Near-RealTime RIC Simulator
 
-The O-RAN SC Non-RealTime RIC provides support non-real-time intelligent radio resource management, higher layer procedure optimization, policy optimization in RAN, and providing guidance, parameters, policies and AI/ML models to support the operation of RIC near-RT to achieve higher-level non-real-time objectives.
+The O-RAN SC Near-RealTime RIC simulates the A1 as an generic REST API which can receive and send northbound messages. The simulator validates the payload and applies policy.
 
 Please see the documentation in the docs/ folder
 
-For more information about the NONRTRIC project please see the [project website](https://wiki.o-ran-sc.org/display/RICNR "O-RAN-SC NONRTRIC project")
+The backend server publishes live API documentation at the
+URL `http://your-host-name-here:8080/swagger-ui.html`
 
 ## License
 
