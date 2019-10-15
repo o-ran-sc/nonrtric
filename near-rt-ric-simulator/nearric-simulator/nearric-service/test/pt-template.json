@@ -1,0 +1,49 @@
+{
+  "description": "PT XXXX",
+  "name": "Policy type XXXX",
+  "policy_type_id": XXXX,
+  "create_schema": 
+
+
+  {
+    "$id": "https://est.tech/policy-type.schema.json",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Policy type schema XXXX",
+    "description": "Policy type schema for qos",
+    "type": "object",
+    "properties": { 
+      "policy_id": {
+        "description": "Identity of the policy",
+        "type": "string"},
+      "scope": { 
+        "type": "object",
+        "properties": {
+          "ue_id": {
+            "description": "User identity",
+            "type": "string"},
+          "flow_id": {
+            "description": "Identity of the flow",
+            "type": "string"}
+        }, "required": ["ue_id", "flow_id"]
+      },
+      "statement": { 
+        "type": "object",
+        "properties": {
+          "gfbr": {
+            "description": "Guaranteed Flow Bit Rate",
+            "type": "string"},
+          "mfbr": {
+            "description": "Maximum Flow Bit Rate",
+            "type": "string"},
+          "priority_level": {
+            "description": "Priority Level",
+            "type": "string"},
+          "pdb": {
+            "description": "Packet Delay Budget",
+            "type": "string"}
+        }, "required": ["gfbr", "mfbr", "priority_level", "pdb"]
+      }
+    }, "required": ["policy_id", "scope", "statement"]
+  }
+  
+}

@@ -20,13 +20,7 @@
 
 package org.onap.nearric.simulator.service;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -34,15 +28,12 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.beanutils.BeanUtils;
-import org.onap.nearric.simulator.model.PolicyType;
 import org.onap.nearric.simulator.model.PolicyInstance;
-import org.oransc.ric.a1med.api.model.PolicyTypeSchema;
+import org.onap.nearric.simulator.model.PolicyType;
 import org.oransc.ric.a1med.api.model.InlineResponse200;
-
+import org.oransc.ric.a1med.api.model.PolicyTypeSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -58,8 +49,6 @@ import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 /**
  * This class provides the service implementation of all the A1 operation
  * 
@@ -68,7 +57,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 
 @Service
-public class A1PApiServiceImpl { // implements A1PApiService {
+public class A1PApiServiceImpl {
 
 	private static final Logger log = LoggerFactory.getLogger(A1PApiServiceImpl.class);
 
@@ -82,35 +71,32 @@ public class A1PApiServiceImpl { // implements A1PApiService {
 		ProcessingReport report = null;
 		boolean result = false;
 		try {
-			System.out.println("Applying schema: @<@<" + jsonSchema + ">@>@ to data: #<#<" + jsonData + ">#>#");
+			log.info("Applying schema: @<@<" + jsonSchema + ">@>@ to data: #<#<" + jsonData + ">#>#");
 			JsonNode schemaNode = JsonLoader.fromString(jsonSchema);
 			JsonNode data = JsonLoader.fromString(jsonData);
 			JsonSchemaFactory factory = JsonSchemaFactory.byDefault();
 			JsonSchema schema = factory.getJsonSchema(schemaNode);
 			report = schema.validate(data);
 		} catch (JsonParseException jpex) {
-			System.out.println("Error. Something went wrong trying to parse json data: #<#<" + jsonData
+			log.info("Error. Something went wrong trying to parse json data: #<#<" + jsonData
 					+ ">#># or json schema: @<@<" + jsonSchema + ">@>@. Are the double quotes included? "
 					+ jpex.getMessage());
-			// jpex.printStackTrace();
 		} catch (ProcessingException pex) {
-			System.out.println("Error. Something went wrong trying to process json data: #<#<" + jsonData
+			log.info("Error. Something went wrong trying to process json data: #<#<" + jsonData
 					+ ">#># with json schema: @<@<" + jsonSchema + ">@>@ " + pex.getMessage());
-			// pex.printStackTrace();
 		} catch (IOException e) {
-			System.out.println("Error. Something went wrong trying to read json data: #<#<" + jsonData
+			log.info("Error. Something went wrong trying to read json data: #<#<" + jsonData
 					+ ">#># or json schema: @<@<" + jsonSchema + ">@>@");
-			// e.printStackTrace();
 		}
 		if (report != null) {
 			Iterator<ProcessingMessage> iter = report.iterator();
 			while (iter.hasNext()) {
 				ProcessingMessage pm = iter.next();
-				System.out.println("Processing Message: " + pm.getMessage());
+				log.info("Processing Message: " + pm.getMessage());
 			}
 			result = report.isSuccess();
 		}
-		System.out.println(" Result=" + result);
+		log.info("Result=" + result);
 		return result;
 	}
 
@@ -121,82 +107,99 @@ public class A1PApiServiceImpl { // implements A1PApiService {
 		this.objectMapper = objectMapper;
 		this.request = request;
 	}
+	
+    public void reset() {
+    	log.info("Resetting db");
+    	policyTypes.clear();
+    }
 
+	public ResponseEntity<Void> createReplaceType(Integer policyTypeId, PolicyTypeSchema policyTypeSchema) {
+		log.info("createReplaceType - policyTypeId: " + policyTypeId);
+		log.info("createReplaceType - policyTypeSchema: " + policyTypeSchema);
 
-	public ResponseEntity<Void> createReplaceType(Integer policyTypeId, PolicyTypeSchema body) {
+		if (policyTypeId == null || policyTypeSchema == null || policyTypeSchema.getName() == null) {
+			log.info("createReplaceType - bad parameters");
+			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+		}
 
-			System.out.println("createReplaceType - policyTypeId: " + policyTypeId);
-			System.out.println("createReplaceType - body: " + body);
+		if (policyTypeSchema.getPolicyTypeId().intValue() != policyTypeId.intValue()) {
+			log.info("createReplaceType - policytype id mismatch between request and policyTypeSchema");
+			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+		}
 
-			String accept = request.getHeader("Accept");
+		if (policyTypes.containsKey(policyTypeId.toString())) {
+			log.info("createReplaceType - policytype already exists");
+			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+		}
 
-			if (body != null && body.getName() != null) {
-				if (body.getPolicyTypeId().intValue() != policyTypeId.intValue()) {
-					System.out.println("createReplaceType - policytype mismatch between request and body");
-					return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
-				}
+		PolicyType policyType = new PolicyType(policyTypeId, policyTypeSchema);
+		policyTypes.put(policyTypeId.toString(), policyType);
+		log.info("createReplaceType - created ok");
 
-				if (policyTypes.containsKey(policyTypeId.toString())) {
-					System.out.println("createReplaceType - policytype already exists");
-					return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
-				}
-
-				PolicyType policyType = new PolicyType(policyTypeId, body);
-				policyTypes.put(policyTypeId.toString(), policyType);
-			}
-			System.out.println("createReplaceType - created ok");
-			return new ResponseEntity<Void>(HttpStatus.CREATED);
-
+		return new ResponseEntity<Void>(HttpStatus.CREATED);
 	}
 
 	public ResponseEntity<Void> deleteType(Integer policyTypeId) {
+		log.info("deleteType - policyTypeId: " + policyTypeId);
 
-			System.out.println("deleteType - policyTypeId: " + policyTypeId);
+		if (policyTypeId == null) {
+			log.info("deleteType - bad parameter");
+			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+		}
 
-			String accept = request.getHeader("Accept");
+		PolicyType policyType = policyTypes.get(policyTypeId.toString());
 
-			PolicyType policyType = policyTypes.get(policyTypeId.toString());
+		if (policyType == null) {
+			log.info("deleteType - policytype does not exists");
+			return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+		}
 
-			if (policyType == null) {
-				System.out.println("deleteType - policytype does not exists");
-				return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
-			}
+		if (policyType.getNumberInstances() > 0) {
+			log.info("deleteType - cannot delete, instances exists");
+			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+		}
+		policyTypes.remove(policyTypeId.toString());
 
-			if (policyType.getNumberInstances() > 0) {
-				System.out.println("deleteType - cannot delete, instances exists");
-				return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
-			}
-			policyTypes.remove(policyTypeId.toString());
-
-			System.out.println("deleteType - deleted ok");
-			return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+		log.info("deleteType - deleted ok");
+		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 
 	public ResponseEntity<Void> deleteInstance(Integer policyTypeId, String policyInstanceId) {
 
-			System.out.println("deleteInstance - policyTypeId: " + policyTypeId);
-			System.out.println("deleteInstance - policyInstanceId: " + policyInstanceId);
+		log.info("deleteInstance - policyTypeId: " + policyTypeId);
+		log.info("deleteInstance - policyInstanceId: " + policyInstanceId);
 
-			PolicyType policyType = policyTypes.get(policyTypeId.toString());
+		if (policyTypeId == null || policyInstanceId == null) {
+			log.info("deleteInstance - bad parameters");
+			return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+		}
 
-			if (policyType == null) {
-				System.out.println("deleteType - policytype does not exists");
-				return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
-			}
-			PolicyInstance policyInstance = policyType.getInstance(policyInstanceId);
-			if (policyInstance == null) {
-				System.out.println("deleteType - instance does not exists");
-				return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
-			}
-			policyType.delete(policyInstanceId);
+		PolicyType policyType = policyTypes.get(policyTypeId.toString());
 
-			System.out.println("deleteInstance - deleted ok");
-			return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+		if (policyType == null) {
+			log.info("deleteType - policytype does not exists");
+			return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+		}
+		PolicyInstance policyInstance = policyType.getInstance(policyInstanceId);
+		if (policyInstance == null) {
+			log.info("deleteType - instance does not exists");
+			return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+		}
+		policyType.delete(policyInstanceId);
+
+		log.info("deleteInstance - deleted ok");
+		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 
 	}
 
 	public ResponseEntity<PolicyTypeSchema> getPolicyTypeSchema(Integer policyTypeId) {
-		System.out.println("getPolicyTypeSchema - policyTypeId: " + policyTypeId);
+		log.info("getPolicyTypeSchema - policyTypeId: " + policyTypeId);
+
+		if (policyTypeId == null) {
+			log.info("getPolicyTypeSchema - bad parameter");
+			return new ResponseEntity<PolicyTypeSchema>(HttpStatus.NOT_FOUND);
+		}
+
 		String accept = request.getHeader("Accept");
 		if (accept != null && accept.contains("application/json")) {
 			String res = null;
@@ -204,46 +207,45 @@ public class A1PApiServiceImpl { // implements A1PApiService {
 				PolicyType policyType = policyTypes.get(policyTypeId.toString());
 
 				if (policyType == null) {
-					System.out.println("getPolicyTypeSchema - policytype does not exists");
+					log.info("getPolicyTypeSchema - policytype does not exists");
 					return new ResponseEntity<PolicyTypeSchema>(HttpStatus.NOT_FOUND);
 				}
 
-				String json = "{}";
+				String json = null;
 				PolicyTypeSchema schema = policyType.getSchema();
 				String createSchema = "{}";
 				try {
 					// Convert Map to JSON
 					json = objectMapper.writeValueAsString(schema);
 					// Print JSON output
-					System.out.println("getPolicyTypeSchema - schema: " + json);
+					log.info("getPolicyTypeSchema - schema: " + json);
 
 					createSchema = objectMapper.writeValueAsString(schema.getCreateSchema());
-					System.out.println("getPolicyTypeSchema - createSchema: " + createSchema);
+					log.info("getPolicyTypeSchema - createSchema: " + createSchema);
 				} catch (Exception e) {
 					e.printStackTrace();
-					System.out.println("getPolicyTypeSchema - schema corrupt");
+					log.info("getPolicyTypeSchema - schema corrupt");
 					return new ResponseEntity<PolicyTypeSchema>(HttpStatus.INTERNAL_SERVER_ERROR);
 				}
 				res = "{\n  \"name\" : \"" + schema.getName() + "\",\n  \"description\" : \"" + schema.getDescription()
 						+ "\",\n  \"create_schema\" : " + createSchema + ",\n  \"policy_type_id\" : "
 						+ schema.getPolicyTypeId().intValue() + "\n}";
-				System.out.println("getPolicyTypeSchema - json schema: " + res);
-				objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+				log.info("getPolicyTypeSchema - json schema: " + res);
 				return new ResponseEntity<PolicyTypeSchema>(objectMapper.readValue(res, PolicyTypeSchema.class),
-						HttpStatus.ACCEPTED);
+						HttpStatus.OK);
 			} catch (Exception e) {
 				e.printStackTrace();
-				System.out
-						.println("getPolicyTypeSchema - Couldn't serialize response for content type application/json");
+				log.info("getPolicyTypeSchema - Couldn't serialize response for content type application/json");
 				return new ResponseEntity<PolicyTypeSchema>(HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 		}
-		System.out.println("getPolicyTypeSchema - not implemented");
+		log.info("getPolicyTypeSchema - not implemented");
 		return new ResponseEntity<PolicyTypeSchema>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
 	public ResponseEntity<List<Integer>> getAllTypes() {
-		System.out.println("getAllTypes");
+		log.info("getAllTypes");
+		
 		String accept = request.getHeader("Accept");
 		if (accept != null && accept.contains("application/json")) {
 			try {
@@ -257,84 +259,93 @@ public class A1PApiServiceImpl { // implements A1PApiService {
 					res = res + tid;
 				}
 				return new ResponseEntity<List<Integer>>(objectMapper.readValue("[" + res + "]", List.class),
-						HttpStatus.ACCEPTED);
+						HttpStatus.OK);
 			} catch (IOException e) {
 				e.printStackTrace();
-				System.out.println("getAllTypes - Couldn't serialize response for content type application/json");
+				log.info("getAllTypes - Couldn't serialize response for content type application/json");
 				return new ResponseEntity<List<Integer>>(HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 		}
-		System.out.println("getAllTypes - not implemented");
+		log.info("getAllTypes - not implemented");
 		return new ResponseEntity<List<Integer>>(HttpStatus.NOT_IMPLEMENTED);
 	}
 
 	public ResponseEntity<Void> createReplaceInstance(Integer policyTypeId, String policyInstanceId, Object body) {
-			System.out.println("createReplaceInstance -  policyTypeId:" + policyTypeId);
-			System.out.println("createReplaceInstance -  policyInstanceId:" + policyInstanceId);
-			System.out.println("createReplaceInstance -  body:" + body);
-			System.out.println("createReplaceInstance -  bodyclass:" + body.getClass().toString());
+		log.info("createReplaceInstance -  policyTypeId:" + policyTypeId);
+		log.info("createReplaceInstance -  policyInstanceId:" + policyInstanceId);
+		log.info("createReplaceInstance -  body:" + body);
 
-			String accept = request.getHeader("Accept");
+		if (policyTypeId == null || policyInstanceId == null || body == null) {
+			log.info("createReplaceInstance - bad parameter");
+			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+		}
 
-			PolicyType policyType = policyTypes.get(policyTypeId.toString());
+		log.info("createReplaceInstance -  bodyclass:" + body.getClass().toString());
 
-			if (policyType == null) {
-				System.out.println("createReplaceInstance - policytype does not exists");
-				return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
-			}
+		PolicyType policyType = policyTypes.get(policyTypeId.toString());
 
-			// Create json string from schema
-			String createSchema = null;
-			try {
-				PolicyTypeSchema schema = policyType.getSchema();
-				// Convert Map to JSON
-				String json = objectMapper.writeValueAsString(schema);
-				// Print JSON output
-				System.out.println("createReplaceInstance - schema - json: " + json);
-				createSchema = objectMapper.writeValueAsString(schema.getCreateSchema());
-				System.out.println("createReplaceInstance - createSchema - string: " + createSchema);
-			} catch (Exception e) {
-				e.printStackTrace();
-				System.out.println("createReplaceInstance - schema corrupt");
-				return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
-			}
+		if (policyType == null) {
+			log.info("createReplaceInstance - policytype does not exists");
+			return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+		}
 
-			// Create json string from instance
-			String jsonInstance = null;
-			try {
-				System.out.println("createReplaceInstance - raw: " + body);
-				// Convert Map to JSON
-				jsonInstance = objectMapper.writeValueAsString(body);
-				// Print JSON output
-				System.out.println("createReplaceInstance - instance: " + jsonInstance);
+		// Create json string from schema
+		String createSchema = null;
+		try {
+			PolicyTypeSchema schema = policyType.getSchema();
+			// Convert Map to JSON
+			String json = objectMapper.writeValueAsString(schema);
+			// Print JSON output
+			log.info("createReplaceInstance - schema - json: " + json);
+			createSchema = objectMapper.writeValueAsString(schema.getCreateSchema());
+			log.info("createReplaceInstance - createSchema - string: " + createSchema);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info("createReplaceInstance - schema corrupt");
+			return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 
-			} catch (Exception e) {
-				e.printStackTrace();
-				System.out.println("createReplaceInstance - instancce corrupt");
-				return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
-			}
+		// Create json string from instance
+		String jsonInstance = null;
+		try {
+			log.info("createReplaceInstance - raw: " + body);
+			// Convert Map to JSON
+			jsonInstance = objectMapper.writeValueAsString(body);
+			// Print JSON output
+			log.info("createReplaceInstance - instance: " + jsonInstance);
 
-			if (!validateSchema(jsonInstance, createSchema)) {
-				System.out.println("createReplaceInstance - schema validation failed");
-				return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
-			}
-			PolicyInstance policyInstance = new PolicyInstance(policyInstanceId, body);
-			policyType.createReplaceInstance(policyInstanceId, policyInstance);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.info("createReplaceInstance - instancce corrupt");
+			return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 
-			System.out.println("createReplaceInstance - created/replaced ok");
-			return new ResponseEntity<Void>(HttpStatus.CREATED);
+		if (!validateSchema(jsonInstance, createSchema)) {
+			log.info("createReplaceInstance - schema validation failed");
+			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+		}
+		PolicyInstance policyInstance = new PolicyInstance(policyInstanceId, body);
+		policyType.createReplaceInstance(policyInstanceId, policyInstance);
+
+		log.info("createReplaceInstance - created/replaced ok");
+		return new ResponseEntity<Void>(HttpStatus.CREATED);
 
 	}
 
 	public ResponseEntity<List<String>> getAllInstanceForType(Integer policyTypeId) {
-		System.out.println("getAllInstanceForType -  policyTypeId:" + policyTypeId);
+		log.info("getAllInstanceForType -  policyTypeId:" + policyTypeId);
+
+		if (policyTypeId == null) {
+			log.info("getAllInstanceForType - bad parameter");
+			return new ResponseEntity<List<String>>(HttpStatus.NOT_FOUND);
+		}
 
 		String accept = request.getHeader("Accept");
 		if (accept != null && accept.contains("application/json")) {
 			try {
 				PolicyType policyType = policyTypes.get(policyTypeId.toString());
 				if (policyType == null) {
-					System.out.println("getAllInstanceForType - policytype does not exists");
+					log.info("getAllInstanceForType - policytype does not exists");
 					return new ResponseEntity<List<String>>(HttpStatus.NOT_FOUND);
 				}
 				Set<String> instances = policyType.getInstances();
@@ -347,57 +358,61 @@ public class A1PApiServiceImpl { // implements A1PApiService {
 					}
 					res = res + iid;
 				}
-				System.out.println("getAllInstanceForType - " + res);
+				log.info("getAllInstanceForType - " + res);
 				return new ResponseEntity<List<String>>(objectMapper.readValue("[" + res + "]", List.class),
-						HttpStatus.ACCEPTED);
+						HttpStatus.OK);
 			} catch (IOException e) {
 				e.printStackTrace();
-				System.out.println(
-						"getAllInstanceForType - Couldn't serialize response for content type application/json");
+				log.info("getAllInstanceForType - Couldn't serialize response for content type application/json");
 				return new ResponseEntity<List<String>>(HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 		}
-		System.out.println("getAllInstanceForType - not implemented");
+		log.info("getAllInstanceForType - not implemented");
 		return new ResponseEntity<List<String>>(HttpStatus.NOT_IMPLEMENTED);
 
 	}
 
 	public ResponseEntity<Object> getPolicyInstance(Integer policyTypeId, String policyInstanceId) {
-		System.out.println("getPolicyInstance -  policyTypeId:" + policyTypeId);
-		System.out.println("getPolicyInstance -  policyInstanceId:" + policyInstanceId);
+		log.info("getPolicyInstance -  policyTypeId:" + policyTypeId);
+		log.info("getPolicyInstance -  policyInstanceId:" + policyInstanceId);
+
+		if (policyTypeId == null || policyInstanceId == null) {
+			log.info("getPolicyInstance - bad parameter");
+			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
+		}
 
 		String accept = request.getHeader("Accept");
 		if (accept != null && accept.contains("application/json")) {
 			try {
 				PolicyType policyType = policyTypes.get(policyTypeId.toString());
 				if (policyType == null) {
-					System.out.println("getPolicyInstance - policytype does not exists");
+					log.info("getPolicyInstance - policytype does not exists");
 					return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
 				}
 				PolicyInstance policyInstance = policyType.getInstance(policyInstanceId);
 				if (policyInstance == null) {
-					System.out.println("getPolicyInstance - policyinstance does not exists");
+					log.info("getPolicyInstance - policyinstance does not exists");
 					return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
 				}
 
-				String json = "{}";
+				String json = null;
 				try {
-					System.out.println("getPolicyInstance - rawschema: " + policyInstance.getJson());
+					log.info("getPolicyInstance - rawschema: " + policyInstance.getJson());
 					// Convert Map to JSON
 					json = objectMapper.writeValueAsString(policyInstance.getJson());
 					// Print JSON output
-					System.out.println("getPolicyInstance - schema: " + json);
+					log.info("getPolicyInstance - schema: " + json);
 
 				} catch (Exception e) {
 					e.printStackTrace();
-					System.out.println("getPolicyInstance - schema corrupt");
+					log.info("getPolicyInstance - schema corrupt");
 					return new ResponseEntity<Object>(HttpStatus.INTERNAL_SERVER_ERROR);
 				}
 
-				return new ResponseEntity<Object>(objectMapper.readValue(json, Object.class), HttpStatus.ACCEPTED);
+				return new ResponseEntity<Object>(objectMapper.readValue(json, Object.class), HttpStatus.OK);
 			} catch (IOException e) {
 				e.printStackTrace();
-				System.out.println("getPolicyInstance - policyinstance corrupt");
+				log.info("getPolicyInstance - policyinstance corrupt");
 				return new ResponseEntity<Object>(HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 		}
@@ -406,31 +421,35 @@ public class A1PApiServiceImpl { // implements A1PApiService {
 	}
 
 	public ResponseEntity<List<InlineResponse200>> getStatus(Integer policyTypeId, String policyInstanceId) {
-		System.out.println("getStatus -  policyTypeId:" + policyTypeId);
-		System.out.println("getStatus -  policyInstanceId:" + policyInstanceId);
+		log.info("getStatus -  policyTypeId:" + policyTypeId);
+		log.info("getStatus -  policyInstanceId:" + policyInstanceId);
+
+		if (policyTypeId == null || policyInstanceId == null) {
+			log.info("getStatus - bad parameters");
+			return new ResponseEntity<List<InlineResponse200>>(HttpStatus.NOT_FOUND);
+		}
 
 		String accept = request.getHeader("Accept");
 		if (accept != null && accept.contains("application/json")) {
 			try {
 				PolicyType policyType = policyTypes.get(policyTypeId.toString());
 				if (policyType == null) {
-					System.out.println("getStatus - policytype does not exists");
+					log.info("getStatus - policytype does not exists");
 					return new ResponseEntity<List<InlineResponse200>>(HttpStatus.NOT_FOUND);
 				}
 				PolicyInstance policyInstance = policyType.getInstance(policyInstanceId);
 				if (policyInstance == null) {
-					System.out.println("getStatus - policyinstance does not exists");
+					log.info("getStatus - policyinstance does not exists");
 					return new ResponseEntity<List<InlineResponse200>>(HttpStatus.NOT_FOUND);
 				}
-
 
 				return new ResponseEntity<List<InlineResponse200>>(
 						objectMapper.readValue("[ {\n  \"handler_id\" : \"X-APP-1\",\n  \"status\" : \"enforced\"\n} ]",
 								List.class),
-						HttpStatus.ACCEPTED);
+						HttpStatus.OK);
 			} catch (IOException e) {
 				e.printStackTrace();
-				System.out.println("getStatus - Couldn't serialize response for content type application/json");
+				log.info("getStatus - Couldn't serialize response for content type application/json");
 				return new ResponseEntity<List<InlineResponse200>>(HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 		}

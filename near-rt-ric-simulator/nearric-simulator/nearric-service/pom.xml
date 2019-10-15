@@ -15,6 +15,7 @@
 		<java.version>1.8</java.version>
 		<okhttp-version>2.7.5</okhttp-version>
 		<gson-version>2.8.1</gson-version>
+		<dockerfile-maven-version>1.4.2</dockerfile-maven-version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -137,6 +138,27 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>com.spotify</groupId>
+				<artifactId>dockerfile-maven-plugin</artifactId>
+				<version>${dockerfile-maven-version}</version>
+				<executions>
+					<execution>
+						<id>default</id>
+						<goals>
+							<goal>build</goal>
+							<goal>push</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<repository>nearric-simulator</repository>
+					<tag>${project.version}</tag>
+					<buildArgs>
+						<JAR_FILE>target/${project.build.finalName}.jar</JAR_FILE>
+					</buildArgs>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

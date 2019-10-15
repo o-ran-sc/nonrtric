@@ -1,5 +1,3 @@
-package org.onap.nearric.simulator.model;
-
 /*-
  * ============LICENSE_START=======================================================
  *  Copyright (C) 2019 Nordix Foundation.
@@ -19,6 +17,8 @@ package org.onap.nearric.simulator.model;
  * SPDX-License-Identifier: Apache-2.0
  * ============LICENSE_END=========================================================
  */
+
+package org.onap.nearric.simulator.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
