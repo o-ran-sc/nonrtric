@@ -1,0 +1,4 @@
+{ "scope": {"ue_id": "1","flow_id": "3"},
+  "statement" : {"gfbr": "l", "mfbr": "2", "priority_level": "3", "pdb": "4"},
+  "policy_id": "pi-XXXX"
+}

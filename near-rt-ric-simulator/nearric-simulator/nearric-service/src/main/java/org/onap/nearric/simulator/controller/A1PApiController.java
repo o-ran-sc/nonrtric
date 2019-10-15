@@ -40,6 +40,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import io.swagger.annotations.ApiParam;
 
@@ -69,6 +71,13 @@ public class A1PApiController implements A1PApi {
       a1pApiService = new A1PApiServiceImpl();
       a1pApiService.set(objectMapper, request);
   }
+
+  //Reset policy db
+  @RequestMapping(value = "reset",
+          method = RequestMethod.GET)
+  public void reset() {
+	  a1pApiService.reset();
+  }
   
   public ResponseEntity<Void> a1ControllerCreateOrReplacePolicyInstance(@ApiParam(value = "",required=true) @PathVariable("policy_type_id") Integer policyTypeId,@ApiParam(value = "",required=true) @PathVariable("policy_instance_id") String policyInstanceId,@ApiParam(value = ""  )  @Valid @RequestBody Object body) {
       return a1pApiService.createReplaceInstance(policyTypeId, policyInstanceId, body);
@@ -95,8 +104,7 @@ public class A1PApiController implements A1PApi {
   }
 
   public ResponseEntity<Void> a1ControllerGetHealthcheck() {
-      String accept = request.getHeader("Accept");
-      return new ResponseEntity<Void>(HttpStatus.ACCEPTED);
+      return new ResponseEntity<Void>(HttpStatus.OK);
   }
 
   public ResponseEntity<Object> a1ControllerGetPolicyInstance(@ApiParam(value = "",required=true) @PathVariable("policy_type_id") Integer policyTypeId,@ApiParam(value = "",required=true) @PathVariable("policy_instance_id") String policyInstanceId) {
