@@ -24,7 +24,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * This class provides Near-RIC api to invoke the A1 interface
- * 
+ *
  * @author lathishbabu.ganesan@est.tech
  *
  */
@@ -34,83 +34,83 @@ public class NearRicUrlProvider {
   private String baseUrl;
 
   public NearRicUrlProvider() {
-    // Near ric ip is passed in payload
-    baseUrl = "http://localhost:8080/a1-p/";
+    // Near ric ip:port is passed in payload currently
   }
 
   /**
    * Retrieve the base url of the Near-RIC
-   * 
+   *
    * @return the base url
    */
-  public String getBaseUrl() {
+  public String getBaseUrl(final String nearRtRicId) {
+    baseUrl = "http://" + nearRtRicId + "/a1-p/";
     return UriComponentsBuilder.fromUriString(baseUrl).build().toString();
   }
 
   /**
    * Retrieve the url of A1 healthcheck
-   * 
+   *
    * @return the health check url
    */
-  public String getHealthCheck() {
-    return UriComponentsBuilder.fromUriString(getBaseUrl()).pathSegment("healthcheck").build()
+  public String getHealthCheck(final String nearRtRicId) {
+    return UriComponentsBuilder.fromUriString(getBaseUrl(nearRtRicId)).pathSegment("healthcheck").build()
         .toString();
   }
 
   /**
    * Retrieve the policy type url
-   * 
+   *
    * @return the base url with the policytypes
    */
-  public String getPolicyTypes() {
-    return UriComponentsBuilder.fromUriString(getBaseUrl()).pathSegment("policytypes").build()
+  public String getPolicyTypes(final String nearRtRicId) {
+    return UriComponentsBuilder.fromUriString(getBaseUrl(nearRtRicId)).pathSegment("policytypes/").build()
         .toString();
   }
 
   /**
    * Retrieve the url of policy type id
-   * 
+   *
    * @param policyTypeId Policy Type Id
    * @return the policy type id url
    */
-  public String getPolicyTypeId(final String policyTypeId) {
-    return UriComponentsBuilder.fromUriString(getBaseUrl()).pathSegment("policytypes")
+  public String getPolicyTypeId(final String nearRtRicId, final String policyTypeId) {
+    return UriComponentsBuilder.fromUriString(getBaseUrl(nearRtRicId)).pathSegment("policytypes")
         .pathSegment(policyTypeId).build().toString();
   }
 
   /**
    * Retrieve the url of the policy instances
-   * 
+   *
    * @param policyTypeId Policy Type Id
    * @return the policy instances for the given policy type
    */
-  public String getPolicyInstances(final String policyTypeId) {
-    return UriComponentsBuilder.fromUriString(getPolicyTypeId(policyTypeId)).pathSegment("policies")
+  public String getPolicyInstances(final String nearRtRicId, final String policyTypeId) {
+    return UriComponentsBuilder.fromUriString(getPolicyTypeId(nearRtRicId, policyTypeId)).pathSegment("policies")
         .build().toString();
   }
 
   /**
    * Retrieve the url of the policy instance id
-   * 
+   *
    * @param policyTypeId Policy Type Id
    * @param policyInstanceId Policy Instance Id
    * @return the policy instance id for the given policy type
    */
-  public String getPolicyInstanceId(final String policyTypeId, final String policyInstanceId) {
-    return UriComponentsBuilder.fromUriString(getPolicyTypeId(policyTypeId)).pathSegment("policies")
+  public String getPolicyInstanceId(final String nearRtRicId, final String policyTypeId, final String policyInstanceId) {
+    return UriComponentsBuilder.fromUriString(getPolicyTypeId(nearRtRicId, policyTypeId)).pathSegment("policies")
         .pathSegment(policyInstanceId).build().toString();
   }
 
   /**
    * Retrieve the url of the policy instance id status
-   * 
+   *
    * @param policyTypeId Policy Type Id
    * @param policyInstanceId Policy Instance Id
    * @return the policy instance id status for the given policy type
    */
-  public String getPolicyInstanceIdStatus(final String policyTypeId,
+  public String getPolicyInstanceIdStatus(final String nearRtRicId, final String policyTypeId,
       final String policyInstanceId) {
-    return UriComponentsBuilder.fromUriString(getPolicyInstanceId(policyTypeId, policyInstanceId))
+    return UriComponentsBuilder.fromUriString(getPolicyInstanceId(nearRtRicId, policyTypeId, policyInstanceId))
         .pathSegment("status").build().toString();
   }
 }

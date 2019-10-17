@@ -20,18 +20,20 @@
 
 package org.onap.sdnc.northbound.restadpter;
 
+import com.google.common.base.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-import com.google.common.base.Optional;
 
 /**
  * This class provides the Generic Rest Adapter interface to the RestTemplate
- * 
+ *
  * @author lathishbabu.ganesan@est.tech
  *
  */
@@ -58,8 +60,10 @@ public class RestAdapterImpl implements RestAdapter {
   }
 
   @Override
-  public <T> Optional<T> put(String uri, Object object) {
-    HttpEntity<?> entity = getHttpEntity(object);
+  public <T> Optional<T> put(String uri, String body) {
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
+    HttpEntity<String> entity = new HttpEntity<String>(body, headers);
     final ResponseEntity<T> response = invokeHttpRequest(uri, HttpMethod.PUT, null, entity);
     return buildOptional(response);
   }
@@ -79,9 +83,9 @@ public class RestAdapterImpl implements RestAdapter {
 
   private <T> Optional<T> buildOptional(ResponseEntity<T> response) {
     if (!response.getStatusCode().equals(HttpStatus.OK)
-        | !response.getStatusCode().equals(HttpStatus.CREATED)
-        | !response.getStatusCode().equals(HttpStatus.NO_CONTENT)) {
-      log.error("Failed to get the Response");
+        & !response.getStatusCode().equals(HttpStatus.CREATED)
+        & !response.getStatusCode().equals(HttpStatus.NO_CONTENT)) {
+      log.error("Failed to get the Response, Status Code = {}", response.getStatusCode());
       return Optional.absent();
     }
     if (response.hasBody()) {

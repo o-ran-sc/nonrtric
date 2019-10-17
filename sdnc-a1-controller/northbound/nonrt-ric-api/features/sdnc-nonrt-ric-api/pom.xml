@@ -54,11 +54,6 @@
             <artifactId>nonrt-ric-api-model</artifactId>
             <version>${project.version}</version>
         </dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>nonrt-ric-api-a1-client</artifactId>
-			<version>${project.version}</version>
-		</dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nonrt-ric-api-provider</artifactId>

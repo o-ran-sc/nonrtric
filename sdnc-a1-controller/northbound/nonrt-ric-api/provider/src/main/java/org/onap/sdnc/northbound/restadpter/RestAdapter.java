@@ -25,7 +25,7 @@ import com.google.common.base.Optional;
 
 /**
  * An interface to wrap the generic HTTP methods
- * 
+ *
  * @author lathishbabu.ganesan@est.tech
  *
  */
@@ -34,7 +34,7 @@ public interface RestAdapter {
   /**
    * Retrieve a representation by doing a GET on the specified URL. The response (if any) is
    * converted and returned.
-   * 
+   *
    * @param uri the URL
    * @param clazz responseType the type of the return value
    * @return the converted object
@@ -44,16 +44,16 @@ public interface RestAdapter {
 
   /**
    * Create or update a resource by PUTting the given object to the URI.
-   * 
+   *
    * @param url the URL
-   * @param request the Object to be PUT (may be {@code null})
+   * @param request the String to be PUT (may be {@code null})
    * @return the response code
    */
-  <T> Optional<T> put(final String url, final Object object);
+  <T> Optional<T> put(final String url, final String body);
 
   /**
    * Delete resource for the given object to the URI.
-   * 
+   *
    * @param url the URL
    * @return the response code
    */

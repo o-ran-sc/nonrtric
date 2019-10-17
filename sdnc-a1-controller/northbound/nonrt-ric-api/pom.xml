@@ -37,7 +37,6 @@
 
 	<name>sdnc-northbound :: nonrt-ric-api</name>
 	<modules>
-		<module>a1-client</module>
 		<module>model</module>
 		<module>provider</module>
 		<module>features</module>
