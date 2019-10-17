@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "cf60fb9b_e580da99",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/onap/sdnc/northbound/provider/NonrtRicApiProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2019-10-17T10:35:58Z",
+      "side": 1,
+      "message": "It does not need to be input by hand, the dashboard GUI will have the ability to select which NearRTRic the call should be sent to, and that should in turn translate to an input parameter for the request. So, I think it makes sense to use a dynamic way of creating NearRTRic URL. Also SDNC would need to interact with several NearRTRics, so we cannot hardcode it.",
+      "parentUuid": "56b0e04f_9f8d4c11",
+      "range": {
+        "startLine": 203,
+        "startChar": 77,
+        "endLine": 203,
+        "endChar": 91
+      },
+      "revId": "799dafa576935e93c262a20f2b055a94dd637ddd",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b2ec67f5_df5dbb12",
         "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/onap/sdnc/northbound/provider/NonrtRicApiProvider.java",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2019-10-17T10:18:37Z",
       "side": 1,
       "message": "in the YANG, Is there a NearRtRicId still, if so, what urls should we send to get the NearRtRicID. \n\nif we can not get the NearRTRicID by call, in production, how should we know which near RTRicId should we hand input in the call to manage related types?",
+      "range": {
+        "startLine": 218,
+        "startChar": 73,
+        "endLine": 218,
+        "endChar": 87
+      },
+      "revId": "799dafa576935e93c262a20f2b055a94dd637ddd",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1dce26bd_c721bd33",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/onap/sdnc/northbound/provider/NonrtRicApiProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2019-10-17T10:35:58Z",
+      "side": 1,
+      "message": "That should be discussed in the team. In fact, that\u0027s the reason there is no implementation of getNearRTRICs currently. But we are also not handling multiple NearRTRics currently. So this should be aligned with the future work in dashboard to handle multiple NearRTRics.",
+      "parentUuid": "b2ec67f5_df5dbb12",
       "range": {
         "startLine": 218,
         "startChar": 73,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "92ced8b7_9b951fb1",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/onap/sdnc/northbound/provider/NonrtRicApiProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2019-10-17T10:35:58Z",
+      "side": 1,
+      "message": "I think we might not need health-status (boolean) at all. If the call is successful, of course we would receive 200 OK. Otherwise, we would get an error code (500 Internal Server Error, for example if we are not able to contact NearRTRic).",
+      "parentUuid": "8a8b843a_582eda54",
+      "range": {
+        "startLine": 266,
+        "startChar": 4,
+        "endLine": 266,
+        "endChar": 42
+      },
+      "revId": "799dafa576935e93c262a20f2b055a94dd637ddd",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4d645a31_8aa0271c",
         "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/onap/sdnc/northbound/restadpter/RestAdapterImpl.java",
         "patchSetId": 1
@@ -82,6 +154,30 @@
       "writtenOn": "2019-10-17T10:18:37Z",
       "side": 1,
       "message": "should we include the logic to return response code?",
+      "range": {
+        "startLine": 89,
+        "startChar": 1,
+        "endLine": 92,
+        "endChar": 44
+      },
+      "revId": "799dafa576935e93c262a20f2b055a94dd637ddd",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "37083c8b_b31e2f18",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/onap/sdnc/northbound/restadpter/RestAdapterImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2019-10-17T10:35:58Z",
+      "side": 1,
+      "message": "See other comment, might not be needed I think.",
+      "parentUuid": "4d645a31_8aa0271c",
       "range": {
         "startLine": 89,
         "startChar": 1,
