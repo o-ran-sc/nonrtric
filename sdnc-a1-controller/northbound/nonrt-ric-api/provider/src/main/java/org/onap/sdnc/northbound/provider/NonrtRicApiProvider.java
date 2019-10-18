@@ -61,6 +61,7 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev19100
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetHealthCheckOutputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetNearRTRICsInput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetNearRTRICsOutput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetNearRTRICsOutputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetPolicyInstanceInput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetPolicyInstanceOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetPolicyInstanceOutputBuilder;
@@ -272,8 +273,13 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
 
   @Override
   public ListenableFuture<RpcResult<GetNearRTRICsOutput>> getNearRTRICs(GetNearRTRICsInput input) {
-    // TODO Auto-generated method stub
-    return null;
+      log.info("Start of getNearRTRICs");
+      GetNearRTRICsOutputBuilder responseBuilder = new GetNearRTRICsOutputBuilder();
+      responseBuilder.setNearRtRicIdList(nearRicUrlProvider.getNearRTRicIdsList());
+      log.info("End of getNearRTRICs");
+      RpcResult<GetNearRTRICsOutput> rpcResult = RpcResultBuilder.<GetNearRTRICsOutput>status(true)
+          .withResult(responseBuilder.build()).build();
+      return Futures.immediateFuture(rpcResult);
   }
 
   @Override
