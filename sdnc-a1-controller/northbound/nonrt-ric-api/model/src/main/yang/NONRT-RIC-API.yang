@@ -15,8 +15,8 @@ module A1-ADAPTER-API {
 
 ///Flattend interface using RPC
 
-    //Get a comma separated list of near-rt rics, e.g. domain-name1:port1,domainname2:port2
-    //Each item in the returned list will be regarded as one near-rt-ric-id.
+    //Get an array of near-rt-ric IDs,
+    //Each item in the returned array will be regarded as one near-rt-ric-id.
     rpc getNearRT-RICs {
         output {
             leaf-list near-rt-ric-id-list {
@@ -37,11 +37,11 @@ module A1-ADAPTER-API {
             leaf health-status {
                 type boolean;
             }
-        }   
+        }
     }
 
-    //Get a comma separated list of integer policy type ids
-    //Each item in the returned list will be regarded as one policy-type-id.
+    //Get an array of integer policy type ids
+    //Each item in the returned array will be regarded as one policy-type-id.
     rpc getPolicyTypes {
         input {
             leaf near-rt-ric-id {
@@ -120,8 +120,8 @@ module A1-ADAPTER-API {
         }
     }
 
-    //Get a comma separeated list of string policy instance ids
-    //Each item in the returned list will be regarded as one policy-instance-id.
+    //Get an array of string policy instance ids
+    //Each item in the returned array will be regarded as one policy-instance-id.
     rpc getPolicyInstances {
         input {
             leaf near-rt-ric-id {
@@ -156,7 +156,7 @@ module A1-ADAPTER-API {
             }
         }
     }
-    
+
     ///Get a policy instance
     rpc getPolicyInstance {
         input {
@@ -176,7 +176,7 @@ module A1-ADAPTER-API {
             }
         }
     }
-    
+
     //Delete a policy instance
     rpc deletePolicyInstance {
         input {

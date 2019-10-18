@@ -20,6 +20,15 @@
 
 package org.onap.sdnc.northbound.restadpter;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
@@ -31,10 +40,42 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 public class NearRicUrlProvider {
 
-  private String baseUrl;
+  // nearRicMap provides mapping from nearRtRicId to domainname:port of nearRTRics
+  private HashMap<String, String> nearRicMap = new HashMap<>();
+  private static final String NEAR_RIC_LIST_FILE = "NearRtRicList.properties";
+  private final Logger log = LoggerFactory.getLogger(NearRicUrlProvider.class);
 
   public NearRicUrlProvider() {
-    // Near ric ip:port is passed in payload currently
+      try {
+        readNearRtRicConfigFile();
+      } catch (IOException ex) {
+        log.error("Exception while reading nearRtRicConfigFile: {}", ex);
+      }
+  }
+
+  private void readNearRtRicConfigFile() throws IOException {
+      InputStream inputStream = NearRicUrlProvider.class.getClassLoader().getResourceAsStream(NEAR_RIC_LIST_FILE);
+      if (inputStream == null) {
+          log.error("The file {} not found in classpath", NEAR_RIC_LIST_FILE);
+      } else {
+          Properties properties = new Properties();
+          properties.load(inputStream);
+          Enumeration<?> keys = properties.propertyNames();
+          while (keys.hasMoreElements()) {
+              String key = (String) keys.nextElement();
+              nearRicMap.put(key, properties.getProperty(key));
+          }
+          inputStream.close();
+      }
+  }
+
+  /**
+   * Retrieve the list of Near-RICs
+   *
+   * @return the list of Near-RICs
+   */
+  public List<String> getNearRTRicIdsList () {
+      return new ArrayList<>(nearRicMap.keySet());
   }
 
   /**
@@ -43,7 +84,7 @@ public class NearRicUrlProvider {
    * @return the base url
    */
   public String getBaseUrl(final String nearRtRicId) {
-    baseUrl = "http://" + nearRtRicId + "/a1-p/";
+    String baseUrl = "http://" + nearRicMap.get(nearRtRicId) + "/a1-p/";
     return UriComponentsBuilder.fromUriString(baseUrl).build().toString();
   }
 

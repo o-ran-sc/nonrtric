@@ -23,6 +23,8 @@ package org.onap.sdnc.northbound;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -40,14 +42,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.CreatePolicyInstanceInputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.CreatePolicyInstanceOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.CreatePolicyTypeInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.CreatePolicyTypeOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.DeletePolicyInstanceInputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.DeletePolicyInstanceOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.DeletePolicyTypeInputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.DeletePolicyTypeOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetHealthCheckInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetHealthCheckOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetPolicyInstanceInputBuilder;
@@ -61,15 +57,12 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev19100
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetStatusInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetStatusOutput;
 import org.opendaylight.yangtools.yang.common.RpcResult;
-import org.oransc.ric.a1med.client.model.PolicyTypeSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.ListenableFuture;
 
 /**
  * This class Tests all the methods in NonrtRicApiProvider
- * 
+ *
  * @author lathishbabu.ganesan@est.tech
  *
  */
@@ -87,6 +80,7 @@ public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
   @Mock
   private RestAdapter restAdapter;
   private NearRicUrlProvider nearRicUrlProvider;
+  private static String nearRtRicId = "NearRtRic1";
   private static Long policyTypeId = 11L;
   private static String policyTypeInstanceId = "12";
 
@@ -102,10 +96,11 @@ public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
   @Test
   public void testCreatePolicyType() throws InterruptedException, ExecutionException {
     CreatePolicyTypeInputBuilder inputBuilder = new CreatePolicyTypeInputBuilder();
+    inputBuilder.setNearRtRicId(nearRtRicId);
     inputBuilder.setPolicyTypeId(policyTypeId);
     Whitebox.setInternalState(nonrtRicApiProvider, "restAdapter", restAdapter);
-    String uri =
-        nearRicUrlProvider.getPolicyTypeId(String.valueOf(inputBuilder.build().getPolicyTypeId()));
+    String uri = nearRicUrlProvider.getPolicyTypeId(inputBuilder.build().getNearRtRicId(),
+                String.valueOf(inputBuilder.build().getPolicyTypeId()));
     Optional<Object> createPolicyTyperesponse = null;
     when(restAdapter.put(eq(uri), anyObject())).thenReturn(createPolicyTyperesponse);
     ListenableFuture<RpcResult<CreatePolicyTypeOutput>> result =
@@ -116,127 +111,93 @@ public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
   @Test
   public void testGetPolicyType() throws InterruptedException, ExecutionException {
     GetPolicyTypeInputBuilder inputBuilder = new GetPolicyTypeInputBuilder();
+    inputBuilder.setNearRtRicId(nearRtRicId);
     inputBuilder.setPolicyTypeId(policyTypeId);
     Whitebox.setInternalState(nonrtRicApiProvider, "restAdapter", restAdapter);
-    String uri =
-        nearRicUrlProvider.getPolicyTypeId(String.valueOf(inputBuilder.build().getPolicyTypeId()));
-    PolicyTypeSchema policyTypeSchema = new PolicyTypeSchema();
-    policyTypeSchema.setName("AdmissionControlPolicy");
-    policyTypeSchema.setCreateSchema("{}");
-    when(restAdapter.get(eq(uri), anyObject())).thenReturn(Optional.of(policyTypeSchema));
+    String uri = nearRicUrlProvider.getPolicyTypeId(inputBuilder.build().getNearRtRicId(),
+            String.valueOf(inputBuilder.build().getPolicyTypeId()));
+    String policyType =
+            "{\"name\":\"Policy type 1\",\"description\":\"PT 1\",\"policy_type_id\":1,\"create_schema\":{}}";
+    when(restAdapter.get(eq(uri), anyObject())).thenReturn(Optional.of(policyType));
     ListenableFuture<RpcResult<GetPolicyTypeOutput>> result =
         nonrtRicApiProvider.getPolicyType(inputBuilder.build());
-    Assert.assertEquals(policyTypeSchema.getName(), result.get().getResult().getName());
+    Assert.assertEquals("Policy type 1", result.get().getResult().getName());
   }
 
   @Test
   public void testGetPolicyTypes() throws InterruptedException, ExecutionException {
     GetPolicyTypesInputBuilder inputBuilder = new GetPolicyTypesInputBuilder();
+    inputBuilder.setNearRtRicId(nearRtRicId);
     Whitebox.setInternalState(nonrtRicApiProvider, "restAdapter", restAdapter);
-    String uri = nearRicUrlProvider.getPolicyTypes();
-    List<Long> policyTypes = new ArrayList<>();
-    policyTypes.add(20001L);
-    when(restAdapter.get(eq(uri), eq(List.class))).thenReturn(Optional.of(policyTypes));
+    String uri = nearRicUrlProvider.getPolicyTypes(inputBuilder.build().getNearRtRicId());
+    List<Integer> policyTypesInteger = new ArrayList<>();
+    policyTypesInteger.add(20001);
+    List<Long> policyTypesLong = new ArrayList<>();
+    policyTypesLong.add(20001L);
+    when(restAdapter.get(eq(uri), eq(List.class))).thenReturn(Optional.of(policyTypesInteger));
     ListenableFuture<RpcResult<GetPolicyTypesOutput>> result =
         nonrtRicApiProvider.getPolicyTypes(inputBuilder.build());
-    Assert.assertEquals(policyTypes, result.get().getResult().getPolicyTypeIdList());
-  }
-
-  @Test
-  public void testDeletePolicyType() throws InterruptedException, ExecutionException {
-    DeletePolicyTypeInputBuilder inputBuilder = new DeletePolicyTypeInputBuilder();
-    inputBuilder.setPolicyTypeId(policyTypeId);
-    Whitebox.setInternalState(nonrtRicApiProvider, "restAdapter", restAdapter);
-    String uri =
-        nearRicUrlProvider.getPolicyTypeId(String.valueOf(inputBuilder.build().getPolicyTypeId()));
-    Optional<Object> deletePolicyTyperesponse = null;
-    when(restAdapter.delete(uri)).thenReturn(deletePolicyTyperesponse);
-    ListenableFuture<RpcResult<DeletePolicyTypeOutput>> result =
-        nonrtRicApiProvider.deletePolicyType(inputBuilder.build());
-  }
-
-  @Test
-  public void testCreatePolicyInstance() throws InterruptedException, ExecutionException {
-    CreatePolicyInstanceInputBuilder inputBuilder = new CreatePolicyInstanceInputBuilder();
-    inputBuilder.setPolicyTypeId(policyTypeId);
-    inputBuilder.setPolicyInstanceId(policyTypeInstanceId);
-    Whitebox.setInternalState(nonrtRicApiProvider, "restAdapter", restAdapter);
-    String uri = nearRicUrlProvider.getPolicyInstanceId(
-        String.valueOf(inputBuilder.build().getPolicyTypeId()), inputBuilder.getPolicyInstanceId());
-    Optional<Object> createPolicyInstanceresponse = null;
-    when(restAdapter.put(eq(uri), anyObject())).thenReturn(createPolicyInstanceresponse);
-    ListenableFuture<RpcResult<CreatePolicyInstanceOutput>> result =
-        nonrtRicApiProvider.createPolicyInstance(inputBuilder.build());
-  }
-
-  @Test
-  public void testDeletePolicyInstance() throws InterruptedException, ExecutionException {
-    DeletePolicyInstanceInputBuilder inputBuilder = new DeletePolicyInstanceInputBuilder();
-    inputBuilder.setPolicyTypeId(policyTypeId);
-    inputBuilder.setPolicyInstanceId(policyTypeInstanceId);
-    Whitebox.setInternalState(nonrtRicApiProvider, "restAdapter", restAdapter);
-    String uri = nearRicUrlProvider.getPolicyInstanceId(
-        String.valueOf(inputBuilder.build().getPolicyTypeId()), inputBuilder.getPolicyInstanceId());
-    Optional<Object> deletePolicyInstanceresponse = null;
-    when(restAdapter.delete(uri)).thenReturn(deletePolicyInstanceresponse);
-    ListenableFuture<RpcResult<DeletePolicyInstanceOutput>> result =
-        nonrtRicApiProvider.deletePolicyInstance(inputBuilder.build());
+    Assert.assertEquals(policyTypesLong, result.get().getResult().getPolicyTypeIdList());
   }
 
   @Test
   public void testGetPolicyInstance() throws InterruptedException, ExecutionException {
     GetPolicyInstanceInputBuilder inputBuilder = new GetPolicyInstanceInputBuilder();
+    inputBuilder.setNearRtRicId(nearRtRicId);
     inputBuilder.setPolicyTypeId(policyTypeId);
     inputBuilder.setPolicyInstanceId(policyTypeInstanceId);
     Whitebox.setInternalState(nonrtRicApiProvider, "restAdapter", restAdapter);
-    String uri = nearRicUrlProvider.getPolicyInstanceId(
+    String uri = nearRicUrlProvider.getPolicyInstanceId(inputBuilder.build().getNearRtRicId(),
         String.valueOf(inputBuilder.build().getPolicyTypeId()), inputBuilder.getPolicyInstanceId());
-    String getPolicyInstanceresponse = "{}";
+    String policyInstance =
+            "{\"scope\":{\"ue_id\":\"2\"},\"statement\":{\"priority_level\":\"1\"},\"policy_id\":\"pi12\"}";
     when(restAdapter.get(eq(uri), eq(String.class)))
-        .thenReturn(Optional.of(getPolicyInstanceresponse));
+        .thenReturn(Optional.of(policyInstance));
     ListenableFuture<RpcResult<GetPolicyInstanceOutput>> result =
         nonrtRicApiProvider.getPolicyInstance(inputBuilder.build());
+    Assert.assertEquals(policyInstance, result.get().getResult().getPolicyInstance());
   }
 
   @Test
   public void testGetPolicyInstances() throws InterruptedException, ExecutionException {
     GetPolicyInstancesInputBuilder inputBuilder = new GetPolicyInstancesInputBuilder();
+    inputBuilder.setNearRtRicId(nearRtRicId);
     inputBuilder.setPolicyTypeId(policyTypeId);
     Whitebox.setInternalState(nonrtRicApiProvider, "restAdapter", restAdapter);
-    String uri = nearRicUrlProvider
-        .getPolicyInstances(String.valueOf(inputBuilder.build().getPolicyTypeId()));
-    List<String> getPolicyInstances = new ArrayList<>();
-    getPolicyInstances.add("3d2157af-6a8f-4a7c-810f-38c2f824bf12");
-    when(restAdapter.get(eq(uri), eq(List.class))).thenReturn(Optional.of(getPolicyInstances));
+    String uri = nearRicUrlProvider.getPolicyInstances(inputBuilder.build().getNearRtRicId(),
+            String.valueOf(inputBuilder.build().getPolicyTypeId()));
+    List<String> policyInstances = new ArrayList<>();
+    policyInstances.add("3d2157af-6a8f-4a7c-810f-38c2f824bf12");
+    when(restAdapter.get(eq(uri), eq(List.class))).thenReturn(Optional.of(policyInstances));
     ListenableFuture<RpcResult<GetPolicyInstancesOutput>> result =
         nonrtRicApiProvider.getPolicyInstances(inputBuilder.build());
+    Assert.assertEquals(policyInstances, result.get().getResult().getPolicyInstanceIdList());
   }
 
   @Test
   public void testGetStatus() throws InterruptedException, ExecutionException {
     GetStatusInputBuilder inputBuilder = new GetStatusInputBuilder();
+    inputBuilder.setNearRtRicId(nearRtRicId);
     inputBuilder.setPolicyTypeId(policyTypeId);
     inputBuilder.setPolicyInstanceId(policyTypeInstanceId);
     Whitebox.setInternalState(nonrtRicApiProvider, "restAdapter", restAdapter);
-    String uri = nearRicUrlProvider.getPolicyInstanceIdStatus(
+    String uri = nearRicUrlProvider.getPolicyInstanceIdStatus(inputBuilder.build().getNearRtRicId(),
         String.valueOf(inputBuilder.build().getPolicyTypeId()), inputBuilder.getPolicyInstanceId());
-    List<String> getPolicyInstanceIdStatus = new ArrayList<>();
-    getPolicyInstanceIdStatus.add("");
-    when(restAdapter.get(eq(uri), eq(List.class)))
-        .thenReturn(Optional.of(getPolicyInstanceIdStatus));
+    String policyInstanceStatus = "{\"status\":\"enforced\"}";
+    when(restAdapter.get(eq(uri), eq(String.class))).thenReturn(Optional.of(policyInstanceStatus));
     ListenableFuture<RpcResult<GetStatusOutput>> result =
         nonrtRicApiProvider.getStatus(inputBuilder.build());
-    // TODO: Define the proper response message for get policy instance status
-    Assert.assertEquals("Success", result.get().getResult().getStatus());
+    Assert.assertEquals("enforced", result.get().getResult().getStatus());
   }
 
   @Test
   public void testHealthCheck() throws InterruptedException, ExecutionException {
     GetHealthCheckInputBuilder inputBuilder = new GetHealthCheckInputBuilder();
+    inputBuilder.setNearRtRicId(nearRtRicId);
     Whitebox.setInternalState(nonrtRicApiProvider, "restAdapter", restAdapter);
-    String uri = nearRicUrlProvider.getHealthCheck();
+    String uri = nearRicUrlProvider.getHealthCheck(inputBuilder.build().getNearRtRicId());
     String healthCheckStatus = "";
-    when(restAdapter.get(eq(uri), eq(String.class))).thenReturn(Optional.of(healthCheckStatus));
+    when(restAdapter.get(eq(uri), eq(String.class))).thenReturn(null);
     ListenableFuture<RpcResult<GetHealthCheckOutput>> result =
         nonrtRicApiProvider.getHealthCheck(inputBuilder.build());
     Assert.assertEquals(true, result.get().getResult().isHealthStatus());
