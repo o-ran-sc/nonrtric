@@ -22,6 +22,30 @@
       "revId": "799dafa576935e93c262a20f2b055a94dd637ddd",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "525ed34f_0ce2c084",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/test/java/org/onap/sdnc/northbound/NonrtRicApiProviderTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2019-10-24T11:29:14Z",
+      "side": 0,
+      "message": "I removed these tests because there was no \u0027assert\u0027 statement (since there is no content returned from the corresponding methods). This meant that unlike other tests, nothing was being really tested and they were useless.",
+      "parentUuid": "8e8b1d32_bee900da",
+      "range": {
+        "startLine": 173,
+        "startChar": 14,
+        "endLine": 173,
+        "endChar": 38
+      },
+      "revId": "799dafa576935e93c262a20f2b055a94dd637ddd",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
