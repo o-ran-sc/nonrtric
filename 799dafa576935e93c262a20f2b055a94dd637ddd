@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e8b1d32_bee900da",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/test/java/org/onap/sdnc/northbound/NonrtRicApiProviderTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2019-10-24T10:47:24Z",
+      "side": 0,
+      "message": "Has the test for create/delete policy instance been moved or removed?",
+      "range": {
+        "startLine": 173,
+        "startChar": 14,
+        "endLine": 173,
+        "endChar": 38
+      },
+      "revId": "799dafa576935e93c262a20f2b055a94dd637ddd",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    }
+  ]
+}
