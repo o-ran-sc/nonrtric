@@ -1,0 +1,558 @@
+# ==================================================================================
+#       Copyright (c) 2019 Nokia
+#       Copyright (c) 2018-2019 AT&T Intellectual Property.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#          http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+# ==================================================================================
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: RIC A1
+paths:
+  '/A1-ADAPTER-API:getNearRT-RICs':
+    post:
+      description: >
+        Get a list of all nearRT-RICs
+      tags:
+        - A1 Controller
+      operationId: a1.controller.get_all_nearrt_rics
+      responses:
+        '200':
+          description: >
+            Successfully got the list of all nearRT-RICs.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/output_NRRids_list_schema"
+                
+  '/A1-ADAPTER-API:getHealthCheck':
+    post:
+      description: >
+        Get health status for a Near-RT-RIC. true - health ok, false - health is not ok.
+      tags:
+        - A1 Controller
+      operationId: a1.controller.get_healthcheck
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/input_NRRid_schema"
+      responses:
+        '200':
+          description: >
+            Successfully got the health status.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/output_healthstatus_schema"
+            
+  '/A1-ADAPTER-API:getPolicyTypes':
+    post:
+      description: >
+        Get a list of all registered policy-type-ids.
+      tags:
+        - A1 Controller
+      operationId: a1.controller.get_all_policy_types
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/input_NRRid_schema"
+      responses:
+        '200':
+          description: >
+            Successfully got the list of all policy-type-ids.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/output_PTids_list_schema"
+            
+  '/A1-ADAPTER-API:createPolicyType':
+    post:
+      description: >
+        Create a policy type.
+      tags:
+        - A1 Controller
+      operationId: a1.controller.create_policy_type
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/input_NRRid_PTid_desc_name_PT_schema"
+      responses:
+        '201':
+          description: >
+            Successfully created the policy type.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/output_status_code_schema"
+        '400':
+          description: >
+            illegal policy_type_id, or this policy type already exists
+            
+  '/A1-ADAPTER-API:getPolicyType':
+    post:
+      description: >
+        Get a policy type.
+      tags:
+        - A1 Controller
+      operationId: a1.controller.get_policy_type
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/input_NRRid_PTid_schema"
+      responses:
+        '200':
+          description: >
+            Successfully got the policy type.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/output_desc_name_PT_schema"
+        '404':
+          description: >
+            there is no policy type with this policy_type_id
+            
+  '/A1-ADAPTER-API:deletePolicyType':
+    post:
+      description: >
+        Delete a policy type.
+      tags:
+        - A1 Controller
+      operationId: a1.controller.delete_policy_type
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/input_NRRid_PTid_schema"
+      responses:
+        '204':
+          description: >
+            Successfully deleted the policy type.
+        '400':
+          description: >
+            Policy type cannot be deleted because there are instances. All instances must be removed before a policy type can be deleted.
+        '404':
+          description: >
+            there is no policy type with this policy_type_id
+            
+  '/A1-ADAPTER-API:getPolicyInstances':
+    post:
+      description: >
+        Get a list of all policy-instance-ids for this policy-type-id.
+      tags:
+        - A1 Controller
+      operationId: a1.controller.get_all_instances_for_type
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/input_NRRid_PTid_schema"
+      responses:
+        '200':
+          description: >
+            Successfully got the list of all policy-instance-ids for this policy-type-id.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/output_PIids_list_schema"
+        '404':
+          description: >
+            there is no policy type with this policy_type_id
+            
+  '/A1-ADAPTER-API:createPolicyInstance':
+    post:
+      description: >
+        Create a policy instance.
+      tags:
+        - A1 Controller
+      operationId: a1.controller.create_policy_instance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/input_NRRid_PTid_PIid_PI_schema"
+      responses:
+        '201':
+          description: >
+            Successfully created the policy instance.
+        '400':
+          description: >
+            Bad input data for this policy instance.
+        '404':
+          description: >
+            there is no policy type with this policy_type_id
+            
+  '/A1-ADAPTER-API:getPolicyInstance':
+    post:
+      description: >
+        Get a policy instance.
+      tags:
+        - A1 Controller
+      operationId: a1.controller.get_policy_instance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/input_NRRid_PTid_PIid_schema"
+      responses:
+        '200':
+          description: >
+            Successfully got the policy instance.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/output_PI_schema"
+        '404':
+          description: >
+            there is no policy instance with this policy_instance_id or there is no policy type with this policy_type_id
+
+  '/A1-ADAPTER-API:deletePolicyInstance':
+    post:
+      description: >
+        Delete a policy instance.
+      tags:
+        - A1 Controller
+      operationId: a1.controller.delete_policy_instance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/input_NRRid_PTid_PIid_schema"
+      responses:
+        '204':
+          description: >
+            Successfully deleted the policy instance.
+        '404':
+          description: >
+            there is no policy instance with this policy_instance_id or there is no policy type with this policy_type_id
+            
+  '/A1-ADAPTER-API:getStatus':
+    post:
+      description: >
+        Get the status for a policy instance.
+      tags:
+        - A1 Controller
+      operationId: a1.controller.get_policy_instance_status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/input_NRRid_PTid_PIid_schema"
+      responses:
+        '200':
+          description: >
+            Successfully got the policy instance status.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/output_status_schema"
+        '404':
+          description: >
+            there is no policy instance with this policy_instance_id or there is no policy type with this policy_type_id
+
+components:    
+  schemas:
+    input_NRRid_schema:
+      type: object
+      required:
+      - input
+      additionalProperties: false
+      properties:
+        input:
+          type: object
+          required:
+          - near-rt-ric-id
+          additionalProperties: false
+          properties:
+            near-rt-ric-id:
+              "$ref": "#/components/schemas/near_rt_ric_id"
+          
+    input_NRRid_PTid_schema:
+      type: object
+      required:
+      - input
+      additionalProperties: false
+      properties:
+        input:
+          type: object
+          required:
+          - near-rt-ric-id
+          - policy-type-id
+          additionalProperties: false
+          properties:
+            near-rt-ric-id:
+              "$ref": "#/components/schemas/near_rt_ric_id"
+            policy-type-id:
+              "$ref": "#/components/schemas/policy_type_id"
+          
+    input_NRRid_PTid_PIid_schema:
+      type: object
+      required:
+      - input
+      additionalProperties: false
+      properties:
+        input:
+          type: object
+          required:
+          - near-rt-ric-id
+          - policy-type-id
+          - policy-instance-id
+          additionalProperties: false
+          properties:
+            near-rt-ric-id:
+              "$ref": "#/components/schemas/near_rt_ric_id"
+            policy-type-id:
+              "$ref": "#/components/schemas/policy_type_id"
+            policy-instance-id:
+              "$ref": "#/components/schemas/policy_instance_id"
+          
+    input_NRRid_PTid_PIid_PI_schema:
+      type: object
+      required:
+      - input
+      additionalProperties: false
+      properties:
+        input:
+          type: object
+          required:
+          - near-rt-ric-id
+          - policy-type-id
+          - policy-instance-id
+          - policy-instance
+          additionalProperties: false
+          properties:
+            near-rt-ric-id:
+              "$ref": "#/components/schemas/near_rt_ric_id"
+            policy-type-id:
+              "$ref": "#/components/schemas/policy_type_id"
+            policy-instance-id:
+              "$ref": "#/components/schemas/policy_instance_id"
+            policy-instance:
+              "$ref": "#/components/schemas/policy_instance"
+              
+    input_NRRid_PTid_desc_name_PT_schema:
+      type: object
+      required:
+      - input
+      additionalProperties: false
+      properties:
+        input:
+          type: object
+          required:
+          - near-rt-ric-id
+          - policy-type-id
+          - description
+          - name
+          - policy-type
+          additionalProperties: false
+          properties:
+            near-rt-ric-id:
+              "$ref": "#/components/schemas/near_rt_ric_id"
+            policy-type-id:
+              "$ref": "#/components/schemas/policy_type_id"
+            description:
+              type: string
+            name:
+              type: string
+            policy-type:
+              "$ref": "#/components/schemas/policy_type"
+             
+    output_NRRids_list_schema:
+      type: object
+      required:
+      - output
+      additionalProperties: false
+      properties:
+        output:
+          type: object
+          required:
+          - near-rt-ric-id-list
+          additionalProperties: false
+          properties:
+            near-rt-ric-id-list:
+              type: array
+              items:
+                "$ref": "#/components/schemas/near_rt_ric_id"
+                
+    output_healthstatus_schema:
+      type: object
+      required:
+      - output
+      additionalProperties: false
+      properties:
+        output:
+          type: object
+          required:
+          - health-status
+          additionalProperties: false
+          properties:
+            health-status:
+              type: boolean
+          
+    output_desc_name_PT_schema:
+      type: object
+      required:
+      - output
+      additionalProperties: false
+      properties:
+        output:
+          type: object
+          required:
+          - description
+          - name
+          - policy_type
+          additionalProperties: false
+          properties:
+            description:
+              type: string
+            name:
+              type: string
+            policy-type:
+              "$ref": "#/components/schemas/policy_type"
+              
+    output_PTids_list_schema:
+      type: object
+      required:
+      - output
+      additionalProperties: false
+      properties:
+        output:
+          type: object
+          required:
+          - policy-type-id-list
+          additionalProperties: false
+          properties:
+            policy-type-id-list:
+              type: array
+              items:
+                "$ref": "#/components/schemas/policy_type_id"
+                
+    output_PIids_list_schema:
+      type: object
+      required:
+      - output
+      additionalProperties: false
+      properties:
+        output:
+          type: object
+          required:
+          - policy-instance-id-list
+          additionalProperties: false
+          properties:
+            policy-instance-id-list:
+              type: array
+              items:
+                "$ref": "#/components/schemas/policy_instance_id"
+              
+    output_PI_schema:
+      type: object
+      required:
+      - output
+      additionalProperties: false
+      properties:
+        output:
+          type: object
+          required:
+          - policy-instance
+          additionalProperties: false
+          properties:
+            policy-instance:
+              "$ref": "#/components/schemas/policy_instance"
+              
+    output_status_schema:
+      type: object
+      required:
+      - output
+      additionalProperties: false
+      properties:
+        output:
+          type: object
+          required:
+          - status
+          additionalProperties: false
+          properties:
+            status:
+              type: string
+              
+    output_status_code_schema:
+      type: object
+      required:
+      - output
+      additionalProperties: false
+      properties:
+        output:
+          type: object
+          required:
+          - status
+          - code
+          additionalProperties: false
+          properties:
+            status:
+              type: string
+            code:
+              type: string
+          
+    near_rt_ric_id:
+      description: >
+        represents a near RT RIC identifier. Currently this can be any string.
+      type: string
+      example: near-rt-ric-1
+      
+    policy_type_id:
+      description: >
+        represents a policy type identifier. Currently this is restricted to an integer range.
+      type: integer
+      minimum: 20000
+      maximum: 21023
+      example: 20000
+
+    policy_instance_id:
+      description: >
+        represents a policy instance identifier. UUIDs are advisable but can be any string
+      type: string
+      example: 3d2157af-6a8f-4a7c-810f-38c2f824bf12
+      
+    policy_type:
+      description: >
+        represents a policy type. String is used for now to represent this
+      type: string
+      example: 
+        "{type: A}"
+        
+    policy_instance:
+      description: >
+        represents a policy instance. String is used for now to represent this
+      type: string
+      example: 
+        "{slice_id: slice-1, priority_level: high}"
+      
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      
+security:
+  - basicAuth: []

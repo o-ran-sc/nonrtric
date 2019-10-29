@@ -1,0 +1,8 @@
+{
+  "servingCellNrcgi": "Cell1",
+  "neighborCellNrpci": "NCell1",
+  "neighborCellNrcgi": "Ncell1",
+  "flagNoHo": true,
+  "flagNoXn": true,
+  "flagNoRemove": true
+}

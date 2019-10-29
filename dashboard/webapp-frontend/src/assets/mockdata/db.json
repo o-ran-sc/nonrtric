@@ -1,0 +1,36 @@
+{
+  "config": [
+    {
+      "id": "jsonURL",
+      "value": "http://localhost:3000"
+    },
+    {
+      "id": "host",
+      "value": "http://localhost:3000"
+    },
+    {
+      "id": "metricspath",
+      "value": "/a1ric/metrics"
+    },
+    {
+      "id": "delaypath",
+      "value": "/a1ric/delay"
+    },
+    {
+      "id": "loadpath",
+      "value": "/a1ric/load"
+    }
+  ],
+  "metrics": {
+    "latency": 11,
+    "load": 100,
+    "ricload": 100,
+    "time": 123
+  },
+  "delay": {
+    "delay": 64877
+  },
+  "load": {
+    "load": 1
+  }
+}

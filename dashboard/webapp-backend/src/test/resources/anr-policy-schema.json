@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ANR",
+  "description": "ANR Neighbour Cell Relation Policy",
+  "type": "object",
+  "properties": {
+    "servingCellNrcgi": {
+      "type": "string",
+      "description": "Serving Cell Identifier (NR CGI)"
+    },
+    "neighborCellNrpci": {
+      "type": "string",
+      "description": "Neighbor Cell Identifier (NR PCI)"
+    },
+    "neighborCellNrcgi": {
+      "type": "string",
+      "description": "Neighbor Cell Identifier (NR CGI)"
+    },
+    "flagNoHo": {
+      "type": "boolean",
+      "description": "Flag for HANDOVER NOT ALLOWED"
+    },
+    "flagNoXn": {
+      "type": "boolean",
+      "description": "Flag for Xn CONNECTION NOT ALLOWED"
+    },
+    "flagNoRemove": {
+      "type": "boolean",
+      "description": "Flag for DELETION NOT ALLOWED"
+    }
+  },
+  "required": [
+    "servingCellNrcgi",
+    "neighborCellNrpci",
+    "neighborCellNrcgi",
+    "flagNoHo",
+    "flagNoXn",
+    "flagNoRemove"
+  ]
+}
