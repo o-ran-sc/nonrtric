@@ -1,7 +1,0 @@
-{
-  "bridgeDomains": [
-    {
-      "id": ${prop.lan.bridgeDomainId},
-    }
-  ]
-}

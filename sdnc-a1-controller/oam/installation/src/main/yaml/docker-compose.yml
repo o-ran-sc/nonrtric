@@ -22,31 +22,10 @@ services:
         max-size: "30m"
         max-file: "5"
 
-  ansible:
-    image: onap/sdnc-ansible-server-image:latest
-    depends_on :
-      - db
-    container_name: sdnc_ansible_container
-    entrypoint: ["/opt/onap/ccsdk/startAnsibleServer.sh"]
-    ports:
-      - "8000"
-    links:
-      - db:dbhost
-      - db:sdnctldb01
-      - db:sdnctldb02
-    environment:
-      - MYSQL_ROOT_PASSWORD=openECOMP1.0
-    logging:
-      driver:   "json-file"
-      options:
-        max-size: "30m"
-        max-file: "5"
-
   sdnc:
     image: onap/sdnc-image:latest
     depends_on :
       - db
-      - ansible
     container_name: sdnc_controller_container
     entrypoint: ["/opt/onap/sdnc/bin/startODL.sh"]
     ports:
@@ -55,7 +34,6 @@ services:
       - db:dbhost
       - db:sdnctldb01
       - db:sdnctldb02
-      - ansible:ansiblehost
     environment:
       - MYSQL_ROOT_PASSWORD=openECOMP1.0
       - SDNC_CONFIG_DIR=/opt/onap/sdnc/data/properties
@@ -68,97 +46,3 @@ services:
         max-file: "5"
     extra_hosts:
         aaf.osaaf.org: 10.12.6.214
-
-
-  web:
-    image: onap/admportal-sdnc-image:latest
-    depends_on:
-      - db
-    container_name: sdnc_portal_container
-    entrypoint:
-       - "/bin/bash"
-       - "-c"
-       - "cd /opt/onap/sdnc/admportal/shell && ./start_portal.sh"
-    ports:
-      - "8843:8843"
-      - "8443:8443"
-    links:
-      - db:dbhost
-      - db:sdnctldb01
-      - db:sdnctldb02
-      - sdnc:sdnhost
-    environment:
-      - MYSQL_ROOT_PASSWORD=openECOMP1.0
-      - SDNC_CONFIG_DIR=/opt/onap/sdnc/data/properties
-      - CERT_PSWD=onap3.0
-    logging:
-      driver:   "json-file"
-      options:
-        max-size: "30m"
-        max-file: "5"
-
-
-  dgbuilder:
-    image: onap/ccsdk-dgbuilder-image:latest
-    depends_on:
-      - db
-    container_name:  sdnc_dgbuilder_container
-    entrypoint:
-       - "/bin/bash"
-       - "-c"
-       - "cd /opt/onap/ccsdk/dgbuilder/ && ./start.sh sdnc1.0 && wait"
-    ports:
-      - "3000:3100"
-    links:
-      - db:dbhost
-      - db:sdnctldb01
-      - db:sdnctldb02
-      - sdnc:sdnhost
-    environment:
-      - MYSQL_ROOT_PASSWORD=openECOMP1.0
-      - SDNC_CONFIG_DIR=/opt/onap/ccsdk/data/properties
-    logging:
-      driver:   "json-file"
-      options:
-        max-size: "30m"
-        max-file: "5"
-
-  ueblistener:
-    image: onap/sdnc-ueb-listener-image:latest
-    depends_on:
-      - db
-    container_name:  sdnc_ueblistener_container
-    entrypoint: ["/opt/onap/sdnc/ueb-listener/bin/start-ueb-listener.sh" ]
-    links:
-      - db:dbhost
-      - db:sdnctldb01
-      - db:sdnctldb02
-      - sdnc:sdnhost
-    environment:
-      - SDNC_CONFIG_DIR=/opt/onap/sdnc/data/properties
-      - PROPERTY_DIR=/opt/onap/sdnc/data/properties
-    logging:
-      driver:   "json-file"
-      options:
-        max-size: "30m"
-        max-file: "5"
-
-  dmaaplistener:
-    image: onap/sdnc-dmaap-listener-image:latest
-    depends_on:
-      - db
-    container_name:  sdnc_dmaaplistener_container
-    entrypoint: ["/opt/onap/sdnc/dmaap-listener/bin/start-dmaap-listener.sh" ]
-    links:
-      - db:dbhost
-      - db:sdnctldb01
-      - db:sdnctldb02
-      - sdnc:sdnhost
-    environment:
-      - SDNC_CONFIG_DIR=/opt/onap/sdnc/data/properties
-      - PROPERTY_DIR=/opt/onap/sdnc/data/properties
-    logging:
-      driver:   "json-file"
-      options:
-        max-size: "30m"
-        max-file: "5"
