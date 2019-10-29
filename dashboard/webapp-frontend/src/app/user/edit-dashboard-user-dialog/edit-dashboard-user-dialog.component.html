@@ -1,0 +1,44 @@
+<!--
+  ========================LICENSE_START=================================
+  O-RAN-SC
+  %%
+  Copyright (C) 2019 AT&T Intellectual Property
+  %%
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  ========================LICENSE_END===================================
+-->
+<div mat-dialog-title>
+  Edit Dashboard User
+</div>
+  
+<form [formGroup]="editUserDialogForm" novalidate autocomplete="off">
+  <div mat-dialog-content>
+    <mat-form-field class="input-display-block">
+      <input matInput type="text" placeholder="First Name" formControlName="firstName" >
+    </mat-form-field>
+    <mat-form-field class="input-display-block">
+      <input matInput type="text" placeholder="Last Name" formControlName="lastName" >
+    </mat-form-field>
+  </div>
+  <div name="status">
+    <label id="request-type-radio-group-label">Status:</label>
+    <mat-radio-group aria-label="status" formControlName="status">
+      <mat-radio-button value="Active">Active</mat-radio-button>
+      <mat-radio-button value="Inactive">Inactive</mat-radio-button>
+    </mat-radio-group>
+  </div>
+  <div mat-dialog-actions class="modal-footer justify-content-center">
+    <button class="mat-raised-button" (click)="onCancel()">Cancel</button>
+    <button class="mat-raised-button mat-primary" [disabled]="!editUserDialogForm.valid" (click)="editUser(editUserDialogForm.value)">Update</button>
+  </div>
+</form>

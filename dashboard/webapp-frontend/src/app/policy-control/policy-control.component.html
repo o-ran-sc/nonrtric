@@ -1,0 +1,82 @@
+<!--
+  ========================LICENSE_START=================================
+  O-RAN-SC
+  %%
+  Copyright (C) 2019 Nordix Foundation
+  %%
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  ========================LICENSE_END===================================
+  -->
+
+<div>
+    <h3 class="rd-global-page-title">Policy Control</h3>
+
+    <table mat-table [dataSource]="policyTypesDataSource" matSort multiTemplateDataRows
+        class="policy-type-table mat-elevation-z8">
+
+        <ng-container matColumnDef="name">
+            <mat-header-cell *matHeaderCellDef mat-sort-header>Policy Type</mat-header-cell>
+            <mat-cell *matCellDef="let policyType"> 
+                 <mat-icon matTooltip="Properties">{{isInstancesShown(policyType)  ? 'expand_less' : 'expand_more'}}</mat-icon>
+                 {{getPolicyTypeName(policyType)}}
+            </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="description">
+            <mat-header-cell *matHeaderCellDef> Description </mat-header-cell>
+            <mat-cell *matCellDef="let policyType"> {{policyType.description}} </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="action">
+            <mat-header-cell class="action-cell" *matHeaderCellDef>Action </mat-header-cell>
+            <mat-cell class="action-cell" *matCellDef="let policyType" (click)="$event.stopPropagation()">               
+                <button mat-icon-button (click)="createPolicyInstance(policyType)">
+                    <mat-icon matTooltip="Create instance">add_box</mat-icon>
+                </button>
+            </mat-cell>
+        </ng-container>
+
+        <!-- =================== Policy instances for one type ======================== -->
+        <ng-container matColumnDef="instanceTableContainer">
+            <mat-cell *matCellDef="let policyType">
+                <rd-policy-instance 
+                [policyType]=policyType 
+                [expanded]=getObservable(policyType)>
+            </rd-policy-instance>
+            </mat-cell>
+        </ng-container>
+        <!-- ======= -->
+
+        <ng-container matColumnDef="noRecordsFound">
+            <mat-footer-cell *matFooterCellDef>No records found.</mat-footer-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="['name', 'description', 'action']"></mat-header-row>
+        <mat-row *matRowDef="let policyType; columns: ['name', 'description', 'action']"
+            (click)="toggleListInstances(policyType)">
+        </mat-row>
+
+        <mat-row *matRowDef="let policyType; columns: ['instanceTableContainer'];"
+            [@detailExpand]="isInstancesShown(policyType) ? 'expanded' : 'collapsed'" style="overflow: hidden">
+        </mat-row>
+
+        <mat-footer-row *matFooterRowDef="['noRecordsFound']"
+            [ngClass]="{'display-none': policyTypesDataSource.rowCount > 0}">
+        </mat-footer-row>
+
+    </table>
+
+    <div class="spinner-container" *ngIf="policyTypesDataSource.loading$ | async">
+        <mat-spinner diameter="50"></mat-spinner>
+    </div>
+</div>
