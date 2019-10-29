@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8f707407_3fa41d19",
+        "filename": "near-rt-ric-simulator/nearric-simulator/nearric-service/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2019-10-29T16:17:22Z",
+      "side": 1,
+      "message": "Fixed\n\nSeems to have no impact for me....",
+      "parentUuid": "16479f12_dc58a3d4",
+      "range": {
+        "startLine": 24,
+        "startChar": 12,
+        "endLine": 24,
+        "endChar": 27
+      },
+      "revId": "9d7ec95807aa0f5d492e4b44b22703b258a93258",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cef18e7f_32a18318",
         "filename": "near-rt-ric-simulator/nearric-simulator/nearric-service/pom.xml",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2019-10-29T09:40:32Z",
       "side": 1,
       "message": "I had to add this exclusion inside this dependency, otherwise it complains something about clashing logging frameworks.\n\n\u003cexclusions\u003e\n       \u003cexclusion\u003e\n                    \u003cgroupId\u003eorg.springframework.boot\u003c/groupId\u003e\n                    \u003cartifactId\u003espring-boot-starter-logging\u003c/artifactId\u003e\n        \u003c/exclusion\u003e\n\u003c/exclusions\u003e\n\nHave you built this successfully? Both me and Martin could not build it without adding this exclusion.",
+      "range": {
+        "startLine": 26,
+        "startChar": 3,
+        "endLine": 26,
+        "endChar": 13
+      },
+      "revId": "9d7ec95807aa0f5d492e4b44b22703b258a93258",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1bae8377_da353d80",
+        "filename": "near-rt-ric-simulator/nearric-simulator/nearric-service/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2019-10-29T16:17:22Z",
+      "side": 1,
+      "message": "Fixed\n\nBuilds fine for me before and after the change, strange. Perhaps just a warning for me, not checked.",
+      "parentUuid": "cef18e7f_32a18318",
       "range": {
         "startLine": 26,
         "startChar": 3,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "11635978_7e763cd7",
+        "filename": "near-rt-ric-simulator/nearric-simulator/nearric-service/src/main/java/org/onap/nearric/simulator/controller/A1PApiController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2019-10-29T16:17:22Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "fcc1aa43_f545ce0c",
+      "range": {
+        "startLine": 107,
+        "startChar": 6,
+        "endLine": 107,
+        "endChar": 50
+      },
+      "revId": "9d7ec95807aa0f5d492e4b44b22703b258a93258",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b7690328_2fec9fad",
         "filename": "near-rt-ric-simulator/nearric-simulator/nearric-service/src/main/java/org/onap/nearric/simulator/controller/A1PApiController.java",
         "patchSetId": 1
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "dcd530c9_99a8a202",
+        "filename": "near-rt-ric-simulator/nearric-simulator/nearric-service/src/main/java/org/onap/nearric/simulator/controller/A1PApiController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2019-10-29T16:17:22Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "b7690328_2fec9fad",
+      "range": {
+        "startLine": 108,
+        "startChar": 49,
+        "endLine": 108,
+        "endChar": 57
+      },
+      "revId": "9d7ec95807aa0f5d492e4b44b22703b258a93258",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "03659c3f_9781d200",
         "filename": "near-rt-ric-simulator/nearric-simulator/nearric-service/test/pt-template.json",
         "patchSetId": 1
@@ -105,6 +201,30 @@
       "writtenOn": "2019-10-29T09:40:32Z",
       "side": 1,
       "message": "Just a cosmetic change. I think we should swap \"name\" and \"description\" since the description should be more elaborate than name.\n\n\"description\": \"Policy type XXXX\",\n\"name\": \"PT XXXX\",",
+      "range": {
+        "startLine": 2,
+        "startChar": 3,
+        "endLine": 3,
+        "endChar": 28
+      },
+      "revId": "9d7ec95807aa0f5d492e4b44b22703b258a93258",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "82570979_bf98e54c",
+        "filename": "near-rt-ric-simulator/nearric-simulator/nearric-service/test/pt-template.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2019-10-29T16:17:22Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "03659c3f_9781d200",
       "range": {
         "startLine": 2,
         "startChar": 3,
