@@ -1,7 +1,0 @@
-{
-    "ports": [
-        {
-            "id": ${prop.lan.devicePortId},
-        }
-    ]
-}

@@ -1,7 +1,0 @@
-{
-    "tnps": [
-        {
-            "id": ${prop.wan.wanPortId},            
-        }
-    ]
-}

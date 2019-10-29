@@ -1,9 +1,0 @@
----
-- hosts: all
-  tasks:
-  - name: install jq package
-    apt:
-      name: jq
-      state: latest
-      update_cache: yes
-    become: true

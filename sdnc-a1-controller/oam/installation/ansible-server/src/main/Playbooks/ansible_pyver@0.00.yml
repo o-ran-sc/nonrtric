@@ -1,6 +1,0 @@
----
-- hosts: all
-  tasks:
-  - name: check the python version
-    shell: python --version  2>&1 | grep 2.7.12
-    become: true

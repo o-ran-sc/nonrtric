@@ -1,5 +1,0 @@
-{
-   "vdns-instance": [
-        ${payloadJson.configuration-parameters}
-   ]
-}

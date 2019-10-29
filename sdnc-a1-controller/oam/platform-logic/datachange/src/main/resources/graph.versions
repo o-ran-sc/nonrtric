@@ -1,7 +1,0 @@
-DataChange data-change-notification ${project.version} sync
-DataChange esr-thirdparty-sdnc ${project.version} sync
-DataChange esr-thirdparty-sdnc-of-zte ${project.version} sync
-DataChange validate-esr-thirdparty-sdnc-input ${project.version} sync
-DataChange esr-thirdparty-sdnc-discovery ${project.version} sync
-DataChange esr-thirdparty-sdnc-discovery-of-zte ${project.version} sync
-DataChange update-network-to-aai ${project.version} sync
