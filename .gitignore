@@ -1,1 +1,4 @@
+# Documentation
 .idea/
+.tox
+docs/_build/
