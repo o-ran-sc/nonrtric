@@ -1,0 +1,4 @@
+{
+  "/a1ric/*": "/$1",
+  "/:resource/:id/show": "/:resource/:id"
+}

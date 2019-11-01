@@ -1,0 +1,126 @@
+<!--
+  ========================LICENSE_START=================================
+  O-RAN-SC
+  %%
+  Copyright (C) 2019 AT&T Intellectual Property
+  %%
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+       http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  ========================LICENSE_END===================================
+  -->
+<!-- Slide Menu-->
+<mat-drawer-container autosize >
+  <mat-drawer #drawer mode="push" [ngClass]="{'side-menu__dark': darkModeActive}">
+  <section class="menu-header" [ngClass]="{'menu-header__dark': darkModeActive}">
+
+    <div class="left__section3Col" *ngIf="drawer.opened"  [ngClass]="{'menumargin-top': drawer.opened}">
+      <svg (click)="drawer.toggle()" class="hamburger__icon" id="Menu_Burger_Icon" data-name="Menu Burger Icon"
+           viewBox="31.5 30 49.9 32">
+        <rect id="Rectangle_9" width="49.9" height="4" [ngClass]="{'hamburger__icon__fill-dark': darkModeActive}"
+              class="hamburger__icon__fill" data-name="Rectangle 9" rx="2"
+              transform="translate(31.5 58)"/>
+        <rect id="Rectangle_10" width="49.9" height="4" [ngClass]="{'hamburger__icon__fill-dark': darkModeActive}"
+              class="hamburger__icon__fill" data-name="Rectangle 10" rx="2"
+              transform="translate(31.5 44)"/>
+        <rect id="Rectangle_11" width="49.9" height="4" [ngClass]="{'hamburger__icon__fill-dark': darkModeActive}"
+              class="hamburger__icon__fill" data-name="Rectangle 11" rx="2"
+              transform="translate(31.5 30)"/>
+      </svg>
+      <img src="../../assets/oran-logo.png" width="180%" height="100%" style="position: relative; z-index: 50"/>
+      <svg class="logo__icon" viewBox="150.3 22.2 400 50">
+        <text [ngClass]="{'logo__text-dark': darkModeActive}" class="logo__text" fill="#432c85"
+              font-size="30" font-weight="600"
+              letter-spacing=".1em" transform="translate(149 56)">
+          <tspan x="0" y="0">Non RT RIC Dashboard</tspan>
+        </text>
+      </svg>
+
+    </div>
+
+      <div class="profile-image__container">
+        <img src="assets/profile_default.png" alt="profile-image"
+             class="profile__image">
+      </div>
+      <div class="account-details">
+        <span class="name__text">Demo</span>
+        <span class="email__text">demo@o-ran-sc.org</span>
+      </div>
+    </section>
+    <section #sidenav class="menu-body" >
+       <rd-sidenav-list ></rd-sidenav-list>
+    </section>
+    <section class="menu-footer">
+
+    </section>
+</mat-drawer>
+
+<mat-drawer-content>
+<div class="root__container">
+
+  <header [ngClass]="{'main__header-dark': darkModeActive}" class="main__header">
+
+    <div class="left__section3Col" *ngIf="!drawer.opened">
+      <svg (click)="drawer.toggle()" class="hamburger__icon" id="Menu_Burger_Icon" data-name="Menu Burger Icon"
+           viewBox="31.5 30 49.9 32">
+        <rect id="Rectangle_9" width="49.9" height="4" [ngClass]="{'hamburger__icon__fill-dark': darkModeActive}"
+              class="hamburger__icon__fill" data-name="Rectangle 9" rx="2"
+              transform="translate(31.5 58)"/>
+        <rect id="Rectangle_10" width="49.9" height="4" [ngClass]="{'hamburger__icon__fill-dark': darkModeActive}"
+              class="hamburger__icon__fill" data-name="Rectangle 10" rx="2"
+              transform="translate(31.5 44)"/>
+        <rect id="Rectangle_11" width="49.9" height="4" [ngClass]="{'hamburger__icon__fill-dark': darkModeActive}"
+              class="hamburger__icon__fill" data-name="Rectangle 11" rx="2"
+              transform="translate(31.5 30)"/>
+      </svg>
+      <img src="../../assets/oran-logo.png" width="180%" height="100%" style="position: relative; z-index: 50"/>
+      <svg class="logo__icon" viewBox="150.3 22.2 400 50">
+        <text [ngClass]="{'logo__text-dark': darkModeActive}" class="logo__text" fill="#432c85"
+              font-size="30" font-weight="600"
+              letter-spacing=".1em" transform="translate(149 56)">
+          <tspan x="0" y="0">Non RT RIC Dashboard</tspan>
+        </text>
+      </svg>
+
+    </div>
+
+    <h3 class="date__text"></h3>
+
+    <div class="mode-toggle__container">
+      <span class="mode-toggle__text">Light</span>
+      <label class="toggle-button__container">
+        <input (click)="modeToggleSwitch()" type="checkbox" class="mode-toggle__input"/>
+        <span [ngClass]="{'mode-toggle__bg-checked': darkModeActive}" class="mode-toggle__bg"></span>
+        <span [ngClass]="{'mode-toggle__circle-checked': darkModeActive}" class="mode-toggle__circle"></span>
+      </label>
+      <span class="mode-toggle__text">Dark</span>
+    </div>
+
+  </header>
+
+  <!-- Main Content -->
+  <main class="main__container" [ngClass]="{'main-container__bg-dark': darkModeActive}" >
+    <div class = main__container__body [ngClass]="{'dark-theme': darkModeActive}">
+      <div class="main-container__bg"></div>
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="main__footer" [ngClass]="{'main-footer__bg-dark': darkModeActive}">
+    <div class="main-footer__bg">
+      <rd-footer></rd-footer>
+    </div>
+  </footer>
+
+</div>
+</mat-drawer-content>
+</mat-drawer-container>

@@ -1,0 +1,89 @@
+<!--
+  ========================LICENSE_START=================================
+  O-RAN-SC
+  %%
+  Copyright (C) 2019 AT&T Intellectual Property
+  %%
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  ========================LICENSE_END===================================
+-->
+
+<div class="ran-control__section">
+  <h3 class="rd-global-page-title">RAN Connections</h3>
+
+  <button mat-raised-button (click)="setupRANConnection()">Setup Connection..</button>
+  <button mat-raised-button color="warn" class="disconnect-all-button"
+    (click)="disconnectAllRANConnections()">Disconnect All</button>
+
+  <table mat-table class="ran-control-table mat-elevation-z8" [dataSource]="dataSource">
+
+    <ng-template #noValue></ng-template>
+
+    <ng-container matColumnDef="nbId">
+      <mat-header-cell *matHeaderCellDef>Nodeb ID</mat-header-cell>
+      <mat-cell *matCellDef="let ran">
+        <div *ngIf="ran.nodebIdentity.globalNbId; else noValue">{{ran.nodebIdentity.globalNbId.nbId}}</div>
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="nodeType">
+      <mat-header-cell *matHeaderCellDef>Node Type</mat-header-cell>
+      <mat-cell *matCellDef="let ran">
+        <div *ngIf="ran.nodebStatus; else noValue">{{ran.nodebStatus.nodeType}}</div>
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="ranName">
+      <mat-header-cell *matHeaderCellDef>RAN Name</mat-header-cell>
+      <mat-cell *matCellDef="let ran">
+        <div *ngIf="ran.nodebIdentity; else noValue">{{ran.nodebIdentity.inventoryName}}</div>
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="ranIp">
+      <mat-header-cell *matHeaderCellDef>IP</mat-header-cell>
+      <mat-cell *matCellDef="let ran">
+        <div *ngIf="ran.nodebStatus; else noValue">{{ran.nodebStatus.ip}}</div>
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="ranPort">
+      <mat-header-cell *matHeaderCellDef>Port</mat-header-cell>
+      <mat-cell *matCellDef="let ran">
+        <div *ngIf="ran.nodebStatus; else noValue">{{ran.nodebStatus.port}}</div>
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="connectionStatus">
+      <mat-header-cell *matHeaderCellDef>Connection Status</mat-header-cell>
+      <mat-cell *matCellDef="let ran">
+        <div *ngIf="ran.nodebStatus; else noValue">{{ran.nodebStatus.connectionStatus}}</div>
+      </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="noRecordsFound">
+      <mat-footer-cell *matFooterCellDef>No records found.</mat-footer-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+    <mat-footer-row *matFooterRowDef="['noRecordsFound']" [ngClass]="{'display-none': dataSource.rowCount > 0}">
+    </mat-footer-row>
+
+  </table>
+
+  <div class="spinner-container" *ngIf="dataSource.loading$ | async">
+    <mat-spinner diameter=50></mat-spinner>
+  </div>
+
+</div>
