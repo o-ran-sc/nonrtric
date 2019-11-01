@@ -1,7 +1,0 @@
-{
-    "deviceIds": [${repeat:prop.devices_length:
-                                ${prop.devices[${1}]},
-                                }
-                             ]
-}
-

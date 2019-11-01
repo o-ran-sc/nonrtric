@@ -1,6 +1,0 @@
-
-{
-  "input":{
-     "topology-name":${prop.zte.odutopo.name}
-  }
-}

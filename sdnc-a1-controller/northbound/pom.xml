@@ -22,9 +22,6 @@
 	</organization>
 
 	<modules>
-		<module>generic-resource-api</module>
-		<module>vnfapi</module>
-		<module>vnftools</module>
 		<module>features</module>
 		<module>nonrt-ric-api</module>
 	</modules>

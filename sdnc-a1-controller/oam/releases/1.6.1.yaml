@@ -1,5 +1,0 @@
----
-distribution_type: 'maven'
-version: '1.6.1'
-project: 'sdnc-oam'
-log_dir: 'sdnc-oam-maven-stage-master/165/'
