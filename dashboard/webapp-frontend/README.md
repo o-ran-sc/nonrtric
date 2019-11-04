@@ -29,6 +29,7 @@ To get more help on the Angular CLI use `ng help` or go check out the [Angular C
 ## License
 
 Copyright (C) 2019 AT&T Intellectual Property. All rights reserved.
+Modifications Copyright (C) 2019 Nordix Foundation
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at

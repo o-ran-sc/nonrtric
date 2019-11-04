@@ -1,6 +1,6 @@
-# O-RAN-SC RIC Dashboard Web Application
+# O-RAN-SC NonRT RIC Dashboard Web Application
 
-The O-RAN SC RIC Dashboard provides administrative and operator
+The O-RAN NonRT RIC Dashboard provides administrative and operator
 functions for a radio access network (RAN) controller.
 This web app consists of an Angular (version 8) front end
 and a Java (version 11) Spring-Boot (version 2.1) back end.
@@ -13,6 +13,7 @@ URL `http://your-host-name-here:8080/swagger-ui.html`
 ## License
 
 Copyright (C) 2019 AT&T Intellectual Property. All rights reserved.
+Modifications Copyright (C) 2019 Nordix Foundation
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at

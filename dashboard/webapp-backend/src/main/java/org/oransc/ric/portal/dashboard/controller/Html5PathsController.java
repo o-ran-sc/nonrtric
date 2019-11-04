@@ -3,6 +3,7 @@
  * O-RAN-SC
  * %%
  * Copyright (C) 2019 AT&T Intellectual Property
+ * Modifications Copyright (C) 2019 Nordix Foundation
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +57,7 @@ public class Html5PathsController {
 	 *                         On error
 	 */
 	@RequestMapping(method = { RequestMethod.OPTIONS, RequestMethod.GET }, //
-			path = { "/catalog", "/control", "/stats", "/user" })
+			path = { "/policy", "/user" })
 	public void forwardAngularRoutes(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		URL url = new URL(request.getScheme(), request.getServerName(), request.getServerPort(), "/index.html");
 		if (logger.isDebugEnabled())

@@ -3,6 +3,7 @@
  * O-RAN-SC
  * %%
  * Copyright (C) 2019 AT&T Intellectual Property
+ * Modifications Copyright (C) 2019 Nordix Foundation
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +41,8 @@ export class FooterComponent implements OnInit {
               public ui: UiService ) { }
 
   ngOnInit() {
-    this.dashboardService.getVersion().subscribe((res: DashboardSuccessTransport) => this.dashboardVersion = res.data);
+    this.dashboardVersion = '0.0';
+    //this.dashboardService.getVersion().subscribe((res: DashboardSuccessTransport) => this.dashboardVersion = res.data);
     this.ui.darkModeState.subscribe((isDark) => {
       this.darkMode = isDark;
     });

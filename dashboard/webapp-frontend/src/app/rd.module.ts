@@ -35,15 +35,10 @@ import { ChartsModule } from 'ng2-charts';
 import { MDBBootstrapModule } from 'angular-bootstrap-md';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ToastrModule } from 'ngx-toastr';
-
-import { AddDashboardUserDialogComponent } from './user/add-dashboard-user-dialog/add-dashboard-user-dialog.component';
-import { AppControlComponent } from './app-control/app-control.component';
 import { AppMgrService } from './services/app-mgr/app-mgr.service';
 import { ConfirmDialogComponent } from './ui/confirm-dialog/confirm-dialog.component';
-import { ControlComponent } from './control/control.component';
 import { DashboardService } from './services/dashboard/dashboard.service';
 import { E2ManagerService } from './services/e2-mgr/e2-mgr.service';
-import { EditDashboardUserDialogComponent } from './user/edit-dashboard-user-dialog/edit-dashboard-user-dialog.component';
 import { ErrorDialogComponent } from './ui/error-dialog/error-dialog.component';
 import { ErrorDialogService } from './services/ui/error-dialog.service';
 import { FlexLayoutModule } from '@angular/flex-layout';
@@ -56,21 +51,14 @@ import { PolicyCardComponent } from './ui/policy-card/policy-card.component';
 import { PolicyControlComponent } from './policy-control/policy-control.component';
 import { PolicyInstanceComponent } from './policy-control/policy-instance.component';
 import { PolicyInstanceDialogComponent } from './policy-control/policy-instance-dialog.component';
-import { RanControlComponent } from './ran-control/ran-control.component';
-import { RanControlConnectDialogComponent } from './ran-control/ran-connection-dialog.component';
 import { RdComponent } from './rd.component';
 import { RdRoutingModule } from './rd-routing.module';
 import { SidenavListComponent } from './navigation/sidenav-list/sidenav-list.component';
 import { UiService } from './services/ui/ui.service';
-import { UserComponent } from './user/user.component';
 
 @NgModule({
-  declarations: [
-    AddDashboardUserDialogComponent,
-    AppControlComponent,
+  declarations: [   
     ConfirmDialogComponent,
-    ControlComponent,
-    EditDashboardUserDialogComponent,
     ErrorDialogComponent,
     FooterComponent,
     LoadingDialogComponent,
@@ -80,11 +68,8 @@ import { UserComponent } from './user/user.component';
     PolicyControlComponent,
     PolicyInstanceComponent,
     PolicyInstanceDialogComponent,
-    RanControlComponent,
-    RanControlConnectDialogComponent,
     RdComponent,
     SidenavListComponent,   
-    UserComponent
   ],
   imports: [
     BrowserModule,
@@ -140,17 +125,13 @@ import { UserComponent } from './user/user.component';
     MatSidenavModule,
     MatSliderModule,
     MatSlideToggleModule,
-    MatTabsModule,
-    RanControlConnectDialogComponent
+    MatTabsModule
   ],
-  entryComponents: [
-    AddDashboardUserDialogComponent,
-    ConfirmDialogComponent,
-    EditDashboardUserDialogComponent,
+  entryComponents: [  
+    ConfirmDialogComponent,   
     ErrorDialogComponent,
     LoadingDialogComponent,
-    PolicyInstanceDialogComponent,
-    RanControlConnectDialogComponent
+    PolicyInstanceDialogComponent
   ],
   providers: [
     AppMgrService,
