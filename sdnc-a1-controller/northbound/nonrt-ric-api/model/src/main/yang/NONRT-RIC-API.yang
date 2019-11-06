@@ -10,16 +10,19 @@ module A1-ADAPTER-API {
 
     revision "2019-10-02" {
         description
-        "A1 adapter for Frankfurt";
+        "A1 adapter";
     }
 
-///Flattend interface using RPC
+    ///Flattend interface using RPC
 
     //Get an array of near-rt-ric IDs,
     //Each item in the returned array will be regarded as one near-rt-ric-id.
     rpc getNearRT-RICs {
         output {
             leaf-list near-rt-ric-id-list {
+                type string;
+            }
+            leaf code {
                 type string;
             }
         }
@@ -37,6 +40,9 @@ module A1-ADAPTER-API {
             leaf health-status {
                 type boolean;
             }
+            leaf code {
+                type string;
+            }
         }
     }
 
@@ -52,6 +58,9 @@ module A1-ADAPTER-API {
         output {
             leaf-list policy-type-id-list {
                 type uint32;
+            }
+            leaf code {
+                type string;
             }
         }
     }
@@ -76,9 +85,6 @@ module A1-ADAPTER-API {
             }
         }
        output {
-            leaf status {
-                type string;
-            }
             leaf code {
                 type string;
             }
@@ -105,6 +111,9 @@ module A1-ADAPTER-API {
             leaf policy-type {
                 type string;
             }
+            leaf code {
+                type string;
+            }
         }
     }
 
@@ -116,6 +125,11 @@ module A1-ADAPTER-API {
             }
             leaf policy-type-id {
                 type uint32;
+            }
+        }
+        output {
+            leaf code {
+                type string;
             }
         }
     }
@@ -136,6 +150,9 @@ module A1-ADAPTER-API {
             leaf-list policy-instance-id-list {
                 type string;
             }
+            leaf code {
+                type string;
+            }
         }
     }
 
@@ -152,6 +169,11 @@ module A1-ADAPTER-API {
                 type string;
             }
             leaf policy-instance {
+                type string;
+            }
+        }
+        output {
+            leaf code {
                 type string;
             }
         }
@@ -174,6 +196,9 @@ module A1-ADAPTER-API {
             leaf policy-instance {
                 type string;
             }
+            leaf code {
+                type string;
+            }
         }
     }
 
@@ -187,6 +212,11 @@ module A1-ADAPTER-API {
                 type uint32;
             }
             leaf policy-instance-id {
+                type string;
+            }
+        }
+        output {
+            leaf code {
                 type string;
             }
         }
@@ -207,6 +237,9 @@ module A1-ADAPTER-API {
         }
         output {
             leaf status {
+                type string;
+            }
+            leaf code {
                 type string;
             }
         }

@@ -20,7 +20,8 @@
 
 package org.onap.sdnc.northbound.provider;
 
-import com.google.common.base.Optional;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -34,6 +35,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.json.JSONObject;
+import org.onap.sdnc.northbound.exceptions.NearRtRicNotFoundException;
 import org.onap.sdnc.northbound.restadpter.NearRicUrlProvider;
 import org.onap.sdnc.northbound.restadpter.RestAdapter;
 import org.onap.sdnc.northbound.restadpter.RestAdapterImpl;
@@ -81,6 +83,9 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClientResponseException;
 
 /**
  * Defines a base implementation for your provider. This class overrides the generated interface
@@ -100,8 +105,6 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
   protected static final String NO_SERVICE_LOGIC_ACTIVE = "No service logic active for ";
   private static final String NON_NULL_PARAM = "non-null";
   private static final String NULL_PARAM = "null";
-  private static final String RESPONSE_SUCCESS = "Success";
-  private static final String RESPONSE_CODE_SUCCESS = "200";
 
   private final Logger log = LoggerFactory.getLogger(NonrtRicApiProvider.class);
   private final ExecutorService executor;
@@ -201,11 +204,20 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
   public ListenableFuture<RpcResult<CreatePolicyInstanceOutput>> createPolicyInstance(
       CreatePolicyInstanceInput input) {
     log.info("Start of createPolicyInstance");
-    String uri = nearRicUrlProvider.getPolicyInstanceId(String.valueOf(input.getNearRtRicId()),
-            String.valueOf(input.getPolicyTypeId()), String.valueOf(input.getPolicyInstanceId()));
-    log.info("PUT Request input.getPolicyInstance() : {} ", input.getPolicyInstance());
-    restAdapter.put(uri, input.getPolicyInstance());
     CreatePolicyInstanceOutputBuilder responseBuilder = new CreatePolicyInstanceOutputBuilder();
+    try {
+        String uri = nearRicUrlProvider.getPolicyInstanceId(String.valueOf(input.getNearRtRicId()),
+                String.valueOf(input.getPolicyTypeId()), String.valueOf(input.getPolicyInstanceId()));
+        log.info("PUT Request input.getPolicyInstance() : {} ", input.getPolicyInstance());
+        ResponseEntity<Void> response = restAdapter.put(uri, input.getPolicyInstance());
+        responseBuilder.setCode(response.getStatusCode().toString());
+    } catch (NearRtRicNotFoundException ex) {
+        log.error("Caught exception: {}", ex);
+        responseBuilder.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
+    } catch (RestClientResponseException ex) {
+        log.error("Caught exception: {}", ex);
+        responseBuilder.setCode(String.valueOf(ex.getRawStatusCode()));
+    }
     log.info("End of createPolicyInstance");
     RpcResult<CreatePolicyInstanceOutput> rpcResult = RpcResultBuilder
         .<CreatePolicyInstanceOutput>status(true).withResult(responseBuilder.build()).build();
@@ -216,13 +228,20 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
   public ListenableFuture<RpcResult<CreatePolicyTypeOutput>> createPolicyType(
       CreatePolicyTypeInput input) {
     log.info("Start of createPolicyType");
-    String uri = nearRicUrlProvider.getPolicyTypeId(String.valueOf(input.getNearRtRicId()),
-            String.valueOf(input.getPolicyTypeId()));
-    log.info("PUT Request input.getPolicyType() : {} ", input.getPolicyType());
-    restAdapter.put(uri, input.getPolicyType());
     CreatePolicyTypeOutputBuilder responseBuilder = new CreatePolicyTypeOutputBuilder();
-    responseBuilder.setCode(RESPONSE_CODE_SUCCESS);
-    responseBuilder.setStatus(RESPONSE_SUCCESS);
+    try {
+        String uri = nearRicUrlProvider.getPolicyTypeId(String.valueOf(input.getNearRtRicId()),
+                String.valueOf(input.getPolicyTypeId()));
+        log.info("PUT Request input.getPolicyType() : {} ", input.getPolicyType());
+        ResponseEntity<Void> response = restAdapter.put(uri, input.getPolicyType());
+        responseBuilder.setCode(response.getStatusCode().toString());
+    } catch (NearRtRicNotFoundException ex) {
+        log.error("Caught exception: {}", ex);
+        responseBuilder.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
+    } catch (RestClientResponseException ex) {
+        log.error("Caught exception: {}", ex);
+        responseBuilder.setCode(String.valueOf(ex.getRawStatusCode()));
+    }
     log.info("End of createPolicyType");
     RpcResult<CreatePolicyTypeOutput> rpcResult = RpcResultBuilder
         .<CreatePolicyTypeOutput>status(true).withResult(responseBuilder.build()).build();
@@ -233,10 +252,19 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
   public ListenableFuture<RpcResult<DeletePolicyInstanceOutput>> deletePolicyInstance(
       DeletePolicyInstanceInput input) {
     log.info("Start of deletePolicyInstance");
-    String uri = nearRicUrlProvider.getPolicyInstanceId(String.valueOf(input.getNearRtRicId()),
-            String.valueOf(input.getPolicyTypeId()), String.valueOf(input.getPolicyInstanceId()));
-    restAdapter.delete(uri);
     DeletePolicyInstanceOutputBuilder responseBuilder = new DeletePolicyInstanceOutputBuilder();
+    try {
+        String uri = nearRicUrlProvider.getPolicyInstanceId(String.valueOf(input.getNearRtRicId()),
+                String.valueOf(input.getPolicyTypeId()), String.valueOf(input.getPolicyInstanceId()));
+        ResponseEntity<Void> response = restAdapter.delete(uri);
+        responseBuilder.setCode(response.getStatusCode().toString());
+    } catch (NearRtRicNotFoundException ex) {
+        log.error("Caught exception: {}", ex);
+        responseBuilder.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
+    } catch (RestClientResponseException ex) {
+        log.error("Caught exception: {}", ex);
+        responseBuilder.setCode(String.valueOf(ex.getRawStatusCode()));
+    }
     log.info("End of deletePolicyInstance");
     RpcResult<DeletePolicyInstanceOutput> rpcResult = RpcResultBuilder
         .<DeletePolicyInstanceOutput>status(true).withResult(responseBuilder.build()).build();
@@ -247,10 +275,19 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
   public ListenableFuture<RpcResult<DeletePolicyTypeOutput>> deletePolicyType(
       DeletePolicyTypeInput input) {
     log.info("Start of deletePolicyType");
-    String uri = nearRicUrlProvider.getPolicyTypeId(String.valueOf(input.getNearRtRicId()),
-            String.valueOf(input.getPolicyTypeId()));
-    restAdapter.delete(uri);
     DeletePolicyTypeOutputBuilder responseBuilder = new DeletePolicyTypeOutputBuilder();
+    try {
+        String uri = nearRicUrlProvider.getPolicyTypeId(String.valueOf(input.getNearRtRicId()),
+                String.valueOf(input.getPolicyTypeId()));
+        ResponseEntity<Void> response = restAdapter.delete(uri);
+        responseBuilder.setCode(response.getStatusCode().toString());
+    } catch (NearRtRicNotFoundException ex) {
+        log.error("Caught exception: {}", ex);
+        responseBuilder.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
+    } catch (RestClientResponseException ex) {
+        log.error("Caught exception: {}", ex);
+        responseBuilder.setCode(String.valueOf(ex.getRawStatusCode()));
+    }
     log.info("End of deletePolicyType");
     RpcResult<DeletePolicyTypeOutput> rpcResult = RpcResultBuilder
         .<DeletePolicyTypeOutput>status(true).withResult(responseBuilder.build()).build();
@@ -261,10 +298,22 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
   public ListenableFuture<RpcResult<GetHealthCheckOutput>> getHealthCheck(
       GetHealthCheckInput input) {
     log.info("Start of getHealthCheck");
-    String uri = nearRicUrlProvider.getHealthCheck(String.valueOf(input.getNearRtRicId()));
-    restAdapter.get(uri, String.class);
     GetHealthCheckOutputBuilder responseBuilder = new GetHealthCheckOutputBuilder();
-    responseBuilder.setHealthStatus(true);
+    try {
+        String uri = nearRicUrlProvider.getHealthCheck(String.valueOf(input.getNearRtRicId()));
+        ResponseEntity<Object> response = restAdapter.get(uri, Object.class);
+        responseBuilder.setHealthStatus(false);
+        if (response.getStatusCode().equals(HttpStatus.OK)) {
+            responseBuilder.setHealthStatus(true);
+        }
+        responseBuilder.setCode(response.getStatusCode().toString());
+    } catch (NearRtRicNotFoundException ex) {
+        log.error("Caught exception: {}", ex);
+        responseBuilder.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
+    } catch (RestClientResponseException ex) {
+        log.error("Caught exception: {}", ex);
+        responseBuilder.setCode(String.valueOf(ex.getRawStatusCode()));
+    }
     log.info("End of getHealthCheck");
     RpcResult<GetHealthCheckOutput> rpcResult = RpcResultBuilder.<GetHealthCheckOutput>status(true)
         .withResult(responseBuilder.build()).build();
@@ -276,6 +325,7 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
       log.info("Start of getNearRTRICs");
       GetNearRTRICsOutputBuilder responseBuilder = new GetNearRTRICsOutputBuilder();
       responseBuilder.setNearRtRicIdList(nearRicUrlProvider.getNearRTRicIdsList());
+      responseBuilder.setCode(HttpStatus.OK.toString());
       log.info("End of getNearRTRICs");
       RpcResult<GetNearRTRICsOutput> rpcResult = RpcResultBuilder.<GetNearRTRICsOutput>status(true)
           .withResult(responseBuilder.build()).build();
@@ -287,13 +337,22 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
       GetPolicyInstanceInput input) {
     log.info("Start of getPolicyInstance");
     log.info("Policy Type Id : {},  Policy Instance Id : {}", input.getPolicyTypeId(), input.getPolicyInstanceId());
-    String uri = nearRicUrlProvider.getPolicyInstanceId(String.valueOf(input.getNearRtRicId()),
-            String.valueOf(input.getPolicyTypeId()), String.valueOf(input.getPolicyInstanceId()));
-    Optional<String> policyInstance = restAdapter.get(uri, String.class);
     GetPolicyInstanceOutputBuilder responseBuilder = new GetPolicyInstanceOutputBuilder();
-    if (policyInstance.isPresent()) {
-        log.info("Response policyInstance.get() : {} ", policyInstance.get());
-        responseBuilder.setPolicyInstance(policyInstance.get());
+    try {
+        String uri = nearRicUrlProvider.getPolicyInstanceId(String.valueOf(input.getNearRtRicId()),
+                String.valueOf(input.getPolicyTypeId()), String.valueOf(input.getPolicyInstanceId()));
+        ResponseEntity<String> response = restAdapter.get(uri, String.class);
+        if (response.hasBody()) {
+            log.info("Response getPolicyInstance : {} ", response.getBody());
+            responseBuilder.setPolicyInstance(response.getBody());
+        }
+        responseBuilder.setCode(response.getStatusCode().toString());
+    } catch (NearRtRicNotFoundException ex) {
+        log.error("Caught exception: {}", ex);
+        responseBuilder.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
+    } catch (RestClientResponseException ex) {
+        log.error("Caught exception: {}", ex);
+        responseBuilder.setCode(String.valueOf(ex.getRawStatusCode()));
     }
     log.info("End of getPolicyInstance");
     RpcResult<GetPolicyInstanceOutput> rpcResult = RpcResultBuilder
@@ -305,13 +364,22 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
   public ListenableFuture<RpcResult<GetPolicyInstancesOutput>> getPolicyInstances(
       GetPolicyInstancesInput input) {
     log.info("Start of getPolicyInstances");
-    String uri = nearRicUrlProvider.getPolicyInstances(String.valueOf(input.getNearRtRicId()),
-            String.valueOf(input.getPolicyTypeId()));
-    Optional<List<String>> policyInstances = restAdapter.get(uri, List.class);
     GetPolicyInstancesOutputBuilder responseBuilder = new GetPolicyInstancesOutputBuilder();
-    if (policyInstances.isPresent()) {
-      log.info("Response policyInstances.get() : {} ", policyInstances.get());
-      responseBuilder.setPolicyInstanceIdList(policyInstances.get());
+    try {
+        String uri = nearRicUrlProvider.getPolicyInstances(String.valueOf(input.getNearRtRicId()),
+                String.valueOf(input.getPolicyTypeId()));
+        ResponseEntity<List<String>> response = restAdapter.get(uri, List.class);
+        if (response.hasBody()) {
+          log.info("Response getPolicyInstances : {} ", response.getBody());
+          responseBuilder.setPolicyInstanceIdList(response.getBody());
+        }
+        responseBuilder.setCode(response.getStatusCode().toString());
+    } catch (NearRtRicNotFoundException ex) {
+        log.error("Caught exception: {}", ex);
+        responseBuilder.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
+    } catch (RestClientResponseException ex) {
+        log.error("Caught exception: {}", ex);
+        responseBuilder.setCode(String.valueOf(ex.getRawStatusCode()));
     }
     log.info("End of getPolicyInstances");
     RpcResult<GetPolicyInstancesOutput> rpcResult = RpcResultBuilder
@@ -323,16 +391,25 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
   public ListenableFuture<RpcResult<GetPolicyTypeOutput>> getPolicyType(GetPolicyTypeInput input) {
     log.info("Start of getPolicyType");
     log.info("Policy Type Id : {} ", input.getPolicyTypeId());
-    String uri = nearRicUrlProvider.getPolicyTypeId(String.valueOf(input.getNearRtRicId()),
-            String.valueOf(input.getPolicyTypeId()));
-    Optional<String> policyType = restAdapter.get(uri, String.class);
     GetPolicyTypeOutputBuilder responseBuilder = new GetPolicyTypeOutputBuilder();
-    if (policyType.isPresent()) {
-      log.info("Response policyType.get() : {} ", policyType.get());
-      JSONObject policyTypeObj = new JSONObject(policyType.get());
-      responseBuilder.setDescription(policyTypeObj.getString("description"));
-      responseBuilder.setName(policyTypeObj.getString("name"));
-      responseBuilder.setPolicyType(policyTypeObj.getJSONObject("create_schema").toString());
+    try {
+        String uri = nearRicUrlProvider.getPolicyTypeId(String.valueOf(input.getNearRtRicId()),
+                String.valueOf(input.getPolicyTypeId()));
+        ResponseEntity<String> response = restAdapter.get(uri, String.class);
+        if (response.hasBody()) {
+            log.info("Response getPolicyType : {} ", response.getBody());
+            JSONObject policyTypeObj = new JSONObject(response.getBody());
+            responseBuilder.setDescription(policyTypeObj.getString("description"));
+            responseBuilder.setName(policyTypeObj.getString("name"));
+            responseBuilder.setPolicyType(policyTypeObj.getJSONObject("create_schema").toString());
+        }
+        responseBuilder.setCode(response.getStatusCode().toString());
+    } catch (NearRtRicNotFoundException ex) {
+        log.error("Caught exception: {}", ex);
+        responseBuilder.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
+    } catch (RestClientResponseException ex) {
+        log.error("Caught exception: {}", ex);
+        responseBuilder.setCode(String.valueOf(ex.getRawStatusCode()));
     }
     log.info("End of getPolicyType");
     RpcResult<GetPolicyTypeOutput> rpcResult = RpcResultBuilder.<GetPolicyTypeOutput>status(true)
@@ -344,17 +421,26 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
   public ListenableFuture<RpcResult<GetPolicyTypesOutput>> getPolicyTypes(
       GetPolicyTypesInput input) {
     log.info("Start of getPolicyTypes");
-    String uri = nearRicUrlProvider.getPolicyTypes(String.valueOf(input.getNearRtRicId()));
-    Optional<List<Integer>> policyTypes = restAdapter.get(uri, List.class);
     GetPolicyTypesOutputBuilder responseBuilder = new GetPolicyTypesOutputBuilder();
-    if (policyTypes.isPresent()) {
-        log.info("Response policyTypes.get() : {} ", policyTypes.get());
-        List<Integer> policyTypesListInteger = policyTypes.get();
-        List<Long> policyTypesListLong = new ArrayList<>();
-        for(Integer i : policyTypesListInteger){
-            policyTypesListLong.add(i.longValue());
+    try {
+        String uri = nearRicUrlProvider.getPolicyTypes(String.valueOf(input.getNearRtRicId()));
+        ResponseEntity<List<Integer>> response = restAdapter.get(uri, List.class);
+        if (response.hasBody()) {
+            log.info("Response getPolicyTypes : {} ", response.getBody());
+            List<Integer> policyTypesListInteger = response.getBody();
+            List<Long> policyTypesListLong = new ArrayList<>();
+            for(Integer i : policyTypesListInteger){
+                policyTypesListLong.add(i.longValue());
+            }
+            responseBuilder.setPolicyTypeIdList(policyTypesListLong);
         }
-        responseBuilder.setPolicyTypeIdList(policyTypesListLong);
+        responseBuilder.setCode(response.getStatusCode().toString());
+    } catch (NearRtRicNotFoundException ex) {
+        log.error("Caught exception: {}", ex);
+        responseBuilder.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
+    } catch (RestClientResponseException ex) {
+        log.error("Caught exception: {}", ex);
+        responseBuilder.setCode(String.valueOf(ex.getRawStatusCode()));
     }
     log.info("End of getPolicyTypes");
     RpcResult<GetPolicyTypesOutput> rpcResult = RpcResultBuilder.<GetPolicyTypesOutput>status(true)
@@ -365,14 +451,25 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
   @Override
   public ListenableFuture<RpcResult<GetStatusOutput>> getStatus(GetStatusInput input) {
     log.info("Start of getStatus");
-    String uri = nearRicUrlProvider.getPolicyInstanceIdStatus(String.valueOf(input.getNearRtRicId()),
-        String.valueOf(input.getPolicyTypeId()), String.valueOf(input.getPolicyInstanceId()));
-    Optional<String> status = restAdapter.get(uri, String.class);
     GetStatusOutputBuilder responseBuilder = new GetStatusOutputBuilder();
-    if (status.isPresent()) {
-        log.info("Response status.get() : {} ", status.get());
-        JSONObject statusObj = new JSONObject(status.get());
-        responseBuilder.setStatus(statusObj.getString("status"));
+    try {
+        String uri = nearRicUrlProvider.getPolicyInstanceIdStatus(String.valueOf(input.getNearRtRicId()),
+                String.valueOf(input.getPolicyTypeId()), String.valueOf(input.getPolicyInstanceId()));
+        ResponseEntity<List<Object>> response = restAdapter.get(uri, List.class);
+        if (response.hasBody()) {
+            log.info("Response getStatus : {} ", response.getBody());
+            ObjectMapper objectMapper = new ObjectMapper();
+            // only return the status of first handler for compliance with current yang model, ignore handler_id
+            JSONObject statusObj = new JSONObject(objectMapper.writeValueAsString(response.getBody().get(0)));
+            responseBuilder.setStatus(statusObj.getString("status"));
+        }
+        responseBuilder.setCode(response.getStatusCode().toString());
+    } catch (JsonProcessingException | NearRtRicNotFoundException ex) {
+        log.error("Caught exception: {}", ex);
+        responseBuilder.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
+    } catch (RestClientResponseException ex) {
+        log.error("Caught exception: {}", ex);
+        responseBuilder.setCode(String.valueOf(ex.getRawStatusCode()));
     }
     log.info("End of getStatus");
     RpcResult<GetStatusOutput> rpcResult =
