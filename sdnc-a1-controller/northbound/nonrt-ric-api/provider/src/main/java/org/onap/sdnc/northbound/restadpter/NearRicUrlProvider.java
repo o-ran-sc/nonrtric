@@ -27,6 +27,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
+import org.onap.sdnc.northbound.exceptions.NearRtRicNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -84,6 +85,9 @@ public class NearRicUrlProvider {
    * @return the base url
    */
   public String getBaseUrl(final String nearRtRicId) {
+    if (!nearRicMap.containsKey(nearRtRicId)) {
+        throw new NearRtRicNotFoundException("NearRtRic with this ID is not known by the A1 controller");
+    }
     String baseUrl = "http://" + nearRicMap.get(nearRtRicId) + "/a1-p/";
     return UriComponentsBuilder.fromUriString(baseUrl).build().toString();
   }
@@ -114,7 +118,8 @@ public class NearRicUrlProvider {
    * @param policyTypeId Policy Type Id
    * @return the policy type id url
    */
-  public String getPolicyTypeId(final String nearRtRicId, final String policyTypeId) {
+  public String getPolicyTypeId(final String nearRtRicId,
+          final String policyTypeId) {
     return UriComponentsBuilder.fromUriString(getBaseUrl(nearRtRicId)).pathSegment("policytypes")
         .pathSegment(policyTypeId).build().toString();
   }
@@ -125,7 +130,8 @@ public class NearRicUrlProvider {
    * @param policyTypeId Policy Type Id
    * @return the policy instances for the given policy type
    */
-  public String getPolicyInstances(final String nearRtRicId, final String policyTypeId) {
+  public String getPolicyInstances(final String nearRtRicId,
+          final String policyTypeId) {
     return UriComponentsBuilder.fromUriString(getPolicyTypeId(nearRtRicId, policyTypeId)).pathSegment("policies")
         .build().toString();
   }
@@ -137,7 +143,8 @@ public class NearRicUrlProvider {
    * @param policyInstanceId Policy Instance Id
    * @return the policy instance id for the given policy type
    */
-  public String getPolicyInstanceId(final String nearRtRicId, final String policyTypeId, final String policyInstanceId) {
+  public String getPolicyInstanceId(final String nearRtRicId, final String policyTypeId,
+          final String policyInstanceId) {
     return UriComponentsBuilder.fromUriString(getPolicyTypeId(nearRtRicId, policyTypeId)).pathSegment("policies")
         .pathSegment(policyInstanceId).build().toString();
   }

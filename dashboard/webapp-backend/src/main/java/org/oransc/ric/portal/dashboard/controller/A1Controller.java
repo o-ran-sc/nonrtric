@@ -31,13 +31,18 @@ import org.oransc.ric.a1controller.client.model.InputNRRidPTidSchema;
 import org.oransc.ric.a1controller.client.model.InputNRRidPTidSchemaInput;
 import org.oransc.ric.a1controller.client.model.InputNRRidSchema;
 import org.oransc.ric.a1controller.client.model.InputNRRidSchemaInput;
-import org.oransc.ric.a1controller.client.model.OutputDescNamePTSchema;
-import org.oransc.ric.a1controller.client.model.OutputDescNamePTSchemaOutput;
-import org.oransc.ric.a1controller.client.model.OutputPISchema;
-import org.oransc.ric.a1controller.client.model.OutputPIidsListSchema;
-import org.oransc.ric.a1controller.client.model.OutputPTidsListSchema;
+import org.oransc.ric.a1controller.client.model.OutputCodeSchema;
+import org.oransc.ric.a1controller.client.model.OutputDescNamePTCodeSchema;
+import org.oransc.ric.a1controller.client.model.OutputDescNamePTCodeSchemaOutput;
+import org.oransc.ric.a1controller.client.model.OutputPICodeSchema;
+import org.oransc.ric.a1controller.client.model.OutputPIidsListCodeSchema;
+import org.oransc.ric.a1controller.client.model.OutputPTidsListCodeSchema;
 import org.oransc.ric.portal.dashboard.DashboardApplication;
 import org.oransc.ric.portal.dashboard.DashboardConstants;
+import org.oransc.ric.portal.dashboard.exceptions.HttpBadRequestException;
+import org.oransc.ric.portal.dashboard.exceptions.HttpInternalServerErrorException;
+import org.oransc.ric.portal.dashboard.exceptions.HttpNotFoundException;
+import org.oransc.ric.portal.dashboard.exceptions.HttpNotImplementedException;
 import org.oransc.ric.portal.dashboard.model.PolicyInstance;
 import org.oransc.ric.portal.dashboard.model.PolicyInstances;
 import org.oransc.ric.portal.dashboard.model.PolicyType;
@@ -46,6 +51,7 @@ import org.oransc.ric.portal.dashboard.model.SuccessTransport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.util.Assert;
@@ -116,9 +122,10 @@ public class A1Controller {
 		nrrid.setNearRtRicId(NEAR_RT_RIC_ID);
 		InputNRRidSchema inputSchema = new InputNRRidSchema();
 		inputSchema.setInput(nrrid);
-		OutputPTidsListSchema outputPTidsListSchema =
+		OutputPTidsListCodeSchema outputPTidsListCodeSchema =
 		        a1ControllerApi.a1ControllerGetAllPolicyTypes(inputSchema);
-		List<Integer> policyTypeIds = outputPTidsListSchema.getOutput().getPolicyTypeIdList();
+		checkHttpError(outputPTidsListCodeSchema.getOutput().getCode());
+		List<Integer> policyTypeIds = outputPTidsListCodeSchema.getOutput().getPolicyTypeIdList();
 		PolicyTypes policyTypes = new PolicyTypes();
 		InputNRRidPTidSchema typeSchema = new InputNRRidPTidSchema();
 		InputNRRidPTidSchemaInput typeId = new InputNRRidPTidSchemaInput();
@@ -126,9 +133,10 @@ public class A1Controller {
 		for (Integer policyTypeId : policyTypeIds) {
 			typeId.setPolicyTypeId(policyTypeId);
 			typeSchema.setInput(typeId);
-			OutputDescNamePTSchema controllerGetPolicyType =
+			OutputDescNamePTCodeSchema controllerGetPolicyType =
 			        a1ControllerApi.a1ControllerGetPolicyType(typeSchema);
-			OutputDescNamePTSchemaOutput policyTypeSchema = controllerGetPolicyType.getOutput();
+			checkHttpError(controllerGetPolicyType.getOutput().getCode());
+			OutputDescNamePTCodeSchemaOutput policyTypeSchema = controllerGetPolicyType.getOutput();
 			PolicyType type = new PolicyType(policyTypeId, policyTypeSchema.getName(),
 					policyTypeSchema.getDescription(), policyTypeSchema.getPolicyType().toString());
 			policyTypes.add(type);
@@ -147,8 +155,9 @@ public class A1Controller {
 		typeIdInput.setPolicyTypeId(policyTypeId);
 		InputNRRidPTidSchema inputSchema = new InputNRRidPTidSchema();
 		inputSchema.setInput(typeIdInput);
-		OutputPIidsListSchema controllerGetAllInstancesForType =
+		OutputPIidsListCodeSchema controllerGetAllInstancesForType =
 		        a1ControllerApi.a1ControllerGetAllInstancesForType(inputSchema);
+		checkHttpError(controllerGetAllInstancesForType.getOutput().getCode());
 		List<String> instancesForType = controllerGetAllInstancesForType.getOutput().getPolicyInstanceIdList();
 		PolicyInstances instances = new PolicyInstances();
 		InputNRRidPTidPIidSchemaInput instanceIdInput = new InputNRRidPTidPIidSchemaInput();
@@ -158,8 +167,9 @@ public class A1Controller {
 		for (String instanceId : instancesForType) {
 			instanceIdInput.setPolicyInstanceId(instanceId);
 			instanceInputSchema.setInput(instanceIdInput);
-			OutputPISchema policyInstance =
+			OutputPICodeSchema policyInstance =
 			        a1ControllerApi.a1ControllerGetPolicyInstance(instanceInputSchema);
+			checkHttpError(policyInstance.getOutput().getCode());
 			PolicyInstance instance =
 			        new PolicyInstance(instanceId, policyInstance.getOutput().getPolicyInstance());
 			instances.add(instance);
@@ -180,7 +190,8 @@ public class A1Controller {
 		instanceIdInput.setPolicyInstanceId(policyInstanceId);
 		InputNRRidPTidPIidSchema inputSchema = new InputNRRidPTidPIidSchema();
 		inputSchema.setInput(instanceIdInput);
-		OutputPISchema policyInstance = a1ControllerApi.a1ControllerGetPolicyInstance(inputSchema);
+		OutputPICodeSchema policyInstance = a1ControllerApi.a1ControllerGetPolicyInstance(inputSchema);
+		checkHttpError(policyInstance.getOutput().getCode());
 		return policyInstance.getOutput().getPolicyInstance();
 	}
 
@@ -199,7 +210,8 @@ public class A1Controller {
 		createInstanceInput.setPolicyInstance(instance);
 		InputNRRidPTidPIidPISchema inputSchema = new InputNRRidPTidPIidPISchema();
 		inputSchema.setInput(createInstanceInput);
-		a1ControllerApi.a1ControllerCreatePolicyInstance(inputSchema);
+		OutputCodeSchema outputCodeSchema = a1ControllerApi.a1ControllerCreatePolicyInstance(inputSchema);
+		checkHttpError(outputCodeSchema.getOutput().getCode());
 	}
 
 	@ApiOperation(value = "Deletes the policy instances for the given policy type.")
@@ -215,6 +227,24 @@ public class A1Controller {
 		instanceIdInput.setPolicyInstanceId(policyInstanceId);
 		InputNRRidPTidPIidSchema inputSchema = new InputNRRidPTidPIidSchema();
 		inputSchema.setInput(instanceIdInput);
-		a1ControllerApi.a1ControllerDeletePolicyInstance(inputSchema);
+		OutputCodeSchema outputCodeSchema = a1ControllerApi.a1ControllerDeletePolicyInstance(inputSchema);
+		checkHttpError(outputCodeSchema.getOutput().getCode());
+	}
+
+	private void checkHttpError(String httpCode) {
+	    logger.debug("Http Response Code: {}", httpCode);
+	    if (httpCode.equals(String.valueOf(HttpStatus.NOT_FOUND.value()))) {
+	        logger.error("Caught HttpNotFoundException");
+	        throw new HttpNotFoundException("Not Found Exception");
+	    } else if (httpCode.equals(String.valueOf(HttpStatus.BAD_REQUEST.value()))) {
+	        logger.error("Caught HttpBadRequestException");
+	        throw new HttpBadRequestException("Bad Request Exception");
+	    } else if (httpCode.equals(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()))) {
+	        logger.error("Caught HttpInternalServerErrorException");
+	        throw new HttpInternalServerErrorException("Internal Server Error Exception");
+	    } else if (httpCode.equals(String.valueOf(HttpStatus.NOT_IMPLEMENTED.value()))) {
+	        logger.error("Caught HttpNotImplementedException");
+	        throw new HttpNotImplementedException("Not Implemented Exception");
+	    }
 	}
 }
