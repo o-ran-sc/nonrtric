@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b5985ee4_7a4f8975",
+        "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/exceptions/HttpBadRequestException.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2019-11-07T08:45:11Z",
+      "side": 1,
+      "message": "In fact, the exceptions are not being caught. We just need to throw a suitable exception depending on what response code was received from NearRtRic via A1 controller\u0027s entity named \u0027code\u0027 in the yang model.\nFor example, if we receive \u0027code\u003d500\u0027, then the backend would just throw HttpInternalServerException with @ResponseStatus(value \u003d HttpStatus.INTERNAL_SERVER_ERROR). This would result in frontend receiving the http response with INTERNAL_SERVER_ERROR.\nPlease refer to code changes in A1Controller.java.",
+      "parentUuid": "4cb960b2_036c8837",
+      "range": {
+        "startLine": 26,
+        "startChar": 36,
+        "endLine": 26,
+        "endChar": 61
+      },
+      "revId": "f713c11bd090d6618b382554bf7881a1a3c8388c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f941136a_84a80ecc",
         "filename": "dashboard/webapp-backend/src/test/java/org/oransc/ric/portal/dashboard/config/A1ControllerMockConfiguration.java",
         "patchSetId": 1
@@ -95,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "86f35776_7e9943fb",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/model/src/main/yang/NONRT-RIC-API.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2019-11-07T08:45:11Z",
+      "side": 1,
+      "message": "We only need to return the actual http response code returned from nearRtRic. Refer to other comment in this file.\nUsing string is actually quite simple I think. Use of more generic types would just make it more complicated without any benefit. Also that would require defining the same generic type in A1 Controller Client yaml file, as it is linked to this yang model.",
+      "parentUuid": "96102f4d_97a39617",
+      "range": {
+        "startLine": 26,
+        "startChar": 21,
+        "endLine": 26,
+        "endChar": 27
+      },
+      "revId": "f713c11bd090d6618b382554bf7881a1a3c8388c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "725bdbed_f46af0e0",
         "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/model/src/main/yang/NONRT-RIC-API.yang",
         "patchSetId": 1
@@ -106,6 +154,30 @@
       "writtenOn": "2019-11-07T08:00:36Z",
       "side": 1,
       "message": "If this was not just an interim interface, I would miss documentation. The intention of this string is not obvious (and that actually goes for all parameters in this interface).\nBut as I see it, there is no point in spending time on documentation of this interface now, since it will (probably) be removed.",
+      "range": {
+        "startLine": 28,
+        "startChar": 7,
+        "endLine": 28,
+        "endChar": 10
+      },
+      "revId": "f713c11bd090d6618b382554bf7881a1a3c8388c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8410fa2_551694aa",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/model/src/main/yang/NONRT-RIC-API.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2019-11-07T08:45:11Z",
+      "side": 1,
+      "message": "Actually, this \u0027code\u0027 represents the http status code returned by nearRtRic. A1 controller is just passing through messages and only making sure that the messages are in correct format in its northbound and southbound. \nWhen an rpc is invoked, it would always return 200 from A1 controller, but then the \u0027code\u0027 will show what the nearRtRic has returned while making this call. The application (dashboard backend in our case) can check the \u0027code\u0027 and take actions accordingly.",
+      "parentUuid": "725bdbed_f46af0e0",
       "range": {
         "startLine": 28,
         "startChar": 7,
