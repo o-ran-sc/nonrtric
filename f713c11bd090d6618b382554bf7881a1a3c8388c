@@ -190,6 +190,30 @@
     },
     {
       "key": {
+        "uuid": "65544782_bce1533b",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/model/src/main/yang/NONRT-RIC-API.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2019-11-07T09:03:43Z",
+      "side": 1,
+      "message": "So a client of this interface will get 200/OK regardless if it is a success or a failure.\nIt can be like that for now, but it does not make any sense to me.",
+      "parentUuid": "b8410fa2_551694aa",
+      "range": {
+        "startLine": 28,
+        "startChar": 7,
+        "endLine": 28,
+        "endChar": 10
+      },
+      "revId": "f713c11bd090d6618b382554bf7881a1a3c8388c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "317c78a7_0d467a30",
         "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/pom.xml",
         "patchSetId": 1
