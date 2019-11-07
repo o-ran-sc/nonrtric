@@ -20,8 +20,7 @@
 
 package org.onap.sdnc.northbound.restadpter;
 
-import com.google.common.base.Optional;
-
+import org.springframework.http.ResponseEntity;
 
 /**
  * An interface to wrap the generic HTTP methods
@@ -40,7 +39,7 @@ public interface RestAdapter {
    * @return the converted object
    */
 
-  <T> Optional<T> get(final String url, final Class<?> clazz);
+  <T> ResponseEntity<T> get(final String url, final Class<?> clazz);
 
   /**
    * Create or update a resource by PUTting the given object to the URI.
@@ -49,7 +48,7 @@ public interface RestAdapter {
    * @param request the String to be PUT (may be {@code null})
    * @return the response code
    */
-  <T> Optional<T> put(final String url, final String body);
+  <T> ResponseEntity<T> put(final String url, final String body);
 
   /**
    * Delete resource for the given object to the URI.
@@ -57,6 +56,6 @@ public interface RestAdapter {
    * @param url the URL
    * @return the response code
    */
-  <T> Optional<T> delete(final String url);
+  <T> ResponseEntity<T> delete(final String url);
 
 }

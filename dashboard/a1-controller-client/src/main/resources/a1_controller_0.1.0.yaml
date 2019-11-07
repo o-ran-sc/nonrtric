@@ -1,6 +1,5 @@
 # ==================================================================================
-#       Copyright (c) 2019 Nokia
-#       Copyright (c) 2018-2019 AT&T Intellectual Property.
+#       Copyright (c) 2019 Nordix Foundation.
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -29,12 +28,12 @@ paths:
       responses:
         '200':
           description: >
-            Successfully got the list of all nearRT-RICs.
+            Successfully got the response.
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/output_NRRids_list_schema"
-                
+                "$ref": "#/components/schemas/output_NRRids_list_code_schema"
+
   '/A1-ADAPTER-API:getHealthCheck':
     post:
       description: >
@@ -51,12 +50,12 @@ paths:
       responses:
         '200':
           description: >
-            Successfully got the health status.
+            Successfully got the response.
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/output_healthstatus_schema"
-            
+                "$ref": "#/components/schemas/output_healthstatus_code_schema"
+
   '/A1-ADAPTER-API:getPolicyTypes':
     post:
       description: >
@@ -73,12 +72,12 @@ paths:
       responses:
         '200':
           description: >
-            Successfully got the list of all policy-type-ids.
+            Successfully got the response.
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/output_PTids_list_schema"
-            
+                "$ref": "#/components/schemas/output_PTids_list_code_schema"
+
   '/A1-ADAPTER-API:createPolicyType':
     post:
       description: >
@@ -93,17 +92,14 @@ paths:
             schema:
               "$ref": "#/components/schemas/input_NRRid_PTid_desc_name_PT_schema"
       responses:
-        '201':
+        '200':
           description: >
-            Successfully created the policy type.
+            Successfully got the response.
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/output_status_code_schema"
-        '400':
-          description: >
-            illegal policy_type_id, or this policy type already exists
-            
+                "$ref": "#/components/schemas/output_code_schema"
+
   '/A1-ADAPTER-API:getPolicyType':
     post:
       description: >
@@ -120,15 +116,12 @@ paths:
       responses:
         '200':
           description: >
-            Successfully got the policy type.
+            Successfully got the response.
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/output_desc_name_PT_schema"
-        '404':
-          description: >
-            there is no policy type with this policy_type_id
-            
+                "$ref": "#/components/schemas/output_desc_name_PT_code_schema"
+
   '/A1-ADAPTER-API:deletePolicyType':
     post:
       description: >
@@ -143,16 +136,14 @@ paths:
             schema:
               "$ref": "#/components/schemas/input_NRRid_PTid_schema"
       responses:
-        '204':
+        '200':
           description: >
-            Successfully deleted the policy type.
-        '400':
-          description: >
-            Policy type cannot be deleted because there are instances. All instances must be removed before a policy type can be deleted.
-        '404':
-          description: >
-            there is no policy type with this policy_type_id
-            
+            Successfully got the response.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/output_code_schema"
+
   '/A1-ADAPTER-API:getPolicyInstances':
     post:
       description: >
@@ -169,15 +160,12 @@ paths:
       responses:
         '200':
           description: >
-            Successfully got the list of all policy-instance-ids for this policy-type-id.
+            Successfully got the response.
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/output_PIids_list_schema"
-        '404':
-          description: >
-            there is no policy type with this policy_type_id
-            
+                "$ref": "#/components/schemas/output_PIids_list_code_schema"
+
   '/A1-ADAPTER-API:createPolicyInstance':
     post:
       description: >
@@ -192,16 +180,14 @@ paths:
             schema:
               "$ref": "#/components/schemas/input_NRRid_PTid_PIid_PI_schema"
       responses:
-        '201':
+        '200':
           description: >
-            Successfully created the policy instance.
-        '400':
-          description: >
-            Bad input data for this policy instance.
-        '404':
-          description: >
-            there is no policy type with this policy_type_id
-            
+            Successfully got the response.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/output_code_schema"
+
   '/A1-ADAPTER-API:getPolicyInstance':
     post:
       description: >
@@ -218,14 +204,11 @@ paths:
       responses:
         '200':
           description: >
-            Successfully got the policy instance.
+            Successfully got the response.
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/output_PI_schema"
-        '404':
-          description: >
-            there is no policy instance with this policy_instance_id or there is no policy type with this policy_type_id
+                "$ref": "#/components/schemas/output_PI_code_schema"
 
   '/A1-ADAPTER-API:deletePolicyInstance':
     post:
@@ -241,13 +224,14 @@ paths:
             schema:
               "$ref": "#/components/schemas/input_NRRid_PTid_PIid_schema"
       responses:
-        '204':
+        '200':
           description: >
-            Successfully deleted the policy instance.
-        '404':
-          description: >
-            there is no policy instance with this policy_instance_id or there is no policy type with this policy_type_id
-            
+            Successfully got the response.
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/output_code_schema"
+
   '/A1-ADAPTER-API:getStatus':
     post:
       description: >
@@ -264,16 +248,13 @@ paths:
       responses:
         '200':
           description: >
-            Successfully got the policy instance status.
+            Successfully got the response.
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/output_status_schema"
-        '404':
-          description: >
-            there is no policy instance with this policy_instance_id or there is no policy type with this policy_type_id
+                "$ref": "#/components/schemas/output_status_code_schema"
 
-components:    
+components:
   schemas:
     input_NRRid_schema:
       type: object
@@ -289,7 +270,7 @@ components:
           properties:
             near-rt-ric-id:
               "$ref": "#/components/schemas/near_rt_ric_id"
-          
+
     input_NRRid_PTid_schema:
       type: object
       required:
@@ -307,7 +288,7 @@ components:
               "$ref": "#/components/schemas/near_rt_ric_id"
             policy-type-id:
               "$ref": "#/components/schemas/policy_type_id"
-          
+
     input_NRRid_PTid_PIid_schema:
       type: object
       required:
@@ -328,7 +309,7 @@ components:
               "$ref": "#/components/schemas/policy_type_id"
             policy-instance-id:
               "$ref": "#/components/schemas/policy_instance_id"
-          
+
     input_NRRid_PTid_PIid_PI_schema:
       type: object
       required:
@@ -352,7 +333,7 @@ components:
               "$ref": "#/components/schemas/policy_instance_id"
             policy-instance:
               "$ref": "#/components/schemas/policy_instance"
-              
+
     input_NRRid_PTid_desc_name_PT_schema:
       type: object
       required:
@@ -379,8 +360,8 @@ components:
               type: string
             policy-type:
               "$ref": "#/components/schemas/policy_type"
-             
-    output_NRRids_list_schema:
+
+    output_NRRids_list_code_schema:
       type: object
       required:
       - output
@@ -390,14 +371,17 @@ components:
           type: object
           required:
           - near-rt-ric-id-list
+          - code
           additionalProperties: false
           properties:
             near-rt-ric-id-list:
               type: array
               items:
                 "$ref": "#/components/schemas/near_rt_ric_id"
-                
-    output_healthstatus_schema:
+            code:
+              type: string
+
+    output_healthstatus_code_schema:
       type: object
       required:
       - output
@@ -407,12 +391,15 @@ components:
           type: object
           required:
           - health-status
+          - code
           additionalProperties: false
           properties:
             health-status:
               type: boolean
-          
-    output_desc_name_PT_schema:
+            code:
+              type: string
+
+    output_desc_name_PT_code_schema:
       type: object
       required:
       - output
@@ -424,6 +411,7 @@ components:
           - description
           - name
           - policy_type
+          - code
           additionalProperties: false
           properties:
             description:
@@ -432,8 +420,10 @@ components:
               type: string
             policy-type:
               "$ref": "#/components/schemas/policy_type"
-              
-    output_PTids_list_schema:
+            code:
+              type: string
+
+    output_PTids_list_code_schema:
       type: object
       required:
       - output
@@ -443,14 +433,17 @@ components:
           type: object
           required:
           - policy-type-id-list
+          - code
           additionalProperties: false
           properties:
             policy-type-id-list:
               type: array
               items:
                 "$ref": "#/components/schemas/policy_type_id"
-                
-    output_PIids_list_schema:
+            code:
+              type: string
+
+    output_PIids_list_code_schema:
       type: object
       required:
       - output
@@ -460,14 +453,17 @@ components:
           type: object
           required:
           - policy-instance-id-list
+          - code
           additionalProperties: false
           properties:
             policy-instance-id-list:
               type: array
               items:
                 "$ref": "#/components/schemas/policy_instance_id"
-              
-    output_PI_schema:
+            code:
+              type: string
+
+    output_PI_code_schema:
       type: object
       required:
       - output
@@ -477,12 +473,15 @@ components:
           type: object
           required:
           - policy-instance
+          - code
           additionalProperties: false
           properties:
             policy-instance:
               "$ref": "#/components/schemas/policy_instance"
-              
-    output_status_schema:
+            code:
+              type: string
+
+    output_code_schema:
       type: object
       required:
       - output
@@ -491,12 +490,12 @@ components:
         output:
           type: object
           required:
-          - status
+          - code
           additionalProperties: false
           properties:
-            status:
+            code:
               type: string
-              
+
     output_status_code_schema:
       type: object
       required:
@@ -514,19 +513,17 @@ components:
               type: string
             code:
               type: string
-          
+
     near_rt_ric_id:
       description: >
         represents a near RT RIC identifier. Currently this can be any string.
       type: string
       example: near-rt-ric-1
-      
+
     policy_type_id:
       description: >
-        represents a policy type identifier. Currently this is restricted to an integer range.
+        represents a policy type identifier. Currently this is an integer.
       type: integer
-      minimum: 20000
-      maximum: 21023
       example: 20000
 
     policy_instance_id:
@@ -534,25 +531,25 @@ components:
         represents a policy instance identifier. UUIDs are advisable but can be any string
       type: string
       example: 3d2157af-6a8f-4a7c-810f-38c2f824bf12
-      
+
     policy_type:
       description: >
         represents a policy type. String is used for now to represent this
       type: string
-      example: 
+      example:
         "{type: A}"
-        
+
     policy_instance:
       description: >
         represents a policy instance. String is used for now to represent this
       type: string
-      example: 
+      example:
         "{slice_id: slice-1, priority_level: high}"
-      
+
   securitySchemes:
     basicAuth:
       type: http
       scheme: basic
-      
+
 security:
   - basicAuth: []

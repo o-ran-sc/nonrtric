@@ -23,7 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,21 +33,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
 import org.oransc.ric.a1controller.client.api.A1ControllerApi;
 import org.oransc.ric.a1controller.client.invoker.ApiClient;
 import org.oransc.ric.a1controller.client.model.InputNRRidPTidPIidPISchema;
 import org.oransc.ric.a1controller.client.model.InputNRRidPTidPIidSchema;
 import org.oransc.ric.a1controller.client.model.InputNRRidPTidSchema;
 import org.oransc.ric.a1controller.client.model.InputNRRidSchema;
-import org.oransc.ric.a1controller.client.model.OutputDescNamePTSchema;
-import org.oransc.ric.a1controller.client.model.OutputDescNamePTSchemaOutput;
-import org.oransc.ric.a1controller.client.model.OutputPISchema;
-import org.oransc.ric.a1controller.client.model.OutputPISchemaOutput;
-import org.oransc.ric.a1controller.client.model.OutputPIidsListSchema;
-import org.oransc.ric.a1controller.client.model.OutputPIidsListSchemaOutput;
-import org.oransc.ric.a1controller.client.model.OutputPTidsListSchema;
-import org.oransc.ric.a1controller.client.model.OutputPTidsListSchemaOutput;
+import org.oransc.ric.a1controller.client.model.OutputCodeSchema;
+import org.oransc.ric.a1controller.client.model.OutputCodeSchemaOutput;
+import org.oransc.ric.a1controller.client.model.OutputDescNamePTCodeSchema;
+import org.oransc.ric.a1controller.client.model.OutputDescNamePTCodeSchemaOutput;
+import org.oransc.ric.a1controller.client.model.OutputPICodeSchema;
+import org.oransc.ric.a1controller.client.model.OutputPICodeSchemaOutput;
+import org.oransc.ric.a1controller.client.model.OutputPIidsListCodeSchema;
+import org.oransc.ric.a1controller.client.model.OutputPIidsListCodeSchemaOutput;
+import org.oransc.ric.a1controller.client.model.OutputPTidsListCodeSchema;
+import org.oransc.ric.a1controller.client.model.OutputPTidsListCodeSchemaOutput;
 import org.oransc.ric.portal.dashboard.model.PolicyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,8 +57,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 /**
  * Creates a mock implementation of the A1 controller client API.
@@ -99,9 +98,10 @@ public class A1ControllerMockConfiguration {
 				Thread.sleep(delayMs);
 			}
 			List<Integer> types = database.getTypes();
-			OutputPTidsListSchemaOutput output = new OutputPTidsListSchemaOutput();
+			OutputPTidsListCodeSchemaOutput output = new OutputPTidsListCodeSchemaOutput();
 			output.setPolicyTypeIdList(types);
-			OutputPTidsListSchema outputSchema = new OutputPTidsListSchema();
+			output.setCode(String.valueOf(HttpStatus.OK.value()));
+			OutputPTidsListCodeSchema outputSchema = new OutputPTidsListCodeSchema();
 			outputSchema.setOutput(output);
 			return outputSchema;
 		}).when(mockApi).a1ControllerGetAllPolicyTypes(any(InputNRRidSchema.class));
@@ -113,11 +113,12 @@ public class A1ControllerMockConfiguration {
 			}
 			InputNRRidPTidSchema input = inv.<InputNRRidPTidSchema>getArgument(0);
 			PolicyType policyType = database.getPolicyType(input.getInput().getPolicyTypeId());
-			OutputDescNamePTSchemaOutput type = new OutputDescNamePTSchemaOutput();
+			OutputDescNamePTCodeSchemaOutput type = new OutputDescNamePTCodeSchemaOutput();
 			type.setName(policyType.getName());
 			type.setDescription(policyType.getDescription());
 			type.setPolicyType(database.normalize(policyType.getCreateSchema()));
-			OutputDescNamePTSchema outputSchema = new OutputDescNamePTSchema();
+			type.setCode(String.valueOf(HttpStatus.OK.value()));
+			OutputDescNamePTCodeSchema outputSchema = new OutputDescNamePTCodeSchema();
 			outputSchema.setOutput(type);
 			return outputSchema;
 		}).when(mockApi).a1ControllerGetPolicyType(any(InputNRRidPTidSchema.class));
@@ -129,9 +130,10 @@ public class A1ControllerMockConfiguration {
 			}
 			InputNRRidPTidSchema input = inv.<InputNRRidPTidSchema>getArgument(0);
 			List<String> instances = database.getInstances(Optional.of(input.getInput().getPolicyTypeId()));
-			OutputPIidsListSchemaOutput instancesOutput = new OutputPIidsListSchemaOutput();
+			OutputPIidsListCodeSchemaOutput instancesOutput = new OutputPIidsListCodeSchemaOutput();
 			instancesOutput.setPolicyInstanceIdList(instances);
-			OutputPIidsListSchema outputSchema = new OutputPIidsListSchema();
+			instancesOutput.setCode(String.valueOf(HttpStatus.OK.value()));
+			OutputPIidsListCodeSchema outputSchema = new OutputPIidsListCodeSchema();
 			outputSchema.setOutput(instancesOutput);
 			return outputSchema;
 		}).when(mockApi).a1ControllerGetAllInstancesForType(any(InputNRRidPTidSchema.class));
@@ -145,9 +147,10 @@ public class A1ControllerMockConfiguration {
 			Integer polcyTypeId = input.getInput().getPolicyTypeId();
 			String instanceId = input.getInput().getPolicyInstanceId();
 			String instance = database.normalize(database.getInstance(polcyTypeId, instanceId));
-			OutputPISchemaOutput instanceOutput = new OutputPISchemaOutput();
+			OutputPICodeSchemaOutput instanceOutput = new OutputPICodeSchemaOutput();
 			instanceOutput.setPolicyInstance(instance);
-			OutputPISchema outputSchema = new OutputPISchema();
+			instanceOutput.setCode(String.valueOf(HttpStatus.OK.value()));
+			OutputPICodeSchema outputSchema = new OutputPICodeSchema();
 			outputSchema.setOutput(instanceOutput);
 			return outputSchema;
 		}).when(mockApi).a1ControllerGetPolicyInstance(any(InputNRRidPTidPIidSchema.class));
@@ -162,7 +165,11 @@ public class A1ControllerMockConfiguration {
 			String instanceId = input.getInput().getPolicyInstanceId();
 			String instance = input.getInput().getPolicyInstance();
 			database.putInstance(polcyTypeId, instanceId, instance);
-			return null;
+			OutputCodeSchemaOutput outputCodeSchemaOutput = new OutputCodeSchemaOutput();
+			outputCodeSchemaOutput.setCode(String.valueOf(HttpStatus.CREATED.value()));
+			OutputCodeSchema outputCodeSchema = new OutputCodeSchema();
+            outputCodeSchema.setOutput(outputCodeSchemaOutput);
+			return outputCodeSchema;
 		}).when(mockApi).a1ControllerCreatePolicyInstance(any(InputNRRidPTidPIidPISchema.class));
 
 		doAnswer(inv -> {
@@ -174,7 +181,11 @@ public class A1ControllerMockConfiguration {
 			Integer polcyTypeId = input.getInput().getPolicyTypeId();
 			String instanceId = input.getInput().getPolicyInstanceId();
 			database.deleteInstance(polcyTypeId, instanceId);
-			return null;
+			OutputCodeSchemaOutput outputCodeSchemaOutput = new OutputCodeSchemaOutput();
+            outputCodeSchemaOutput.setCode(String.valueOf(HttpStatus.NO_CONTENT.value()));
+            OutputCodeSchema outputCodeSchema = new OutputCodeSchema();
+            outputCodeSchema.setOutput(outputCodeSchemaOutput);
+            return outputCodeSchema;
 		}).when(mockApi).a1ControllerDeletePolicyInstance(any(InputNRRidPTidPIidSchema.class));
 
 		return mockApi;

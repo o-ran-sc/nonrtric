@@ -20,13 +20,11 @@
 
 package org.onap.sdnc.northbound.restadpter;
 
-import com.google.common.base.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
@@ -53,44 +51,28 @@ public class RestAdapterImpl implements RestAdapter {
   }
 
   @Override
-  public <T> Optional<T> get(String uri, Class<?> clazz) {
+  public <T> ResponseEntity<T> get(String uri, Class<?> clazz) {
     HttpEntity<?> entity = getHttpEntity(null);
-    final ResponseEntity<T> response = invokeHttpRequest(uri, HttpMethod.GET, clazz, entity);
-    return buildOptional(response);
+    return invokeHttpRequest(uri, HttpMethod.GET, clazz, entity);
   }
 
   @Override
-  public <T> Optional<T> put(String uri, String body) {
+  public <T> ResponseEntity<T> put(String uri, String body) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
     HttpEntity<String> entity = new HttpEntity<String>(body, headers);
-    final ResponseEntity<T> response = invokeHttpRequest(uri, HttpMethod.PUT, null, entity);
-    return buildOptional(response);
+    return invokeHttpRequest(uri, HttpMethod.PUT, null, entity);
   }
 
   @Override
-  public <T> Optional<T> delete(String uri) {
+  public <T> ResponseEntity<T> delete(String uri) {
     HttpEntity<?> entity = getHttpEntity(null);
-    final ResponseEntity<T> response = invokeHttpRequest(uri, HttpMethod.DELETE, null, entity);
-    return buildOptional(response);
+    return invokeHttpRequest(uri, HttpMethod.DELETE, null, entity);
   }
 
   @SuppressWarnings("unchecked")
   private <T> ResponseEntity<T> invokeHttpRequest(String uri, HttpMethod httpMethod, Class<?> clazz,
       HttpEntity<?> entity) {
     return (ResponseEntity<T>) restTemplate.exchange(uri, httpMethod, entity, clazz);
-  }
-
-  private <T> Optional<T> buildOptional(ResponseEntity<T> response) {
-    if (!response.getStatusCode().equals(HttpStatus.OK)
-        & !response.getStatusCode().equals(HttpStatus.CREATED)
-        & !response.getStatusCode().equals(HttpStatus.NO_CONTENT)) {
-      log.error("Failed to get the Response, Status Code = {}", response.getStatusCode());
-      return Optional.absent();
-    }
-    if (response.hasBody()) {
-      return Optional.of(response.getBody());
-    }
-    return Optional.absent();
   }
 }
