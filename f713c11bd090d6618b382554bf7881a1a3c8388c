@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "4cb960b2_036c8837",
+        "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/exceptions/HttpBadRequestException.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2019-11-07T08:00:36Z",
+      "side": 1,
+      "message": "This is a generic comment.\nOwn exceptions should in general not be unchecked runtime exceptions.\nI would have used fewer exception types, possibly only one. If I would need special treatment of different faults, I would create new classes (but I doubt that there would be such cases in this implementation). They would all then inherit the same superclass (some DashboarException) so that they can be handeled by the same catch.",
+      "range": {
+        "startLine": 26,
+        "startChar": 36,
+        "endLine": 26,
+        "endChar": 61
+      },
+      "revId": "f713c11bd090d6618b382554bf7881a1a3c8388c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f941136a_84a80ecc",
         "filename": "dashboard/webapp-backend/src/test/java/org/oransc/ric/portal/dashboard/config/A1ControllerMockConfiguration.java",
         "patchSetId": 1
@@ -45,6 +68,53 @@
       "revId": "f713c11bd090d6618b382554bf7881a1a3c8388c",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "96102f4d_97a39617",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/model/src/main/yang/NONRT-RIC-API.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2019-11-07T08:00:36Z",
+      "side": 1,
+      "message": "I am not 100% sure about this but all HTTP responses includes the standard HTTP response codes (http protocol header). The returned info on application layer is in addition to that.",
+      "parentUuid": "07c704d6_37f79b51",
+      "range": {
+        "startLine": 26,
+        "startChar": 21,
+        "endLine": 26,
+        "endChar": 27
+      },
+      "revId": "f713c11bd090d6618b382554bf7881a1a3c8388c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "725bdbed_f46af0e0",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/model/src/main/yang/NONRT-RIC-API.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2019-11-07T08:00:36Z",
+      "side": 1,
+      "message": "If this was not just an interim interface, I would miss documentation. The intention of this string is not obvious (and that actually goes for all parameters in this interface).\nBut as I see it, there is no point in spending time on documentation of this interface now, since it will (probably) be removed.",
+      "range": {
+        "startLine": 28,
+        "startChar": 7,
+        "endLine": 28,
+        "endChar": 10
+      },
+      "revId": "f713c11bd090d6618b382554bf7881a1a3c8388c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     },
     {
       "key": {
