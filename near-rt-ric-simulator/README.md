@@ -4,7 +4,8 @@ The O-RAN SC Near-RealTime RIC simulates the A1 as an generic REST API which can
 
 Please see the documentation in the docs/ folder
 
-For more information about the NONRTRIC project please see the [project website](https://wiki.o-ran-sc.org/display/RICNR "O-RAN-SC NONRTRIC project")
+The backend server publishes live API documentation at the
+URL `http://your-host-name-here:8080/swagger-ui.html`
 
 ## License
 
