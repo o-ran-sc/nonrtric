@@ -22,6 +22,30 @@
       "revId": "4e239f3f17cd98b0890b5fda1f8ab4c77a3f2ef2",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "191f35c3_9548bfb5",
+        "filename": "dashboard/a1-controller-client/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2019-11-12T15:18:06Z",
+      "side": 1,
+      "message": "John has not reverted it yet, so I asked him not to revert it. Instead he should merge this commit that should solve the problem.",
+      "parentUuid": "6c8c8084_53f9b520",
+      "range": {
+        "startLine": 26,
+        "startChar": 2,
+        "endLine": 26,
+        "endChar": 53
+      },
+      "revId": "4e239f3f17cd98b0890b5fda1f8ab4c77a3f2ef2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
