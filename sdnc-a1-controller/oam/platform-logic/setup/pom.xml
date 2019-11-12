@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<repositories>
+    		<repository>
+      			<id>onap-releases</id>
+          		<name>onap-releases</name>
+          		<url>https://nexus.onap.org/content/repositories/releases/</url>
+    		</repository>
+  	</repositories>
+
+	<parent>
+        <groupId>org.onap.ccsdk.parent</groupId>
+        <artifactId>odlparent-lite</artifactId>
+        <version>1.4.3</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>org.onap.sdnc.oam</groupId>
+	<artifactId>platform-logic-setup</artifactId>
+	<version>1.7.3-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+    <name>sdnc-oam :: platform-logic :: ${project.artifactId}</name>
+	<description>Copies base ONAP platform-logic</description>
+
+	<build>
+		<plugins>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.0.0</version>
+				<executions>
+					<execution>
+						<id>unpack</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.onap.ccsdk.distribution</groupId>
+									<artifactId>platform-logic-installer</artifactId>
+									<version>${ccsdk.distribution.version}</version>
+									<type>zip</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>../target</outputDirectory>
+								</artifactItem>
+							</artifactItems>
+							<overWriteReleases>false</overWriteReleases>
+							<overWriteSnapshots>true</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+							<localRepositoryDirectory>../target/repository</localRepositoryDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+
+
+
+
+		</plugins>
+	</build>
+</project>

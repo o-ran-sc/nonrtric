@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+	<repositories>
+    		<repository>
+      			<id>onap-releases</id>
+          		<name>onap-releases</name>
+          		<url>https://nexus.onap.org/content/repositories/releases/</url>
+    		</repository>
+  	</repositories>
+
+    <parent>
+        <groupId>org.onap.ccsdk.parent</groupId>
+        <artifactId>odlparent-lite</artifactId>
+        <version>1.4.3</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>org.onap.sdnc.oam</groupId>
+    <artifactId>platform-logic</artifactId>
+    <version>1.7.3-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>sdnc-oam :: platform-logic</name>
+    <description>Contains platform-level service logic</description>
+    <organization>
+        <name>ONAP</name>
+    </organization>
+
+    <modules>
+        <module>setup</module>
+        <module>installer</module>
+    </modules>
+
+    <properties>
+        <application.name>platform-logic</application.name>
+
+        <maven.build.timestamp.format>yyyyMMdd'T'HHmmss'Z'</maven.build.timestamp.format>
+        <build.number>${maven.build.timestamp}</build.number>
+    </properties>
+</project>

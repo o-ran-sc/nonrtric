@@ -340,38 +340,7 @@
                             </artifactItems>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>unpack migration utility</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${basedir}/target/docker-stage/opt/onap/sdnc/data-migrator</outputDirectory>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.onap.sdnc.oam</groupId>
-                                    <artifactId>data-migrator</artifactId>
-                                    <version>${project.version}</version>
-                                    <type>zip</type>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
                 </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.onap.sdnc.oam</groupId>
-                        <artifactId>platform-logic-installer</artifactId>
-                        <version>1.6.2</version>
-                        <type>pom</type>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.onap.sdnc.oam</groupId>
-                        <artifactId>data-migrator</artifactId>
-                        <version>1.6.2</version>
-                    </dependency>
-                </dependencies>
             </plugin>
             <plugin>
                 <artifactId>exec-maven-plugin</artifactId>
