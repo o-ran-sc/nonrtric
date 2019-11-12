@@ -23,12 +23,12 @@ limitations under the License.
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.o-ran-sc.nonrt.ric-dashboard</groupId>
+		<groupId>org.o-ran-sc.portal.ric-dashboard</groupId>
 		<artifactId>ric-dash-parent</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>1.2.5-SNAPSHOT</version>
 	</parent>
 	<artifactId>ric-dash-be</artifactId>
-	<name>NonRT RIC Dashboard Webapp backend</name>
+	<name>RIC Dashboard Webapp backend</name>
 	<properties>
 		<springfox.version>2.9.2</springfox.version>
 		<!-- Set by Jenkins -->
