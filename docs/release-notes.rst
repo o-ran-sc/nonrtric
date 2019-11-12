@@ -6,7 +6,7 @@ Release-Notes
 =============
 
 
-This document provides the release notes for <RELEASE> of <COMPONENT>.
+This document provides the release notes for Amber release of Non-RT RIC.
 
 .. contents::
    :depth: 3
@@ -20,7 +20,7 @@ Version history
 | **Date**           | **Ver.**           | **Author**         | **Comment**        |
 |                    |                    |                    |                    |
 +--------------------+--------------------+--------------------+--------------------+
-| 20XX-XX-XX         | 0.1.0              |                    | First draft        |
+| 2019-11-12         | 0.1.0              | Maxime Bonneau     | First draft        |
 |                    |                    |                    |                    |
 +--------------------+--------------------+--------------------+--------------------+
 |                    | 0.1.1              |                    |                    |
@@ -34,136 +34,32 @@ Version history
 Summary
 -------
 
-<SUMMARIZE THE RELEASE - THE CONTENT - AND OTHER IMPORTANT HIGH LEVEL PROPERTIES>
+For Amber release, there is only a dashboard available. Non-RT RIC does not support R-apps yet.
 
+The Non-RT RIC is not yet fully compliant with the A1 specifications for this release. Find out which methods are available `here`_.
 
+.. _here: a1_policy_procedure
 
 
 Release Data
 ------------
-<STATE RELEVANT RELEASE DATA/RECORDS>
-
-<EXAMPLE>:
 
 +--------------------------------------+--------------------------------------+
-| **Project**                          | E.g. project  		              |
+| **Project**                          | Non-RT RIC	         	      |
 |                                      |                                      |
 +--------------------------------------+--------------------------------------+
-| **Repo/commit-ID**                   | E.g. genesis/adf634a0d4.....         |
+| **Repo/commit-ID**                   | TBC                                  |
 |                                      |                                      |
 +--------------------------------------+--------------------------------------+
-| **Release designation**              | E.g. Arno RC2                        |
+| **Release designation**              | Amber                                |
 |                                      |                                      |
 +--------------------------------------+--------------------------------------+
-| **Release date**                     | E.g. 2015-04-16                      |
+| **Release date**                     | 2019-XX-XX                           |
 |                                      |                                      |
 +--------------------------------------+--------------------------------------+
-| **Purpose of the delivery**          | 	 		     	      |
+| **Purpose of the delivery**          | Introducing Non-RT RIC     	      |
 |                                      |                                      |
 +--------------------------------------+--------------------------------------+
-
-
-
-
-Feature Additions
-^^^^^^^^^^^^^^^^^
-<STATE ADDED FEATURES BY REFERENCE TO JIRA>
-
-<EXAMPLE>:
-
-**JIRA BACK-LOG:**
-
-+--------------------------------------+--------------------------------------+
-| **JIRA REFERENCE**                   | **SLOGAN**                           |
-|                                      |                                      |
-+--------------------------------------+--------------------------------------+
-| 		                       | 				      |
-|                                      | 				      |
-|                                      |                                      |
-+--------------------------------------+--------------------------------------+
-| 	                               |  				      |
-|                                      |  				      |
-|                                      |                                      |
-+--------------------------------------+--------------------------------------+
-
-Bug Corrections
-^^^^^^^^^^^^^^^
-
-**JIRA TICKETS:**
-
-+--------------------------------------+--------------------------------------+
-| **JIRA REFERENCE**                   | **SLOGAN**                           |
-|                                      |                                      |
-+--------------------------------------+--------------------------------------+
-| 		                       | 				      |
-|                                      | 				      |
-|                                      |                                      |
-+--------------------------------------+--------------------------------------+
-| 	                               |  				      |
-|                                      |  				      |
-|                                      |                                      |
-+--------------------------------------+--------------------------------------+
-
-Deliverables
-^^^^^^^^^^^^
-
-Software Deliverables
-+++++++++++++++++++++
-
-<STATE WHAT SOFTWARE DELIVERABLES THAT ARE RELATED TO THIS VERSION, AND WHERE THOSE CAN BE RETRIEVED>
-
-
-
-Documentation Deliverables
-++++++++++++++++++++++++++
-
-<STATE WHAT DOCUMENTATION DELIVERABLES THAT ARE RELATED TO THIS VERSION, AND WHERE THOSE CAN BE RETRIEVED>
-
-
-
-
-Known Limitations, Issues and Workarounds
------------------------------------------
-
-System Limitations
-^^^^^^^^^^^^^^^^^^
-<STATE ALL RELEVANT SYSTEM LIMITATIONS, IF THERE IS ANY>
-
-
-
-Known Issues
-^^^^^^^^^^^^
-<STATE ALL KNOWN ISSUES WITH JIRA REFERENCE>
-
-<EXAMPLE>:
-
-**JIRA TICKETS:**
-
-+--------------------------------------+--------------------------------------+
-| **JIRA REFERENCE**                   | **SLOGAN**                           |
-|                                      |                                      |
-+--------------------------------------+--------------------------------------+
-| 		                       | 				      |
-|                                      | 				      |
-|                                      |                                      |
-+--------------------------------------+--------------------------------------+
-| 	                               |  				      |
-|                                      |  				      |
-|                                      |                                      |
-+--------------------------------------+--------------------------------------+
-
-Workarounds
-^^^^^^^^^^^
-
-<STATE ALL KNOWN WORKAROUNDS TO THE ISSUES STATED ABOVE, IF THERE IS ANY>
-
-
-
-
-References
-----------
-<STATE RELEVANT REFERENCES FOR THIS RELEASE/VERSION>
-
 
 
 

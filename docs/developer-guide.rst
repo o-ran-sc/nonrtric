@@ -20,9 +20,8 @@ A1 Mediation:
 1. SDNC Controller
 2. Near-RT RIC Simulator
 
-**********************************
 SDNC A1 Controller Developer Guide
-**********************************
+==================================
 
 This document provides a quickstart for developers of the O-RAN SC A1 Controller SDNC Application
 
@@ -59,9 +58,8 @@ The SDNC url to access the Northbound API,
 
 Credentials: admin/Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U
 
-*************************************
 Near-RT RIC Simulator Developer Guide
-*************************************
+=====================================
 
 Prerequisites
 -------------
@@ -83,9 +81,8 @@ The backend server listens for requests at this URL:
 The backend server publishes live API documentation at the URL
    http://localhost:8080/swagger-ui.html
 
-***************
 End-to-end call
-***************
+===============
 
 In order to make a complete end-to-end call, follow the instructions given in this `guide`_.
 

@@ -52,6 +52,8 @@ Moreover, there are functional requirements regarding the A1 interface:
 4. A1 interface shall support feedback from Near-RT RIC for monitoring AI/ML model performance.
 5. A1 interface shall support the policy/intents feedback from Near-RT RIC to Non-RT RIC.
 
+.. _a1_policy_procedure:
+
 A1 policy procedure
 -------------------
 
