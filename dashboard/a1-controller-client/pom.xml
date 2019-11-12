@@ -23,9 +23,9 @@ limitations under the License.
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.o-ran-sc.portal.ric-dashboard</groupId>
+		<groupId>org.o-ran-sc.nonrt.ric-dashboard</groupId>
 		<artifactId>ric-dash-parent</artifactId>
-		<version>1.2.5-SNAPSHOT</version>
+		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	<!-- This groupId will NOT allow deployment in LF -->
 	<groupId>org.o-ran-sc.ric.plt.a1controller.client</groupId>
