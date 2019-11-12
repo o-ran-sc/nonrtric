@@ -103,9 +103,6 @@
 		</profile>
 	        <profile>
 		  <id>docker</id>
-		  <activation>
-      			<activeByDefault>true</activeByDefault>
-    		  </activation>
 		  <modules>
 			<module>installation</module>
 		  </modules>
