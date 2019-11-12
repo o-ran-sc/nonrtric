@@ -20,8 +20,9 @@ A1 Mediation:
 1. SDNC Controller
 2. Near-RT RIC Simulator
 
+**********************************
 SDNC A1 Controller Developer Guide
-==================================
+**********************************
 
 This document provides a quickstart for developers of the O-RAN SC A1 Controller SDNC Application
 
@@ -41,6 +42,7 @@ This will build the project and create artifcats in maven repo
 
 Go to oam/installation directory and run this command ::
     mvn clean install -P docker
+
 This will create the docker images required for sdnc
 
 After this step check for the docker images created by the maven build with this command ::
@@ -55,10 +57,11 @@ This will create the docker containers with the sdnc image, you can check the st
 The SDNC url to access the Northbound API,
     http://localhost:8282/apidoc/explorer/index.html
 
-Credentails: admin/Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U
+Credentials: admin/Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U
 
+*************************************
 Near-RT RIC Simulator Developer Guide
-=====================================
+*************************************
 
 Prerequisites
 -------------
@@ -79,3 +82,11 @@ The backend server listens for requests at this URL:
 
 The backend server publishes live API documentation at the URL
    http://localhost:8080/swagger-ui.html
+
+***************
+End-to-end call
+***************
+
+In order to make a complete end-to-end call, follow the instructions given in this `guide`_.
+
+.. _guide: https://wiki.o-ran-sc.org/pages/viewpage.action?pageId=12157166
