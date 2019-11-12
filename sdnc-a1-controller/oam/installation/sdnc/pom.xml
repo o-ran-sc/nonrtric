@@ -359,6 +359,19 @@
                         </configuration>
                     </execution>
                 </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.onap.sdnc.oam</groupId>
+                        <artifactId>platform-logic-installer</artifactId>
+                        <version>1.6.2</version>
+                        <type>pom</type>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.onap.sdnc.oam</groupId>
+                        <artifactId>data-migrator</artifactId>
+                        <version>1.6.2</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <artifactId>exec-maven-plugin</artifactId>
