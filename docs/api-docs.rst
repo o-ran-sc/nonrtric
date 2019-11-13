@@ -40,7 +40,7 @@ To run the dashboard locally, you can follow these steps:
     mvn -Dorg.oransc.ric.portal.dashboard=mock -Dtest=DashboardTestServer -DfailIfNoTests=false test
 
 
-- Now you can open URL:  `localhost:8080`_ in a browser. 
+- Now you can open URL:  `localhost:8080`_ in a browser.
 
 .. _localhost:8080: localhost:8080
 
