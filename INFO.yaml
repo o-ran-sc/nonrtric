@@ -33,6 +33,11 @@ repositories:
     - 'nonrtric'
 committers:
     - <<: *oran_nonrtric_ptl
+    - name: 'Henrik Andersson '
+      email: 'henrik.b.andersson@est.tech '
+      company: 'Ericsson Software Technology'
+      id: 'elinuxhenrik'
+      timezone: 'Sweden/Stockholm'
 tsc:
     # yamllint disable-line rule:line-length
     approval: 'https://wiki.o-ran-sc.org/display/TOC/2019+08+07'
