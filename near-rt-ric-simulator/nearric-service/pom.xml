@@ -144,26 +144,54 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>com.spotify</groupId>
-				<artifactId>dockerfile-maven-plugin</artifactId>
-				<version>${dockerfile-maven-version}</version>
-				<executions>
-					<execution>
-						<id>default</id>
-						<goals>
-							<goal>build</goal>
-							<goal>push</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<repository>nearric-simulator</repository>
-					<tag>${project.version}</tag>
-					<buildArgs>
-						<JAR_FILE>target/${project.build.finalName}.jar</JAR_FILE>
-					</buildArgs>
-				</configuration>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.30.0</version>
+                <configuration>
+                    <verbose>true</verbose>
+                    <!-- environment variables supplied by Jenkins -->
+                    <pushRegistry>${env.CONTAINER_PUSH_REGISTRY}</pushRegistry>
+                    <images>
+                        <image>
+                            <!-- Specify a tag to avoid default tag "latest" -->
+                            <!-- Avoid maven artifact name here -->
+                            <name>nearric-simulator:${project.version}</name>
+                            <build>
+                                <from>openjdk:11-jre-slim</from>
+                                <tags>
+                                    <!-- Add tag with build number -->
+                                    <tag>${project.version}</tag>
+                                </tags>
+                                <assembly>
+                                    <descriptorRef>artifact</descriptorRef>
+                                </assembly>
+                                <cmd>
+                                    <!-- Include maven dir on classpath for prop files -->
+                                    <exec>
+                                        <arg>java</arg>
+                                        <arg>-Xms128m</arg>
+                                        <arg>-Xmx256m</arg>
+                                        <arg>-cp</arg>
+                                        <arg>maven:maven/${project.artifactId}-${project.version}.${project.packaging}</arg>
+                                        <arg>-Dloader.main=org.onap.nearric.simulator.config.NearRicApplication</arg>
+                                        <arg>-Djava.security.egd=file:/dev/./urandom</arg>
+                                        <arg>org.springframework.boot.loader.PropertiesLauncher</arg>
+                                    </exec>
+                                </cmd>
+                            </build>
+                        </image>
+                    </images>
+                </configuration>
+                <!-- build Docker images in install phase, push in deploy phase -->
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>build</goal>
+                            <goal>push</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <dependencies>
                     <dependency>
                         <groupId>javax.activation</groupId>
@@ -171,7 +199,7 @@
                         <version>1.1.1</version>
                     </dependency>
                 </dependencies>
-			</plugin>
+            </plugin>
 		</plugins>
 	</build>
 </project>

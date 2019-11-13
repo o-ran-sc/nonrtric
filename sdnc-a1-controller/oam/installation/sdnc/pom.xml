@@ -26,7 +26,7 @@
 
     <properties>
         <image.name>onap/sdnc-aaf-image</image.name>
-        <standalone.image.name>onap/sdnc-image</standalone.image.name>
+        <standalone.image.name>nonrtric-a1-controller</standalone.image.name>
         <sdnc.project.version>${project.version}</sdnc.project.version>
         <sdnc.build.timestamp>${maven.build.timestamp}</sdnc.build.timestamp>
         <sdnc.northbound.version>1.7.3-SNAPSHOT</sdnc.northbound.version>
@@ -125,7 +125,7 @@
             <plugin>
                 <groupId>io.fabric8</groupId>
                 <artifactId>docker-maven-plugin</artifactId>
-                <version>0.28.0</version>
+                <version>0.30.0</version>
                 <inherited>false</inherited>
                 <executions>
                    <execution>
@@ -160,6 +160,7 @@
                       <goal>push</goal>
                      </goals>
                      <configuration>
+                       <pushRegistry>${env.CONTAINER_PUSH_REGISTRY}</pushRegistry>
                        <images>
                         <image>
                          <name>${standalone.image.name}</name>

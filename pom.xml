@@ -31,7 +31,7 @@
 	<name>nonrtric</name>
 	<modules>
 		<module>dashboard</module>
-		<module>sdnc-a1-controller</module>
 		<module>near-rt-ric-simulator</module>
+		<module>sdnc-a1-controller</module>
 	</modules>
 </project>

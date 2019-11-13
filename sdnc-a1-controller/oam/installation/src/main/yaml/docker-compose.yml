@@ -22,8 +22,8 @@ services:
         max-size: "30m"
         max-file: "5"
 
-  sdnc:
-    image: onap/sdnc-image:latest
+  a1-controller:
+    image: nonrtric-a1-controller:latest
     depends_on :
       - db
     container_name: sdnc_controller_container
