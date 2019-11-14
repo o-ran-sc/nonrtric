@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "24c58746_88b190c5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2019-11-14T18:28:29Z",
+      "side": 1,
+      "message": "Please add an issue id",
+      "range": {
+        "startLine": 7,
+        "startChar": 14,
+        "endLine": 8,
+        "endChar": 0
+      },
+      "revId": "c8a6fa9d87638b164abb6dd69b71b8f6117ff6e1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
