@@ -17,15 +17,15 @@
   limitations under the License.
   ========================LICENSE_END===================================
   -->
-<div class="text-muted logo" fxLayout="row" fxLayoutGap="50px">
+<div class="text-muted logo" fxLayout="row" fxLayoutGap="50px" fxLayoutAlign="space-around center">
     <div *ngIf="policyInstanceId">{{policyInstanceId}}</div>
 </div>
-<div class="mat-elevation-z8 header row logo">
+<div class="mat-elevation-z8 header row" [ngClass]="{'header-dark': darkMode}">
     <div class="logo">
         <img src="../../assets/oran-logo.png" width="30px" height="30px" style="position: relative; z-index: 50" />
-        <svg class="logo__icon" viewBox="150.3 22.2 400 50">
-            <text [ngClass]="{'logo__text-dark': darkModeActive}" class="logo__text" fill="#432c85" font-size="30"
-                font-weight="600" letter-spacing=".1em" transform="translate(149 56)">
+        <svg class="logo__icon" viewBox="150.3 22.2 1000 50">
+            <text class="logo__text" [ngClass]="{'logo__text-dark': darkMode}" font-size="30" font-weight="600"
+                letter-spacing=".1em" transform="translate(149 56)">
                 <tspan>Policy editor</tspan>
                 <tspan *ngIf="jsonSchemaObject.title"> {{this.jsonSchemaObject.title}}</tspan>
                 <tspan *ngIf="!jsonSchemaObject.title"> {{this.policyTypeName}}</tspan>
@@ -37,7 +37,7 @@
 <!--<div class="text-muted" *ngIf="jsonSchemaObject.description">{{jsonSchemaObject.description}}</div>-->
 
 <div fxLayout="row" fxLayoutAlign="space-around start" fxLayout.lt-sm="column" fxLayoutAlign.lt-sm="flex-start center">
-    <mat-card class="card">
+    <mat-card class="card" [ngClass]="{'card-dark': darkMode}">
         <h4 class="default-cursor" (click)="toggleVisible('form')">
             <mat-icon matTooltip="Properties">{{isVisible.form ? 'expand_less' : 'expand_more'}}</mat-icon>
             Properties
@@ -72,9 +72,7 @@
                 <div *ngIf="prettyValidationErrors" class="text-danger" [innerHTML]="prettyValidationErrors"></div>
             </div>
             <div>
-                <pre [class.data-good]="!prettyValidationErrors && prettyLiveFormData !== '{}'"
-                    [class.data-bad]="prettyValidationErrors">{{prettyLiveFormData}}
-                </pre>
+                <pre [class.text__dark]='this.darkMode'>{{prettyLiveFormData}}</pre>
             </div>
         </div>
 
@@ -84,7 +82,7 @@
         </h4>
         <div *ngIf="isVisible.schema" fxLayout="column" [@expandSection]="true">
             <strong class="text-muted">Schema</strong>
-            <pre>{{schemaAsString}}</pre>
+            <pre [class.text__dark]='this.darkMode'>{{schemaAsString}}</pre>
         </div>
     </mat-card>
 </div>

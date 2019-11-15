@@ -17,10 +17,11 @@
   limitations under the License.
   ========================LICENSE_END===================================
   -->
-<table #table mat-table class="instances-table mat-elevation-z8" matSort  multiTemplateDataRows [dataSource]="instanceDataSource">
+<table #table mat-table class="instances-table mat-elevation-z8" [ngClass]="{'table-dark': darkMode}" matSort
+    multiTemplateDataRows [dataSource]="instanceDataSource">
 
     <ng-container matColumnDef="instanceId">
-        <mat-header-cell mat-sort-header *matHeaderCellDef >Instance</mat-header-cell>
+        <mat-header-cell mat-sort-header *matHeaderCellDef>Instance</mat-header-cell>
         <mat-cell *matCellDef="let element" (click)="modifyInstance(element)">{{element.instanceId}}
         </mat-cell>
     </ng-container>
@@ -41,8 +42,7 @@
         <mat-footer-cell *matFooterCellDef>No records found.</mat-footer-cell>
     </ng-container>
 
-    <mat-header-row *matHeaderRowDef="['instanceId',  'action']"
-        [ngClass]="{'display-none': !this.hasInstances()}">
+    <mat-header-row *matHeaderRowDef="['instanceId',  'action']" [ngClass]="{'display-none': !this.hasInstances()}">
     </mat-header-row>
     <mat-row *matRowDef="let instance; columns: ['instanceId', 'action'];"></mat-row>
 
@@ -50,7 +50,6 @@
     </mat-footer-row>
 
 </table>
-
 
 <div class="spinner-container" *ngIf="instanceDataSource.loading$ | async">
     <mat-spinner diameter="50"></mat-spinner>

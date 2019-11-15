@@ -32,6 +32,7 @@ import { PolicyInstanceDialogComponent } from './policy-instance-dialog.componen
 import { getPolicyDialogProperties } from './policy-instance-dialog.component';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { UiService } from '../services/ui/ui.service';
 
 @Component({
     selector: 'rd-policy-instance',
@@ -45,20 +46,25 @@ export class PolicyInstanceComponent implements OnInit, AfterViewInit {
     @Input() policyType: PolicyType;
     @Input() expanded: Observable<boolean>;
     @ViewChild(MatSort, { static: true }) sort: MatSort;
+    darkMode: boolean;
 
     constructor(
         private policySvc: PolicyService,
         private dialog: MatDialog,
         private errorDialogService: ErrorDialogService,
         private notificationService: NotificationService,
-        private confirmDialogService: ConfirmDialogService) {
+        private confirmDialogService: ConfirmDialogService,
+        private ui: UiService) {
     }
-   
+
     ngOnInit() {
         this.instanceDataSource = new PolicyInstanceDataSource(this.policySvc, this.sort, this.notificationService, this.policyType);
         this.expanded.subscribe((isExpanded: boolean) => this.onExpand(isExpanded));
+        this.ui.darkModeState.subscribe((isDark) => {
+            this.darkMode = isDark;
+        });
     }
-    
+
     ngAfterViewInit() {
         this.instanceDataSource.sort = this.sort;
     }
@@ -73,11 +79,11 @@ export class PolicyInstanceComponent implements OnInit, AfterViewInit {
         this.policySvc.getPolicy(this.policyType.policy_type_id, instance.instanceId).subscribe(
             (refreshedJson: any) => {
                 instance.instance = JSON.stringify(refreshedJson);
-                this.dialog.open(PolicyInstanceDialogComponent, getPolicyDialogProperties(this.policyType, instance));
+                this.dialog.open(PolicyInstanceDialogComponent, getPolicyDialogProperties(this.policyType, instance, this.darkMode));
             },
             (httpError: HttpErrorResponse) => {
                 this.notificationService.error('Could not refresh instance ' + httpError.message);
-                this.dialog.open(PolicyInstanceDialogComponent, getPolicyDialogProperties(this.policyType, instance));
+                this.dialog.open(PolicyInstanceDialogComponent, getPolicyDialogProperties(this.policyType, instance, this.darkMode));
             }
         );
     }
@@ -110,4 +116,7 @@ export class PolicyInstanceComponent implements OnInit, AfterViewInit {
                     }
                 });
     }
+
+
+
 }
