@@ -19,17 +19,21 @@
  */
 
 .instances-table {
-  width: 60%; ;
+  width: 60%;
   min-height: 150px;
   min-width: 600px;
   margin-top: 10px;
   margin-bottom: 10px;
-  background-color:rgb(233, 233, 240);   
+  background-color: grayscale($color: #eeeaea);
+}
+
+.table-dark {
+  background-color: #1d1d27;
 }
 
 .action-cell {
-      display: flex; 
-      justify-content: flex-end;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .display-none {

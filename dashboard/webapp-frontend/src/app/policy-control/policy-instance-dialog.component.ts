@@ -17,20 +17,18 @@
  * limitations under the License.
  * ========================LICENSE_END===================================
  */
-import { Component, OnInit, ViewChild, Inject, AfterViewInit, Self } from '@angular/core';
+import { animate, state, style, transition, trigger } from '@angular/animations';
+import { AfterViewInit, Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { MatDialogConfig, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatMenuTrigger } from '@angular/material/menu';
-import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import { trigger, state, style, animate, transition } from '@angular/animations';
-import * as uuid from 'uuid';
-
 import { JsonPointer } from 'angular6-json-schema-form';
+import * as uuid from 'uuid';
+import { PolicyInstance, PolicyType } from '../interfaces/policy.types';
 import { PolicyService } from '../services/policy/policy.service';
 import { ErrorDialogService } from '../services/ui/error-dialog.service';
 import { NotificationService } from './../services/ui/notification.service';
+import { UiService } from '../services/ui/ui.service';
 
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { PolicyType } from '../interfaces/policy.types';
-import { PolicyInstance } from '../interfaces/policy.types';
 
 @Component({
     selector: 'rd-policy-instance-dialog',
@@ -81,14 +79,17 @@ export class PolicyInstanceDialogComponent implements OnInit, AfterViewInit {
 
     public policyInstanceId: string;
     public policyTypeName: string;
+    darkMode: boolean;
     private policyTypeId: number;
+
 
     constructor(
         private dataService: PolicyService,
         private errorService: ErrorDialogService,
         private notificationService: NotificationService,
         @Inject(MAT_DIALOG_DATA) private data,
-        private dialogRef: MatDialogRef<PolicyInstanceDialogComponent>) {
+        private dialogRef: MatDialogRef<PolicyInstanceDialogComponent>,
+        private ui: UiService) {
         this.formActive = false;
         this.policyInstanceId = this.data.instanceId;
         this.policyTypeName = this.data.name;
@@ -99,6 +100,9 @@ export class PolicyInstanceDialogComponent implements OnInit, AfterViewInit {
     ngOnInit() {
         this.jsonFormStatusMessage = 'Init';
         this.formActive = true;
+        this.ui.darkModeState.subscribe((isDark) => {
+            this.darkMode = isDark;
+        });
     }
 
     ngAfterViewInit() {
@@ -189,19 +193,19 @@ export class PolicyInstanceDialogComponent implements OnInit, AfterViewInit {
     }
 }
 
-export function getPolicyDialogProperties(policyType: PolicyType, instance: PolicyInstance): MatDialogConfig {
+export function getPolicyDialogProperties(policyType: PolicyType, instance: PolicyInstance, darkMode: boolean): MatDialogConfig {
     const policyTypeId = policyType.policy_type_id;
     const createSchema = policyType.create_schema;
     const instanceId = instance ? instance.instanceId : null;
     const instanceJson = instance ? instance.instance : null;
     const name = policyType.name;
-
     return {
         maxWidth: '1200px',
-        height: '1200px',
+        maxHeight: '900px',
         width: '900px',
         role: 'dialog',
         disableClose: false,
+        panelClass: darkMode ? 'dark-theme' : '',
         data: {
             policyTypeId,
             createSchema,

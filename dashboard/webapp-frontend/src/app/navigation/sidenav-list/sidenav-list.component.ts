@@ -29,7 +29,7 @@ export class SidenavListComponent implements OnInit {
   darkMode: boolean;
   @Output() sidenavClose = new EventEmitter();
 
-  constructor(public ui: UiService) { }
+  constructor(private ui: UiService) { }
 
   ngOnInit() {
     this.ui.darkModeState.subscribe((isDark) => {

@@ -18,25 +18,34 @@
  * ========================LICENSE_END===================================
  */
 
-.header {
-    color: black;
-    background: linear-gradient(to right, white 0%, rgb(217, 216, 231) 100%);
-    font-size: 40px;
-    font-weight: 400;
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
-
-.logo {
-    margin-left: 10px;
-}
 
 .logo__text {
     fill: #2B244D;
 }
-  
+
 .logo__text-dark {
     fill: #ffffff;
+}
+
+.text__dark {
+    color: white;
+}
+
+.header {
+    background: linear-gradient(to bottom, white 0%, grayscale($color: #eeeaea) 100%);
+    font-size: 40px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 2px;
+    margin-right: 2px;
+}
+
+.header-dark {
+    background: #2B244D;
+}
+
+.logo {
+    margin-left: 10px;
 }
 
 .logo__icon {
@@ -45,12 +54,18 @@
 }
 
 .submitBtn {
-    background-color: #4CAF50; /* Green */
+    background-color: #4CAF50;
+    /* Green */
 }
 
 .card {
     height: 100%;
-    width: 100%;  
-    margin-left: 10px;
-    margin-right: 1px;
+    width: 100%;
+    margin-left: 2px;
+    margin-right: 2px;
+    background-color: grayscale($color: #eeeaea);
+}
+
+.card-dark {
+    background-color: #1c1c24;
 }

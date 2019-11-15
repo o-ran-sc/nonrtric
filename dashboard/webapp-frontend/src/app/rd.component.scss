@@ -31,16 +31,18 @@
     Header
 ================
 */
-mat-sidenav-container, mat-sidenav-content, mat-sidenav {
-    height: 100%;
+mat-sidenav-container,
+mat-sidenav-content,
+mat-sidenav {
+  height: 100%;
 }
 
 mat-sidenav {
-    width: 250px;
+  width: 250px;
 }
 
 main {
-    padding: 10px;
+  padding: 10px;
 }
 
 /*
@@ -109,6 +111,7 @@ main {
 .slide-menu-active {
   transform: none;
 }
+
 .menu-header.menu-header__dark {
   background: #2B244D;
 }
@@ -118,7 +121,7 @@ main {
   display: grid;
   grid-template-rows: 1fr 4fr;
   grid-template-columns: 1fr 4fr;
-  grid-template-areas: "greeting greeting" "image details";
+  grid-template-areas: "greeting greeting""image details";
   box-sizing: border-box;
   width: 100%;
   align-content: center;
@@ -135,7 +138,7 @@ mat-drawer-content {
 }
 
 .menumargin-top {
-    margin-top: 10px;
+  margin-top: 10px;
 }
 
 .greeting__text {
@@ -190,12 +193,12 @@ mat-drawer-content {
   max-width: 4rem;
 }
 
-.home_bg_image{
-    height:40em;
-    background-size:cover;
-    width:auto;
-    background-image:url('../assets/intelligence.png');
-    background-position:50% 50%;
+.home_bg_image {
+  height: 40em;
+  background-size: cover;
+  width: auto;
+  background-image: url('../assets/intelligence.png');
+  background-position: 50% 50%;
 }
 
 /*Header*/
@@ -344,7 +347,7 @@ mat-drawer-content {
 
 .main-container__bg-dark {
   opacity: 1;
-  background: linear-gradient(to bottom, #B290FF, #2E1D65);
+  background: linear-gradient(to bottom, rgb(62, 59, 68), rgb(11, 10, 15));
   transition: opacity 300ms linear;
 }
 
@@ -365,7 +368,7 @@ mat-drawer-content {
 
 .main-footer__bg-dark {
   opacity: 1;
-  background: linear-gradient(to bottom, #B290FF, #2E1D65);
+  background: rgb(11, 10, 15);
   transition: opacity 300ms linear;
 }
 
