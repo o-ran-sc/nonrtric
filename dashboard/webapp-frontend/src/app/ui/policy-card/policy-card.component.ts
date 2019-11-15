@@ -17,9 +17,9 @@
  * limitations under the License.
  * ========================LICENSE_END===================================
  */
-import {Component, OnDestroy, OnInit} from '@angular/core';
-import {Router} from '@angular/router';
-import {UiService} from '../../services/ui/ui.service';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { UiService } from '../../services/ui/ui.service';
 
 @Component({
   selector: 'rd-policy-card',
@@ -29,7 +29,7 @@ import {UiService} from '../../services/ui/ui.service';
 export class PolicyCardComponent implements OnInit, OnDestroy {
   darkMode: boolean;
 
-  constructor(public router: Router, public ui: UiService) { }
+  constructor(public router: Router, private ui: UiService) { }
 
   ngOnInit() {
     this.ui.darkModeState.subscribe((isDark) => {
