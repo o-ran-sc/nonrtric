@@ -34,12 +34,13 @@ import { NotificationService } from '../services/ui/notification.service';
 import { ErrorDialogService } from '../services/ui/error-dialog.service';
 import { ConfirmDialogService } from './../services/ui/confirm-dialog.service';
 import { Subject } from 'rxjs';
+import { UiService } from '../services/ui/ui.service';
 
 class PolicyTypeInfo {
     constructor(public type: PolicyType, public isExpanded: boolean) { }
 
     isExpandedObservers: Subject<boolean> = new Subject<boolean>();
-};
+}
 
 @Component({
     selector: 'rd-policy-control',
@@ -59,21 +60,26 @@ export class PolicyControlComponent implements OnInit {
     @ViewChild(MatSort, { static: true }) sort: MatSort;
 
     expandedTypes = new Map<string, PolicyTypeInfo>();
+    darkMode: boolean;
 
     constructor(
         private policySvc: PolicyService,
         private dialog: MatDialog,
         private errorDialogService: ErrorDialogService,
         private notificationService: NotificationService,
-        private confirmDialogService: ConfirmDialogService) { }
+        private confirmDialogService: ConfirmDialogService,
+        private ui: UiService) { }
 
     ngOnInit() {
         this.policyTypesDataSource = new PolicyTypeDataSource(this.policySvc, this.sort, this.notificationService);
         this.policyTypesDataSource.loadTable();
+        this.ui.darkModeState.subscribe((isDark) => {
+            this.darkMode = isDark;
+        });
     }
 
     createPolicyInstance(policyType: PolicyType): void {
-        const dialogRef = this.dialog.open(PolicyInstanceDialogComponent, getPolicyDialogProperties(policyType, null));
+        const dialogRef = this.dialog.open(PolicyInstanceDialogComponent, getPolicyDialogProperties(policyType, null, this.darkMode));
         const info: PolicyTypeInfo = this.getPolicyTypeInfo(policyType);
         dialogRef.afterClosed().subscribe(
             (result: any) => {
@@ -83,7 +89,7 @@ export class PolicyControlComponent implements OnInit {
     }
 
     toggleListInstances(policyType: PolicyType): void {
-        let info = this.getPolicyTypeInfo(policyType);
+        const info = this.getPolicyTypeInfo(policyType);
         info.isExpanded = !info.isExpanded;
         info.isExpandedObservers.next(info.isExpanded);
     }
