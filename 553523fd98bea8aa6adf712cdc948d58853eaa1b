@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b2bd065f_848bdd08",
+        "filename": "near-rt-ric-simulator/LICENSES.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2019-11-18T09:29:21Z",
+      "side": 1,
+      "message": "It states here,https://wiki.o-ran-sc.org/display/ORAN/Licensing+Text, that a LICENSES.txt should be placed at the root of every repo. So I wonder if this file is really necessary since it is in a subfolder in the nonrtric repo, which has a LICENSES.txt file?",
+      "revId": "553523fd98bea8aa6adf712cdc948d58853eaa1b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c84f7787_c441494e",
+        "filename": "sdnc-a1-controller/LICENSES.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2019-11-18T09:29:21Z",
+      "side": 1,
+      "message": "It states here,https://wiki.o-ran-sc.org/display/ORAN/Licensing+Text, that a LICENSES.txt should be placed at the root of every repo. So I wonder if this file is really necessary since it is in a subfolder in the nonrtric repo, which has a LICENSES.txt file?",
+      "revId": "553523fd98bea8aa6adf712cdc948d58853eaa1b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
