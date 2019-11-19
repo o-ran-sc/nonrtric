@@ -257,7 +257,7 @@ limitations under the License.
 						<image>
 							<!-- Specify a tag to avoid default tag "latest" -->
 							<!-- Avoid maven artifact name here -->
-							<name>nonrtric-dashboard:${project.version}</name>
+							<name>o-ran-sc/nonrtric-dashboard:${project.version}</name>
 							<build>
 								<from>openjdk:11-jre-slim</from>
 								<tags>

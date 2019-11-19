@@ -45,7 +45,7 @@
 
     <properties>
         <image.name>onap/sdnc-aaf-image</image.name>
-        <standalone.image.name>nonrtric-a1-controller</standalone.image.name>
+        <standalone.image.name>o-ran-sc/nonrtric-a1-controller</standalone.image.name>
         <sdnc.project.version>${project.version}</sdnc.project.version>
         <sdnc.build.timestamp>${maven.build.timestamp}</sdnc.build.timestamp>
         <sdnc.northbound.version>1.7.3-SNAPSHOT</sdnc.northbound.version>
