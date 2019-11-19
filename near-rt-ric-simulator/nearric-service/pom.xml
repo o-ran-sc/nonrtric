@@ -176,7 +176,7 @@
                         <image>
                             <!-- Specify a tag to avoid default tag "latest" -->
                             <!-- Avoid maven artifact name here -->
-                            <name>nearric-simulator:${project.version}</name>
+                            <name>o-ran-sc/nearric-simulator:${project.version}</name>
                             <build>
                                 <from>openjdk:11-jre-slim</from>
                                 <tags>

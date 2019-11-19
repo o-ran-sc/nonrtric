@@ -38,7 +38,7 @@ services:
         max-file: "5"
 
   a1-controller:
-    image: nonrtric-a1-controller:latest
+    image: o-ran-sc/nonrtric-a1-controller:latest
     depends_on :
       - db
     container_name: a1-controller-container
