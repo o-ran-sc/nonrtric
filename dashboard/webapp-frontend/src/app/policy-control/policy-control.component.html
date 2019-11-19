@@ -24,11 +24,11 @@
     class="policy-type-table mat-elevation-z8">
 
     <ng-container matColumnDef="name">
-        <mat-header-cell *matHeaderCellDef mat-sort-header>Policy Type</mat-header-cell>
+        <mat-header-cell *matHeaderCellDef>Policy Type</mat-header-cell>
         <mat-cell *matCellDef="let policyType">
             <mat-icon matTooltip="Properties">{{isInstancesShown(policyType)  ? 'expand_less' : 'expand_more'}}
             </mat-icon>
-            {{getPolicyTypeName(policyType)}}
+            {{policyType.name}}
         </mat-cell>
     </ng-container>
 
@@ -49,7 +49,7 @@
     <!-- =================== Policy instances for one type ======================== -->
     <ng-container matColumnDef="instanceTableContainer">
         <mat-cell *matCellDef="let policyType">
-            <rd-policy-instance [policyType]=policyType [expanded]=getObservable(policyType)>
+            <rd-policy-instance [policyType]=policyType [expanded]=this.getExpandedObserver(policyType)>
             </rd-policy-instance>
         </mat-cell>
     </ng-container>
