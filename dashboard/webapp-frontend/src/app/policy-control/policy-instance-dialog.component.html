@@ -26,7 +26,6 @@
         <svg class="logo__icon" viewBox="150.3 22.2 1000 50">
             <text class="logo__text" [ngClass]="{'logo__text-dark': darkMode}" font-size="30" font-weight="600"
                 letter-spacing=".1em" transform="translate(149 56)">
-                <tspan>Policy editor</tspan>
                 <tspan *ngIf="jsonSchemaObject.title"> {{this.jsonSchemaObject.title}}</tspan>
                 <tspan *ngIf="!jsonSchemaObject.title"> {{this.policyTypeName}}</tspan>
             </text>
@@ -34,7 +33,7 @@
     </div>
 </div>
 
-<!--<div class="text-muted" *ngIf="jsonSchemaObject.description">{{jsonSchemaObject.description}}</div>-->
+<div class="text-muted" *ngIf="jsonSchemaObject.description">{{jsonSchemaObject.description}}</div>
 
 <div fxLayout="row" fxLayoutAlign="space-around start" fxLayout.lt-sm="column" fxLayoutAlign.lt-sm="flex-start center">
     <mat-card class="card" [ngClass]="{'card-dark': darkMode}">

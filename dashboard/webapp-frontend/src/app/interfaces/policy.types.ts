@@ -23,8 +23,7 @@
 export interface PolicyType {
   policy_type_id: number;
   name: string;
-  description: string;
-  create_schema: string;
+  schema: string;
 }
 
 export interface PolicyInstance {

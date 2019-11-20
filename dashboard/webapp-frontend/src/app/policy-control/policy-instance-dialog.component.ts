@@ -91,9 +91,9 @@ export class PolicyInstanceDialogComponent implements OnInit, AfterViewInit {
         private dialogRef: MatDialogRef<PolicyInstanceDialogComponent>,
         private ui: UiService) {
         this.formActive = false;
-        this.policyInstanceId = this.data.instanceId;
-        this.policyTypeName = this.data.name;
-        this.policyTypeId = this.data.policyTypeId;
+        this.policyInstanceId = data.instanceId;
+        this.policyTypeName = data.name;
+        this.policyTypeId = data.policyTypeId;
         this.parseJson(data.createSchema, data.instanceJson);
     }
 
@@ -130,8 +130,8 @@ export class PolicyInstanceDialogComponent implements OnInit, AfterViewInit {
         this.dialogRef.close();
     }
 
-    public onChanges(data: any) {
-        this.liveFormData = data;
+    public onChanges(formData: any) {
+        this.liveFormData = formData;
     }
 
     get prettyLiveFormData() {
@@ -150,8 +150,8 @@ export class PolicyInstanceDialogComponent implements OnInit, AfterViewInit {
         this.formIsValid = isValid;
     }
 
-    validationErrors(data: any): void {
-        this.formValidationErrors = data;
+    validationErrors(validationErrors: any): void {
+        this.formValidationErrors = validationErrors;
     }
 
     get prettyValidationErrors() {
@@ -177,7 +177,7 @@ export class PolicyInstanceDialogComponent implements OnInit, AfterViewInit {
     private parseJson(createSchema: string, instanceJson: string): void {
         try {
             this.jsonSchemaObject = JSON.parse(createSchema);
-            if (this.data.instanceJson != null) {
+            if (instanceJson != null) {
                 this.jsonObject = JSON.parse(instanceJson);
             }
         } catch (jsonError) {
@@ -195,7 +195,7 @@ export class PolicyInstanceDialogComponent implements OnInit, AfterViewInit {
 
 export function getPolicyDialogProperties(policyType: PolicyType, instance: PolicyInstance, darkMode: boolean): MatDialogConfig {
     const policyTypeId = policyType.policy_type_id;
-    const createSchema = policyType.create_schema;
+    const createSchema = policyType.schema;
     const instanceId = instance ? instance.instanceId : null;
     const instanceJson = instance ? instance.instance : null;
     const name = policyType.name;

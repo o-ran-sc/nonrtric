@@ -1,53 +1,42 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Example_QoSTarget_1.0.0",
+  "description": "Example QoS Target policy type",
   "type": "object",
-  "title": "Car",
   "properties": {
-    "make": {
-      "type": "string",
-      "enum": [
-        "Toyota",
-        "BMW",
-        "Honda",
-        "Ford",
-        "Chevy",
-        "VW"
+    "scope": {
+      "type": "object",
+      "properties": {
+        "qosId": {
+          "type": "string"
+        },
+        "cellId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "qosId"
       ]
     },
-    "model": {
-      "type": "string"
-    },
-    "year": {
-      "type": "integer",
-      "enum": [
-        1995,
-        1996,
-        1997,
-        1998,
-        1999,
-        2000,
-        2001,
-        2002,
-        2003,
-        2004,
-        2005,
-        2006,
-        2007,
-        2008,
-        2009,
-        2010,
-        2011,
-        2012,
-        2013,
-        2014
-      ],
-      "default": 2008
-    },
-    "safety": {
-      "type": "integer",
-      "format": "rating",
-      "maximum": 5,
-      "exclusiveMaximum": false,
-      "readonly": false
+    "statement": {
+      "type": "object",
+      "properties": {
+        "gfbr": {
+          "type": "number"
+        },
+        "mfbr": {
+          "type": "number"
+        },
+        "priorityLevel": {
+          "type": "number"
+        },
+        "pdb": {
+          "type": "number"
+        }
+      },
+      "minProperties": 1,
+      "additionalProperties": false
     }
   }
 }
