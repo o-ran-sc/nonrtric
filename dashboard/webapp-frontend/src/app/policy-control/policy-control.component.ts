@@ -33,13 +33,13 @@ import { PolicyInstance } from '../interfaces/policy.types';
 import { NotificationService } from '../services/ui/notification.service';
 import { ErrorDialogService } from '../services/ui/error-dialog.service';
 import { ConfirmDialogService } from './../services/ui/confirm-dialog.service';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { UiService } from '../services/ui/ui.service';
 
 class PolicyTypeInfo {
-    constructor(public type: PolicyType, public isExpanded: boolean) { }
+    constructor(public type: PolicyType) { }
 
-    isExpandedObservers: Subject<boolean> = new Subject<boolean>();
+    isExpanded: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 }
 
 @Component({
@@ -48,18 +48,20 @@ class PolicyTypeInfo {
     styleUrls: ['./policy-control.component.scss'],
     animations: [
         trigger('detailExpand', [
-            state('collapsed', style({ height: '0px', minHeight: '0', visibility: 'hidden' })),
-            state('expanded', style({ height: '*', visibility: 'visible' })),
+            state('collapsed, void', style({ height: '0px', minHeight: '0', display: 'none' })),
+            state('expanded', style({ height: '*' })),
             transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+            transition('expanded <=> void', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)'))
         ]),
     ],
 })
 export class PolicyControlComponent implements OnInit {
 
+
     policyTypesDataSource: PolicyTypeDataSource;
     @ViewChild(MatSort, { static: true }) sort: MatSort;
 
-    expandedTypes = new Map<string, PolicyTypeInfo>();
+    policyTypeInfo = new Map<string, PolicyTypeInfo>();
     darkMode: boolean;
 
     constructor(
@@ -83,39 +85,33 @@ export class PolicyControlComponent implements OnInit {
         const info: PolicyTypeInfo = this.getPolicyTypeInfo(policyType);
         dialogRef.afterClosed().subscribe(
             (result: any) => {
-                info.isExpandedObservers.next(info.isExpanded);
+                info.isExpanded.next(info.isExpanded.getValue());
             }
         );
     }
 
     toggleListInstances(policyType: PolicyType): void {
+        console.log('1toggleListInstances ' + + policyType.name + ' ' + this.getPolicyTypeInfo(policyType).isExpanded.getValue());
         const info = this.getPolicyTypeInfo(policyType);
-        info.isExpanded = !info.isExpanded;
-        info.isExpandedObservers.next(info.isExpanded);
+        info.isExpanded.next(!info.isExpanded.getValue());
+        console.log('2toggleListInstances ' + + policyType.name + ' ' + this.getPolicyTypeInfo(policyType).isExpanded.getValue());
+
     }
 
     getPolicyTypeInfo(policyType: PolicyType): PolicyTypeInfo {
-        let info: PolicyTypeInfo = this.expandedTypes.get(policyType.name);
+        let info: PolicyTypeInfo = this.policyTypeInfo.get(policyType.name);
         if (!info) {
-            info = new PolicyTypeInfo(policyType, false);
-            this.expandedTypes.set(policyType.name, info);
+            info = new PolicyTypeInfo(policyType);
+            this.policyTypeInfo.set(policyType.name, info);
         }
         return info;
     }
 
     isInstancesShown(policyType: PolicyType): boolean {
-        return this.getPolicyTypeInfo(policyType).isExpanded;
+        return this.getPolicyTypeInfo(policyType).isExpanded.getValue();
     }
 
-    getPolicyTypeName(type: PolicyType): string {
-        const schema = JSON.parse(type.create_schema);
-        if (schema.title) {
-            return schema.title;
-        }
-        return type.name;
-    }
-
-    getObservable(policyType: PolicyType): Subject<boolean> {
-        return this.getPolicyTypeInfo(policyType).isExpandedObservers;
+    getExpandedObserver(policyType: PolicyType): Observable<boolean> {
+        return this.getPolicyTypeInfo(policyType).isExpanded.asObservable();
     }
 }

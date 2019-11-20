@@ -42,9 +42,9 @@ export class PolicyInstanceDataSource extends DataSource<PolicyInstance> {
     public rowCount = 1; // hide footer during intial load
 
     constructor(
-        private policySvc: PolicyService,    
+        private policySvc: PolicyService,
         public sort: MatSort,
-        private notificationService: NotificationService, 
+        private notificationService: NotificationService,
         private policyType: PolicyType) {
         super();
     }
@@ -95,6 +95,6 @@ export class PolicyInstanceDataSource extends DataSource<PolicyInstance> {
     }
 }
 
-function compare(a: string, b: string, isAsc: boolean) {  
+function compare(a: string, b: string, isAsc: boolean) {
     return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
 }
