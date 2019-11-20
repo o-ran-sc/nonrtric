@@ -22,6 +22,30 @@
       "revId": "45d0c6f23079a3890f42a00d8f1810613fc73ef4",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd6090b3_5448ced2",
+        "filename": "dashboard/webapp-frontend/src/app/footer/footer.component.html",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2019-11-20T11:18:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f6f0d824_0d05dabb",
+      "range": {
+        "startLine": 25,
+        "startChar": 2,
+        "endLine": 27,
+        "endChar": 5
+      },
+      "revId": "45d0c6f23079a3890f42a00d8f1810613fc73ef4",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
