@@ -195,7 +195,7 @@ export class PolicyInstanceDialogComponent implements OnInit, AfterViewInit {
 
 export function getPolicyDialogProperties(policyType: PolicyType, instance: PolicyInstance, darkMode: boolean): MatDialogConfig {
     const policyTypeId = policyType.policy_type_id;
-    const createSchema = policyType.create_schema;
+    const createSchema = policyType.schema;
     const instanceId = instance ? instance.instanceId : null;
     const instanceJson = instance ? instance.instance : null;
     const name = policyType.name;

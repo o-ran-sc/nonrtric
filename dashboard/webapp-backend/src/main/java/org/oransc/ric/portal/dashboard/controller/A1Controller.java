@@ -138,7 +138,7 @@ public class A1Controller {
 			checkHttpError(controllerGetPolicyType.getOutput().getCode());
 			OutputDescNamePTCodeSchemaOutput policyTypeSchema = controllerGetPolicyType.getOutput();
 			PolicyType type = new PolicyType(policyTypeId, policyTypeSchema.getName(),
-					policyTypeSchema.getDescription(), policyTypeSchema.getPolicyType().toString());
+				policyTypeSchema.getPolicyType().toString());
 			policyTypes.add(type);
 		}
 		return policyTypes;

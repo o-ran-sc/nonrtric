@@ -107,6 +107,16 @@ export class PolicyControlComponent implements OnInit {
         return info;
     }
 
+    getDescription(policyType: PolicyType): string {
+        return JSON.parse(policyType.schema).description;
+    }
+
+    getName(policyType: PolicyType): string {
+        const title = JSON.parse(policyType.schema).title;
+        if (title) { return title; }
+        return policyType.name;
+    }
+
     isInstancesShown(policyType: PolicyType): boolean {
         return this.getPolicyTypeInfo(policyType).isExpanded.getValue();
     }

@@ -24,7 +24,13 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import com.fasterxml.jackson.core.JsonProcessingException;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandles;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,6 +39,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.oransc.ric.a1controller.client.api.A1ControllerApi;
 import org.oransc.ric.a1controller.client.invoker.ApiClient;
 import org.oransc.ric.a1controller.client.model.InputNRRidPTidPIidPISchema;
@@ -115,8 +123,7 @@ public class A1ControllerMockConfiguration {
 			PolicyType policyType = database.getPolicyType(input.getInput().getPolicyTypeId());
 			OutputDescNamePTCodeSchemaOutput type = new OutputDescNamePTCodeSchemaOutput();
 			type.setName(policyType.getName());
-			type.setDescription(policyType.getDescription());
-			type.setPolicyType(database.normalize(policyType.getCreateSchema()));
+			type.setPolicyType(database.normalize(policyType.getSchema()));
 			type.setCode(String.valueOf(HttpStatus.OK.value()));
 			OutputDescNamePTCodeSchema outputSchema = new OutputDescNamePTCodeSchema();
 			outputSchema.setOutput(type);
@@ -168,7 +175,7 @@ public class A1ControllerMockConfiguration {
 			OutputCodeSchemaOutput outputCodeSchemaOutput = new OutputCodeSchemaOutput();
 			outputCodeSchemaOutput.setCode(String.valueOf(HttpStatus.CREATED.value()));
 			OutputCodeSchema outputCodeSchema = new OutputCodeSchema();
-            outputCodeSchema.setOutput(outputCodeSchemaOutput);
+			outputCodeSchema.setOutput(outputCodeSchemaOutput);
 			return outputCodeSchema;
 		}).when(mockApi).a1ControllerCreatePolicyInstance(any(InputNRRidPTidPIidPISchema.class));
 
@@ -182,147 +189,16 @@ public class A1ControllerMockConfiguration {
 			String instanceId = input.getInput().getPolicyInstanceId();
 			database.deleteInstance(polcyTypeId, instanceId);
 			OutputCodeSchemaOutput outputCodeSchemaOutput = new OutputCodeSchemaOutput();
-            outputCodeSchemaOutput.setCode(String.valueOf(HttpStatus.NO_CONTENT.value()));
-            OutputCodeSchema outputCodeSchema = new OutputCodeSchema();
-            outputCodeSchema.setOutput(outputCodeSchemaOutput);
-            return outputCodeSchema;
+			outputCodeSchemaOutput.setCode(String.valueOf(HttpStatus.NO_CONTENT.value()));
+			OutputCodeSchema outputCodeSchema = new OutputCodeSchema();
+			outputCodeSchema.setOutput(outputCodeSchemaOutput);
+			return outputCodeSchema;
 		}).when(mockApi).a1ControllerDeletePolicyInstance(any(InputNRRidPTidPIidSchema.class));
 
 		return mockApi;
 	}
 
 	class Database {
-
-		private String schema1 = "{\"$schema\": " //
-				+ "\"http://json-schema.org/draft-07/schema#\"," //
-				+ "\"title\": \"ANR\"," //
-				+ "\"description\": \"ANR Neighbour Cell Relation Policy\"," //
-				+ "\"type\": \"object\"," //
-				+ "\"properties\": " //
-				+ "{ \"servingCellNrcgi\": {" //
-				+ "\"type\": \"string\"," //
-				+ "\"description\" : \"Serving Cell Identifier (NR CGI)\"}," //
-				+ "\"neighborCellNrpci\": {" //
-				+ "\"type\": \"string\"," //
-				+ "\"description\": \"Neighbor Cell Identifier (NR PCI)\"}," //
-				+ "\"neighborCellNrcgi\": {" //
-				+ "\"type\": \"string\"," //
-				+ "\"description\": \"Neighbor Cell Identifier (NR CGI)\"}," //
-				+ "\"flagNoHo\": {" //
-				+ "\"type\": \"boolean\"," //
-				+ "\"description\": \"Flag for HANDOVER NOT ALLOWED\"}," //
-				+ "\"flagNoXn\": {" //
-				+ "\"type\": \"boolean\"," //
-				+ "\"description\": \"Flag for Xn CONNECTION NOT ALLOWED\"}," //
-				+ "\"flagNoRemove\": {" //
-				+ "\"type\": \"boolean\"," //
-				+ "\"description\": \"Flag for DELETION NOT ALLOWED\"}}, " //
-				+ "\"required\": [ \"servingCellNrcgi\",\"neighborCellNrpci\",\"neighborCellNrcgi\",\"flagNoHo\",\"flagNoXn\",\"flagNoRemove\" ]}";
-		private PolicyType policy1 = new PolicyType(1, "ANR", "ANR Neighbour Cell Relation Policy", schema1);
-
-		private String policyInstance1 = "{\"servingCellNrcgi\": \"Cell1\",\r\n" + //
-				"\"neighborCellNrpci\": \"NCell1\",\r\n" + //
-				"\"neighborCellNrcgi\": \"Ncell1\",\r\n" + //
-				"\"flagNoHo\": true,\r\n" + //
-				"\"flagNoXn\": true,\r\n" + //
-				"\"flagNoRemove\": true}";
-
-		private String schema2 = "{\n" + "          \"type\": \"object\",\n" + //
-				"          \"title\": \"Car\",\n" + //
-				"          \"properties\": {\n" + //
-				"            \"make\": {\n" + //
-				"              \"type\": \"string\",\n" + //
-				"              \"enum\": [\n" + //
-				"                \"Toyota\",\n" + //
-				"                \"BMW\",\n" + //
-				"                \"Honda\",\n" + //
-				"                \"Ford\",\n" + //
-				"                \"Chevy\",\n" + //
-				"                \"VW\"\n" + //
-				"              ]\n" + //
-				"            },\n" + //
-				"            \"model\": {\n" + //
-				"              \"type\": \"string\"\n" + //
-				"            },\n" + //
-				"            \"year\": {\n" + //
-				"              \"type\": \"integer\",\n" + //
-				"              \"enum\": [\n" + //
-				"                1995,1996,1997,1998,1999,\n" + //
-				"                2000,2001,2002,2003,2004,\n" + //
-				"                2005,2006,2007,2008,2009,\n" + //
-				"                2010,2011,2012,2013,2014\n" + //
-				"              ],\n" + //
-				"              \"default\": 2008\n" + //
-				"            },\n" + //
-				"            \"safety\": {\n" + //
-				"              \"type\": \"integer\",\n" + //
-				"              \"format\": \"rating\",\n" + //
-				"              \"maximum\": 5,\n" + //
-				"              \"exclusiveMaximum\": false,\n" + //
-				"              \"readonly\": false\n" + //
-				"            }\n" + //
-				"          }\n" + //
-				"        }\n";
-		private PolicyType policy2 = new PolicyType(2, "type2", "Type2 description", schema2);
-
-		private String schema3 = "{\n" + //
-				"  \"$id\": \"https://example.com/person.schema.json\",\n" + //
-				"  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n" + //
-				"  \"title\": \"Person\",\n" + //
-				"  \"type\": \"object\",\n" + //
-				"  \"properties\": {\n" + //
-				"    \"firstName\": {\n" + //
-				"      \"type\": \"string\",\n" + //
-				"      \"description\": \"The person's first name.\"\n" + //
-				"    },\n" + //
-				"    \"lastName\": {\n" + //
-				"      \"type\": \"string\",\n" + //
-				"      \"description\": \"The person's last name.\"\n" + //
-				"    },\n" + //
-				"    \"age\": {\n" + //
-				"      \"description\": \"Age in years which must be equal to or greater than zero.\",\n" + //
-				"      \"type\": \"integer\",\n" + //
-				"      \"minimum\": 0\n" + //
-				"    }\n" + //
-				"  }\n" + //
-				"}";
-		private PolicyType policy3 = new PolicyType(3, "type3", "Type3 description", schema3);
-
-		private String schema4 = "{" + //
-				"		  \"$id\": \"https://example.com/arrays.schema.json\"," + //
-				"		  \"$schema\": \"http://json-schema.org/draft-07/schema#\"," + //
-				"		  \"description\": \"A representation of a person, company, organization, or place\"," + //
-				"		  \"type\": \"object\"," + //
-				"		  \"properties\": {" + //
-				"		    \"fruits\": {" + //
-				"		      \"type\": \"array\"," + //
-				"		      \"items\": {" + //
-				"		        \"type\": \"string\"" + //
-				"		      }" + //
-				"		    }," + //
-				"		    \"vegetables\": {" + //
-				"		      \"type\": \"array\"," + //
-				"		      \"items\": { \"$ref\": \"#/definitions/veggie\" }" + //
-				"		    }" + //
-				"		  }," + //
-				"		  \"definitions\": {" + //
-				"		    \"veggie\": {" + //
-				"		      \"type\": \"object\"," + //
-				"		      \"required\": [ \"veggieName\", \"veggieLike\" ]," + //
-				"		      \"properties\": {" + //
-				"		        \"veggieName\": {" + //
-				"		          \"type\": \"string\"," + //
-				"		          \"description\": \"The name of the vegetable.\"" + //
-				"		        }," + //
-				"		        \"veggieLike\": {" + //
-				"		          \"type\": \"boolean\"," + //
-				"		          \"description\": \"Do I like this vegetable?\"" + //
-				"		        }" + //
-				"		      }" + //
-				"		    }" + //
-				"		  }" + //
-				"		}";
-		private PolicyType policy4 = new PolicyType(4, "type4", "Type4 description", schema4);
 
 		public class PolicyException extends Exception {
 
@@ -368,14 +244,36 @@ public class A1ControllerMockConfiguration {
 		}
 
 		Database() {
-			types.put(1, new PolicyTypeHolder(policy1));
-			types.put(2, new PolicyTypeHolder(policy2));
-			types.put(3, new PolicyTypeHolder(policy3));
-			types.put(4, new PolicyTypeHolder(policy4));
+			String schema = getStringFromFile("anr-policy-schema.json");
+			PolicyType policy = new PolicyType(1, "ANR", schema);
+			types.put(1, new PolicyTypeHolder(policy));
+
+			schema = getStringFromFile("demo-policy-schema-1.json");
+			policy = new PolicyType(2, "type2", schema);
+			types.put(2, new PolicyTypeHolder(policy));
+
+			schema = getStringFromFile("demo-policy-schema-2.json");
+			policy = new PolicyType(3, "type3", schema);
+			types.put(3, new PolicyTypeHolder(policy));
+
+			schema = getStringFromFile("demo-policy-schema-3.json");
+			policy = new PolicyType(4, "type4", schema);
+			types.put(4, new PolicyTypeHolder(policy));
 			try {
-				putInstance(1, "ANR-1", policyInstance1);
+				putInstance(1, "ANR-1", getStringFromFile("anr-policy-instance.json"));
 			} catch (JsonProcessingException | PolicyException e) {
 				// Nothing
+			}
+		}
+		
+		private String getStringFromFile(String path) {
+			try {
+				InputStream inputStream = MethodHandles.lookup().lookupClass().getClassLoader().getResourceAsStream(path);
+				return new BufferedReader(new InputStreamReader(inputStream))
+  .lines().collect(Collectors.joining("\n"));
+			} catch (Exception e) {
+				logger.error("Cannot read file :" + path, e);
+				return "";
 			}
 		}
 

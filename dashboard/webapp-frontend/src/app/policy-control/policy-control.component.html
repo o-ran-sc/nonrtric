@@ -24,17 +24,18 @@
     class="policy-type-table mat-elevation-z8">
 
     <ng-container matColumnDef="name">
-        <mat-header-cell *matHeaderCellDef>Policy Type</mat-header-cell>
+        <mat-header-cell *matHeaderCellDef mat-sort-header>Policy Type</mat-header-cell>
         <mat-cell *matCellDef="let policyType">
             <mat-icon matTooltip="Properties">{{isInstancesShown(policyType)  ? 'expand_less' : 'expand_more'}}
             </mat-icon>
-            {{policyType.name}}
+            {{this.getName(policyType)}}
         </mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="description">
         <mat-header-cell *matHeaderCellDef> Description </mat-header-cell>
-        <mat-cell *matCellDef="let policyType"> {{policyType.description}} </mat-cell>
+        <mat-cell *matCellDef="let policyType"> {{this.getDescription(policyType)}}
+        </mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="action">
