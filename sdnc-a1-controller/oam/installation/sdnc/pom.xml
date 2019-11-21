@@ -156,15 +156,13 @@
                      <configuration>
                       <images>
                        <image>
-                        <name>${standalone.image.name}</name>
+                        <name>${standalone.image.name}:${project.version}</name>
                         <build>
                          <cleanup>try</cleanup>
                          <dockerFileDir>${basedir}/target/docker-stage</dockerFileDir>
                          <dockerFile>standalone.Dockerfile</dockerFile>
                          <tags>
-                             <tag>${project.docker.latestminortag.version}</tag>
-                             <tag>${project.docker.latestfulltag.version}</tag>
-                             <tag>${project.docker.latesttagtimestamp.version}</tag>
+                             <tag>${project.version}</tag>
                          </tags>
                         </build>
                        </image>
@@ -182,15 +180,13 @@
                        <pushRegistry>${env.CONTAINER_PUSH_REGISTRY}</pushRegistry>
                        <images>
                         <image>
-                         <name>${standalone.image.name}</name>
+                         <name>${standalone.image.name}:${project.version}</name>
                          <build>
                           <cleanup>try</cleanup>
                           <dockerFileDir>${basedir}/target/docker-stage</dockerFileDir>
                           <dockerFile>standalone.Dockerfile</dockerFile>
                           <tags>
-                             <tag>${project.docker.latestminortag.version}</tag>
-                             <tag>${project.docker.latestfulltag.version}</tag>
-                             <tag>${project.docker.latesttagtimestamp.version}</tag>
+                             <tag>${project.version}</tag>
                           </tags>
                          </build>
                         </image>
