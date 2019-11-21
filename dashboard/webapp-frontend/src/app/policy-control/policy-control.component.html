@@ -34,7 +34,7 @@
 
     <ng-container matColumnDef="description">
         <mat-header-cell *matHeaderCellDef> Description </mat-header-cell>
-        <mat-cell *matCellDef="let policyType"> {{this.getDescription(policyType)}}
+        <mat-cell *matCellDef="let policyType"> {{policyType.schemaObject.description}}
         </mat-cell>
     </ng-container>
 

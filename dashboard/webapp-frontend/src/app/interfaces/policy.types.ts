@@ -24,6 +24,7 @@ export interface PolicyType {
   policy_type_id: number;
   name: string;
   schema: string;
+  schemaObject: any;
 }
 
 export interface PolicyInstance {
