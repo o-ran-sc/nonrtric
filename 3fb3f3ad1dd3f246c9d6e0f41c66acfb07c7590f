@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "98ecb162_7cc3d4c3",
+        "filename": "dashboard/webapp-backend/src/test/java/org/oransc/ric/portal/dashboard/config/A1ControllerMockConfiguration.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2019-11-21T11:00:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fa83aca8_62318dd4",
+      "revId": "3fb3f3ad1dd3f246c9d6e0f41c66acfb07c7590f",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aaaa9798_da5fb203",
         "filename": "dashboard/webapp-backend/src/test/resources/demo-policy-schema-1.json",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2019-11-21T10:17:41Z",
       "side": 1,
       "message": "Rename file to reflect the new policy type, e.g. qos_target_type.json.",
+      "revId": "3fb3f3ad1dd3f246c9d6e0f41c66acfb07c7590f",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1355dce_a171ba42",
+        "filename": "dashboard/webapp-backend/src/test/resources/demo-policy-schema-1.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2019-11-21T11:00:55Z",
+      "side": 1,
+      "message": "Maybe in a later commit. The file name and its content does not really matter,it is just for demo (and the contents will probably change later).",
+      "parentUuid": "aaaa9798_da5fb203",
       "revId": "3fb3f3ad1dd3f246c9d6e0f41c66acfb07c7590f",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "b3cab4f4_f3ea678f",
+        "filename": "dashboard/webapp-backend/src/test/resources/demo-policy-schema-1.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2019-11-21T11:00:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2a33d51c_64f06772",
+      "revId": "3fb3f3ad1dd3f246c9d6e0f41c66acfb07c7590f",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a6b52209_2d39c847",
         "filename": "dashboard/webapp-backend/src/test/resources/demo-policy-schema-1.json",
         "patchSetId": 1
@@ -67,6 +121,24 @@
       "revId": "3fb3f3ad1dd3f246c9d6e0f41c66acfb07c7590f",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fdf2c284_8ccca949",
+        "filename": "dashboard/webapp-backend/src/test/resources/demo-policy-schema-1.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2019-11-21T11:00:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a6b52209_2d39c847",
+      "revId": "3fb3f3ad1dd3f246c9d6e0f41c66acfb07c7590f",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     },
     {
       "key": {
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "52d6ee90_e5dc0efe",
+        "filename": "dashboard/webapp-backend/src/test/resources/demo-policy-schema-2.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2019-11-21T11:00:55Z",
+      "side": 1,
+      "message": "Maybe in a later commit. The file name and its content does not really matter,it is just for demo (and the contents will probably change later).",
+      "parentUuid": "34bc68dd_53d2bde2",
+      "revId": "3fb3f3ad1dd3f246c9d6e0f41c66acfb07c7590f",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f2c12118_cc6726fc",
         "filename": "dashboard/webapp-backend/src/test/resources/demo-policy-schema-3.json",
         "patchSetId": 1
@@ -98,6 +188,24 @@
       "writtenOn": "2019-11-21T10:17:41Z",
       "side": 1,
       "message": "Rename file to reflect the new policy type, e.g. qtraffic_steering_preference_type.json.",
+      "revId": "3fb3f3ad1dd3f246c9d6e0f41c66acfb07c7590f",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc391b90_b67246f2",
+        "filename": "dashboard/webapp-backend/src/test/resources/demo-policy-schema-3.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2019-11-21T11:00:55Z",
+      "side": 1,
+      "message": "Maybe in a later commit. The file name and its content does not really matter,it is just for demo (and the contents will probably change later).",
+      "parentUuid": "f2c12118_cc6726fc",
       "revId": "3fb3f3ad1dd3f246c9d6e0f41c66acfb07c7590f",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
