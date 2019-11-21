@@ -94,7 +94,8 @@ export class PolicyInstanceDialogComponent implements OnInit, AfterViewInit {
         this.policyInstanceId = data.instanceId;
         this.policyTypeName = data.name;
         this.policyTypeId = data.policyTypeId;
-        this.parseJson(data.createSchema, data.instanceJson);
+        this.jsonSchemaObject = data.createSchema;
+        this.jsonObject = this.parseJson(data.instanceJson);
     }
 
     ngOnInit() {
@@ -174,18 +175,17 @@ export class PolicyInstanceDialogComponent implements OnInit, AfterViewInit {
         return errorArray.join('<br>');
     }
 
-    private parseJson(createSchema: string, instanceJson: string): void {
+    private parseJson(str: string): string {
         try {
-            this.jsonSchemaObject = JSON.parse(createSchema);
-            if (instanceJson != null) {
-                this.jsonObject = JSON.parse(instanceJson);
+            if (str != null) {
+                return JSON.parse(str);
             }
         } catch (jsonError) {
             this.jsonFormStatusMessage =
                 'Invalid JSON\n' +
                 'parser returned:\n\n' + jsonError;
-            return;
         }
+        return null;
     }
 
     public toggleVisible(item: string) {
@@ -195,7 +195,7 @@ export class PolicyInstanceDialogComponent implements OnInit, AfterViewInit {
 
 export function getPolicyDialogProperties(policyType: PolicyType, instance: PolicyInstance, darkMode: boolean): MatDialogConfig {
     const policyTypeId = policyType.policy_type_id;
-    const createSchema = policyType.schema;
+    const createSchema = policyType.schemaObject;
     const instanceId = instance ? instance.instanceId : null;
     const instanceJson = instance ? instance.instance : null;
     const name = policyType.name;

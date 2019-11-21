@@ -91,11 +91,8 @@ export class PolicyControlComponent implements OnInit {
     }
 
     toggleListInstances(policyType: PolicyType): void {
-        console.log('1toggleListInstances ' + + policyType.name + ' ' + this.getPolicyTypeInfo(policyType).isExpanded.getValue());
         const info = this.getPolicyTypeInfo(policyType);
         info.isExpanded.next(!info.isExpanded.getValue());
-        console.log('2toggleListInstances ' + + policyType.name + ' ' + this.getPolicyTypeInfo(policyType).isExpanded.getValue());
-
     }
 
     getPolicyTypeInfo(policyType: PolicyType): PolicyTypeInfo {
@@ -107,13 +104,8 @@ export class PolicyControlComponent implements OnInit {
         return info;
     }
 
-    getDescription(policyType: PolicyType): string {
-        return JSON.parse(policyType.schema).description;
-    }
-
     getName(policyType: PolicyType): string {
-        const title = JSON.parse(policyType.schema).title;
-        if (title) { return title; }
+        if (policyType.schemaObject.title) { return policyType.schemaObject.title; }
         return policyType.name;
     }
 
