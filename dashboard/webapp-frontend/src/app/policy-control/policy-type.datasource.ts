@@ -58,6 +58,10 @@ export class PolicyTypeDataSource extends DataSource<PolicyType> {
             )
             .subscribe((types: PolicyType[]) => {
                 this.rowCount = types.length;
+                for (let i = 0; i < types.length; i++) {
+                    const policyType = types[i];
+                    policyType.schemaObject = JSON.parse(policyType.schema);
+                }
                 this.policyTypeSubject.next(types);
             });
     }
