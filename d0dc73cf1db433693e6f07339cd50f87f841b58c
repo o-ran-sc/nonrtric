@@ -22,6 +22,30 @@
       "revId": "d0dc73cf1db433693e6f07339cd50f87f841b58c",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f629a504_1d6666de",
+        "filename": ".releases/container-release-nonrtric-a1-controller.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2019-11-22T18:40:26Z",
+      "side": 1,
+      "message": "This is the tag of docker image for a1 controller. El Alto version of SDNC in ONAP is 1.7.3.",
+      "parentUuid": "9c093951_bd347bf6",
+      "range": {
+        "startLine": 3,
+        "startChar": 22,
+        "endLine": 3,
+        "endChar": 28
+      },
+      "revId": "d0dc73cf1db433693e6f07339cd50f87f841b58c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
