@@ -20,13 +20,15 @@
  */
 import { BrowserModule } from '@angular/platform-browser';
 // tslint:disable-next-line:max-line-length
-import {MatButtonModule, MatButtonToggleModule, MatCardModule, MatCheckboxModule,
-    MatDialogModule, MatExpansionModule, MatFormFieldModule, MatGridListModule,
-    MatIconModule, MatInputModule, MatListModule, MatMenuModule, MatPaginatorModule,
-    MatProgressSpinnerModule, MatSelectModule, MatSidenavModule, MatSliderModule,
-    MatSlideToggleModule, MatSnackBarModule, MatSortModule, MatTableModule,
-    MatTabsModule,  MatToolbarModule} from '@angular/material';
-import { BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {
+  MatButtonModule, MatButtonToggleModule, MatCardModule, MatCheckboxModule,
+  MatDialogModule, MatExpansionModule, MatFormFieldModule, MatGridListModule,
+  MatIconModule, MatInputModule, MatListModule, MatMenuModule, MatPaginatorModule,
+  MatProgressSpinnerModule, MatSelectModule, MatSidenavModule, MatSliderModule,
+  MatSlideToggleModule, MatSnackBarModule, MatSortModule, MatTableModule,
+  MatTabsModule, MatToolbarModule
+} from '@angular/material';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { MatRadioModule } from '@angular/material/radio';
@@ -55,9 +57,10 @@ import { RdComponent } from './rd.component';
 import { RdRoutingModule } from './rd-routing.module';
 import { SidenavListComponent } from './navigation/sidenav-list/sidenav-list.component';
 import { UiService } from './services/ui/ui.service';
+import { CookieModule } from 'ngx-cookie';
 
 @NgModule({
-  declarations: [   
+  declarations: [
     ConfirmDialogComponent,
     ErrorDialogComponent,
     FooterComponent,
@@ -69,7 +72,7 @@ import { UiService } from './services/ui/ui.service';
     PolicyInstanceComponent,
     PolicyInstanceDialogComponent,
     RdComponent,
-    SidenavListComponent,   
+    SidenavListComponent,
   ],
   imports: [
     BrowserModule,
@@ -107,7 +110,8 @@ import { UiService } from './services/ui/ui.service';
     MDBBootstrapModule.forRoot(),
     RdRoutingModule,
     ReactiveFormsModule,
-    ToastrModule.forRoot()
+    ToastrModule.forRoot(),
+    CookieModule.forRoot(),
   ],
   exports: [
     ErrorDialogComponent,
@@ -127,8 +131,8 @@ import { UiService } from './services/ui/ui.service';
     MatSlideToggleModule,
     MatTabsModule
   ],
-  entryComponents: [  
-    ConfirmDialogComponent,   
+  entryComponents: [
+    ConfirmDialogComponent,
     ErrorDialogComponent,
     LoadingDialogComponent,
     PolicyInstanceDialogComponent

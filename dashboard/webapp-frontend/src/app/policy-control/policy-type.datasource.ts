@@ -60,7 +60,12 @@ export class PolicyTypeDataSource extends DataSource<PolicyType> {
                 this.rowCount = types.length;
                 for (let i = 0; i < types.length; i++) {
                     const policyType = types[i];
-                    policyType.schemaObject = JSON.parse(policyType.schema);
+                    try {
+                        policyType.schemaObject = JSON.parse(policyType.schema);
+                    } catch (jsonError) {
+                        console.error('Could not parse schema: ' + policyType.schema);
+                        policyType.schemaObject = { description: 'Incorrect schema: ' + jsonError };
+                    }
                 }
                 this.policyTypeSubject.next(types);
             });
