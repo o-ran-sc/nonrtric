@@ -19,6 +19,7 @@
  */
 import { Component, OnInit } from '@angular/core';
 import { UiService } from './services/ui/ui.service';
+import { CookieService } from 'ngx-cookie';
 
 @Component({
   selector: 'rd-root',
@@ -26,13 +27,19 @@ import { UiService } from './services/ui/ui.service';
   styleUrls: ['./rd.component.scss']
 })
 export class RdComponent implements OnInit {
-  showMenu = false;
-  darkMode: boolean;
+  private showMenu = false;
+  private darkMode: boolean;
+  private 'DARK_MODE_COOKIE' = 'darkMode';
 
-  constructor(private ui: UiService) {
+  constructor(private cookieService: CookieService, private ui: UiService) {
   }
 
   ngOnInit() {
+    const dark = this.cookieService.get(this.DARK_MODE_COOKIE);
+    if (dark) {
+      this.ui.darkModeState.next(dark === 'yes');
+    }
+
     this.ui.darkModeState.subscribe((value) => {
       this.darkMode = value;
     });
@@ -44,6 +51,7 @@ export class RdComponent implements OnInit {
 
   modeToggleSwitch() {
     this.ui.darkModeState.next(!this.darkMode);
+    this.cookieService.put(this.DARK_MODE_COOKIE, this.darkMode ? 'yes' : 'no');
   }
 
 }
