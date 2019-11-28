@@ -1,0 +1,6 @@
+{
+  "config": {
+    "//description": "Application configuration",
+    "exampleProperty": "test"
+  }
+}

@@ -1,0 +1,19 @@
+spring:
+  profiles:
+    active: prod
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "loggers,logfile,health,info,metrics"
+
+logging:
+  level:
+    ROOT: ERROR
+    org.springframework: ERROR
+    org.springframework.data: ERROR
+    org.springframework.web.reactive.function.client.ExchangeFunctions: ERROR
+    org.onap.dcaegen2.collectors.datafile: WARN
+  file: /var/log/ONAP/application.log
+app:
+  filepath: /opt/app/policy-agent/config/application_configuration.json
