@@ -32,8 +32,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.ServiceLoader;
+import java.util.Vector;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -60,6 +62,8 @@ public class ApplicationConfig {
     @NotEmpty
     private String filepath;
 
+    private Vector<RicConfig> ricConfigs;
+
     @Autowired
     public ApplicationConfig() {
     }
@@ -68,9 +72,20 @@ public class ApplicationConfig {
         this.filepath = filepath;
     }
 
-    /**
-     * Reads the cloud configuration.
-     */
+    public Vector<RicConfig> getRicConfigs() {
+        return this.ricConfigs;
+    }
+
+    public Optional<RicConfig> getRicConfig(String managedElementId) {
+        for (RicConfig ricConfig : getRicConfigs()) {
+            if (ricConfig.managedElementIds().contains(managedElementId)) {
+                return Optional.of(ricConfig);
+
+            }
+        }
+        return Optional.empty();
+    }
+
     public void initialize() {
         loadConfigurationFromFile();
     }
@@ -94,6 +109,7 @@ public class ApplicationConfig {
             }
             ApplicationConfigParser appParser = new ApplicationConfigParser();
             appParser.parse(rootObject);
+            this.ricConfigs = appParser.getRicConfigs();
             logger.info("Local configuration file loaded: {}", filepath);
         } catch (JsonSyntaxException | ServiceException | IOException e) {
             logger.trace("Local configuration file not loaded: {}", filepath, e);

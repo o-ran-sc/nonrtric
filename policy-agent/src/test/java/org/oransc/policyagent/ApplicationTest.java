@@ -46,4 +46,12 @@ public class ApplicationTest {
         assertThat(rsp).contains("type3");
     }
 
+    @Test
+    public void getRics() throws Exception {
+        String cmd = "/rics";
+        String rsp = this.restTemplate.getForObject("http://localhost:" + port + cmd, String.class);
+        System.out.println("*** rsp " + rsp);
+        assertThat(rsp).contains("kista_1");
+    }
+
 }

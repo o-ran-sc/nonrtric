@@ -41,7 +41,7 @@ import reactor.core.publisher.Mono;
 
 @Configuration
 @EnableScheduling
-public class ApplicationConfigLoader {
+class ApplicationConfigLoader {
 
     private static final Logger logger = LoggerFactory.getLogger(ApplicationConfigLoader.class);
     private static List<ScheduledFuture<?>> scheduledFutureList = new ArrayList<>();

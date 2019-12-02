@@ -20,23 +20,43 @@
 
 package org.oransc.policyagent.configuration;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import java.util.Vector;
+
 import org.oransc.policyagent.exceptions.ServiceException;
 
-public class ApplicationConfigParser {
+class ApplicationConfigParser {
 
     private static final String CONFIG = "config";
+    private static Gson gson = new GsonBuilder() //
+        .serializeNulls() //
+        .create(); //
+
+    private Vector<RicConfig> ricConfig;
 
     public ApplicationConfigParser() {
     }
 
-    String example;
-
     public void parse(JsonObject root) throws ServiceException {
         JsonObject config = root.getAsJsonObject(CONFIG);
-        example = getAsString(config, "exampleProperty");
+        ricConfig = parseRics(config);
+    }
+
+    public Vector<RicConfig> getRicConfigs() {
+        return this.ricConfig;
+    }
+
+    private Vector<RicConfig> parseRics(JsonObject config) throws ServiceException {
+        Vector<RicConfig> result = new Vector<RicConfig>();
+        for (JsonElement ricElem : getAsJsonArray(config, "ric")) {
+            result.add(gson.fromJson(ricElem.getAsJsonObject(), ImmutableRicConfig.class));
+        }
+        return result;
     }
 
     private static JsonElement get(JsonObject obj, String memberName) throws ServiceException {
@@ -53,6 +73,10 @@ public class ApplicationConfigParser {
 
     private static JsonObject getAsJson(JsonObject obj, String memberName) throws ServiceException {
         return get(obj, memberName).getAsJsonObject();
+    }
+
+    private JsonArray getAsJsonArray(JsonObject obj, String memberName) throws ServiceException {
+        return get(obj, memberName).getAsJsonArray();
     }
 
 }
