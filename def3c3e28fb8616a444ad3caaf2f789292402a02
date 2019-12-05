@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fd085439_85f45bb9",
+        "filename": "policy-agent/config/application_configuration.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2019-12-05T12:00:35Z",
+      "side": 1,
+      "message": "OK, good point. Lets change it when we have a better name. There most be some defined way to map an identity of a managed resource to the system that holds it and the term should be taken from there (Managed Element is from 3GPP, but I do not know how it works when using Netconf/Yang in general).   \nI do not want to change it something anonymous like entityId because then it will be hard to understand its purpose.",
+      "parentUuid": "0d4dee60_d7b5e20d",
+      "range": {
+        "startLine": 8,
+        "startChar": 13,
+        "endLine": 8,
+        "endChar": 30
+      },
+      "revId": "def3c3e28fb8616a444ad3caaf2f789292402a02",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "01c4ac09_48d7916a",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/configuration/RicConfig.java",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2019-12-05T11:17:22Z",
       "side": 1,
       "message": "same comment here about the name as for the json file",
+      "range": {
+        "startLine": 34,
+        "startChar": 26,
+        "endLine": 34,
+        "endChar": 43
+      },
+      "revId": "def3c3e28fb8616a444ad3caaf2f789292402a02",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ddcf6ed_bd3c835a",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/configuration/RicConfig.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2019-12-05T12:00:35Z",
+      "side": 1,
+      "message": "Yes, the term used should be the same everywhere.",
+      "parentUuid": "01c4ac09_48d7916a",
       "range": {
         "startLine": 34,
         "startChar": 26,
