@@ -47,10 +47,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-@Component
 @EnableConfigurationProperties
 @ConfigurationProperties("app")
 public class ApplicationConfig {
@@ -76,18 +74,26 @@ public class ApplicationConfig {
         return this.ricConfigs;
     }
 
-    public Optional<RicConfig> getRicConfig(String managedElementId) {
+    public Optional<RicConfig> lookupRicConfigForManagedElement(String managedElementId) {
         for (RicConfig ricConfig : getRicConfigs()) {
             if (ricConfig.managedElementIds().contains(managedElementId)) {
                 return Optional.of(ricConfig);
-
             }
         }
         return Optional.empty();
     }
 
+    public RicConfig getRic(String ricName) throws ServiceException {
+        for (RicConfig ricConfig : getRicConfigs()) {
+            if (ricConfig.name().equals(ricName)) {
+                return ricConfig;
+            }
+        }
+        throw new ServiceException("Could not find ric: " + ricName);
+    }
+
     public void initialize() {
-        loadConfigurationFromFile();
+        loadConfigurationFromFile(this.filepath);
     }
 
     Mono<Environment.Variables> getEnvironment(Properties systemEnvironment) {
@@ -97,7 +103,7 @@ public class ApplicationConfig {
     /**
      * Reads the configuration from file.
      */
-    void loadConfigurationFromFile() {
+    protected void loadConfigurationFromFile(String filepath) {
         GsonBuilder gsonBuilder = new GsonBuilder();
         ServiceLoader.load(TypeAdapterFactory.class).forEach(gsonBuilder::registerTypeAdapterFactory);
 

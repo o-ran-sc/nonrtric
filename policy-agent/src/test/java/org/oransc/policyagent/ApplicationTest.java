@@ -21,17 +21,67 @@ package org.oransc.policyagent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.oransc.policyagent.configuration.ApplicationConfig;
+import org.oransc.policyagent.repository.ImmutablePolicyType;
+import org.oransc.policyagent.repository.Policies;
+import org.oransc.policyagent.repository.Policy;
+import org.oransc.policyagent.repository.PolicyType;
+import org.oransc.policyagent.repository.PolicyTypes;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ApplicationTest {
+
+    @Autowired
+    private Policies policies;
+
+    @Autowired
+    private PolicyTypes policyTypes;
+
+    @Autowired
+    ApplicationConfig appConfig;
+
+    static class MockApplicationConfig extends ApplicationConfig {
+        public void initialize() {
+            URL url = MockApplicationConfig.class.getClassLoader().getResource("test_application_configuration.json");
+            loadConfigurationFromFile(url.getFile());
+        }
+    }
+
+    @TestConfiguration
+    static class Beans {
+        @Bean
+        Policies getPolicies() {
+            return new Policies();
+        }
+
+        @Bean
+        PolicyTypes getPolicyTypes() {
+            return new PolicyTypes();
+        }
+
+        @Bean
+        ApplicationConfig getApplicationConfig() {
+            return new MockApplicationConfig();
+        }
+    }
 
     @LocalServerPort
     private int port;
@@ -52,6 +102,49 @@ public class ApplicationTest {
         String rsp = this.restTemplate.getForObject("http://localhost:" + port + cmd, String.class);
         System.out.println("*** rsp " + rsp);
         assertThat(rsp).contains("kista_1");
+    }
+
+    @Test
+    public void getRic() throws Exception {
+        String cmd = "/ric?managedElementId=kista_1";
+        String rsp = this.restTemplate.getForObject("http://localhost:" + port + cmd, String.class);
+        assertThat(rsp).isEqualTo("ric1");
+    }
+
+    // managedElmentId -> nodeName
+
+    @Test
+    public void putPolicy() throws Exception {
+        // types.putType("type1", ImmutablePolicyType.builder().name("").jsonSchema("").build());
+
+        String url = "http://localhost:" + port + "/policy?type={type}&instance={instance}&ric={ric}&service={service}";
+
+        Map<String, String> uriVariables = new HashMap<String, String>();
+        uriVariables.put("type", "type1");
+        uriVariables.put("instance", "instance1");
+        uriVariables.put("ric", "ric1");
+        uriVariables.put("service", "service");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        String json = "{}";
+        HttpEntity<String> entity = new HttpEntity<String>(json);
+
+        addPolicyType(policyTypes, "type1");
+
+        this.restTemplate.put(url, entity, uriVariables);
+        Policy policy = this.policies.get("instance1");
+        assertThat(policy).isNotNull();
+        assertThat(policy.id()).isEqualTo("instance1");
+        assertThat(policy.ownerServiceName()).isEqualTo("service");
+    }
+
+    private void addPolicyType(PolicyTypes policyTypes, String name) {
+        PolicyType type = ImmutablePolicyType.builder() //
+            .jsonSchema("") //
+            .name(name) //
+            .build();
+
+        policyTypes.putType(name, type);
     }
 
 }
