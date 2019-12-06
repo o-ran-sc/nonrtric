@@ -17,31 +17,30 @@
  * limitations under the License.
  * ========================LICENSE_END===================================
  */
+package org.oransc.policyagent;
 
-package org.oransc.policyagent.repository;
+import org.oransc.policyagent.configuration.ApplicationConfig;
+import org.oransc.policyagent.repository.Policies;
+import org.oransc.policyagent.repository.PolicyTypes;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import java.util.HashMap;
-import java.util.Map;
+@Configuration
+public class Beans {
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-public class Policies {
-    private static final Logger logger = LoggerFactory.getLogger(Policies.class);
-
-    private Map<String, Policy> policies = new HashMap<String, Policy>();
-
-    @Autowired
-    public Policies() {
+    @Bean
+    Policies getPolicies() {
+        return new Policies();
     }
 
-    public synchronized void put(String id, Policy policy) {
-        policies.put(id, policy);
+    @Bean
+    PolicyTypes getPolicyTypes() {
+        return new PolicyTypes();
     }
 
-    public synchronized Policy get(String id) {
-        return policies.get(id);
+    @Bean
+    ApplicationConfig getApplicationConfig() {
+        return new ApplicationConfig();
     }
 
 }
