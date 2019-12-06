@@ -19,6 +19,12 @@
  */
 package org.oransc.policyagent.controllers;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import java.util.Collection;
+import java.util.Vector;
+
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.repository.ImmutablePolicy;
@@ -40,6 +46,9 @@ public class PolicyController {
     private final ApplicationConfig appConfig;
     private final PolicyTypes types;
     private final Policies policies;
+    private static Gson gson = new GsonBuilder() //
+        .serializeNulls() //
+        .create(); //
 
     @Autowired
     PolicyController(ApplicationConfig config, PolicyTypes types, Policies policies) {
@@ -48,13 +57,64 @@ public class PolicyController {
         this.policies = policies;
     }
 
-    // http://localhost:8080/policy?type=type3&instance=xxx
     @GetMapping("/policy")
     public ResponseEntity<String> getPolicy( //
-        @RequestParam(name = "type", required = false, defaultValue = "type1") String typeName, //
-        @RequestParam(name = "instance", required = false, defaultValue = "new") String instanceId) {
+        @RequestParam(name = "instance", required = false, defaultValue = "new") String instance) {
+        try {
+            Policy p = policies.get(instance);
+            return new ResponseEntity<String>(p.json(), HttpStatus.OK);
 
-        return new ResponseEntity<String>("policy" + typeName + instanceId, HttpStatus.OK);
+        } catch (ServiceException e) {
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.NO_CONTENT);
+        }
+    }
+
+    @GetMapping("/policies")
+    public ResponseEntity<String> getPolicies( //
+        @RequestParam(name = "type", required = false) String type, //
+        @RequestParam(name = "ric", required = false) String ric, //
+        @RequestParam(name = "service", required = false) String service) //
+    {
+        try {
+            Collection<Policy> result = null;
+
+            if (type != null) {
+                assertNull(result);
+                result = policies.getForType(type);
+            } else if (ric != null) {
+                assertNull(result);
+                result = policies.getForRic(ric);
+            } else if (service != null) {
+                assertNull(result);
+                result = policies.getForService(service);
+            } else {
+                result = new Vector<>();
+            }
+
+            return new ResponseEntity<String>(toJson(result), HttpStatus.OK);
+
+        } catch (ServiceException e) {
+            return new ResponseEntity<String>("Only one qeury parameter allowed", HttpStatus.NO_CONTENT);
+        }
+    }
+
+    private void assertNull(Object o) throws ServiceException {
+        if (o != null) {
+            throw new ServiceException("Null expected");
+        }
+    }
+
+    private String toJson(Collection<Policy> policies) {
+        Vector<PolicyInfo> v = new Vector<>(policies.size());
+        for (Policy p : policies) {
+            PolicyInfo policyInfo = ImmutablePolicyInfo.builder() //
+                .json(p.json()) //
+                .name(p.id()) //
+                .ric(p.ric().name()) //
+                .type(p.type().name()).build();
+            v.add(policyInfo);
+        }
+        return gson.toJson(v);
     }
 
     @PutMapping(path = "/policy")
@@ -65,8 +125,6 @@ public class PolicyController {
         @RequestParam(name = "service", required = true) String service, //
         @RequestBody String jsonBody) {
 
-        System.out.println("*********************** " + jsonBody);
-
         try {
             Policy policy = ImmutablePolicy.builder() //
                 .id(instanceId) //
@@ -75,25 +133,11 @@ public class PolicyController {
                 .ric(appConfig.getRic(ric)) //
                 .ownerServiceName(service) //
                 .build();
-            policies.put(instanceId, policy);
+            policies.put(policy);
             return new ResponseEntity<String>(HttpStatus.OK);
         } catch (ServiceException e) {
-            System.out.println("*********************** " + e.getMessage());
-
             return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
-
-    }
-
-    @PutMapping(path = "/policyX")
-    public ResponseEntity<String> putPolicyX( //
-        // @RequestParam(name = "type", required = false) String type, //
-        // @RequestParam(name = "instance", required = true) String instance, //
-        // @RequestParam(name = "ric", required = true) String ric, //
-        @RequestBody String jsonBody) {
-        System.out.println("*********************** " + jsonBody);
-        // System.out.println("policy" + type + instance);
-        return new ResponseEntity<String>(HttpStatus.OK);
     }
 
 }

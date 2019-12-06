@@ -26,14 +26,12 @@ import java.util.Map;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class PolicyTypes {
     private static final Logger logger = LoggerFactory.getLogger(PolicyTypes.class);
 
     private Map<String, PolicyType> types = new HashMap<String, PolicyType>();
 
-    @Autowired
     public PolicyTypes() {
     }
 
