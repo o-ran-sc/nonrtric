@@ -17,21 +17,32 @@
  * limitations under the License.
  * ========================LICENSE_END===================================
  */
+
 package org.oransc.policyagent.repository;
 
-import org.immutables.gson.Gson;
-import org.immutables.value.Value;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
-@Value.Immutable
-@Gson.TypeAdapters
-public interface Policy {
-    public String id();
+/**
+ * Dynamic representation of all Rics in the system.
+ */
+public class Rics {
+    Map<String, Ric> rics = new HashMap<>();
 
-    public String json();
+    public void put(Ric ric) {
+        rics.put(ric.name(), ric);
+    }
 
-    public String ownerServiceName();
+    public Collection<Ric> getRics() {
+        return rics.values();
+    }
 
-    public Ric ric();
+    public Ric getRic(String name) {
+        return rics.get(name);
+    }
 
-    public PolicyType type();
+    public int size() {
+        return rics.size();
+    }
 }

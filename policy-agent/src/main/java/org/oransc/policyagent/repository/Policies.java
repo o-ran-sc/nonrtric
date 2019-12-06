@@ -22,7 +22,6 @@ package org.oransc.policyagent.repository;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class Policies {
     private static final Logger logger = LoggerFactory.getLogger(Policies.class);
 
-    private Map<String, Policy> policies = new HashMap<String, Policy>();
+    private Map<String, Policy> policies = new HashMap<>();
 
     @Autowired
     public Policies() {

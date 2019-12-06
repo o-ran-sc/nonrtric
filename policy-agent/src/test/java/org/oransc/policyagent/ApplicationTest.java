@@ -24,15 +24,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-
+import java.util.Vector;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.oransc.policyagent.configuration.ApplicationConfig;
+import org.oransc.policyagent.configuration.ImmutableRicConfig;
+import org.oransc.policyagent.configuration.RicConfig;
 import org.oransc.policyagent.repository.ImmutablePolicyType;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.PolicyTypes;
+import org.oransc.policyagent.repository.Ric;
+import org.oransc.policyagent.repository.Rics;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -50,15 +54,10 @@ import org.springframework.web.client.RestTemplate;
 public class ApplicationTest {
 
     @Autowired
-    private Policies policies;
-
-    @Autowired
-    private PolicyTypes policyTypes;
-
-    @Autowired
-    ApplicationConfig appConfig;
+    private Beans beans;
 
     static class MockApplicationConfig extends ApplicationConfig {
+        @Override
         public void initialize() {
             URL url = MockApplicationConfig.class.getClassLoader().getResource("test_application_configuration.json");
             loadConfigurationFromFile(url.getFile());
@@ -68,17 +67,22 @@ public class ApplicationTest {
     @TestConfiguration
     static class Beans {
         @Bean
-        Policies getPolicies() {
+        public Rics getRics() {
+            return new Rics();
+        }
+
+        @Bean
+        public Policies getPolicies() {
             return new Policies();
         }
 
         @Bean
-        PolicyTypes getPolicyTypes() {
+        public PolicyTypes getPolicyTypes() {
             return new PolicyTypes();
         }
 
         @Bean
-        ApplicationConfig getApplicationConfig() {
+        public ApplicationConfig getApplicationConfig() {
             return new MockApplicationConfig();
         }
     }
@@ -129,13 +133,27 @@ public class ApplicationTest {
         String json = "{}";
         HttpEntity<String> entity = new HttpEntity<String>(json);
 
-        addPolicyType(policyTypes, "type1");
+        addRic(beans.getRics(), "ric1", url);
+        addPolicyType(beans.getPolicyTypes(), "type1");
 
         this.restTemplate.put(url, entity, uriVariables);
-        Policy policy = this.policies.get("instance1");
+        Policy policy = beans.getPolicies().get("instance1");
         assertThat(policy).isNotNull();
         assertThat(policy.id()).isEqualTo("instance1");
         assertThat(policy.ownerServiceName()).isEqualTo("service");
+    }
+
+    private void addRic(Rics rics, String ric, String url) {
+        Vector<String> nodeNames = new Vector<>(1);
+        nodeNames.add("node1");
+        RicConfig ricConfig = ImmutableRicConfig.builder() //
+            .name(ric) //
+            .baseUrl(url) //
+            .managedElementIds(nodeNames) //
+            .build();
+        Ric ricObj = new Ric(ricConfig);
+
+        rics.put(ricObj);
     }
 
     private void addPolicyType(PolicyTypes policyTypes, String name) {

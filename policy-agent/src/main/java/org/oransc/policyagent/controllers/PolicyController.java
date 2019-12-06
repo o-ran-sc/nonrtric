@@ -19,12 +19,15 @@
  */
 package org.oransc.policyagent.controllers;
 
+import org.oransc.policyagent.Beans;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.repository.ImmutablePolicy;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.PolicyTypes;
+import org.oransc.policyagent.repository.Ric;
+import org.oransc.policyagent.repository.Rics;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,15 +40,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class PolicyController {
 
+    private final Beans beans;
     private final ApplicationConfig appConfig;
+    private final Rics rics;
     private final PolicyTypes types;
     private final Policies policies;
 
     @Autowired
-    PolicyController(ApplicationConfig config, PolicyTypes types, Policies policies) {
-        this.appConfig = config;
-        this.types = types;
-        this.policies = policies;
+    PolicyController(Beans beans) {
+        this.beans = beans;
+        this.appConfig = beans.getApplicationConfig();
+        this.rics = beans.getRics();
+        this.types = beans.getPolicyTypes();
+        this.policies = beans.getPolicies();
     }
 
     // http://localhost:8080/policy?type=type3&instance=xxx
@@ -68,11 +75,12 @@ public class PolicyController {
         System.out.println("*********************** " + jsonBody);
 
         try {
+            Ric ricObj = rics.getRic(ric);
             Policy policy = ImmutablePolicy.builder() //
                 .id(instanceId) //
                 .json(jsonBody) //
                 .type(types.getType(type)) //
-                .ric(appConfig.getRic(ric)) //
+                .ric(ricObj) //
                 .ownerServiceName(service) //
                 .build();
             policies.put(instanceId, policy);
