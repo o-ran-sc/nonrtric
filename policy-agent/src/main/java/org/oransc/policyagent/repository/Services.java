@@ -17,22 +17,21 @@
  * limitations under the License.
  * ========================LICENSE_END===================================
  */
-package org.oransc.policyagent.controllers;
 
-import com.google.gson.annotations.SerializedName;
+package org.oransc.policyagent.repository;
 
-import java.util.Vector;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.immutables.gson.Gson;
-import org.immutables.value.Value;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@Value.Immutable
-@Gson.TypeAdapters
-public interface RicInfo {
+public class Services {
+    private static final Logger logger = LoggerFactory.getLogger(Services.class);
 
-    @SerializedName("name")
-    public String name();
+    private Map<String, Service> services = new HashMap<>();
 
-    @SerializedName("nodeNames")
-    public Vector<String> managedElementIds();
+    public Services() {
+    }
+
 }

@@ -20,28 +20,98 @@
 
 package org.oransc.policyagent.repository;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
+import org.oransc.policyagent.exceptions.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class Policies {
     private static final Logger logger = LoggerFactory.getLogger(Policies.class);
 
-    private Map<String, Policy> policies = new HashMap<String, Policy>();
+    private Map<String, Policy> policiesId = new HashMap<>();
+    private Map<String, Map<String, Policy>> policiesRic = new HashMap<>();
+    private Map<String, Map<String, Policy>> policiesService = new HashMap<>();
+    private Map<String, Map<String, Policy>> policiesType = new HashMap<>();
 
-    @Autowired
     public Policies() {
     }
 
-    public synchronized void put(String id, Policy policy) {
-        policies.put(id, policy);
+    public synchronized void put(Policy policy) {
+        policiesId.put(policy.id(), policy);
+        multiMapPut(policiesRic, policy.ric().name(), policy);
+        multiMapPut(policiesService, policy.ownerServiceName(), policy);
+        multiMapPut(policiesType, policy.type().name(), policy);
     }
 
-    public synchronized Policy get(String id) {
-        return policies.get(id);
+    private void multiMapPut(Map<String, Map<String, Policy>> multiMap, String key, Policy value) {
+        Map<String, Policy> map = multiMap.get(key);
+        if (map == null) {
+            map = new HashMap<>();
+            multiMap.put(key, map);
+        }
+        map.put(value.id(), value);
+    }
+
+    private void multiMapRemove(Map<String, Map<String, Policy>> multiMap, String key, Policy value) {
+        Map<String, Policy> map = multiMap.get(key);
+        if (map != null) {
+            map.remove(value.id());
+            if (map.isEmpty()) {
+                multiMap.remove(key);
+            }
+        }
+    }
+
+    private Collection<Policy> multiMapGet(Map<String, Map<String, Policy>> multiMap, String key) {
+        Map<String, Policy> map = multiMap.get(key);
+        if (map == null) {
+            return new Vector<Policy>();
+        }
+        return map.values();
+    }
+
+    public synchronized Policy get(String id) throws ServiceException {
+        Policy p = policiesId.get(id);
+        if (p == null) {
+            throw new ServiceException("Could not find policy: " + id);
+        }
+        return p;
+    }
+
+    public synchronized Collection<Policy> getAll() {
+        return policiesId.values();
+    }
+
+    public synchronized Collection<Policy> getForService(String service) {
+        return multiMapGet(policiesService, service);
+    }
+
+    public synchronized Collection<Policy> getForRic(String ric) {
+        return multiMapGet(policiesRic, ric);
+    }
+
+    public synchronized Collection<Policy> getForType(String type) {
+        return multiMapGet(policiesType, type);
+    }
+
+    public synchronized Policy removeId(String id) {
+        Policy p = policiesId.get(id);
+        if (p == null) {
+            remove(p);
+        }
+        return p;
+    }
+
+    public synchronized void remove(Policy policy) {
+        policiesId.remove(policy.id());
+        multiMapRemove(policiesRic, policy.ric().name(), policy);
+        multiMapRemove(policiesService, policy.ownerServiceName(), policy);
+        multiMapRemove(policiesType, policy.type().name(), policy);
+
     }
 
 }

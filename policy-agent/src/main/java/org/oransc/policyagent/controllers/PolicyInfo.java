@@ -21,18 +21,22 @@ package org.oransc.policyagent.controllers;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.Vector;
-
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
 
 @Value.Immutable
 @Gson.TypeAdapters
-public interface RicInfo {
+public interface PolicyInfo {
 
-    @SerializedName("name")
+    @SerializedName("id")
     public String name();
 
-    @SerializedName("nodeNames")
-    public Vector<String> managedElementIds();
+    @SerializedName("type")
+    public String type();
+
+    @SerializedName("ric")
+    public String ric();
+
+    @SerializedName("json")
+    public String json();
 }

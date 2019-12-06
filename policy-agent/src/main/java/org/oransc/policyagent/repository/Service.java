@@ -17,22 +17,8 @@
  * limitations under the License.
  * ========================LICENSE_END===================================
  */
-package org.oransc.policyagent.controllers;
+package org.oransc.policyagent.repository;
 
-import com.google.gson.annotations.SerializedName;
+public interface Service {
 
-import java.util.Vector;
-
-import org.immutables.gson.Gson;
-import org.immutables.value.Value;
-
-@Value.Immutable
-@Gson.TypeAdapters
-public interface RicInfo {
-
-    @SerializedName("name")
-    public String name();
-
-    @SerializedName("nodeNames")
-    public Vector<String> managedElementIds();
 }
