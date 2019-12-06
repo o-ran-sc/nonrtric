@@ -20,6 +20,7 @@
 package org.oransc.policyagent.controllers;
 
 import com.google.gson.Gson;
+import org.oransc.policyagent.Beans;
 import com.google.gson.GsonBuilder;
 
 import java.util.Collection;
@@ -31,6 +32,8 @@ import org.oransc.policyagent.repository.ImmutablePolicy;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.PolicyTypes;
+import org.oransc.policyagent.repository.Ric;
+import org.oransc.policyagent.repository.Rics;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +46,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class PolicyController {
 
+    private final Beans beans;
     private final ApplicationConfig appConfig;
+    private final Rics rics;
     private final PolicyTypes types;
     private final Policies policies;
     private static Gson gson = new GsonBuilder() //
@@ -51,10 +56,12 @@ public class PolicyController {
         .create(); //
 
     @Autowired
-    PolicyController(ApplicationConfig config, PolicyTypes types, Policies policies) {
-        this.appConfig = config;
-        this.types = types;
-        this.policies = policies;
+    PolicyController(Beans beans) {
+        this.beans = beans;
+        this.appConfig = beans.getApplicationConfig();
+        this.rics = beans.getRics();
+        this.types = beans.getPolicyTypes();
+        this.policies = beans.getPolicies();
     }
 
     @GetMapping("/policy")
@@ -133,11 +140,12 @@ public class PolicyController {
         @RequestBody String jsonBody) {
 
         try {
+            Ric ricObj = rics.getRic(ric);
             Policy policy = ImmutablePolicy.builder() //
                 .id(instanceId) //
                 .json(jsonBody) //
                 .type(types.getType(type)) //
-                .ric(appConfig.getRic(ric)) //
+                .ric(ricObj) //
                 .ownerServiceName(service) //
                 .build();
             policies.put(policy);

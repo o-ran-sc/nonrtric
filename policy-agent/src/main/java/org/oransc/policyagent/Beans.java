@@ -22,24 +22,30 @@ package org.oransc.policyagent;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.PolicyTypes;
+import org.oransc.policyagent.repository.Rics;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class Beans {
+    private Rics rics = new Rics();
 
     @Bean
-    Policies getPolicies() {
+    public Policies getPolicies() {
         return new Policies();
     }
 
     @Bean
-    PolicyTypes getPolicyTypes() {
+    public PolicyTypes getPolicyTypes() {
         return new PolicyTypes();
     }
 
     @Bean
-    ApplicationConfig getApplicationConfig() {
+    public Rics getRics() {
+        return rics;
+    }
+    @Bean
+    public ApplicationConfig getApplicationConfig() {
         return new ApplicationConfig();
     }
 
