@@ -21,9 +21,10 @@ package org.oransc.policyagent.controllers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import java.util.Collection;
 import java.util.Vector;
-import org.oransc.policyagent.Beans;
+
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.repository.ImmutablePolicy;
@@ -32,6 +33,7 @@ import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Rics;
+import org.oransc.policyagent.repository.Services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,25 +50,26 @@ public class PolicyController {
     private final Rics rics;
     private final PolicyTypes types;
     private final Policies policies;
+    private final Services services;
     private static Gson gson = new GsonBuilder() //
         .serializeNulls() //
         .create(); //
 
     @Autowired
-    PolicyController(Beans beans) {
-        this.appConfig = beans.getApplicationConfig();
-        this.rics = beans.getRics();
-        this.types = beans.getPolicyTypes();
-        this.policies = beans.getPolicies();
+    PolicyController(ApplicationConfig config, PolicyTypes types, Policies policies, Rics rics, Services services) {
+        this.appConfig = config;
+        this.types = types;
+        this.policies = policies;
+        this.rics = rics;
+        this.services = services;
     }
 
     @GetMapping("/policy")
     public ResponseEntity<String> getPolicy( //
-        @RequestParam(name = "instance", required = false, defaultValue = "new") String instance) {
+        @RequestParam(name = "instance", required = true) String instance) {
         try {
             Policy p = policies.get(instance);
             return new ResponseEntity<String>(p.json(), HttpStatus.OK);
-
         } catch (ServiceException e) {
             return new ResponseEntity<String>(e.getMessage(), HttpStatus.NO_CONTENT);
         }
@@ -136,6 +139,7 @@ public class PolicyController {
         @RequestBody String jsonBody) {
 
         try {
+            services.getService(service).ping();
             Ric ricObj = rics.getRic(ric);
             Policy policy = ImmutablePolicy.builder() //
                 .id(instanceId) //

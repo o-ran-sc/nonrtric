@@ -26,7 +26,7 @@ import org.immutables.value.Value;
 
 @Value.Immutable
 @Gson.TypeAdapters
-public interface PolicyInfo {
+interface PolicyInfo {
 
     @SerializedName("id")
     public String name();
