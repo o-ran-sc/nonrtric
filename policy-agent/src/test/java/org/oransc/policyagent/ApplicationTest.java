@@ -24,12 +24,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 
 import java.net.URL;
-import java.util.Vector;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.oransc.policyagent.configuration.ApplicationConfig;
-import org.oransc.policyagent.configuration.ImmutableRicConfig;
-import org.oransc.policyagent.configuration.RicConfig;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.repository.ImmutablePolicy;
 import org.oransc.policyagent.repository.ImmutablePolicyType;
@@ -37,7 +34,6 @@ import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.PolicyTypes;
-import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Rics;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -114,7 +110,6 @@ public class ApplicationTest {
         String url = "http://localhost:" + port + "/policy?type=type1&instance=instance1&ric=ric1&service=service1";
         String json = "{}";
         addPolicyType("type1");
-        addRic(beans.getRics(), "ric1", url);
 
         this.restTemplate.put(url, json);
 
@@ -123,19 +118,6 @@ public class ApplicationTest {
         assertThat(policy).isNotNull();
         assertThat(policy.id()).isEqualTo("instance1");
         assertThat(policy.ownerServiceName()).isEqualTo("service1");
-    }
-
-    private void addRic(Rics rics, String ric, String url) {
-        Vector<String> nodeNames = new Vector<>(1);
-        nodeNames.add("node1");
-        RicConfig ricConfig = ImmutableRicConfig.builder() //
-            .name(ric) //
-            .baseUrl(url) //
-            .managedElementIds(nodeNames) //
-            .build();
-        Ric ricObj = new Ric(ricConfig);
-
-        rics.put(ricObj);
     }
 
     private PolicyType addPolicyType(String name) {
@@ -177,7 +159,6 @@ public class ApplicationTest {
     @Test
     public void getPolicies() throws Exception {
         String url = "http://localhost:" + port + "/policies";
-        addRic(beans.getRics(), "ric1", url);
         addPolicy("id1", "type1", "service1");
         addPolicy("id2", "type2", "service2");
 

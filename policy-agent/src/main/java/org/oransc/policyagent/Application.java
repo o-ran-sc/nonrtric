@@ -17,16 +17,39 @@
  * limitations under the License.
  * ========================LICENSE_END===================================
  */
+
 package org.oransc.policyagent;
 
+import org.oransc.policyagent.controllers.StartupService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 public class Application {
 
+    @Autowired
+    private StartupService startupService;
+
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
+    }
+
+    /**
+     * Starts the se4rvice and reads the configuration.
+     *
+     * @param ctx
+     * @return
+     */
+    @Bean
+    public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
+        return args -> {
+
+            startupService.startup();
+        };
     }
 
 }

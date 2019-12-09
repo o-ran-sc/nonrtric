@@ -20,8 +20,8 @@
 
 package org.oransc.policyagent.repository;
 
+import java.util.Vector;
 import org.oransc.policyagent.configuration.RicConfig;
-import org.oransc.policyagent.repository.Ric.RicState;
 
 /**
  * Represents the dynamic information about a NearRealtime-RIC.
@@ -49,6 +49,15 @@ public class Ric {
 
     public void setState(RicState newState) {
         state = newState;
+    }
+
+    /**
+     * Gets the nodes managed by this Ric.
+     *
+     * @return a vector containing the nodes managed by this Ric.
+     */
+    public Vector<String> getManagedNodes() {
+        return ricConfig.managedElementIds();
     }
 
     /**

@@ -36,7 +36,7 @@ public class StartupServiceTest {
 
     @Test
     public void startup_allOk() {
-        appConfigMock = mock(ApplicationConfig.class);
+        ApplicationConfig appConfigMock = mock(ApplicationConfig.class);
         Vector<RicConfig> ricConfigs = new Vector<>(2);
         Vector<String> firstNodes = new Vector<String>(1);
         firstNodes.add("nodeA");

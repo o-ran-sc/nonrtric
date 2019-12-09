@@ -29,8 +29,6 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class Beans {
-    private Rics rics = new Rics();
-
     @Bean
     public Policies getPolicies() {
         return new Policies();
@@ -43,7 +41,7 @@ public class Beans {
 
     @Bean
     public Rics getRics() {
-        return rics;
+        return new Rics();
     }
 
     @Bean
