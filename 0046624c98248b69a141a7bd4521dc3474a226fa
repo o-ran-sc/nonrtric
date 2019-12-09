@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d2641d06_887892ea",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/configuration/ApplicationConfig.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2019-12-09T15:16:35Z",
+      "side": 1,
+      "message": "Please don\u0027t use the * in imports, just use the ones that are actually needed.",
+      "range": {
+        "startLine": 36,
+        "startChar": 17,
+        "endLine": 36,
+        "endChar": 18
+      },
+      "revId": "0046624c98248b69a141a7bd4521dc3474a226fa",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
