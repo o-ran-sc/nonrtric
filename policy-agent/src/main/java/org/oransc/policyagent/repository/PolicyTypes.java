@@ -22,14 +22,9 @@ package org.oransc.policyagent.repository;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.oransc.policyagent.exceptions.ServiceException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class PolicyTypes {
-    private static final Logger logger = LoggerFactory.getLogger(PolicyTypes.class);
-
     private Map<String, PolicyType> types = new HashMap<String, PolicyType>();
 
     public PolicyTypes() {

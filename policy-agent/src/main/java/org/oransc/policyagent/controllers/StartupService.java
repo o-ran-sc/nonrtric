@@ -49,6 +49,9 @@ public class StartupService {
         this.rics = rics;
     }
 
+    /**
+     * Reads the configured Rics and performs the service discovery. The result is put into the repository.
+     */
     public void startup() {
         applicationConfig.initialize();
         Vector<RicConfig> ricConfigs = applicationConfig.getRicConfigs();

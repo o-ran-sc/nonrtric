@@ -20,12 +20,10 @@
 package org.oransc.policyagent.controllers;
 
 import com.google.gson.Gson;
-import org.oransc.policyagent.Beans;
 import com.google.gson.GsonBuilder;
-
 import java.util.Collection;
 import java.util.Vector;
-
+import org.oransc.policyagent.Beans;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.repository.ImmutablePolicy;
@@ -46,7 +44,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class PolicyController {
 
-    private final Beans beans;
     private final ApplicationConfig appConfig;
     private final Rics rics;
     private final PolicyTypes types;
@@ -57,7 +54,6 @@ public class PolicyController {
 
     @Autowired
     PolicyController(Beans beans) {
-        this.beans = beans;
         this.appConfig = beans.getApplicationConfig();
         this.rics = beans.getRics();
         this.types = beans.getPolicyTypes();

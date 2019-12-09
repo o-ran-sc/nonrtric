@@ -17,10 +17,10 @@
  * limitations under the License.
  * ========================LICENSE_END===================================
  */
+
 package org.oransc.policyagent.configuration;
 
 import java.util.Vector;
-
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
 

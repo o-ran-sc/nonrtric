@@ -17,6 +17,7 @@
  * limitations under the License.
  * ========================LICENSE_END===================================
  */
+
 package org.oransc.policyagent;
 
 import org.oransc.policyagent.configuration.ApplicationConfig;
@@ -44,6 +45,7 @@ public class Beans {
     public Rics getRics() {
         return rics;
     }
+
     @Bean
     public ApplicationConfig getApplicationConfig() {
         return new ApplicationConfig();

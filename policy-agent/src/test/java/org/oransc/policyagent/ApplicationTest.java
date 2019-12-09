@@ -17,6 +17,7 @@
  * limitations under the License.
  * ========================LICENSE_END===================================
  */
+
 package org.oransc.policyagent;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -188,11 +189,11 @@ public class ApplicationTest {
 
     @Test
     public void getPoliciesFilter() throws Exception {
-        String url = "http://localhost:" + port + "/policies?type=type1";
         addPolicy("id1", "type1", "service1");
         addPolicy("id2", "type1", "service2");
         addPolicy("id3", "type2", "service1");
 
+        String url = "http://localhost:" + port + "/policies?type=type1";
         String rsp = this.restTemplate.getForObject(url, String.class);
         System.out.println(rsp);
         assertThat(rsp).contains("id1");
