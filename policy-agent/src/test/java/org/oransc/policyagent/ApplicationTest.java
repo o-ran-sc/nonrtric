@@ -17,12 +17,10 @@
  * limitations under the License.
  * ========================LICENSE_END===================================
  */
-
 package org.oransc.policyagent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
-
 import java.net.URL;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,6 +44,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ApplicationTest {
@@ -60,6 +59,7 @@ public class ApplicationTest {
             loadConfigurationFromFile(url.getFile());
         }
     }
+
 
     @TestConfiguration
     static class Beans {
@@ -122,9 +122,9 @@ public class ApplicationTest {
 
     private PolicyType addPolicyType(String name) {
         PolicyType type = ImmutablePolicyType.builder() //
-            .jsonSchema("") //
-            .name(name) //
-            .build();
+                .jsonSchema("") //
+                .name(name) //
+                .build();
 
         beans.getPolicyTypes().put(type);
         return type;
@@ -132,11 +132,11 @@ public class ApplicationTest {
 
     private Policy addPolicy(String id, String typeName, String service) throws ServiceException {
         Policy p = ImmutablePolicy.builder().id(id) //
-            .json("{}") //
-            .ownerServiceName(service) //
-            .ric(beans.getRics().getRic("ric1")) //
-            .type(addPolicyType(typeName)) //
-            .build();
+                .json("{}") //
+                .ownerServiceName(service) //
+                .ric(beans.getRics().getRic("ric1")) //
+                .type(addPolicyType(typeName)) //
+                .build();
         beans.getPolicies().put(p);
         return p;
     }
