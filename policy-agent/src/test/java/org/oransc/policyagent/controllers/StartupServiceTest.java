@@ -25,6 +25,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Vector;
+
 import org.junit.Test;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.configuration.ImmutableRicConfig;
