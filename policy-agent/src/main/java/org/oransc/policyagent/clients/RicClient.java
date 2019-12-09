@@ -18,36 +18,23 @@
  * ========================LICENSE_END===================================
  */
 
-package org.oransc.policyagent.repository;
+package org.oransc.policyagent.clients;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Vector;
 
-import org.oransc.policyagent.exceptions.ServiceException;
+import org.oransc.policyagent.repository.PolicyType;
+import org.springframework.stereotype.Service;
 
-public class PolicyTypes {
-    private Map<String, PolicyType> types = new HashMap<String, PolicyType>();
+@Service
+public class RicClient {
 
-    public PolicyTypes() {
+    public void deleteAllPolicies(String url) {
+        // TODO Auto-generated method stub
+
     }
 
-    public synchronized PolicyType getType(String name) throws ServiceException {
-        PolicyType t = types.get(name);
-        if (t == null) {
-            throw new ServiceException("Could not find type: " + name);
-        }
-        return t;
+    public Vector<PolicyType> getPolicyTypes(String url) {
+        return new Vector<>();
     }
 
-    public synchronized void put(PolicyType type) {
-        types.put(type.name(), type);
-    }
-
-    public boolean contains(PolicyType policyType) {
-        return types.containsKey(policyType.name());
-    }
-
-    public int size() {
-        return types.size();
-    }
 }

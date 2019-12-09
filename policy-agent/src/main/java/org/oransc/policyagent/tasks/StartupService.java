@@ -18,13 +18,17 @@
  * ========================LICENSE_END===================================
  */
 
-package org.oransc.policyagent.controllers;
+package org.oransc.policyagent.tasks;
 
 import java.util.Vector;
 
+import org.oransc.policyagent.clients.RicClient;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.configuration.RicConfig;
+import org.oransc.policyagent.repository.PolicyType;
+import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
+import org.oransc.policyagent.repository.Ric.RicState;
 import org.oransc.policyagent.repository.Rics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,9 +49,17 @@ public class StartupService {
     @Autowired
     private Rics rics;
 
-    StartupService(ApplicationConfig appConfig, Rics rics) {
+    @Autowired
+    PolicyTypes policyTypes;
+
+    @Autowired
+    private RicClient ricClient;
+
+    StartupService(ApplicationConfig appConfig, Rics rics, PolicyTypes policyTypes, RicClient ricClient) {
         this.applicationConfig = appConfig;
         this.rics = rics;
+        this.policyTypes = policyTypes;
+        this.ricClient = ricClient;
     }
 
     /**
@@ -57,8 +69,16 @@ public class StartupService {
         applicationConfig.initialize();
         Vector<RicConfig> ricConfigs = applicationConfig.getRicConfigs();
         for (RicConfig ricConfig : ricConfigs) {
-            logger.error("Ric: {}", ricConfig);
             Ric ric = new Ric(ricConfig);
+            String baseUrl = ricConfig.baseUrl();
+            ricClient.deleteAllPolicies(baseUrl);
+            Vector<PolicyType> types = ricClient.getPolicyTypes(baseUrl);
+            for (PolicyType policyType : types) {
+                if (!policyTypes.contains(policyType)) {
+                    policyTypes.put(policyType);
+                }
+            }
+            ric.setState(RicState.ACTIVE);
             rics.put(ric);
         }
 

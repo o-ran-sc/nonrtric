@@ -20,7 +20,7 @@
 
 package org.oransc.policyagent;
 
-import org.oransc.policyagent.controllers.StartupService;
+import org.oransc.policyagent.tasks.StartupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -39,7 +39,7 @@ public class Application {
     }
 
     /**
-     * Starts the se4rvice and reads the configuration.
+     * Starts the service and reads the configuration.
      *
      * @param ctx
      * @return
