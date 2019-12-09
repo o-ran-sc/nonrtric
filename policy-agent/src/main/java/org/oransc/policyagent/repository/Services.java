@@ -20,9 +20,11 @@
 
 package org.oransc.policyagent.repository;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.oransc.policyagent.exceptions.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +34,26 @@ public class Services {
     private Map<String, Service> services = new HashMap<>();
 
     public Services() {
+    }
+
+    public synchronized Service getService(String name) throws ServiceException {
+        Service s = services.get(name);
+        if (s == null) {
+            throw new ServiceException("Could not find service: " + name);
+        }
+        return s;
+    }
+
+    public synchronized Service get(String name) {
+        return services.get(name);
+    }
+
+    public synchronized void put(Service service) {
+        services.put(service.getName(), service);
+    }
+
+    public synchronized Collection<Service> getAll() {
+        return services.values();
     }
 
 }

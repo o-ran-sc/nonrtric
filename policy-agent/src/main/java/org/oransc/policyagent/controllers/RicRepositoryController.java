@@ -22,11 +22,14 @@ package org.oransc.policyagent.controllers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+
 import java.util.Optional;
 import java.util.Vector;
+
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.configuration.RicConfig;
 import org.oransc.policyagent.repository.Ric;

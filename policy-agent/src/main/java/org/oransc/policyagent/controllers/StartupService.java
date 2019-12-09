@@ -21,6 +21,7 @@
 package org.oransc.policyagent.controllers;
 
 import java.util.Vector;
+
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.configuration.RicConfig;
 import org.oransc.policyagent.repository.Ric;
