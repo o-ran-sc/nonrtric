@@ -23,10 +23,18 @@ package org.oransc.policyagent;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.net.URL;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.oransc.policyagent.configuration.ApplicationConfig;
+import org.oransc.policyagent.controllers.ImmutableServiceRegistrationInfo;
+import org.oransc.policyagent.controllers.ImmutableServiceStatus;
+import org.oransc.policyagent.controllers.ServiceRegistrationInfo;
+import org.oransc.policyagent.controllers.ServiceStatus;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.repository.ImmutablePolicy;
 import org.oransc.policyagent.repository.ImmutablePolicyType;
@@ -35,6 +43,7 @@ import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Rics;
+import org.oransc.policyagent.repository.Services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -52,6 +61,10 @@ public class ApplicationTest {
 
     @Autowired
     private Beans beans;
+
+    private static Gson gson = new GsonBuilder() //
+        .serializeNulls() //
+        .create(); //
 
     static class MockApplicationConfig extends ApplicationConfig {
         @Override
@@ -82,6 +95,11 @@ public class ApplicationTest {
         public ApplicationConfig getApplicationConfig() {
             return new MockApplicationConfig();
         }
+
+        @Bean
+        Services getServices() {
+            return new Services();
+        }
     }
 
     @LocalServerPort
@@ -107,6 +125,8 @@ public class ApplicationTest {
 
     @Test
     public void putPolicy() throws Exception {
+        putService("service1");
+
         String url = "http://localhost:" + port + "/policy?type=type1&instance=instance1&ric=ric1&service=service1";
         String json = "{}";
         addPolicyType("type1");
@@ -187,7 +207,37 @@ public class ApplicationTest {
         assertFalse(rsp.contains("id1"));
         assertThat(rsp).contains("id2");
         assertFalse(rsp.contains("id3"));
+    }
 
+    private void putService(String name) {
+        String url = "http://localhost:" + port + "/service";
+
+        ServiceRegistrationInfo service = ImmutableServiceRegistrationInfo.builder() //
+            .keepAliveInterval(1) //
+            .name(name) //
+            .build();
+        String json = gson.toJson(service);
+        this.restTemplate.put(url, json);
+    }
+
+    @Test
+    public void putAndGetService() throws Exception {
+        putService("name");
+
+        String url = "http://localhost:" + port + "/service?name=name";
+        String rsp = this.restTemplate.getForObject(url, String.class);
+        assertThat(rsp.contains("name"));
+
+        ServiceStatus status = gson.fromJson(rsp, ImmutableServiceStatus.class);
+        assertThat(status.keepAliveInterval() == 1);
+
+        url = "http://localhost:" + port + "/services";
+        rsp = this.restTemplate.getForObject(url, String.class);
+        assertThat(rsp.contains("name"));
+        System.out.println(rsp);
+
+        url = "http://localhost:" + port + "/service/ping";
+        this.restTemplate.put(url, "name");
     }
 
 }

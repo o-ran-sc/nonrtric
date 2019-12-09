@@ -24,11 +24,12 @@ import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Rics;
+import org.oransc.policyagent.repository.Services;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class Beans {
+class Beans {
     @Bean
     public Policies getPolicies() {
         return new Policies();
@@ -47,6 +48,11 @@ public class Beans {
     @Bean
     public ApplicationConfig getApplicationConfig() {
         return new ApplicationConfig();
+    }
+
+    @Bean
+    Services getServices() {
+        return new Services();
     }
 
 }
