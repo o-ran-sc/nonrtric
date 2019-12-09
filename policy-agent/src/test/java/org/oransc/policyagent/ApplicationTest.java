@@ -23,10 +23,18 @@ package org.oransc.policyagent;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.net.URL;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.oransc.policyagent.configuration.ApplicationConfig;
+import org.oransc.policyagent.controllers.ImmutableServiceRegistrationInfo;
+import org.oransc.policyagent.controllers.ImmutableServiceStatus;
+import org.oransc.policyagent.controllers.ServiceRegistrationInfo;
+import org.oransc.policyagent.controllers.ServiceStatus;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.repository.ImmutablePolicy;
 import org.oransc.policyagent.repository.ImmutablePolicyType;
@@ -35,6 +43,7 @@ import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Rics;
+import org.oransc.policyagent.repository.Services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -52,6 +61,10 @@ public class ApplicationTest {
 
     @Autowired
     private Beans beans;
+
+    private static Gson gson = new GsonBuilder() //
+        .serializeNulls() //
+        .create(); //
 
     static class MockApplicationConfig extends ApplicationConfig {
         @Override
@@ -82,6 +95,11 @@ public class ApplicationTest {
         public ApplicationConfig getApplicationConfig() {
             return new MockApplicationConfig();
         }
+
+        @Bean
+        Services getServices() {
+            return new Services();
+        }
     }
 
     @LocalServerPort
@@ -92,14 +110,14 @@ public class ApplicationTest {
     @Test
     public void getRics() throws Exception {
         String cmd = "/rics";
-        String rsp = this.restTemplate.getForObject("http://localhost:" + port + cmd, String.class);
+        String rsp = this.restTemplate.getForObject(baseUrl() + cmd, String.class);
         assertThat(rsp).contains("kista_1");
     }
 
     @Test
     public void getRic() throws Exception {
         String cmd = "/ric?managedElementId=kista_1";
-        String rsp = this.restTemplate.getForObject("http://localhost:" + port + cmd, String.class);
+        String rsp = this.restTemplate.getForObject(baseUrl() + cmd, String.class);
         assertThat(rsp).isEqualTo("ric1");
     }
 
@@ -107,7 +125,9 @@ public class ApplicationTest {
 
     @Test
     public void putPolicy() throws Exception {
-        String url = "http://localhost:" + port + "/policy?type=type1&instance=instance1&ric=ric1&service=service1";
+        putService("service1");
+
+        String url = baseUrl() + "/policy?type=type1&instance=instance1&ric=ric1&service=service1";
         String json = "{}";
         addPolicyType("type1");
 
@@ -141,9 +161,13 @@ public class ApplicationTest {
         return p;
     }
 
+    private String baseUrl() {
+        return "http://localhost:" + port;
+    }
+
     @Test
     public void getPolicy() throws Exception {
-        String url = "http://localhost:" + port + "/policy?instance=id";
+        String url = baseUrl() + "/policy?instance=id";
         Policy policy = addPolicy("id", "typeName", "service1");
         {
             String rsp = this.restTemplate.getForObject(url, String.class);
@@ -158,7 +182,7 @@ public class ApplicationTest {
 
     @Test
     public void getPolicies() throws Exception {
-        String url = "http://localhost:" + port + "/policies";
+        String url = baseUrl() + "/policies";
         addPolicy("id1", "type1", "service1");
         addPolicy("id2", "type2", "service2");
 
@@ -174,20 +198,49 @@ public class ApplicationTest {
         addPolicy("id2", "type1", "service2");
         addPolicy("id3", "type2", "service1");
 
-        String url = "http://localhost:" + port + "/policies?type=type1";
+        String url = baseUrl() + "/policies?type=type1";
         String rsp = this.restTemplate.getForObject(url, String.class);
         System.out.println(rsp);
         assertThat(rsp).contains("id1");
         assertThat(rsp).contains("id2");
         assertFalse(rsp.contains("id3"));
 
-        url = "http://localhost:" + port + "/policies?type=type1&service=service2";
+        url = baseUrl() + "/policies?type=type1&service=service2";
         rsp = this.restTemplate.getForObject(url, String.class);
         System.out.println(rsp);
         assertFalse(rsp.contains("id1"));
         assertThat(rsp).contains("id2");
         assertFalse(rsp.contains("id3"));
+    }
 
+    private void putService(String name) {
+        String url = baseUrl() + "/service";
+
+        ServiceRegistrationInfo service = ImmutableServiceRegistrationInfo.builder() //
+            .keepAliveInterval(1) //
+            .name(name) //
+            .build();
+        String json = gson.toJson(service);
+        this.restTemplate.put(url, json);
+    }
+
+    @Test
+    public void putAndGetService() throws Exception {
+        putService("name");
+
+        String url = baseUrl() + "/service?name=name";
+        String rsp = this.restTemplate.getForObject(url, String.class);
+        ServiceStatus status = gson.fromJson(rsp, ImmutableServiceStatus.class);
+        assertThat(status.keepAliveInterval() == 1);
+        assertThat(status.name().equals("name"));
+
+        url = baseUrl() + "/services";
+        rsp = this.restTemplate.getForObject(url, String.class);
+        assertThat(rsp.contains("name"));
+        System.out.println(rsp);
+
+        url = baseUrl() + "/service/ping";
+        this.restTemplate.put(url, "name");
     }
 
 }

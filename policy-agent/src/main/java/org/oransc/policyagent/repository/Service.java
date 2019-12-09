@@ -19,6 +19,39 @@
  */
 package org.oransc.policyagent.repository;
 
-public interface Service {
+import java.time.Duration;
+import java.time.Instant;
+
+public class Service {
+    private final String name;
+    private final Duration keepAliveInterval;
+    private Instant lastPing;
+    // private final String callbackUrl1; // TBD
+
+    public Service(String name, Duration keepAliveInterval) {
+        this.name = name;
+        this.keepAliveInterval = keepAliveInterval;
+        ping();
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public Duration getKeepAliveInterval() {
+        return this.keepAliveInterval;
+    }
+
+    public synchronized void ping() {
+        this.lastPing = Instant.now();
+    }
+
+    public synchronized boolean isExpired() {
+        return timeSinceLastPing().compareTo(this.keepAliveInterval) > 0;
+    }
+
+    public synchronized Duration timeSinceLastPing() {
+        return Duration.between(this.lastPing, Instant.now());
+    }
 
 }

@@ -21,18 +21,20 @@ package org.oransc.policyagent.controllers;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.Vector;
-
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
 
 @Value.Immutable
 @Gson.TypeAdapters
-interface RicInfo {
+public interface ServiceStatus {
 
     @SerializedName("name")
     public String name();
 
-    @SerializedName("nodeNames")
-    public Vector<String> managedElementIds();
+    @SerializedName("keepAlive")
+    public long keepAliveInterval();
+
+    @SerializedName("timeSincePing")
+    public long timeSincePing();
+
 }
