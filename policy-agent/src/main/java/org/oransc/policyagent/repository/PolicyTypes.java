@@ -22,6 +22,7 @@ package org.oransc.policyagent.repository;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.oransc.policyagent.exceptions.ServiceException;
 
 public class PolicyTypes {
@@ -42,4 +43,11 @@ public class PolicyTypes {
         types.put(type.name(), type);
     }
 
+    public boolean contains(PolicyType policyType) {
+        return types.containsKey(policyType.name());
+    }
+
+    public int size() {
+        return types.size();
+    }
 }

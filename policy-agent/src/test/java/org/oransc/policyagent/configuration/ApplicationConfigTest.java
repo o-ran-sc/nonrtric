@@ -21,9 +21,20 @@ package org.oransc.policyagent.configuration;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.doReturn;
+
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
+
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,20 +42,14 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
+
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.onap.dcaegen2.services.sdk.rest.services.cbs.client.api.CbsClient;
 import org.onap.dcaegen2.services.sdk.rest.services.cbs.client.model.EnvProperties;
 import org.onap.dcaegen2.services.sdk.rest.services.cbs.client.model.ImmutableEnvProperties;
 import org.oransc.policyagent.utils.LoggingUtils;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -54,14 +59,13 @@ public class ApplicationConfigTest {
     private ApplicationConfig appConfigUnderTest;
     CbsClient cbsClient = mock(CbsClient.class);
 
-
     private static EnvProperties properties() {
         return ImmutableEnvProperties.builder() //
-                .consulHost("host") //
-                .consulPort(123) //
-                .cbsName("cbsName") //
-                .appName("appName") //
-                .build();
+            .consulHost("host") //
+            .consulPort(123) //
+            .cbsName("cbsName") //
+            .appName("appName") //
+            .build();
     }
 
     @Test
@@ -73,9 +77,7 @@ public class ApplicationConfigTest {
         final ListAppender<ILoggingEvent> logAppender = LoggingUtils.getLogListAppender(ApplicationConfig.class);
         Flux<ApplicationConfig> task = appConfigUnderTest.createRefreshTask();
 
-        StepVerifier.create(task)
-                .expectSubscription()
-                .verifyComplete();
+        StepVerifier.create(task).expectSubscription().verifyComplete();
 
         assertTrue(logAppender.list.toString().contains("$CONSUL_HOST environment has not been defined"));
     }
@@ -96,12 +98,12 @@ public class ApplicationConfigTest {
         Flux<ApplicationConfig> task = appConfigUnderTest.createRefreshTask();
 
         StepVerifier //
-                .create(task) //
-                .expectSubscription() //
-                .verifyComplete();
+            .create(task) //
+            .expectSubscription() //
+            .verifyComplete();
 
         assertTrue(
-                logAppender.list.toString().contains("Could not refresh application configuration java.io.IOException"));
+            logAppender.list.toString().contains("Could not refresh application configuration java.io.IOException"));
     }
 
     @Test
@@ -119,10 +121,10 @@ public class ApplicationConfigTest {
         Flux<ApplicationConfig> task = appConfigUnderTest.createRefreshTask();
 
         StepVerifier //
-                .create(task) //
-                .expectSubscription() //
-                .expectNext(appConfigUnderTest) //
-                .verifyComplete();
+            .create(task) //
+            .expectSubscription() //
+            .expectNext(appConfigUnderTest) //
+            .verifyComplete();
 
         Assertions.assertNotNull(appConfigUnderTest.getRicConfigs());
     }

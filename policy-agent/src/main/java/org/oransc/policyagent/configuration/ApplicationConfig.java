@@ -54,6 +54,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -108,9 +109,9 @@ public class ApplicationConfig {
         loadConfigurationFromFile(this.filepath);
 
         refreshConfigTask = createRefreshTask() //
-                .subscribe(e -> logger.info("Refreshed configuration data"),
-                        throwable -> logger.error("Configuration refresh terminated due to exception", throwable),
-                        () -> logger.error("Configuration refresh terminated"));
+            .subscribe(e -> logger.info("Refreshed configuration data"),
+                throwable -> logger.error("Configuration refresh terminated due to exception", throwable),
+                () -> logger.error("Configuration refresh terminated"));
     }
 
     Mono<EnvProperties> getEnvironment(Properties systemEnvironment) {
@@ -119,10 +120,10 @@ public class ApplicationConfig {
 
     Flux<ApplicationConfig> createRefreshTask() {
         return getEnvironment(systemEnvironment) //
-                .flatMap(this::createCbsClient) //
-                .flatMapMany(this::periodicConfigurationUpdates) //
-                .map(this::parseRicConfigurationfromConsul) //
-                .onErrorResume(this::onErrorResume);
+            .flatMap(this::createCbsClient) //
+            .flatMapMany(this::periodicConfigurationUpdates) //
+            .map(this::parseRicConfigurationfromConsul) //
+            .onErrorResume(this::onErrorResume);
     }
 
     Mono<CbsClient> createCbsClient(EnvProperties env) {
@@ -153,7 +154,7 @@ public class ApplicationConfig {
         return this;
     }
 
-    private synchronized void setConfiguration(@NotNull  Vector<RicConfig> ricConfigs) {
+    private synchronized void setConfiguration(@NotNull Vector<RicConfig> ricConfigs) {
         this.ricConfigs = ricConfigs;
     }
 

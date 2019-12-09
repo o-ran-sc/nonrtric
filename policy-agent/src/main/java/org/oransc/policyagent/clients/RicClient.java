@@ -18,19 +18,23 @@
  * ========================LICENSE_END===================================
  */
 
-package org.oransc.policyagent.configuration;
+package org.oransc.policyagent.clients;
 
 import java.util.Vector;
 
-import org.immutables.gson.Gson;
-import org.immutables.value.Value;
+import org.oransc.policyagent.repository.PolicyType;
+import org.springframework.stereotype.Service;
 
-@Value.Immutable
-@Gson.TypeAdapters
-public interface RicConfig {
-    public String name();
+@Service
+public class RicClient {
 
-    public String baseUrl();
+    public void deleteAllPolicies(String url) {
+        // TODO Auto-generated method stub
 
-    public Vector<String> managedElementIds();
+    }
+
+    public Vector<PolicyType> getPolicyTypes(String url) {
+        return new Vector<>();
+    }
+
 }
