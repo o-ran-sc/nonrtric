@@ -39,7 +39,7 @@ public class Application {
     }
 
     /**
-     * Starts the se4rvice and reads the configuration.
+     * Starts the service and reads the configuration.
      *
      * @param ctx
      * @return
