@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "69755f83_fcabf5aa",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/repository/Services.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2019-12-10T08:32:58Z",
+      "side": 1,
+      "message": "Why two methods that do exactly the same thing?",
+      "revId": "91c798f0b82bb54cdaea155dcb834bffdec2ae1b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
