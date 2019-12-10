@@ -19,11 +19,14 @@
  */
 package org.oransc.policyagent.configuration;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
@@ -41,13 +44,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Properties;
+import java.util.Vector;
 
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.onap.dcaegen2.services.sdk.rest.services.cbs.client.api.CbsClient;
 import org.onap.dcaegen2.services.sdk.rest.services.cbs.client.model.EnvProperties;
 import org.onap.dcaegen2.services.sdk.rest.services.cbs.client.model.ImmutableEnvProperties;
+import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.utils.LoggingUtils;
 
 import reactor.core.publisher.Flux;
@@ -59,6 +65,12 @@ public class ApplicationConfigTest {
     private ApplicationConfig appConfigUnderTest;
     CbsClient cbsClient = mock(CbsClient.class);
 
+    public static final ImmutableRicConfig CORRECT_RIC_CONIFG = ImmutableRicConfig.builder() //
+        .name("ric1") //
+        .baseUrl("http://localhost:8080/") //
+        .managedElementIds(new Vector<String>(Arrays.asList("kista_1", "kista_2"))) //
+        .build();
+
     private static EnvProperties properties() {
         return ImmutableEnvProperties.builder() //
             .consulHost("host") //
@@ -66,6 +78,39 @@ public class ApplicationConfigTest {
             .cbsName("cbsName") //
             .appName("appName") //
             .build();
+    }
+
+    @Test
+    public void whenTheConfigurationFits() throws IOException, ServiceException {
+
+        appConfigUnderTest = spy(ApplicationConfig.class);
+        appConfigUnderTest.systemEnvironment = new Properties();
+        // When
+        doReturn(getCorrectJson()).when(appConfigUnderTest).createInputStream(any());
+        appConfigUnderTest.initialize();
+
+        // Then
+        verify(appConfigUnderTest, times(1)).loadConfigurationFromFile(any());
+
+        Vector<RicConfig> ricConfigs = appConfigUnderTest.getRicConfigs();
+        RicConfig ricConfig = ricConfigs.firstElement();
+        assertThat(ricConfigs).isNotNull();
+        assertThat(ricConfig).isEqualTo(CORRECT_RIC_CONIFG);
+    }
+
+    @Test
+    public void whenFileIsExistsButJsonIsIncorrect() throws IOException, ServiceException {
+
+        appConfigUnderTest = spy(ApplicationConfig.class);
+        appConfigUnderTest.systemEnvironment = new Properties();
+
+        // When
+        doReturn(getIncorrectJson()).when(appConfigUnderTest).createInputStream(any());
+        appConfigUnderTest.loadConfigurationFromFile(any());
+
+        // Then
+        verify(appConfigUnderTest, times(1)).loadConfigurationFromFile(any());
+        Assertions.assertNull(appConfigUnderTest.getRicConfigs());
     }
 
     @Test
@@ -137,6 +182,13 @@ public class ApplicationConfigTest {
     private static InputStream getCorrectJson() throws IOException {
         URL url = ApplicationConfigParser.class.getClassLoader().getResource("test_application_configuration.json");
         String string = Resources.toString(url, Charsets.UTF_8);
+        return new ByteArrayInputStream((string.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    private static InputStream getIncorrectJson() {
+        String string = "{" + //
+            "    \"config\": {" + //
+            "        \"ric\": {"; //
         return new ByteArrayInputStream((string.getBytes(StandardCharsets.UTF_8)));
     }
 
