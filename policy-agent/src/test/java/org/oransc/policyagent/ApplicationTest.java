@@ -24,14 +24,21 @@ import static org.junit.Assert.assertFalse;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 import java.net.URL;
+import java.util.List;
+import java.util.Vector;
 
 import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.oransc.policyagent.configuration.ApplicationConfig;
+import org.oransc.policyagent.configuration.ImmutableRicConfig;
+import org.oransc.policyagent.configuration.RicConfig;
 import org.oransc.policyagent.controllers.ImmutableServiceRegistrationInfo;
 import org.oransc.policyagent.controllers.ImmutableServiceStatus;
+import org.oransc.policyagent.controllers.PolicyTypeInfo;
 import org.oransc.policyagent.controllers.ServiceRegistrationInfo;
 import org.oransc.policyagent.controllers.ServiceStatus;
 import org.oransc.policyagent.exceptions.ServiceException;
@@ -41,6 +48,7 @@ import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.PolicyTypes;
+import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Rics;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -70,7 +78,7 @@ public class ApplicationTest {
         .serializeNulls() //
         .create(); //
 
-    static class MockApplicationConfig extends ApplicationConfig {
+    public static class MockApplicationConfig extends ApplicationConfig {
         @Override
         public void initialize() {
             URL url = MockApplicationConfig.class.getClassLoader().getResource("test_application_configuration.json");
@@ -82,29 +90,36 @@ public class ApplicationTest {
      * overrides the BeanFactory
      */
     @TestConfiguration
-    static class BeanFactory {
+    static class TestBeanFactory {
 
         @Bean
         public ApplicationConfig getApplicationConfig() {
             return new MockApplicationConfig();
         }
-
     }
 
     @LocalServerPort
     private int port;
 
-    private RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    @BeforeEach
+    public void reset() {
+        rics.clear();
+        policies.clear();
+        policyTypes.clear();
+        assertThat(policies.size()).isEqualTo(0);
+    }
 
     @Test
-    public void getRics() throws Exception {
+    public void testGetRics() throws Exception {
         String url = baseUrl() + "/rics";
         String rsp = this.restTemplate.getForObject(url, String.class);
         assertThat(rsp).contains("kista_1");
     }
 
     @Test
-    public void getRic() throws Exception {
+    public void testGetRic() throws Exception {
         String url = baseUrl() + "/ric?managedElementId=kista_1";
         String rsp = this.restTemplate.getForObject(url, String.class);
         assertThat(rsp).isEqualTo("ric1");
@@ -113,7 +128,7 @@ public class ApplicationTest {
     // managedElmentId -> nodeName
 
     @Test
-    public void putPolicy() throws Exception {
+    public void testPutPolicy() throws Exception {
         putService("service1");
 
         String url = baseUrl() + "/policy?type=type1&instance=instance1&ric=ric1&service=service1";
@@ -139,15 +154,28 @@ public class ApplicationTest {
         return type;
     }
 
-    private Policy addPolicy(String id, String typeName, String service) throws ServiceException {
+    private Ric addRic(String name) {
+        Vector<String> mes = new Vector<>();
+        RicConfig conf = ImmutableRicConfig.builder().name(name).baseUrl("baseUrl").managedElementIds(mes).build();
+        Ric ric = new Ric(conf);
+        this.rics.put(ric);
+        return ric;
+    }
+
+    private Policy addPolicy(String id, String typeName, String service, String ric) throws ServiceException {
+        addRic(ric);
         Policy p = ImmutablePolicy.builder().id(id) //
             .json("{}") //
             .ownerServiceName(service) //
-            .ric(rics.getRic("ric1")) //
+            .ric(rics.getRic(ric)) //
             .type(addPolicyType(typeName)) //
             .build();
         policies.put(p);
         return p;
+    }
+
+    private Policy addPolicy(String id, String typeName, String service) throws ServiceException {
+        return addPolicy(id, typeName, service, "ric");
     }
 
     private String baseUrl() {
@@ -155,9 +183,9 @@ public class ApplicationTest {
     }
 
     @Test
-    public void getPolicy() throws Exception {
+    public void testGetPolicy() throws Exception {
         String url = baseUrl() + "/policy?instance=id";
-        Policy policy = addPolicy("id", "typeName", "service1");
+        Policy policy = addPolicy("id", "typeName", "service1", "ric1");
         {
             String rsp = this.restTemplate.getForObject(url, String.class);
             assertThat(rsp).isEqualTo(policy.json());
@@ -170,7 +198,43 @@ public class ApplicationTest {
     }
 
     @Test
-    public void getPolicies() throws Exception {
+    public void testDeletePolicy() throws Exception {
+        reset();
+        String url = baseUrl() + "/policy?instance=id";
+        addPolicy("id", "typeName", "service1", "ric1");
+        assertThat(policies.size()).isEqualTo(1);
+
+        this.restTemplate.delete(url);
+
+        assertThat(policies.size()).isEqualTo(0);
+    }
+
+    public static <T> List<T> parseList(String json, Class<T> clazz) {
+        if (null == json) {
+            return null;
+        }
+        return gson.fromJson(json, new TypeToken<T>() {}.getType());
+    }
+
+    @Test
+    public void testGetPolicyTypes() throws Exception {
+        String url = baseUrl() + "/policy_types";
+        reset();
+        addPolicy("id1", "type1", "service1");
+        addPolicy("id2", "type2", "service2");
+
+        String rsp = this.restTemplate.getForObject(url, String.class);
+        System.out.println(rsp);
+        assertThat(rsp).contains("type1");
+        assertThat(rsp).contains("type2");
+
+        List<PolicyTypeInfo> info = parseList(rsp, PolicyTypeInfo.class);
+        System.out.println(info.size());
+
+    }
+
+    @Test
+    public void testGetPolicies() throws Exception {
         String url = baseUrl() + "/policies";
         addPolicy("id1", "type1", "service1");
         addPolicy("id2", "type2", "service2");
@@ -182,7 +246,7 @@ public class ApplicationTest {
     }
 
     @Test
-    public void getPoliciesFilter() throws Exception {
+    public void testGetPoliciesFilter() throws Exception {
         addPolicy("id1", "type1", "service1");
         addPolicy("id2", "type1", "service2");
         addPolicy("id3", "type2", "service1");
@@ -202,19 +266,22 @@ public class ApplicationTest {
         assertFalse(rsp.contains("id3"));
     }
 
-    private void putService(String name) {
-        String url = baseUrl() + "/service";
-
+    private String createServiceJson(String name) {
         ServiceRegistrationInfo service = ImmutableServiceRegistrationInfo.builder() //
             .keepAliveInterval(1) //
             .name(name) //
             .build();
         String json = gson.toJson(service);
-        this.restTemplate.put(url, json);
+        return json;
+    }
+
+    private void putService(String name) {
+        String url = baseUrl() + "/service";
+        this.restTemplate.put(url, createServiceJson(name));
     }
 
     @Test
-    public void putAndGetService() throws Exception {
+    public void testPutAndGetService() throws Exception {
         putService("name");
 
         String url = baseUrl() + "/service?name=name";

@@ -21,7 +21,6 @@
 // Models of data used by the Policy Control
 
 export interface PolicyType {
-  policy_type_id: number;
   name: string;
   schema: string;
   schemaObject: any;

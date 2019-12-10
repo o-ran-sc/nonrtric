@@ -19,6 +19,8 @@
  */
 package org.oransc.ric.portal.dashboard;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.lang.invoke.MethodHandles;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
@@ -65,5 +67,6 @@ public class DashboardTestServer {
 		} catch (Exception ex) {
 			logger.warn(ex.toString());
 		}
+		assertEquals(1, 2);
 	}
 }

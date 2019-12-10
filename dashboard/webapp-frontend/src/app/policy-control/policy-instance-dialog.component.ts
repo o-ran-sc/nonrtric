@@ -80,7 +80,6 @@ export class PolicyInstanceDialogComponent implements OnInit, AfterViewInit {
     public policyInstanceId: string;
     public policyTypeName: string;
     darkMode: boolean;
-    private policyTypeId: number;
 
 
     constructor(
@@ -93,7 +92,6 @@ export class PolicyInstanceDialogComponent implements OnInit, AfterViewInit {
         this.formActive = false;
         this.policyInstanceId = data.instanceId;
         this.policyTypeName = data.name;
-        this.policyTypeId = data.policyTypeId;
         this.jsonSchemaObject = data.createSchema;
         this.jsonObject = this.parseJson(data.instanceJson);
     }
@@ -115,7 +113,7 @@ export class PolicyInstanceDialogComponent implements OnInit, AfterViewInit {
         }
         const policyJson: string = this.prettyLiveFormData;
         const self: PolicyInstanceDialogComponent = this;
-        this.dataService.putPolicy(this.policyTypeId, this.policyInstanceId, policyJson).subscribe(
+        this.dataService.putPolicy(this.policyTypeName, this.policyInstanceId, policyJson).subscribe(
             {
                 next(value) {
                     self.notificationService.success('Policy ' + self.policyTypeName + ':' + self.policyInstanceId + ' submitted');
@@ -194,7 +192,6 @@ export class PolicyInstanceDialogComponent implements OnInit, AfterViewInit {
 }
 
 export function getPolicyDialogProperties(policyType: PolicyType, instance: PolicyInstance, darkMode: boolean): MatDialogConfig {
-    const policyTypeId = policyType.policy_type_id;
     const createSchema = policyType.schemaObject;
     const instanceId = instance ? instance.instanceId : null;
     const instanceJson = instance ? instance.instance : null;
@@ -207,7 +204,6 @@ export function getPolicyDialogProperties(policyType: PolicyType, instance: Poli
         disableClose: false,
         panelClass: darkMode ? 'dark-theme' : '',
         data: {
-            policyTypeId,
             createSchema,
             instanceId,
             instanceJson,

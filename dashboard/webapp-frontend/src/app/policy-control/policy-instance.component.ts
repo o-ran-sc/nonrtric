@@ -76,7 +76,7 @@ export class PolicyInstanceComponent implements OnInit, AfterViewInit {
     }
 
     modifyInstance(instance: PolicyInstance): void {
-        this.policySvc.getPolicy(this.policyType.policy_type_id, instance.instanceId).subscribe(
+        this.policySvc.getPolicy(this.policyType.name, instance.instanceId).subscribe(
             (refreshedJson: any) => {
                 instance.instance = JSON.stringify(refreshedJson);
                 this.dialog.open(PolicyInstanceDialogComponent, getPolicyDialogProperties(this.policyType, instance, this.darkMode));
@@ -98,7 +98,7 @@ export class PolicyInstanceComponent implements OnInit, AfterViewInit {
             .afterClosed().subscribe(
                 (res: any) => {
                     if (res) {
-                        this.policySvc.deletePolicy(this.policyType.policy_type_id, instance.instanceId)
+                        this.policySvc.deletePolicy(this.policyType.name, instance.instanceId)
                             .subscribe(
                                 (response: HttpResponse<Object>) => {
                                     switch (response.status) {

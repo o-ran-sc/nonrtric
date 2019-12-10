@@ -44,8 +44,7 @@ limitations under the License.
 		<lmp.process.start.tag>========================LICENSE_START=================================</lmp.process.start.tag>
 		<lmp.process.end.tag>========================LICENSE_END===================================</lmp.process.end.tag>
 	</properties>
-	<modules>
-		<module>a1-controller-client</module>
+	<modules>		
 		<module>webapp-frontend</module>
 		<module>webapp-backend</module>
 	</modules>

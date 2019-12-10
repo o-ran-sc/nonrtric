@@ -17,35 +17,20 @@
  * limitations under the License.
  * ========================LICENSE_END===================================
  */
-package org.oransc.ric.portal.dashboard.model;
+package org.oransc.policyagent.controllers;
 
-public class PolicyInstance implements IDashboardResponse {
-	private String instanceId;
-	private String json;
+import com.google.gson.annotations.SerializedName;
 
-	public PolicyInstance(String id, String json) {
-		this.instanceId = id;
-		this.json = json;
-	}
+import org.immutables.gson.Gson;
+import org.immutables.value.Value;
 
-	public String getInstanceId() {
-		return instanceId;
-	}
+@Value.Immutable
+@Gson.TypeAdapters
+public interface PolicyTypeInfo {
 
-	public void setInstanceId(String instanceId) {
-		this.instanceId = instanceId;
-	}
+    @SerializedName("id")
+    public String name();
 
-	public String getInstance() {
-		return json;
-	}
-
-	public void setInstance(String instance) {
-		this.json = instance;
-	}
-
-	@Override
-	public String toString() {
-		return PolicyInstance.class.getName() + ": [id:" + instanceId + ", instance: " + json + "]";
-	}
+    @SerializedName("schema")
+    public String schema();
 }

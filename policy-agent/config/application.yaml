@@ -2,7 +2,7 @@ spring:
   profiles:
     active: prod
   main:
-    allow-bean-definition-overriding: true
+    allow-bean-definition-overriding: true 
 management:
   endpoints:
     web:
@@ -19,3 +19,5 @@ logging:
   file: /var/log/ONAP/application.log
 app:
   filepath: /opt/app/policy-agent/config/application_configuration.json
+server:
+   port : 8081

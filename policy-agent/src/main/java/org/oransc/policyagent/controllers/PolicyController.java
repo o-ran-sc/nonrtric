@@ -30,6 +30,7 @@ import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.repository.ImmutablePolicy;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.Policy;
+import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Rics;
@@ -37,6 +38,7 @@ import org.oransc.policyagent.repository.Services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -48,7 +50,7 @@ public class PolicyController {
 
     private final ApplicationConfig appConfig;
     private final Rics rics;
-    private final PolicyTypes types;
+    private final PolicyTypes policyTypes;
     private final Policies policies;
     private final Services services;
     private static Gson gson = new GsonBuilder() //
@@ -58,10 +60,17 @@ public class PolicyController {
     @Autowired
     PolicyController(ApplicationConfig config, PolicyTypes types, Policies policies, Rics rics, Services services) {
         this.appConfig = config;
-        this.types = types;
+        this.policyTypes = types;
         this.policies = policies;
         this.rics = rics;
         this.services = services;
+    }
+
+    @GetMapping("/policy_types")
+    public ResponseEntity<String> getPolicyTypes() {
+
+        Collection<PolicyType> types = this.policyTypes.getAll();
+        return new ResponseEntity<String>(policyTypesToJson(types), HttpStatus.OK);
     }
 
     @GetMapping("/policy")
@@ -73,6 +82,14 @@ public class PolicyController {
         } catch (ServiceException e) {
             return new ResponseEntity<String>(e.getMessage(), HttpStatus.NO_CONTENT);
         }
+    }
+
+    @DeleteMapping("/policy")
+    public ResponseEntity<String> deletePolicy( //
+        @RequestParam(name = "instance", required = true) String instance) {
+
+        Policy p = policies.removeId(instance);
+        return new ResponseEntity<String>("OK", HttpStatus.OK);
     }
 
     @GetMapping("/policies")
@@ -96,7 +113,7 @@ public class PolicyController {
             result = policies.getAll();
         }
 
-        return new ResponseEntity<String>(toJson(result), HttpStatus.OK);
+        return new ResponseEntity<String>(policiesToJson(result), HttpStatus.OK);
     }
 
     private boolean include(String filter, String value) {
@@ -117,14 +134,27 @@ public class PolicyController {
         return filtered;
     }
 
-    private String toJson(Collection<Policy> policies) {
+    private String policiesToJson(Collection<Policy> policies) {
         Vector<PolicyInfo> v = new Vector<>(policies.size());
         for (Policy p : policies) {
             PolicyInfo policyInfo = ImmutablePolicyInfo.builder() //
                 .json(p.json()) //
                 .name(p.id()) //
                 .ric(p.ric().name()) //
-                .type(p.type().name()).build();
+                .type(p.type().name()) //
+                .build();
+            v.add(policyInfo);
+        }
+        return gson.toJson(v);
+    }
+
+    private String policyTypesToJson(Collection<PolicyType> types) {
+        Vector<PolicyTypeInfo> v = new Vector<>(types.size());
+        for (PolicyType t : types) {
+            PolicyTypeInfo policyInfo = ImmutablePolicyTypeInfo.builder() //
+                .schema(t.jsonSchema()) //
+                .name(t.name()) //
+                .build();
             v.add(policyInfo);
         }
         return gson.toJson(v);
@@ -139,12 +169,12 @@ public class PolicyController {
         @RequestBody String jsonBody) {
 
         try {
-            services.getService(service).ping();
+            // services.getService(service).ping();
             Ric ricObj = rics.getRic(ric);
             Policy policy = ImmutablePolicy.builder() //
                 .id(instanceId) //
                 .json(jsonBody) //
-                .type(types.getType(type)) //
+                .type(policyTypes.getType(type)) //
                 .ric(ricObj) //
                 .ownerServiceName(service) //
                 .build();
