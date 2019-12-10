@@ -16,6 +16,24 @@
       "revId": "78ed41f0a32676a47596ffdcc03b3a33c92783a8",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72432267_2fbbced5",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/configuration/ApplicationTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 1000211
+      },
+      "writtenOn": "2019-12-10T08:22:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d7ad5ac2_4e3bf848",
+      "revId": "78ed41f0a32676a47596ffdcc03b3a33c92783a8",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
