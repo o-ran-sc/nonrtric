@@ -100,7 +100,7 @@ public class Policies {
 
     public synchronized Policy removeId(String id) {
         Policy p = policiesId.get(id);
-        if (p == null) {
+        if (p != null) {
             remove(p);
         }
         return p;
@@ -111,7 +111,16 @@ public class Policies {
         multiMapRemove(policiesRic, policy.ric().name(), policy);
         multiMapRemove(policiesService, policy.ownerServiceName(), policy);
         multiMapRemove(policiesType, policy.type().name(), policy);
+    }
 
+    public synchronized int size() {
+        return policiesId.size();
+    }
+
+    public void clear() {
+        for (String id : policiesId.keySet()) {
+            removeId(id);
+        }
     }
 
 }

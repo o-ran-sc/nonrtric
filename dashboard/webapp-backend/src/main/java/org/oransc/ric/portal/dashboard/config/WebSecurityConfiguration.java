@@ -23,9 +23,9 @@ package org.oransc.ric.portal.dashboard.config;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
+
 import org.onap.portalsdk.core.onboarding.util.PortalApiConstants;
 import org.oransc.ric.portal.dashboard.DashboardUserManager;
-import org.oransc.ric.portal.dashboard.controller.A1Controller;
 import org.oransc.ric.portal.dashboard.controller.SimpleErrorController;
 import org.oransc.ric.portal.dashboard.portalapi.PortalAuthManager;
 import org.oransc.ric.portal.dashboard.portalapi.PortalAuthenticationFilter;
@@ -43,6 +43,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.oransc.ric.portal.dashboard.controller.PolicyController;
 
 @Configuration
 @EnableWebSecurity
@@ -71,7 +72,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 	DashboardUserManager userManager;
 
 	@Override
-    protected void configure(HttpSecurity http) throws Exception {
+	protected void configure(HttpSecurity http) throws Exception {
 		logger.debug("configure: portalapi.username {}", userName);
 		// A chain of ".and()" always baffles me
 		http.authorizeRequests().anyRequest().authenticated();
@@ -90,7 +91,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 			"/swagger-ui.html", //
 			"/webjars/**", //
 			PortalApiConstants.API_PREFIX + "/**", //
-			A1Controller.CONTROLLER_PATH + "/" + A1Controller.VERSION_METHOD, //					
+			PolicyController.CONTROLLER_PATH + "/" + PolicyController.VERSION_METHOD, //
 			SimpleErrorController.ERROR_PATH };
 
 	@Override

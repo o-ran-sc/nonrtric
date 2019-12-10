@@ -19,7 +19,6 @@
  */
 package org.oransc.policyagent.controllers;
 
-import com.google.gson.annotations.SerializedName;
 
 import java.util.Vector;
 
@@ -30,9 +29,7 @@ import org.immutables.value.Value;
 @Gson.TypeAdapters
 interface RicInfo {
 
-    @SerializedName("name")
     public String name();
 
-    @SerializedName("nodeNames")
-    public Vector<String> managedElementIds();
+    public Vector<String> nodeNames();
 }

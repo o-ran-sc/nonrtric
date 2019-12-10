@@ -21,7 +21,7 @@ package org.oransc.ric.portal.dashboard.model;
 
 import java.util.ArrayList;
 
-public class PolicyInstances extends ArrayList<PolicyInstance> {
+public class PolicyInstances extends ArrayList<PolicyInfo> {
 
 	private static final long serialVersionUID = -928428052502491021L;
 

@@ -21,15 +21,17 @@
 // Models of data used by the Policy Control
 
 export interface PolicyType {
-  policy_type_id: number;
   name: string;
   schema: string;
   schemaObject: any;
 }
 
 export interface PolicyInstance {
-  instanceId: string;
-  instance: string;
+  id: string;
+  json: string;
+  ric: string;
+  service: string;
+  lastModified: string;
 }
 
 export interface PolicyInstanceAck {

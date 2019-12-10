@@ -51,7 +51,7 @@ export class PolicyInstanceDataSource extends DataSource<PolicyInstance> {
 
     loadTable() {
         this.loadingSubject.next(true);
-        this.policySvc.getPolicyInstances(this.policyType.policy_type_id)
+        this.policySvc.getPolicyInstances(this.policyType.name)
             .pipe(
                 catchError((her: HttpErrorResponse) => {
                     this.notificationService.error('Failed to get policy instances: ' + her.message);
@@ -88,7 +88,10 @@ export class PolicyInstanceDataSource extends DataSource<PolicyInstance> {
         return data.sort((a, b) => {
             const isAsc = this.sort.direction === 'asc';
             switch (this.sort.active) {
-                case 'instanceId': return compare(a.instanceId, b.instanceId, isAsc);
+                case 'instanceId': return compare(a.id, b.id, isAsc);
+                case 'ric': return compare(a.ric, b.ric, isAsc);
+                case 'service': return compare(a.service, b.service, isAsc);
+                case 'lastModified': return compare(a.lastModified, b.lastModified, isAsc)
                 default: return 0;
             }
         });

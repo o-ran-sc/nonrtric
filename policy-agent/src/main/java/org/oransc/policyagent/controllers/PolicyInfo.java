@@ -19,7 +19,6 @@
  */
 package org.oransc.policyagent.controllers;
 
-import com.google.gson.annotations.SerializedName;
 
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
@@ -28,15 +27,16 @@ import org.immutables.value.Value;
 @Gson.TypeAdapters
 interface PolicyInfo {
 
-    @SerializedName("id")
-    public String name();
+    public String id();
 
-    @SerializedName("type")
     public String type();
 
-    @SerializedName("ric")
     public String ric();
 
-    @SerializedName("json")
     public String json();
+
+    public String service();
+
+    public String lastModified();
+
 }

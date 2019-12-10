@@ -45,4 +45,8 @@ public class Rics {
     public int size() {
         return rics.size();
     }
+
+    public void clear() {
+        this.rics.clear();
+    }
 }

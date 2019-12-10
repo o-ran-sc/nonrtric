@@ -19,12 +19,20 @@
  */
 
 .instances-table {
-  width: 60%;
-  min-width: 600px;
+  width: 90%;
+  min-width: 1200px;
   margin-top: 10px;
   margin-bottom: 10px;
   background-color: grayscale($color: #eeeaea);
 }
+
+.mat-column-instanceId {
+  word-wrap: break-word;
+  white-space: unset;
+  flex: 0 0 28%;
+  width: 28%;
+}
+
 
 .table-dark {
   background-color: #2d2d3d;

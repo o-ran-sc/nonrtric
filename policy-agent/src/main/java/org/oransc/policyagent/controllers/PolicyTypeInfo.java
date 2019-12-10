@@ -17,23 +17,17 @@
  * limitations under the License.
  * ========================LICENSE_END===================================
  */
-package org.oransc.policyagent.repository;
+package org.oransc.policyagent.controllers;
+
 
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
 
 @Value.Immutable
 @Gson.TypeAdapters
-public interface Policy {
-    public String id();
+public interface PolicyTypeInfo {
 
-    public String json();
+    public String name();
 
-    public String ownerServiceName();
-
-    public Ric ric();
-
-    public PolicyType type();
-
-    public String lastModified();
+    public String schema();
 }
