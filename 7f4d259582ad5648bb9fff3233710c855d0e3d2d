@@ -22,6 +22,30 @@
       "revId": "7f4d259582ad5648bb9fff3233710c855d0e3d2d",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2deb9b4d_366506c2",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/tasks/StartupServiceTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2019-12-11T15:27:59Z",
+      "side": 1,
+      "message": "Well spotted! Will fix in next commit.",
+      "parentUuid": "a9107dda_9a7eb9fa",
+      "range": {
+        "startLine": 101,
+        "startChar": 8,
+        "endLine": 103,
+        "endChar": 9
+      },
+      "revId": "7f4d259582ad5648bb9fff3233710c855d0e3d2d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
