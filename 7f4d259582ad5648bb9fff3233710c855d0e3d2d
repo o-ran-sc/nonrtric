@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a9107dda_9a7eb9fa",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/tasks/StartupServiceTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2019-12-11T12:37:55Z",
+      "side": 1,
+      "message": "this cannot work, should it be (?)\n\nfor (String nodeName : nodeNames) \n\nbut I do not know if that syntax is OK.\n\nThis is probably better: \n\n    List\u003cString\u003e managedNodes \u003d Arrays.asList(nodeNames);\n\n\nProbably there is some Arrays.asVector there too.",
+      "range": {
+        "startLine": 101,
+        "startChar": 8,
+        "endLine": 103,
+        "endChar": 9
+      },
+      "revId": "7f4d259582ad5648bb9fff3233710c855d0e3d2d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
