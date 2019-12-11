@@ -1,0 +1,30 @@
+version: '3'
+
+networks:
+  nonrtric-docker-net:
+    external:
+      name: nonrtric-docker-net
+
+services:
+
+  consul-server:
+    networks:
+      - nonrtric-docker-net
+    container_name: polman_consul
+    image: docker.io/consul:1.4.4
+    ports:
+      - "8500:8500"
+    volumes:
+      - ./consul/:/consul/config
+
+  config-binding-service:
+    networks:
+      - nonrtric-docker-net
+    container_name: polman_cbs
+    image: nexus3.onap.org:10001/onap/org.onap.dcaegen2.platform.configbinding.app-app:2.3.0
+    ports:
+      - "10000:10000"
+    environment:
+      - CONSUL_HOST=consul-server
+    depends_on:
+      - consul-server
