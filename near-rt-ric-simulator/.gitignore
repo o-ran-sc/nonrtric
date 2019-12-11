@@ -1,5 +1,5 @@
 #####standard .git ignore entries#####
-
+		
 ## IDE Specific Files ##
 org.eclipse.core.resources.prefs
 .classpath
@@ -10,14 +10,14 @@ org.eclipse.core.resources.prefs
 .checkstyle
 maven-eclipse.xml
 workspace
-
+		
 ## Compilation Files ##
 *.class
 **/target
 target
 target-ide
 MANIFEST.MF
-
+		
 ## Misc Ignores (OS specific etc) ##
 bin/
 dist
