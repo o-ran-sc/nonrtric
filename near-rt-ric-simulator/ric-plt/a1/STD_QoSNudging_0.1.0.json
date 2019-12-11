@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "STD_QoSNudging_0.1.0",
+  "description": "QoS policy type with ueId and qosId scope, version 0.1.0",
+  "type": "object",
+  "properties": {
+    "scope": {
+      "type": "object",
+      "properties": {
+        "ueId": {"type": "string"},
+        "qosId": {"type": "string"}
+      },
+      "additionalProperties": false,
+      "required": ["ueId", "qosId"]
+    },
+    "statement": {
+      "type": "object",
+      "properties": {
+        "priorityLevel": {"type": "number"}
+      },
+      "additionalProperties": false,
+      "required": ["priorityLevel"]
+    }
+  }
+}
