@@ -88,6 +88,11 @@
             <artifactId>gson</artifactId>
             <version>${immutable.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20180130</version>
+        </dependency>
         <!--TEST -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
