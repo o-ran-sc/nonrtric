@@ -23,6 +23,7 @@ package org.oransc.policyagent.repository;
 import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
+
 import org.oransc.policyagent.configuration.RicConfig;
 import org.oransc.policyagent.repository.Ric.RicState;
 
@@ -139,7 +140,7 @@ public class Ric {
      *
      * @param type the type to check if it is supported.
      *
-     * @return  true if the given type issupported by this Ric, false otherwise.
+     * @return true if the given type issupported by this Ric, false otherwise.
      */
     public boolean isSupportingType(PolicyType type) {
         return supportedPolicyTypes.contains(type);
