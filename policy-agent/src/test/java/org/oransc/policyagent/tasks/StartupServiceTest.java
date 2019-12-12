@@ -30,6 +30,7 @@ import static org.mockito.Mockito.when;
 import static org.oransc.policyagent.repository.Ric.RicState.ACTIVE;
 
 import java.util.Vector;
+
 import org.junit.jupiter.api.Test;
 import org.oransc.policyagent.clients.RicClient;
 import org.oransc.policyagent.configuration.ApplicationConfig;
