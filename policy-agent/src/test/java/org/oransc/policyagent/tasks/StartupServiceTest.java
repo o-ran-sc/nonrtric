@@ -21,6 +21,8 @@
 package org.oransc.policyagent.tasks;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -28,7 +30,6 @@ import static org.mockito.Mockito.when;
 import static org.oransc.policyagent.repository.Ric.RicState.ACTIVE;
 
 import java.util.Vector;
-
 import org.junit.Test;
 import org.oransc.policyagent.clients.RicClient;
 import org.oransc.policyagent.configuration.ApplicationConfig;
@@ -46,8 +47,11 @@ public class StartupServiceTest {
     private static final String FIRST_RIC_URL = "firstUrl";
     private static final String SECOND_RIC_NAME = "second";
     private static final String SECOND_RIC_URL = "secondUrl";
+    private static final String MANAGED_NODE_A = "nodeA";
+    private static final String MANAGED_NODE_B = "nodeB";
+    private static final String MANAGED_NODE_C = "nodeC";
 
-    private static final String PLOCY_TYPE_1_NAME = "type1";
+    private static final String POLICY_TYPE_1_NAME = "type1";
     private static final String POLICY_TYPE_2_NAME = "type2";
 
     ApplicationConfig appConfigMock;
@@ -56,12 +60,12 @@ public class StartupServiceTest {
     public void startup_allOk() throws ServiceException {
         ApplicationConfig appConfigMock = mock(ApplicationConfig.class);
         Vector<RicConfig> ricConfigs = new Vector<>(2);
-        ricConfigs.add(getRicConfig(FIRST_RIC_NAME, FIRST_RIC_URL, "nodeA"));
-        ricConfigs.add(getRicConfig(SECOND_RIC_NAME, SECOND_RIC_URL, "nodeB", "nodeC"));
+        ricConfigs.add(getRicConfig(FIRST_RIC_NAME, FIRST_RIC_URL, MANAGED_NODE_A));
+        ricConfigs.add(getRicConfig(SECOND_RIC_NAME, SECOND_RIC_URL, MANAGED_NODE_B, MANAGED_NODE_C));
         when(appConfigMock.getRicConfigs()).thenReturn(ricConfigs);
 
         Vector<PolicyType> firstTypes = new Vector<>();
-        PolicyType type1 = ImmutablePolicyType.builder().name(PLOCY_TYPE_1_NAME).jsonSchema("{}").build();
+        PolicyType type1 = ImmutablePolicyType.builder().name(POLICY_TYPE_1_NAME).jsonSchema("{}").build();
         firstTypes.add(type1);
         Vector<PolicyType> secondTypes = new Vector<>();
         secondTypes.add(type1);
@@ -83,22 +87,35 @@ public class StartupServiceTest {
         verify(ricClientMock).getPolicyTypes(SECOND_RIC_URL);
         verifyNoMoreInteractions(ricClientMock);
 
+        assertEquals("Not correct number of policy types added.", 2, policyTypes.size());
+        assertEquals("Not correct type added.", type1, policyTypes.getType(POLICY_TYPE_1_NAME));
+        assertEquals("Not correct type added.", type2, policyTypes.getType(POLICY_TYPE_2_NAME));
         assertEquals("Correct nymber of Rics not added to Rics", 2, rics.size());
+
         Ric firstRic = rics.getRic(FIRST_RIC_NAME);
+        assertNotNull("Ric \"" + FIRST_RIC_NAME + "\" not added to repositpry", firstRic);
         assertEquals("Not correct Ric \"" + FIRST_RIC_NAME + "\" added to Rics", FIRST_RIC_NAME, firstRic.name());
         assertEquals("Not correct state for \"" + FIRST_RIC_NAME + "\"", ACTIVE, firstRic.state());
+        assertEquals("Not correct no of types supported", 1, firstRic.getSupportedPolicyTypes().size());
+        assertTrue("Not correct type supported", firstRic.isSupportingType(type1));
+        assertEquals("Not correct no of managed nodes", 1, firstRic.getManagedNodes().size());
+        assertTrue("Not managed by node", firstRic.isManaging(MANAGED_NODE_A));
+
         Ric secondRic = rics.getRic(SECOND_RIC_NAME);
+        assertNotNull("Ric \"" + SECOND_RIC_NAME + "\" not added to repositpry", secondRic);
         assertEquals("Not correct Ric \"" + SECOND_RIC_NAME + "\" added to Rics", SECOND_RIC_NAME, secondRic.name());
         assertEquals("Not correct state for \"" + SECOND_RIC_NAME + "\"", ACTIVE, secondRic.state());
-
-        assertEquals("Not correct number of policy types added.", 2, policyTypes.size());
-        assertEquals("Not correct type added.", type1, policyTypes.getType(PLOCY_TYPE_1_NAME));
-        assertEquals("Not correct type added.", type2, policyTypes.getType(POLICY_TYPE_2_NAME));
+        assertEquals("Not correct no of types supported", 2, secondRic.getSupportedPolicyTypes().size());
+        assertTrue("Not correct type supported", secondRic.isSupportingType(type1));
+        assertTrue("Not correct type supported", secondRic.isSupportingType(type2));
+        assertEquals("Not correct no of managed nodes", 2, secondRic.getManagedNodes().size());
+        assertTrue("Not correct managed node", secondRic.isManaging(MANAGED_NODE_B));
+        assertTrue("Not correct managed node", secondRic.isManaging(MANAGED_NODE_C));
     }
 
     private RicConfig getRicConfig(String name, String baseUrl, String... nodeNames) {
         Vector<String> managedNodes = new Vector<String>(1);
-        for (String nodeName : managedNodes) {
+        for (String nodeName : nodeNames) {
             managedNodes.add(nodeName);
         }
         ImmutableRicConfig ricConfig = ImmutableRicConfig.builder() //

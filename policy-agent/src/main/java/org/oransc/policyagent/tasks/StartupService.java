@@ -21,7 +21,6 @@
 package org.oransc.policyagent.tasks;
 
 import java.util.Vector;
-
 import org.oransc.policyagent.clients.RicClient;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.configuration.RicConfig;
@@ -78,6 +77,7 @@ public class StartupService {
                     policyTypes.put(policyType);
                 }
             }
+            ric.addSupportedPolicyTypes(types);
             ric.setState(RicState.ACTIVE);
             rics.put(ric);
         }
