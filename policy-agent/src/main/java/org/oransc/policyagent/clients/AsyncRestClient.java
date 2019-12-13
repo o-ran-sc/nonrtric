@@ -19,6 +19,8 @@
  */
 package org.oransc.policyagent.clients;
 
+import org.oransc.policyagent.exceptions.AsyncRestClientException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -36,6 +38,8 @@ public class AsyncRestClient {
             .contentType(MediaType.APPLICATION_JSON) //
             .syncBody(body) //
             .retrieve() //
+            .onStatus(HttpStatus::isError,
+                response -> Mono.error(new AsyncRestClientException(response.statusCode().toString()))) //
             .bodyToMono(String.class);
     }
 
@@ -43,6 +47,8 @@ public class AsyncRestClient {
         return client.get() //
             .uri(uri) //
             .retrieve() //
+            .onStatus(HttpStatus::isError,
+                response -> Mono.error(new AsyncRestClientException(response.statusCode().toString()))) //
             .bodyToMono(String.class);
     }
 
@@ -50,6 +56,8 @@ public class AsyncRestClient {
         return client.delete() //
             .uri(uri) //
             .retrieve() //
+            .onStatus(HttpStatus::isError,
+                response -> Mono.error(new AsyncRestClientException(response.statusCode().toString()))) //
             .bodyToMono(Void.class);
     }
 }
