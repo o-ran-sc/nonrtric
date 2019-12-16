@@ -41,8 +41,9 @@ public class Application {
     /**
      * Starts the service and reads the configuration.
      *
-     * @param ctx
-     * @return
+     * @param ctx the application context.
+     *
+     * @return the command line runner performing tasks at startup.
      */
     @Bean
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {

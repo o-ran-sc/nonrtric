@@ -26,12 +26,8 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.oransc.policyagent.exceptions.ServiceException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Policies {
-    private static final Logger logger = LoggerFactory.getLogger(Policies.class);
-
     private Map<String, Policy> policiesId = new HashMap<>();
     private Map<String, Map<String, Policy>> policiesRic = new HashMap<>();
     private Map<String, Map<String, Policy>> policiesService = new HashMap<>();
