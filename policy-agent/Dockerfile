@@ -23,6 +23,7 @@ WORKDIR /opt/app/policy-agent
 RUN mkdir -p /var/log/policy-agent
 RUN mkdir -p /opt/app/policy-agent/etc/cert/
 
+EXPOSE 8081
 
 ADD /config/application.yaml /opt/app/policy-agent/config/
 ADD /target/policy-agent-1.0.0-SNAPSHOT.jar /opt/app/policy-agent/
@@ -30,6 +31,8 @@ ADD /target/policy-agent-1.0.0-SNAPSHOT.jar /opt/app/policy-agent/
 
 RUN chmod -R 777 /opt/app/policy-agent/config/
 
-ENTRYPOINT ["/usr/bin/java", "-jar", "/opt/app/policy-agent/policy-agent-1.0.0-SNAPSHOT.jar"]
+CMD ["java", "-jar", "/opt/app/policy-agent/policy-agent-1.0.0-SNAPSHOT.jar"]
+
+
 
 
