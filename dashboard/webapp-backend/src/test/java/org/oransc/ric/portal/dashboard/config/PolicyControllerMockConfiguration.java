@@ -90,7 +90,6 @@ public class PolicyControllerMockConfiguration {
 			result.addAll(inst);
 			return result;
 		}
-
 	}
 
 	class Database {

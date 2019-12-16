@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Vector;
 
 import org.oransc.policyagent.configuration.RicConfig;
-import org.oransc.policyagent.repository.Ric.RicState;
 
 /**
  * Represents the dynamic information about a NearRealtime-RIC.
@@ -54,6 +53,10 @@ public class Ric {
 
     public void setState(RicState newState) {
         state = newState;
+    }
+
+    public RicConfig getConfig() {
+        return this.ricConfig;
     }
 
     /**

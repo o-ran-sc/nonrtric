@@ -19,7 +19,6 @@
  */
 package org.oransc.policyagent.controllers;
 
-
 import java.util.Vector;
 
 import org.immutables.gson.Gson;

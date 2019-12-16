@@ -20,6 +20,7 @@
 
 package org.oransc.policyagent.tasks;
 
+import org.oransc.policyagent.clients.A1Client;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.Service;
@@ -30,7 +31,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Component
 @EnableScheduling
@@ -38,11 +41,13 @@ public class ServiceSupervision {
     private static final Logger logger = LoggerFactory.getLogger(ServiceSupervision.class);
     private final Services services;
     private final Policies policies;
+    private A1Client a1Client;
 
     @Autowired
-    public ServiceSupervision(Services services, Policies policies) {
+    public ServiceSupervision(Services services, Policies policies, A1Client a1Client) {
         this.services = services;
         this.policies = policies;
+        this.a1Client = a1Client;
     }
 
     @Scheduled(fixedRate = 1000 * 60)
@@ -63,16 +68,27 @@ public class ServiceSupervision {
         logger.debug("Checking services completed");
     }
 
-    Flux<Policy> createTask() {
+    private Flux<Policy> createTask() {
         return Flux.fromIterable(services.getAll()) //
             .filter(service -> service.isExpired()) //
             .doOnNext(service -> logger.info("Service is expired:" + service.getName()))
             .flatMap(service -> getAllPolicies(service)) //
-            .doOnNext(policy -> this.policies.remove(policy));
+            .doOnNext(policy -> this.policies.remove(policy)) //
+            .flatMap(policy -> deletePolicyInRic(policy));
     }
 
-    Flux<Policy> getAllPolicies(Service service) {
+    private Flux<Policy> getAllPolicies(Service service) {
         return Flux.fromIterable(policies.getForService(service.getName()));
     }
 
+    private Mono<Policy> deletePolicyInRic(Policy policy) {
+        return a1Client.deletePolicy(policy.ric().getConfig().baseUrl(), policy.id()) //
+            .onErrorResume(exception -> handleDeleteFromRicFailure(policy, exception)) //
+            .flatMap((nothing) -> Mono.just(policy));
+    }
+
+    private Mono<Void> handleDeleteFromRicFailure(Policy policy, Throwable e) {
+        logger.warn("Could not delete policy: {} from ric: {}", policy.id(), policy.ric().name(), e);
+        return Mono.empty();
+    }
 }

@@ -20,6 +20,8 @@
 
 package org.oransc.policyagent;
 
+import org.oransc.policyagent.clients.A1Client;
+import org.oransc.policyagent.clients.A1ClientImpl;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.PolicyTypes;
@@ -53,6 +55,11 @@ class BeanFactory {
     @Bean
     Services getServices() {
         return new Services();
+    }
+
+    @Bean
+    A1Client getA1Client() {
+        return new A1ClientImpl();
     }
 
 }

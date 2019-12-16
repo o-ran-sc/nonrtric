@@ -19,7 +19,6 @@
  */
 package org.oransc.policyagent.controllers;
 
-
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
 
