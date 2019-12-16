@@ -112,7 +112,6 @@ public class PolicyAgentApiImpl implements PolicyAgentApi {
             result.add(p);
         }
         return result;
-
     }
 
     @Override

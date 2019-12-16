@@ -26,9 +26,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.Vector;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.oransc.policyagent.clients.A1Client;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.repository.ImmutablePolicyType;
 import org.oransc.policyagent.repository.Policies;
@@ -42,6 +44,9 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
@@ -64,16 +69,85 @@ public class MockPolicyAgent {
         }
     }
 
+    static class A1ClientMock implements A1Client {
+        private final Policies policies;
+        private final PolicyTypes policyTypes;
+
+        A1ClientMock(Policies policies, PolicyTypes policyTypes) {
+            this.policies = policies;
+            this.policyTypes = policyTypes;
+        }
+
+        @Override
+        public Flux<String> getAllPolicyTypes(String nearRtRicUrl) {
+            Vector<String> result = new Vector<>();
+            for (PolicyType p : this.policyTypes.getAll()) {
+                result.add(p.name());
+            }
+            return Flux.fromIterable(result);
+        }
+
+        @Override
+        public Flux<String> getPoliciesForType(String nearRtRicUrl, String policyTypeId) {
+            return Flux.empty();
+        }
+
+        @Override
+        public Mono<String> getPolicy(String nearRtRicUrl, String policyId) {
+            try {
+                return Mono.just(this.policies.get(policyId).json());
+            } catch (Exception e) {
+                return Mono.error(e);
+            }
+        }
+
+        @Override
+        public Mono<String> putPolicy(String nearRtRicUrl, String policyId, String policyString) {
+            return Mono.just("OK");
+        }
+
+        @Override
+        public Mono<Void> deletePolicy(String nearRtRicUrl, String policyId) {
+            return Mono.error(new Exception("TODO We cannot use Void like this")); // TODO We cannot use Void like this
+        }
+
+    }
+
     /**
      * overrides the BeanFactory
      */
     @TestConfiguration
     static class TestBeanFactory {
 
+        private final Rics rics = new Rics();
+        private final Policies policies = new Policies();
+        private final PolicyTypes policyTypes = new PolicyTypes();
+
         @Bean
         public ApplicationConfig getApplicationConfig() {
             return new MockApplicationConfig();
         }
+
+        @Bean
+        A1Client getA1Client() {
+            return new A1ClientMock(this.policies, this.policyTypes);
+        }
+
+        @Bean
+        public Policies getPolicies() {
+            return this.policies;
+        }
+
+        @Bean
+        public PolicyTypes getPolicyTypes() {
+            return this.policyTypes;
+        }
+
+        @Bean
+        public Rics getRics() {
+            return this.rics;
+        }
+
     }
 
     @LocalServerPort
