@@ -14,7 +14,7 @@
 /.classpath
 /.project
 /.settings
-/target/
+target
 /.mvn/wrapper/maven-wrapper.jar
 /.tox
 

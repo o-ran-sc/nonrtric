@@ -17,10 +17,11 @@
  * limitations under the License.
  * ========================LICENSE_END===================================
  */
+
 package org.oransc.policyagent;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -30,9 +31,8 @@ import java.net.URL;
 import java.util.List;
 import java.util.Vector;
 
-import org.junit.Test;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.configuration.ImmutableRicConfig;
 import org.oransc.policyagent.configuration.RicConfig;
@@ -58,10 +58,10 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ApplicationTest {
 
@@ -87,7 +87,7 @@ public class ApplicationTest {
     }
 
     /**
-     * overrides the BeanFactory
+     * Overrides the BeanFactory.
      */
     @TestConfiguration
     static class TestBeanFactory {
@@ -103,8 +103,7 @@ public class ApplicationTest {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @BeforeEach
-    public void reset() {
+    private void reset() {
         rics.clear();
         policies.clear();
         policyTypes.clear();
@@ -213,7 +212,7 @@ public class ApplicationTest {
         assertThat(policies.size()).isEqualTo(0);
     }
 
-    public static <T> List<T> parseList(String json, Class<T> clazz) {
+    private static <T> List<T> parseList(String json, Class<T> clazz) {
         if (null == json) {
             return null;
         }
@@ -222,11 +221,11 @@ public class ApplicationTest {
 
     @Test
     public void testGetPolicyTypes() throws Exception {
-        String url = baseUrl() + "/policy_types";
         reset();
         addPolicy("id1", "type1", "service1");
         addPolicy("id2", "type2", "service2");
 
+        String url = baseUrl() + "/policy_types";
         String rsp = this.restTemplate.getForObject(url, String.class);
         System.out.println(rsp);
         assertThat(rsp).contains("type1");

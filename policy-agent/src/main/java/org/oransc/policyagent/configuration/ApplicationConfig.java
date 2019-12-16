@@ -194,5 +194,4 @@ public class ApplicationConfig {
     InputStream createInputStream(@NotNull String filepath) throws IOException {
         return new BufferedInputStream(new FileInputStream(filepath));
     }
-
 }
