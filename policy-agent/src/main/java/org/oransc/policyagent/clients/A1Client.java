@@ -22,12 +22,11 @@ package org.oransc.policyagent.clients;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -62,6 +61,11 @@ public class A1Client {
     public Mono<String> putPolicy(String nearRtRicUrl, String policyId, String policyString) {
         logger.debug("putPolicy nearRtRicUrl = {}, policyId = {}, policyString = {}", nearRtRicUrl, policyId,
             policyString);
+        try {
+            new JSONObject(policyString);
+        } catch (JSONException ex) { // invalid json
+            return Mono.error(ex);
+        }
         AsyncRestClient client = new AsyncRestClient(getBaseUrl(nearRtRicUrl));
         Mono<String> response = client.put("/policies/" + policyId, policyString);
         return response.flatMap(this::createPolicyMono);
@@ -74,32 +78,44 @@ public class A1Client {
     }
 
     private Flux<String> createPolicyTypesFlux(String policyTypesString) {
-        List<String> policyTypesList = new ArrayList<>();
-        JSONArray policyTypesArray = new JSONArray(policyTypesString);
-        for (int i = 0; i < policyTypesArray.length(); i++) {
-            policyTypesList.add(policyTypesArray.getJSONObject(i).toString());
+        try {
+            List<String> policyTypesList = new ArrayList<>();
+            JSONArray policyTypesArray = new JSONArray(policyTypesString);
+            for (int i = 0; i < policyTypesArray.length(); i++) {
+                policyTypesList.add(policyTypesArray.getJSONObject(i).toString());
+            }
+            logger.debug("A1 client: policyTypes = {}", policyTypesList);
+            return Flux.fromIterable(policyTypesList);
+        } catch (JSONException ex) { // invalid json
+            return Flux.error(ex);
         }
-        logger.debug("A1 client: policyTypes = {}", policyTypesList);
-        return Flux.fromIterable(policyTypesList);
     }
 
     private Flux<String> createPoliciesFlux(String policiesString, String policyTypeId) {
-        List<String> policiesList = new ArrayList<>();
-        JSONArray policiesArray = new JSONArray(policiesString);
-        for (int i = 0; i < policiesArray.length(); i++) {
-            JSONObject policyObject = policiesArray.getJSONObject(i);
-            if (policyObject.get("policyTypeId").equals(policyTypeId)) {
-                policiesList.add(policyObject.toString());
+        try {
+            List<String> policiesList = new ArrayList<>();
+            JSONArray policiesArray = new JSONArray(policiesString);
+            for (int i = 0; i < policiesArray.length(); i++) {
+                JSONObject policyObject = policiesArray.getJSONObject(i);
+                if (policyObject.get("policyTypeId").equals(policyTypeId)) {
+                    policiesList.add(policyObject.toString());
+                }
             }
+            logger.debug("A1 client: policies = {}", policiesList);
+            return Flux.fromIterable(policiesList);
+        } catch (JSONException ex) { // invalid json
+            return Flux.error(ex);
         }
-        logger.debug("A1 client: policies = {}", policiesList);
-        return Flux.fromIterable(policiesList);
     }
 
     private Mono<String> createPolicyMono(String policyString) {
-        // remove white-spaces
-        policyString = policyString.replaceAll("\\s+", "");
-        logger.debug("A1 client: policy = {}", policyString);
-        return Mono.just(policyString);
+        try {
+            JSONObject policyObject = new JSONObject(policyString);
+            String policy = policyObject.toString();
+            logger.debug("A1 client: policy = {}", policy);
+            return Mono.just(policy);
+        } catch (JSONException ex) { // invalid json
+            return Mono.error(ex);
+        }
     }
 }
