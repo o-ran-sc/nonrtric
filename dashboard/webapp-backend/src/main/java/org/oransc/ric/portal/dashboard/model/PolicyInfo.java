@@ -19,30 +19,23 @@
  */
 package org.oransc.ric.portal.dashboard.model;
 
-public class PolicyInstance implements IDashboardResponse {
-	private String instanceId;
-	private Object instance;
+import org.immutables.gson.Gson;
+import org.immutables.value.Value;
 
-	public PolicyInstance(String id, Object instance) {
-		this.instanceId = id;
-		this.instance = instance;
-	}
+@Value.Immutable
+@Gson.TypeAdapters
+public interface PolicyInfo {
 
-	public String getInstanceId() {
-		return instanceId;
-	}
-	public void setInstanceId(String instanceId) {
-		this.instanceId = instanceId;
-	}
-	public Object getInstance() {
-		return instance;
-	}
-	public void setInstance(Object instance) {
-		this.instance = instance;
-	}
+	public String id();
 
-	@Override
-	public String toString() {
-		return PolicyInstance.class.getName() + ": [id:" + instanceId + ", instance: " + instance + "]";
-	}
+	public String type();
+
+	public String ric();
+
+	public String json();
+
+	public String service();
+
+	public String lastModified();
+
 }

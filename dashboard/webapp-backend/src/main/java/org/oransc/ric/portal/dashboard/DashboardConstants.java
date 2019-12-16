@@ -38,7 +38,7 @@ public abstract class DashboardConstants {
 	private static final String ROLE_PREFIX = "ROLE_";
 	public static final String ROLE_ADMIN = ROLE_PREFIX + ROLE_NAME_ADMIN;
 	public static final String ROLE_STANDARD = ROLE_PREFIX + ROLE_NAME_STANDARD;
-	public static final String A1_CONTROLLER_USERNAME = "admin";
-	public static final String A1_CONTROLLER_PASSWORD = "Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U";
+	public static final String POLICY_CONTROLLER_USERNAME = "admin";
+	public static final String POLICY_CONTROLLER_PASSWORD = "Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U";
 
 }

@@ -76,9 +76,9 @@ export class PolicyInstanceComponent implements OnInit, AfterViewInit {
     }
 
     modifyInstance(instance: PolicyInstance): void {
-        this.policySvc.getPolicy(this.policyType.policy_type_id, instance.instanceId).subscribe(
+        this.policySvc.getPolicy(this.policyType.name, instance.id).subscribe(
             (refreshedJson: any) => {
-                instance.instance = JSON.stringify(refreshedJson);
+                instance.json = JSON.stringify(refreshedJson);
                 this.dialog.open(PolicyInstanceDialogComponent, getPolicyDialogProperties(this.policyType, instance, this.darkMode));
             },
             (httpError: HttpErrorResponse) => {
@@ -92,13 +92,20 @@ export class PolicyInstanceComponent implements OnInit, AfterViewInit {
         return this.instanceDataSource.rowCount > 0;
     }
 
+    toLocalTime(utcTime: string): string {
+        const date = new Date(utcTime);
+        const toutc = date.toUTCString();
+        return new Date(toutc + " UTC").toLocaleString();
+
+    }
+
     deleteInstance(instance: PolicyInstance): void {
         this.confirmDialogService
             .openConfirmDialog('Are you sure you want to delete this policy instance?')
             .afterClosed().subscribe(
                 (res: any) => {
                     if (res) {
-                        this.policySvc.deletePolicy(this.policyType.policy_type_id, instance.instanceId)
+                        this.policySvc.deletePolicy(this.policyType.name, instance.id)
                             .subscribe(
                                 (response: HttpResponse<Object>) => {
                                     switch (response.status) {

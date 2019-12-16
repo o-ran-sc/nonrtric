@@ -95,7 +95,7 @@ public class RicRepositoryController {
         for (Ric ric : rics.getRics()) {
             result.add(ImmutableRicInfo.builder() //
                 .name(ric.name()) //
-                .managedElementIds(ric.getManagedNodes()) //
+                .nodeNames(ric.getManagedNodes()) //
                 .build());
         }
 

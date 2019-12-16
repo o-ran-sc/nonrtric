@@ -3,14 +3,13 @@
  * O-RAN-SC
  * %%
  * Copyright (C) 2019 AT&T Intellectual Property
- * Modifications Copyright (C) 2019 Nordix Foundation
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,26 +17,21 @@
  * limitations under the License.
  * ========================LICENSE_END===================================
  */
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Routes, RouterModule } from '@angular/router';
-import { MainComponent } from './main/main.component';
-import { PolicyControlComponent } from './policy-control/policy-control.component';
+package org.oransc.ric.portal.dashboard.policyagentapi;
 
+import org.oransc.ric.portal.dashboard.model.PolicyInstances;
+import org.oransc.ric.portal.dashboard.model.PolicyTypes;
+import org.springframework.web.client.RestClientException;
 
-const routes: Routes = [
-    { path: '', component: MainComponent },
-    { path: 'policy', component: PolicyControlComponent }
-];
+public interface PolicyAgentApi {
 
-@NgModule({
-    imports: [
-        CommonModule,
-        RouterModule.forRoot(routes)],
-    exports: [
-        RouterModule
-    ],
-    declarations: []
-})
+    public PolicyTypes getAllPolicyTypes() throws RestClientException;
 
-export class RdRoutingModule { }
+    public PolicyInstances getPolicyInstancesForType(String type);
+
+    public String getPolicyInstance(String id) throws RestClientException;
+
+    public void putPolicy(String policyTypeIdString, String policyInstanceId, String json) throws RestClientException;
+
+    public void deletePolicy(String policyInstanceId) throws RestClientException;
+}
