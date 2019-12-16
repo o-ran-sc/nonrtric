@@ -22,6 +22,6 @@ services:
     ports:
     - 8500:8500/tcp
     volumes:
-    - /Users/yonwu/ORAN/nonrtric/near-rt-ric-simulator/consul_cbs/consul:/consul/config:rw
+    - /Users/yonwu/ORAN/nonrtric/near-rt-ric-simulator/simulator-group/consul_cbs/consul:/consul/config:rw
 version: '3.0'
 
