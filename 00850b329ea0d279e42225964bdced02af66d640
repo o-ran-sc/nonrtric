@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ddb35a6b_098cc09e",
+        "filename": "near-rt-ric-simulator/common/test_env.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1000211
+      },
+      "writtenOn": "2019-12-17T09:24:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "37ad3844_d7ae5c0a",
+      "range": {
+        "startLine": 10,
+        "startChar": 95,
+        "endLine": 10,
+        "endChar": 99
+      },
+      "revId": "00850b329ea0d279e42225964bdced02af66d640",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "066e3d5f_a3da6f75",
         "filename": "near-rt-ric-simulator/simulator-group/consul_cbs/consul/cbs_config.hcl",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "188232e2_99a47ea6",
+        "filename": "near-rt-ric-simulator/simulator-group/consul_cbs/consul/cbs_config.hcl",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000211
+      },
+      "writtenOn": "2019-12-17T09:24:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "066e3d5f_a3da6f75",
+      "range": {
+        "startLine": 7,
+        "startChar": 24,
+        "endLine": 7,
+        "endChar": 28
+      },
+      "revId": "00850b329ea0d279e42225964bdced02af66d640",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9c2a8645_6a4cace1",
         "filename": "near-rt-ric-simulator/simulator-group/consul_cbs/consul/cbs_localhost_config.hcl",
         "patchSetId": 1
@@ -59,6 +107,30 @@
       "writtenOn": "2019-12-17T09:15:24Z",
       "side": 1,
       "message": "Change to policy-agent, or something",
+      "range": {
+        "startLine": 5,
+        "startChar": 19,
+        "endLine": 5,
+        "endChar": 23
+      },
+      "revId": "00850b329ea0d279e42225964bdced02af66d640",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56f0374b_053e0bf9",
+        "filename": "near-rt-ric-simulator/simulator-group/consul_cbs/consul/cbs_localhost_config.hcl",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1000211
+      },
+      "writtenOn": "2019-12-17T09:24:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9c2a8645_6a4cace1",
       "range": {
         "startLine": 5,
         "startChar": 19,
