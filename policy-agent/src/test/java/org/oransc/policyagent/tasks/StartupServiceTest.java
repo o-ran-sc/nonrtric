@@ -23,7 +23,7 @@ package org.oransc.policyagent.tasks;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -32,6 +32,11 @@ import static org.oransc.policyagent.repository.Ric.RicState.ACTIVE;
 import java.util.Vector;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.oransc.policyagent.clients.RicClient;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.configuration.ImmutableRicConfig;
@@ -43,6 +48,8 @@ import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Rics;
 
+@ExtendWith(MockitoExtension.class)
+@RunWith(MockitoJUnitRunner.class)
 public class StartupServiceTest {
     private static final String FIRST_RIC_NAME = "first";
     private static final String FIRST_RIC_URL = "firstUrl";
@@ -55,11 +62,14 @@ public class StartupServiceTest {
     private static final String POLICY_TYPE_1_NAME = "type1";
     private static final String POLICY_TYPE_2_NAME = "type2";
 
+    @Mock
     ApplicationConfig appConfigMock;
+
+    @Mock
+    RicClient ricClientMock;
 
     @Test
     public void startup_allOk() throws ServiceException {
-        ApplicationConfig appConfigMock = mock(ApplicationConfig.class);
         Vector<RicConfig> ricConfigs = new Vector<>(2);
         ricConfigs.add(getRicConfig(FIRST_RIC_NAME, FIRST_RIC_URL, MANAGED_NODE_A));
         ricConfigs.add(getRicConfig(SECOND_RIC_NAME, SECOND_RIC_URL, MANAGED_NODE_B, MANAGED_NODE_C));
@@ -72,9 +82,7 @@ public class StartupServiceTest {
         secondTypes.add(type1);
         PolicyType type2 = ImmutablePolicyType.builder().name(POLICY_TYPE_2_NAME).jsonSchema("{}").build();
         secondTypes.add(type2);
-        RicClient ricClientMock = mock(RicClient.class);
-        when(ricClientMock.getPolicyTypes(FIRST_RIC_URL)).thenReturn(firstTypes);
-        when(ricClientMock.getPolicyTypes("secondUrl")).thenReturn(secondTypes);
+        when(ricClientMock.getPolicyTypes(anyString())).thenReturn(firstTypes, secondTypes);
 
         Rics rics = new Rics();
         PolicyTypes policyTypes = new PolicyTypes();
