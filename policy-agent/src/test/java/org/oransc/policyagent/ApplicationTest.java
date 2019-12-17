@@ -26,11 +26,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-
 import java.net.URL;
 import java.util.List;
 import java.util.Vector;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.oransc.policyagent.configuration.ApplicationConfig;
