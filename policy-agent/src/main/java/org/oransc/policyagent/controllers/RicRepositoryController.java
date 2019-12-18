@@ -90,13 +90,17 @@ public class RicRepositoryController {
         value = { //
             @ApiResponse(code = 200, message = "OK") //
         })
-    public ResponseEntity<String> getRics() {
+    public ResponseEntity<String> getRics(
+        @RequestParam(name = "policyType", required = false) String supportingPolicyType) {
         Vector<RicInfo> result = new Vector<>();
         for (Ric ric : rics.getRics()) {
-            result.add(ImmutableRicInfo.builder() //
-                .name(ric.name()) //
-                .nodeNames(ric.getManagedNodes()) //
-                .build());
+            if (supportingPolicyType == null || ric.isSupportingType(supportingPolicyType)) {
+                result.add(ImmutableRicInfo.builder() //
+                    .name(ric.name()) //
+                    .nodeNames(ric.getManagedNodes()) //
+                    .policyTypes(ric.getSupportedPolicyTypeNames()) //
+                    .build());
+            }
         }
 
         return new ResponseEntity<>(gson.toJson(result), HttpStatus.OK);

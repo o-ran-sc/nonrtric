@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Vector;
 import java.util.stream.Collectors;
 
 import org.oransc.ric.portal.dashboard.model.ImmutablePolicyInfo;
@@ -66,9 +67,9 @@ public class PolicyControllerMockConfiguration {
 		}
 
 		@Override
-		public void putPolicy(String policyTypeIdString, String policyInstanceId, String json)
+		public void putPolicy(String policyTypeIdString, String policyInstanceId, String json, String ric)
 				throws RestClientException {
-			database.putInstance(policyTypeIdString, policyInstanceId, json);
+			database.putInstance(policyTypeIdString, policyInstanceId, json, ric);
 		}
 
 		@Override
@@ -89,6 +90,15 @@ public class PolicyControllerMockConfiguration {
 			List<PolicyInfo> inst = database.getInstances(Optional.of(type));
 			result.addAll(inst);
 			return result;
+		}
+
+		@Override
+		public Collection<String> getRicsSupportingType(String typeName) {
+			Vector<String> res = new Vector<>();
+			res.add("ric_1");
+			res.add("ric_2");
+			res.add("ric_3");
+			return res;
 		}
 	}
 
@@ -111,7 +121,7 @@ public class PolicyControllerMockConfiguration {
 			policy = new PolicyType("type4", schema);
 			types.put("type4", policy);
 			try {
-				putInstance("ANR", "ANR-1", getStringFromFile("anr-policy-instance.json"));
+				putInstance("ANR", "ANR-1", getStringFromFile("anr-policy-instance.json"), "ric_1");
 			} catch (Exception e) {
 				// Nothing
 			}
@@ -136,9 +146,9 @@ public class PolicyControllerMockConfiguration {
 			return java.time.Instant.now().toString();
 		}
 
-		void putInstance(String typeId, String instanceId, String instanceData) {
+		void putInstance(String typeId, String instanceId, String instanceData, String ric) {
 			PolicyInfo i = ImmutablePolicyInfo.builder().json(instanceData).lastModified(getTimeStampUTC())
-					.id(instanceId).ric("ricXX").service("service").type(typeId).build();
+					.id(instanceId).ric(ric).service("service").type(typeId).build();
 			instances.put(instanceId, i);
 		}
 

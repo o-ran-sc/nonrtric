@@ -98,7 +98,7 @@ public class StartupServiceTest {
         assertEquals(FIRST_RIC_NAME, firstRic.name(), "Not correct Ric \"" + FIRST_RIC_NAME + "\" added to Rics");
         assertEquals(ACTIVE, firstRic.state(), "Not correct state for \"" + FIRST_RIC_NAME + "\"");
         assertEquals(1, firstRic.getSupportedPolicyTypes().size(), "Not correct no of types supported");
-        assertTrue(firstRic.isSupportingType(type1), "Not correct type supported");
+        assertTrue(firstRic.isSupportingType(type1.name()), "Not correct type supported");
         assertEquals(1, firstRic.getManagedNodes().size(), "Not correct no of managed nodes");
         assertTrue(firstRic.isManaging(MANAGED_NODE_A), "Not managed by node");
 
@@ -107,8 +107,8 @@ public class StartupServiceTest {
         assertEquals(SECOND_RIC_NAME, secondRic.name(), "Not correct Ric \"" + SECOND_RIC_NAME + "\" added to Rics");
         assertEquals(ACTIVE, secondRic.state(), "Not correct state for \"" + SECOND_RIC_NAME + "\"");
         assertEquals(2, secondRic.getSupportedPolicyTypes().size(), "Not correct no of types supported");
-        assertTrue(secondRic.isSupportingType(type1), "Not correct type supported");
-        assertTrue(secondRic.isSupportingType(type2), "Not correct type supported");
+        assertTrue(secondRic.isSupportingType(type1.name()), "Not correct type supported");
+        assertTrue(secondRic.isSupportingType(type2.name()), "Not correct type supported");
         assertEquals(2, secondRic.getManagedNodes().size(), "Not correct no of managed nodes");
         assertTrue(secondRic.isManaging(MANAGED_NODE_B), "Not correct managed node");
         assertTrue(secondRic.isManaging(MANAGED_NODE_C), "Not correct managed node");

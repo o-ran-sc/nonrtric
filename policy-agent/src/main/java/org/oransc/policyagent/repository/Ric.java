@@ -20,8 +20,9 @@
 
 package org.oransc.policyagent.repository;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import org.oransc.policyagent.configuration.RicConfig;
@@ -32,7 +33,7 @@ import org.oransc.policyagent.configuration.RicConfig;
 public class Ric {
     private final RicConfig ricConfig;
     private RicState state = RicState.NOT_INITIATED;
-    private Vector<PolicyType> supportedPolicyTypes = new Vector<>();
+    private Map<String, PolicyType> supportedPolicyTypes = new HashMap<>();
 
     /**
      * Creates the Ric. Initial state is {@link RicState.NOT_INITIATED}.
@@ -103,8 +104,12 @@ public class Ric {
      *
      * @return the policy types supported by this Ric in an unmodifiable list.
      */
-    public List<PolicyType> getSupportedPolicyTypes() {
-        return Collections.unmodifiableList(supportedPolicyTypes);
+    public Collection<PolicyType> getSupportedPolicyTypes() {
+        return supportedPolicyTypes.values();
+    }
+
+    public Collection<String> getSupportedPolicyTypeNames() {
+        return supportedPolicyTypes.keySet();
     }
 
     /**
@@ -113,9 +118,7 @@ public class Ric {
      * @param type the policy type to support.
      */
     public void addSupportedPolicyType(PolicyType type) {
-        if (!supportedPolicyTypes.contains(type)) {
-            supportedPolicyTypes.add(type);
-        }
+        supportedPolicyTypes.put(type.name(), type);
     }
 
     /**
@@ -123,7 +126,7 @@ public class Ric {
      *
      * @param types the policy types to support.
      */
-    public void addSupportedPolicyTypes(Vector<PolicyType> types) {
+    public void addSupportedPolicyTypes(Collection<PolicyType> types) {
         for (PolicyType type : types) {
             addSupportedPolicyType(type);
         }
@@ -135,7 +138,7 @@ public class Ric {
      * @param type the policy type to remove as supported by this Ric.
      */
     public void removeSupportedPolicyType(PolicyType type) {
-        supportedPolicyTypes.remove(type);
+        supportedPolicyTypes.remove(type.name());
     }
 
     /**
@@ -145,8 +148,8 @@ public class Ric {
      *
      * @return true if the given type issupported by this Ric, false otherwise.
      */
-    public boolean isSupportingType(PolicyType type) {
-        return supportedPolicyTypes.contains(type);
+    public boolean isSupportingType(String typeName) {
+        return supportedPolicyTypes.containsKey(typeName);
     }
 
     /**

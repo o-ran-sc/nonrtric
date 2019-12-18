@@ -87,8 +87,8 @@ export class PolicyService {
      * @param policyJson Json with the policy content
      * @returns Observable that should yield a response code, no data
      */
-    putPolicy(policyTypeId: string, policyInstanceId: string, policyJson: string): Observable<any> {
-        const url = this.buildPath(this.policyTypePath, policyTypeId, this.policyPath, policyInstanceId);
+    putPolicy(policyTypeId: string, policyInstanceId: string, policyJson: string, ric: string): Observable<any> {
+        const url = this.buildPath(this.policyTypePath, policyTypeId, this.policyPath, policyInstanceId) + "?ric=" + ric;
         return this.httpClient.put<PolicyInstanceAck>(url, policyJson, { observe: 'response' });
     }
 
@@ -100,5 +100,11 @@ export class PolicyService {
     deletePolicy(policyTypeId: string, policyInstanceId: string): Observable<any> {
         const url = this.buildPath(this.policyTypePath, policyTypeId, this.policyPath, policyInstanceId);
         return this.httpClient.delete(url, { observe: 'response' });
+    }
+
+
+    getRics(policyTypeId: string): Observable<string[]> {
+        const url = this.buildPath('rics') + '?policyType=' + policyTypeId;
+        return this.httpClient.get<any>(url);
     }
 }
