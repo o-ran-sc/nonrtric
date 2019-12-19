@@ -19,7 +19,6 @@
  */
 package org.oransc.policyagent.clients;
 
-import org.oransc.policyagent.exceptions.AsyncRestClientException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -27,6 +26,15 @@ import reactor.core.publisher.Mono;
 
 public class AsyncRestClient {
     private final WebClient client;
+
+    private static class AsyncRestClientException extends Exception {
+
+        private static final long serialVersionUID = 1L;
+
+        public AsyncRestClientException(String message) {
+            super(message);
+        }
+    }
 
     public AsyncRestClient(String baseUrl) {
         this.client = WebClient.create(baseUrl);

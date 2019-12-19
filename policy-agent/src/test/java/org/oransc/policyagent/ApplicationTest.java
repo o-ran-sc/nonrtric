@@ -112,7 +112,13 @@ public class ApplicationTest {
     public void testGetRics() throws Exception {
         String url = baseUrl() + "/rics";
         String rsp = this.restTemplate.getForObject(url, String.class);
+        System.out.println(rsp);
         assertThat(rsp).contains("kista_1");
+
+        url = baseUrl() + "/rics?policyType=ANR";
+        rsp = this.restTemplate.getForObject(url, String.class);
+        // TODO this should test that the correct types are retrieved from the RIC
+        assertThat(rsp).isEqualTo("[]");
     }
 
     @Test

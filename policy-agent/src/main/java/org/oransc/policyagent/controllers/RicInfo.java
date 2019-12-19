@@ -19,7 +19,8 @@
  */
 
 package org.oransc.policyagent.controllers;
-import java.util.Vector;
+
+import java.util.Collection;
 
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
@@ -30,5 +31,7 @@ interface RicInfo {
 
     public String name();
 
-    public Vector<String> nodeNames();
+    public Collection<String> nodeNames();
+
+    public Collection<String> policyTypes();
 }

@@ -74,13 +74,29 @@ export class PolicyInstanceDialogComponent implements OnInit, AfterViewInit {
     formValidationErrors: any;
     formIsValid = false;
 
-
     @ViewChild(MatMenuTrigger, { static: true }) menuTrigger: MatMenuTrigger;
 
-    public policyInstanceId: string;
-    public policyTypeName: string;
+    policyInstanceId: string; // null if not yet created
+    policyTypeName: string;
     darkMode: boolean;
+    ric: string;
+    allRics: string[];
 
+    private fetchRics() {
+        console.log('fetchRics ' + this.policyTypeName);
+        const self: PolicyInstanceDialogComponent = this;
+        this.dataService.getRics(this.policyTypeName).subscribe(
+            {
+                next(value) {
+                    self.allRics = value;
+                    console.log(value);
+                },
+                error(error) {
+                    self.errorService.displayError('Fetching of rics failed: ' + error.message);
+                },
+                complete() { }
+            });
+    }
 
     constructor(
         private dataService: PolicyService,
@@ -94,6 +110,7 @@ export class PolicyInstanceDialogComponent implements OnInit, AfterViewInit {
         this.policyTypeName = data.name;
         this.jsonSchemaObject = data.createSchema;
         this.jsonObject = this.parseJson(data.instanceJson);
+        this.ric = data.ric;
     }
 
     ngOnInit() {
@@ -102,6 +119,9 @@ export class PolicyInstanceDialogComponent implements OnInit, AfterViewInit {
         this.ui.darkModeState.subscribe((isDark) => {
             this.darkMode = isDark;
         });
+        if (!this.policyInstanceId) {
+            this.fetchRics();
+        }
     }
 
     ngAfterViewInit() {
@@ -113,7 +133,7 @@ export class PolicyInstanceDialogComponent implements OnInit, AfterViewInit {
         }
         const policyJson: string = this.prettyLiveFormData;
         const self: PolicyInstanceDialogComponent = this;
-        this.dataService.putPolicy(this.policyTypeName, this.policyInstanceId, policyJson).subscribe(
+        this.dataService.putPolicy(this.policyTypeName, this.policyInstanceId, policyJson, this.ric).subscribe(
             {
                 next(value) {
                     self.notificationService.success('Policy ' + self.policyTypeName + ':' + self.policyInstanceId + ' submitted');
@@ -196,6 +216,7 @@ export function getPolicyDialogProperties(policyType: PolicyType, instance: Poli
     const instanceId = instance ? instance.id : null;
     const instanceJson = instance ? instance.json : null;
     const name = policyType.name;
+    const ric = instance ? instance.ric : null;
     return {
         maxWidth: '1200px',
         maxHeight: '900px',
@@ -207,7 +228,8 @@ export function getPolicyDialogProperties(policyType: PolicyType, instance: Poli
             createSchema,
             instanceId,
             instanceJson,
-            name
+            name,
+            ric
         }
     };
 }

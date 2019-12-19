@@ -31,8 +31,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Type;
 
@@ -123,12 +125,13 @@ public class PolicyAgentApiImpl implements PolicyAgentApi {
     }
 
     @Override
-    public void putPolicy(String policyTypeIdString, String policyInstanceId, String json) throws RestClientException {
+    public void putPolicy(String policyTypeIdString, String policyInstanceId, String json, String ric)
+            throws RestClientException {
         String url = baseUrl() + "/policy?type={type}&instance={instance}&ric={ric}&service={service}";
         Map<String, ?> uriVariables = Map.of( //
                 "type", policyTypeIdString, //
                 "instance", policyInstanceId, //
-                "ric", "ric1", // TODO
+                "ric", ric, //
                 "service", "dashboard");
 
         this.restTemplate.put(url, json, uriVariables);
@@ -139,6 +142,33 @@ public class PolicyAgentApiImpl implements PolicyAgentApi {
         String url = baseUrl() + "/policy?instance={instance}";
         Map<String, ?> uriVariables = Map.of("instance", policyInstanceId);
         this.restTemplate.delete(url, uriVariables);
+    }
+
+    @Value.Immutable
+    @Gson.TypeAdapters
+    interface RicInfo {
+        public String name();
+
+        public Collection<String> nodeNames();
+
+        public Collection<String> policyTypes();
+    }
+
+    @Override
+    public Collection<String> getRicsSupportingType(String typeName) {
+        String url = baseUrl() + "/rics?policyType={typeName}";
+        Map<String, ?> uriVariables = Map.of("typeName", typeName);
+        String rsp = this.restTemplate.getForObject(url, String.class, uriVariables);
+
+        Type listType = new TypeToken<List<ImmutableRicInfo>>() {
+        }.getType();
+        List<RicInfo> rspParsed = gson.fromJson(rsp, listType);
+
+        Collection<String> result = new Vector<>(rspParsed.size());
+        for (RicInfo ric : rspParsed) {
+            result.add(ric.name());
+        }
+        return result;
     }
 
 }

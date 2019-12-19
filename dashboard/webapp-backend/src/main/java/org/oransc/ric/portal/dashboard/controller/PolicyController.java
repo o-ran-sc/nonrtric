@@ -49,8 +49,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import java.util.Collection;
 import io.swagger.annotations.ApiOperation;
 
 /**
@@ -126,10 +127,11 @@ public class PolicyController {
 			+ "}")
 	@Secured({ DashboardConstants.ROLE_ADMIN })
 	public void putPolicyInstance(@PathVariable(POLICY_TYPE_ID_NAME) String policyTypeIdString,
+			@RequestParam(name = "ric", required = true) String ric,
 			@PathVariable(POLICY_INSTANCE_ID_NAME) String policyInstanceId, @RequestBody String instance) {
 		logger.debug("putPolicyInstance typeId: {}, instanceId: {}, instance: {}", policyTypeIdString, policyInstanceId,
 				instance);
-		this.policyAgentApi.putPolicy(policyTypeIdString, policyInstanceId, instance);
+		this.policyAgentApi.putPolicy(policyTypeIdString, policyInstanceId, instance, ric);
 	}
 
 	@ApiOperation(value = "Deletes the policy instances for the given policy type.")
@@ -158,4 +160,17 @@ public class PolicyController {
 			throw new HttpNotImplementedException("Not Implemented Exception");
 		}
 	}
-}
+
+	@ApiOperation(value = "Returns the rics supporting the given policy type.")
+	@GetMapping("/rics")
+	@Secured({ DashboardConstants.ROLE_ADMIN, DashboardConstants.ROLE_STANDARD })
+	public String getRicsSupportingType(
+			@RequestParam(name = "policyType", required = true) String supportingPolicyType) {
+		logger.debug("getRicsSupportingType {}", supportingPolicyType);
+
+		Collection<String> result = this.policyAgentApi.getRicsSupportingType(supportingPolicyType);
+		String json = gson.toJson(result);
+		return json;
+	}
+
+};
