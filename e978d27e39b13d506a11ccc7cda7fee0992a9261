@@ -22,6 +22,30 @@
       "revId": "e978d27e39b13d506a11ccc7cda7fee0992a9261",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "644f6754_02dbee4c",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/PolicyController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1000112
+      },
+      "writtenOn": "2019-12-19T09:52:42Z",
+      "side": 1,
+      "message": "Yes. Agreed but we should fix this as part of another commit.",
+      "parentUuid": "cab7ed6a_03d4348b",
+      "range": {
+        "startLine": 73,
+        "startChar": 4,
+        "endLine": 79,
+        "endChar": 52
+      },
+      "revId": "e978d27e39b13d506a11ccc7cda7fee0992a9261",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
