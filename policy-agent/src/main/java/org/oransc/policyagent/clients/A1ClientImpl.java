@@ -41,27 +41,27 @@ public class A1ClientImpl implements A1Client {
     }
 
     @Override
-    public Flux<String> getAllPolicyTypes(String nearRtRicUrl) {
-        logger.debug("getAllPolicyTypes nearRtRicUrl = {}", nearRtRicUrl);
+    public Flux<String> getPolicyTypeIdentities(String nearRtRicUrl) {
+        logger.debug("getPolicyTypeIdentities nearRtRicUrl = {}", nearRtRicUrl);
         AsyncRestClient client = new AsyncRestClient(getBaseUrl(nearRtRicUrl));
-        Mono<String> response = client.get("/policytypes");
-        return response.flatMapMany(this::createPolicyTypesFlux);
+        Mono<String> response = client.get("/policytypes/identities");
+        return response.flatMapMany(this::createFlux);
     }
 
     @Override
-    public Flux<String> getPoliciesForType(String nearRtRicUrl, String policyTypeId) {
-        logger.debug("getPoliciesForType nearRtRicUrl = {}, policyTypeId = {}", nearRtRicUrl, policyTypeId);
+    public Flux<String> getPolicyIdentities(String nearRtRicUrl) {
+        logger.debug("getPolicyIdentities nearRtRicUrl = {}", nearRtRicUrl);
         AsyncRestClient client = new AsyncRestClient(getBaseUrl(nearRtRicUrl));
-        return client.get("/policies") //
-            .flatMapMany(policiesString -> createPoliciesFlux(policiesString, policyTypeId));
+        Mono<String> response = client.get("/policies/identities");
+        return response.flatMapMany(this::createFlux);
     }
 
     @Override
-    public Mono<String> getPolicy(String nearRtRicUrl, String policyId) {
-        logger.debug("getPolicy nearRtRicUrl = {}, policyId = {}", nearRtRicUrl, policyId);
+    public Mono<String> getPolicyType(String nearRtRicUrl, String policyTypeId) {
+        logger.debug("getPolicyType nearRtRicUrl = {}, policyTypeId = {}", nearRtRicUrl, policyTypeId);
         AsyncRestClient client = new AsyncRestClient(getBaseUrl(nearRtRicUrl));
-        Mono<String> response = client.get("/policies/" + policyId);
-        return response.flatMap(this::createPolicyMono);
+        Mono<String> response = client.get("/policytypes/" + policyTypeId);
+        return response.flatMap(this::createMono);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class A1ClientImpl implements A1Client {
             policyString);
         AsyncRestClient client = new AsyncRestClient(getBaseUrl(nearRtRicUrl));
         Mono<String> response = client.put("/policies/" + policyId, policyString);
-        return response.flatMap(this::createPolicyMono);
+        return response.flatMap(this::createMono);
     }
 
     @Override
@@ -80,46 +80,28 @@ public class A1ClientImpl implements A1Client {
         return client.delete("/policies/" + policyId);
     }
 
-    private Flux<String> createPolicyTypesFlux(String policyTypesString) {
+    private Flux<String> createFlux(String inputString) {
         try {
-            List<String> policyTypesList = new ArrayList<>();
-            JSONArray policyTypesArray = new JSONArray(policyTypesString);
-            for (int i = 0; i < policyTypesArray.length(); i++) {
-                policyTypesList.add(policyTypesArray.getJSONObject(i).toString());
+            List<String> arrayList = new ArrayList<>();
+            JSONArray jsonArray = new JSONArray(inputString);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                arrayList.add(jsonArray.getString(i));
             }
-            logger.debug("A1 client: policyTypes = {}", policyTypesList);
-            return Flux.fromIterable(policyTypesList);
+            logger.debug("A1 client: received list = {}", arrayList);
+            return Flux.fromIterable(arrayList);
         } catch (JSONException ex) { // invalid json
             return Flux.error(ex);
         }
     }
 
-    private Flux<String> createPoliciesFlux(String policiesString, String policyTypeId) {
+    private Mono<String> createMono(String inputString) {
         try {
-            List<String> policiesList = new ArrayList<>();
-            JSONArray policiesArray = new JSONArray(policiesString);
-            for (int i = 0; i < policiesArray.length(); i++) {
-                JSONObject policyObject = policiesArray.getJSONObject(i);
-                if (policyObject.get("policyTypeId").equals(policyTypeId)) {
-                    policiesList.add(policyObject.toString());
-                }
-            }
-            logger.debug("A1 client: policies = {}", policiesList);
-            return Flux.fromIterable(policiesList);
-        } catch (JSONException ex) { // invalid json
-            return Flux.error(ex);
-        }
-    }
-
-    private Mono<String> createPolicyMono(String policyString) {
-        try {
-            JSONObject policyObject = new JSONObject(policyString);
-            String policy = policyObject.toString();
-            logger.debug("A1 client: policy = {}", policy);
-            return Mono.just(policy);
+            JSONObject jsonObject = new JSONObject(inputString);
+            String jsonString = jsonObject.toString();
+            logger.debug("A1 client: received string = {}", jsonString);
+            return Mono.just(jsonString);
         } catch (JSONException ex) { // invalid json
             return Mono.error(ex);
-
         }
     }
 }

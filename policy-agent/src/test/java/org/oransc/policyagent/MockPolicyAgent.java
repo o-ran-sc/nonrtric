@@ -35,6 +35,7 @@ import org.oransc.policyagent.clients.A1Client;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.repository.ImmutablePolicyType;
 import org.oransc.policyagent.repository.Policies;
+import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Rics;
@@ -80,7 +81,7 @@ public class MockPolicyAgent {
         }
 
         @Override
-        public Flux<String> getAllPolicyTypes(String nearRtRicUrl) {
+        public Flux<String> getPolicyTypeIdentities(String nearRtRicUrl) {
             Vector<String> result = new Vector<>();
             for (PolicyType p : this.policyTypes.getAll()) {
                 result.add(p.name());
@@ -89,14 +90,18 @@ public class MockPolicyAgent {
         }
 
         @Override
-        public Flux<String> getPoliciesForType(String nearRtRicUrl, String policyTypeId) {
-            return Flux.empty();
+        public Flux<String> getPolicyIdentities(String nearRtRicUrl) {
+            Vector<String> result = new Vector<>();
+            for (Policy p : this.policies.getAll()) {
+                result.add(p.id());
+            }
+            return Flux.fromIterable(result);
         }
 
         @Override
-        public Mono<String> getPolicy(String nearRtRicUrl, String policyId) {
+        public Mono<String> getPolicyType(String nearRtRicUrl, String policyTypeId) {
             try {
-                return Mono.just(this.policies.get(policyId).json());
+                return Mono.just(this.policyTypes.getType(policyTypeId).jsonSchema());
             } catch (Exception e) {
                 return Mono.error(e);
             }
