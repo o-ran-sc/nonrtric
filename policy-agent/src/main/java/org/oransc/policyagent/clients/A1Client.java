@@ -20,18 +20,16 @@
 
 package org.oransc.policyagent.clients;
 
-
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface A1Client {
 
-    public Flux<String> getAllPolicyTypes(String nearRtRicUrl);
+    public Flux<String> getPolicyTypeIdentities(String nearRtRicUrl);
 
-    public Flux<String> getPoliciesForType(String nearRtRicUrl, String policyTypeId);
+    public Flux<String> getPolicyIdentities(String nearRtRicUrl);
 
-    public Mono<String> getPolicy(String nearRtRicUrl, String policyId);
+    public Mono<String> getPolicyType(String nearRtRicUrl, String policyTypeId);
 
     public Mono<String> putPolicy(String nearRtRicUrl, String policyId, String policyString);
 
