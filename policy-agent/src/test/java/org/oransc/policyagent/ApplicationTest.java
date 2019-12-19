@@ -26,9 +26,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+
 import java.net.URL;
 import java.util.List;
 import java.util.Vector;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.oransc.policyagent.configuration.ApplicationConfig;
@@ -53,6 +55,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,6 +65,8 @@ import org.springframework.web.client.RestTemplate;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ApplicationTest {
+    @Autowired
+    ApplicationContext context;
 
     @Autowired
     private Rics rics;
@@ -93,6 +98,16 @@ public class ApplicationTest {
         @Bean
         public ApplicationConfig getApplicationConfig() {
             return new MockApplicationConfig();
+        }
+
+        @Bean
+        public Rics getRics() {
+            Rics rics = new Rics();
+            rics.put(new Ric(ImmutableRicConfig.builder().name("kista_1").baseUrl("kista_url")
+                .managedElementIds(new Vector<>()).build()));
+            rics.put(new Ric(ImmutableRicConfig.builder().name("ric1").baseUrl("ric_url")
+                .managedElementIds(new Vector<>()).build()));
+            return rics;
         }
     }
 

@@ -20,14 +20,19 @@
 
 package org.oransc.policyagent.tasks;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.oransc.policyagent.repository.Ric.RicState.ACTIVE;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.util.Vector;
 
@@ -37,7 +42,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.oransc.policyagent.clients.RicClient;
+import org.oransc.policyagent.clients.A1Client;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.configuration.ImmutableRicConfig;
 import org.oransc.policyagent.configuration.RicConfig;
@@ -47,6 +52,9 @@ import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Rics;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @ExtendWith(MockitoExtension.class)
 @RunWith(MockitoJUnitRunner.class)
@@ -61,12 +69,18 @@ public class StartupServiceTest {
 
     private static final String POLICY_TYPE_1_NAME = "type1";
     private static final String POLICY_TYPE_2_NAME = "type2";
+    private static final String POLICY_ID_1 = "policy1";
+    private static final String POLICY_ID_2 = "policy2";
 
     @Mock
     ApplicationConfig appConfigMock;
 
     @Mock
-    RicClient ricClientMock;
+    A1Client a1ClientMock;
+
+    private static Gson gson = new GsonBuilder() //
+        .serializeNulls() //
+        .create(); //
 
     @Test
     public void startup_allOk() throws ServiceException {
@@ -75,31 +89,35 @@ public class StartupServiceTest {
         ricConfigs.add(getRicConfig(SECOND_RIC_NAME, SECOND_RIC_URL, MANAGED_NODE_B, MANAGED_NODE_C));
         when(appConfigMock.getRicConfigs()).thenReturn(ricConfigs);
 
-        Vector<PolicyType> firstTypes = new Vector<>();
         PolicyType type1 = ImmutablePolicyType.builder().name(POLICY_TYPE_1_NAME).jsonSchema("{}").build();
-        firstTypes.add(type1);
-        Vector<PolicyType> secondTypes = new Vector<>();
-        secondTypes.add(type1);
+        Flux<String> fluxType1 = Flux.just(gson.toJson(type1));
         PolicyType type2 = ImmutablePolicyType.builder().name(POLICY_TYPE_2_NAME).jsonSchema("{}").build();
-        secondTypes.add(type2);
-        when(ricClientMock.getPolicyTypes(anyString())).thenReturn(firstTypes, secondTypes);
+        Flux<String> fluxType2 = Flux.just(gson.toJson(type2));
+        when(a1ClientMock.getAllPolicyTypes(anyString())).thenReturn(fluxType1)
+            .thenReturn(fluxType1.concatWith(fluxType2));
+        Flux<String> policies = Flux.just(new String[] {POLICY_ID_1, POLICY_ID_2});
+        when(a1ClientMock.getPoliciesForType(anyString(), anyString())).thenReturn(policies);
+        when(a1ClientMock.deletePolicy(anyString(), anyString())).thenReturn(Mono.empty());
 
         Rics rics = new Rics();
         PolicyTypes policyTypes = new PolicyTypes();
-        StartupService serviceUnderTest = new StartupService(appConfigMock, rics, policyTypes, ricClientMock);
+        StartupService serviceUnderTest = new StartupService(appConfigMock, rics, policyTypes, a1ClientMock);
 
         serviceUnderTest.startup();
 
-        verify(ricClientMock).deleteAllPolicies(FIRST_RIC_URL);
-        verify(ricClientMock).getPolicyTypes(FIRST_RIC_URL);
-        verify(ricClientMock).deleteAllPolicies(SECOND_RIC_URL);
-        verify(ricClientMock).getPolicyTypes(SECOND_RIC_URL);
-        verifyNoMoreInteractions(ricClientMock);
+        await().untilAsserted(() -> assertThat(policyTypes.size()).isEqualTo(2));
 
-        assertEquals(2, policyTypes.size(), "Not correct number of policy types added.");
+        verify(a1ClientMock).getAllPolicyTypes(FIRST_RIC_URL);
+        verify(a1ClientMock).deletePolicy(FIRST_RIC_URL, POLICY_ID_1);
+        verify(a1ClientMock).deletePolicy(FIRST_RIC_URL, POLICY_ID_2);
+
+        verify(a1ClientMock).getAllPolicyTypes(SECOND_RIC_URL);
+        verify(a1ClientMock, times(2)).deletePolicy(SECOND_RIC_URL, POLICY_ID_1);
+        verify(a1ClientMock, times(2)).deletePolicy(SECOND_RIC_URL, POLICY_ID_2);
+
         assertEquals(type1, policyTypes.getType(POLICY_TYPE_1_NAME), "Not correct type added.");
         assertEquals(type2, policyTypes.getType(POLICY_TYPE_2_NAME), "Not correct type added.");
-        assertEquals(2, rics.size(), "Correct nymber of Rics not added to Rics");
+        assertEquals(2, rics.size(), "Correct number of Rics not added to Rics");
 
         Ric firstRic = rics.getRic(FIRST_RIC_NAME);
         assertNotNull(firstRic, "Ric \"" + FIRST_RIC_NAME + "\" not added to repositpry");

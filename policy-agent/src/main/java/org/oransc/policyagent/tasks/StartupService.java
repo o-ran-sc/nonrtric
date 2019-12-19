@@ -20,11 +20,12 @@
 
 package org.oransc.policyagent.tasks;
 
-import java.util.Vector;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
-import org.oransc.policyagent.clients.RicClient;
+import org.oransc.policyagent.clients.A1Client;
 import org.oransc.policyagent.configuration.ApplicationConfig;
-import org.oransc.policyagent.configuration.RicConfig;
+import org.oransc.policyagent.repository.ImmutablePolicyType;
 import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
@@ -35,11 +36,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 /**
  * Loads information about RealTime-RICs at startup.
  */
 @Service("startupService")
 public class StartupService {
+
+    private static Gson gson = new GsonBuilder() //
+        .serializeNulls() //
+        .create(); //
 
     private static final Logger logger = LoggerFactory.getLogger(StartupService.class);
 
@@ -53,13 +61,13 @@ public class StartupService {
     PolicyTypes policyTypes;
 
     @Autowired
-    private RicClient ricClient;
+    private A1Client a1Client;
 
-    StartupService(ApplicationConfig appConfig, Rics rics, PolicyTypes policyTypes, RicClient ricClient) {
+    StartupService(ApplicationConfig appConfig, Rics rics, PolicyTypes policyTypes, A1Client a1Client) {
         this.applicationConfig = appConfig;
         this.rics = rics;
         this.policyTypes = policyTypes;
-        this.ricClient = ricClient;
+        this.a1Client = a1Client;
     }
 
     /**
@@ -67,22 +75,55 @@ public class StartupService {
      */
     public void startup() {
         applicationConfig.initialize();
-        Vector<RicConfig> ricConfigs = applicationConfig.getRicConfigs();
-        for (RicConfig ricConfig : ricConfigs) {
-            Ric ric = new Ric(ricConfig);
-            String baseUrl = ricConfig.baseUrl();
-            ricClient.deleteAllPolicies(baseUrl);
-            Vector<PolicyType> types = ricClient.getPolicyTypes(baseUrl);
-            for (PolicyType policyType : types) {
-                if (!policyTypes.contains(policyType)) {
-                    policyTypes.put(policyType);
-                }
-            }
-            ric.addSupportedPolicyTypes(types);
-            ric.setState(RicState.ACTIVE);
-            rics.put(ric);
-        }
-
+        Flux.fromIterable(applicationConfig.getRicConfigs()) //
+            .map(ricConfig -> new Ric(ricConfig)) //
+            .doOnNext(ric -> logger.debug("Handling ric: {}", ric.getConfig().name())).flatMap(this::handlePolicyTypes)
+            .flatMap(this::setRicToActive) //
+            .flatMap(this::addRicToRepo) //
+            .subscribe();
     }
 
+    private Mono<Ric> handlePolicyTypes(Ric ric) {
+        a1Client.getAllPolicyTypes(ric.getConfig().baseUrl()) //
+            .map(policyTypeString -> gson.fromJson(policyTypeString, ImmutablePolicyType.class)) //
+            .doOnNext(type -> logger.debug("For ric: {}, handling type: {}", ric.getConfig().name(), type.name()))
+            .flatMap(this::addTypeToRepo) //
+            .flatMap(type -> addTypeToRic(ric, type)) //
+            .flatMap(type -> deletePoliciesForType(ric, type)) //
+            .subscribe();
+        return Mono.just(ric);
+    }
+
+    private Mono<PolicyType> addTypeToRepo(PolicyType policyType) {
+        if (!policyTypes.contains(policyType)) {
+            policyTypes.put(policyType);
+        }
+        return Mono.just(policyType);
+    }
+
+    private Mono<PolicyType> addTypeToRic(Ric ric, PolicyType policyType) {
+        ric.addSupportedPolicyType(policyType);
+        return Mono.just(policyType);
+    }
+
+    private Mono<Void> deletePoliciesForType(Ric ric, PolicyType policyType) {
+        a1Client.getPoliciesForType(ric.getConfig().baseUrl(), policyType.name()) //
+            .doOnNext(policyId -> logger.debug("deleting policy: {}, for ric: {}", policyId, ric.getConfig().name())) //
+            .flatMap(policyId -> a1Client.deletePolicy(ric.getConfig().baseUrl(), policyId)) //
+            .subscribe();
+
+        return Mono.empty();
+    }
+
+    private Mono<Ric> setRicToActive(Ric ric) {
+        ric.setState(RicState.ACTIVE);
+
+        return Mono.just(ric);
+    }
+
+    private Mono<Void> addRicToRepo(Ric ric) {
+        rics.put(ric);
+
+        return Mono.empty();
+    }
 }
