@@ -84,7 +84,7 @@ public class ServiceSupervision {
     private Mono<Policy> deletePolicyInRic(Policy policy) {
         return a1Client.deletePolicy(policy.ric().getConfig().baseUrl(), policy.id()) //
             .onErrorResume(exception -> handleDeleteFromRicFailure(policy, exception)) //
-            .flatMap((nothing) -> Mono.just(policy));
+            .map((nothing) -> policy);
     }
 
     private Mono<Void> handleDeleteFromRicFailure(Policy policy, Throwable e) {

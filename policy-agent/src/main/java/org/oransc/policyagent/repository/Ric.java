@@ -144,9 +144,9 @@ public class Ric {
     /**
      * Checks if a type is supported by this Ric.
      *
-     * @param type the type to check if it is supported.
+     * @param typeName the name of the type to check if it is supported.
      *
-     * @return true if the given type issupported by this Ric, false otherwise.
+     * @return true if the given type is supported by this Ric, false otherwise.
      */
     public boolean isSupportingType(String typeName) {
         return supportedPolicyTypes.containsKey(typeName);
@@ -163,14 +163,6 @@ public class Ric {
         /**
          * The Ric is working fine.
          */
-        ACTIVE,
-        /**
-         * Something is wrong with the Ric.
-         */
-        FAULTY,
-        /**
-         * The node is unreachable at the moment.
-         */
-        UNREACHABLE
+        ACTIVE
     }
 }
