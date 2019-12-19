@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "029ab855_41f175a8",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2019-12-19T08:27:34Z",
+      "side": 1,
+      "message": "This should be: policy_status[i][\"enforceStatus\"]\nOtherwise, the returned json will be in this format:\n“enforceStatus”:{“enforceStatus”:“NOT_ENFORCED”}\nBut the correct format is:\n“enforceStatus”:“NOT_ENFORCED”",
+      "range": {
+        "startLine": 19,
+        "startChar": 32,
+        "endLine": 19,
+        "endChar": 48
+      },
+      "revId": "d22cbacf046925e102e5634b86cc514a988e7ed5",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "473b4260_dc5bcacb",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2019-12-19T08:27:34Z",
+      "side": 1,
+      "message": "I guess, we also need to return enforceStatus here by using:\nres[\"enforceStatus\"] \u003d policy_status[policyId][\"enforceStatus\"]",
+      "range": {
+        "startLine": 67,
+        "startChar": 11,
+        "endLine": 67,
+        "endChar": 14
+      },
+      "revId": "d22cbacf046925e102e5634b86cc514a988e7ed5",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b187004e_57311f61",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/main.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2019-12-19T08:27:34Z",
+      "side": 1,
+      "message": "this should be DELETE?",
+      "range": {
+        "startLine": 30,
+        "startChar": 41,
+        "endLine": 30,
+        "endChar": 44
+      },
+      "revId": "d22cbacf046925e102e5634b86cc514a988e7ed5",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9eac50cc_a9370fd3",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/main.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2019-12-19T08:27:34Z",
+      "side": 1,
+      "message": "this should be DELETE?",
+      "range": {
+        "startLine": 38,
+        "startChar": 37,
+        "endLine": 38,
+        "endChar": 40
+      },
+      "revId": "d22cbacf046925e102e5634b86cc514a988e7ed5",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    }
+  ]
+}
