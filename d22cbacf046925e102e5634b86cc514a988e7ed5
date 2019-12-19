@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "89c83e12_b58877ee",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2019-12-19T15:36:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "029ab855_41f175a8",
+      "range": {
+        "startLine": 19,
+        "startChar": 32,
+        "endLine": 19,
+        "endChar": 48
+      },
+      "revId": "d22cbacf046925e102e5634b86cc514a988e7ed5",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "473b4260_dc5bcacb",
         "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2019-12-19T08:27:34Z",
       "side": 1,
       "message": "I guess, we also need to return enforceStatus here by using:\nres[\"enforceStatus\"] \u003d policy_status[policyId][\"enforceStatus\"]",
+      "range": {
+        "startLine": 67,
+        "startChar": 11,
+        "endLine": 67,
+        "endChar": 14
+      },
+      "revId": "d22cbacf046925e102e5634b86cc514a988e7ed5",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "01d78383_0f1b5430",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2019-12-19T15:36:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "473b4260_dc5bcacb",
       "range": {
         "startLine": 67,
         "startChar": 11,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "744cc6a6_42963e1b",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/main.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2019-12-19T15:36:46Z",
+      "side": 1,
+      "message": "It was for simplicity\u0027s sake when curling this address (no request name is GET by default), but you\u0027re right, it\u0027s better to be a bit thorough.",
+      "parentUuid": "b187004e_57311f61",
+      "range": {
+        "startLine": 30,
+        "startChar": 41,
+        "endLine": 30,
+        "endChar": 44
+      },
+      "revId": "d22cbacf046925e102e5634b86cc514a988e7ed5",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9eac50cc_a9370fd3",
         "filename": "near-rt-ric-simulator/ric-plt/a1/main.py",
         "patchSetId": 2
@@ -82,6 +154,30 @@
       "writtenOn": "2019-12-19T08:27:34Z",
       "side": 1,
       "message": "this should be DELETE?",
+      "range": {
+        "startLine": 38,
+        "startChar": 37,
+        "endLine": 38,
+        "endChar": 40
+      },
+      "revId": "d22cbacf046925e102e5634b86cc514a988e7ed5",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b5ec6298_60532336",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/main.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2019-12-19T15:36:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9eac50cc_a9370fd3",
       "range": {
         "startLine": 38,
         "startChar": 37,
