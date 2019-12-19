@@ -17,7 +17,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # ============LICENSE_END=========================================================
 #
-FROM adoptopenjdk/openjdk11:latest
+FROM openjdk:11-jre-slim
 
 WORKDIR /opt/app/policy-agent
 RUN mkdir -p /var/log/policy-agent

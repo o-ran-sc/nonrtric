@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Local image and tag, shall point to locally built image (non-nexus path)
-export POLICY_AGENT_LOCAL_IMAGE=oransc/policy-agent
+export POLICY_AGENT_LOCAL_IMAGE=o-ran-sc/policy-agent
 
 
 # Common env var for auto-test.
