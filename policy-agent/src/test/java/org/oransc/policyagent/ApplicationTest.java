@@ -21,6 +21,7 @@
 package org.oransc.policyagent;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.google.gson.Gson;
@@ -132,7 +133,6 @@ public class ApplicationTest {
 
         url = baseUrl() + "/rics?policyType=ANR";
         rsp = this.restTemplate.getForObject(url, String.class);
-        // TODO this should test that the correct types are retrieved from the RIC
         assertThat(rsp).isEqualTo("[]");
     }
 
@@ -151,11 +151,11 @@ public class ApplicationTest {
 
         String url = baseUrl() + "/policy?type=type1&instance=instance1&ric=ric1&service=service1";
         String json = "{}";
-        addPolicyType("type1");
+        addPolicyType("type1", "ric1");
 
         this.restTemplate.put(url, json);
 
-        Policy policy = policies.get("instance1");
+        Policy policy = policies.getPolicy("instance1");
 
         assertThat(policy).isNotNull();
         assertThat(policy.id()).isEqualTo("instance1");
@@ -166,18 +166,22 @@ public class ApplicationTest {
         System.out.println(rsp);
     }
 
-    private PolicyType addPolicyType(String name) {
+    private PolicyType addPolicyType(String policyTypeName, String ricName) {
         PolicyType type = ImmutablePolicyType.builder() //
-            .name(name) //
+            .name(policyTypeName) //
             .build();
 
         policyTypes.put(type);
+        addRic(ricName).addSupportedPolicyType(type);
         return type;
     }
 
-    private Ric addRic(String name) {
+    private Ric addRic(String ricName) {
+        if (rics.get(ricName) != null) {
+            return rics.get(ricName);
+        }
         Vector<String> mes = new Vector<>();
-        RicConfig conf = ImmutableRicConfig.builder().name(name).baseUrl("baseUrl").managedElementIds(mes).build();
+        RicConfig conf = ImmutableRicConfig.builder().name(ricName).baseUrl("baseUrl").managedElementIds(mes).build();
         Ric ric = new Ric(conf);
         this.rics.put(ric);
         return ric;
@@ -189,7 +193,7 @@ public class ApplicationTest {
             .json("{}") //
             .ownerServiceName(service) //
             .ric(rics.getRic(ric)) //
-            .type(addPolicyType(typeName)) //
+            .type(addPolicyType(typeName, ric)) //
             .lastModified("lastModified").build();
         policies.put(p);
         return p;
@@ -235,23 +239,28 @@ public class ApplicationTest {
             return null;
         }
         return gson.fromJson(json, new TypeToken<T>() {}.getType());
+
     }
 
     @Test
     public void testGetPolicyTypes() throws Exception {
         reset();
-        addPolicy("id1", "type1", "service1");
-        addPolicy("id2", "type2", "service2");
+        addPolicyType("type1", "ric1");
+        addPolicyType("type2", "ric2");
 
         String url = baseUrl() + "/policy_types";
         String rsp = this.restTemplate.getForObject(url, String.class);
-        System.out.println(rsp);
         assertThat(rsp).contains("type1");
         assertThat(rsp).contains("type2");
 
         List<PolicyTypeInfo> info = parseList(rsp, PolicyTypeInfo.class);
-        System.out.println(info.size());
+        assertEquals(2, info.size());
 
+        url = baseUrl() + "/policy_types?ric=ric1";
+        rsp = this.restTemplate.getForObject(url, String.class);
+        assertThat(rsp).contains("type1");
+        info = parseList(rsp, PolicyTypeInfo.class);
+        assertEquals(1, info.size());
     }
 
     @Test

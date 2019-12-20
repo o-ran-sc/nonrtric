@@ -20,14 +20,11 @@
 
 package org.oransc.policyagent.controllers;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
 import java.util.Collection;
 import java.util.Vector;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.exceptions.ServiceException;
@@ -38,7 +35,6 @@ import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Rics;
-import org.oransc.policyagent.repository.Services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,51 +45,55 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+
 @RestController
 @Api(value = "Policy Management API")
 public class PolicyController {
 
-    private final ApplicationConfig appConfig;
     private final Rics rics;
     private final PolicyTypes policyTypes;
     private final Policies policies;
-    private final Services services;
     private static Gson gson = new GsonBuilder() //
         .serializeNulls() //
         .create(); //
 
     @Autowired
-    PolicyController(ApplicationConfig config, PolicyTypes types, Policies policies, Rics rics, Services services) {
-        this.appConfig = config;
+    PolicyController(ApplicationConfig config, PolicyTypes types, Policies policies, Rics rics) {
         this.policyTypes = types;
         this.policies = policies;
         this.rics = rics;
-        this.services = services;
     }
 
     @GetMapping("/policy_types")
     @ApiOperation(value = "Returns all the policy types")
-    @ApiResponses(
-        value = {
-            @ApiResponse(code = 200, message = "Policy Types found")
-        })
-    public ResponseEntity<String> getPolicyTypes() {
-
-        Collection<PolicyType> types = this.policyTypes.getAll();
-        return new ResponseEntity<String>(policyTypesToJson(types), HttpStatus.OK);
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Policy Types found")})
+    public ResponseEntity<String> getPolicyTypes(@RequestParam(name = "ric", required = false) String ricName) {
+        if (ricName == null) {
+            Collection<PolicyType> types = this.policyTypes.getAll();
+            return new ResponseEntity<String>(policyTypesToJson(types), HttpStatus.OK);
+        } else {
+            try {
+                Collection<PolicyType> types = rics.getRic(ricName).getSupportedPolicyTypes();
+                return new ResponseEntity<String>(policyTypesToJson(types), HttpStatus.OK);
+            } catch (ServiceException e) {
+                return new ResponseEntity<String>(e.toString(), HttpStatus.NOT_FOUND);
+            }
+        }
     }
 
     @GetMapping("/policy")
     @ApiOperation(value = "Returns the policy")
     @ApiResponses(
-        value = {
-            @ApiResponse(code = 200, message = "Policy found"),
-            @ApiResponse(code = 204, message = "Policy is not found")
-        })
+        value = {@ApiResponse(code = 200, message = "Policy found"),
+            @ApiResponse(code = 204, message = "Policy is not found")})
     public ResponseEntity<String> getPolicy( //
         @RequestParam(name = "instance", required = true) String instance) {
         try {
-            Policy p = policies.get(instance);
+            Policy p = policies.getPolicy(instance);
             return new ResponseEntity<String>(p.json(), HttpStatus.OK);
         } catch (ServiceException e) {
             return new ResponseEntity<String>(e.getMessage(), HttpStatus.NO_CONTENT);
@@ -102,23 +102,17 @@ public class PolicyController {
 
     @DeleteMapping("/policy")
     @ApiOperation(value = "Deletes the policy")
-    @ApiResponses(
-        value = {
-            @ApiResponse(code = 204, message = "Policy deleted")
-        })
+    @ApiResponses(value = {@ApiResponse(code = 204, message = "Policy deleted")})
     public ResponseEntity<Void> deletePolicy( //
         @RequestParam(name = "instance", required = true) String instance) {
 
-        Policy p = policies.removeId(instance);
+        policies.removeId(instance);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @GetMapping("/policies")
     @ApiOperation(value = "Returns the policies")
-    @ApiResponses(
-        value = {
-            @ApiResponse(code = 200, message = "Polcies found")
-        })
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Polcies found")})
     public ResponseEntity<String> getPolicies( //
         @RequestParam(name = "type", required = false) String type, //
         @RequestParam(name = "ric", required = false) String ric, //
@@ -193,10 +187,7 @@ public class PolicyController {
 
     @PutMapping(path = "/policy")
     @ApiOperation(value = "Create the policy")
-    @ApiResponses(
-        value = {
-            @ApiResponse(code = 201, message = "Policy created")
-        })
+    @ApiResponses(value = {@ApiResponse(code = 201, message = "Policy created")})
     public ResponseEntity<String> putPolicy( //
         @RequestParam(name = "type", required = true) String type, //
         @RequestParam(name = "instance", required = true) String instanceId, //

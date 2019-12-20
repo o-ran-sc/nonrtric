@@ -67,14 +67,6 @@ class ApplicationConfigParser {
         return elem;
     }
 
-    private static String getAsString(JsonObject obj, String memberName) throws ServiceException {
-        return get(obj, memberName).getAsString();
-    }
-
-    private static JsonObject getAsJson(JsonObject obj, String memberName) throws ServiceException {
-        return get(obj, memberName).getAsJsonObject();
-    }
-
     private JsonArray getAsJsonArray(JsonObject obj, String memberName) throws ServiceException {
         return get(obj, memberName).getAsJsonArray();
     }

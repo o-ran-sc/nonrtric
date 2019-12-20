@@ -20,14 +20,13 @@
 
 package org.oransc.policyagent.controllers;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Vector;
 
-import org.oransc.policyagent.configuration.ApplicationConfig;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.repository.Service;
 import org.oransc.policyagent.repository.Services;
@@ -43,15 +42,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ServiceController {
 
-    private final ApplicationConfig appConfig;
     private final Services services;
     private static Gson gson = new GsonBuilder() //
         .serializeNulls() //
         .create(); //
 
     @Autowired
-    ServiceController(ApplicationConfig config, Services services) {
-        this.appConfig = config;
+    ServiceController(Services services) {
         this.services = services;
     }
 
