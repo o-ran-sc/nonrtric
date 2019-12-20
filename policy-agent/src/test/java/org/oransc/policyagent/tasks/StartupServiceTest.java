@@ -26,13 +26,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.oransc.policyagent.repository.Ric.RicState.ACTIVE;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import java.util.Vector;
 
@@ -68,7 +64,9 @@ public class StartupServiceTest {
     private static final String MANAGED_NODE_C = "nodeC";
 
     private static final String POLICY_TYPE_1_NAME = "type1";
+    private static final PolicyType POLICY_TYPE_1 = ImmutablePolicyType.builder().name(POLICY_TYPE_1_NAME).build();
     private static final String POLICY_TYPE_2_NAME = "type2";
+    private static final PolicyType POLICY_TYPE_2 = ImmutablePolicyType.builder().name(POLICY_TYPE_2_NAME).build();
     private static final String POLICY_ID_1 = "policy1";
     private static final String POLICY_ID_2 = "policy2";
 
@@ -78,10 +76,6 @@ public class StartupServiceTest {
     @Mock
     A1Client a1ClientMock;
 
-    private static Gson gson = new GsonBuilder() //
-        .serializeNulls() //
-        .create(); //
-
     @Test
     public void startup_allOk() throws ServiceException {
         Vector<RicConfig> ricConfigs = new Vector<>(2);
@@ -89,14 +83,12 @@ public class StartupServiceTest {
         ricConfigs.add(getRicConfig(SECOND_RIC_NAME, SECOND_RIC_URL, MANAGED_NODE_B, MANAGED_NODE_C));
         when(appConfigMock.getRicConfigs()).thenReturn(ricConfigs);
 
-        PolicyType type1 = ImmutablePolicyType.builder().name(POLICY_TYPE_1_NAME).jsonSchema("{}").build();
-        Flux<String> fluxType1 = Flux.just(gson.toJson(type1));
-        PolicyType type2 = ImmutablePolicyType.builder().name(POLICY_TYPE_2_NAME).jsonSchema("{}").build();
-        Flux<String> fluxType2 = Flux.just(gson.toJson(type2));
-        when(a1ClientMock.getAllPolicyTypes(anyString())).thenReturn(fluxType1)
+        Flux<String> fluxType1 = Flux.just(POLICY_TYPE_1_NAME);
+        Flux<String> fluxType2 = Flux.just(POLICY_TYPE_2_NAME);
+        when(a1ClientMock.getPolicyTypeIdentities(anyString())).thenReturn(fluxType1)
             .thenReturn(fluxType1.concatWith(fluxType2));
         Flux<String> policies = Flux.just(new String[] {POLICY_ID_1, POLICY_ID_2});
-        when(a1ClientMock.getPoliciesForType(anyString(), anyString())).thenReturn(policies);
+        when(a1ClientMock.getPolicyIdentities(anyString())).thenReturn(policies);
         when(a1ClientMock.deletePolicy(anyString(), anyString())).thenReturn(Mono.empty());
 
         Rics rics = new Rics();
@@ -107,16 +99,16 @@ public class StartupServiceTest {
 
         await().untilAsserted(() -> assertThat(policyTypes.size()).isEqualTo(2));
 
-        verify(a1ClientMock).getAllPolicyTypes(FIRST_RIC_URL);
+        verify(a1ClientMock).getPolicyTypeIdentities(FIRST_RIC_URL);
         verify(a1ClientMock).deletePolicy(FIRST_RIC_URL, POLICY_ID_1);
         verify(a1ClientMock).deletePolicy(FIRST_RIC_URL, POLICY_ID_2);
 
-        verify(a1ClientMock).getAllPolicyTypes(SECOND_RIC_URL);
-        verify(a1ClientMock, times(2)).deletePolicy(SECOND_RIC_URL, POLICY_ID_1);
-        verify(a1ClientMock, times(2)).deletePolicy(SECOND_RIC_URL, POLICY_ID_2);
+        verify(a1ClientMock).getPolicyTypeIdentities(SECOND_RIC_URL);
+        verify(a1ClientMock).deletePolicy(SECOND_RIC_URL, POLICY_ID_1);
+        verify(a1ClientMock).deletePolicy(SECOND_RIC_URL, POLICY_ID_2);
 
-        assertEquals(type1, policyTypes.getType(POLICY_TYPE_1_NAME), "Not correct type added.");
-        assertEquals(type2, policyTypes.getType(POLICY_TYPE_2_NAME), "Not correct type added.");
+        assertTrue(policyTypes.contains(POLICY_TYPE_1_NAME), POLICY_TYPE_1_NAME + " not added to PolicyTypes.");
+        assertTrue(policyTypes.contains(POLICY_TYPE_2_NAME), POLICY_TYPE_2_NAME + " not added to PolicyTypes.");
         assertEquals(2, rics.size(), "Correct number of Rics not added to Rics");
 
         Ric firstRic = rics.getRic(FIRST_RIC_NAME);
@@ -124,7 +116,7 @@ public class StartupServiceTest {
         assertEquals(FIRST_RIC_NAME, firstRic.name(), "Not correct Ric \"" + FIRST_RIC_NAME + "\" added to Rics");
         assertEquals(ACTIVE, firstRic.state(), "Not correct state for \"" + FIRST_RIC_NAME + "\"");
         assertEquals(1, firstRic.getSupportedPolicyTypes().size(), "Not correct no of types supported");
-        assertTrue(firstRic.isSupportingType(type1.name()), "Not correct type supported");
+        assertTrue(firstRic.isSupportingType(POLICY_TYPE_1_NAME), "Not correct type supported");
         assertEquals(1, firstRic.getManagedNodes().size(), "Not correct no of managed nodes");
         assertTrue(firstRic.isManaging(MANAGED_NODE_A), "Not managed by node");
 
@@ -133,8 +125,8 @@ public class StartupServiceTest {
         assertEquals(SECOND_RIC_NAME, secondRic.name(), "Not correct Ric \"" + SECOND_RIC_NAME + "\" added to Rics");
         assertEquals(ACTIVE, secondRic.state(), "Not correct state for \"" + SECOND_RIC_NAME + "\"");
         assertEquals(2, secondRic.getSupportedPolicyTypes().size(), "Not correct no of types supported");
-        assertTrue(secondRic.isSupportingType(type1.name()), "Not correct type supported");
-        assertTrue(secondRic.isSupportingType(type2.name()), "Not correct type supported");
+        assertTrue(secondRic.isSupportingType(POLICY_TYPE_1_NAME), "Not correct type supported");
+        assertTrue(secondRic.isSupportingType(POLICY_TYPE_2_NAME), "Not correct type supported");
         assertEquals(2, secondRic.getManagedNodes().size(), "Not correct no of managed nodes");
         assertTrue(secondRic.isManaging(MANAGED_NODE_B), "Not correct managed node");
         assertTrue(secondRic.isManaging(MANAGED_NODE_C), "Not correct managed node");

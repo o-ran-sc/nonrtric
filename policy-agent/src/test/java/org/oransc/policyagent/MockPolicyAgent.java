@@ -101,7 +101,7 @@ public class MockPolicyAgent {
         @Override
         public Mono<String> getPolicyType(String nearRtRicUrl, String policyTypeId) {
             try {
-                return Mono.just(this.policyTypes.getType(policyTypeId).jsonSchema());
+                return Mono.just(this.policyTypes.getType(policyTypeId).toString());
             } catch (Exception e) {
                 return Mono.error(e);
             }
@@ -193,7 +193,7 @@ public class MockPolicyAgent {
             try {
                 String schema = readFile(file);
                 String typeName = title(schema);
-                PolicyType type = ImmutablePolicyType.builder().name(typeName).jsonSchema(schema).build();
+                PolicyType type = ImmutablePolicyType.builder().name(typeName).build();
                 policyTypes.put(type);
             } catch (Exception e) {
                 System.out.println("Could not load json schema " + e);

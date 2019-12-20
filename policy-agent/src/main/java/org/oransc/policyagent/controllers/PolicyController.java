@@ -155,7 +155,6 @@ public class PolicyController {
         Vector<PolicyTypeInfo> v = new Vector<>(types.size());
         for (PolicyType t : types) {
             PolicyTypeInfo policyInfo = ImmutablePolicyTypeInfo.builder() //
-                .schema(t.jsonSchema()) //
                 .name(t.name()) //
                 .build();
             v.add(policyInfo);

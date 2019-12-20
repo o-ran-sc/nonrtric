@@ -44,8 +44,8 @@ public class PolicyTypes {
         types.put(type.name(), type);
     }
 
-    public boolean contains(PolicyType policyType) {
-        return types.containsKey(policyType.name());
+    public boolean contains(String policyType) {
+        return types.containsKey(policyType);
     }
 
     public synchronized Collection<PolicyType> getAll() {

@@ -27,7 +27,4 @@ import org.immutables.value.Value;
 @Gson.TypeAdapters
 public interface PolicyType {
     public String name();
-
-    public String jsonSchema();
-
 }

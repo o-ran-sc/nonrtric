@@ -168,7 +168,6 @@ public class ApplicationTest {
 
     private PolicyType addPolicyType(String name) {
         PolicyType type = ImmutablePolicyType.builder() //
-            .jsonSchema("") //
             .name(name) //
             .build();
 

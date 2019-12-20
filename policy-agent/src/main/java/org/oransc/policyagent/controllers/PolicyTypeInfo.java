@@ -28,6 +28,4 @@ import org.immutables.value.Value;
 public interface PolicyTypeInfo {
 
     public String name();
-
-    public String schema();
 }
