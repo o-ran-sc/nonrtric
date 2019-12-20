@@ -43,8 +43,6 @@ import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.configuration.ImmutableRicConfig;
 import org.oransc.policyagent.configuration.RicConfig;
 import org.oransc.policyagent.exceptions.ServiceException;
-import org.oransc.policyagent.repository.ImmutablePolicyType;
-import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Rics;
@@ -64,9 +62,7 @@ public class StartupServiceTest {
     private static final String MANAGED_NODE_C = "nodeC";
 
     private static final String POLICY_TYPE_1_NAME = "type1";
-    private static final PolicyType POLICY_TYPE_1 = ImmutablePolicyType.builder().name(POLICY_TYPE_1_NAME).build();
     private static final String POLICY_TYPE_2_NAME = "type2";
-    private static final PolicyType POLICY_TYPE_2 = ImmutablePolicyType.builder().name(POLICY_TYPE_2_NAME).build();
     private static final String POLICY_ID_1 = "policy1";
     private static final String POLICY_ID_2 = "policy2";
 
@@ -112,24 +108,30 @@ public class StartupServiceTest {
         assertEquals(2, rics.size(), "Correct number of Rics not added to Rics");
 
         Ric firstRic = rics.getRic(FIRST_RIC_NAME);
-        assertNotNull(firstRic, "Ric \"" + FIRST_RIC_NAME + "\" not added to repositpry");
-        assertEquals(FIRST_RIC_NAME, firstRic.name(), "Not correct Ric \"" + FIRST_RIC_NAME + "\" added to Rics");
-        assertEquals(ACTIVE, firstRic.state(), "Not correct state for \"" + FIRST_RIC_NAME + "\"");
-        assertEquals(1, firstRic.getSupportedPolicyTypes().size(), "Not correct no of types supported");
-        assertTrue(firstRic.isSupportingType(POLICY_TYPE_1_NAME), "Not correct type supported");
-        assertEquals(1, firstRic.getManagedNodes().size(), "Not correct no of managed nodes");
-        assertTrue(firstRic.isManaging(MANAGED_NODE_A), "Not managed by node");
+        assertNotNull(firstRic, "Ric " + FIRST_RIC_NAME + " not added to repository");
+        assertEquals(FIRST_RIC_NAME, firstRic.name(), FIRST_RIC_NAME + " not added to Rics");
+        assertEquals(ACTIVE, firstRic.state(), "Not correct state for ric " + FIRST_RIC_NAME);
+        assertEquals(1, firstRic.getSupportedPolicyTypes().size(),
+            "Not correct no of types supported for ric " + FIRST_RIC_NAME);
+        assertTrue(firstRic.isSupportingType(POLICY_TYPE_1_NAME),
+            POLICY_TYPE_1_NAME + " not supported by ric " + FIRST_RIC_NAME);
+        assertEquals(1, firstRic.getManagedNodes().size(), "Not correct no of managed nodes for ric " + FIRST_RIC_NAME);
+        assertTrue(firstRic.isManaging(MANAGED_NODE_A), MANAGED_NODE_A + " not managed by ric " + FIRST_RIC_NAME);
 
         Ric secondRic = rics.getRic(SECOND_RIC_NAME);
-        assertNotNull(secondRic, "Ric \"" + SECOND_RIC_NAME + "\" not added to repositpry");
-        assertEquals(SECOND_RIC_NAME, secondRic.name(), "Not correct Ric \"" + SECOND_RIC_NAME + "\" added to Rics");
-        assertEquals(ACTIVE, secondRic.state(), "Not correct state for \"" + SECOND_RIC_NAME + "\"");
-        assertEquals(2, secondRic.getSupportedPolicyTypes().size(), "Not correct no of types supported");
-        assertTrue(secondRic.isSupportingType(POLICY_TYPE_1_NAME), "Not correct type supported");
-        assertTrue(secondRic.isSupportingType(POLICY_TYPE_2_NAME), "Not correct type supported");
-        assertEquals(2, secondRic.getManagedNodes().size(), "Not correct no of managed nodes");
-        assertTrue(secondRic.isManaging(MANAGED_NODE_B), "Not correct managed node");
-        assertTrue(secondRic.isManaging(MANAGED_NODE_C), "Not correct managed node");
+        assertNotNull(secondRic, "Ric " + SECOND_RIC_NAME + " not added to repositpry");
+        assertEquals(SECOND_RIC_NAME, secondRic.name(), SECOND_RIC_NAME + " not added to Rics");
+        assertEquals(ACTIVE, secondRic.state(), "Not correct state for " + SECOND_RIC_NAME);
+        assertEquals(2, secondRic.getSupportedPolicyTypes().size(),
+            "Not correct no of types supported for ric " + SECOND_RIC_NAME);
+        assertTrue(secondRic.isSupportingType(POLICY_TYPE_1_NAME),
+            POLICY_TYPE_1_NAME + " not supported by ric " + SECOND_RIC_NAME);
+        assertTrue(secondRic.isSupportingType(POLICY_TYPE_2_NAME),
+            POLICY_TYPE_2_NAME + " not supported by ric " + SECOND_RIC_NAME);
+        assertEquals(2, secondRic.getManagedNodes().size(),
+            "Not correct no of managed nodes for ric " + SECOND_RIC_NAME);
+        assertTrue(secondRic.isManaging(MANAGED_NODE_B), MANAGED_NODE_B + " not managed by ric " + SECOND_RIC_NAME);
+        assertTrue(secondRic.isManaging(MANAGED_NODE_C), MANAGED_NODE_C + " not managed by ric " + SECOND_RIC_NAME);
     }
 
     private RicConfig getRicConfig(String name, String baseUrl, String... nodeNames) {
