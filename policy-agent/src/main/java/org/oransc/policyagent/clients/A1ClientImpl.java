@@ -40,10 +40,14 @@ public class A1ClientImpl implements A1Client {
         return nearRtRicUrl + "/A1-P/v1";
     }
 
+    public AsyncRestClient createClient(final String nearRtRicUrl) {
+        return new AsyncRestClient(getBaseUrl(nearRtRicUrl));
+    }
+
     @Override
     public Flux<String> getPolicyTypeIdentities(String nearRtRicUrl) {
         logger.debug("getPolicyTypeIdentities nearRtRicUrl = {}", nearRtRicUrl);
-        AsyncRestClient client = new AsyncRestClient(getBaseUrl(nearRtRicUrl));
+        AsyncRestClient client = createClient(nearRtRicUrl);
         Mono<String> response = client.get("/policytypes/identities");
         return response.flatMapMany(this::createFlux);
     }
@@ -51,7 +55,7 @@ public class A1ClientImpl implements A1Client {
     @Override
     public Flux<String> getPolicyIdentities(String nearRtRicUrl) {
         logger.debug("getPolicyIdentities nearRtRicUrl = {}", nearRtRicUrl);
-        AsyncRestClient client = new AsyncRestClient(getBaseUrl(nearRtRicUrl));
+        AsyncRestClient client = createClient(nearRtRicUrl);
         Mono<String> response = client.get("/policies/identities");
         return response.flatMapMany(this::createFlux);
     }
@@ -59,7 +63,7 @@ public class A1ClientImpl implements A1Client {
     @Override
     public Mono<String> getPolicyType(String nearRtRicUrl, String policyTypeId) {
         logger.debug("getPolicyType nearRtRicUrl = {}, policyTypeId = {}", nearRtRicUrl, policyTypeId);
-        AsyncRestClient client = new AsyncRestClient(getBaseUrl(nearRtRicUrl));
+        AsyncRestClient client = createClient(nearRtRicUrl);
         Mono<String> response = client.get("/policytypes/" + policyTypeId);
         return response.flatMap(this::createMono);
     }
@@ -68,7 +72,7 @@ public class A1ClientImpl implements A1Client {
     public Mono<String> putPolicy(String nearRtRicUrl, String policyId, String policyString) {
         logger.debug("putPolicy nearRtRicUrl = {}, policyId = {}, policyString = {}", nearRtRicUrl, policyId,
             policyString);
-        AsyncRestClient client = new AsyncRestClient(getBaseUrl(nearRtRicUrl));
+        AsyncRestClient client = createClient(nearRtRicUrl);
         Mono<String> response = client.put("/policies/" + policyId, policyString);
         return response.flatMap(this::createMono);
     }
@@ -76,7 +80,7 @@ public class A1ClientImpl implements A1Client {
     @Override
     public Mono<Void> deletePolicy(String nearRtRicUrl, String policyId) {
         logger.debug("deletePolicy nearRtRicUrl = {}, policyId = {}", nearRtRicUrl, policyId);
-        AsyncRestClient client = new AsyncRestClient(getBaseUrl(nearRtRicUrl));
+        AsyncRestClient client = createClient(nearRtRicUrl);
         return client.delete("/policies/" + policyId);
     }
 
