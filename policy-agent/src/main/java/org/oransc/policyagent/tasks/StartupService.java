@@ -71,7 +71,7 @@ public class StartupService {
         Flux.fromIterable(applicationConfig.getRicConfigs()) //
             .map(ricConfig -> new Ric(ricConfig)) //
             .doOnNext(ric -> logger.debug("Handling ric: {}", ric.getConfig().name())) //
-            .flatMap(this::addPolicyTypesForRic)
+            .flatMap(this::addPolicyTypesForRic) //
             .flatMap(this::deletePoliciesForRic) //
             .flatMap(this::setRicToActive) //
             .flatMap(this::addRicToRepo) //

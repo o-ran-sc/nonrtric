@@ -70,7 +70,7 @@ public class Policies {
         return map.values();
     }
 
-    public synchronized Policy get(String id) throws ServiceException {
+    public synchronized Policy getPolicy(String id) throws ServiceException {
         Policy p = policiesId.get(id);
         if (p == null) {
             throw new ServiceException("Could not find policy: " + id);

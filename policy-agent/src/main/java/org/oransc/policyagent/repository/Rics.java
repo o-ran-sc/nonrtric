@@ -24,6 +24,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.oransc.policyagent.exceptions.ServiceException;
+
 /**
  * Dynamic representation of all Rics in the system.
  */
@@ -38,7 +40,15 @@ public class Rics {
         return rics.values();
     }
 
-    public Ric getRic(String name) {
+    public Ric getRic(String name) throws ServiceException {
+        Ric ric = rics.get(name);
+        if (ric == null) {
+            throw new ServiceException("Could not find ric: " + name);
+        }
+        return ric;
+    }
+
+    public Ric get(String name) {
         return rics.get(name);
     }
 
