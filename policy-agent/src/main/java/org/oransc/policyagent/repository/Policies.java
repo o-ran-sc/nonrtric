@@ -70,6 +70,10 @@ public class Policies {
         return map.values();
     }
 
+    public synchronized boolean containsPolicy(String id) {
+        return policiesId.containsKey(id);
+    }
+
     public synchronized Policy getPolicy(String id) throws ServiceException {
         Policy p = policiesId.get(id);
         if (p == null) {
