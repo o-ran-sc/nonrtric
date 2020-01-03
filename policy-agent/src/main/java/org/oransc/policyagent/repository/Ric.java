@@ -152,6 +152,12 @@ public class Ric {
         return supportedPolicyTypes.containsKey(typeName);
     }
 
+    @Override
+    public String toString() {
+        return Ric.class.getSimpleName() + ": " + "name: " + name() + ", state: " + state + ", baseUrl: "
+            + ricConfig.baseUrl() + ", managedNodes: " + ricConfig.managedElementIds();
+    }
+
     /**
      * Represents the states possible for a Ric.
      */
@@ -163,6 +169,10 @@ public class Ric {
         /**
          * The Ric is working fine.
          */
-        ACTIVE
+        ACTIVE,
+        /**
+         * The Ric cannot be contacted.
+         */
+        NOT_REACHABLE
     }
 }

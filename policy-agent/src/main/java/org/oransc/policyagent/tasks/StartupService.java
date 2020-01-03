@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -73,7 +72,6 @@ public class StartupService {
             .doOnNext(ric -> logger.debug("Handling ric: {}", ric.getConfig().name())) //
             .flatMap(this::addPolicyTypesForRic) //
             .flatMap(this::deletePoliciesForRic) //
-            .flatMap(this::setRicToActive) //
             .flatMap(this::addRicToRepo) //
             .subscribe();
     }
@@ -83,7 +81,7 @@ public class StartupService {
             .doOnNext(typeId -> logger.debug("For ric: {}, handling type: {}", ric.getConfig().name(), typeId))
             .flatMap(this::addTypeToRepo) //
             .flatMap(type -> addTypeToRic(ric, type)) //
-            .subscribe();
+            .subscribe(null, cause -> setRicToNotReachable(ric, cause), () -> setRicToActive(ric));
         return Mono.just(ric);
     }
 
@@ -101,18 +99,24 @@ public class StartupService {
     }
 
     private Mono<Ric> deletePoliciesForRic(Ric ric) {
-        a1Client.getPolicyIdentities(ric.getConfig().baseUrl()) //
-            .doOnNext(policyId -> logger.debug("deleting policy: {}, for ric: {}", policyId, ric.getConfig().name())) //
-            .flatMap(policyId -> a1Client.deletePolicy(ric.getConfig().baseUrl(), policyId)) //
-            .subscribe();
+        if (!Ric.RicState.NOT_REACHABLE.equals(ric.state())) {
+            a1Client.getPolicyIdentities(ric.getConfig().baseUrl()) //
+                .doOnNext(
+                    policyId -> logger.debug("Deleting policy: {}, for ric: {}", policyId, ric.getConfig().name()))
+                .flatMap(policyId -> a1Client.deletePolicy(ric.getConfig().baseUrl(), policyId)) //
+                .subscribe(null, cause -> setRicToNotReachable(ric, cause), null);
+        }
 
         return Mono.just(ric);
     }
 
-    private Mono<Ric> setRicToActive(Ric ric) {
-        ric.setState(RicState.ACTIVE);
+    private void setRicToNotReachable(Ric ric, Throwable t) {
+        ric.setState(Ric.RicState.NOT_REACHABLE);
+        logger.info("Unable to connect to ric {}. Cause: {}", ric.name(), t.getMessage());
+    }
 
-        return Mono.just(ric);
+    private void setRicToActive(Ric ric) {
+        ric.setState(RicState.ACTIVE);
     }
 
     private Mono<Void> addRicToRepo(Ric ric) {
