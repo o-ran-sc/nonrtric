@@ -237,6 +237,29 @@
                 <inherited>false</inherited>
                 <executions>
                     <execution>
+                        <id>generate-policy-agent-image</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                        <configuration>
+                            <pullRegistry>${env.CONTAINER_PULL_REGISTRY}</pullRegistry>
+                            <images>
+                                <image>
+                                    <name>o-ran-sc/policy-agent:${project.version}</name>
+                                    <build>
+                                        <cleanup>try</cleanup>
+                                        <contextDir>${basedir}</contextDir>
+                                        <dockerFile>Dockerfile</dockerFile>
+                                        <tags>
+                                            <tag>${project.version}</tag>
+                                        </tags>
+                                    </build>
+                                </image>
+                            </images>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>push-policy-agent-image</id>
                         <goals>
                             <goal>build</goal>
