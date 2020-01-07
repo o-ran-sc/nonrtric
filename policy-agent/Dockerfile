@@ -26,7 +26,7 @@ RUN mkdir -p /opt/app/policy-agent/etc/cert/
 EXPOSE 8081
 
 ADD /config/application.yaml /opt/app/policy-agent/config/
-ADD /target/policy-agent-1.0.0-SNAPSHOT.jar /opt/app/policy-agent/
+ADD target/policy-agent-1.0.0-SNAPSHOT.jar /opt/app/policy-agent/
 
 
 RUN chmod -R 777 /opt/app/policy-agent/config/

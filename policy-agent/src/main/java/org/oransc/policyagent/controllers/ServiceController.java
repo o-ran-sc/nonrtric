@@ -20,12 +20,12 @@
 
 package org.oransc.policyagent.controllers;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Vector;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.repository.Service;

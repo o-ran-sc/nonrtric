@@ -23,14 +23,15 @@ package org.oransc.policyagent.tasks;
 import org.oransc.policyagent.clients.A1Client;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.Ric;
-import org.oransc.policyagent.repository.Rics;
 import org.oransc.policyagent.repository.Ric.RicState;
+import org.oransc.policyagent.repository.Rics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -87,20 +88,20 @@ public class RepositorySupervision {
     private Mono<Ric> checkActive(Ric ric) {
         logger.debug("Handling active ric {}", ric);
         a1Client.getPolicyIdentities(ric.getConfig().baseUrl()) //
-        .filter(policyId -> !policies.containsPolicy(policyId)) //
-        .doOnNext(policyId -> logger.debug("Deleting policy {}", policyId))
-        .flatMap(policyId -> a1Client.deletePolicy(ric.getConfig().baseUrl(), policyId)) //
-        .subscribe();
+            .filter(policyId -> !policies.containsPolicy(policyId)) //
+            .doOnNext(policyId -> logger.debug("Deleting policy {}", policyId))
+            .flatMap(policyId -> a1Client.deletePolicy(ric.getConfig().baseUrl(), policyId)) //
+            .subscribe();
         return Mono.just(ric);
     }
 
     private Mono<Ric> checkNotReachable(Ric ric) {
         logger.debug("Handling not reachable ric {}", ric);
         a1Client.getPolicyIdentities(ric.getConfig().baseUrl()) //
-        .filter(policyId -> !policies.containsPolicy(policyId)) //
-        .doOnNext(policyId -> logger.debug("Deleting policy {}", policyId))
-        .flatMap(policyId -> a1Client.deletePolicy(ric.getConfig().baseUrl(), policyId)) //
-        .subscribe(null, null, () -> ric.setState(RicState.ACTIVE));
+            .filter(policyId -> !policies.containsPolicy(policyId)) //
+            .doOnNext(policyId -> logger.debug("Deleting policy {}", policyId))
+            .flatMap(policyId -> a1Client.deletePolicy(ric.getConfig().baseUrl(), policyId)) //
+            .subscribe(null, null, () -> ric.setState(RicState.ACTIVE));
         return Mono.just(ric);
     }
 

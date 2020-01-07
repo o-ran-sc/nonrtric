@@ -33,6 +33,7 @@ import static org.oransc.policyagent.repository.Ric.RicState.ACTIVE;
 import static org.oransc.policyagent.repository.Ric.RicState.NOT_REACHABLE;
 
 import java.util.Vector;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
@@ -46,6 +47,7 @@ import org.oransc.policyagent.configuration.RicConfig;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Rics;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

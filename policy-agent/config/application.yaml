@@ -18,6 +18,7 @@ logging:
     org.onap.dcaegen2.collectors.datafile: WARN
   file: /var/log/policy-agent/application.log
 app:
-  filepath: /opt/app/policy-agent/config/application_configuration.json
+  filepath: src/test/resources/test_application_configuration.json
+
 server:
    port : 8081
