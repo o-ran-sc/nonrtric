@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "736411e8_3d659d0c",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RepositorySupervision.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-01-07T09:27:03Z",
+      "side": 1,
+      "message": "why is the grouping needed?",
+      "range": {
+        "startLine": 68,
+        "startChar": 10,
+        "endLine": 68,
+        "endChar": 43
+      },
+      "revId": "9ed2de339dc86499b5497cfb905fbcc8974d7e16",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81837d33_a0a59eaf",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RepositorySupervision.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-01-07T09:27:03Z",
+      "side": 1,
+      "message": "what happens if a client concurrently creates or deletes a policy?",
+      "range": {
+        "startLine": 90,
+        "startChar": 6,
+        "endLine": 92,
+        "endChar": 91
+      },
+      "revId": "9ed2de339dc86499b5497cfb905fbcc8974d7e16",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f2e2f17_09580895",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RepositorySupervision.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-01-07T09:27:03Z",
+      "side": 1,
+      "message": "If NearRT RIC is restarted (which is I assume is a common reason for going from state NON_REACHABLE -\u003e ACTIVE), should not all instances be deleted from the the policies? (and the types should be refreshed).",
+      "range": {
+        "startLine": 97,
+        "startChar": 3,
+        "endLine": 105,
+        "endChar": 5
+      },
+      "revId": "9ed2de339dc86499b5497cfb905fbcc8974d7e16",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
