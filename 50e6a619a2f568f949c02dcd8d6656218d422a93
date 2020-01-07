@@ -22,6 +22,30 @@
       "revId": "50e6a619a2f568f949c02dcd8d6656218d422a93",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a0a73ce0_4cc89813",
+        "filename": "policy-agent/config/application.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1000211
+      },
+      "writtenOn": "2020-01-07T10:34:08Z",
+      "side": 1,
+      "message": "Understand your concern, here this line does not copy the joson file to the docker /opt/application/, it is just a reference that the springboot project can find the file using annotation:@ConfigurationProperties(\"app\").",
+      "parentUuid": "5692d825_7380054d",
+      "range": {
+        "startLine": 21,
+        "startChar": 12,
+        "endLine": 21,
+        "endChar": 30
+      },
+      "revId": "50e6a619a2f568f949c02dcd8d6656218d422a93",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
