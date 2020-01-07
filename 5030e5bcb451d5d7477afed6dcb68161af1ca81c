@@ -22,6 +22,30 @@
       "revId": "5030e5bcb451d5d7477afed6dcb68161af1ca81c",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e7ae79cb_84832e4a",
+        "filename": "policy-agent/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1000211
+      },
+      "writtenOn": "2020-01-07T09:35:43Z",
+      "side": 1,
+      "message": "Actually, application_configuration.json file is only used for testing purposes. In our unit test, the test_application_configuration.json file is used. So, this file should not be copied to docker and should rather be deleted and the application.yaml should be updated regarding the app filepath properties.",
+      "parentUuid": "df15b885_97415242",
+      "range": {
+        "startLine": 28,
+        "startChar": 4,
+        "endLine": 28,
+        "endChar": 28
+      },
+      "revId": "5030e5bcb451d5d7477afed6dcb68161af1ca81c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
