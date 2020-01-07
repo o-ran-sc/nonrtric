@@ -20,8 +20,8 @@
 
 package org.oransc.policyagent.tasks;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -43,8 +43,9 @@ import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.Ric;
-import org.oransc.policyagent.repository.Rics;
 import org.oransc.policyagent.repository.Ric.RicState;
+import org.oransc.policyagent.repository.Rics;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
