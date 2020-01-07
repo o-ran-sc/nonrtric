@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5692d825_7380054d",
+        "filename": "policy-agent/config/application.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-07T10:05:36Z",
+      "side": 1,
+      "message": "I am not sure if this is a valid and accessible path inside the docker. I think you should double check whether this json file really exists inside the docker container.",
+      "range": {
+        "startLine": 21,
+        "startChar": 12,
+        "endLine": 21,
+        "endChar": 30
+      },
+      "revId": "50e6a619a2f568f949c02dcd8d6656218d422a93",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    }
+  ]
+}
