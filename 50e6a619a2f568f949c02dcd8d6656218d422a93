@@ -46,6 +46,30 @@
       "revId": "50e6a619a2f568f949c02dcd8d6656218d422a93",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c7f9b251_4561a8cb",
+        "filename": "policy-agent/config/application.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1000211
+      },
+      "writtenOn": "2020-01-07T10:47:40Z",
+      "side": 1,
+      "message": "I think I understand your concern is that if the application runs as microservice in docker container, the configuration file cannnot be reached. I think that is one of the reason to add consul/cbs, because if we want to modify the configuration for the micro service, we cannot always login to docker container and change the modification file. With consul/cbs, the configuration could be refreshed from outside and on the fly.",
+      "parentUuid": "a0a73ce0_4cc89813",
+      "range": {
+        "startLine": 21,
+        "startChar": 12,
+        "endLine": 21,
+        "endChar": 30
+      },
+      "revId": "50e6a619a2f568f949c02dcd8d6656218d422a93",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
