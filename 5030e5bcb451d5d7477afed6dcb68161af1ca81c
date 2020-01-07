@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "df15b885_97415242",
+        "filename": "policy-agent/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-07T09:16:20Z",
+      "side": 1,
+      "message": "If I understand correctly, this should be changed to \"/config/\" because there is also application_configuration.json file inside /config directory that is required by the service as well.",
+      "range": {
+        "startLine": 28,
+        "startChar": 4,
+        "endLine": 28,
+        "endChar": 28
+      },
+      "revId": "5030e5bcb451d5d7477afed6dcb68161af1ca81c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    }
+  ]
+}
