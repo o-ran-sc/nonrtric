@@ -19,6 +19,8 @@
 #
 FROM openjdk:11-jre-slim
 
+ARG JAR
+
 WORKDIR /opt/app/policy-agent
 RUN mkdir -p /var/log/policy-agent
 RUN mkdir -p /opt/app/policy-agent/etc/cert/
@@ -26,12 +28,12 @@ RUN mkdir -p /opt/app/policy-agent/etc/cert/
 EXPOSE 8081
 
 ADD /config/application.yaml /opt/app/policy-agent/config/
-ADD target/policy-agent-1.0.0-SNAPSHOT.jar /opt/app/policy-agent/
+ADD target/${JAR} /opt/app/policy-agent/policy-agent.jar
 
 
 RUN chmod -R 777 /opt/app/policy-agent/config/
 
-CMD ["java", "-jar", "/opt/app/policy-agent/policy-agent-1.0.0-SNAPSHOT.jar"]
+CMD ["java", "-jar", "/opt/app/policy-agent/policy-agent.jar"]
 
 
 

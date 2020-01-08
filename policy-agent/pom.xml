@@ -251,6 +251,9 @@
                                         <cleanup>try</cleanup>
                                         <contextDir>${basedir}</contextDir>
                                         <dockerFile>Dockerfile</dockerFile>
+                                        <args>
+                                            <JAR>${project.build.finalName}.jar</JAR>
+                                        </args>
                                         <tags>
                                             <tag>${project.version}</tag>
                                         </tags>
@@ -274,6 +277,9 @@
                                     <build>
                                         <contextDir>${basedir}</contextDir>
                                         <dockerFile>Dockerfile</dockerFile>
+                                        <args>
+                                            <JAR>${project.build.finalName}.jar</JAR>
+                                        </args>
                                         <tags>
                                             <tag>${project.version}</tag>
                                         </tags>
