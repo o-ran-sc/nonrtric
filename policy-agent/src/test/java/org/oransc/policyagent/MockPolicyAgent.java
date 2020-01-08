@@ -113,10 +113,9 @@ public class MockPolicyAgent {
         }
 
         @Override
-        public Mono<Void> deletePolicy(String nearRtRicUrl, String policyId) {
-            return Mono.error(new Exception("TODO We cannot use Void like this")); // TODO We cannot use Void like this
+        public Mono<String> deletePolicy(String nearRtRicUrl, String policyId) {
+            return Mono.just("OK");
         }
-
     }
 
     /**
@@ -146,6 +145,7 @@ public class MockPolicyAgent {
 
         @Bean
         public PolicyTypes getPolicyTypes() {
+            loadTypes(this.policyTypes);
             return this.policyTypes;
         }
 
@@ -154,12 +154,36 @@ public class MockPolicyAgent {
             return this.rics;
         }
 
+        private static File[] getResourceFolderFiles(String folder) {
+            ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            URL url = loader.getResource(folder);
+            String path = url.getPath();
+            return new File(path).listFiles();
+        }
+
+        private static String readFile(File file) throws IOException {
+            return new String(Files.readAllBytes(file.toPath()));
+        }
+
+        private void loadTypes(PolicyTypes policyTypes) {
+            File[] files = getResourceFolderFiles("policy_types/");
+            for (File file : files) {
+                try {
+                    String schema = readFile(file);
+                    String typeName = title(schema);
+                    PolicyType type = ImmutablePolicyType.builder().name(typeName).schema(schema).build();
+                    policyTypes.put(type);
+                } catch (Exception e) {
+                    System.out.println("Could not load json schema " + e);
+                }
+            }
+        }
     }
 
     @LocalServerPort
     private int port;
 
-    public void keepServerAlive() {
+    private void keepServerAlive() {
         System.out.println("Keeping server alive!");
         try {
             synchronized (this) {
@@ -170,40 +194,14 @@ public class MockPolicyAgent {
         }
     }
 
-    private static File[] getResourceFolderFiles(String folder) {
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        URL url = loader.getResource(folder);
-        String path = url.getPath();
-        return new File(path).listFiles();
-    }
-
-    private static String readFile(File file) throws IOException {
-        return new String(Files.readAllBytes(file.toPath()));
-    }
-
     private static String title(String jsonSchema) {
         JsonObject parsedSchema = (JsonObject) new JsonParser().parse(jsonSchema);
         String title = parsedSchema.get("title").getAsString();
         return title;
     }
 
-    private static void loadTypes(PolicyTypes policyTypes) {
-        File[] files = getResourceFolderFiles("policy_types/");
-        for (File file : files) {
-            try {
-                String schema = readFile(file);
-                String typeName = title(schema);
-                PolicyType type = ImmutablePolicyType.builder().name(typeName).build();
-                policyTypes.put(type);
-            } catch (Exception e) {
-                System.out.println("Could not load json schema " + e);
-            }
-        }
-    }
-
     @Test
     public void runMock() throws Exception {
-        loadTypes(this.policyTypes);
         keepServerAlive();
     }
 

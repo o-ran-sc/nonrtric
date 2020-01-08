@@ -64,7 +64,7 @@ public class RicRepositoryController {
      * Example: http://localhost:8080/rics?managedElementId=kista_1
      */
     @GetMapping("/ric")
-    @ApiOperation(value = "Returns the name of a RIC managing one Mananged Element")
+    @ApiOperation(value = "Returns the name of a RIC managing one Mananged Element", response = String.class)
     @ApiResponses(
         value = { //
             @ApiResponse(code = 200, message = "RIC is fond"), //
@@ -87,10 +87,10 @@ public class RicRepositoryController {
      *         Example: http://localhost:8080/ric
      */
     @GetMapping("/rics")
-    @ApiOperation(value = "Returns defined NearRT RIC:s as Json")
+    @ApiOperation(value = "Returns defined NearRT RIC:s as Json", response = RicInfo.class)
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "OK") //
+            @ApiResponse(code = 200, message = "OK", response = RicInfo.class) //
         })
     public ResponseEntity<String> getRics(
         @RequestParam(name = "policyType", required = false) String supportingPolicyType) {
