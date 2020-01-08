@@ -78,7 +78,7 @@ public class A1ClientImpl implements A1Client {
     }
 
     @Override
-    public Mono<Void> deletePolicy(String nearRtRicUrl, String policyId) {
+    public Mono<String> deletePolicy(String nearRtRicUrl, String policyId) {
         logger.debug("deletePolicy nearRtRicUrl = {}, policyId = {}", nearRtRicUrl, policyId);
         AsyncRestClient client = createClient(nearRtRicUrl);
         return client.delete("/policies/" + policyId);

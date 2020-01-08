@@ -39,7 +39,6 @@ import org.oransc.policyagent.configuration.ImmutableRicConfig;
 import org.oransc.policyagent.configuration.RicConfig;
 import org.oransc.policyagent.controllers.ImmutableServiceRegistrationInfo;
 import org.oransc.policyagent.controllers.ImmutableServiceStatus;
-import org.oransc.policyagent.controllers.PolicyTypeInfo;
 import org.oransc.policyagent.controllers.ServiceRegistrationInfo;
 import org.oransc.policyagent.controllers.ServiceStatus;
 import org.oransc.policyagent.exceptions.ServiceException;
@@ -126,6 +125,8 @@ public class ApplicationTest {
 
     @Test
     public void testGetRics() throws Exception {
+        reset();
+        addRic("kista_1");
         String url = baseUrl() + "/rics";
         String rsp = this.restTemplate.getForObject(url, String.class);
         System.out.println(rsp);
@@ -138,8 +139,10 @@ public class ApplicationTest {
 
     @Test
     public void testGetRic() throws Exception {
+        reset();
         String url = baseUrl() + "/ric?managedElementId=kista_1";
         String rsp = this.restTemplate.getForObject(url, String.class);
+        System.out.println(rsp);
         assertThat(rsp).isEqualTo("ric1");
     }
 
@@ -169,6 +172,7 @@ public class ApplicationTest {
     private PolicyType addPolicyType(String policyTypeName, String ricName) {
         PolicyType type = ImmutablePolicyType.builder() //
             .name(policyTypeName) //
+            .schema("{\"title\":\"" + policyTypeName + "\"}") //
             .build();
 
         policyTypes.put(type);
@@ -181,7 +185,11 @@ public class ApplicationTest {
             return rics.get(ricName);
         }
         Vector<String> mes = new Vector<>();
-        RicConfig conf = ImmutableRicConfig.builder().name(ricName).baseUrl("baseUrl").managedElementIds(mes).build();
+        RicConfig conf = ImmutableRicConfig.builder() //
+            .name(ricName) //
+            .baseUrl("baseUrl") //
+            .managedElementIds(mes) //
+            .build();
         Ric ric = new Ric(conf);
         this.rics.put(ric);
         return ric;
@@ -243,6 +251,42 @@ public class ApplicationTest {
     }
 
     @Test
+    public void testGetPolicySchemas() throws Exception {
+        reset();
+        addPolicyType("type1", "ric1");
+        addPolicyType("type2", "ric2");
+
+        String url = baseUrl() + "/policy_schemas";
+        String rsp = this.restTemplate.getForObject(url, String.class);
+        System.out.println("*** " + rsp);
+        assertThat(rsp).contains("type1");
+        assertThat(rsp).contains("type2");
+        assertThat(rsp).contains("title");
+
+        List<String> info = parseList(rsp, String.class);
+        assertEquals(2, info.size());
+
+        url = baseUrl() + "/policy_schemas?ric=ric1";
+        rsp = this.restTemplate.getForObject(url, String.class);
+        assertThat(rsp).contains("type1");
+        info = parseList(rsp, String.class);
+        assertEquals(1, info.size());
+    }
+
+    @Test
+    public void testGetPolicySchema() throws Exception {
+        reset();
+        addPolicyType("type1", "ric1");
+        addPolicyType("type2", "ric2");
+
+        String url = baseUrl() + "/policy_schema?id=type1";
+        String rsp = this.restTemplate.getForObject(url, String.class);
+        System.out.println(rsp);
+        assertThat(rsp).contains("type1");
+        assertThat(rsp).contains("title");
+    }
+
+    @Test
     public void testGetPolicyTypes() throws Exception {
         reset();
         addPolicyType("type1", "ric1");
@@ -250,17 +294,11 @@ public class ApplicationTest {
 
         String url = baseUrl() + "/policy_types";
         String rsp = this.restTemplate.getForObject(url, String.class);
-        assertThat(rsp).contains("type1");
-        assertThat(rsp).contains("type2");
-
-        List<PolicyTypeInfo> info = parseList(rsp, PolicyTypeInfo.class);
-        assertEquals(2, info.size());
+        assertThat(rsp).isEqualTo("[\"type2\",\"type1\"]");
 
         url = baseUrl() + "/policy_types?ric=ric1";
         rsp = this.restTemplate.getForObject(url, String.class);
-        assertThat(rsp).contains("type1");
-        info = parseList(rsp, PolicyTypeInfo.class);
-        assertEquals(1, info.size());
+        assertThat(rsp).isEqualTo("[\"type1\"]");
     }
 
     @Test

@@ -60,12 +60,12 @@ public class AsyncRestClient {
             .bodyToMono(String.class);
     }
 
-    public Mono<Void> delete(String uri) {
+    public Mono<String> delete(String uri) {
         return client.delete() //
             .uri(uri) //
             .retrieve() //
             .onStatus(HttpStatus::isError,
                 response -> Mono.error(new AsyncRestClientException(response.statusCode().toString()))) //
-            .bodyToMono(Void.class);
+            .bodyToMono(String.class);
     }
 }

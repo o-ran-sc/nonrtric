@@ -81,6 +81,7 @@ public class RepositorySupervisionTest {
 
         PolicyType policyType = ImmutablePolicyType.builder() //
             .name("type") //
+            .schema("") //
             .build();
         Policy policy1 = ImmutablePolicy.builder() //
             .id("policyId1") //

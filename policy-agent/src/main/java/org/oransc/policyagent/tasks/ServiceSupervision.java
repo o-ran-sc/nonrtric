@@ -71,7 +71,7 @@ public class ServiceSupervision {
     private Flux<Policy> createTask() {
         return Flux.fromIterable(services.getAll()) //
             .filter(service -> service.isExpired()) //
-            .doOnNext(service -> logger.info("Service is expired:" + service.getName()))
+            .doOnNext(service -> logger.info("Service is expired:" + service.getName())) //
             .flatMap(service -> getAllPolicies(service)) //
             .doOnNext(policy -> this.policies.remove(policy)) //
             .flatMap(policy -> deletePolicyInRic(policy));
@@ -87,7 +87,7 @@ public class ServiceSupervision {
             .map((nothing) -> policy);
     }
 
-    private Mono<Void> handleDeleteFromRicFailure(Policy policy, Throwable e) {
+    private Mono<String> handleDeleteFromRicFailure(Policy policy, Throwable e) {
         logger.warn("Could not delete policy: {} from ric: {}", policy.id(), policy.ric().name(), e);
         return Mono.empty();
     }

@@ -39,6 +39,10 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Type;
 
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 
@@ -79,22 +83,20 @@ public class PolicyAgentApiImpl implements PolicyAgentApi {
         public String schema();
     }
 
-    private PolicyType toPolicyType(PolicyTypeInfo i) {
-        return new PolicyType(i.name(), i.schema());
-    }
-
     @Override
     public PolicyTypes getAllPolicyTypes() throws RestClientException {
-        String url = baseUrl() + "/policy_types";
+        String url = baseUrl() + "/policy_schemas";
         String rsp = this.restTemplate.getForObject(url, String.class);
 
-        Type listType = new TypeToken<List<ImmutablePolicyTypeInfo>>() {
-        }.getType();
-        List<PolicyTypeInfo> rspParsed = gson.fromJson(rsp, listType);
-
         PolicyTypes result = new PolicyTypes();
-        for (PolicyTypeInfo i : rspParsed) {
-            result.add(toPolicyType(i));
+        JsonParser jsonParser = new JsonParser();
+        JsonArray schemas = jsonParser.parse(rsp).getAsJsonArray();
+        for (JsonElement schema : schemas) {
+            JsonObject schemaObj = schema.getAsJsonObject();
+            String title = schemaObj.get("title").getAsString();
+            String schemaAsStr = schemaObj.toString();
+            PolicyType pt = new PolicyType(title, schemaAsStr);
+            result.add(pt);
         }
         return result;
     }

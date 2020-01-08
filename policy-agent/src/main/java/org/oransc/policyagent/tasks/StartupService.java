@@ -22,6 +22,7 @@ package org.oransc.policyagent.tasks;
 
 import org.oransc.policyagent.clients.A1Client;
 import org.oransc.policyagent.configuration.ApplicationConfig;
+import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.repository.ImmutablePolicyType;
 import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.PolicyTypes;
@@ -73,30 +74,40 @@ public class StartupService {
             .doOnNext(ric -> logger.debug("Handling ric: {}", ric.getConfig().name())) //
             .flatMap(this::addPolicyTypesForRic) //
             .flatMap(this::deletePoliciesForRic) //
-            .flatMap(this::addRicToRepo) //
+            .doOnNext(rics::put) //
             .subscribe();
     }
 
     private Mono<Ric> addPolicyTypesForRic(Ric ric) {
         a1Client.getPolicyTypeIdentities(ric.getConfig().baseUrl()) //
             .doOnNext(typeId -> logger.debug("For ric: {}, handling type: {}", ric.getConfig().name(), typeId))
-            .flatMap(this::addTypeToRepo) //
+            .flatMap((policyTypeId) -> addTypeToRepo(ric, policyTypeId)) //
             .flatMap(type -> addTypeToRic(ric, type)) //
             .subscribe(null, cause -> setRicToNotReachable(ric, cause), () -> setRicToActive(ric));
         return Mono.just(ric);
     }
 
-    private Mono<PolicyType> addTypeToRepo(String policyTypeId) {
-        ImmutablePolicyType type = ImmutablePolicyType.builder().name(policyTypeId).build();
-        if (!policyTypes.contains(policyTypeId)) {
-            policyTypes.put(type);
+    private Mono<PolicyType> addTypeToRepo(Ric ric, String policyTypeId) {
+        if (policyTypes.contains(policyTypeId)) {
+            try {
+                return Mono.just(policyTypes.getType(policyTypeId));
+            } catch (ServiceException e) {
+                return Mono.error(e);
+            }
         }
-        return Mono.just(type);
+        return a1Client.getPolicyType(ric.getConfig().baseUrl(), policyTypeId) //
+            .flatMap(schema -> createPolicyType(policyTypeId, schema));
     }
 
-    private Mono<Void> addTypeToRic(Ric ric, PolicyType policyType) {
+    private Mono<PolicyType> createPolicyType(String policyTypeId, String schema) {
+        PolicyType pt = ImmutablePolicyType.builder().name(policyTypeId).schema(schema).build();
+        policyTypes.put(pt);
+        return Mono.just(pt);
+    }
+
+    private Mono<PolicyType> addTypeToRic(Ric ric, PolicyType policyType) {
         ric.addSupportedPolicyType(policyType);
-        return Mono.empty();
+        return Mono.just(policyType);
     }
 
     private Mono<Ric> deletePoliciesForRic(Ric ric) {
@@ -120,9 +131,4 @@ public class StartupService {
         ric.setState(RicState.ACTIVE);
     }
 
-    private Mono<Void> addRicToRepo(Ric ric) {
-        rics.put(ric);
-
-        return Mono.empty();
-    }
 }
