@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "34fd7f73_1bb63447",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-01-09T15:08:23Z",
+      "side": 1,
+      "message": "Added some, don\u0027t hesitate if I miss something.",
+      "parentUuid": "6cebffea_4e513c0e",
+      "range": {
+        "startLine": 26,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 0
+      },
+      "revId": "3b68a38f11ae7b9c883abee15407f40ebfdaf06f",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "99fda67d_ae46a765",
         "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "da000b01_30353e73",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-01-09T15:08:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99fda67d_ae46a765",
+      "range": {
+        "startLine": 109,
+        "startChar": 11,
+        "endLine": 109,
+        "endChar": 62
+      },
+      "revId": "3b68a38f11ae7b9c883abee15407f40ebfdaf06f",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d74b6e7b_3e0a66b6",
         "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
         "patchSetId": 3
@@ -59,6 +107,30 @@
       "writtenOn": "2019-12-20T09:47:06Z",
       "side": 1,
       "message": "The subscribtion is nullable according to the yamnl. So the get subscription shall never fail, either return nulll  or return the url.",
+      "range": {
+        "startLine": 167,
+        "startChar": 0,
+        "endLine": 189,
+        "endChar": 33
+      },
+      "revId": "3b68a38f11ae7b9c883abee15407f40ebfdaf06f",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd552798_2992add8",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-01-09T15:08:23Z",
+      "side": 1,
+      "message": "The get can return 404 according to the yaml, but I agree with your idea that it\u0027s not a natural solution.",
+      "parentUuid": "d74b6e7b_3e0a66b6",
       "range": {
         "startLine": 167,
         "startChar": 0,
