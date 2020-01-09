@@ -86,7 +86,8 @@ public class StartupServiceTest {
             .thenReturn(fluxType1.concatWith(fluxType2));
         Flux<String> policies = Flux.just(new String[] {POLICY_ID_1, POLICY_ID_2});
         when(a1ClientMock.getPolicyIdentities(anyString())).thenReturn(policies);
-        when(a1ClientMock.deletePolicy(anyString(), anyString())).thenReturn(Mono.empty());
+        when(a1ClientMock.getPolicyType(anyString(), anyString())).thenReturn(Mono.just("Schema"));
+        when(a1ClientMock.deletePolicy(anyString(), anyString())).thenReturn(Mono.just("OK"));
 
         Rics rics = new Rics();
         PolicyTypes policyTypes = new PolicyTypes();
@@ -148,7 +149,8 @@ public class StartupServiceTest {
 
         Flux<String> policies = Flux.just(new String[] {POLICY_ID_1, POLICY_ID_2});
         doReturn(policies).when(a1ClientMock).getPolicyIdentities(anyString());
-        when(a1ClientMock.deletePolicy(anyString(), anyString())).thenReturn(Mono.empty());
+        when(a1ClientMock.getPolicyType(anyString(), anyString())).thenReturn(Mono.just("Schema"));
+        when(a1ClientMock.deletePolicy(anyString(), anyString())).thenReturn(Mono.just("OK"));
 
         Rics rics = new Rics();
         PolicyTypes policyTypes = new PolicyTypes();
@@ -175,10 +177,11 @@ public class StartupServiceTest {
         Flux<String> fluxType2 = Flux.just(POLICY_TYPE_2_NAME);
         when(a1ClientMock.getPolicyTypeIdentities(anyString())).thenReturn(fluxType1)
             .thenReturn(fluxType1.concatWith(fluxType2));
+        when(a1ClientMock.getPolicyType(anyString(), anyString())).thenReturn(Mono.just("Schema"));
         Flux<String> policies = Flux.just(new String[] {POLICY_ID_1, POLICY_ID_2});
         doReturn(Flux.error(new Exception("Unable to contact ric.")), policies).when(a1ClientMock)
             .getPolicyIdentities(anyString());
-        when(a1ClientMock.deletePolicy(anyString(), anyString())).thenReturn(Mono.empty());
+        when(a1ClientMock.deletePolicy(anyString(), anyString())).thenReturn(Mono.just("OK"));
 
         Rics rics = new Rics();
         PolicyTypes policyTypes = new PolicyTypes();

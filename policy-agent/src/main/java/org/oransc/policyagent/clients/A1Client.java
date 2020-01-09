@@ -33,6 +33,6 @@ public interface A1Client {
 
     public Mono<String> putPolicy(String nearRtRicUrl, String policyId, String policyString);
 
-    public Mono<Void> deletePolicy(String nearRtRicUrl, String policyId);
+    public Mono<String> deletePolicy(String nearRtRicUrl, String policyId);
 
 }

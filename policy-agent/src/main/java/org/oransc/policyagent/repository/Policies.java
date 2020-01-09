@@ -23,6 +23,7 @@ package org.oransc.policyagent.repository;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import org.oransc.policyagent.exceptions.ServiceException;
@@ -117,10 +118,10 @@ public class Policies {
         return policiesId.size();
     }
 
-    public void clear() {
-        for (String id : policiesId.keySet()) {
-            removeId(id);
+    public synchronized void clear() {
+        while (policiesId.size() > 0) {
+            Set<String> keys = policiesId.keySet();
+            removeId(keys.iterator().next());
         }
     }
-
 }

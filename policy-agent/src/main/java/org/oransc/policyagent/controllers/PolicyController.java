@@ -68,17 +68,46 @@ public class PolicyController {
         this.rics = rics;
     }
 
+    @GetMapping("/policy_schemas")
+    @ApiOperation(value = "Returns policy type schema definitions")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Policy Types found")})
+    public ResponseEntity<String> getPolicySchemas(@RequestParam(name = "ric", required = false) String ricName) {
+        if (ricName == null) {
+            Collection<PolicyType> types = this.policyTypes.getAll();
+            return new ResponseEntity<String>(toPolicyTypeSchemasJson(types), HttpStatus.OK);
+        } else {
+            try {
+                Collection<PolicyType> types = rics.getRic(ricName).getSupportedPolicyTypes();
+                return new ResponseEntity<String>(toPolicyTypeSchemasJson(types), HttpStatus.OK);
+            } catch (ServiceException e) {
+                return new ResponseEntity<String>(e.toString(), HttpStatus.NOT_FOUND);
+            }
+        }
+    }
+
+    @GetMapping("/policy_schema")
+    @ApiOperation(value = "Returns one policy type schema definition")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Policy Type found")})
+    public ResponseEntity<String> getPolicySchema(@RequestParam(name = "id", required = true) String id) {
+        try {
+            PolicyType type = policyTypes.getType(id);
+            return new ResponseEntity<String>(type.schema(), HttpStatus.OK);
+        } catch (ServiceException e) {
+            return new ResponseEntity<String>(e.toString(), HttpStatus.NOT_FOUND);
+        }
+    }
+
     @GetMapping("/policy_types")
-    @ApiOperation(value = "Returns all the policy types")
+    @ApiOperation(value = "Returns policy types")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Policy Types found")})
     public ResponseEntity<String> getPolicyTypes(@RequestParam(name = "ric", required = false) String ricName) {
         if (ricName == null) {
             Collection<PolicyType> types = this.policyTypes.getAll();
-            return new ResponseEntity<String>(policyTypesToJson(types), HttpStatus.OK);
+            return new ResponseEntity<String>(toPolicyTypeIdsJson(types), HttpStatus.OK);
         } else {
             try {
                 Collection<PolicyType> types = rics.getRic(ricName).getSupportedPolicyTypes();
-                return new ResponseEntity<String>(policyTypesToJson(types), HttpStatus.OK);
+                return new ResponseEntity<String>(toPolicyTypeIdsJson(types), HttpStatus.OK);
             } catch (ServiceException e) {
                 return new ResponseEntity<String>(e.toString(), HttpStatus.NOT_FOUND);
             }
@@ -112,7 +141,7 @@ public class PolicyController {
 
     @GetMapping("/policies")
     @ApiOperation(value = "Returns the policies")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Polcies found")})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Policies found")})
     public ResponseEntity<String> getPolicies( //
         @RequestParam(name = "type", required = false) String type, //
         @RequestParam(name = "ric", required = false) String ric, //
@@ -170,13 +199,25 @@ public class PolicyController {
         return gson.toJson(v);
     }
 
-    private String policyTypesToJson(Collection<PolicyType> types) {
-        Vector<PolicyTypeInfo> v = new Vector<>(types.size());
+    private String toPolicyTypeSchemasJson(Collection<PolicyType> types) {
+        StringBuilder result = new StringBuilder();
+        result.append("[");
+        boolean first = true;
         for (PolicyType t : types) {
-            PolicyTypeInfo policyInfo = ImmutablePolicyTypeInfo.builder() //
-                .name(t.name()) //
-                .build();
-            v.add(policyInfo);
+            if (!first) {
+                result.append(",");
+            }
+            first = false;
+            result.append(t.schema());
+        }
+        result.append("]");
+        return result.toString();
+    }
+
+    private String toPolicyTypeIdsJson(Collection<PolicyType> types) {
+        Vector<String> v = new Vector<>(types.size());
+        for (PolicyType t : types) {
+            v.add(t.name());
         }
         return gson.toJson(v);
     }

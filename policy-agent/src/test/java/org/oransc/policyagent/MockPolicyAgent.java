@@ -27,6 +27,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import org.junit.Test;
@@ -35,7 +37,6 @@ import org.oransc.policyagent.clients.A1Client;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.repository.ImmutablePolicyType;
 import org.oransc.policyagent.repository.Policies;
-import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Rics;
@@ -64,6 +65,7 @@ public class MockPolicyAgent {
     private PolicyTypes policyTypes;
 
     static class MockApplicationConfig extends ApplicationConfig {
+
         @Override
         public void initialize() {
             URL url = MockApplicationConfig.class.getClassLoader().getResource("test_application_configuration.json");
@@ -71,13 +73,36 @@ public class MockPolicyAgent {
         }
     }
 
-    static class A1ClientMock implements A1Client {
-        private final Policies policies;
-        private final PolicyTypes policyTypes;
+    private static class RicPolicyDatabase {
+        private Map<String, Map<String, String>> policies = new HashMap<>();
 
-        A1ClientMock(Policies policies, PolicyTypes policyTypes) {
-            this.policies = policies;
-            this.policyTypes = policyTypes;
+        public void putPolicy(String nearRtRicUrl, String policyId, String policyString) {
+            getPolicies(nearRtRicUrl).put(policyId, policyString);
+        }
+
+        public Iterable<String> getPolicyIdentities(String nearRtRicUrl) {
+            return getPolicies(nearRtRicUrl).keySet();
+        }
+
+        public void deletePolicy(String nearRtRicUrl, String policyId) {
+            getPolicies(nearRtRicUrl).remove(policyId);
+        }
+
+        private Map<String, String> getPolicies(String nearRtRicUrl) {
+            if (!policies.containsKey(nearRtRicUrl)) {
+                policies.put(nearRtRicUrl, new HashMap<>());
+            }
+            return policies.get(nearRtRicUrl);
+        }
+    }
+
+    static class A1ClientMock implements A1Client {
+
+        private final RicPolicyDatabase policies = new RicPolicyDatabase();
+        private final PolicyTypes policyTypes = new PolicyTypes();
+
+        A1ClientMock() {
+            loadTypes(this.policyTypes);
         }
 
         @Override
@@ -91,17 +116,14 @@ public class MockPolicyAgent {
 
         @Override
         public Flux<String> getPolicyIdentities(String nearRtRicUrl) {
-            Vector<String> result = new Vector<>();
-            for (Policy p : this.policies.getAll()) {
-                result.add(p.id());
-            }
+            Iterable<String> result = policies.getPolicyIdentities(nearRtRicUrl);
             return Flux.fromIterable(result);
         }
 
         @Override
         public Mono<String> getPolicyType(String nearRtRicUrl, String policyTypeId) {
             try {
-                return Mono.just(this.policyTypes.getType(policyTypeId).toString());
+                return Mono.just(this.policyTypes.getType(policyTypeId).schema());
             } catch (Exception e) {
                 return Mono.error(e);
             }
@@ -109,14 +131,40 @@ public class MockPolicyAgent {
 
         @Override
         public Mono<String> putPolicy(String nearRtRicUrl, String policyId, String policyString) {
+            policies.putPolicy(nearRtRicUrl, policyId, policyString);
             return Mono.just("OK");
         }
 
         @Override
-        public Mono<Void> deletePolicy(String nearRtRicUrl, String policyId) {
-            return Mono.error(new Exception("TODO We cannot use Void like this")); // TODO We cannot use Void like this
+        public Mono<String> deletePolicy(String nearRtRicUrl, String policyId) {
+            policies.deletePolicy(nearRtRicUrl, policyId);
+            return Mono.just("OK");
         }
 
+        private static File[] getResourceFolderFiles(String folder) {
+            ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            URL url = loader.getResource(folder);
+            String path = url.getPath();
+            return new File(path).listFiles();
+        }
+
+        private static String readFile(File file) throws IOException {
+            return new String(Files.readAllBytes(file.toPath()));
+        }
+
+        private void loadTypes(PolicyTypes policyTypes) {
+            File[] files = getResourceFolderFiles("policy_types/");
+            for (File file : files) {
+                try {
+                    String schema = readFile(file);
+                    String typeName = title(schema);
+                    PolicyType type = ImmutablePolicyType.builder().name(typeName).schema(schema).build();
+                    policyTypes.put(type);
+                } catch (Exception e) {
+                    System.out.println("Could not load json schema " + e);
+                }
+            }
+        }
     }
 
     /**
@@ -136,7 +184,7 @@ public class MockPolicyAgent {
 
         @Bean
         A1Client getA1Client() {
-            return new A1ClientMock(this.policies, this.policyTypes);
+            return new A1ClientMock();
         }
 
         @Bean
@@ -153,13 +201,12 @@ public class MockPolicyAgent {
         public Rics getRics() {
             return this.rics;
         }
-
     }
 
     @LocalServerPort
     private int port;
 
-    public void keepServerAlive() {
+    private void keepServerAlive() {
         System.out.println("Keeping server alive!");
         try {
             synchronized (this) {
@@ -170,40 +217,14 @@ public class MockPolicyAgent {
         }
     }
 
-    private static File[] getResourceFolderFiles(String folder) {
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        URL url = loader.getResource(folder);
-        String path = url.getPath();
-        return new File(path).listFiles();
-    }
-
-    private static String readFile(File file) throws IOException {
-        return new String(Files.readAllBytes(file.toPath()));
-    }
-
     private static String title(String jsonSchema) {
         JsonObject parsedSchema = (JsonObject) new JsonParser().parse(jsonSchema);
         String title = parsedSchema.get("title").getAsString();
         return title;
     }
 
-    private static void loadTypes(PolicyTypes policyTypes) {
-        File[] files = getResourceFolderFiles("policy_types/");
-        for (File file : files) {
-            try {
-                String schema = readFile(file);
-                String typeName = title(schema);
-                PolicyType type = ImmutablePolicyType.builder().name(typeName).build();
-                policyTypes.put(type);
-            } catch (Exception e) {
-                System.out.println("Could not load json schema " + e);
-            }
-        }
-    }
-
     @Test
     public void runMock() throws Exception {
-        loadTypes(this.policyTypes);
         keepServerAlive();
     }
 
