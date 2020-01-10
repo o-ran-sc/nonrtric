@@ -32,6 +32,8 @@ import static org.mockito.Mockito.when;
 import static org.oransc.policyagent.repository.Ric.RicState.ACTIVE;
 import static org.oransc.policyagent.repository.Ric.RicState.NOT_REACHABLE;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Vector;
 
 import org.junit.jupiter.api.Test;
@@ -44,11 +46,10 @@ import org.oransc.policyagent.clients.A1Client;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.configuration.ImmutableRicConfig;
 import org.oransc.policyagent.configuration.RicConfig;
+import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Rics;
-
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(MockitoExtension.class)
@@ -80,18 +81,18 @@ public class StartupServiceTest {
         ricConfigs.add(getRicConfig(SECOND_RIC_NAME, SECOND_RIC_URL, MANAGED_NODE_B, MANAGED_NODE_C));
         when(appConfigMock.getRicConfigs()).thenReturn(ricConfigs);
 
-        Flux<String> fluxType1 = Flux.just(POLICY_TYPE_1_NAME);
-        Flux<String> fluxType2 = Flux.just(POLICY_TYPE_2_NAME);
-        when(a1ClientMock.getPolicyTypeIdentities(anyString())).thenReturn(fluxType1)
-            .thenReturn(fluxType1.concatWith(fluxType2));
-        Flux<String> policies = Flux.just(new String[] {POLICY_ID_1, POLICY_ID_2});
+        Mono<Collection<String>> policyTypes1 = Mono.just(Arrays.asList(POLICY_TYPE_1_NAME));
+        Mono<Collection<String>> policyTypes2 = Mono.just(Arrays.asList(POLICY_TYPE_1_NAME, POLICY_TYPE_2_NAME));
+        when(a1ClientMock.getPolicyTypeIdentities(anyString())).thenReturn(policyTypes1).thenReturn(policyTypes2);
+        Mono<Collection<String>> policies = Mono.just(Arrays.asList(POLICY_ID_1, POLICY_ID_2));
         when(a1ClientMock.getPolicyIdentities(anyString())).thenReturn(policies);
         when(a1ClientMock.getPolicyType(anyString(), anyString())).thenReturn(Mono.just("Schema"));
         when(a1ClientMock.deletePolicy(anyString(), anyString())).thenReturn(Mono.just("OK"));
 
         Rics rics = new Rics();
         PolicyTypes policyTypes = new PolicyTypes();
-        StartupService serviceUnderTest = new StartupService(appConfigMock, rics, policyTypes, a1ClientMock);
+        StartupService serviceUnderTest =
+            new StartupService(appConfigMock, rics, policyTypes, a1ClientMock, new Policies());
 
         serviceUnderTest.startup();
 
@@ -117,7 +118,8 @@ public class StartupServiceTest {
             "Not correct no of types supported for ric " + FIRST_RIC_NAME);
         assertTrue(firstRic.isSupportingType(POLICY_TYPE_1_NAME),
             POLICY_TYPE_1_NAME + " not supported by ric " + FIRST_RIC_NAME);
-        assertEquals(1, firstRic.getManagedNodes().size(), "Not correct no of managed nodes for ric " + FIRST_RIC_NAME);
+        assertEquals(1, firstRic.getManagedElementIds().size(),
+            "Not correct no of managed nodes for ric " + FIRST_RIC_NAME);
         assertTrue(firstRic.isManaging(MANAGED_NODE_A), MANAGED_NODE_A + " not managed by ric " + FIRST_RIC_NAME);
 
         Ric secondRic = rics.get(SECOND_RIC_NAME);
@@ -130,7 +132,7 @@ public class StartupServiceTest {
             POLICY_TYPE_1_NAME + " not supported by ric " + SECOND_RIC_NAME);
         assertTrue(secondRic.isSupportingType(POLICY_TYPE_2_NAME),
             POLICY_TYPE_2_NAME + " not supported by ric " + SECOND_RIC_NAME);
-        assertEquals(2, secondRic.getManagedNodes().size(),
+        assertEquals(2, secondRic.getManagedElementIds().size(),
             "Not correct no of managed nodes for ric " + SECOND_RIC_NAME);
         assertTrue(secondRic.isManaging(MANAGED_NODE_B), MANAGED_NODE_B + " not managed by ric " + SECOND_RIC_NAME);
         assertTrue(secondRic.isManaging(MANAGED_NODE_C), MANAGED_NODE_C + " not managed by ric " + SECOND_RIC_NAME);
@@ -143,18 +145,19 @@ public class StartupServiceTest {
         ricConfigs.add(getRicConfig(SECOND_RIC_NAME, SECOND_RIC_URL, MANAGED_NODE_B, MANAGED_NODE_C));
         when(appConfigMock.getRicConfigs()).thenReturn(ricConfigs);
 
-        Flux<String> fluxType1 = Flux.just(POLICY_TYPE_1_NAME);
-        doReturn(Flux.error(new Exception("Unable to contact ric.")), fluxType1).when(a1ClientMock)
-            .getPolicyTypeIdentities(anyString());
+        Mono<Collection<String>> policyIdentities = Mono.just(Arrays.asList(POLICY_TYPE_1_NAME));
+        Mono<?> error = Mono.error(new Exception("Unable to contact ric."));
+        doReturn(error, policyIdentities).when(a1ClientMock).getPolicyTypeIdentities(anyString());
 
-        Flux<String> policies = Flux.just(new String[] {POLICY_ID_1, POLICY_ID_2});
+        Mono<Collection<String>> policies = Mono.just(Arrays.asList(POLICY_ID_1, POLICY_ID_2));
         doReturn(policies).when(a1ClientMock).getPolicyIdentities(anyString());
         when(a1ClientMock.getPolicyType(anyString(), anyString())).thenReturn(Mono.just("Schema"));
         when(a1ClientMock.deletePolicy(anyString(), anyString())).thenReturn(Mono.just("OK"));
 
         Rics rics = new Rics();
         PolicyTypes policyTypes = new PolicyTypes();
-        StartupService serviceUnderTest = new StartupService(appConfigMock, rics, policyTypes, a1ClientMock);
+        StartupService serviceUnderTest =
+            new StartupService(appConfigMock, rics, policyTypes, a1ClientMock, new Policies());
 
         serviceUnderTest.startup();
 
@@ -173,19 +176,19 @@ public class StartupServiceTest {
         ricConfigs.add(getRicConfig(SECOND_RIC_NAME, SECOND_RIC_URL, MANAGED_NODE_B, MANAGED_NODE_C));
         when(appConfigMock.getRicConfigs()).thenReturn(ricConfigs);
 
-        Flux<String> fluxType1 = Flux.just(POLICY_TYPE_1_NAME);
-        Flux<String> fluxType2 = Flux.just(POLICY_TYPE_2_NAME);
-        when(a1ClientMock.getPolicyTypeIdentities(anyString())).thenReturn(fluxType1)
-            .thenReturn(fluxType1.concatWith(fluxType2));
+        Mono<Collection<String>> policyTypes1 = Mono.just(Arrays.asList(POLICY_TYPE_1_NAME));
+        Mono<Collection<String>> policyTypes2 = Mono.just(Arrays.asList(POLICY_TYPE_1_NAME, POLICY_TYPE_2_NAME));
+        when(a1ClientMock.getPolicyTypeIdentities(anyString())).thenReturn(policyTypes1).thenReturn(policyTypes2);
         when(a1ClientMock.getPolicyType(anyString(), anyString())).thenReturn(Mono.just("Schema"));
-        Flux<String> policies = Flux.just(new String[] {POLICY_ID_1, POLICY_ID_2});
-        doReturn(Flux.error(new Exception("Unable to contact ric.")), policies).when(a1ClientMock)
+        Mono<Collection<String>> policies = Mono.just(Arrays.asList(POLICY_ID_1, POLICY_ID_2));
+        doReturn(Mono.error(new Exception("Unable to contact ric.")), policies).when(a1ClientMock)
             .getPolicyIdentities(anyString());
         when(a1ClientMock.deletePolicy(anyString(), anyString())).thenReturn(Mono.just("OK"));
 
         Rics rics = new Rics();
         PolicyTypes policyTypes = new PolicyTypes();
-        StartupService serviceUnderTest = new StartupService(appConfigMock, rics, policyTypes, a1ClientMock);
+        StartupService serviceUnderTest =
+            new StartupService(appConfigMock, rics, policyTypes, a1ClientMock, new Policies());
 
         serviceUnderTest.startup();
 
@@ -197,14 +200,19 @@ public class StartupServiceTest {
         assertEquals(ACTIVE, rics.get(SECOND_RIC_NAME).state(), "Not correct state for " + SECOND_RIC_NAME);
     }
 
-    private RicConfig getRicConfig(String name, String baseUrl, String... nodeNames) {
-        Vector<String> managedNodes = new Vector<String>(1);
-        for (String nodeName : nodeNames) {
-            managedNodes.add(nodeName);
+    @SafeVarargs
+    private <T> Vector<T> toVector(T... objs) {
+        Vector<T> result = new Vector<>();
+        for (T o : objs) {
+            result.add(o);
         }
+        return result;
+    }
+
+    private RicConfig getRicConfig(String name, String baseUrl, String... managedElementIds) {
         ImmutableRicConfig ricConfig = ImmutableRicConfig.builder() //
             .name(name) //
-            .managedElementIds(managedNodes) //
+            .managedElementIds(toVector(managedElementIds)) //
             .baseUrl(baseUrl) //
             .build();
         return ricConfig;

@@ -31,7 +31,7 @@ interface RicInfo {
 
     public String name();
 
-    public Collection<String> nodeNames();
+    public Collection<String> managedElementIds();
 
     public Collection<String> policyTypes();
 }

@@ -36,7 +36,6 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -74,10 +73,9 @@ public class A1ClientImplTest {
         Mono<String> policyTypeIds = Mono.just(Arrays.toString(new String[] {POLICY_TYPE_1_NAME, POLICY_TYPE_2_NAME}));
         when(asyncRestClientMock.get(POLICYTYPES_IDENTITIES_URL)).thenReturn(policyTypeIds);
 
-        Flux<String> policyTypeIdsFlux = a1Client.getPolicyTypeIdentities(RIC_URL);
+        Mono<?> policyTypeIdsFlux = a1Client.getPolicyTypeIdentities(RIC_URL);
         verify(asyncRestClientMock).get(POLICYTYPES_IDENTITIES_URL);
-        StepVerifier.create(policyTypeIdsFlux).expectNext(POLICY_TYPE_1_NAME, POLICY_TYPE_2_NAME).expectComplete()
-            .verify();
+        StepVerifier.create(policyTypeIdsFlux).expectNextCount(1).expectComplete().verify();
     }
 
     @Test
@@ -85,9 +83,9 @@ public class A1ClientImplTest {
         Mono<String> policyIds = Mono.just(Arrays.toString(new String[] {POLICY_1_ID, POLICY_2_ID}));
         when(asyncRestClientMock.get(POLICIES_IDENTITIES_URL)).thenReturn(policyIds);
 
-        Flux<String> policyIdsFlux = a1Client.getPolicyIdentities(RIC_URL);
+        Mono<?> policyIdsFlux = a1Client.getPolicyIdentities(RIC_URL);
         verify(asyncRestClientMock).get(POLICIES_IDENTITIES_URL);
-        StepVerifier.create(policyIdsFlux).expectNext(POLICY_1_ID, POLICY_2_ID).expectComplete().verify();
+        StepVerifier.create(policyIdsFlux).expectNextCount(1).expectComplete().verify();
     }
 
     @Test

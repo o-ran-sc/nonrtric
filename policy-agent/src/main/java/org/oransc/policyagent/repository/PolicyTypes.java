@@ -40,6 +40,10 @@ public class PolicyTypes {
         return t;
     }
 
+    public synchronized PolicyType get(String name) {
+        return types.get(name);
+    }
+
     public synchronized void put(PolicyType type) {
         types.put(type.name(), type);
     }

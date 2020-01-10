@@ -31,6 +31,7 @@ import io.swagger.annotations.ApiResponses;
 import java.util.Collection;
 import java.util.Vector;
 
+import org.oransc.policyagent.clients.A1Client;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.repository.ImmutablePolicy;
@@ -49,6 +50,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
 @RestController
 @Api(value = "Policy Management API")
@@ -57,15 +59,18 @@ public class PolicyController {
     private final Rics rics;
     private final PolicyTypes policyTypes;
     private final Policies policies;
+    private final A1Client a1Client;
+
     private static Gson gson = new GsonBuilder() //
         .serializeNulls() //
         .create(); //
 
     @Autowired
-    PolicyController(ApplicationConfig config, PolicyTypes types, Policies policies, Rics rics) {
+    PolicyController(ApplicationConfig config, PolicyTypes types, Policies policies, Rics rics, A1Client a1Client) {
         this.policyTypes = types;
         this.policies = policies;
         this.rics = rics;
+        this.a1Client = a1Client;
     }
 
     @GetMapping("/policy_schemas")
@@ -132,11 +137,48 @@ public class PolicyController {
     @DeleteMapping("/policy")
     @ApiOperation(value = "Deletes the policy")
     @ApiResponses(value = {@ApiResponse(code = 204, message = "Policy deleted")})
-    public ResponseEntity<Void> deletePolicy( //
-        @RequestParam(name = "instance", required = true) String instance) {
+    public Mono<ResponseEntity<Void>> deletePolicy( //
+        @RequestParam(name = "instance", required = true) String id) {
+        Policy policy = policies.get(id);
+        if (policy != null && policy.ric().state().equals(Ric.RicState.ACTIVE)) {
+            return a1Client.deletePolicy(policy.ric().getConfig().baseUrl(), id) //
+                .doOnEach(notUsed -> policies.removeId(id)) //
+                .flatMap(notUsed -> {
+                    return Mono.just(new ResponseEntity<>(HttpStatus.NO_CONTENT));
+                });
+        } else {
+            return Mono.just(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        }
+    }
 
-        policies.removeId(instance);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    @PutMapping(path = "/policy")
+    @ApiOperation(value = "Create the policy")
+    @ApiResponses(value = {@ApiResponse(code = 201, message = "Policy created")})
+    public Mono<ResponseEntity<String>> putPolicy( //
+        @RequestParam(name = "type", required = true) String typeName, //
+        @RequestParam(name = "instance", required = true) String instanceId, //
+        @RequestParam(name = "ric", required = true) String ricName, //
+        @RequestParam(name = "service", required = true) String service, //
+        @RequestBody String jsonBody) {
+
+        Ric ric = rics.get(ricName);
+        PolicyType type = policyTypes.get(typeName);
+        if (ric != null && type != null && ric.state().equals(Ric.RicState.ACTIVE)) {
+            Policy policy = ImmutablePolicy.builder() //
+                .id(instanceId) //
+                .json(jsonBody) //
+                .type(type) //
+                .ric(ric) //
+                .ownerServiceName(service) //
+                .lastModified(getTimeStampUTC()) //
+                .build();
+            return a1Client.putPolicy(policy.ric().getConfig().baseUrl(), policy.id(), policy.json()) //
+                .doOnNext(notUsed -> policies.put(policy)) //
+                .flatMap(notUsed -> {
+                    return Mono.just(new ResponseEntity<>(HttpStatus.CREATED));
+                });
+        }
+        return Mono.just(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @GetMapping("/policies")
@@ -224,34 +266,6 @@ public class PolicyController {
 
     private String getTimeStampUTC() {
         return java.time.Instant.now().toString();
-    }
-
-    @PutMapping(path = "/policy")
-    @ApiOperation(value = "Create the policy")
-    @ApiResponses(value = {@ApiResponse(code = 201, message = "Policy created")})
-    public ResponseEntity<String> putPolicy( //
-        @RequestParam(name = "type", required = true) String type, //
-        @RequestParam(name = "instance", required = true) String instanceId, //
-        @RequestParam(name = "ric", required = true) String ric, //
-        @RequestParam(name = "service", required = true) String service, //
-        @RequestBody String jsonBody) {
-
-        try {
-            // services.getService(service).ping();
-            Ric ricObj = rics.getRic(ric);
-            Policy policy = ImmutablePolicy.builder() //
-                .id(instanceId) //
-                .json(jsonBody) //
-                .type(policyTypes.getType(type)) //
-                .ric(ricObj) //
-                .ownerServiceName(service) //
-                .lastModified(getTimeStampUTC()) //
-                .build();
-            policies.put(policy);
-            return new ResponseEntity<String>(HttpStatus.CREATED);
-        } catch (ServiceException e) {
-            return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
-        }
     }
 
 }

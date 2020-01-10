@@ -99,7 +99,7 @@ public class RicRepositoryController {
             if (supportingPolicyType == null || ric.isSupportingType(supportingPolicyType)) {
                 result.add(ImmutableRicInfo.builder() //
                     .name(ric.name()) //
-                    .nodeNames(ric.getManagedNodes()) //
+                    .managedElementIds(ric.getManagedElementIds()) //
                     .policyTypes(ric.getSupportedPolicyTypeNames()) //
                     .build());
             }

@@ -29,11 +29,13 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.oransc.policyagent.clients.A1Client;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.configuration.ImmutableRicConfig;
 import org.oransc.policyagent.configuration.RicConfig;
@@ -61,6 +63,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
+import reactor.core.publisher.Mono;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -89,11 +92,57 @@ public class ApplicationTest {
         }
     }
 
+    static class A1ClientMock implements A1Client {
+        private final Policies policies;
+        private final PolicyTypes policyTypes;
+
+        A1ClientMock(Policies policies, PolicyTypes policyTypes) {
+            this.policies = policies;
+            this.policyTypes = policyTypes;
+        }
+
+        @Override
+        public Mono<Collection<String>> getPolicyTypeIdentities(String nearRtRicUrl) {
+            Vector<String> result = new Vector<>();
+            for (PolicyType p : this.policyTypes.getAll()) {
+                result.add(p.name());
+            }
+            return Mono.just(result);
+        }
+
+        @Override
+        public Mono<String> getPolicyType(String nearRtRicUrl, String policyTypeId) {
+            try {
+                return Mono.just(this.policies.get(policyTypeId).json());
+            } catch (Exception e) {
+                return Mono.error(e);
+            }
+        }
+
+        @Override
+        public Mono<String> putPolicy(String nearRtRicUrl, String policyId, String policyString) {
+            return Mono.just("OK");
+        }
+
+        @Override
+        public Mono<String> deletePolicy(String nearRtRicUrl, String policyId) {
+            return Mono.just("OK");
+        }
+
+        @Override
+        public Mono<Collection<String>> getPolicyIdentities(String nearRtRicUrl) {
+            return Mono.empty(); // problem is that a recovery will start
+        }
+    }
+
     /**
      * Overrides the BeanFactory.
      */
     @TestConfiguration
     static class TestBeanFactory {
+        private final Rics rics = new Rics();
+        private final Policies policies = new Policies();
+        private final PolicyTypes policyTypes = new PolicyTypes();
 
         @Bean
         public ApplicationConfig getApplicationConfig() {
@@ -101,13 +150,23 @@ public class ApplicationTest {
         }
 
         @Bean
+        A1Client getA1Client() {
+            return new A1ClientMock(this.policies, this.policyTypes);
+        }
+
+        @Bean
+        public Policies getPolicies() {
+            return this.policies;
+        }
+
+        @Bean
+        public PolicyTypes getPolicyTypes() {
+            return this.policyTypes;
+        }
+
+        @Bean
         public Rics getRics() {
-            Rics rics = new Rics();
-            rics.put(new Ric(ImmutableRicConfig.builder().name("kista_1").baseUrl("kista_url")
-                .managedElementIds(new Vector<>()).build()));
-            rics.put(new Ric(ImmutableRicConfig.builder().name("ric1").baseUrl("ric_url")
-                .managedElementIds(new Vector<>()).build()));
-            return rics;
+            return this.rics;
         }
     }
 
@@ -146,8 +205,6 @@ public class ApplicationTest {
         assertThat(rsp).isEqualTo("ric1");
     }
 
-    // managedElmentId -> nodeName
-
     @Test
     public void testPutPolicy() throws Exception {
         putService("service1");
@@ -155,6 +212,7 @@ public class ApplicationTest {
         String url = baseUrl() + "/policy?type=type1&instance=instance1&ric=ric1&service=service1";
         String json = "{}";
         addPolicyType("type1", "ric1");
+        this.rics.getRic("ric1").setState(Ric.RicState.ACTIVE);
 
         this.restTemplate.put(url, json);
 
@@ -234,7 +292,8 @@ public class ApplicationTest {
     public void testDeletePolicy() throws Exception {
         reset();
         String url = baseUrl() + "/policy?instance=id";
-        addPolicy("id", "typeName", "service1", "ric1");
+        Policy policy = addPolicy("id", "typeName", "service1", "ric1");
+        policy.ric().setState(Ric.RicState.ACTIVE);
         assertThat(policies.size()).isEqualTo(1);
 
         this.restTemplate.delete(url);

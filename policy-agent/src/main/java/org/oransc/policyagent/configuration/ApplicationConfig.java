@@ -109,7 +109,7 @@ public class ApplicationConfig {
         loadConfigurationFromFile(this.filepath);
 
         refreshConfigTask = createRefreshTask() //
-            .subscribe(e -> logger.info("Refreshed configuration data"),
+            .subscribe(notUsed -> logger.info("Refreshed configuration data"),
                 throwable -> logger.error("Configuration refresh terminated due to exception", throwable),
                 () -> logger.error("Configuration refresh terminated"));
     }
