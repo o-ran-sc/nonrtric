@@ -22,6 +22,30 @@
       "revId": "dc79de0b04412355a8ceda856fd550885f0d7a58",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "537b43de_6d916ea6",
+        "filename": "near-rt-ric-simulator/simulator-group/docker-compose.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1000211
+      },
+      "writtenOn": "2020-01-13T12:12:18Z",
+      "side": 1,
+      "message": "this is correct, it is not related to container name. It is just a directory in the repo. In fact we dont have to change the project name, it is enough to just change the released container name.",
+      "parentUuid": "8990300c_888a94d5",
+      "range": {
+        "startLine": 25,
+        "startChar": 7,
+        "endLine": 25,
+        "endChar": 50
+      },
+      "revId": "dc79de0b04412355a8ceda856fd550885f0d7a58",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
