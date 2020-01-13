@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "601b2647_35db33f0",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RepositorySupervision.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-01-13T14:40:04Z",
+      "side": 1,
+      "message": "Never used, should be removed",
+      "range": {
+        "startLine": 84,
+        "startChar": 22,
+        "endLine": 84,
+        "endChar": 26
+      },
+      "revId": "b47a7130c10bef2bf812366ca971e4eaa938b152",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41d91cab_ac28af9b",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/MockPolicyAgent.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-01-13T14:40:04Z",
+      "side": 1,
+      "message": "I get a warning in my Eclipse that these fields are never used. If this is the case they should be removed.",
+      "range": {
+        "startLine": 57,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 36
+      },
+      "revId": "b47a7130c10bef2bf812366ca971e4eaa938b152",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
