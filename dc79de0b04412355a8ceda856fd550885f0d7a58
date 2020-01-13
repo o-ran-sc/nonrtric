@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8990300c_888a94d5",
+        "filename": "near-rt-ric-simulator/simulator-group/docker-compose.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-01-13T12:07:50Z",
+      "side": 1,
+      "message": "not sure this is correct ...",
+      "range": {
+        "startLine": 25,
+        "startChar": 7,
+        "endLine": 25,
+        "endChar": 50
+      },
+      "revId": "dc79de0b04412355a8ceda856fd550885f0d7a58",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
