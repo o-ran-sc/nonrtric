@@ -46,6 +46,30 @@
       "revId": "dc79de0b04412355a8ceda856fd550885f0d7a58",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13b901f9_75cebec3",
+        "filename": "near-rt-ric-simulator/simulator-group/docker-compose.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1000211
+      },
+      "writtenOn": "2020-01-13T12:21:19Z",
+      "side": 1,
+      "message": "just double checked, it is a generated file from docker compose, I will remove it.",
+      "parentUuid": "537b43de_6d916ea6",
+      "range": {
+        "startLine": 25,
+        "startChar": 7,
+        "endLine": 25,
+        "endChar": 50
+      },
+      "revId": "dc79de0b04412355a8ceda856fd550885f0d7a58",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
