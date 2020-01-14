@@ -45,45 +45,45 @@ import org.springframework.context.ApplicationContext;
  */
 public class PortalRestCentralServiceImpl implements IPortalRestCentralService {
 
-	private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	private final PortalAuthManager authManager;
-	private final DashboardUserManager userManager;
+    private final PortalAuthManager authManager;
+    private final DashboardUserManager userManager;
 
-	public PortalRestCentralServiceImpl() throws IOException, PortalAPIException {
-		final ApplicationContext context = SpringContextCache.getApplicationContext();
-		authManager = (PortalAuthManager) context.getBean(PortalAuthManager.class);
-		userManager = (DashboardUserManager) context.getBean(DashboardUserManager.class);
-	}
+    public PortalRestCentralServiceImpl() throws IOException, PortalAPIException {
+        final ApplicationContext context = SpringContextCache.getApplicationContext();
+        authManager = (PortalAuthManager) context.getBean(PortalAuthManager.class);
+        userManager = (DashboardUserManager) context.getBean(DashboardUserManager.class);
+    }
 
-	/*
-	 * Answers the Portal API credentials.
-	 */
-	@Override
-	public Map<String, String> getAppCredentials() throws PortalAPIException {
-		logger.debug("getAppCredentials");
-		return authManager.getAppCredentials();
-	}
+    /*
+     * Answers the Portal API credentials.
+     */
+    @Override
+    public Map<String, String> getAppCredentials() throws PortalAPIException {
+        logger.debug("getAppCredentials");
+        return authManager.getAppCredentials();
+    }
 
-	/*
-	 * Extracts the user ID from a cookie in the header
-	 */
-	@Override
-	public String getUserId(HttpServletRequest request) throws PortalAPIException {
-		logger.debug("getuserId");
-		return authManager.validateEcompSso(request);
-	}
+    /*
+     * Extracts the user ID from a cookie in the header
+     */
+    @Override
+    public String getUserId(HttpServletRequest request) throws PortalAPIException {
+        logger.debug("getuserId");
+        return authManager.validateEcompSso(request);
+    }
 
-	@Override
-	public void pushUser(EcompUser user) throws PortalAPIException {
-		logger.debug("pushUser: {}", user);
-		userManager.createUser(user);
-	}
+    @Override
+    public void pushUser(EcompUser user) throws PortalAPIException {
+        logger.debug("pushUser: {}", user);
+        userManager.createUser(user);
+    }
 
-	@Override
-	public void editUser(String loginId, EcompUser user) throws PortalAPIException {
-		logger.debug("editUser: {}", user);
-		userManager.updateUser(loginId, user);
-	}
+    @Override
+    public void editUser(String loginId, EcompUser user) throws PortalAPIException {
+        logger.debug("editUser: {}", user);
+        userManager.updateUser(loginId, user);
+    }
 
 }

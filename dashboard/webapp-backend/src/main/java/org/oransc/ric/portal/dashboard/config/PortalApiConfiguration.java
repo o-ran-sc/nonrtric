@@ -34,24 +34,24 @@ import org.springframework.context.annotation.Profile;
 @Profile("!test")
 public class PortalApiConfiguration {
 
-	private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	/**
-	 * Instantiates the EPSDK-FW servlet that implements the API called by Portal.
-	 * Needed because this app is not configured to scan the EPSDK-FW packages;
-	 * there's also a chance that Spring-Boot does not automatically
-	 * process @WebServlet annotations.
-	 * 
-	 * @return Servlet registration bean for the Portal Rest API proxy servlet.
-	 */
-	@Bean
-	public ServletRegistrationBean<PortalRestAPIProxy> portalApiProxyServletBean() {
-		logger.debug("portalApiProxyServletBean");
-		PortalRestAPIProxy servlet = new PortalRestAPIProxy();
-		final ServletRegistrationBean<PortalRestAPIProxy> servletBean = new ServletRegistrationBean<>(servlet,
-				PortalApiConstants.API_PREFIX + "/*");
-		servletBean.setName("PortalRestApiProxyServlet");
-		return servletBean;
-	}
+    /**
+     * Instantiates the EPSDK-FW servlet that implements the API called by Portal.
+     * Needed because this app is not configured to scan the EPSDK-FW packages;
+     * there's also a chance that Spring-Boot does not automatically
+     * process @WebServlet annotations.
+     * 
+     * @return Servlet registration bean for the Portal Rest API proxy servlet.
+     */
+    @Bean
+    public ServletRegistrationBean<PortalRestAPIProxy> portalApiProxyServletBean() {
+        logger.debug("portalApiProxyServletBean");
+        PortalRestAPIProxy servlet = new PortalRestAPIProxy();
+        final ServletRegistrationBean<PortalRestAPIProxy> servletBean =
+            new ServletRegistrationBean<>(servlet, PortalApiConstants.API_PREFIX + "/*");
+        servletBean.setName("PortalRestApiProxyServlet");
+        return servletBean;
+    }
 
 }

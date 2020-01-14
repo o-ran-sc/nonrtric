@@ -21,43 +21,43 @@ package org.oransc.ric.portal.dashboard.model;
 
 public class SuccessTransport implements IDashboardResponse {
 
-	private int status;
-	private Object data;
+    private int status;
+    private Object data;
 
-	/**
-	 * Builds an empty object
-	 */
-	public SuccessTransport() {
-		// no-arg constructor
-	}
+    /**
+     * Builds an empty object
+     */
+    public SuccessTransport() {
+        // no-arg constructor
+    }
 
-	/**
-	 * Builds an object with the specified values.
-	 * 
-	 * @param status
-	 *                   Status code
-	 * @param data
-	 *                   Data to transport
-	 */
-	public SuccessTransport(int status, Object data) {
-		this.status = status;
-		this.data = data;
-	}
+    /**
+     * Builds an object with the specified values.
+     * 
+     * @param status
+     *        Status code
+     * @param data
+     *        Data to transport
+     */
+    public SuccessTransport(int status, Object data) {
+        this.status = status;
+        this.data = data;
+    }
 
-	public int getStatus() {
-		return status;
-	}
+    public int getStatus() {
+        return status;
+    }
 
-	public void setStatus(int status) {
-		this.status = status;
-	}
+    public void setStatus(int status) {
+        this.status = status;
+    }
 
-	public Object getData() {
-		return data;
-	}
+    public Object getData() {
+        return data;
+    }
 
-	public void setData(Object data) {
-		this.data = data;
-	}
+    public void setData(Object data) {
+        this.data = data;
+    }
 
 }

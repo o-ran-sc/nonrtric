@@ -32,54 +32,54 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 public class EcompUserDetails implements UserDetails {
 
-	private static final long serialVersionUID = 1L;
-	private final EcompUser ecompUser;
+    private static final long serialVersionUID = 1L;
+    private final EcompUser ecompUser;
 
-	// This is the default Spring role-name prefix.
-	private static final String ROLEP = "ROLE_";
+    // This is the default Spring role-name prefix.
+    private static final String ROLEP = "ROLE_";
 
-	public EcompUserDetails(EcompUser ecompUser) {
-		this.ecompUser = ecompUser;
-	}
+    public EcompUserDetails(EcompUser ecompUser) {
+        this.ecompUser = ecompUser;
+    }
 
-	/*
-	 * Gets a list of authorities (roles) for this user. To keep Spring happy, every
-	 * item has prefix ROLE_.
-	 */
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		List<GrantedAuthority> roleList = new ArrayList<>();
-		Iterator<EcompRole> roleIter = ecompUser.getRoles().iterator();
-		while (roleIter.hasNext()) {
-			EcompRole role = roleIter.next();
-			// Add the prefix if the ONAP portal doesn't supply it.
-			final String roleName = role.getName().startsWith(ROLEP) ? role.getName() : ROLEP + role.getName();
-			roleList.add(new SimpleGrantedAuthority(roleName));
-		}
-		return roleList;
-	}
+    /*
+     * Gets a list of authorities (roles) for this user. To keep Spring happy, every
+     * item has prefix ROLE_.
+     */
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<GrantedAuthority> roleList = new ArrayList<>();
+        Iterator<EcompRole> roleIter = ecompUser.getRoles().iterator();
+        while (roleIter.hasNext()) {
+            EcompRole role = roleIter.next();
+            // Add the prefix if the ONAP portal doesn't supply it.
+            final String roleName = role.getName().startsWith(ROLEP) ? role.getName() : ROLEP + role.getName();
+            roleList.add(new SimpleGrantedAuthority(roleName));
+        }
+        return roleList;
+    }
 
-	public String getPassword() {
-		return null;
-	}
+    public String getPassword() {
+        return null;
+    }
 
-	public String getUsername() {
-		return ecompUser.getLoginId();
-	}
+    public String getUsername() {
+        return ecompUser.getLoginId();
+    }
 
-	public boolean isAccountNonExpired() {
-		return true;
-	}
+    public boolean isAccountNonExpired() {
+        return true;
+    }
 
-	public boolean isAccountNonLocked() {
-		return true;
-	}
+    public boolean isAccountNonLocked() {
+        return true;
+    }
 
-	public boolean isCredentialsNonExpired() {
-		return true;
-	}
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
 
-	public boolean isEnabled() {
-		return ecompUser.isActive();
-	}
+    public boolean isEnabled() {
+        return ecompUser.isActive();
+    }
 
 }

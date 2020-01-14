@@ -44,69 +44,69 @@ import org.springframework.web.util.UriComponentsBuilder;
 @ActiveProfiles("test")
 public class AbstractControllerTest {
 
-	private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	// Created by Spring black magic
-	// https://spring.io/guides/gs/testing-web/
-	@LocalServerPort
-	private int localServerPort;
+    // Created by Spring black magic
+    // https://spring.io/guides/gs/testing-web/
+    @LocalServerPort
+    private int localServerPort;
 
-	@Autowired
-	protected TestRestTemplate restTemplate;
+    @Autowired
+    protected TestRestTemplate restTemplate;
 
-	/**
-	 * Flexible URI builder.
-	 * 
-	 * @param queryParams
-	 *                        Map of string-string query parameters
-	 * @param path
-	 *                        Array of path components. If a component has an
-	 *                        embedded slash, the string is split and each
-	 *                        subcomponent is added individually.
-	 * @return URI
-	 */
-	protected URI buildUri(final Map<String, String> queryParams, final String... path) {
-		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("http://localhost:" + localServerPort + "/");
-		for (int p = 0; p < path.length; ++p) {
-			if (path[p] == null || path[p].isEmpty()) {
-				throw new IllegalArgumentException("Unexpected null or empty at path index " + Integer.toString(p));
-			} else if (path[p].contains("/")) {
-				String[] subpaths = path[p].split("/");
-				for (String s : subpaths)
-					if (!s.isEmpty())
-						builder.pathSegment(s);
-			} else {
-				builder.pathSegment(path[p]);
-			}
-		}
-		if (queryParams != null && queryParams.size() > 0) {
-			for (Map.Entry<String, String> entry : queryParams.entrySet()) {
-				if (entry.getKey() == null || entry.getValue() == null)
-					throw new IllegalArgumentException("Unexpected null key or value");
-				else
-					builder.queryParam(entry.getKey(), entry.getValue());
-			}
-		}
-		return builder.build().encode().toUri();
-	}
+    /**
+     * Flexible URI builder.
+     * 
+     * @param queryParams
+     *        Map of string-string query parameters
+     * @param path
+     *        Array of path components. If a component has an
+     *        embedded slash, the string is split and each
+     *        subcomponent is added individually.
+     * @return URI
+     */
+    protected URI buildUri(final Map<String, String> queryParams, final String... path) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("http://localhost:" + localServerPort + "/");
+        for (int p = 0; p < path.length; ++p) {
+            if (path[p] == null || path[p].isEmpty()) {
+                throw new IllegalArgumentException("Unexpected null or empty at path index " + Integer.toString(p));
+            } else if (path[p].contains("/")) {
+                String[] subpaths = path[p].split("/");
+                for (String s : subpaths)
+                    if (!s.isEmpty())
+                        builder.pathSegment(s);
+            } else {
+                builder.pathSegment(path[p]);
+            }
+        }
+        if (queryParams != null && queryParams.size() > 0) {
+            for (Map.Entry<String, String> entry : queryParams.entrySet()) {
+                if (entry.getKey() == null || entry.getValue() == null)
+                    throw new IllegalArgumentException("Unexpected null key or value");
+                else
+                    builder.queryParam(entry.getKey(), entry.getValue());
+            }
+        }
+        return builder.build().encode().toUri();
+    }
 
-	// Because I put the annotations on this parent class,
-	// must define at least one test here.
-	@Test
-	public void contextLoads() {
-		// Silence Sonar warning about missing assertion.
-		Assertions.assertTrue(logger.isWarnEnabled());
-		logger.info("Context loads on mock profile");
-	}
+    // Because I put the annotations on this parent class,
+    // must define at least one test here.
+    @Test
+    public void contextLoads() {
+        // Silence Sonar warning about missing assertion.
+        Assertions.assertTrue(logger.isWarnEnabled());
+        logger.info("Context loads on mock profile");
+    }
 
-	public TestRestTemplate testRestTemplateAdminRole() {
-		return restTemplate.withBasicAuth(WebSecurityMockConfiguration.TEST_CRED_ADMIN,
-				WebSecurityMockConfiguration.TEST_CRED_ADMIN);
-	}
+    public TestRestTemplate testRestTemplateAdminRole() {
+        return restTemplate.withBasicAuth(WebSecurityMockConfiguration.TEST_CRED_ADMIN,
+            WebSecurityMockConfiguration.TEST_CRED_ADMIN);
+    }
 
-	public TestRestTemplate testRestTemplateStandardRole() {
-		return restTemplate.withBasicAuth(WebSecurityMockConfiguration.TEST_CRED_STANDARD,
-				WebSecurityMockConfiguration.TEST_CRED_STANDARD);
-	}
+    public TestRestTemplate testRestTemplateStandardRole() {
+        return restTemplate.withBasicAuth(WebSecurityMockConfiguration.TEST_CRED_STANDARD,
+            WebSecurityMockConfiguration.TEST_CRED_STANDARD);
+    }
 
 }

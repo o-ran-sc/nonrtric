@@ -50,142 +50,142 @@ import org.springframework.web.client.RestClientException;
 @TestConfiguration
 public class PolicyControllerMockConfiguration {
 
-	private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	@Bean
-	public PolicyAgentApi policyAgentApi() {
-		MockPolicyAgentApi apiClient = new MockPolicyAgentApi();
-		return apiClient;
-	}
+    @Bean
+    public PolicyAgentApi policyAgentApi() {
+        MockPolicyAgentApi apiClient = new MockPolicyAgentApi();
+        return apiClient;
+    }
 
-	class MockPolicyAgentApi implements PolicyAgentApi {
-		private final Database database = new Database();
+    class MockPolicyAgentApi implements PolicyAgentApi {
+        private final Database database = new Database();
 
-		@Override
-		public String getPolicyInstance(String id) throws RestClientException {
-			return database.getInstance(id);
-		}
+        @Override
+        public String getPolicyInstance(String id) throws RestClientException {
+            return database.getInstance(id);
+        }
 
-		@Override
-		public void putPolicy(String policyTypeIdString, String policyInstanceId, String json, String ric)
-				throws RestClientException {
-			database.putInstance(policyTypeIdString, policyInstanceId, json, ric);
-		}
+        @Override
+        public void putPolicy(String policyTypeIdString, String policyInstanceId, String json, String ric)
+            throws RestClientException {
+            database.putInstance(policyTypeIdString, policyInstanceId, json, ric);
+        }
 
-		@Override
-		public void deletePolicy(String policyInstanceId) throws RestClientException {
-			database.deleteInstance(policyInstanceId);
-		}
+        @Override
+        public void deletePolicy(String policyInstanceId) throws RestClientException {
+            database.deleteInstance(policyInstanceId);
+        }
 
-		@Override
-		public PolicyTypes getAllPolicyTypes() throws RestClientException {
-			PolicyTypes result = new PolicyTypes();
-			result.addAll(database.getTypes());
-			return result;
-		}
+        @Override
+        public PolicyTypes getAllPolicyTypes() throws RestClientException {
+            PolicyTypes result = new PolicyTypes();
+            result.addAll(database.getTypes());
+            return result;
+        }
 
-		@Override
-		public PolicyInstances getPolicyInstancesForType(String type) {
-			PolicyInstances result = new PolicyInstances();
-			List<PolicyInfo> inst = database.getInstances(Optional.of(type));
-			result.addAll(inst);
-			return result;
-		}
+        @Override
+        public PolicyInstances getPolicyInstancesForType(String type) {
+            PolicyInstances result = new PolicyInstances();
+            List<PolicyInfo> inst = database.getInstances(Optional.of(type));
+            result.addAll(inst);
+            return result;
+        }
 
-		@Override
-		public Collection<String> getRicsSupportingType(String typeName) {
-			Vector<String> res = new Vector<>();
-			res.add("ric_1");
-			res.add("ric_2");
-			res.add("ric_3");
-			return res;
-		}
-	}
+        @Override
+        public Collection<String> getRicsSupportingType(String typeName) {
+            Vector<String> res = new Vector<>();
+            res.add("ric_1");
+            res.add("ric_2");
+            res.add("ric_3");
+            return res;
+        }
+    }
 
-	class Database {
+    class Database {
 
-		Database() {
-			String schema = getStringFromFile("anr-policy-schema.json");
-			PolicyType policy = new PolicyType("ANR", schema);
-			types.put("ANR", policy);
+        Database() {
+            String schema = getStringFromFile("anr-policy-schema.json");
+            PolicyType policy = new PolicyType("ANR", schema);
+            types.put("ANR", policy);
 
-			schema = getStringFromFile("demo-policy-schema-1.json");
-			policy = new PolicyType("type2", schema);
-			types.put("type2", policy);
+            schema = getStringFromFile("demo-policy-schema-1.json");
+            policy = new PolicyType("type2", schema);
+            types.put("type2", policy);
 
-			schema = getStringFromFile("demo-policy-schema-2.json");
-			policy = new PolicyType("type3", schema);
-			types.put("type3", policy);
+            schema = getStringFromFile("demo-policy-schema-2.json");
+            policy = new PolicyType("type3", schema);
+            types.put("type3", policy);
 
-			schema = getStringFromFile("demo-policy-schema-3.json");
-			policy = new PolicyType("type4", schema);
-			types.put("type4", policy);
-			try {
-				putInstance("ANR", "ANR-1", getStringFromFile("anr-policy-instance.json"), "ric_1");
-			} catch (Exception e) {
-				// Nothing
-			}
-		}
+            schema = getStringFromFile("demo-policy-schema-3.json");
+            policy = new PolicyType("type4", schema);
+            types.put("type4", policy);
+            try {
+                putInstance("ANR", "ANR-1", getStringFromFile("anr-policy-instance.json"), "ric_1");
+            } catch (Exception e) {
+                // Nothing
+            }
+        }
 
-		private String getStringFromFile(String path) {
-			try {
-				InputStream inputStream = MethodHandles.lookup().lookupClass().getClassLoader()
-						.getResourceAsStream(path);
-				return new BufferedReader(new InputStreamReader(inputStream)).lines().collect(Collectors.joining("\n"));
-			} catch (Exception e) {
-				logger.error("Cannot read file :" + path, e);
-				return "";
-			}
-		}
+        private String getStringFromFile(String path) {
+            try {
+                InputStream inputStream =
+                    MethodHandles.lookup().lookupClass().getClassLoader().getResourceAsStream(path);
+                return new BufferedReader(new InputStreamReader(inputStream)).lines().collect(Collectors.joining("\n"));
+            } catch (Exception e) {
+                logger.error("Cannot read file :" + path, e);
+                return "";
+            }
+        }
 
-		String normalize(String str) {
-			return str.replace('\n', ' ');
-		}
+        String normalize(String str) {
+            return str.replace('\n', ' ');
+        }
 
-		private String getTimeStampUTC() {
-			return java.time.Instant.now().toString();
-		}
+        private String getTimeStampUTC() {
+            return java.time.Instant.now().toString();
+        }
 
-		void putInstance(String typeId, String instanceId, String instanceData, String ric) {
-			PolicyInfo i = ImmutablePolicyInfo.builder().json(instanceData).lastModified(getTimeStampUTC())
-					.id(instanceId).ric(ric).service("service").type(typeId).build();
-			instances.put(instanceId, i);
-		}
+        void putInstance(String typeId, String instanceId, String instanceData, String ric) {
+            PolicyInfo i = ImmutablePolicyInfo.builder().json(instanceData).lastModified(getTimeStampUTC())
+                .id(instanceId).ric(ric).service("service").type(typeId).build();
+            instances.put(instanceId, i);
+        }
 
-		public void deleteInstance(String instanceId) {
-			instances.remove(instanceId);
-		}
+        public void deleteInstance(String instanceId) {
+            instances.remove(instanceId);
+        }
 
-		String getInstance(String id) throws RestClientException {
-			PolicyInfo i = instances.get(id);
-			if (i == null) {
-				throw new RestClientException("Type not found: " + id);
-			}
-			return i.json();
-		}
+        String getInstance(String id) throws RestClientException {
+            PolicyInfo i = instances.get(id);
+            if (i == null) {
+                throw new RestClientException("Type not found: " + id);
+            }
+            return i.json();
+        }
 
-		public Collection<PolicyType> getTypes() {
-			return types.values();
-		}
+        public Collection<PolicyType> getTypes() {
+            return types.values();
+        }
 
-		public List<PolicyInfo> getInstances(Optional<String> typeId) {
-			ArrayList<PolicyInfo> result = new ArrayList<>();
-			for (PolicyInfo i : instances.values()) {
-				if (typeId.isPresent()) {
-					if (i.type().equals(typeId.get())) {
-						result.add(i);
-					}
+        public List<PolicyInfo> getInstances(Optional<String> typeId) {
+            ArrayList<PolicyInfo> result = new ArrayList<>();
+            for (PolicyInfo i : instances.values()) {
+                if (typeId.isPresent()) {
+                    if (i.type().equals(typeId.get())) {
+                        result.add(i);
+                    }
 
-				} else {
-					result.add(i);
-				}
-			}
-			return result;
-		}
+                } else {
+                    result.add(i);
+                }
+            }
+            return result;
+        }
 
-		private Map<String, PolicyType> types = new HashMap<>();
-		private Map<String, PolicyInfo> instances = new HashMap<>();
+        private Map<String, PolicyType> types = new HashMap<>();
+        private Map<String, PolicyInfo> instances = new HashMap<>();
 
-	}
+    }
 
 }

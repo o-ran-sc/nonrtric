@@ -42,43 +42,43 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Profile("test")
 public class WebSecurityMockConfiguration extends WebSecurityConfigurerAdapter {
 
-	public static final String TEST_CRED_ADMIN = "admin";
-	public static final String TEST_CRED_STANDARD = "standard";
+    public static final String TEST_CRED_ADMIN = "admin";
+    public static final String TEST_CRED_STANDARD = "standard";
 
-	private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	public WebSecurityMockConfiguration(@Value("${userfile}") final String userFilePath) {
-		logger.debug("ctor: user file path {}", userFilePath);
-	}
+    public WebSecurityMockConfiguration(@Value("${userfile}") final String userFilePath) {
+        logger.debug("ctor: user file path {}", userFilePath);
+    }
 
-	@Override
-	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-		auth.inMemoryAuthentication() //
-				.passwordEncoder(encoder) //
-				// The admin user has the admin AND standard roles
-				.withUser(TEST_CRED_ADMIN) //
-				.password(encoder.encode(TEST_CRED_ADMIN))
-				.roles(DashboardConstants.ROLE_NAME_ADMIN, DashboardConstants.ROLE_NAME_STANDARD)//
-				.and()//
-				// The standard user has only the standard role
-				.withUser(TEST_CRED_STANDARD) //
-				.password(encoder.encode(TEST_CRED_STANDARD)) //
-				.roles(DashboardConstants.ROLE_NAME_STANDARD);
-	}
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+        auth.inMemoryAuthentication() //
+            .passwordEncoder(encoder) //
+            // The admin user has the admin AND standard roles
+            .withUser(TEST_CRED_ADMIN) //
+            .password(encoder.encode(TEST_CRED_ADMIN))
+            .roles(DashboardConstants.ROLE_NAME_ADMIN, DashboardConstants.ROLE_NAME_STANDARD)//
+            .and()//
+            // The standard user has only the standard role
+            .withUser(TEST_CRED_STANDARD) //
+            .password(encoder.encode(TEST_CRED_STANDARD)) //
+            .roles(DashboardConstants.ROLE_NAME_STANDARD);
+    }
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		http.authorizeRequests().anyRequest().authenticated()//
-				.and().httpBasic() //
-				.and().csrf().disable();
-	}
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.authorizeRequests().anyRequest().authenticated()//
+            .and().httpBasic() //
+            .and().csrf().disable();
+    }
 
-	@Override
-	public void configure(WebSecurity web) throws Exception {
-		// This disables Spring security, but not the app's filter.
-		web.ignoring().antMatchers(WebSecurityConfiguration.OPEN_PATHS);
-		web.ignoring().antMatchers("/", "/csrf"); // allow swagger-ui to load
-	}
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        // This disables Spring security, but not the app's filter.
+        web.ignoring().antMatchers(WebSecurityConfiguration.OPEN_PATHS);
+        web.ignoring().antMatchers("/", "/csrf"); // allow swagger-ui to load
+    }
 
 }

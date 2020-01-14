@@ -34,27 +34,27 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan("org.oransc.ric.portal.dashboard")
 public class DashboardApplication {
 
-	private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	public static void main(String[] args) throws IOException {
-		SpringApplication.run(DashboardApplication.class, args);
-		// Ensure this appears on the console by using level WARN
-		logger.warn("main: version '{}' successful start",
-				getImplementationVersion(MethodHandles.lookup().lookupClass()));
-	}
+    public static void main(String[] args) throws IOException {
+        SpringApplication.run(DashboardApplication.class, args);
+        // Ensure this appears on the console by using level WARN
+        logger.warn("main: version '{}' successful start",
+            getImplementationVersion(MethodHandles.lookup().lookupClass()));
+    }
 
-	/**
-	 * Gets version details for the specified class.
-	 * 
-	 * @param clazz
-	 *                  Class to get the version
-	 * 
-	 * @return the value of the MANIFEST.MF property Implementation-Version as
-	 *         written by maven when packaged in a jar; 'unknown' otherwise.
-	 */
-	public static String getImplementationVersion(Class<?> clazz) {
-		String classPath = clazz.getResource(clazz.getSimpleName() + ".class").toString();
-		return classPath.startsWith("jar") ? clazz.getPackage().getImplementationVersion() : "unknown-not-jar";
-	}
+    /**
+     * Gets version details for the specified class.
+     * 
+     * @param clazz
+     *        Class to get the version
+     * 
+     * @return the value of the MANIFEST.MF property Implementation-Version as
+     *         written by maven when packaged in a jar; 'unknown' otherwise.
+     */
+    public static String getImplementationVersion(Class<?> clazz) {
+        String classPath = clazz.getResource(clazz.getSimpleName() + ".class").toString();
+        return classPath.startsWith("jar") ? clazz.getPackage().getImplementationVersion() : "unknown-not-jar";
+    }
 
 }
