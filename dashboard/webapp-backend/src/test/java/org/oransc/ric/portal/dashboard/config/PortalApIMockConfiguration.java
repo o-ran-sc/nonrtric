@@ -43,41 +43,41 @@ import org.springframework.context.annotation.Profile;
 @Profile("test")
 public class PortalApIMockConfiguration {
 
-	private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	// Unfortunately EPSDK-FW does not define these as constants
-	public static final String PORTAL_USERNAME_HEADER_KEY = "username";
-	public static final String PORTAL_PASSWORD_HEADER_KEY = "password";
+    // Unfortunately EPSDK-FW does not define these as constants
+    public static final String PORTAL_USERNAME_HEADER_KEY = "username";
+    public static final String PORTAL_PASSWORD_HEADER_KEY = "password";
 
-	@Bean
-	public ServletRegistrationBean<PortalRestAPIProxy> portalApiProxyServlet() {
-		PortalRestAPIProxy servlet = new PortalRestAPIProxy();
-		final ServletRegistrationBean<PortalRestAPIProxy> servletBean = new ServletRegistrationBean<>(servlet,
-				PortalApiConstants.API_PREFIX + "/*");
-		servletBean.setName("PortalRestApiProxyServlet");
-		return servletBean;
-	}
+    @Bean
+    public ServletRegistrationBean<PortalRestAPIProxy> portalApiProxyServlet() {
+        PortalRestAPIProxy servlet = new PortalRestAPIProxy();
+        final ServletRegistrationBean<PortalRestAPIProxy> servletBean =
+            new ServletRegistrationBean<>(servlet, PortalApiConstants.API_PREFIX + "/*");
+        servletBean.setName("PortalRestApiProxyServlet");
+        return servletBean;
+    }
 
-	@Bean
-	public PortalAuthManager portalAuthManager() throws Exception {
-		PortalAuthManager mockManager = mock(PortalAuthManager.class);
-		final Map<String, String> credentialsMap = new HashMap<>();
-		credentialsMap.put("appName", "appName");
-		credentialsMap.put(PORTAL_USERNAME_HEADER_KEY, PORTAL_USERNAME_HEADER_KEY);
-		credentialsMap.put(PORTAL_PASSWORD_HEADER_KEY, PORTAL_PASSWORD_HEADER_KEY);
-		doAnswer(inv -> {
-			logger.debug("getAppCredentials");
-			return credentialsMap;
-		}).when(mockManager).getAppCredentials();
-		doAnswer(inv -> {
-			logger.debug("getUserId");
-			return "userId";
-		}).when(mockManager).validateEcompSso(any(HttpServletRequest.class));
-		doAnswer(inv -> {
-			logger.debug("getAppCredentials");
-			return credentialsMap;
-		}).when(mockManager).getAppCredentials();
-		return mockManager;
-	}
+    @Bean
+    public PortalAuthManager portalAuthManager() throws Exception {
+        PortalAuthManager mockManager = mock(PortalAuthManager.class);
+        final Map<String, String> credentialsMap = new HashMap<>();
+        credentialsMap.put("appName", "appName");
+        credentialsMap.put(PORTAL_USERNAME_HEADER_KEY, PORTAL_USERNAME_HEADER_KEY);
+        credentialsMap.put(PORTAL_PASSWORD_HEADER_KEY, PORTAL_PASSWORD_HEADER_KEY);
+        doAnswer(inv -> {
+            logger.debug("getAppCredentials");
+            return credentialsMap;
+        }).when(mockManager).getAppCredentials();
+        doAnswer(inv -> {
+            logger.debug("getUserId");
+            return "userId";
+        }).when(mockManager).validateEcompSso(any(HttpServletRequest.class));
+        doAnswer(inv -> {
+            logger.debug("getAppCredentials");
+            return credentialsMap;
+        }).when(mockManager).getAppCredentials();
+        return mockManager;
+    }
 
 }

@@ -23,6 +23,6 @@ import java.util.ArrayList;
 
 public class PolicyTypes extends ArrayList<PolicyType> {
 
-	private static final long serialVersionUID = -928428052502491021L;
+    private static final long serialVersionUID = -928428052502491021L;
 
 }

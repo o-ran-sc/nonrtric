@@ -34,23 +34,22 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
  */
 public class SimpleKubernetesClient {
 
-	private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	private final String k8sUrl;
+    private final String k8sUrl;
 
-	public SimpleKubernetesClient(String baseUrl) {
-		logger.debug("ctor: baseUrl {}", baseUrl);
-		k8sUrl = baseUrl;
-	}
+    public SimpleKubernetesClient(String baseUrl) {
+        logger.debug("ctor: baseUrl {}", baseUrl);
+        k8sUrl = baseUrl;
+    }
 
-	public String listPods(String namespace) {
-		logger.debug("listPods for namespace {}", namespace);
-		String podsUrl = new DefaultUriBuilderFactory(k8sUrl.trim()).builder().pathSegment("v1")
-				.pathSegment("namespaces").pathSegment(namespace.trim()).pathSegment("pods").build().normalize()
-				.toString();
-		RestTemplate rt = new RestTemplate();
-		ResponseEntity<String> podsResponse = rt.getForEntity(podsUrl, String.class);
-		return podsResponse.getBody();
-	}
+    public String listPods(String namespace) {
+        logger.debug("listPods for namespace {}", namespace);
+        String podsUrl = new DefaultUriBuilderFactory(k8sUrl.trim()).builder().pathSegment("v1")
+            .pathSegment("namespaces").pathSegment(namespace.trim()).pathSegment("pods").build().normalize().toString();
+        RestTemplate rt = new RestTemplate();
+        ResponseEntity<String> podsResponse = rt.getForEntity(podsUrl, String.class);
+        return podsResponse.getBody();
+    }
 
 }

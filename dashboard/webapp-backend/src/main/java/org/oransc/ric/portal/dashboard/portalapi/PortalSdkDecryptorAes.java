@@ -24,9 +24,9 @@ import org.onap.portalsdk.core.onboarding.util.CipherUtil;
 
 public class PortalSdkDecryptorAes implements IPortalSdkDecryptor {
 
-	@SuppressWarnings("deprecation")
-	public String decrypt(String cipherText) throws CipherUtilException {
-		return CipherUtil.decrypt(cipherText);
-	}
+    @SuppressWarnings("deprecation")
+    public String decrypt(String cipherText) throws CipherUtilException {
+        return CipherUtil.decrypt(cipherText);
+    }
 
 }
