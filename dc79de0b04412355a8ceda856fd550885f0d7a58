@@ -141,6 +141,77 @@
       "revId": "dc79de0b04412355a8ceda856fd550885f0d7a58",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2abace0_8b21199b",
+        "filename": "near-rt-ric-simulator/simulator-group/docker-compose.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-01-14T18:53:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "04a7c777_2bc61a38",
+      "range": {
+        "startLine": 25,
+        "startChar": 13,
+        "endLine": 25,
+        "endChar": 19
+      },
+      "revId": "dc79de0b04412355a8ceda856fd550885f0d7a58",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f776235f_eda2cfa5",
+        "filename": "near-rt-ric-simulator/simulator-group/docker-compose.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-01-14T18:53:56Z",
+      "side": 1,
+      "message": "Ah yes. Sorry. The version I was reviewing was the previous patchset :-)",
+      "range": {
+        "startLine": 25,
+        "startChar": 5286,
+        "endLine": 25,
+        "endChar": 5293
+      },
+      "revId": "dc79de0b04412355a8ceda856fd550885f0d7a58",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2e529683_bef1b470",
+        "filename": "near-rt-ric-simulator/simulator-group/docker-compose.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-01-14T18:53:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a25cf0e4_27fe9f89",
+      "range": {
+        "startLine": 25,
+        "startChar": 7,
+        "endLine": 25,
+        "endChar": 50
+      },
+      "revId": "dc79de0b04412355a8ceda856fd550885f0d7a58",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
