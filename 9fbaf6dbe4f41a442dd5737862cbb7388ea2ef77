@@ -2,6 +2,98 @@
   "comments": [
     {
       "key": {
+        "uuid": "aef7bfc2_41a2e68f",
+        "filename": "near-rt-ric-simulator/.gitignore",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-01-14T13:39:41Z",
+      "side": 1,
+      "message": "Remove all trailing whitespaces",
+      "range": {
+        "startLine": 2,
+        "startChar": 1,
+        "endLine": 2,
+        "endChar": 2
+      },
+      "revId": "9fbaf6dbe4f41a442dd5737862cbb7388ea2ef77",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "efdda563_854b85c9",
+        "filename": "near-rt-ric-simulator/LICENSES.txt",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-01-14T13:39:41Z",
+      "side": 1,
+      "message": "Remove all trailing whitespaces",
+      "range": {
+        "startLine": 2,
+        "startChar": 1,
+        "endLine": 2,
+        "endChar": 2
+      },
+      "revId": "9fbaf6dbe4f41a442dd5737862cbb7388ea2ef77",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7603265_cc30d147",
+        "filename": "near-rt-ric-simulator/README.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-01-14T13:39:41Z",
+      "side": 1,
+      "message": "Remove all trailing whitespaces",
+      "range": {
+        "startLine": 2,
+        "startChar": 1,
+        "endLine": 2,
+        "endChar": 2
+      },
+      "revId": "9fbaf6dbe4f41a442dd5737862cbb7388ea2ef77",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3d6507d_7b42c0ae",
+        "filename": "near-rt-ric-simulator/pom.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-01-14T13:39:41Z",
+      "side": 1,
+      "message": "Remove all trailing whitespaces",
+      "range": {
+        "startLine": 9,
+        "startChar": 1,
+        "endLine": 9,
+        "endChar": 2
+      },
+      "revId": "9fbaf6dbe4f41a442dd5737862cbb7388ea2ef77",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cd8ea8c2_77a75f71",
         "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
         "patchSetId": 6
@@ -82,6 +174,29 @@
       "writtenOn": "2020-01-10T13:06:56Z",
       "side": 1,
       "message": "Suggets to make the type and instances as files - difficult to read and reuse when inline in the script.\nAdd a test to update a policy",
+      "revId": "9fbaf6dbe4f41a442dd5737862cbb7388ea2ef77",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc1b2225_8d323487",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/main.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-01-14T13:39:41Z",
+      "side": 1,
+      "message": "Remove all trailing whitespaces",
+      "range": {
+        "startLine": 48,
+        "startChar": 33,
+        "endLine": 48,
+        "endChar": 34
+      },
       "revId": "9fbaf6dbe4f41a442dd5737862cbb7388ea2ef77",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
