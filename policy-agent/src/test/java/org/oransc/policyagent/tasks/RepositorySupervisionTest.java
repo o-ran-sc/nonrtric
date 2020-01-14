@@ -47,6 +47,7 @@ import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Ric.RicState;
 import org.oransc.policyagent.repository.Rics;
+import org.oransc.policyagent.repository.Services;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(MockitoExtension.class)
@@ -94,8 +95,10 @@ public class RepositorySupervisionTest {
         Policies policies = new Policies();
         policies.put(policy1);
         PolicyTypes types = new PolicyTypes();
+        Services services = new Services();
 
-        RepositorySupervision supervisorUnderTest = new RepositorySupervision(rics, policies, a1ClientMock, types);
+        RepositorySupervision supervisorUnderTest =
+            new RepositorySupervision(rics, policies, a1ClientMock, types, services);
 
         Mono<Collection<String>> policyIds = Mono.just(Arrays.asList("policyId1", "policyId2"));
         when(a1ClientMock.getPolicyIdentities(anyString())).thenReturn(policyIds);

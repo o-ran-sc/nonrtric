@@ -27,10 +27,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Vector;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,27 +37,17 @@ import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Rics;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.oransc.policyagent.utils.MockA1Client;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import reactor.core.publisher.Mono;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
 public class MockPolicyAgent {
-
-    @Autowired
-    private Rics rics;
-
-    @Autowired
-    private Policies policies;
-
-    @Autowired
-    private PolicyTypes policyTypes;
 
     static class MockApplicationConfig extends ApplicationConfig {
 
@@ -72,72 +58,42 @@ public class MockPolicyAgent {
         }
     }
 
-    private static class RicPolicyDatabase {
-        private Map<String, Map<String, String>> policies = new HashMap<>();
+    /**
+     * overrides the BeanFactory
+     */
+    @TestConfiguration
+    static class TestBeanFactory {
 
-        public void putPolicy(String nearRtRicUrl, String policyId, String policyString) {
-            getPolicies(nearRtRicUrl).put(policyId, policyString);
-        }
-
-        public Collection<String> getPolicyIdentities(String nearRtRicUrl) {
-            return getPolicies(nearRtRicUrl).keySet();
-        }
-
-        public void deletePolicy(String nearRtRicUrl, String policyId) {
-            getPolicies(nearRtRicUrl).remove(policyId);
-        }
-
-        private Map<String, String> getPolicies(String nearRtRicUrl) {
-            if (!policies.containsKey(nearRtRicUrl)) {
-                policies.put(nearRtRicUrl, new HashMap<>());
-            }
-            return policies.get(nearRtRicUrl);
-        }
-    }
-
-    static class A1ClientMock implements A1Client {
-
-        private final RicPolicyDatabase policies = new RicPolicyDatabase();
+        private final Rics rics = new Rics();
+        private final Policies policies = new Policies();
         private final PolicyTypes policyTypes = new PolicyTypes();
 
-        A1ClientMock() {
-            loadTypes(this.policyTypes);
+        @Bean
+        public ApplicationConfig getApplicationConfig() {
+            return new MockApplicationConfig();
         }
 
-        @Override
-        public Mono<Collection<String>> getPolicyTypeIdentities(String nearRtRicUrl) {
-            Vector<String> result = new Vector<>();
-            for (PolicyType p : this.policyTypes.getAll()) {
-                result.add(p.name());
-            }
-            return Mono.just(result);
+        @Bean
+        public A1Client getA1Client() {
+            PolicyTypes ricTypes = new PolicyTypes();
+            loadTypes(ricTypes);
+            A1Client client = new MockA1Client(ricTypes);
+            return client;
         }
 
-        @Override
-        public Mono<Collection<String>> getPolicyIdentities(String nearRtRicUrl) {
-            Collection<String> result = policies.getPolicyIdentities(nearRtRicUrl);
-            return Mono.just(result);
+        @Bean
+        public Policies getPolicies() {
+            return this.policies;
         }
 
-        @Override
-        public Mono<String> getPolicyType(String nearRtRicUrl, String policyTypeId) {
-            try {
-                return Mono.just(this.policyTypes.getType(policyTypeId).schema());
-            } catch (Exception e) {
-                return Mono.error(e);
-            }
+        @Bean
+        public PolicyTypes getPolicyTypes() {
+            return this.policyTypes;
         }
 
-        @Override
-        public Mono<String> putPolicy(String nearRtRicUrl, String policyId, String policyString) {
-            policies.putPolicy(nearRtRicUrl, policyId, policyString);
-            return Mono.just("OK");
-        }
-
-        @Override
-        public Mono<String> deletePolicy(String nearRtRicUrl, String policyId) {
-            policies.deletePolicy(nearRtRicUrl, policyId);
-            return Mono.just("OK");
+        @Bean
+        public Rics getRics() {
+            return this.rics;
         }
 
         private static File[] getResourceFolderFiles(String folder) {
@@ -164,42 +120,7 @@ public class MockPolicyAgent {
                 }
             }
         }
-    }
 
-    /**
-     * overrides the BeanFactory
-     */
-    @TestConfiguration
-    static class TestBeanFactory {
-
-        private final Rics rics = new Rics();
-        private final Policies policies = new Policies();
-        private final PolicyTypes policyTypes = new PolicyTypes();
-
-        @Bean
-        public ApplicationConfig getApplicationConfig() {
-            return new MockApplicationConfig();
-        }
-
-        @Bean
-        A1Client getA1Client() {
-            return new A1ClientMock();
-        }
-
-        @Bean
-        public Policies getPolicies() {
-            return this.policies;
-        }
-
-        @Bean
-        public PolicyTypes getPolicyTypes() {
-            return this.policyTypes;
-        }
-
-        @Bean
-        public Rics getRics() {
-            return this.rics;
-        }
     }
 
     @LocalServerPort

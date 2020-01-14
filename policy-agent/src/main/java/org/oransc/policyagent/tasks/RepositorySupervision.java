@@ -27,6 +27,7 @@ import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Rics;
+import org.oransc.policyagent.repository.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,13 +50,16 @@ public class RepositorySupervision {
     private final Policies policies;
     private final PolicyTypes policyTypes;
     private final A1Client a1Client;
+    private final Services services;
 
     @Autowired
-    public RepositorySupervision(Rics rics, Policies policies, A1Client a1Client, PolicyTypes policyTypes) {
+    public RepositorySupervision(Rics rics, Policies policies, A1Client a1Client, PolicyTypes policyTypes,
+        Services services) {
         this.rics = rics;
         this.policies = policies;
         this.a1Client = a1Client;
         this.policyTypes = policyTypes;
+        this.services = services;
     }
 
     /**
@@ -79,10 +83,6 @@ public class RepositorySupervision {
         return a1Client.getPolicyIdentities(ric.getConfig().baseUrl()) //
             .onErrorResume(t -> Mono.empty()) //
             .flatMap(ricP -> validateInstances(ricP, ric));
-    }
-
-    private Flux<Ric> junk() {
-        return Flux.empty();
     }
 
     private Mono<Ric> validateInstances(Collection<String> ricPolicies, Ric ric) {
@@ -118,7 +118,7 @@ public class RepositorySupervision {
     }
 
     private Mono<Ric> startRecovery(Ric ric) {
-        RicRecoveryTask recovery = new RicRecoveryTask(a1Client, policyTypes, policies);
+        RicRecoveryTask recovery = new RicRecoveryTask(a1Client, policyTypes, policies, services);
         recovery.run(ric);
         return Mono.empty();
     }

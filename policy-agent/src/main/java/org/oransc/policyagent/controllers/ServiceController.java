@@ -86,7 +86,7 @@ public class ServiceController {
     }
 
     private Service toService(ServiceRegistrationInfo s) {
-        return new Service(s.name(), Duration.ofSeconds(s.keepAliveInterval()));
+        return new Service(s.name(), Duration.ofSeconds(s.keepAliveInterval()), s.callbackUrl());
     }
 
     @GetMapping("/services")

@@ -28,6 +28,7 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.oransc.policyagent.repository.Policy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
@@ -39,7 +40,7 @@ public class A1ClientImpl implements A1Client {
         return nearRtRicUrl + "/A1-P/v1";
     }
 
-    public AsyncRestClient createClient(final String nearRtRicUrl) {
+    protected AsyncRestClient createClient(final String nearRtRicUrl) {
         return new AsyncRestClient(getBaseUrl(nearRtRicUrl));
     }
 
@@ -68,11 +69,12 @@ public class A1ClientImpl implements A1Client {
     }
 
     @Override
-    public Mono<String> putPolicy(String nearRtRicUrl, String policyId, String policyString) {
-        logger.debug("putPolicy nearRtRicUrl = {}, policyId = {}, policyString = {}", nearRtRicUrl, policyId,
-            policyString);
-        AsyncRestClient client = createClient(nearRtRicUrl);
-        Mono<String> response = client.put("/policies/" + policyId, policyString);
+    public Mono<String> putPolicy(Policy policy) {
+        logger.debug("putPolicy nearRtRicUrl = {}, policyId = {}, policyString = {}", //
+            policy.ric().getConfig().baseUrl(), policy.id(), policy.json());
+        AsyncRestClient client = createClient(policy.ric().getConfig().baseUrl());
+        Mono<String> response =
+            client.put("/policies/" + policy.id() + "?policyTypeId=" + policy.type().name(), policy.json());
         return response.flatMap(this::createMono);
     }
 

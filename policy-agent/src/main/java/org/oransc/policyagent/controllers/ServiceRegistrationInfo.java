@@ -31,4 +31,6 @@ public interface ServiceRegistrationInfo {
 
     public long keepAliveInterval();
 
+    public String callbackUrl();
+
 }

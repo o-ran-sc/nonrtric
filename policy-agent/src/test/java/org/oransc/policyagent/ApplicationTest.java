@@ -29,7 +29,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.net.URL;
-import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 
@@ -52,6 +51,7 @@ import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Rics;
+import org.oransc.policyagent.utils.MockA1Client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -63,7 +63,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
-import reactor.core.publisher.Mono;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -92,49 +91,6 @@ public class ApplicationTest {
         }
     }
 
-    static class A1ClientMock implements A1Client {
-        private final Policies policies;
-        private final PolicyTypes policyTypes;
-
-        A1ClientMock(Policies policies, PolicyTypes policyTypes) {
-            this.policies = policies;
-            this.policyTypes = policyTypes;
-        }
-
-        @Override
-        public Mono<Collection<String>> getPolicyTypeIdentities(String nearRtRicUrl) {
-            Vector<String> result = new Vector<>();
-            for (PolicyType p : this.policyTypes.getAll()) {
-                result.add(p.name());
-            }
-            return Mono.just(result);
-        }
-
-        @Override
-        public Mono<String> getPolicyType(String nearRtRicUrl, String policyTypeId) {
-            try {
-                return Mono.just(this.policies.get(policyTypeId).json());
-            } catch (Exception e) {
-                return Mono.error(e);
-            }
-        }
-
-        @Override
-        public Mono<String> putPolicy(String nearRtRicUrl, String policyId, String policyString) {
-            return Mono.just("OK");
-        }
-
-        @Override
-        public Mono<String> deletePolicy(String nearRtRicUrl, String policyId) {
-            return Mono.just("OK");
-        }
-
-        @Override
-        public Mono<Collection<String>> getPolicyIdentities(String nearRtRicUrl) {
-            return Mono.empty(); // problem is that a recovery will start
-        }
-    }
-
     /**
      * Overrides the BeanFactory.
      */
@@ -151,7 +107,7 @@ public class ApplicationTest {
 
         @Bean
         A1Client getA1Client() {
-            return new A1ClientMock(this.policies, this.policyTypes);
+            return new MockA1Client(this.policyTypes);
         }
 
         @Bean
@@ -397,6 +353,7 @@ public class ApplicationTest {
         ServiceRegistrationInfo service = ImmutableServiceRegistrationInfo.builder() //
             .keepAliveInterval(1) //
             .name(name) //
+            .callbackUrl("callbackUrl") //
             .build();
         String json = gson.toJson(service);
         return json;
