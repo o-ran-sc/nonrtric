@@ -34,7 +34,7 @@ public interface PolicyAgentApi {
     public String getPolicyInstance(String id) throws RestClientException;
 
     public void putPolicy(String policyTypeIdString, String policyInstanceId, String json, String ric)
-            throws RestClientException;
+        throws RestClientException;
 
     public void deletePolicy(String policyInstanceId) throws RestClientException;
 

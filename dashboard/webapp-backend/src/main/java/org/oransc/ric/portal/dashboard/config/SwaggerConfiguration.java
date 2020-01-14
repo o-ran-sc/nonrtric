@@ -40,29 +40,29 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 public class SwaggerConfiguration {
 
-	/**
-	 * @return new Docket
-	 */
-	@Bean
-	public Docket api() {
-		return new Docket(DocumentationType.SWAGGER_2).select() //
-				.apis(RequestHandlerSelectors.basePackage(DashboardApplication.class.getPackage().getName())) //
-				.paths(PathSelectors.any()) //
-				.build() //
-				.apiInfo(apiInfo());
-	}
+    /**
+     * @return new Docket
+     */
+    @Bean
+    public Docket api() {
+        return new Docket(DocumentationType.SWAGGER_2).select() //
+            .apis(RequestHandlerSelectors.basePackage(DashboardApplication.class.getPackage().getName())) //
+            .paths(PathSelectors.any()) //
+            .build() //
+            .apiInfo(apiInfo());
+    }
 
-	private ApiInfo apiInfo() {
-		final String version = DashboardApplication.class.getPackage().getImplementationVersion();
-		return new ApiInfoBuilder() //
-				.title("RIC Dashboard backend") //
-				.description("Proxies access to RIC services.")//
-				.termsOfServiceUrl("Terms of service") //
-				.contact(new Contact("RIC Dashboard Dev Team", //
-						"http://no-docs-yet.org/", //
-						"noreply@O-RAN-SC.org")) //
-				.license("Apache 2.0 License").licenseUrl("http://www.apache.org/licenses/LICENSE-2.0") //
-				.version(version == null ? "version not available" : version) //
-				.build();
-	}
+    private ApiInfo apiInfo() {
+        final String version = DashboardApplication.class.getPackage().getImplementationVersion();
+        return new ApiInfoBuilder() //
+            .title("RIC Dashboard backend") //
+            .description("Proxies access to RIC services.")//
+            .termsOfServiceUrl("Terms of service") //
+            .contact(new Contact("RIC Dashboard Dev Team", //
+                "http://no-docs-yet.org/", //
+                "noreply@O-RAN-SC.org")) //
+            .license("Apache 2.0 License").licenseUrl("http://www.apache.org/licenses/LICENSE-2.0") //
+            .version(version == null ? "version not available" : version) //
+            .build();
+    }
 }

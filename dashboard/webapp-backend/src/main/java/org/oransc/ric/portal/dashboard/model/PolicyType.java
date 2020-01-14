@@ -23,35 +23,35 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PolicyType {
 
-	@JsonProperty("name")
-	String name;
+    @JsonProperty("name")
+    String name;
 
-	@JsonProperty("schema")
-	String schema;
+    @JsonProperty("schema")
+    String schema;
 
-	public PolicyType(String name, String schema) {
-		this.name = name;
-		this.schema = schema;
-	}
+    public PolicyType(String name, String schema) {
+        this.name = name;
+        this.schema = schema;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public String getSchema() {
-		return schema;
-	}
+    public String getSchema() {
+        return schema;
+    }
 
-	public void setSchema(String schema) {
-		this.schema = schema;
-	}
+    public void setSchema(String schema) {
+        this.schema = schema;
+    }
 
-	@Override
-	public String toString() {
-		return "[name:" + name + ", schema:" + schema + "]";
-	}
+    @Override
+    public String toString() {
+        return "[name:" + name + ", schema:" + schema + "]";
+    }
 }

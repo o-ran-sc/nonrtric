@@ -24,8 +24,8 @@ import org.onap.portalsdk.core.onboarding.util.CipherUtil;
 
 public class PortalSdkDecryptorPkc implements IPortalSdkDecryptor {
 
-	public String decrypt(String cipherText) throws CipherUtilException {
-		return CipherUtil.decryptPKC(cipherText);
-	}
+    public String decrypt(String cipherText) throws CipherUtilException {
+        return CipherUtil.decryptPKC(cipherText);
+    }
 
 }

@@ -30,15 +30,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class SpringContextCache implements ApplicationContextAware {
 
-	private static ApplicationContext applicationContext = null;
+    private static ApplicationContext applicationContext = null;
 
-	@Override
-	public void setApplicationContext(final ApplicationContext appContext) throws BeansException {
-		applicationContext = appContext;
-	}
+    @Override
+    public void setApplicationContext(final ApplicationContext appContext) throws BeansException {
+        applicationContext = appContext;
+    }
 
-	public static ApplicationContext getApplicationContext() {
-		return applicationContext;
-	}
+    public static ApplicationContext getApplicationContext() {
+        return applicationContext;
+    }
 
 }

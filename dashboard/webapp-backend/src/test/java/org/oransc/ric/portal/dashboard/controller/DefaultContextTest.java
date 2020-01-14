@@ -36,13 +36,13 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @SpringBootTest
 public class DefaultContextTest {
 
-	private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	@Test
-	public void contextLoads() {
-		// Silence Sonar warning about missing assertion.
-		Assertions.assertTrue(logger.isWarnEnabled());
-		logger.info("Context loads on default profile");
-	}
+    @Test
+    public void contextLoads() {
+        // Silence Sonar warning about missing assertion.
+        Assertions.assertTrue(logger.isWarnEnabled());
+        logger.info("Context loads on default profile");
+    }
 
 }

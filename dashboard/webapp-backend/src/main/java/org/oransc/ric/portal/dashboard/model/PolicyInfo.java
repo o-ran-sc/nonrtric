@@ -26,16 +26,16 @@ import org.immutables.value.Value;
 @Gson.TypeAdapters
 public interface PolicyInfo {
 
-	public String id();
+    public String id();
 
-	public String type();
+    public String type();
 
-	public String ric();
+    public String ric();
 
-	public String json();
+    public String json();
 
-	public String service();
+    public String service();
 
-	public String lastModified();
+    public String lastModified();
 
 }
