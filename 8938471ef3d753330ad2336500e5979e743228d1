@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "16e7acdb_a8f84514",
+        "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/policyagentapi/PolicyAgentApi.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-14T08:59:51Z",
+      "side": 1,
+      "message": "not used here",
+      "range": {
+        "startLine": 26,
+        "startChar": 32,
+        "endLine": 26,
+        "endChar": 42
+      },
+      "revId": "8938471ef3d753330ad2336500e5979e743228d1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "59ffb841_45e375f9",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/A1ClientImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-14T08:59:51Z",
+      "side": 1,
+      "message": "what is the reason behind this change? Then, we would also need to modify the A1 simulator. Otherwise, it would not work.",
+      "range": {
+        "startLine": 77,
+        "startChar": 52,
+        "endLine": 77,
+        "endChar": 91
+      },
+      "revId": "8938471ef3d753330ad2336500e5979e743228d1",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    }
+  ]
+}
