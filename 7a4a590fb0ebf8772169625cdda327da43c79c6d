@@ -46,6 +46,30 @@
       "revId": "7a4a590fb0ebf8772169625cdda327da43c79c6d",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7cd5569_e61da48d",
+        "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/controller/PolicyController.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-01-14T13:52:45Z",
+      "side": 1,
+      "message": "I do not understand the comments, but here the HTTP response code from the agent is just sent further to the client (front end). \nI am in meetings all day today an tomorrow, you can merge this submission and change what you think should be changed in new commits.",
+      "parentUuid": "e514f160_953b0536",
+      "range": {
+        "startLine": 100,
+        "startChar": 36,
+        "endLine": 100,
+        "endChar": 53
+      },
+      "revId": "7a4a590fb0ebf8772169625cdda327da43c79c6d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
