@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9c54b175_0ca6ab9a",
+        "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/DashboardApplication.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-14T14:01:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5c97ceac_669d4e97",
+      "range": {
+        "startLine": 48,
+        "startChar": 6,
+        "endLine": 48,
+        "endChar": 7
+      },
+      "revId": "6bc8d29c549a3bff805172a09d2498e3a842ac7a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ccaac690_b8c308fd",
         "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/DashboardUserManager.java",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2020-01-14T13:36:08Z",
       "side": 1,
       "message": "Remove all trailing whitespaces",
+      "range": {
+        "startLine": 43,
+        "startChar": 2,
+        "endLine": 43,
+        "endChar": 3
+      },
+      "revId": "6bc8d29c549a3bff805172a09d2498e3a842ac7a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a502dd1_ccf6091d",
+        "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/DashboardUserManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-14T14:01:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ccaac690_b8c308fd",
       "range": {
         "startLine": 43,
         "startChar": 2,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "eac00800_a378f6d4",
+        "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/config/PortalApiConfiguration.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-14T14:01:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e90ded08_1acd92a7",
+      "range": {
+        "startLine": 44,
+        "startChar": 6,
+        "endLine": 44,
+        "endChar": 7
+      },
+      "revId": "6bc8d29c549a3bff805172a09d2498e3a842ac7a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d3492322_b9ca1e2f",
         "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/controller/CustomResponseEntityExceptionHandler.java",
         "patchSetId": 1
@@ -82,6 +154,30 @@
       "writtenOn": "2020-01-14T13:36:08Z",
       "side": 1,
       "message": "Remove all trailing white spaces",
+      "range": {
+        "startLine": 39,
+        "startChar": 2,
+        "endLine": 39,
+        "endChar": 3
+      },
+      "revId": "6bc8d29c549a3bff805172a09d2498e3a842ac7a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2626cbbd_9128d218",
+        "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/controller/CustomResponseEntityExceptionHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-14T14:01:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d3492322_b9ca1e2f",
       "range": {
         "startLine": 39,
         "startChar": 2,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "a236b692_e2c02acc",
+        "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/controller/Html5PathsController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-14T14:01:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6fe0a1e6_be7d33a9",
+      "range": {
+        "startLine": 49,
+        "startChar": 6,
+        "endLine": 49,
+        "endChar": 7
+      },
+      "revId": "6bc8d29c549a3bff805172a09d2498e3a842ac7a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cc0469ad_69557913",
         "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/controller/SimpleErrorController.java",
         "patchSetId": 1
@@ -128,6 +248,30 @@
       "writtenOn": "2020-01-14T13:36:08Z",
       "side": 1,
       "message": "Remove all trailing whitespaces",
+      "range": {
+        "startLine": 45,
+        "startChar": 2,
+        "endLine": 45,
+        "endChar": 3
+      },
+      "revId": "6bc8d29c549a3bff805172a09d2498e3a842ac7a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "680a237b_c337f55f",
+        "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/controller/SimpleErrorController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-14T14:01:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cc0469ad_69557913",
       "range": {
         "startLine": 45,
         "startChar": 2,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "8663df20_48b46883",
+        "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/model/ErrorTransport.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-14T14:01:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "caf0657f_814a0370",
+      "range": {
+        "startLine": 46,
+        "startChar": 6,
+        "endLine": 46,
+        "endChar": 7
+      },
+      "revId": "6bc8d29c549a3bff805172a09d2498e3a842ac7a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6242714c_3d6f169d",
         "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/model/SuccessTransport.java",
         "patchSetId": 1
@@ -174,6 +342,30 @@
       "writtenOn": "2020-01-14T13:36:08Z",
       "side": 1,
       "message": "Remove trailing whitespace",
+      "range": {
+        "startLine": 36,
+        "startChar": 6,
+        "endLine": 36,
+        "endChar": 7
+      },
+      "revId": "6bc8d29c549a3bff805172a09d2498e3a842ac7a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a19d6be1_63fd427b",
+        "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/model/SuccessTransport.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-14T14:01:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6242714c_3d6f169d",
       "range": {
         "startLine": 36,
         "startChar": 6,
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "40ac5035_88956711",
+        "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/portalapi/IPortalSdkDecryptor.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-14T14:01:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "194b5038_725dbc24",
+      "range": {
+        "startLine": 32,
+        "startChar": 6,
+        "endLine": 32,
+        "endChar": 7
+      },
+      "revId": "6bc8d29c549a3bff805172a09d2498e3a842ac7a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ca8bfac5_defa8782",
         "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/portalapi/PortalAuthManager.java",
         "patchSetId": 1
@@ -220,6 +436,30 @@
       "writtenOn": "2020-01-14T13:36:08Z",
       "side": 1,
       "message": "Remove trailing whitespace",
+      "range": {
+        "startLine": 91,
+        "startChar": 6,
+        "endLine": 91,
+        "endChar": 7
+      },
+      "revId": "6bc8d29c549a3bff805172a09d2498e3a842ac7a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b99ab5a_f2b85c6d",
+        "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/portalapi/PortalAuthManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-14T14:01:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ca8bfac5_defa8782",
       "range": {
         "startLine": 91,
         "startChar": 6,
@@ -255,6 +495,30 @@
     },
     {
       "key": {
+        "uuid": "938c8992_2b9c4ceb",
+        "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/portalapi/PortalAuthenticationFilter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-14T14:01:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1f739c6d_3ba1023c",
+      "range": {
+        "startLine": 74,
+        "startChar": 2,
+        "endLine": 74,
+        "endChar": 3
+      },
+      "revId": "6bc8d29c549a3bff805172a09d2498e3a842ac7a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "85145639_11725f50",
         "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/portalapi/PortalRestCentralServiceImpl.java",
         "patchSetId": 1
@@ -266,6 +530,30 @@
       "writtenOn": "2020-01-14T13:36:08Z",
       "side": 1,
       "message": "Remove trailing whitespace",
+      "range": {
+        "startLine": 41,
+        "startChar": 2,
+        "endLine": 41,
+        "endChar": 3
+      },
+      "revId": "6bc8d29c549a3bff805172a09d2498e3a842ac7a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0180910b_a3ec93f8",
+        "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/portalapi/PortalRestCentralServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-14T14:01:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "85145639_11725f50",
       "range": {
         "startLine": 41,
         "startChar": 2,
@@ -301,6 +589,30 @@
     },
     {
       "key": {
+        "uuid": "d0e304e7_bb5cf97f",
+        "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/util/HttpsURLConnectionUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-14T14:01:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8fa9b596_57db41c1",
+      "range": {
+        "startLine": 38,
+        "startChar": 2,
+        "endLine": 38,
+        "endChar": 3
+      },
+      "revId": "6bc8d29c549a3bff805172a09d2498e3a842ac7a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "37ab1614_f5250d57",
         "filename": "dashboard/webapp-backend/src/test/java/org/oransc/ric/portal/dashboard/controller/AbstractControllerTest.java",
         "patchSetId": 1
@@ -324,6 +636,30 @@
     },
     {
       "key": {
+        "uuid": "583d4dc6_870c7f7c",
+        "filename": "dashboard/webapp-backend/src/test/java/org/oransc/ric/portal/dashboard/controller/AbstractControllerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-14T14:01:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "37ab1614_f5250d57",
+      "range": {
+        "startLine": 59,
+        "startChar": 6,
+        "endLine": 59,
+        "endChar": 7
+      },
+      "revId": "6bc8d29c549a3bff805172a09d2498e3a842ac7a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "af79a777_7d0529c3",
         "filename": "dashboard/webapp-backend/src/test/java/org/oransc/ric/portal/dashboard/controller/PortalRestCentralServiceTest.java",
         "patchSetId": 1
@@ -335,6 +671,30 @@
       "writtenOn": "2020-01-14T13:36:08Z",
       "side": 1,
       "message": "Remove trailing whitespace",
+      "range": {
+        "startLine": 99,
+        "startChar": 6,
+        "endLine": 99,
+        "endChar": 7
+      },
+      "revId": "6bc8d29c549a3bff805172a09d2498e3a842ac7a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f322c3b4_3ae61bf5",
+        "filename": "dashboard/webapp-backend/src/test/java/org/oransc/ric/portal/dashboard/controller/PortalRestCentralServiceTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-14T14:01:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "af79a777_7d0529c3",
       "range": {
         "startLine": 99,
         "startChar": 6,
