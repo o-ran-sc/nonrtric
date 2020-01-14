@@ -50,6 +50,7 @@ import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Rics;
+import org.oransc.policyagent.repository.Services;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(MockitoExtension.class)
@@ -92,7 +93,7 @@ public class StartupServiceTest {
         Rics rics = new Rics();
         PolicyTypes policyTypes = new PolicyTypes();
         StartupService serviceUnderTest =
-            new StartupService(appConfigMock, rics, policyTypes, a1ClientMock, new Policies());
+            new StartupService(appConfigMock, rics, policyTypes, a1ClientMock, new Policies(), new Services());
 
         serviceUnderTest.startup();
 
@@ -157,7 +158,7 @@ public class StartupServiceTest {
         Rics rics = new Rics();
         PolicyTypes policyTypes = new PolicyTypes();
         StartupService serviceUnderTest =
-            new StartupService(appConfigMock, rics, policyTypes, a1ClientMock, new Policies());
+            new StartupService(appConfigMock, rics, policyTypes, a1ClientMock, new Policies(), new Services());
 
         serviceUnderTest.startup();
 
@@ -188,7 +189,7 @@ public class StartupServiceTest {
         Rics rics = new Rics();
         PolicyTypes policyTypes = new PolicyTypes();
         StartupService serviceUnderTest =
-            new StartupService(appConfigMock, rics, policyTypes, a1ClientMock, new Policies());
+            new StartupService(appConfigMock, rics, policyTypes, a1ClientMock, new Policies(), new Services());
 
         serviceUnderTest.startup();
 

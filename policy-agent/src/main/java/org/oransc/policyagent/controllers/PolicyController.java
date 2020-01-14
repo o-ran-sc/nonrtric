@@ -172,7 +172,7 @@ public class PolicyController {
                 .ownerServiceName(service) //
                 .lastModified(getTimeStampUTC()) //
                 .build();
-            return a1Client.putPolicy(policy.ric().getConfig().baseUrl(), policy.id(), policy.json()) //
+            return a1Client.putPolicy(policy) //
                 .doOnNext(notUsed -> policies.put(policy)) //
                 .flatMap(notUsed -> {
                     return Mono.just(new ResponseEntity<>(HttpStatus.CREATED));

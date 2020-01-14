@@ -22,6 +22,7 @@ package org.oransc.policyagent.clients;
 
 import java.util.Collection;
 
+import org.oransc.policyagent.repository.Policy;
 import reactor.core.publisher.Mono;
 
 public interface A1Client {
@@ -32,7 +33,7 @@ public interface A1Client {
 
     public Mono<String> getPolicyType(String nearRtRicUrl, String policyTypeId);
 
-    public Mono<String> putPolicy(String nearRtRicUrl, String policyId, String policyString);
+    public Mono<String> putPolicy(Policy policy);
 
     public Mono<String> deletePolicy(String nearRtRicUrl, String policyId);
 

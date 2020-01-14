@@ -27,11 +27,12 @@ public class Service {
     private final String name;
     private final Duration keepAliveInterval;
     private Instant lastPing;
-    // private final String callbackUrl1; // TBD
+    private final String callbackUrl;
 
-    public Service(String name, Duration keepAliveInterval) {
+    public Service(String name, Duration keepAliveInterval, String callbackUrl) {
         this.name = name;
         this.keepAliveInterval = keepAliveInterval;
+        this.callbackUrl = callbackUrl;
         ping();
     }
 
@@ -53,6 +54,10 @@ public class Service {
 
     public synchronized Duration timeSinceLastPing() {
         return Duration.between(this.lastPing, Instant.now());
+    }
+
+    public synchronized String getCallbackUrl() {
+        return this.callbackUrl;
     }
 
 }

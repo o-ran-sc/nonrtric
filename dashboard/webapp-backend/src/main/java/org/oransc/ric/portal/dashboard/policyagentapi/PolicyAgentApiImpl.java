@@ -26,7 +26,8 @@ import org.oransc.ric.portal.dashboard.model.PolicyInstances;
 import org.oransc.ric.portal.dashboard.model.PolicyType;
 import org.oransc.ric.portal.dashboard.model.PolicyTypes;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -84,13 +85,16 @@ public class PolicyAgentApiImpl implements PolicyAgentApi {
     }
 
     @Override
-    public PolicyTypes getAllPolicyTypes() throws RestClientException {
+    public ResponseEntity<PolicyTypes> getAllPolicyTypes() throws RestClientException {
         String url = baseUrl() + "/policy_schemas";
-        String rsp = this.restTemplate.getForObject(url, String.class);
+        ResponseEntity<String> rsp = this.restTemplate.getForEntity(url, String.class);
+        if (!rsp.getStatusCode().is2xxSuccessful()) {
+            return new ResponseEntity<>(rsp.getStatusCode());
+        }
 
         PolicyTypes result = new PolicyTypes();
         JsonParser jsonParser = new JsonParser();
-        JsonArray schemas = jsonParser.parse(rsp).getAsJsonArray();
+        JsonArray schemas = jsonParser.parse(rsp.getBody()).getAsJsonArray();
         for (JsonElement schema : schemas) {
             JsonObject schemaObj = schema.getAsJsonObject();
             String title = schemaObj.get("title").getAsString();
@@ -98,36 +102,39 @@ public class PolicyAgentApiImpl implements PolicyAgentApi {
             PolicyType pt = new PolicyType(title, schemaAsStr);
             result.add(pt);
         }
-        return result;
+        return new ResponseEntity<>(result, rsp.getStatusCode());
     }
 
     @Override
-    public PolicyInstances getPolicyInstancesForType(String type) {
+    public ResponseEntity<PolicyInstances> getPolicyInstancesForType(String type) {
         String url = baseUrl() + "/policies?type={type}";
         Map<String, ?> uriVariables = Map.of("type", type);
-        String rsp = this.restTemplate.getForObject(url, String.class, uriVariables);
+        ResponseEntity<String> rsp = this.restTemplate.getForEntity(url, String.class, uriVariables);
+        if (!rsp.getStatusCode().is2xxSuccessful()) {
+            return new ResponseEntity<>(rsp.getStatusCode());
+        }
 
         Type listType = new TypeToken<List<ImmutablePolicyInfo>>() {
         }.getType();
-        List<PolicyInfo> rspParsed = gson.fromJson(rsp, listType);
+        List<PolicyInfo> rspParsed = gson.fromJson(rsp.getBody(), listType);
 
         PolicyInstances result = new PolicyInstances();
         for (PolicyInfo p : rspParsed) {
             result.add(p);
         }
-        return result;
+        return new ResponseEntity<>(result, rsp.getStatusCode());
     }
 
     @Override
-    public String getPolicyInstance(String id) throws RestClientException {
+    public ResponseEntity<String> getPolicyInstance(String id) throws RestClientException {
         String url = baseUrl() + "/policy?instance={id}";
         Map<String, ?> uriVariables = Map.of("id", id);
 
-        return this.restTemplate.getForObject(url, String.class, uriVariables);
+        return this.restTemplate.getForEntity(url, String.class, uriVariables);
     }
 
     @Override
-    public void putPolicy(String policyTypeIdString, String policyInstanceId, String json, String ric)
+    public ResponseEntity<String> putPolicy(String policyTypeIdString, String policyInstanceId, String json, String ric)
             throws RestClientException {
         String url = baseUrl() + "/policy?type={type}&instance={instance}&ric={ric}&service={service}";
         Map<String, ?> uriVariables = Map.of( //
@@ -136,7 +143,12 @@ public class PolicyAgentApiImpl implements PolicyAgentApi {
                 "ric", ric, //
                 "service", "dashboard");
 
-        this.restTemplate.put(url, json, uriVariables);
+        try {
+            this.restTemplate.put(url, json, uriVariables);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
     }
 
     @Override
@@ -157,7 +169,7 @@ public class PolicyAgentApiImpl implements PolicyAgentApi {
     }
 
     @Override
-    public Collection<String> getRicsSupportingType(String typeName) {
+    public ResponseEntity<Collection<String>> getRicsSupportingType(String typeName) {
         String url = baseUrl() + "/rics?policyType={typeName}";
         Map<String, ?> uriVariables = Map.of("typeName", typeName);
         String rsp = this.restTemplate.getForObject(url, String.class, uriVariables);
@@ -170,7 +182,7 @@ public class PolicyAgentApiImpl implements PolicyAgentApi {
         for (RicInfo ric : rspParsed) {
             result.add(ric.name());
         }
-        return result;
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
 }

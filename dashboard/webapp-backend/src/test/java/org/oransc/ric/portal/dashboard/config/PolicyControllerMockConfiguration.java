@@ -42,6 +42,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 
 /**
@@ -62,14 +64,15 @@ public class PolicyControllerMockConfiguration {
 		private final Database database = new Database();
 
 		@Override
-		public String getPolicyInstance(String id) throws RestClientException {
-			return database.getInstance(id);
+		public ResponseEntity<String> getPolicyInstance(String id) throws RestClientException {
+			return new ResponseEntity<>(database.getInstance(id), HttpStatus.OK);
 		}
 
 		@Override
-		public void putPolicy(String policyTypeIdString, String policyInstanceId, String json, String ric)
-				throws RestClientException {
+		public ResponseEntity<String> putPolicy(String policyTypeIdString, String policyInstanceId, String json,
+				String ric) throws RestClientException {
 			database.putInstance(policyTypeIdString, policyInstanceId, json, ric);
+			return new ResponseEntity<>(HttpStatus.OK);
 		}
 
 		@Override
@@ -78,27 +81,27 @@ public class PolicyControllerMockConfiguration {
 		}
 
 		@Override
-		public PolicyTypes getAllPolicyTypes() throws RestClientException {
+		public ResponseEntity<PolicyTypes> getAllPolicyTypes() throws RestClientException {
 			PolicyTypes result = new PolicyTypes();
 			result.addAll(database.getTypes());
-			return result;
+			return new ResponseEntity<>(result, HttpStatus.OK);
 		}
 
 		@Override
-		public PolicyInstances getPolicyInstancesForType(String type) {
+		public ResponseEntity<PolicyInstances> getPolicyInstancesForType(String type) {
 			PolicyInstances result = new PolicyInstances();
 			List<PolicyInfo> inst = database.getInstances(Optional.of(type));
 			result.addAll(inst);
-			return result;
+			return new ResponseEntity<>(result, HttpStatus.OK);
 		}
 
 		@Override
-		public Collection<String> getRicsSupportingType(String typeName) {
+		public ResponseEntity<Collection<String>> getRicsSupportingType(String typeName) {
 			Vector<String> res = new Vector<>();
 			res.add("ric_1");
 			res.add("ric_2");
 			res.add("ric_3");
-			return res;
+			return new ResponseEntity<>(res, HttpStatus.OK);
 		}
 	}
 

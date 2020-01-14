@@ -23,21 +23,22 @@ import java.util.Collection;
 
 import org.oransc.ric.portal.dashboard.model.PolicyInstances;
 import org.oransc.ric.portal.dashboard.model.PolicyTypes;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
 
 public interface PolicyAgentApi {
 
-    public PolicyTypes getAllPolicyTypes() throws RestClientException;
+    public ResponseEntity<PolicyTypes> getAllPolicyTypes() throws RestClientException;
 
-    public PolicyInstances getPolicyInstancesForType(String type);
+    public ResponseEntity<PolicyInstances> getPolicyInstancesForType(String type);
 
-    public String getPolicyInstance(String id) throws RestClientException;
+    public ResponseEntity<String> getPolicyInstance(String id) throws RestClientException;
 
-    public void putPolicy(String policyTypeIdString, String policyInstanceId, String json, String ric)
+    public ResponseEntity<String> putPolicy(String policyTypeIdString, String policyInstanceId, String json, String ric)
             throws RestClientException;
 
     public void deletePolicy(String policyInstanceId) throws RestClientException;
 
-    public Collection<String> getRicsSupportingType(String typeName);
+    public ResponseEntity<Collection<String>> getRicsSupportingType(String typeName);
 
 }

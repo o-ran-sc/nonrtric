@@ -9,6 +9,14 @@
                "kista_1",
                "kista_2"
             ]
+         },
+         {
+            "name": "ric2",
+            "baseUrl": "http://localhost:8081/",
+            "managedElementIds": [
+               "kista_3",
+               "kista_4"
+            ]
          }
       ]
    }

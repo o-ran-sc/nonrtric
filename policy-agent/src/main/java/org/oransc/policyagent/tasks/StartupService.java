@@ -27,6 +27,7 @@ import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Rics;
+import org.oransc.policyagent.repository.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,13 +56,18 @@ public class StartupService {
     @Autowired
     private Policies policies;
 
+    @Autowired
+    private Services services;
+
+    // Only for unittesting
     StartupService(ApplicationConfig appConfig, Rics rics, PolicyTypes policyTypes, A1Client a1Client,
-        Policies policies) {
+        Policies policies, Services services) {
         this.applicationConfig = appConfig;
         this.rics = rics;
         this.policyTypes = policyTypes;
         this.a1Client = a1Client;
         this.policies = policies;
+        this.services = services;
     }
 
     /**
@@ -73,7 +79,7 @@ public class StartupService {
         for (RicConfig ricConfig : applicationConfig.getRicConfigs()) {
             rics.put(new Ric(ricConfig));
         }
-        RicRecoveryTask recoveryTask = new RicRecoveryTask(a1Client, policyTypes, policies);
+        RicRecoveryTask recoveryTask = new RicRecoveryTask(a1Client, policyTypes, policies, services);
         recoveryTask.run(rics.getRics()); // recover all Rics
     }
 
