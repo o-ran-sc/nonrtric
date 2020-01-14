@@ -22,6 +22,30 @@
       "revId": "7a4a590fb0ebf8772169625cdda327da43c79c6d",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e514f160_953b0536",
+        "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/controller/PolicyController.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-14T13:40:12Z",
+      "side": 1,
+      "message": "I think one option could be to call the method \"checkHttpError(String httpCode)\" defined in this class, before returning the response. This method will raise the appropriate exception in case of error, that will show the corresponding http code and message in the dashboard UI.",
+      "parentUuid": "e44f87fa_e044ef67",
+      "range": {
+        "startLine": 100,
+        "startChar": 36,
+        "endLine": 100,
+        "endChar": 53
+      },
+      "revId": "7a4a590fb0ebf8772169625cdda327da43c79c6d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
