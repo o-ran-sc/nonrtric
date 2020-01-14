@@ -27,6 +27,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Vector;
 
 import org.junit.jupiter.api.Test;
@@ -42,11 +43,10 @@ import org.oransc.policyagent.repository.ImmutablePolicyType;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.PolicyType;
+import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Ric.RicState;
 import org.oransc.policyagent.repository.Rics;
-
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(MockitoExtension.class)
@@ -93,19 +93,23 @@ public class RepositorySupervisionTest {
             .build();
         Policies policies = new Policies();
         policies.put(policy1);
+        PolicyTypes types = new PolicyTypes();
 
-        RepositorySupervision supervisorUnderTest = new RepositorySupervision(rics, policies, a1ClientMock);
+        RepositorySupervision supervisorUnderTest = new RepositorySupervision(rics, policies, a1ClientMock, types);
 
-        when(a1ClientMock.getPolicyIdentities(anyString())).thenReturn(Flux.just("policyId1", "policyId2"));
+        Mono<Collection<String>> policyIds = Mono.just(Arrays.asList("policyId1", "policyId2"));
+        when(a1ClientMock.getPolicyIdentities(anyString())).thenReturn(policyIds);
         when(a1ClientMock.deletePolicy(anyString(), anyString())).thenReturn(Mono.empty());
+        when(a1ClientMock.getPolicyTypeIdentities(anyString())).thenReturn(policyIds);
+        when(a1ClientMock.getPolicyType(anyString(), anyString())).thenReturn(Mono.just("schema"));
 
         supervisorUnderTest.checkAllRics();
 
-        await().untilAsserted(() -> RicState.ACTIVE.equals(rics.getRic("ric2").state()));
+        await().untilAsserted(() -> RicState.ACTIVE.equals(ric1.state()));
+        await().untilAsserted(() -> RicState.ACTIVE.equals(ric2.state()));
+        await().untilAsserted(() -> RicState.ACTIVE.equals(ric3.state()));
 
-        verify(a1ClientMock).getPolicyIdentities("baseUrl1");
         verify(a1ClientMock).deletePolicy("baseUrl1", "policyId2");
-        verify(a1ClientMock).getPolicyIdentities("baseUrl2");
         verify(a1ClientMock).deletePolicy("baseUrl2", "policyId2");
         verifyNoMoreInteractions(a1ClientMock);
     }

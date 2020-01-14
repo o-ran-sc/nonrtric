@@ -22,6 +22,7 @@ package org.oransc.policyagent.clients;
 
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -29,8 +30,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class A1ClientImpl implements A1Client {
@@ -45,19 +44,19 @@ public class A1ClientImpl implements A1Client {
     }
 
     @Override
-    public Flux<String> getPolicyTypeIdentities(String nearRtRicUrl) {
+    public Mono<Collection<String>> getPolicyTypeIdentities(String nearRtRicUrl) {
         logger.debug("getPolicyTypeIdentities nearRtRicUrl = {}", nearRtRicUrl);
         AsyncRestClient client = createClient(nearRtRicUrl);
-        Mono<String> response = client.get("/policytypes/identities");
-        return response.flatMapMany(this::createFlux);
+        return client.get("/policytypes/identities") //
+            .flatMap(this::parseJsonArrayOfString);
     }
 
     @Override
-    public Flux<String> getPolicyIdentities(String nearRtRicUrl) {
+    public Mono<Collection<String>> getPolicyIdentities(String nearRtRicUrl) {
         logger.debug("getPolicyIdentities nearRtRicUrl = {}", nearRtRicUrl);
         AsyncRestClient client = createClient(nearRtRicUrl);
-        Mono<String> response = client.get("/policies/identities");
-        return response.flatMapMany(this::createFlux);
+        return client.get("/policies/identities") //
+            .flatMap(this::parseJsonArrayOfString);
     }
 
     @Override
@@ -84,7 +83,7 @@ public class A1ClientImpl implements A1Client {
         return client.delete("/policies/" + policyId);
     }
 
-    private Flux<String> createFlux(String inputString) {
+    private Mono<Collection<String>> parseJsonArrayOfString(String inputString) {
         try {
             List<String> arrayList = new ArrayList<>();
             JSONArray jsonArray = new JSONArray(inputString);
@@ -92,9 +91,9 @@ public class A1ClientImpl implements A1Client {
                 arrayList.add(jsonArray.getString(i));
             }
             logger.debug("A1 client: received list = {}", arrayList);
-            return Flux.fromIterable(arrayList);
+            return Mono.just(arrayList);
         } catch (JSONException ex) { // invalid json
-            return Flux.error(ex);
+            return Mono.error(ex);
         }
     }
 

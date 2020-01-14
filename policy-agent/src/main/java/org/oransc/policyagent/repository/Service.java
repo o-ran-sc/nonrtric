@@ -35,11 +35,11 @@ public class Service {
         ping();
     }
 
-    public String getName() {
+    public synchronized String getName() {
         return this.name;
     }
 
-    public Duration getKeepAliveInterval() {
+    public synchronized Duration getKeepAliveInterval() {
         return this.keepAliveInterval;
     }
 

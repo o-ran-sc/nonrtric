@@ -65,38 +65,38 @@ public class Ric {
      *
      * @return a vector containing the nodes managed by this Ric.
      */
-    public Vector<String> getManagedNodes() {
+    public Vector<String> getManagedElementIds() {
         return ricConfig.managedElementIds();
     }
 
     /**
      * Determines if the given node is managed by this Ric.
      *
-     * @param nodeName the node name to check.
+     * @param managedElementId the node name to check.
      * @return true if the given node is managed by this Ric.
      */
-    public boolean isManaging(String nodeName) {
-        return ricConfig.managedElementIds().contains(nodeName);
+    public boolean isManaging(String managedElementId) {
+        return ricConfig.managedElementIds().contains(managedElementId);
     }
 
     /**
      * Adds the given node as managed by this Ric.
      *
-     * @param nodeName the node to add.
+     * @param managedElementId the node to add.
      */
-    public void addManagedNode(String nodeName) {
-        if (!ricConfig.managedElementIds().contains(nodeName)) {
-            ricConfig.managedElementIds().add(nodeName);
+    public void addManagedElement(String managedElementId) {
+        if (!ricConfig.managedElementIds().contains(managedElementId)) {
+            ricConfig.managedElementIds().add(managedElementId);
         }
     }
 
     /**
      * Removes the given node as managed by this Ric.
      *
-     * @param nodeName the node to remove.
+     * @param managedElementId the node to remove.
      */
-    public void removeManagedNode(String nodeName) {
-        ricConfig.managedElementIds().remove(nodeName);
+    public void removeManagedElement(String managedElementId) {
+        ricConfig.managedElementIds().remove(managedElementId);
     }
 
     /**
@@ -122,23 +122,10 @@ public class Ric {
     }
 
     /**
-     * Adds policy types as supported by this Ric.
-     *
-     * @param types the policy types to support.
+     * Removes all policy type as supported by this Ric.
      */
-    public void addSupportedPolicyTypes(Collection<PolicyType> types) {
-        for (PolicyType type : types) {
-            addSupportedPolicyType(type);
-        }
-    }
-
-    /**
-     * Removes a policy type as supported by this Ric.
-     *
-     * @param type the policy type to remove as supported by this Ric.
-     */
-    public void removeSupportedPolicyType(PolicyType type) {
-        supportedPolicyTypes.remove(type.name());
+    public void clearSupportedPolicyTypes() {
+        supportedPolicyTypes.clear();
     }
 
     /**
@@ -173,6 +160,6 @@ public class Ric {
         /**
          * The Ric cannot be contacted.
          */
-        NOT_REACHABLE
+        NOT_REACHABLE, RECOVERING
     }
 }

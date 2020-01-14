@@ -20,10 +20,12 @@
 
 package org.oransc.policyagent.tasks;
 
+import java.util.Collection;
+
 import org.oransc.policyagent.clients.A1Client;
 import org.oransc.policyagent.repository.Policies;
+import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
-import org.oransc.policyagent.repository.Ric.RicState;
 import org.oransc.policyagent.repository.Rics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,13 +47,15 @@ public class RepositorySupervision {
 
     private final Rics rics;
     private final Policies policies;
+    private final PolicyTypes policyTypes;
     private final A1Client a1Client;
 
     @Autowired
-    public RepositorySupervision(Rics rics, Policies policies, A1Client a1Client) {
+    public RepositorySupervision(Rics rics, Policies policies, A1Client a1Client, PolicyTypes policyTypes) {
         this.rics = rics;
         this.policies = policies;
         this.a1Client = a1Client;
+        this.policyTypes = policyTypes;
     }
 
     /**
@@ -66,43 +70,57 @@ public class RepositorySupervision {
 
     private Flux<Ric> createTask() {
         return Flux.fromIterable(rics.getRics()) //
-            .groupBy(ric -> ric.state()) //
-            .flatMap(fluxGroup -> handleGroup(fluxGroup.key(), fluxGroup));
+            .flatMap(ric -> checkInstances(ric)) //
+            .flatMap(ric -> checkTypes(ric));
     }
 
-    private Flux<Ric> handleGroup(Ric.RicState key, Flux<Ric> fluxGroup) {
-        logger.debug("Handling group {}", key);
-        switch (key) {
-            case ACTIVE:
-                return fluxGroup.flatMap(this::checkActive);
+    private Mono<Ric> checkInstances(Ric ric) {
 
-            case NOT_REACHABLE:
-                return fluxGroup.flatMap(this::checkNotReachable);
+        return a1Client.getPolicyIdentities(ric.getConfig().baseUrl()) //
+            .onErrorResume(t -> Mono.empty()) //
+            .flatMap(ricP -> validateInstances(ricP, ric));
+    }
 
-            default:
-                // If not initiated, leave it to the StartupService.
-                return Flux.empty();
+    private Flux<Ric> junk() {
+        return Flux.empty();
+    }
+
+    private Mono<Ric> validateInstances(Collection<String> ricPolicies, Ric ric) {
+        if (ricPolicies.size() != policies.getForRic(ric.name()).size()) {
+            return startRecovery(ric);
         }
-    }
-
-    private Mono<Ric> checkActive(Ric ric) {
-        logger.debug("Handling active ric {}", ric);
-        a1Client.getPolicyIdentities(ric.getConfig().baseUrl()) //
-            .filter(policyId -> !policies.containsPolicy(policyId)) //
-            .doOnNext(policyId -> logger.debug("Deleting policy {}", policyId))
-            .flatMap(policyId -> a1Client.deletePolicy(ric.getConfig().baseUrl(), policyId)) //
-            .subscribe();
+        for (String policyId : ricPolicies) {
+            if (!policies.containsPolicy(policyId)) {
+                return startRecovery(ric);
+            }
+        }
         return Mono.just(ric);
     }
 
-    private Mono<Ric> checkNotReachable(Ric ric) {
-        logger.debug("Handling not reachable ric {}", ric);
-        a1Client.getPolicyIdentities(ric.getConfig().baseUrl()) //
-            .filter(policyId -> !policies.containsPolicy(policyId)) //
-            .doOnNext(policyId -> logger.debug("Deleting policy {}", policyId))
-            .flatMap(policyId -> a1Client.deletePolicy(ric.getConfig().baseUrl(), policyId)) //
-            .subscribe(null, null, () -> ric.setState(RicState.ACTIVE));
+    private Mono<Ric> checkTypes(Ric ric) {
+        return a1Client.getPolicyTypeIdentities(ric.getConfig().baseUrl()) //
+            .onErrorResume(t -> {
+                return Mono.empty();
+            }) //
+            .flatMap(ricTypes -> validateTypes(ricTypes, ric));
+    }
+
+    private Mono<Ric> validateTypes(Collection<String> ricTypes, Ric ric) {
+        if (ricTypes.size() != ric.getSupportedPolicyTypes().size()) {
+            return startRecovery(ric);
+        }
+        for (String typeName : ricTypes) {
+            if (!ric.isSupportingType(typeName)) {
+                return startRecovery(ric);
+            }
+        }
         return Mono.just(ric);
+    }
+
+    private Mono<Ric> startRecovery(Ric ric) {
+        RicRecoveryTask recovery = new RicRecoveryTask(a1Client, policyTypes, policies);
+        recovery.run(ric);
+        return Mono.empty();
     }
 
     private void onRicChecked(Ric ric) {

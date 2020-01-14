@@ -32,7 +32,7 @@ import org.oransc.policyagent.exceptions.ServiceException;
 public class Rics {
     Map<String, Ric> rics = new HashMap<>();
 
-    public void put(Ric ric) {
+    public synchronized void put(Ric ric) {
         rics.put(ric.name(), ric);
     }
 

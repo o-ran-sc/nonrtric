@@ -75,6 +75,10 @@ public class Policies {
         return policiesId.containsKey(id);
     }
 
+    public synchronized Policy get(String id) {
+        return policiesId.get(id);
+    }
+
     public synchronized Policy getPolicy(String id) throws ServiceException {
         Policy p = policiesId.get(id);
         if (p == null) {

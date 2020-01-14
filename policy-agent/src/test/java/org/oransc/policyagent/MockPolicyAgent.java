@@ -27,12 +27,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.oransc.policyagent.clients.A1Client;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.repository.ImmutablePolicyType;
@@ -46,12 +47,10 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Bean;
-import org.springframework.test.context.junit4.SpringRunner;
-
-import reactor.core.publisher.Flux;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
 public class MockPolicyAgent {
 
@@ -80,7 +79,7 @@ public class MockPolicyAgent {
             getPolicies(nearRtRicUrl).put(policyId, policyString);
         }
 
-        public Iterable<String> getPolicyIdentities(String nearRtRicUrl) {
+        public Collection<String> getPolicyIdentities(String nearRtRicUrl) {
             return getPolicies(nearRtRicUrl).keySet();
         }
 
@@ -106,18 +105,18 @@ public class MockPolicyAgent {
         }
 
         @Override
-        public Flux<String> getPolicyTypeIdentities(String nearRtRicUrl) {
+        public Mono<Collection<String>> getPolicyTypeIdentities(String nearRtRicUrl) {
             Vector<String> result = new Vector<>();
             for (PolicyType p : this.policyTypes.getAll()) {
                 result.add(p.name());
             }
-            return Flux.fromIterable(result);
+            return Mono.just(result);
         }
 
         @Override
-        public Flux<String> getPolicyIdentities(String nearRtRicUrl) {
-            Iterable<String> result = policies.getPolicyIdentities(nearRtRicUrl);
-            return Flux.fromIterable(result);
+        public Mono<Collection<String>> getPolicyIdentities(String nearRtRicUrl) {
+            Collection<String> result = policies.getPolicyIdentities(nearRtRicUrl);
+            return Mono.just(result);
         }
 
         @Override
