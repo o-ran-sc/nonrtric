@@ -148,10 +148,16 @@ public class PolicyAgentApiImpl implements PolicyAgentApi {
     }
 
     @Override
-    public void deletePolicy(String policyInstanceId) throws RestClientException {
+    public ResponseEntity<String> deletePolicy(String policyInstanceId) throws RestClientException {
         String url = baseUrl() + "/policy?instance={instance}";
         Map<String, ?> uriVariables = Map.of("instance", policyInstanceId);
-        this.restTemplate.delete(url, uriVariables);
+        try {
+            this.restTemplate.delete(url, uriVariables);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+
     }
 
     @Value.Immutable

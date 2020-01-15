@@ -76,8 +76,9 @@ public class PolicyControllerMockConfiguration {
         }
 
         @Override
-        public void deletePolicy(String policyInstanceId) throws RestClientException {
+        public ResponseEntity<String> deletePolicy(String policyInstanceId) throws RestClientException {
             database.deleteInstance(policyInstanceId);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
 
         @Override
