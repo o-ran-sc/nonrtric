@@ -98,7 +98,12 @@ public class PolicyController {
     @Secured({DashboardConstants.ROLE_ADMIN, DashboardConstants.ROLE_STANDARD})
     public ResponseEntity<PolicyTypes> getAllPolicyTypes(HttpServletResponse response) {
         logger.debug("getAllPolicyTypes");
-        return this.policyAgentApi.getAllPolicyTypes();
+
+        ResponseEntity<PolicyTypes> result = this.policyAgentApi.getAllPolicyTypes();
+        if (!result.getStatusCode().is2xxSuccessful()) {
+            return new ResponseEntity<>(result.getStatusCode());
+        }
+        return new ResponseEntity<>(result.getBody(), result.getStatusCode());
     }
 
     @ApiOperation(value = "Returns the policy instances for the given policy type.")
@@ -122,7 +127,12 @@ public class PolicyController {
     public ResponseEntity<String> getPolicyInstance(@PathVariable(POLICY_TYPE_ID_NAME) String policyTypeIdString,
         @PathVariable(POLICY_INSTANCE_ID_NAME) String policyInstanceId) {
         logger.debug("getPolicyInstance {}:{}", policyTypeIdString, policyInstanceId);
-        return this.policyAgentApi.getPolicyInstance(policyInstanceId);
+
+        ResponseEntity<String> result = this.policyAgentApi.getPolicyInstance(policyInstanceId);
+        if (!result.getStatusCode().is2xxSuccessful()) {
+            return new ResponseEntity<>(result.getStatusCode());
+        }
+        return new ResponseEntity<>(result.getBody(), result.getStatusCode());
     }
 
     @ApiOperation(value = "Creates the policy instances for the given policy type.")
@@ -134,17 +144,28 @@ public class PolicyController {
         @PathVariable(POLICY_INSTANCE_ID_NAME) String policyInstanceId, @RequestBody String instance) {
         logger.debug("putPolicyInstance typeId: {}, instanceId: {}, instance: {}", policyTypeIdString, policyInstanceId,
             instance);
-        return this.policyAgentApi.putPolicy(policyTypeIdString, policyInstanceId, instance, ric);
+
+        ResponseEntity<String> result =
+            this.policyAgentApi.putPolicy(policyTypeIdString, policyInstanceId, instance, ric);
+        if (!result.getStatusCode().is2xxSuccessful()) {
+            return new ResponseEntity<>(result.getStatusCode());
+        }
+        return new ResponseEntity<>(result.getBody(), result.getStatusCode());
     }
 
     @ApiOperation(value = "Deletes the policy instances for the given policy type.")
     @DeleteMapping(POLICY_TYPES_METHOD + "/{" + POLICY_TYPE_ID_NAME + "}/" + POLICIES_NAME + "/{"
         + POLICY_INSTANCE_ID_NAME + "}")
     @Secured({DashboardConstants.ROLE_ADMIN})
-    public void deletePolicyInstance(@PathVariable(POLICY_TYPE_ID_NAME) String policyTypeIdString,
+    public ResponseEntity<String> deletePolicyInstance(@PathVariable(POLICY_TYPE_ID_NAME) String policyTypeIdString,
         @PathVariable(POLICY_INSTANCE_ID_NAME) String policyInstanceId) {
         logger.debug("deletePolicyInstance typeId: {}, instanceId: {}", policyTypeIdString, policyInstanceId);
-        this.policyAgentApi.deletePolicy(policyInstanceId);
+
+        ResponseEntity<String> result = this.policyAgentApi.deletePolicy(policyInstanceId);
+        if (!result.getStatusCode().is2xxSuccessful()) {
+            return new ResponseEntity<>(result.getStatusCode());
+        }
+        return new ResponseEntity<>(result.getBody(), result.getStatusCode());
     }
 
     private void checkHttpError(String httpCode) {
