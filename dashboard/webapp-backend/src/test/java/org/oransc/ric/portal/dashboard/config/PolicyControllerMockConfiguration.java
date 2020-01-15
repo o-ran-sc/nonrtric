@@ -19,6 +19,8 @@
  */
 package org.oransc.ric.portal.dashboard.config;
 
+import com.google.gson.GsonBuilder;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -54,6 +56,10 @@ public class PolicyControllerMockConfiguration {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+    private static com.google.gson.Gson gson = new GsonBuilder() //
+        .serializeNulls() //
+        .create(); //
+
     @Bean
     public PolicyAgentApi policyAgentApi() {
         MockPolicyAgentApi apiClient = new MockPolicyAgentApi();
@@ -64,44 +70,45 @@ public class PolicyControllerMockConfiguration {
         private final Database database = new Database();
 
         @Override
-        public ResponseEntity<String> getPolicyInstance(String id) throws RestClientException {
+        public ResponseEntity<String> getPolicyInstance(String id) {
             return new ResponseEntity<>(database.getInstance(id), HttpStatus.OK);
         }
 
         @Override
         public ResponseEntity<String> putPolicy(String policyTypeIdString, String policyInstanceId, String json,
-            String ric) throws RestClientException {
+            String ric) {
             database.putInstance(policyTypeIdString, policyInstanceId, json, ric);
-            return new ResponseEntity<>(HttpStatus.OK);
+            return new ResponseEntity<>("Policy was put successfully", HttpStatus.OK);
         }
 
         @Override
-        public void deletePolicy(String policyInstanceId) throws RestClientException {
+        public ResponseEntity<String> deletePolicy(String policyInstanceId) {
             database.deleteInstance(policyInstanceId);
+            return new ResponseEntity<>("Policy was deleted successfully", HttpStatus.NO_CONTENT);
         }
 
         @Override
-        public ResponseEntity<PolicyTypes> getAllPolicyTypes() throws RestClientException {
+        public ResponseEntity<String> getAllPolicyTypes() {
             PolicyTypes result = new PolicyTypes();
             result.addAll(database.getTypes());
-            return new ResponseEntity<>(result, HttpStatus.OK);
+            return new ResponseEntity<>(gson.toJson(result), HttpStatus.OK);
         }
 
         @Override
-        public ResponseEntity<PolicyInstances> getPolicyInstancesForType(String type) {
+        public ResponseEntity<String> getPolicyInstancesForType(String type) {
             PolicyInstances result = new PolicyInstances();
             List<PolicyInfo> inst = database.getInstances(Optional.of(type));
             result.addAll(inst);
-            return new ResponseEntity<>(result, HttpStatus.OK);
+            return new ResponseEntity<>(gson.toJson(result), HttpStatus.OK);
         }
 
         @Override
-        public ResponseEntity<Collection<String>> getRicsSupportingType(String typeName) {
+        public ResponseEntity<String> getRicsSupportingType(String typeName) {
             Vector<String> res = new Vector<>();
             res.add("ric_1");
             res.add("ric_2");
             res.add("ric_3");
-            return new ResponseEntity<>(res, HttpStatus.OK);
+            return new ResponseEntity<>(gson.toJson(res), HttpStatus.OK);
         }
     }
 
