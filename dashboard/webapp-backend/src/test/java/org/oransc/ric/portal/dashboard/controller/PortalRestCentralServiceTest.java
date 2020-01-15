@@ -21,21 +21,11 @@ package org.oransc.ric.portal.dashboard.controller;
 
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.onap.portalsdk.core.onboarding.util.PortalApiConstants;
-import org.onap.portalsdk.core.restful.domain.EcompRole;
-import org.onap.portalsdk.core.restful.domain.EcompUser;
-import org.oransc.ric.portal.dashboard.DashboardConstants;
-import org.oransc.ric.portal.dashboard.config.PortalApIMockConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
@@ -63,7 +53,7 @@ public class PortalRestCentralServiceTest extends AbstractControllerTest {
         Assertions.assertTrue(response.getBody().contains("Static error page"));
     }
 
-    private HttpEntity<Object> getEntityWithHeaders(Object body) {
+/*	private HttpEntity<Object> getEntityWithHeaders(Object body) {
         HttpHeaders headers = new HttpHeaders();
         headers.set(PortalApIMockConfiguration.PORTAL_USERNAME_HEADER_KEY,
             PortalApIMockConfiguration.PORTAL_USERNAME_HEADER_KEY);
@@ -86,7 +76,7 @@ public class PortalRestCentralServiceTest extends AbstractControllerTest {
         return user;
     }
 
-    /*
+	@Test
      * @Test
      * public void createUserTest() {
      * final String loginId = "login1";

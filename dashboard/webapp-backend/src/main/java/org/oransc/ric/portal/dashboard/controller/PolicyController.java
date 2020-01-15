@@ -21,26 +21,17 @@ package org.oransc.ric.portal.dashboard.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import io.swagger.annotations.ApiOperation;
-
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
-
 import javax.servlet.http.HttpServletResponse;
-
 import org.oransc.ric.portal.dashboard.DashboardConstants;
-import org.oransc.ric.portal.dashboard.exceptions.HttpBadRequestException;
-import org.oransc.ric.portal.dashboard.exceptions.HttpInternalServerErrorException;
-import org.oransc.ric.portal.dashboard.exceptions.HttpNotFoundException;
-import org.oransc.ric.portal.dashboard.exceptions.HttpNotImplementedException;
 import org.oransc.ric.portal.dashboard.model.PolicyInstances;
 import org.oransc.ric.portal.dashboard.model.PolicyTypes;
 import org.oransc.ric.portal.dashboard.policyagentapi.PolicyAgentApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -145,23 +136,6 @@ public class PolicyController {
         @PathVariable(POLICY_INSTANCE_ID_NAME) String policyInstanceId) {
         logger.debug("deletePolicyInstance typeId: {}, instanceId: {}", policyTypeIdString, policyInstanceId);
         this.policyAgentApi.deletePolicy(policyInstanceId);
-    }
-
-    private void checkHttpError(String httpCode) {
-        logger.debug("Http Response Code: {}", httpCode);
-        if (httpCode.equals(String.valueOf(HttpStatus.NOT_FOUND.value()))) {
-            logger.error("Caught HttpNotFoundException");
-            throw new HttpNotFoundException("Not Found Exception");
-        } else if (httpCode.equals(String.valueOf(HttpStatus.BAD_REQUEST.value()))) {
-            logger.error("Caught HttpBadRequestException");
-            throw new HttpBadRequestException("Bad Request Exception");
-        } else if (httpCode.equals(String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()))) {
-            logger.error("Caught HttpInternalServerErrorException");
-            throw new HttpInternalServerErrorException("Internal Server Error Exception");
-        } else if (httpCode.equals(String.valueOf(HttpStatus.NOT_IMPLEMENTED.value()))) {
-            logger.error("Caught HttpNotImplementedException");
-            throw new HttpNotImplementedException("Not Implemented Exception");
-        }
     }
 
     @ApiOperation(value = "Returns the rics supporting the given policy type.")

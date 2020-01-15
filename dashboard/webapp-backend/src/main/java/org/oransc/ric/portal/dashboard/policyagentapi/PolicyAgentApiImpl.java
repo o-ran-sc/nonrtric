@@ -25,14 +25,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
-
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
 import org.oransc.ric.portal.dashboard.model.ImmutablePolicyInfo;
