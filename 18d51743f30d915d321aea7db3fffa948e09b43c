@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d0d23dac_1beb072d",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RepositorySupervision.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-01-16T16:04:32Z",
+      "side": 1,
+      "message": "I never thought about that. Is that some rule? I goggled and \u003d\u003d seems to be the preferred way.\nhttps://javarevisited.blogspot.com/2013/04/how-to-compare-two-enum-in-java-equals.html",
+      "parentUuid": "10dda3e4_8b343375",
+      "range": {
+        "startLine": 85,
+        "startChar": 12,
+        "endLine": 85,
+        "endChar": 45
+      },
+      "revId": "18d51743f30d915d321aea7db3fffa948e09b43c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7606c30c_01161dd5",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RepositorySupervision.java",
         "patchSetId": 2
