@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a7893c4_4e663eec",
+        "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/controller/PolicyController.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-01-16T06:40:59Z",
+      "side": 1,
+      "message": "I do not see the purpose of this change. When there is a HTTP error, any additional response is removed. Now, you will only be able to see a HTTP error code which means noting to the user. \nI would rather have the opposite; that the agent returns a string (in addition to the HTTP code) containing a descriptive text that is shown in the GUI.",
+      "range": {
+        "startLine": 191,
+        "startChar": 15,
+        "endLine": 191,
+        "endChar": 48
+      },
+      "revId": "8fb214b337ea0783414daef8dc480567a01a5025",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
