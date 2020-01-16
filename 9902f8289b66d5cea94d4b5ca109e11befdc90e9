@@ -45,6 +45,30 @@
       "revId": "9902f8289b66d5cea94d4b5ca109e11befdc90e9",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba7c56d8_8e4a96ee",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/configuration/ApplicationConfig.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-16T09:01:50Z",
+      "side": 1,
+      "message": "I found in the testing with A1 simulator that the application still reads the config from file, if the consul is not running. I think that\u0027s good for e2e testing because then there is no need to set up consul. So I suggest that we should keep it here until at least the e2e testing is completed.",
+      "parentUuid": "d39fa947_ec8bb616",
+      "range": {
+        "startLine": 224,
+        "startChar": 3,
+        "endLine": 224,
+        "endChar": 45
+      },
+      "revId": "9902f8289b66d5cea94d4b5ca109e11befdc90e9",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
