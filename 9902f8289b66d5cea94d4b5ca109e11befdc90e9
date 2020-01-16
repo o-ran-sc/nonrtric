@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7adccd8_12f561da",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/configuration/ApplicationConfig.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-01-16T07:23:50Z",
+      "side": 1,
+      "message": "To me it would make sense to in a later commit move the periodic updating to a class under tasks. Then all regular tasks are under \u0027tasks\u0027.",
+      "range": {
+        "startLine": 134,
+        "startChar": 4,
+        "endLine": 134,
+        "endChar": 49
+      },
+      "revId": "9902f8289b66d5cea94d4b5ca109e11befdc90e9",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d39fa947_ec8bb616",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/configuration/ApplicationConfig.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-01-16T07:23:50Z",
+      "side": 1,
+      "message": "In a later commit,I think this loading from file should be moved to test because it is only used there.",
+      "range": {
+        "startLine": 224,
+        "startChar": 3,
+        "endLine": 224,
+        "endChar": 45
+      },
+      "revId": "9902f8289b66d5cea94d4b5ca109e11befdc90e9",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
