@@ -92,6 +92,30 @@
       "revId": "18d51743f30d915d321aea7db3fffa948e09b43c",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f9389988_eafb2b5e",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RepositorySupervision.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-01-16T16:05:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b63e4c13_e09032cb",
+      "range": {
+        "startLine": 114,
+        "startChar": 30,
+        "endLine": 114,
+        "endChar": 31
+      },
+      "revId": "18d51743f30d915d321aea7db3fffa948e09b43c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
