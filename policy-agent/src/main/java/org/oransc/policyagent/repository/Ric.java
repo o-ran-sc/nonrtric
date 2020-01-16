@@ -32,7 +32,7 @@ import org.oransc.policyagent.configuration.RicConfig;
  */
 public class Ric {
     private final RicConfig ricConfig;
-    private RicState state = RicState.NOT_INITIATED;
+    private RicState state = RicState.UNDEFINED;
     private Map<String, PolicyType> supportedPolicyTypes = new HashMap<>();
 
     /**
@@ -150,16 +150,16 @@ public class Ric {
      */
     public static enum RicState {
         /**
-         * The Ric has not been initiated yet.
+         * The agent view of the agent may be inconsistent
          */
-        NOT_INITIATED,
+        UNDEFINED,
         /**
-         * The Ric is working fine.
+         * The normal state. Policies can be configured.
          */
-        ACTIVE,
+        IDLE,
         /**
-         * The Ric cannot be contacted.
+         * The Ric states are recovered
          */
-        NOT_REACHABLE, RECOVERING
+        RECOVERING
     }
 }

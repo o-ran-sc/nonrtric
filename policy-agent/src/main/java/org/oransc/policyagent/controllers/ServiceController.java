@@ -91,10 +91,11 @@ public class ServiceController {
 
     @GetMapping("/services")
     public ResponseEntity<?> getServices() {
-        Collection<Service> allServices = this.services.getAll();
-        Collection<ServiceStatus> result = new Vector<>(allServices.size());
-        for (Service s : allServices) {
-            result.add(toServiceStatus(s));
+        Collection<ServiceStatus> result = new Vector<>();
+        synchronized (this.services) {
+            for (Service s : this.services.getAll()) {
+                result.add(toServiceStatus(s));
+            }
         }
         return new ResponseEntity<>(gson.toJson(result), HttpStatus.OK);
     }

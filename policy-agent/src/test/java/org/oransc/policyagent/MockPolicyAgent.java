@@ -52,10 +52,11 @@ public class MockPolicyAgent {
     static class MockApplicationConfig extends ApplicationConfig {
 
         @Override
-        public void initialize() {
+        protected String getLocalConfigurationFilePath() {
             URL url = MockApplicationConfig.class.getClassLoader().getResource("test_application_configuration.json");
-            loadConfigurationFromFile(url.getFile());
+            return url.getFile();
         }
+
     }
 
     /**

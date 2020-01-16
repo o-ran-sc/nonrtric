@@ -42,23 +42,27 @@ public class MockA1Client implements A1Client {
 
     @Override
     public Mono<Collection<String>> getPolicyTypeIdentities(String nearRtRicUrl) {
-        Vector<String> result = new Vector<>();
-        for (PolicyType p : this.policyTypes.getAll()) {
-            result.add(p.name());
+        synchronized (this.policyTypes) {
+            Vector<String> result = new Vector<>();
+            for (PolicyType p : this.policyTypes.getAll()) {
+                result.add(p.name());
+            }
+            return Mono.just(result);
         }
-        return Mono.just(result);
     }
 
     @Override
     public Mono<Collection<String>> getPolicyIdentities(String nearRtRicUrl) {
-        Vector<String> result = new Vector<>();
-        for (Policy policy : getPolicies(nearRtRicUrl).getAll()) {
-            if (policy.ric().getConfig().baseUrl().equals(nearRtRicUrl)) {
-                result.add(policy.id());
+        synchronized (this.policies) {
+            Vector<String> result = new Vector<>();
+            for (Policy policy : getPolicies(nearRtRicUrl).getAll()) {
+                if (policy.ric().getConfig().baseUrl().equals(nearRtRicUrl)) {
+                    result.add(policy.id());
+                }
             }
-        }
 
-        return Mono.just(result);
+            return Mono.just(result);
+        }
     }
 
     @Override

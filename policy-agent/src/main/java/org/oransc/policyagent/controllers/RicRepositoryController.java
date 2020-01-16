@@ -94,14 +94,17 @@ public class RicRepositoryController {
         })
     public ResponseEntity<String> getRics(
         @RequestParam(name = "policyType", required = false) String supportingPolicyType) {
+
         Vector<RicInfo> result = new Vector<>();
-        for (Ric ric : rics.getRics()) {
-            if (supportingPolicyType == null || ric.isSupportingType(supportingPolicyType)) {
-                result.add(ImmutableRicInfo.builder() //
-                    .name(ric.name()) //
-                    .managedElementIds(ric.getManagedElementIds()) //
-                    .policyTypes(ric.getSupportedPolicyTypeNames()) //
-                    .build());
+        synchronized (rics) {
+            for (Ric ric : rics.getRics()) {
+                if (supportingPolicyType == null || ric.isSupportingType(supportingPolicyType)) {
+                    result.add(ImmutableRicInfo.builder() //
+                        .name(ric.name()) //
+                        .managedElementIds(ric.getManagedElementIds()) //
+                        .policyTypes(ric.getSupportedPolicyTypeNames()) //
+                        .build());
+                }
             }
         }
 

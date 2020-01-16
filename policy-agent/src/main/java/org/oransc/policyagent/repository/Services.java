@@ -20,7 +20,6 @@
 
 package org.oransc.policyagent.repository;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,13 +49,10 @@ public class Services {
 
     public synchronized void put(Service service) {
         logger.debug("Put service: " + service.getName());
-        // TODO a threading problem is that this may happend at the same time as someone is iterating (getAll())
-        // This is a generic problem
         services.put(service.getName(), service);
     }
 
-    // TODO the returned value should be unmodifiable if possible
-    public synchronized Collection<Service> getAll() {
+    public synchronized Iterable<Service> getAll() {
         return services.values();
     }
 
