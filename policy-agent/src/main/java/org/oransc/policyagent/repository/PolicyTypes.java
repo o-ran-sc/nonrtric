@@ -21,6 +21,7 @@
 package org.oransc.policyagent.repository;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,19 +49,19 @@ public class PolicyTypes {
         types.put(type.name(), type);
     }
 
-    public boolean contains(String policyType) {
+    public synchronized boolean contains(String policyType) {
         return types.containsKey(policyType);
     }
 
     public synchronized Collection<PolicyType> getAll() {
-        return types.values();
+        return Collections.unmodifiableCollection(types.values());
     }
 
-    public int size() {
+    public synchronized int size() {
         return types.size();
     }
 
-    public void clear() {
+    public synchronized void clear() {
         this.types.clear();
     }
 }

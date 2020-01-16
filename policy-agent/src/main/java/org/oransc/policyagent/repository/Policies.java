@@ -21,6 +21,7 @@
 package org.oransc.policyagent.repository;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -68,7 +69,7 @@ public class Policies {
         if (map == null) {
             return new Vector<Policy>();
         }
-        return map.values();
+        return Collections.unmodifiableCollection(map.values());
     }
 
     public synchronized boolean containsPolicy(String id) {
@@ -88,7 +89,7 @@ public class Policies {
     }
 
     public synchronized Collection<Policy> getAll() {
-        return policiesId.values();
+        return Collections.unmodifiableCollection(policiesId.values());
     }
 
     public synchronized Collection<Policy> getForService(String service) {

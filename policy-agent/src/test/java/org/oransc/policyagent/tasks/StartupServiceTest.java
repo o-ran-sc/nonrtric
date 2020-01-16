@@ -29,8 +29,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.oransc.policyagent.repository.Ric.RicState.ACTIVE;
-import static org.oransc.policyagent.repository.Ric.RicState.NOT_REACHABLE;
+import static org.oransc.policyagent.repository.Ric.RicState.IDLE;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -49,6 +48,7 @@ import org.oransc.policyagent.configuration.RicConfig;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
+import org.oransc.policyagent.repository.Ric.RicState;
 import org.oransc.policyagent.repository.Rics;
 import org.oransc.policyagent.repository.Services;
 import reactor.core.publisher.Mono;
@@ -77,11 +77,6 @@ public class StartupServiceTest {
 
     @Test
     public void startup_allOk() {
-        Vector<RicConfig> ricConfigs = new Vector<>(2);
-        ricConfigs.add(getRicConfig(FIRST_RIC_NAME, FIRST_RIC_URL, MANAGED_NODE_A));
-        ricConfigs.add(getRicConfig(SECOND_RIC_NAME, SECOND_RIC_URL, MANAGED_NODE_B, MANAGED_NODE_C));
-        when(appConfigMock.getRicConfigs()).thenReturn(ricConfigs);
-
         Mono<Collection<String>> policyTypes1 = Mono.just(Arrays.asList(POLICY_TYPE_1_NAME));
         Mono<Collection<String>> policyTypes2 = Mono.just(Arrays.asList(POLICY_TYPE_1_NAME, POLICY_TYPE_2_NAME));
         when(a1ClientMock.getPolicyTypeIdentities(anyString())).thenReturn(policyTypes1).thenReturn(policyTypes2);
@@ -96,6 +91,12 @@ public class StartupServiceTest {
             new StartupService(appConfigMock, rics, policyTypes, a1ClientMock, new Policies(), new Services());
 
         serviceUnderTest.startup();
+
+        serviceUnderTest.onRicConfigUpdate(getRicConfig(FIRST_RIC_NAME, FIRST_RIC_URL, MANAGED_NODE_A),
+            ApplicationConfig.RicConfigUpdate.ADDED);
+        serviceUnderTest.onRicConfigUpdate(
+            getRicConfig(SECOND_RIC_NAME, SECOND_RIC_URL, MANAGED_NODE_B, MANAGED_NODE_C),
+            ApplicationConfig.RicConfigUpdate.ADDED);
 
         await().untilAsserted(() -> assertThat(policyTypes.size()).isEqualTo(2));
 
@@ -114,7 +115,7 @@ public class StartupServiceTest {
         Ric firstRic = rics.get(FIRST_RIC_NAME);
         assertNotNull(firstRic, "Ric " + FIRST_RIC_NAME + " not added to repository");
         assertEquals(FIRST_RIC_NAME, firstRic.name(), FIRST_RIC_NAME + " not added to Rics");
-        assertEquals(ACTIVE, firstRic.state(), "Not correct state for ric " + FIRST_RIC_NAME);
+        assertEquals(IDLE, firstRic.state(), "Not correct state for ric " + FIRST_RIC_NAME);
         assertEquals(1, firstRic.getSupportedPolicyTypes().size(),
             "Not correct no of types supported for ric " + FIRST_RIC_NAME);
         assertTrue(firstRic.isSupportingType(POLICY_TYPE_1_NAME),
@@ -126,7 +127,7 @@ public class StartupServiceTest {
         Ric secondRic = rics.get(SECOND_RIC_NAME);
         assertNotNull(secondRic, "Ric " + SECOND_RIC_NAME + " not added to repository");
         assertEquals(SECOND_RIC_NAME, secondRic.name(), SECOND_RIC_NAME + " not added to Rics");
-        assertEquals(ACTIVE, secondRic.state(), "Not correct state for " + SECOND_RIC_NAME);
+        assertEquals(IDLE, secondRic.state(), "Not correct state for " + SECOND_RIC_NAME);
         assertEquals(2, secondRic.getSupportedPolicyTypes().size(),
             "Not correct no of types supported for ric " + SECOND_RIC_NAME);
         assertTrue(secondRic.isSupportingType(POLICY_TYPE_1_NAME),
@@ -141,11 +142,6 @@ public class StartupServiceTest {
 
     @Test
     public void startup_unableToConnectToGetTypes() {
-        Vector<RicConfig> ricConfigs = new Vector<>(2);
-        ricConfigs.add(getRicConfig(FIRST_RIC_NAME, FIRST_RIC_URL, MANAGED_NODE_A));
-        ricConfigs.add(getRicConfig(SECOND_RIC_NAME, SECOND_RIC_URL, MANAGED_NODE_B, MANAGED_NODE_C));
-        when(appConfigMock.getRicConfigs()).thenReturn(ricConfigs);
-
         Mono<Collection<String>> policyIdentities = Mono.just(Arrays.asList(POLICY_TYPE_1_NAME));
         Mono<?> error = Mono.error(new Exception("Unable to contact ric."));
         doReturn(error, policyIdentities).when(a1ClientMock).getPolicyTypeIdentities(anyString());
@@ -161,21 +157,22 @@ public class StartupServiceTest {
             new StartupService(appConfigMock, rics, policyTypes, a1ClientMock, new Policies(), new Services());
 
         serviceUnderTest.startup();
+        serviceUnderTest.onRicConfigUpdate(getRicConfig(FIRST_RIC_NAME, FIRST_RIC_URL, MANAGED_NODE_A),
+            ApplicationConfig.RicConfigUpdate.ADDED);
+        serviceUnderTest.onRicConfigUpdate(
+            getRicConfig(SECOND_RIC_NAME, SECOND_RIC_URL, MANAGED_NODE_B, MANAGED_NODE_C),
+            ApplicationConfig.RicConfigUpdate.ADDED);
 
         verify(a1ClientMock).deletePolicy(SECOND_RIC_URL, POLICY_ID_1);
         verify(a1ClientMock).deletePolicy(SECOND_RIC_URL, POLICY_ID_2);
 
-        assertEquals(NOT_REACHABLE, rics.get(FIRST_RIC_NAME).state(), "Not correct state for " + FIRST_RIC_NAME);
+        assertEquals(RicState.UNDEFINED, rics.get(FIRST_RIC_NAME).state(), "Not correct state for " + FIRST_RIC_NAME);
 
-        assertEquals(ACTIVE, rics.get(SECOND_RIC_NAME).state(), "Not correct state for " + SECOND_RIC_NAME);
+        assertEquals(IDLE, rics.get(SECOND_RIC_NAME).state(), "Not correct state for " + SECOND_RIC_NAME);
     }
 
     @Test
     public void startup_unableToConnectToGetPolicies() {
-        Vector<RicConfig> ricConfigs = new Vector<>(2);
-        ricConfigs.add(getRicConfig(FIRST_RIC_NAME, FIRST_RIC_URL, MANAGED_NODE_A));
-        ricConfigs.add(getRicConfig(SECOND_RIC_NAME, SECOND_RIC_URL, MANAGED_NODE_B, MANAGED_NODE_C));
-        when(appConfigMock.getRicConfigs()).thenReturn(ricConfigs);
 
         Mono<Collection<String>> policyTypes1 = Mono.just(Arrays.asList(POLICY_TYPE_1_NAME));
         Mono<Collection<String>> policyTypes2 = Mono.just(Arrays.asList(POLICY_TYPE_1_NAME, POLICY_TYPE_2_NAME));
@@ -192,13 +189,18 @@ public class StartupServiceTest {
             new StartupService(appConfigMock, rics, policyTypes, a1ClientMock, new Policies(), new Services());
 
         serviceUnderTest.startup();
+        serviceUnderTest.onRicConfigUpdate(getRicConfig(FIRST_RIC_NAME, FIRST_RIC_URL, MANAGED_NODE_A),
+            ApplicationConfig.RicConfigUpdate.ADDED);
+        serviceUnderTest.onRicConfigUpdate(
+            getRicConfig(SECOND_RIC_NAME, SECOND_RIC_URL, MANAGED_NODE_B, MANAGED_NODE_C),
+            ApplicationConfig.RicConfigUpdate.ADDED);
 
         verify(a1ClientMock).deletePolicy(SECOND_RIC_URL, POLICY_ID_1);
         verify(a1ClientMock).deletePolicy(SECOND_RIC_URL, POLICY_ID_2);
 
-        assertEquals(NOT_REACHABLE, rics.get(FIRST_RIC_NAME).state(), "Not correct state for " + FIRST_RIC_NAME);
+        assertEquals(RicState.UNDEFINED, rics.get(FIRST_RIC_NAME).state(), "Not correct state for " + FIRST_RIC_NAME);
 
-        assertEquals(ACTIVE, rics.get(SECOND_RIC_NAME).state(), "Not correct state for " + SECOND_RIC_NAME);
+        assertEquals(IDLE, rics.get(SECOND_RIC_NAME).state(), "Not correct state for " + SECOND_RIC_NAME);
     }
 
     @SafeVarargs

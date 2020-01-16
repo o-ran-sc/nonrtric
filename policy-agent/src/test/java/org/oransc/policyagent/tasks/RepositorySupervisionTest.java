@@ -63,13 +63,13 @@ public class RepositorySupervisionTest {
             .baseUrl("baseUrl1") //
             .managedElementIds(new Vector<String>(Arrays.asList("kista_1", "kista_2"))) //
             .build());
-        ric1.setState(Ric.RicState.ACTIVE);
+        ric1.setState(Ric.RicState.IDLE);
         Ric ric2 = new Ric(ImmutableRicConfig.builder() //
             .name("ric2") //
             .baseUrl("baseUrl2") //
             .managedElementIds(new Vector<String>(Arrays.asList("kista_3", "kista_4"))) //
             .build());
-        ric2.setState(Ric.RicState.NOT_REACHABLE);
+        ric2.setState(Ric.RicState.UNDEFINED);
         Ric ric3 = new Ric(ImmutableRicConfig.builder() //
             .name("ric3") //
             .baseUrl("baseUrl3") //
@@ -108,9 +108,9 @@ public class RepositorySupervisionTest {
 
         supervisorUnderTest.checkAllRics();
 
-        await().untilAsserted(() -> RicState.ACTIVE.equals(ric1.state()));
-        await().untilAsserted(() -> RicState.ACTIVE.equals(ric2.state()));
-        await().untilAsserted(() -> RicState.ACTIVE.equals(ric3.state()));
+        await().untilAsserted(() -> RicState.IDLE.equals(ric1.state()));
+        await().untilAsserted(() -> RicState.IDLE.equals(ric2.state()));
+        await().untilAsserted(() -> RicState.IDLE.equals(ric3.state()));
 
         verify(a1ClientMock).deletePolicy("baseUrl1", "policyId2");
         verify(a1ClientMock).deletePolicy("baseUrl2", "policyId2");
