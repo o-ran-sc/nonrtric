@@ -31,13 +31,16 @@ import org.oransc.policyagent.repository.Services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
 /**
  * Loads information about RealTime-RICs at startup.
  */
 @Service("startupService")
-public class StartupService {
+@Order(Ordered.HIGHEST_PRECEDENCE)
+public class StartupService implements ApplicationConfig.Observer {
 
     private static final Logger logger = LoggerFactory.getLogger(StartupService.class);
 
@@ -70,17 +73,30 @@ public class StartupService {
         this.services = services;
     }
 
+    @Override
+    public void onRicConfigUpdate(RicConfig ricConfig, ApplicationConfig.RicConfigUpdate event) {
+        synchronized (this.rics) {
+            if (event.equals(ApplicationConfig.RicConfigUpdate.ADDED)
+                || event.equals(ApplicationConfig.RicConfigUpdate.CHANGED)) {
+                Ric ric = new Ric(ricConfig);
+                rics.put(ric);
+                RicRecoveryTask recoveryTask = new RicRecoveryTask(a1Client, policyTypes, policies, services);
+                recoveryTask.run(ric);
+            } else if (event.equals(ApplicationConfig.RicConfigUpdate.REMOVED)) {
+                rics.remove(ricConfig.name());
+            } else {
+                logger.debug("Unhandled event :" + event);
+            }
+        }
+    }
+
     /**
      * Reads the configured Rics and performs the service discovery. The result is put into the repository.
      */
     public void startup() {
         logger.debug("Starting up");
+        applicationConfig.addObserver(this);
         applicationConfig.initialize();
-        for (RicConfig ricConfig : applicationConfig.getRicConfigs()) {
-            rics.put(new Ric(ricConfig));
-        }
-        RicRecoveryTask recoveryTask = new RicRecoveryTask(a1Client, policyTypes, policies, services);
-        recoveryTask.run(rics.getRics()); // recover all Rics
     }
 
 }

@@ -96,13 +96,14 @@ public class ApplicationConfigTest {
         appConfigUnderTest.systemEnvironment = new Properties();
         // When
         doReturn(getCorrectJson()).when(appConfigUnderTest).createInputStream(any());
+        doReturn("fileName").when(appConfigUnderTest).getLocalConfigurationFilePath();
         appConfigUnderTest.initialize();
 
         // Then
-        verify(appConfigUnderTest, times(1)).loadConfigurationFromFile(any());
+        verify(appConfigUnderTest, times(1)).loadConfigurationFromFile();
 
-        Vector<RicConfig> ricConfigs = appConfigUnderTest.getRicConfigs();
-        RicConfig ricConfig = ricConfigs.firstElement();
+        Iterable<RicConfig> ricConfigs = appConfigUnderTest.getRicConfigs();
+        RicConfig ricConfig = ricConfigs.iterator().next();
         assertThat(ricConfigs).isNotNull();
         assertThat(ricConfig).isEqualTo(CORRECT_RIC_CONIFG);
     }
@@ -115,11 +116,12 @@ public class ApplicationConfigTest {
 
         // When
         doReturn(getIncorrectJson()).when(appConfigUnderTest).createInputStream(any());
-        appConfigUnderTest.loadConfigurationFromFile(any());
+        doReturn("fileName").when(appConfigUnderTest).getLocalConfigurationFilePath();
+        appConfigUnderTest.loadConfigurationFromFile();
 
         // Then
-        verify(appConfigUnderTest, times(1)).loadConfigurationFromFile(any());
-        Assertions.assertNull(appConfigUnderTest.getRicConfigs());
+        verify(appConfigUnderTest, times(1)).loadConfigurationFromFile();
+        Assertions.assertEquals(0, appConfigUnderTest.getRicConfigs().size());
     }
 
     @Test

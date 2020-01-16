@@ -85,9 +85,9 @@ public class ApplicationTest {
 
     public static class MockApplicationConfig extends ApplicationConfig {
         @Override
-        public void initialize() {
+        protected String getLocalConfigurationFilePath() {
             URL url = MockApplicationConfig.class.getClassLoader().getResource("test_application_configuration.json");
-            loadConfigurationFromFile(url.getFile());
+            return url.getFile();
         }
     }
 
@@ -168,7 +168,7 @@ public class ApplicationTest {
         String url = baseUrl() + "/policy?type=type1&instance=instance1&ric=ric1&service=service1";
         String json = "{}";
         addPolicyType("type1", "ric1");
-        this.rics.getRic("ric1").setState(Ric.RicState.ACTIVE);
+        this.rics.getRic("ric1").setState(Ric.RicState.IDLE);
 
         this.restTemplate.put(url, json);
 
@@ -249,7 +249,7 @@ public class ApplicationTest {
         reset();
         String url = baseUrl() + "/policy?instance=id";
         Policy policy = addPolicy("id", "typeName", "service1", "ric1");
-        policy.ric().setState(Ric.RicState.ACTIVE);
+        policy.ric().setState(Ric.RicState.IDLE);
         assertThat(policies.size()).isEqualTo(1);
 
         this.restTemplate.delete(url);
@@ -261,7 +261,8 @@ public class ApplicationTest {
         if (null == json) {
             return null;
         }
-        return gson.fromJson(json, new TypeToken<T>() {}.getType());
+        return gson.fromJson(json, new TypeToken<T>() {
+        }.getType());
 
     }
 
