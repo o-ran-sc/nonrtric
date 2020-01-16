@@ -22,6 +22,30 @@
       "revId": "8fb214b337ea0783414daef8dc480567a01a5025",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a01fce5e_225f91c2",
+        "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/controller/PolicyController.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-16T08:55:13Z",
+      "side": 1,
+      "message": "Ok I understand your concern. Then, there should not be any error check in policy controller at all, and it should simply return the response from API (I see in the current code that some of the calls do include this error check).\nIn the new patchset, I have removed any error checking in policy controller. I have also made all the calls to API a bit more symmetric such that all of them return ResponseEntity\u003cString\u003e. This will not change any functionality but makes it look better.",
+      "parentUuid": "3a7893c4_4e663eec",
+      "range": {
+        "startLine": 191,
+        "startChar": 15,
+        "endLine": 191,
+        "endChar": 48
+      },
+      "revId": "8fb214b337ea0783414daef8dc480567a01a5025",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
