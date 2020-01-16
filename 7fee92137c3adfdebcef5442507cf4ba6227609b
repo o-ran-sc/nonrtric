@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f81b900d_855eab1f",
+        "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/policyagentapi/PolicyAgentApiImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-16T15:31:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "874f88a0_16b91063",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 0
+      },
+      "revId": "7fee92137c3adfdebcef5442507cf4ba6227609b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bc4b95ee_c016bf98",
         "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/policyagentapi/PolicyAgentApiImpl.java",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "a1b1f8f7_84ad3613",
+        "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/policyagentapi/PolicyAgentApiImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-16T15:31:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bc4b95ee_c016bf98",
+      "range": {
+        "startLine": 113,
+        "startChar": 0,
+        "endLine": 119,
+        "endChar": 9
+      },
+      "revId": "7fee92137c3adfdebcef5442507cf4ba6227609b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "832d472a_8afeb31a",
         "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/policyagentapi/PolicyAgentApiImpl.java",
         "patchSetId": 3
@@ -59,6 +107,30 @@
       "writtenOn": "2020-01-16T14:56:07Z",
       "side": 1,
       "message": "See above comment",
+      "range": {
+        "startLine": 178,
+        "startChar": 0,
+        "endLine": 184,
+        "endChar": 9
+      },
+      "revId": "7fee92137c3adfdebcef5442507cf4ba6227609b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c875d1a_8a381e88",
+        "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/policyagentapi/PolicyAgentApiImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-16T15:31:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "832d472a_8afeb31a",
       "range": {
         "startLine": 178,
         "startChar": 0,
