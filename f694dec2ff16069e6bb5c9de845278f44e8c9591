@@ -16,6 +16,24 @@
       "revId": "f694dec2ff16069e6bb5c9de845278f44e8c9591",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "747a29be_52a6272a",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RicRecoveryTask.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-01-17T06:21:01Z",
+      "side": 1,
+      "message": "That can be done if needed, autowired has its advantages. \nOn the other hand, then it must be a  singleton.\nThe autowiring may make the startup hard to understand, I had to tweak the order of the autowring to get it to work. But it can be doen if there is a unittest that needs to mock this (but such mocking can be done in other ways too).",
+      "parentUuid": "4a509cac_aae50505",
+      "revId": "f694dec2ff16069e6bb5c9de845278f44e8c9591",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
