@@ -20,7 +20,6 @@
 
 package org.oransc.policyagent.repository;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,11 +35,11 @@ public class Rics {
         rics.put(ric.name(), ric);
     }
 
-    public Collection<Ric> getRics() {
+    public synchronized Iterable<Ric> getRics() {
         return rics.values();
     }
 
-    public Ric getRic(String name) throws ServiceException {
+    public synchronized Ric getRic(String name) throws ServiceException {
         Ric ric = rics.get(name);
         if (ric == null) {
             throw new ServiceException("Could not find ric: " + name);
@@ -48,15 +47,19 @@ public class Rics {
         return ric;
     }
 
-    public Ric get(String name) {
+    public synchronized Ric get(String name) {
         return rics.get(name);
     }
 
-    public int size() {
+    public synchronized void remove(String name) {
+        rics.remove(name);
+    }
+
+    public synchronized int size() {
         return rics.size();
     }
 
-    public void clear() {
+    public synchronized void clear() {
         this.rics.clear();
     }
 }

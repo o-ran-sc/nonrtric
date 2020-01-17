@@ -77,15 +77,17 @@ public class PolicyController {
     @ApiOperation(value = "Returns policy type schema definitions")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Policy Types found")})
     public ResponseEntity<String> getPolicySchemas(@RequestParam(name = "ric", required = false) String ricName) {
-        if (ricName == null) {
-            Collection<PolicyType> types = this.policyTypes.getAll();
-            return new ResponseEntity<String>(toPolicyTypeSchemasJson(types), HttpStatus.OK);
-        } else {
-            try {
-                Collection<PolicyType> types = rics.getRic(ricName).getSupportedPolicyTypes();
+        synchronized (this.policyTypes) {
+            if (ricName == null) {
+                Collection<PolicyType> types = this.policyTypes.getAll();
                 return new ResponseEntity<String>(toPolicyTypeSchemasJson(types), HttpStatus.OK);
-            } catch (ServiceException e) {
-                return new ResponseEntity<String>(e.toString(), HttpStatus.NOT_FOUND);
+            } else {
+                try {
+                    Collection<PolicyType> types = rics.getRic(ricName).getSupportedPolicyTypes();
+                    return new ResponseEntity<String>(toPolicyTypeSchemasJson(types), HttpStatus.OK);
+                } catch (ServiceException e) {
+                    return new ResponseEntity<String>(e.toString(), HttpStatus.NOT_FOUND);
+                }
             }
         }
     }
@@ -106,15 +108,17 @@ public class PolicyController {
     @ApiOperation(value = "Returns policy types")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Policy Types found")})
     public ResponseEntity<String> getPolicyTypes(@RequestParam(name = "ric", required = false) String ricName) {
-        if (ricName == null) {
-            Collection<PolicyType> types = this.policyTypes.getAll();
-            return new ResponseEntity<String>(toPolicyTypeIdsJson(types), HttpStatus.OK);
-        } else {
-            try {
-                Collection<PolicyType> types = rics.getRic(ricName).getSupportedPolicyTypes();
+        synchronized (this.policyTypes) {
+            if (ricName == null) {
+                Collection<PolicyType> types = this.policyTypes.getAll();
                 return new ResponseEntity<String>(toPolicyTypeIdsJson(types), HttpStatus.OK);
-            } catch (ServiceException e) {
-                return new ResponseEntity<String>(e.toString(), HttpStatus.NOT_FOUND);
+            } else {
+                try {
+                    Collection<PolicyType> types = rics.getRic(ricName).getSupportedPolicyTypes();
+                    return new ResponseEntity<String>(toPolicyTypeIdsJson(types), HttpStatus.OK);
+                } catch (ServiceException e) {
+                    return new ResponseEntity<String>(e.toString(), HttpStatus.NOT_FOUND);
+                }
             }
         }
     }
@@ -140,7 +144,7 @@ public class PolicyController {
     public Mono<ResponseEntity<Void>> deletePolicy( //
         @RequestParam(name = "instance", required = true) String id) {
         Policy policy = policies.get(id);
-        if (policy != null && policy.ric().state().equals(Ric.RicState.ACTIVE)) {
+        if (policy != null && policy.ric().state().equals(Ric.RicState.IDLE)) {
             return a1Client.deletePolicy(policy.ric().getConfig().baseUrl(), id) //
                 .doOnEach(notUsed -> policies.removeId(id)) //
                 .flatMap(notUsed -> {
@@ -163,7 +167,7 @@ public class PolicyController {
 
         Ric ric = rics.get(ricName);
         PolicyType type = policyTypes.get(typeName);
-        if (ric != null && type != null && ric.state().equals(Ric.RicState.ACTIVE)) {
+        if (ric != null && type != null && ric.state().equals(Ric.RicState.IDLE)) {
             Policy policy = ImmutablePolicy.builder() //
                 .id(instanceId) //
                 .json(jsonBody) //
@@ -189,22 +193,24 @@ public class PolicyController {
         @RequestParam(name = "ric", required = false) String ric, //
         @RequestParam(name = "service", required = false) String service) //
     {
-        Collection<Policy> result = null;
+        synchronized (policies) {
+            Collection<Policy> result = null;
 
-        if (type != null) {
-            result = policies.getForType(type);
-            result = filter(result, null, ric, service);
-        } else if (service != null) {
-            result = policies.getForService(service);
-            result = filter(result, type, ric, null);
-        } else if (ric != null) {
-            result = policies.getForRic(ric);
-            result = filter(result, type, null, service);
-        } else {
-            result = policies.getAll();
+            if (type != null) {
+                result = policies.getForType(type);
+                result = filter(result, null, ric, service);
+            } else if (service != null) {
+                result = policies.getForService(service);
+                result = filter(result, type, ric, null);
+            } else if (ric != null) {
+                result = policies.getForRic(ric);
+                result = filter(result, type, null, service);
+            } else {
+                result = policies.getAll();
+            }
+
+            return new ResponseEntity<String>(policiesToJson(result), HttpStatus.OK);
         }
-
-        return new ResponseEntity<String>(policiesToJson(result), HttpStatus.OK);
     }
 
     private boolean include(String filter, String value) {

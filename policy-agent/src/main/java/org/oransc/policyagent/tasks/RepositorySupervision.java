@@ -26,6 +26,7 @@ import org.oransc.policyagent.clients.A1Client;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
+import org.oransc.policyagent.repository.Ric.RicState;
 import org.oransc.policyagent.repository.Rics;
 import org.oransc.policyagent.repository.Services;
 import org.slf4j.Logger;
@@ -69,25 +70,38 @@ public class RepositorySupervision {
     public void checkAllRics() {
         logger.debug("Checking Rics starting");
         createTask().subscribe(this::onRicChecked, this::onError, this::onComplete);
-
     }
 
     private Flux<Ric> createTask() {
-        return Flux.fromIterable(rics.getRics()) //
-            .flatMap(ric -> checkInstances(ric)) //
-            .flatMap(ric -> checkTypes(ric));
+        synchronized (this.rics) {
+            return Flux.fromIterable(rics.getRics()) //
+                .flatMap(ric -> checkRicState(ric)) //
+                .flatMap(ric -> checkRicPolicies(ric)) //
+                .flatMap(ric -> checkRicPolicyTypes(ric));
+        }
     }
 
-    private Mono<Ric> checkInstances(Ric ric) {
+    private Mono<Ric> checkRicState(Ric ric) {
+        if (ric.state() == RicState.UNDEFINED) {
+            return startRecovery(ric);
+        } else if (ric.state() == RicState.RECOVERING) {
+            return Mono.empty();
+        } else {
+            return Mono.just(ric);
+        }
+    }
 
+    private Mono<Ric> checkRicPolicies(Ric ric) {
         return a1Client.getPolicyIdentities(ric.getConfig().baseUrl()) //
             .onErrorResume(t -> Mono.empty()) //
             .flatMap(ricP -> validateInstances(ricP, ric));
     }
 
     private Mono<Ric> validateInstances(Collection<String> ricPolicies, Ric ric) {
-        if (ricPolicies.size() != policies.getForRic(ric.name()).size()) {
-            return startRecovery(ric);
+        synchronized (this.policies) {
+            if (ricPolicies.size() != policies.getForRic(ric.name()).size()) {
+                return startRecovery(ric);
+            }
         }
         for (String policyId : ricPolicies) {
             if (!policies.containsPolicy(policyId)) {
@@ -97,7 +111,7 @@ public class RepositorySupervision {
         return Mono.just(ric);
     }
 
-    private Mono<Ric> checkTypes(Ric ric) {
+    private Mono<Ric> checkRicPolicyTypes(Ric ric) {
         return a1Client.getPolicyTypeIdentities(ric.getConfig().baseUrl()) //
             .onErrorResume(t -> {
                 return Mono.empty();

@@ -33,6 +33,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.Duration;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.ServiceLoader;
@@ -68,25 +71,30 @@ public class ApplicationConfig {
     Properties systemEnvironment;
 
     private Disposable refreshConfigTask = null;
+    private Collection<Observer> observers = new Vector<>();
+
+    private Map<String, RicConfig> ricConfigs = new HashMap<>();
 
     @NotEmpty
     private String filepath;
 
-    private Vector<RicConfig> ricConfigs;
-
     @Autowired
     public ApplicationConfig() {
+    }
+
+    protected String getLocalConfigurationFilePath() {
+        return this.filepath;
     }
 
     public synchronized void setFilepath(String filepath) {
         this.filepath = filepath;
     }
 
-    public Vector<RicConfig> getRicConfigs() {
-        return this.ricConfigs;
+    public synchronized Collection<RicConfig> getRicConfigs() {
+        return this.ricConfigs.values();
     }
 
-    public Optional<RicConfig> lookupRicConfigForManagedElement(String managedElementId) {
+    public synchronized Optional<RicConfig> lookupRicConfigForManagedElement(String managedElementId) {
         for (RicConfig ricConfig : getRicConfigs()) {
             if (ricConfig.managedElementIds().contains(managedElementId)) {
                 return Optional.of(ricConfig);
@@ -106,12 +114,24 @@ public class ApplicationConfig {
 
     public void initialize() {
         stop();
-        loadConfigurationFromFile(this.filepath);
+        loadConfigurationFromFile();
 
         refreshConfigTask = createRefreshTask() //
             .subscribe(notUsed -> logger.info("Refreshed configuration data"),
                 throwable -> logger.error("Configuration refresh terminated due to exception", throwable),
                 () -> logger.error("Configuration refresh terminated"));
+    }
+
+    public static enum RicConfigUpdate {
+        ADDED, CHANGED, REMOVED
+    }
+
+    public interface Observer {
+        void onRicConfigUpdate(RicConfig ric, RicConfigUpdate event);
+    }
+
+    public void addObserver(Observer o) {
+        this.observers.add(o);
     }
 
     Mono<EnvProperties> getEnvironment(Properties systemEnvironment) {
@@ -154,8 +174,48 @@ public class ApplicationConfig {
         return this;
     }
 
-    private synchronized void setConfiguration(@NotNull Vector<RicConfig> ricConfigs) {
-        this.ricConfigs = ricConfigs;
+    private class Notification {
+        final RicConfig ric;
+        final RicConfigUpdate event;
+
+        Notification(RicConfig ric, RicConfigUpdate event) {
+            this.ric = ric;
+            this.event = event;
+        }
+    }
+
+    private void setConfiguration(@NotNull Collection<RicConfig> ricConfigs) {
+        Collection<Notification> notifications = new Vector<>();
+        synchronized (this) {
+            Map<String, RicConfig> newRicConfigs = new HashMap<>();
+            for (RicConfig newConfig : ricConfigs) {
+                RicConfig oldConfig = this.ricConfigs.get(newConfig.name());
+                if (oldConfig == null) {
+                    newRicConfigs.put(newConfig.name(), newConfig);
+                    notifications.add(new Notification(newConfig, RicConfigUpdate.ADDED));
+                    this.ricConfigs.remove(newConfig.name());
+                } else if (!newConfig.equals(newConfig)) {
+                    notifications.add(new Notification(newConfig, RicConfigUpdate.CHANGED));
+                    newRicConfigs.put(newConfig.name(), newConfig);
+                    this.ricConfigs.remove(newConfig.name());
+                } else {
+                    newRicConfigs.put(oldConfig.name(), oldConfig);
+                }
+            }
+            for (RicConfig deletedConfig : this.ricConfigs.values()) {
+                notifications.add(new Notification(deletedConfig, RicConfigUpdate.REMOVED));
+            }
+            this.ricConfigs = newRicConfigs;
+        }
+        notifyObservers(notifications);
+    }
+
+    private void notifyObservers(Collection<Notification> notifications) {
+        for (Observer observer : this.observers) {
+            for (Notification notif : notifications) {
+                observer.onRicConfigUpdate(notif.ric, notif.event);
+            }
+        }
     }
 
     public void stop() {
@@ -168,7 +228,12 @@ public class ApplicationConfig {
     /**
      * Reads the configuration from file.
      */
-    protected void loadConfigurationFromFile(String filepath) {
+    public void loadConfigurationFromFile() {
+        String filepath = getLocalConfigurationFilePath();
+        if (filepath == null) {
+            logger.debug("No localconfiguration file used");
+            return;
+        }
         GsonBuilder gsonBuilder = new GsonBuilder();
         ServiceLoader.load(TypeAdapterFactory.class).forEach(gsonBuilder::registerTypeAdapterFactory);
 
@@ -180,7 +245,7 @@ public class ApplicationConfig {
             }
             ApplicationConfigParser appParser = new ApplicationConfigParser();
             appParser.parse(rootObject);
-            this.ricConfigs = appParser.getRicConfigs();
+            setConfiguration(appParser.getRicConfigs());
             logger.info("Local configuration file loaded: {}", filepath);
         } catch (JsonSyntaxException | ServiceException | IOException e) {
             logger.trace("Local configuration file not loaded: {}", filepath, e);
