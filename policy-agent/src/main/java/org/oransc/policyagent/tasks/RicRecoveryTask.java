@@ -20,7 +20,6 @@
 
 package org.oransc.policyagent.tasks;
 
-import java.util.Collection;
 import java.util.Vector;
 
 import org.oransc.policyagent.clients.A1Client;
@@ -32,7 +31,6 @@ import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
-import org.oransc.policyagent.repository.Rics;
 import org.oransc.policyagent.repository.Service;
 import org.oransc.policyagent.repository.Services;
 import org.slf4j.Logger;
@@ -42,7 +40,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Loads information about RealTime-RICs at startup.
+ * Recovery handling of RIC, which means:
+ * - load all policy types
+ * - send all policy instances to the RIC
+ * --- if that fails remove all policy instances
+ * - Notify subscribing services
  */
 public class RicRecoveryTask {
 
@@ -60,14 +62,6 @@ public class RicRecoveryTask {
         this.services = services;
     }
 
-    public void run(Rics rics) {
-        synchronized (rics) {
-            for (Ric ric : rics.getRics()) {
-                run(ric);
-            }
-        }
-    }
-
     public void run(Ric ric) {
         logger.debug("Handling ric: {}", ric.getConfig().name());
 
@@ -77,16 +71,17 @@ public class RicRecoveryTask {
             }
             ric.setState(Ric.RicState.RECOVERING);
         }
-        Flux<PolicyType> recoveredTypes = recoverPolicyTypes(ric);
-        Flux<?> deletedPolicies = deletePolicies(ric);
+        Flux<PolicyType> recoverTypes = recoverPolicyTypes(ric);
+        Flux<?> deletePoliciesInRic = deleteAllPoliciesInRic(ric);
+        Flux<?> recreatePoliciesInRic = recreateAllPoliciesInRic(ric);
 
-        Flux.merge(recoveredTypes, deletedPolicies) //
+        Flux.concat(recoverTypes, deletePoliciesInRic, recreatePoliciesInRic) //
             .subscribe(x -> logger.debug("Recover: " + x), //
-                throwable -> onError(ric, throwable), //
-                () -> onComplete(ric));
+                throwable -> onRecoveryError(ric, throwable), //
+                () -> onRecoveryComplete(ric));
     }
 
-    private void onComplete(Ric ric) {
+    private void onRecoveryComplete(Ric ric) {
         logger.debug("Recovery completed for:" + ric.name());
         ric.setState(Ric.RicState.IDLE);
         notifyAllServices("Recovery completed for:" + ric.name());
@@ -107,8 +102,22 @@ public class RicRecoveryTask {
         }
     }
 
-    private void onError(Ric ric, Throwable t) {
+    private void onRecoveryError(Ric ric, Throwable t) {
         logger.warn("Recovery failed for: {}, reason: {}", ric.name(), t.getMessage());
+
+        // If recovery fails, try to remove all instances
+        deleteAllPolicies(ric);
+        Flux<PolicyType> recoverTypes = recoverPolicyTypes(ric);
+        Flux<?> deletePoliciesInRic = deleteAllPoliciesInRic(ric);
+
+        Flux.merge(recoverTypes, deletePoliciesInRic) //
+            .subscribe(x -> logger.debug("Brute recover: " + x), //
+                throwable -> onRemoveAllError(ric, throwable), //
+                () -> onRecoveryComplete(ric));
+    }
+
+    private void onRemoveAllError(Ric ric, Throwable t) {
+        logger.warn("Remove all failed for: {}, reason: {}", ric.name(), t.getMessage());
         ric.setState(Ric.RicState.UNDEFINED);
     }
 
@@ -143,17 +152,28 @@ public class RicRecoveryTask {
         return Mono.just(pt);
     }
 
-    private Flux<String> deletePolicies(Ric ric) {
+    private void deleteAllPolicies(Ric ric) {
         synchronized (policies) {
-            Collection<Policy> ricPolicies = new Vector<>(policies.getForRic(ric.name()));
-            for (Policy policy : ricPolicies) {
+            for (Policy policy : policies.getForRic(ric.name())) {
                 this.policies.remove(policy);
             }
         }
+    }
 
+    private Flux<String> deleteAllPoliciesInRic(Ric ric) {
         return a1Client.getPolicyIdentities(ric.getConfig().baseUrl()) //
             .flatMapMany(policyIds -> Flux.fromIterable(policyIds)) //
             .doOnNext(policyId -> logger.debug("Deleting policy: {}, for ric: {}", policyId, ric.getConfig().name()))
             .flatMap(policyId -> a1Client.deletePolicy(ric.getConfig().baseUrl(), policyId)); //
     }
+
+    private Flux<String> recreateAllPoliciesInRic(Ric ric) {
+        synchronized (policies) {
+            return Flux.fromIterable(new Vector<>(policies.getForRic(ric.name()))) //
+                .doOnNext(
+                    policy -> logger.debug("Recreating policy: {}, for ric: {}", policy.id(), ric.getConfig().name()))
+                .flatMap(policy -> a1Client.putPolicy(policy));
+        }
+    }
+
 }

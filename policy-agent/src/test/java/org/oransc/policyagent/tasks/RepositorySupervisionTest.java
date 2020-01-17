@@ -21,6 +21,7 @@
 package org.oransc.policyagent.tasks;
 
 import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -105,6 +106,7 @@ public class RepositorySupervisionTest {
         when(a1ClientMock.deletePolicy(anyString(), anyString())).thenReturn(Mono.empty());
         when(a1ClientMock.getPolicyTypeIdentities(anyString())).thenReturn(policyIds);
         when(a1ClientMock.getPolicyType(anyString(), anyString())).thenReturn(Mono.just("schema"));
+        when(a1ClientMock.putPolicy(any())).thenReturn(Mono.just("OK"));
 
         supervisorUnderTest.checkAllRics();
 

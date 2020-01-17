@@ -86,11 +86,15 @@ public class MockA1Client implements A1Client {
         return Mono.just("OK");
     }
 
-    private Policies getPolicies(String url) {
+    public Policies getPolicies(String url) {
         if (!policies.containsKey(url)) {
             policies.put(url, new Policies());
         }
         return policies.get(url);
+    }
+
+    public void putPolicy(String url, Policy policy) {
+        getPolicies(url).put(policy);
     }
 
 }
