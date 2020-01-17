@@ -4,12 +4,16 @@
 
 echo "Test case started as: ${BASH_SOURCE[$i+1]} "$1 $2
 
+# This is a script that contains all the functions needed for auto test
+# Arg: local | remote
+
 STARTED_POLICY_AGENT="" #Policy agent app names added to this var to keep track of started container in the script
 START_ARG=$1
 IMAGE_TAG="1.0.0-SNAPSHOT"
+IMAGE_TAG_REMOTE="1.0.0"
 
 if [ $# -lt 1 ] || [ $# -gt 2 ]; then
-	echo "Expected arg: local [<image-tag>] ]| remote [<image-tag>] ]| remote-remove [<image-tag>]] | manual-container | manual-app"
+	echo "Expected arg: local [<image-tag>] | remote [<image-tag>] "
 	exit 1
 elif [ $1 == "local" ]; then
 	if [ -z $POLICY_AGENT_LOCAL_IMAGE ]; then
@@ -17,6 +21,12 @@ elif [ $1 == "local" ]; then
 		exit 1
 	fi
 	POLICY_AGENT_IMAGE=$POLICY_AGENT_LOCAL_IMAGE":"$IMAGE_TAG
+elif [ $1 == "remote" ]; then
+    if [ -z $POLICY_AGENT_REMOTE_IMAGE ]; then
+        echo "POLICY_AGENT_REMOTE_IMAGE not set in test_env"
+        exit 1
+    fi
+    POLICY_AGENT_IMAGE=$POLICY_AGENT_REMOTE_IMAGE":"$IMAGE_TAG_REMOTE
 fi
 
 # Set a description string for the test case
@@ -72,17 +82,31 @@ fi
 echo ""
 
 if [ $1 !=  "manual-container" ] && [ $1 !=  "manual-app" ]; then
-	echo -e "Policy agent image tag set to: \033[1m" $IMAGE_TAG"\033[0m"
-	echo "Configured image for policy agent app(s) (${1}): "$POLICY_AGENT_LOCAL_IMAGE
-	tmp_im=$(docker images ${POLICY_AGENT_LOCAL_IMAGE} | grep -v REPOSITORY)
+	#echo -e "Policy agent image tag set to: \033[1m" $IMAGE_TAG"\033[0m"
+	echo "Configured image for policy agent app(s) (${1}): "$POLICY_AGENT_IMAGE
+	tmp_im=$(docker images ${POLICY_AGENT_IMAGE} | grep -v REPOSITORY)
 
 	if [ $1 == "local" ]; then
 		if [ -z "$tmp_im" ]; then
-			echo "Local image (non nexus) "$POLICY_AGENT_LOCAL_IMAGE" does not exist in local registry, need to be built"
+			echo "Local image (non nexus) "$POLICY_AGENT_IMAGE" does not exist in local registry, need to be built"
 			exit 1
 		else
 			echo -e "Policy agent local image: \033[1m"$tmp_im"\033[0m"
-			echo "If the policy agen image seem outdated, rebuild the image and run the test again."
+			echo "If the policy agent image seem outdated, rebuild the image and run the test again."
+		fi
+	elif [ $1 == "remote" ]; then
+	    if [ -z "$tmp_im" ]; then
+			echo "Pulling policy agent image from nexus: "$POLICY_AGENT_IMAGE
+			docker pull $POLICY_AGENT_IMAGE	 > /dev/null
+			tmp_im=$(docker images ${POLICY_AGENT_IMAGE} | grep -v REPOSITORY)
+			if [ -z "$tmp_im" ]; then
+				echo "Image could not be pulled"
+				exit 1
+			fi
+			echo -e "Policy Agent image: \033[1m"$tmp_im"\033[0m"
+		else
+			echo -e "Policy Agent image: \033[1m"$tmp_im"\033[0m"
+			echo "!! If the Policy agent image seem outdated, consider removing it from your docker registry and run the test again."
 		fi
 	fi
 fi
@@ -129,7 +153,7 @@ start_policy_agent() {
 
 	appname=$PA_APP_BASE
 
-	if [ $START_ARG == "local" ] ; then
+	if [ $START_ARG == "local" ] || [ $START_ARG == "remote" ]; then
 		__start_policy_agent_image $appname
 	fi
 }
@@ -171,6 +195,7 @@ __start_policy_agent_image() {
 		result="$(__do_curl http://127.0.0.1:${localport}/status)"
 		if [ $? -eq 0 ]; then
 	   		echo "Policy Agent ${appname} responds to service status: " $result
+	   		echo "Policy Agent is alive."
 	   		pa_st=true
 	   		break
 	 	else

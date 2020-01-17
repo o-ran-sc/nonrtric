@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
-TC_ONELINE_DESCR="Auto test for policy agent with simulator"
+TC_ONELINE_DESCR="Auto test for policy agent refreshing configurations from consul/cbs"
 
 . ../common/testcase_common.sh $1 $2
+
+#### TEST BEGIN ####
 
 clean_containers
 
