@@ -142,14 +142,9 @@ public class StartupServiceTest {
 
     @Test
     public void startup_unableToConnectToGetTypes() {
-        Mono<Collection<String>> policyIdentities = Mono.just(Arrays.asList(POLICY_TYPE_1_NAME));
         Mono<?> error = Mono.error(new Exception("Unable to contact ric."));
-        doReturn(error, policyIdentities).when(a1ClientMock).getPolicyTypeIdentities(anyString());
-
-        Mono<Collection<String>> policies = Mono.just(Arrays.asList(POLICY_ID_1, POLICY_ID_2));
-        doReturn(policies).when(a1ClientMock).getPolicyIdentities(anyString());
-        when(a1ClientMock.getPolicyType(anyString(), anyString())).thenReturn(Mono.just("Schema"));
-        when(a1ClientMock.deletePolicy(anyString(), anyString())).thenReturn(Mono.just("OK"));
+        doReturn(error, error).when(a1ClientMock).getPolicyTypeIdentities(anyString());
+        doReturn(error).when(a1ClientMock).getPolicyIdentities(anyString());
 
         Rics rics = new Rics();
         PolicyTypes policyTypes = new PolicyTypes();
@@ -159,48 +154,28 @@ public class StartupServiceTest {
         serviceUnderTest.startup();
         serviceUnderTest.onRicConfigUpdate(getRicConfig(FIRST_RIC_NAME, FIRST_RIC_URL, MANAGED_NODE_A),
             ApplicationConfig.RicConfigUpdate.ADDED);
-        serviceUnderTest.onRicConfigUpdate(
-            getRicConfig(SECOND_RIC_NAME, SECOND_RIC_URL, MANAGED_NODE_B, MANAGED_NODE_C),
-            ApplicationConfig.RicConfigUpdate.ADDED);
-
-        verify(a1ClientMock).deletePolicy(SECOND_RIC_URL, POLICY_ID_1);
-        verify(a1ClientMock).deletePolicy(SECOND_RIC_URL, POLICY_ID_2);
 
         assertEquals(RicState.UNDEFINED, rics.get(FIRST_RIC_NAME).state(), "Not correct state for " + FIRST_RIC_NAME);
-
-        assertEquals(IDLE, rics.get(SECOND_RIC_NAME).state(), "Not correct state for " + SECOND_RIC_NAME);
     }
 
     @Test
     public void startup_unableToConnectToGetPolicies() {
 
-        Mono<Collection<String>> policyTypes1 = Mono.just(Arrays.asList(POLICY_TYPE_1_NAME));
-        Mono<Collection<String>> policyTypes2 = Mono.just(Arrays.asList(POLICY_TYPE_1_NAME, POLICY_TYPE_2_NAME));
-        when(a1ClientMock.getPolicyTypeIdentities(anyString())).thenReturn(policyTypes1).thenReturn(policyTypes2);
+        Mono<Collection<String>> policyTypes = Mono.just(Arrays.asList(POLICY_TYPE_1_NAME));
+        when(a1ClientMock.getPolicyTypeIdentities(anyString())).thenReturn(policyTypes);
         when(a1ClientMock.getPolicyType(anyString(), anyString())).thenReturn(Mono.just("Schema"));
-        Mono<Collection<String>> policies = Mono.just(Arrays.asList(POLICY_ID_1, POLICY_ID_2));
-        doReturn(Mono.error(new Exception("Unable to contact ric.")), policies).when(a1ClientMock)
-            .getPolicyIdentities(anyString());
-        when(a1ClientMock.deletePolicy(anyString(), anyString())).thenReturn(Mono.just("OK"));
+        Mono<?> error = Mono.error(new Exception("Unable to contact ric."));
+        doReturn(error).when(a1ClientMock).getPolicyIdentities(anyString());
 
         Rics rics = new Rics();
-        PolicyTypes policyTypes = new PolicyTypes();
         StartupService serviceUnderTest =
-            new StartupService(appConfigMock, rics, policyTypes, a1ClientMock, new Policies(), new Services());
+            new StartupService(appConfigMock, rics, new PolicyTypes(), a1ClientMock, new Policies(), new Services());
 
         serviceUnderTest.startup();
         serviceUnderTest.onRicConfigUpdate(getRicConfig(FIRST_RIC_NAME, FIRST_RIC_URL, MANAGED_NODE_A),
             ApplicationConfig.RicConfigUpdate.ADDED);
-        serviceUnderTest.onRicConfigUpdate(
-            getRicConfig(SECOND_RIC_NAME, SECOND_RIC_URL, MANAGED_NODE_B, MANAGED_NODE_C),
-            ApplicationConfig.RicConfigUpdate.ADDED);
-
-        verify(a1ClientMock).deletePolicy(SECOND_RIC_URL, POLICY_ID_1);
-        verify(a1ClientMock).deletePolicy(SECOND_RIC_URL, POLICY_ID_2);
 
         assertEquals(RicState.UNDEFINED, rics.get(FIRST_RIC_NAME).state(), "Not correct state for " + FIRST_RIC_NAME);
-
-        assertEquals(IDLE, rics.get(SECOND_RIC_NAME).state(), "Not correct state for " + SECOND_RIC_NAME);
     }
 
     @SafeVarargs

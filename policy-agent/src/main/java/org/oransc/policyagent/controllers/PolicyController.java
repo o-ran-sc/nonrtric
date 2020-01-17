@@ -145,8 +145,8 @@ public class PolicyController {
         @RequestParam(name = "instance", required = true) String id) {
         Policy policy = policies.get(id);
         if (policy != null && policy.ric().state().equals(Ric.RicState.IDLE)) {
+            policies.remove(policy);
             return a1Client.deletePolicy(policy.ric().getConfig().baseUrl(), id) //
-                .doOnEach(notUsed -> policies.removeId(id)) //
                 .flatMap(notUsed -> {
                     return Mono.just(new ResponseEntity<>(HttpStatus.NO_CONTENT));
                 });

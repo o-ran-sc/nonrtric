@@ -51,6 +51,7 @@ import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Rics;
+import org.oransc.policyagent.tasks.RepositorySupervision;
 import org.oransc.policyagent.utils.MockA1Client;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -79,6 +80,12 @@ public class ApplicationTest {
     @Autowired
     private PolicyTypes policyTypes;
 
+    @Autowired
+    MockA1Client a1Client;
+
+    @Autowired
+    RepositorySupervision supervision;
+
     private static Gson gson = new GsonBuilder() //
         .serializeNulls() //
         .create(); //
@@ -96,8 +103,6 @@ public class ApplicationTest {
      */
     @TestConfiguration
     static class TestBeanFactory {
-        private final Rics rics = new Rics();
-        private final Policies policies = new Policies();
         private final PolicyTypes policyTypes = new PolicyTypes();
 
         @Bean
@@ -112,7 +117,7 @@ public class ApplicationTest {
 
         @Bean
         public Policies getPolicies() {
-            return this.policies;
+            return new Policies();
         }
 
         @Bean
@@ -122,7 +127,7 @@ public class ApplicationTest {
 
         @Bean
         public Rics getRics() {
-            return this.rics;
+            return new Rics();
         }
     }
 
@@ -150,6 +155,22 @@ public class ApplicationTest {
         url = baseUrl() + "/rics?policyType=ANR";
         rsp = this.restTemplate.getForObject(url, String.class);
         assertThat(rsp).isEqualTo("[]");
+    }
+
+    @Test
+    public void testRecovery() throws Exception {
+        reset();
+        Policy policy = addPolicy("policyId", "typeName", "service", "ric"); // This should be created in the RIC
+
+        Policy policy2 = addPolicy("policyId2", "typeName", "service", "ric");
+        a1Client.putPolicy("ric", policy2); // put it in the RIC
+        policies.remove(policy2); // Remove it from the repo -> should be deleted in the RIC
+
+        supervision.checkAllRics(); // The created policy should be put in the RIC
+        Policies ricPolicies = a1Client.getPolicies("ric");
+        assertThat(ricPolicies.size()).isEqualTo(1);
+        Policy ricPolicy = ricPolicies.get("policyId");
+        assertThat(ricPolicy.json()).isEqualTo(policy.json());
     }
 
     @Test
@@ -201,7 +222,7 @@ public class ApplicationTest {
         Vector<String> mes = new Vector<>();
         RicConfig conf = ImmutableRicConfig.builder() //
             .name(ricName) //
-            .baseUrl("baseUrl") //
+            .baseUrl(ricName) //
             .managedElementIds(mes) //
             .build();
         Ric ric = new Ric(conf);
