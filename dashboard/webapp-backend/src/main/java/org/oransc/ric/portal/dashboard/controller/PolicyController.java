@@ -19,15 +19,13 @@
  */
 package org.oransc.ric.portal.dashboard.controller;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import io.swagger.annotations.ApiOperation;
+
 import java.lang.invoke.MethodHandles;
-import java.util.Collection;
+
 import javax.servlet.http.HttpServletResponse;
+
 import org.oransc.ric.portal.dashboard.DashboardConstants;
-import org.oransc.ric.portal.dashboard.model.PolicyInstances;
-import org.oransc.ric.portal.dashboard.model.PolicyTypes;
 import org.oransc.ric.portal.dashboard.policyagentapi.PolicyAgentApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,9 +56,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class PolicyController {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private static Gson gson = new GsonBuilder() //
-        .serializeNulls() //
-        .create(); //
 
     // Publish paths in constants so tests are easy to write
     public static final String CONTROLLER_PATH = DashboardConstants.ENDPOINT_PREFIX + "/policy";
@@ -87,7 +82,7 @@ public class PolicyController {
     @ApiOperation(value = "Gets the policy types from Near Realtime-RIC")
     @GetMapping(POLICY_TYPES_METHOD)
     @Secured({DashboardConstants.ROLE_ADMIN, DashboardConstants.ROLE_STANDARD})
-    public ResponseEntity<PolicyTypes> getAllPolicyTypes(HttpServletResponse response) {
+    public ResponseEntity<String> getAllPolicyTypes(HttpServletResponse response) {
         logger.debug("getAllPolicyTypes");
         return this.policyAgentApi.getAllPolicyTypes();
     }
@@ -97,13 +92,7 @@ public class PolicyController {
     @Secured({DashboardConstants.ROLE_ADMIN, DashboardConstants.ROLE_STANDARD})
     public ResponseEntity<String> getPolicyInstances(@PathVariable(POLICY_TYPE_ID_NAME) String policyTypeIdString) {
         logger.debug("getPolicyInstances {}", policyTypeIdString);
-
-        ResponseEntity<PolicyInstances> response = this.policyAgentApi.getPolicyInstancesForType(policyTypeIdString);
-        if (!response.getStatusCode().is2xxSuccessful()) {
-            return new ResponseEntity<>(response.getStatusCode());
-        }
-        String json = gson.toJson(response.getBody());
-        return new ResponseEntity<>(json, response.getStatusCode());
+        return this.policyAgentApi.getPolicyInstancesForType(policyTypeIdString);
     }
 
     @ApiOperation(value = "Returns a policy instance of a type")
@@ -132,10 +121,10 @@ public class PolicyController {
     @DeleteMapping(POLICY_TYPES_METHOD + "/{" + POLICY_TYPE_ID_NAME + "}/" + POLICIES_NAME + "/{"
         + POLICY_INSTANCE_ID_NAME + "}")
     @Secured({DashboardConstants.ROLE_ADMIN})
-    public void deletePolicyInstance(@PathVariable(POLICY_TYPE_ID_NAME) String policyTypeIdString,
+    public ResponseEntity<String> deletePolicyInstance(@PathVariable(POLICY_TYPE_ID_NAME) String policyTypeIdString,
         @PathVariable(POLICY_INSTANCE_ID_NAME) String policyInstanceId) {
         logger.debug("deletePolicyInstance typeId: {}, instanceId: {}", policyTypeIdString, policyInstanceId);
-        this.policyAgentApi.deletePolicy(policyInstanceId);
+        return this.policyAgentApi.deletePolicy(policyInstanceId);
     }
 
     @ApiOperation(value = "Returns the rics supporting the given policy type.")
@@ -145,12 +134,6 @@ public class PolicyController {
         @RequestParam(name = "policyType", required = true) String supportingPolicyType) {
         logger.debug("getRicsSupportingType {}", supportingPolicyType);
 
-        ResponseEntity<Collection<String>> result = this.policyAgentApi.getRicsSupportingType(supportingPolicyType);
-        if (!result.getStatusCode().is2xxSuccessful()) {
-            return new ResponseEntity<>(result.getStatusCode());
-        }
-        String json = gson.toJson(result.getBody());
-        return new ResponseEntity<>(json, result.getStatusCode());
+        return this.policyAgentApi.getRicsSupportingType(supportingPolicyType);
     }
-
-};
+}

@@ -53,30 +53,32 @@ public class PortalRestCentralServiceTest extends AbstractControllerTest {
         Assertions.assertTrue(response.getBody().contains("Static error page"));
     }
 
-/*	private HttpEntity<Object> getEntityWithHeaders(Object body) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set(PortalApIMockConfiguration.PORTAL_USERNAME_HEADER_KEY,
-            PortalApIMockConfiguration.PORTAL_USERNAME_HEADER_KEY);
-        headers.set(PortalApIMockConfiguration.PORTAL_PASSWORD_HEADER_KEY,
-            PortalApIMockConfiguration.PORTAL_PASSWORD_HEADER_KEY);
-        HttpEntity<Object> entity = new HttpEntity<>(body, headers);
-        return entity;
-    }
-
-    private EcompUser createEcompUser(String loginId) {
-        EcompUser user = new EcompUser();
-        user.setLoginId(loginId);
-        EcompRole role = new EcompRole();
-        role.setRoleFunctions(Collections.EMPTY_SET);
-        role.setId(1L);
-        role.setName(DashboardConstants.ROLE_NAME_ADMIN);
-        Set<EcompRole> roles = new HashSet<>();
-        roles.add(role);
-        user.setRoles(roles);
-        return user;
-    }
-
-	@Test
+    /*
+     * private HttpEntity<Object> getEntityWithHeaders(Object body) {
+     * HttpHeaders headers = new HttpHeaders();
+     * headers.set(PortalApIMockConfiguration.PORTAL_USERNAME_HEADER_KEY,
+     * PortalApIMockConfiguration.PORTAL_USERNAME_HEADER_KEY);
+     * headers.set(PortalApIMockConfiguration.PORTAL_PASSWORD_HEADER_KEY,
+     * PortalApIMockConfiguration.PORTAL_PASSWORD_HEADER_KEY);
+     * HttpEntity<Object> entity = new HttpEntity<>(body, headers);
+     * return entity;
+     * }
+     *
+     * private EcompUser createEcompUser(String loginId) {
+     * EcompUser user = new EcompUser();
+     * user.setLoginId(loginId);
+     * EcompRole role = new EcompRole();
+     * role.setRoleFunctions(Collections.EMPTY_SET);
+     * role.setId(1L);
+     * role.setName(DashboardConstants.ROLE_NAME_ADMIN);
+     * Set<EcompRole> roles = new HashSet<>();
+     * roles.add(role);
+     * user.setRoles(roles);
+     * return user;
+     * }
+     *
+     * @Test
+     *
      * @Test
      * public void createUserTest() {
      * final String loginId = "login1";
