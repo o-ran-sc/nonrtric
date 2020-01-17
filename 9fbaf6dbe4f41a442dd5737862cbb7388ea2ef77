@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "22c56ac4_66826091",
+        "filename": "near-rt-ric-simulator/.gitignore",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-01-17T14:28:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aef7bfc2_41a2e68f",
+      "range": {
+        "startLine": 2,
+        "startChar": 1,
+        "endLine": 2,
+        "endChar": 2
+      },
+      "revId": "9fbaf6dbe4f41a442dd5737862cbb7388ea2ef77",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "efdda563_854b85c9",
         "filename": "near-rt-ric-simulator/LICENSES.txt",
         "patchSetId": 6
@@ -45,6 +69,30 @@
       "revId": "9fbaf6dbe4f41a442dd5737862cbb7388ea2ef77",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f57c192_87a6252a",
+        "filename": "near-rt-ric-simulator/LICENSES.txt",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-01-17T14:28:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "efdda563_854b85c9",
+      "range": {
+        "startLine": 2,
+        "startChar": 1,
+        "endLine": 2,
+        "endChar": 2
+      },
+      "revId": "9fbaf6dbe4f41a442dd5737862cbb7388ea2ef77",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "c4a948c7_99cf24bc",
+        "filename": "near-rt-ric-simulator/README.md",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-01-17T14:28:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d7603265_cc30d147",
+      "range": {
+        "startLine": 2,
+        "startChar": 1,
+        "endLine": 2,
+        "endChar": 2
+      },
+      "revId": "9fbaf6dbe4f41a442dd5737862cbb7388ea2ef77",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a3d6507d_7b42c0ae",
         "filename": "near-rt-ric-simulator/pom.xml",
         "patchSetId": 6
@@ -91,6 +163,30 @@
       "revId": "9fbaf6dbe4f41a442dd5737862cbb7388ea2ef77",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a4a1a0b_85cb87b3",
+        "filename": "near-rt-ric-simulator/pom.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-01-17T14:28:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a3d6507d_7b42c0ae",
+      "range": {
+        "startLine": 9,
+        "startChar": 1,
+        "endLine": 9,
+        "endChar": 2
+      },
+      "revId": "9fbaf6dbe4f41a442dd5737862cbb7388ea2ef77",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "f7af9229_05e2a910",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-01-17T14:28:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cd8ea8c2_77a75f71",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 35
+      },
+      "revId": "9fbaf6dbe4f41a442dd5737862cbb7388ea2ef77",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "012ac617_e8399645",
         "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
         "patchSetId": 6
@@ -128,6 +248,30 @@
       "writtenOn": "2020-01-10T13:06:56Z",
       "side": 1,
       "message": "Does the comparison work also if the order of scopeids in the dict are different?",
+      "range": {
+        "startLine": 40,
+        "startChar": 4,
+        "endLine": 40,
+        "endChar": 100
+      },
+      "revId": "9fbaf6dbe4f41a442dd5737862cbb7388ea2ef77",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6df84b47_62488399",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-01-17T14:28:57Z",
+      "side": 1,
+      "message": "It does also work.",
+      "parentUuid": "012ac617_e8399645",
       "range": {
         "startLine": 40,
         "startChar": 4,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "f037af6a_a116dd73",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-01-17T14:28:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae2a143f_b4d4a056",
+      "range": {
+        "startLine": 57,
+        "startChar": 2,
+        "endLine": 65,
+        "endChar": 24
+      },
+      "revId": "9fbaf6dbe4f41a442dd5737862cbb7388ea2ef77",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3b1eb1f1_1bda5be6",
         "filename": "near-rt-ric-simulator/ric-plt/a1/commands.sh",
         "patchSetId": 6
@@ -177,6 +345,24 @@
       "revId": "9fbaf6dbe4f41a442dd5737862cbb7388ea2ef77",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6e9864b_b90020fb",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/commands.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-01-17T14:28:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b1eb1f1_1bda5be6",
+      "revId": "9fbaf6dbe4f41a442dd5737862cbb7388ea2ef77",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     },
     {
       "key": {
@@ -200,6 +386,30 @@
       "revId": "9fbaf6dbe4f41a442dd5737862cbb7388ea2ef77",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ff905fd9_48d0b78c",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/main.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-01-17T14:28:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fc1b2225_8d323487",
+      "range": {
+        "startLine": 48,
+        "startChar": 33,
+        "endLine": 48,
+        "endChar": 34
+      },
+      "revId": "9fbaf6dbe4f41a442dd5737862cbb7388ea2ef77",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
