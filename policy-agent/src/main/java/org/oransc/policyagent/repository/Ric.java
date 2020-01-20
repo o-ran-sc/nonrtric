@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import org.oransc.policyagent.clients.A1Client.A1ProtocolType;
 import org.oransc.policyagent.configuration.RicConfig;
 
 /**
@@ -34,6 +35,7 @@ public class Ric {
     private final RicConfig ricConfig;
     private RicState state = RicState.UNDEFINED;
     private Map<String, PolicyType> supportedPolicyTypes = new HashMap<>();
+    private A1ProtocolType protocolVersion = A1ProtocolType.UNKNOWN;
 
     /**
      * Creates the Ric. Initial state is {@link RicState.NOT_INITIATED}.
@@ -162,4 +164,14 @@ public class Ric {
          */
         RECOVERING
     }
+
+    public A1ProtocolType getProtocolVersion() {
+        return protocolVersion;
+    }
+
+    public void setProtocolVersion(A1ProtocolType version) {
+        protocolVersion = version;
+
+    }
+
 }

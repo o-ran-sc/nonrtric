@@ -22,6 +22,8 @@ package org.oransc.policyagent.clients;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -33,8 +35,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.oransc.policyagent.configuration.ImmutableRicConfig;
@@ -50,7 +50,7 @@ import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
 @RunWith(MockitoJUnitRunner.class)
-public class A1ClientImplTest {
+public class StdA1ClientTest {
     private static final String RIC_URL = "RicUrl";
     private static final String POLICYTYPES_IDENTITIES_URL = "/policytypes/identities";
     private static final String POLICIES_IDENTITIES_URL = "/policies/identities";
@@ -67,15 +67,16 @@ public class A1ClientImplTest {
     private static final String POLICY_JSON_INVALID = "\"policyId\":\"policy1\"}";
     private static final String POLICY_TYPE = "typeName";
 
-    @Spy
-    A1ClientImpl a1Client;
+    StdA1Client a1Client;
 
-    @Mock
     AsyncRestClient asyncRestClientMock;
 
     @BeforeEach
     public void init() {
-        doReturn(asyncRestClientMock).when(a1Client).createClient(RIC_URL);
+        asyncRestClientMock = mock(AsyncRestClient.class);
+        a1Client = spy(new StdA1Client(createRic(RIC_URL).getConfig()));
+        doReturn(asyncRestClientMock).when(a1Client).createClient();
+
     }
 
     @Test
@@ -83,7 +84,7 @@ public class A1ClientImplTest {
         Mono<String> policyTypeIds = Mono.just(Arrays.toString(new String[] {POLICY_TYPE_1_NAME, POLICY_TYPE_2_NAME}));
         when(asyncRestClientMock.get(POLICYTYPES_IDENTITIES_URL)).thenReturn(policyTypeIds);
 
-        Mono<?> policyTypeIdsFlux = a1Client.getPolicyTypeIdentities(RIC_URL);
+        Mono<?> policyTypeIdsFlux = a1Client.getPolicyTypeIdentities();
         verify(asyncRestClientMock).get(POLICYTYPES_IDENTITIES_URL);
         StepVerifier.create(policyTypeIdsFlux).expectNextCount(1).expectComplete().verify();
     }
@@ -93,7 +94,7 @@ public class A1ClientImplTest {
         Mono<String> policyIds = Mono.just(Arrays.toString(new String[] {POLICY_1_ID, POLICY_2_ID}));
         when(asyncRestClientMock.get(POLICIES_IDENTITIES_URL)).thenReturn(policyIds);
 
-        Mono<?> policyIdsFlux = a1Client.getPolicyIdentities(RIC_URL);
+        Mono<?> policyIdsFlux = a1Client.getPolicyIdentities();
         verify(asyncRestClientMock).get(POLICIES_IDENTITIES_URL);
         StepVerifier.create(policyIdsFlux).expectNextCount(1).expectComplete().verify();
     }
@@ -103,7 +104,7 @@ public class A1ClientImplTest {
         when(asyncRestClientMock.get(POLICYTYPES_URL + POLICY_TYPE_1_NAME))
             .thenReturn(Mono.just(POLICY_TYPE_SCHEMA_VALID));
 
-        Mono<String> policyTypeMono = a1Client.getPolicyType(RIC_URL, POLICY_TYPE_1_NAME);
+        Mono<String> policyTypeMono = a1Client.getPolicyTypeSchema(POLICY_TYPE_1_NAME);
         verify(asyncRestClientMock).get(POLICYTYPES_URL + POLICY_TYPE_1_NAME);
         StepVerifier.create(policyTypeMono).expectNext(POLICY_TYPE_SCHEMA_VALID).expectComplete().verify();
     }
@@ -113,7 +114,7 @@ public class A1ClientImplTest {
         when(asyncRestClientMock.get(POLICYTYPES_URL + POLICY_TYPE_1_NAME))
             .thenReturn(Mono.just(POLICY_TYPE_SCHEMA_INVALID));
 
-        Mono<String> policyTypeMono = a1Client.getPolicyType(RIC_URL, POLICY_TYPE_1_NAME);
+        Mono<String> policyTypeMono = a1Client.getPolicyTypeSchema(POLICY_TYPE_1_NAME);
         verify(asyncRestClientMock).get(POLICYTYPES_URL + POLICY_TYPE_1_NAME);
         StepVerifier.create(policyTypeMono).expectErrorMatches(throwable -> throwable instanceof JSONException)
             .verify();
@@ -165,7 +166,7 @@ public class A1ClientImplTest {
     public void testDeletePolicy() {
         when(asyncRestClientMock.delete(POLICIES_URL + POLICY_1_ID)).thenReturn(Mono.empty());
 
-        Mono<?> responseMono = a1Client.deletePolicy(RIC_URL, POLICY_1_ID);
+        Mono<?> responseMono = a1Client.deletePolicy(POLICY_1_ID);
         verify(asyncRestClientMock).delete(POLICIES_URL + POLICY_1_ID);
         StepVerifier.create(responseMono).expectComplete().verify();
     }
