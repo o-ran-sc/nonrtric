@@ -27,14 +27,20 @@ import reactor.core.publisher.Mono;
 
 public interface A1Client {
 
-    public Mono<Collection<String>> getPolicyTypeIdentities(String nearRtRicUrl);
+    public static enum A1ProtocolType {
+        UNKNOWN, STD_V1
+    }
 
-    public Mono<Collection<String>> getPolicyIdentities(String nearRtRicUrl);
+    public Mono<A1ProtocolType> getProtocolVersion();
 
-    public Mono<String> getPolicyType(String nearRtRicUrl, String policyTypeId);
+    public Mono<Collection<String>> getPolicyTypeIdentities();
+
+    public Mono<Collection<String>> getPolicyIdentities();
+
+    public Mono<String> getPolicyTypeSchema(String policyTypeId);
 
     public Mono<String> putPolicy(Policy policy);
 
-    public Mono<String> deletePolicy(String nearRtRicUrl, String policyId);
+    public Mono<String> deletePolicy(String policyId);
 
 }

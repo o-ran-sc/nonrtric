@@ -22,6 +22,7 @@ package org.oransc.policyagent.repository;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.oransc.policyagent.exceptions.ServiceException;
 
@@ -61,5 +62,14 @@ public class Rics {
 
     public synchronized void clear() {
         this.rics.clear();
+    }
+
+    public synchronized Optional<Ric> lookupRicForManagedElement(String managedElementId) {
+        for (Ric ric : this.rics.values()) {
+            if (ric.getConfig().managedElementIds().contains(managedElementId)) {
+                return Optional.of(ric);
+            }
+        }
+        return Optional.empty();
     }
 }

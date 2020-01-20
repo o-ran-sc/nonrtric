@@ -30,14 +30,14 @@ import java.nio.file.Files;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.oransc.policyagent.clients.A1Client;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.repository.ImmutablePolicyType;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Rics;
-import org.oransc.policyagent.utils.MockA1Client;
+import org.oransc.policyagent.utils.MockA1ClientFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -48,6 +48,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
 public class MockPolicyAgent {
+
+    @Autowired
+    Rics rics;
 
     static class MockApplicationConfig extends ApplicationConfig {
         @Override
@@ -73,11 +76,10 @@ public class MockPolicyAgent {
         }
 
         @Bean
-        public A1Client getA1Client() {
+        public MockA1ClientFactory getA1ClientFactory() {
             PolicyTypes ricTypes = new PolicyTypes();
             loadTypes(ricTypes);
-            A1Client client = new MockA1Client(ricTypes);
-            return client;
+            return new MockA1ClientFactory(ricTypes);
         }
 
         @Bean
