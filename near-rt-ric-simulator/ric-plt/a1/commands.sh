@@ -6,7 +6,7 @@
 curl -v "http://localhost:8085/"
 
 # PUT a policy type STD_QoSNudging_0.1.0
-curl -X PUT -v "http://localhost:8085/policytypes/STD_QoSNudging_0.1.0" -H "accept: application/json" -H "Content-Type: application/json" --data-binary @policy_type_STD_QoSNudging_0.1.0.json.json
+curl -X PUT -v "http://localhost:8085/policytypes/STD_QoSNudging_0.1.0" -H "accept: application/json" -H "Content-Type: application/json" --data-binary @policy_type_STD_QoSNudging_0.1.0.json
 
 # GET policy types
 curl -v "http://localhost:8085/A1-P/v1/policytypes"
