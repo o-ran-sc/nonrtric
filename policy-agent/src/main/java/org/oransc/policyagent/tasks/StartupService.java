@@ -48,6 +48,9 @@ public class StartupService implements ApplicationConfig.Observer {
     ApplicationConfig applicationConfig;
 
     @Autowired
+    RefreshConfigTask refreshConfigTask;
+
+    @Autowired
     private Rics rics;
 
     @Autowired
@@ -63,9 +66,10 @@ public class StartupService implements ApplicationConfig.Observer {
     private Services services;
 
     // Only for unittesting
-    StartupService(ApplicationConfig appConfig, Rics rics, PolicyTypes policyTypes, A1Client a1Client,
-        Policies policies, Services services) {
+    StartupService(ApplicationConfig appConfig, RefreshConfigTask refreshTask, Rics rics, PolicyTypes policyTypes,
+        A1Client a1Client, Policies policies, Services services) {
         this.applicationConfig = appConfig;
+        this.refreshConfigTask = refreshTask;
         this.rics = rics;
         this.policyTypes = policyTypes;
         this.a1Client = a1Client;
@@ -96,7 +100,7 @@ public class StartupService implements ApplicationConfig.Observer {
     public void startup() {
         logger.debug("Starting up");
         applicationConfig.addObserver(this);
-        applicationConfig.initialize();
+        refreshConfigTask.start();
     }
 
 }
