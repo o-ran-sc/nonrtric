@@ -28,13 +28,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
-import java.net.URL;
 import java.util.List;
 import java.util.Vector;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.oransc.policyagent.clients.A1Client;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.configuration.ImmutableRicConfig;
 import org.oransc.policyagent.configuration.RicConfig;
@@ -53,6 +51,7 @@ import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Rics;
 import org.oransc.policyagent.tasks.RepositorySupervision;
 import org.oransc.policyagent.utils.MockA1Client;
+import org.oransc.policyagent.utils.MockA1ClientFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -81,7 +80,7 @@ public class ApplicationTest {
     private PolicyTypes policyTypes;
 
     @Autowired
-    MockA1Client a1Client;
+    MockA1ClientFactory a1ClientFactory;
 
     @Autowired
     RepositorySupervision supervision;
@@ -93,8 +92,7 @@ public class ApplicationTest {
     public static class MockApplicationConfig extends ApplicationConfig {
         @Override
         protected String getLocalConfigurationFilePath() {
-            URL url = MockApplicationConfig.class.getClassLoader().getResource("test_application_configuration.json");
-            return url.getFile();
+            return ""; // No config file loaded for the test
         }
     }
 
@@ -111,8 +109,8 @@ public class ApplicationTest {
         }
 
         @Bean
-        A1Client getA1Client() {
-            return new MockA1Client(this.policyTypes);
+        MockA1ClientFactory getA1ClientFactory() {
+            return new MockA1ClientFactory(this.policyTypes);
         }
 
         @Bean
@@ -161,24 +159,32 @@ public class ApplicationTest {
     public void testRecovery() throws Exception {
         reset();
         Policy policy = addPolicy("policyId", "typeName", "service", "ric"); // This should be created in the RIC
-
         Policy policy2 = addPolicy("policyId2", "typeName", "service", "ric");
-        a1Client.putPolicy("ric", policy2); // put it in the RIC
+
+        getA1Client("ric").putPolicy(policy2); // put it in the RIC
         policies.remove(policy2); // Remove it from the repo -> should be deleted in the RIC
 
         supervision.checkAllRics(); // The created policy should be put in the RIC
-        Policies ricPolicies = a1Client.getPolicies("ric");
+        Policies ricPolicies = getA1Client("ric").getPolicies();
         assertThat(ricPolicies.size()).isEqualTo(1);
         Policy ricPolicy = ricPolicies.get("policyId");
         assertThat(ricPolicy.json()).isEqualTo(policy.json());
     }
 
+    MockA1Client getA1Client(String ricName) throws ServiceException {
+        return a1ClientFactory.getA1Client(ricName);
+    }
+
     @Test
     public void testGetRic() throws Exception {
         reset();
+        Ric ric = addRic("ric1");
+        ric.addManagedElement("kista_1");
         String url = baseUrl() + "/ric?managedElementId=kista_1";
+
         String rsp = this.restTemplate.getForObject(url, String.class);
         System.out.println(rsp);
+
         assertThat(rsp).isEqualTo("ric1");
     }
 

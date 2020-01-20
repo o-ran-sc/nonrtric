@@ -33,4 +33,5 @@ public interface RicConfig {
     public String baseUrl();
 
     public Vector<String> managedElementIds();
+
 }

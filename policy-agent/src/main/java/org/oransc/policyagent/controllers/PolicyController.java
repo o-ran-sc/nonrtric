@@ -31,7 +31,7 @@ import io.swagger.annotations.ApiResponses;
 import java.util.Collection;
 import java.util.Vector;
 
-import org.oransc.policyagent.clients.A1Client;
+import org.oransc.policyagent.clients.A1ClientFactory;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.repository.ImmutablePolicy;
@@ -59,18 +59,19 @@ public class PolicyController {
     private final Rics rics;
     private final PolicyTypes policyTypes;
     private final Policies policies;
-    private final A1Client a1Client;
+    private final A1ClientFactory a1ClientFactory;
 
     private static Gson gson = new GsonBuilder() //
         .serializeNulls() //
         .create(); //
 
     @Autowired
-    PolicyController(ApplicationConfig config, PolicyTypes types, Policies policies, Rics rics, A1Client a1Client) {
+    PolicyController(ApplicationConfig config, PolicyTypes types, Policies policies, Rics rics,
+        A1ClientFactory a1ClientFactory) {
         this.policyTypes = types;
         this.policies = policies;
         this.rics = rics;
-        this.a1Client = a1Client;
+        this.a1ClientFactory = a1ClientFactory;
     }
 
     @GetMapping("/policy_schemas")
@@ -146,7 +147,8 @@ public class PolicyController {
         Policy policy = policies.get(id);
         if (policy != null && policy.ric().state().equals(Ric.RicState.IDLE)) {
             policies.remove(policy);
-            return a1Client.deletePolicy(policy.ric().getConfig().baseUrl(), id) //
+            return a1ClientFactory.createA1Client(policy.ric()) //
+                .flatMap(client -> client.deletePolicy(id)) //
                 .flatMap(notUsed -> {
                     return Mono.just(new ResponseEntity<>(HttpStatus.NO_CONTENT));
                 });
@@ -176,7 +178,8 @@ public class PolicyController {
                 .ownerServiceName(service) //
                 .lastModified(getTimeStampUTC()) //
                 .build();
-            return a1Client.putPolicy(policy) //
+            return a1ClientFactory.createA1Client(ric) //
+                .flatMap(client -> client.putPolicy(policy)) //
                 .doOnNext(notUsed -> policies.put(policy)) //
                 .flatMap(notUsed -> {
                     return Mono.just(new ResponseEntity<>(HttpStatus.CREATED));

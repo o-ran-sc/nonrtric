@@ -20,7 +20,7 @@
 
 package org.oransc.policyagent.tasks;
 
-import org.oransc.policyagent.clients.A1Client;
+import org.oransc.policyagent.clients.A1ClientFactory;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.configuration.RicConfig;
 import org.oransc.policyagent.repository.Policies;
@@ -54,7 +54,7 @@ public class StartupService implements ApplicationConfig.Observer {
     PolicyTypes policyTypes;
 
     @Autowired
-    private A1Client a1Client;
+    private A1ClientFactory a1ClientFactory;
 
     @Autowired
     private Policies policies;
@@ -63,12 +63,12 @@ public class StartupService implements ApplicationConfig.Observer {
     private Services services;
 
     // Only for unittesting
-    StartupService(ApplicationConfig appConfig, Rics rics, PolicyTypes policyTypes, A1Client a1Client,
+    StartupService(ApplicationConfig appConfig, Rics rics, PolicyTypes policyTypes, A1ClientFactory a1ClientFactory,
         Policies policies, Services services) {
         this.applicationConfig = appConfig;
         this.rics = rics;
         this.policyTypes = policyTypes;
-        this.a1Client = a1Client;
+        this.a1ClientFactory = a1ClientFactory;
         this.policies = policies;
         this.services = services;
     }
@@ -80,7 +80,7 @@ public class StartupService implements ApplicationConfig.Observer {
                 || event.equals(ApplicationConfig.RicConfigUpdate.CHANGED)) {
                 Ric ric = new Ric(ricConfig);
                 rics.put(ric);
-                RicRecoveryTask recoveryTask = new RicRecoveryTask(a1Client, policyTypes, policies, services);
+                RicRecoveryTask recoveryTask = new RicRecoveryTask(a1ClientFactory, policyTypes, policies, services);
                 recoveryTask.run(ric);
             } else if (event.equals(ApplicationConfig.RicConfigUpdate.REMOVED)) {
                 rics.remove(ricConfig.name());

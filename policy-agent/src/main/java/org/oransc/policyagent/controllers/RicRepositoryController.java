@@ -32,7 +32,6 @@ import java.util.Optional;
 import java.util.Vector;
 
 import org.oransc.policyagent.configuration.ApplicationConfig;
-import org.oransc.policyagent.configuration.RicConfig;
 import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Rics;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,8 +45,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(value = "RIC Management API")
 public class RicRepositoryController {
 
-    private final ApplicationConfig appConfig;
-
     @Autowired
     private Rics rics;
 
@@ -57,7 +54,6 @@ public class RicRepositoryController {
 
     @Autowired
     RicRepositoryController(ApplicationConfig appConfig) {
-        this.appConfig = appConfig;
     }
 
     /**
@@ -73,10 +69,10 @@ public class RicRepositoryController {
     public ResponseEntity<String> getRic(
         @RequestParam(name = "managedElementId", required = false, defaultValue = "") String managedElementId) {
 
-        Optional<RicConfig> config = appConfig.lookupRicConfigForManagedElement(managedElementId);
+        Optional<Ric> ric = this.rics.lookupRicForManagedElement(managedElementId);
 
-        if (config.isPresent()) {
-            return new ResponseEntity<>(config.get().name(), HttpStatus.OK);
+        if (ric.isPresent()) {
+            return new ResponseEntity<>(ric.get().name(), HttpStatus.OK);
         } else {
             return new ResponseEntity<>("", HttpStatus.NOT_FOUND);
         }

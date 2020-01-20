@@ -21,8 +21,6 @@
 package org.oransc.policyagent.utils;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Vector;
 
 import org.oransc.policyagent.clients.A1Client;
@@ -33,7 +31,7 @@ import org.oransc.policyagent.repository.PolicyTypes;
 import reactor.core.publisher.Mono;
 
 public class MockA1Client implements A1Client {
-    private final Map<String, Policies> policies = new HashMap<>();
+    Policies policies = new Policies();
     private final PolicyTypes policyTypes;
 
     public MockA1Client(PolicyTypes policyTypes) {
@@ -41,7 +39,7 @@ public class MockA1Client implements A1Client {
     }
 
     @Override
-    public Mono<Collection<String>> getPolicyTypeIdentities(String nearRtRicUrl) {
+    public Mono<Collection<String>> getPolicyTypeIdentities() {
         synchronized (this.policyTypes) {
             Vector<String> result = new Vector<>();
             for (PolicyType p : this.policyTypes.getAll()) {
@@ -52,13 +50,11 @@ public class MockA1Client implements A1Client {
     }
 
     @Override
-    public Mono<Collection<String>> getPolicyIdentities(String nearRtRicUrl) {
+    public Mono<Collection<String>> getPolicyIdentities() {
         synchronized (this.policies) {
             Vector<String> result = new Vector<>();
-            for (Policy policy : getPolicies(nearRtRicUrl).getAll()) {
-                if (policy.ric().getConfig().baseUrl().equals(nearRtRicUrl)) {
-                    result.add(policy.id());
-                }
+            for (Policy policy : policies.getAll()) {
+                result.add(policy.id());
             }
 
             return Mono.just(result);
@@ -66,7 +62,7 @@ public class MockA1Client implements A1Client {
     }
 
     @Override
-    public Mono<String> getPolicyType(String nearRtRicUrl, String policyTypeId) {
+    public Mono<String> getPolicyTypeSchema(String policyTypeId) {
         try {
             return Mono.just(this.policyTypes.getType(policyTypeId).schema());
         } catch (Exception e) {
@@ -76,25 +72,23 @@ public class MockA1Client implements A1Client {
 
     @Override
     public Mono<String> putPolicy(Policy p) {
-        getPolicies(p.ric().getConfig().baseUrl()).put(p);
+        this.policies.put(p);
         return Mono.just("OK");
     }
 
     @Override
-    public Mono<String> deletePolicy(String nearRtRicUrl, String policyId) {
-        getPolicies(nearRtRicUrl).removeId(policyId);
+    public Mono<String> deletePolicy(String policyId) {
+        this.policies.removeId(policyId);
         return Mono.just("OK");
     }
 
-    public Policies getPolicies(String url) {
-        if (!policies.containsKey(url)) {
-            policies.put(url, new Policies());
-        }
-        return policies.get(url);
+    public Policies getPolicies() {
+        return this.policies;
     }
 
-    public void putPolicy(String url, Policy policy) {
-        getPolicies(url).put(policy);
+    @Override
+    public Mono<A1ProtocolType> getProtocolVersion() {
+        return Mono.just(A1ProtocolType.STD_V1);
     }
 
 }

@@ -20,7 +20,7 @@
 
 package org.oransc.policyagent.tasks;
 
-import org.oransc.policyagent.clients.A1Client;
+import org.oransc.policyagent.clients.A1ClientFactory;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.Service;
@@ -41,13 +41,13 @@ public class ServiceSupervision {
     private static final Logger logger = LoggerFactory.getLogger(ServiceSupervision.class);
     private final Services services;
     private final Policies policies;
-    private A1Client a1Client;
+    private A1ClientFactory a1ClientFactory;
 
     @Autowired
-    public ServiceSupervision(Services services, Policies policies, A1Client a1Client) {
+    public ServiceSupervision(Services services, Policies policies, A1ClientFactory a1ClientFactory) {
         this.services = services;
         this.policies = policies;
-        this.a1Client = a1Client;
+        this.a1ClientFactory = a1ClientFactory;
     }
 
     @Scheduled(fixedRate = 1000 * 60)
@@ -86,9 +86,10 @@ public class ServiceSupervision {
     }
 
     private Mono<Policy> deletePolicyInRic(Policy policy) {
-        return a1Client.deletePolicy(policy.ric().getConfig().baseUrl(), policy.id()) //
-            .onErrorResume(exception -> handleDeleteFromRicFailure(policy, exception)) //
-            .map((nothing) -> policy);
+        return a1ClientFactory.createA1Client(policy.ric()) //
+            .flatMap(client -> client.deletePolicy(policy.id()) //
+                .onErrorResume(exception -> handleDeleteFromRicFailure(policy, exception)) //
+                .map((nothing) -> policy));
     }
 
     private Mono<String> handleDeleteFromRicFailure(Policy policy, Throwable e) {
