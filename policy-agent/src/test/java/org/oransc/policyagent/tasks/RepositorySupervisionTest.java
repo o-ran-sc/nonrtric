@@ -23,14 +23,16 @@ package org.oransc.policyagent.tasks;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Vector;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
@@ -38,6 +40,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.oransc.policyagent.clients.A1Client;
+import org.oransc.policyagent.clients.A1ClientFactory;
 import org.oransc.policyagent.configuration.ImmutableRicConfig;
 import org.oransc.policyagent.repository.ImmutablePolicy;
 import org.oransc.policyagent.repository.ImmutablePolicyType;
@@ -56,6 +59,14 @@ import reactor.core.publisher.Mono;
 public class RepositorySupervisionTest {
     @Mock
     A1Client a1ClientMock;
+
+    @Mock
+    A1ClientFactory a1ClientFactory;
+
+    @BeforeEach
+    public void init() {
+        doReturn(Mono.just(a1ClientMock)).when(a1ClientFactory).createA1Client(any());
+    }
 
     @Test
     public void test() {
@@ -99,14 +110,15 @@ public class RepositorySupervisionTest {
         Services services = new Services();
 
         RepositorySupervision supervisorUnderTest =
-            new RepositorySupervision(rics, policies, a1ClientMock, types, services);
+            new RepositorySupervision(rics, policies, a1ClientFactory, types, services);
 
         Mono<Collection<String>> policyIds = Mono.just(Arrays.asList("policyId1", "policyId2"));
-        when(a1ClientMock.getPolicyIdentities(anyString())).thenReturn(policyIds);
-        when(a1ClientMock.deletePolicy(anyString(), anyString())).thenReturn(Mono.empty());
-        when(a1ClientMock.getPolicyTypeIdentities(anyString())).thenReturn(policyIds);
-        when(a1ClientMock.getPolicyType(anyString(), anyString())).thenReturn(Mono.just("schema"));
-        when(a1ClientMock.putPolicy(any())).thenReturn(Mono.just("OK"));
+
+        doReturn(policyIds).when(a1ClientMock).getPolicyTypeIdentities();
+        doReturn(policyIds).when(a1ClientMock).getPolicyIdentities();
+        doReturn(Mono.empty()).when(a1ClientMock).deletePolicy(anyString());
+        doReturn(Mono.just("schema")).when(a1ClientMock).getPolicyTypeSchema(anyString());
+        doReturn(Mono.just("OK")).when(a1ClientMock).putPolicy(any());
 
         supervisorUnderTest.checkAllRics();
 
@@ -114,8 +126,7 @@ public class RepositorySupervisionTest {
         await().untilAsserted(() -> RicState.IDLE.equals(ric2.state()));
         await().untilAsserted(() -> RicState.IDLE.equals(ric3.state()));
 
-        verify(a1ClientMock).deletePolicy("baseUrl1", "policyId2");
-        verify(a1ClientMock).deletePolicy("baseUrl2", "policyId2");
+        verify(a1ClientMock, times(3)).deletePolicy("policyId2");
         verifyNoMoreInteractions(a1ClientMock);
     }
 }

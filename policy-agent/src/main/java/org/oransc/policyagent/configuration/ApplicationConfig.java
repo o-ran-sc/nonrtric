@@ -23,7 +23,6 @@ package org.oransc.policyagent.configuration;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Vector;
 
 import javax.validation.constraints.NotEmpty;
@@ -51,21 +50,8 @@ public class ApplicationConfig {
         return this.filepath;
     }
 
-    public synchronized void setFilepath(String filepath) {
-        this.filepath = filepath;
-    }
-
     public synchronized Collection<RicConfig> getRicConfigs() {
         return this.ricConfigs.values();
-    }
-
-    public synchronized Optional<RicConfig> lookupRicConfigForManagedElement(String managedElementId) {
-        for (RicConfig ricConfig : getRicConfigs()) {
-            if (ricConfig.managedElementIds().contains(managedElementId)) {
-                return Optional.of(ricConfig);
-            }
-        }
-        return Optional.empty();
     }
 
     public RicConfig getRic(String ricName) throws ServiceException {
