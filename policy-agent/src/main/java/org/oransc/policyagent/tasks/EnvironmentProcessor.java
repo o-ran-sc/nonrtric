@@ -18,7 +18,7 @@
  * ========================LICENSE_END===================================
  */
 
-package org.oransc.policyagent.configuration;
+package org.oransc.policyagent.tasks;
 
 import java.util.Optional;
 import java.util.Properties;

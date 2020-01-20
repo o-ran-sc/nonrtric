@@ -73,6 +73,9 @@ public class StartupServiceTest {
     ApplicationConfig appConfigMock;
 
     @Mock
+    RefreshConfigTask refreshTaskMock;
+
+    @Mock
     A1Client a1ClientMock;
 
     @Test
@@ -87,8 +90,8 @@ public class StartupServiceTest {
 
         Rics rics = new Rics();
         PolicyTypes policyTypes = new PolicyTypes();
-        StartupService serviceUnderTest =
-            new StartupService(appConfigMock, rics, policyTypes, a1ClientMock, new Policies(), new Services());
+        StartupService serviceUnderTest = new StartupService(appConfigMock, refreshTaskMock, rics, policyTypes,
+            a1ClientMock, new Policies(), new Services());
 
         serviceUnderTest.startup();
 
@@ -148,8 +151,8 @@ public class StartupServiceTest {
 
         Rics rics = new Rics();
         PolicyTypes policyTypes = new PolicyTypes();
-        StartupService serviceUnderTest =
-            new StartupService(appConfigMock, rics, policyTypes, a1ClientMock, new Policies(), new Services());
+        StartupService serviceUnderTest = new StartupService(appConfigMock, refreshTaskMock, rics, policyTypes,
+            a1ClientMock, new Policies(), new Services());
 
         serviceUnderTest.startup();
         serviceUnderTest.onRicConfigUpdate(getRicConfig(FIRST_RIC_NAME, FIRST_RIC_URL, MANAGED_NODE_A),
@@ -168,8 +171,8 @@ public class StartupServiceTest {
         doReturn(error).when(a1ClientMock).getPolicyIdentities(anyString());
 
         Rics rics = new Rics();
-        StartupService serviceUnderTest =
-            new StartupService(appConfigMock, rics, new PolicyTypes(), a1ClientMock, new Policies(), new Services());
+        StartupService serviceUnderTest = new StartupService(appConfigMock, refreshTaskMock, rics, new PolicyTypes(),
+            a1ClientMock, new Policies(), new Services());
 
         serviceUnderTest.startup();
         serviceUnderTest.onRicConfigUpdate(getRicConfig(FIRST_RIC_NAME, FIRST_RIC_URL, MANAGED_NODE_A),

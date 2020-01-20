@@ -18,7 +18,7 @@
  * ========================LICENSE_END===================================
  */
 
-package org.oransc.policyagent.configuration;
+package org.oransc.policyagent.tasks;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -53,11 +53,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.onap.dcaegen2.services.sdk.rest.services.cbs.client.api.CbsClient;
 import org.onap.dcaegen2.services.sdk.rest.services.cbs.client.model.EnvProperties;
 import org.onap.dcaegen2.services.sdk.rest.services.cbs.client.model.ImmutableEnvProperties;
+import org.oransc.policyagent.configuration.ApplicationConfig;
+import org.oransc.policyagent.configuration.ApplicationConfigParser;
+import org.oransc.policyagent.configuration.ImmutableRicConfig;
+import org.oransc.policyagent.configuration.RicConfig;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.utils.LoggingUtils;
 
@@ -67,9 +72,12 @@ import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
 @RunWith(MockitoJUnitRunner.class)
-public class ApplicationConfigTest {
+public class RefreshConfigTaskTest {
 
-    private ApplicationConfig appConfigUnderTest;
+    private RefreshConfigTask refreshTaskUnderTest;
+
+    @Spy
+    ApplicationConfig appConfig;
 
     @Mock
     CbsClient cbsClient;
@@ -91,18 +99,17 @@ public class ApplicationConfigTest {
 
     @Test
     public void whenTheConfigurationFits() throws IOException, ServiceException {
-
-        appConfigUnderTest = spy(ApplicationConfig.class);
-        appConfigUnderTest.systemEnvironment = new Properties();
+        refreshTaskUnderTest = spy(new RefreshConfigTask(appConfig));
+        refreshTaskUnderTest.systemEnvironment = new Properties();
         // When
-        doReturn(getCorrectJson()).when(appConfigUnderTest).createInputStream(any());
-        doReturn("fileName").when(appConfigUnderTest).getLocalConfigurationFilePath();
-        appConfigUnderTest.initialize();
+        doReturn(getCorrectJson()).when(refreshTaskUnderTest).createInputStream(any());
+        doReturn("fileName").when(appConfig).getLocalConfigurationFilePath();
+        refreshTaskUnderTest.start();
 
         // Then
-        verify(appConfigUnderTest, times(1)).loadConfigurationFromFile();
+        verify(refreshTaskUnderTest, times(1)).loadConfigurationFromFile();
 
-        Iterable<RicConfig> ricConfigs = appConfigUnderTest.getRicConfigs();
+        Iterable<RicConfig> ricConfigs = appConfig.getRicConfigs();
         RicConfig ricConfig = ricConfigs.iterator().next();
         assertThat(ricConfigs).isNotNull();
         assertThat(ricConfig).isEqualTo(CORRECT_RIC_CONIFG);
@@ -110,28 +117,26 @@ public class ApplicationConfigTest {
 
     @Test
     public void whenFileIsExistsButJsonIsIncorrect() throws IOException, ServiceException {
-
-        appConfigUnderTest = spy(ApplicationConfig.class);
-        appConfigUnderTest.systemEnvironment = new Properties();
+        refreshTaskUnderTest = spy(new RefreshConfigTask(appConfig));
+        refreshTaskUnderTest.systemEnvironment = new Properties();
 
         // When
-        doReturn(getIncorrectJson()).when(appConfigUnderTest).createInputStream(any());
-        doReturn("fileName").when(appConfigUnderTest).getLocalConfigurationFilePath();
-        appConfigUnderTest.loadConfigurationFromFile();
+        doReturn(getIncorrectJson()).when(refreshTaskUnderTest).createInputStream(any());
+        doReturn("fileName").when(appConfig).getLocalConfigurationFilePath();
+        refreshTaskUnderTest.loadConfigurationFromFile();
 
         // Then
-        verify(appConfigUnderTest, times(1)).loadConfigurationFromFile();
-        Assertions.assertEquals(0, appConfigUnderTest.getRicConfigs().size());
+        verify(refreshTaskUnderTest, times(1)).loadConfigurationFromFile();
+        Assertions.assertEquals(0, appConfig.getRicConfigs().size());
     }
 
     @Test
     public void whenPeriodicConfigRefreshNoEnvironmentVariables() {
+        refreshTaskUnderTest = spy(new RefreshConfigTask(appConfig));
+        refreshTaskUnderTest.systemEnvironment = new Properties();
 
-        appConfigUnderTest = spy(ApplicationConfig.class);
-        appConfigUnderTest.systemEnvironment = new Properties();
-
-        final ListAppender<ILoggingEvent> logAppender = LoggingUtils.getLogListAppender(ApplicationConfig.class);
-        Flux<ApplicationConfig> task = appConfigUnderTest.createRefreshTask();
+        final ListAppender<ILoggingEvent> logAppender = LoggingUtils.getLogListAppender(RefreshConfigTask.class);
+        Flux<ApplicationConfig> task = refreshTaskUnderTest.createRefreshTask();
 
         StepVerifier.create(task).expectSubscription().verifyComplete();
 
@@ -140,18 +145,18 @@ public class ApplicationConfigTest {
 
     @Test
     public void whenPeriodicConfigRefreshNoConsul() {
-        appConfigUnderTest = spy(ApplicationConfig.class);
-        appConfigUnderTest.systemEnvironment = new Properties();
+        refreshTaskUnderTest = spy(new RefreshConfigTask(appConfig));
+        refreshTaskUnderTest.systemEnvironment = new Properties();
 
         EnvProperties props = properties();
-        doReturn(Mono.just(props)).when(appConfigUnderTest).getEnvironment(any());
+        doReturn(Mono.just(props)).when(refreshTaskUnderTest).getEnvironment(any());
 
-        doReturn(Mono.just(cbsClient)).when(appConfigUnderTest).createCbsClient(props);
+        doReturn(Mono.just(cbsClient)).when(refreshTaskUnderTest).createCbsClient(props);
         Flux<JsonObject> err = Flux.error(new IOException());
         doReturn(err).when(cbsClient).updates(any(), any(), any());
 
-        final ListAppender<ILoggingEvent> logAppender = LoggingUtils.getLogListAppender(ApplicationConfig.class);
-        Flux<ApplicationConfig> task = appConfigUnderTest.createRefreshTask();
+        final ListAppender<ILoggingEvent> logAppender = LoggingUtils.getLogListAppender(RefreshConfigTask.class);
+        Flux<ApplicationConfig> task = refreshTaskUnderTest.createRefreshTask();
 
         StepVerifier //
             .create(task) //
@@ -164,25 +169,25 @@ public class ApplicationConfigTest {
 
     @Test
     public void whenPeriodicConfigRefreshSuccess() throws JsonIOException, JsonSyntaxException, IOException {
-        appConfigUnderTest = spy(ApplicationConfig.class);
-        appConfigUnderTest.systemEnvironment = new Properties();
+        refreshTaskUnderTest = spy(new RefreshConfigTask(appConfig));
+        refreshTaskUnderTest.systemEnvironment = new Properties();
 
         EnvProperties props = properties();
-        doReturn(Mono.just(props)).when(appConfigUnderTest).getEnvironment(any());
-        doReturn(Mono.just(cbsClient)).when(appConfigUnderTest).createCbsClient(props);
+        doReturn(Mono.just(props)).when(refreshTaskUnderTest).getEnvironment(any());
+        doReturn(Mono.just(cbsClient)).when(refreshTaskUnderTest).createCbsClient(props);
 
         Flux<JsonObject> json = Flux.just(getJsonRootObject());
         doReturn(json).when(cbsClient).updates(any(), any(), any());
 
-        Flux<ApplicationConfig> task = appConfigUnderTest.createRefreshTask();
+        Flux<ApplicationConfig> task = refreshTaskUnderTest.createRefreshTask();
 
         StepVerifier //
             .create(task) //
             .expectSubscription() //
-            .expectNext(appConfigUnderTest) //
+            .expectNext(appConfig) //
             .verifyComplete();
 
-        Assertions.assertNotNull(appConfigUnderTest.getRicConfigs());
+        Assertions.assertNotNull(appConfig.getRicConfigs());
     }
 
     private JsonObject getJsonRootObject() throws JsonIOException, JsonSyntaxException, IOException {
@@ -202,5 +207,4 @@ public class ApplicationConfigTest {
             "        \"ric\": {"; //
         return new ByteArrayInputStream((string.getBytes(StandardCharsets.UTF_8)));
     }
-
 }
