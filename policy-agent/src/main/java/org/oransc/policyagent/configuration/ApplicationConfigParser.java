@@ -30,7 +30,7 @@ import java.util.Vector;
 
 import org.oransc.policyagent.exceptions.ServiceException;
 
-class ApplicationConfigParser {
+public class ApplicationConfigParser {
 
     private static final String CONFIG = "config";
     private static Gson gson = new GsonBuilder() //
