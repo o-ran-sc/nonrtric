@@ -45,6 +45,30 @@
       "revId": "2d38f3f62c1b2613dea4f26e4fa670fdfb6208b8",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83f77720_98786913",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/StartupService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-22T08:47:49Z",
+      "side": 1,
+      "message": "This is used in line 102: \"applicationConfig.addObserver(this);\"",
+      "parentUuid": "a6f47cd2_af7858f8",
+      "range": {
+        "startLine": 48,
+        "startChar": 22,
+        "endLine": 48,
+        "endChar": 39
+      },
+      "revId": "2d38f3f62c1b2613dea4f26e4fa670fdfb6208b8",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
