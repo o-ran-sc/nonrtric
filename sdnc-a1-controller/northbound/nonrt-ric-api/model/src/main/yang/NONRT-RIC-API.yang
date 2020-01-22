@@ -27,84 +27,38 @@ module A1-ADAPTER-API {
 
     import ietf-yang-types { prefix yang; }
 
-    revision "2019-10-02" {
+    revision "2020-01-22" {
         description
         "A1 adapter";
     }
 
-    //Flattend interface using RPC
-
-    //Get an array of near-rt-ric IDs,
-    //Each item in the returned array will be regarded as one near-rt-ric-id.
-    rpc getNearRT-RICs {
-        output {
-            leaf-list near-rt-ric-id-list {
-                type string;
-            }
-            leaf code {
-                type string;
-            }
-        }
-    }
-
-    //Get health status for a Near-RT-RIC. true - health ok, false - health is not ok.
-    rpc getHealthCheck {
-         input {
-            leaf near-rt-ric-id {
-                type string;
-            }
-        }
-
-        output {
-            leaf health-status {
-                type boolean;
-            }
-            leaf code {
-                type string;
-            }
-        }
-    }
-
     //Get an array of integer policy type ids
     //Each item in the returned array will be regarded as one policy-type-id.
-    rpc getPolicyTypes {
+    rpc getPolicyTypeIdentities {
         input {
-            leaf near-rt-ric-id {
+            leaf near-rt-ric-url {
                 type string;
             }
         }
 
         output {
             leaf-list policy-type-id-list {
-                type uint32;
-            }
-            leaf code {
                 type string;
             }
         }
     }
 
-    //Create a policy type
-    rpc createPolicyType {
+    //Get an array of integer policy ids
+    //Each item in the returned array will be regarded as one policy-id.
+    rpc getPolicyIdentities {
         input {
-            leaf near-rt-ric-id {
-                type string;
-            }
-            leaf policy-type-id {
-                type uint32;
-            }
-            leaf description {
-                type string;
-            }
-            leaf name {
-                type string;
-            }
-            leaf policy-type {
+            leaf near-rt-ric-url {
                 type string;
             }
         }
-       output {
-            leaf code {
+
+        output {
+            leaf-list policy-id-list {
                 type string;
             }
         }
@@ -113,152 +67,47 @@ module A1-ADAPTER-API {
     //Get a policy type
     rpc getPolicyType {
         input {
-            leaf near-rt-ric-id {
+            leaf near-rt-ric-url {
                 type string;
             }
             leaf policy-type-id {
-                type uint32;
+                type string;
             }
         }
         output {
-            leaf description {
-                type string;
-            }
-            leaf name {
-                type string;
-            }
             leaf policy-type {
                 type string;
             }
-            leaf code {
+        }
+    }
+
+    //Create a policy
+    rpc putPolicy {
+        input {
+            leaf near-rt-ric-url {
+                type string;
+            }
+            leaf policy-id {
+                type string;
+            }
+            leaf policy {
+                type string;
+            }
+        }
+        output {
+            leaf returned-policy {
                 type string;
             }
         }
     }
 
-    //Delete a policy type
-    rpc deletePolicyType {
+    //Delete a policy
+    rpc deletePolicy {
         input {
-            leaf near-rt-ric-id {
+            leaf near-rt-ric-url {
                 type string;
             }
-            leaf policy-type-id {
-                type uint32;
-            }
-        }
-        output {
-            leaf code {
-                type string;
-            }
-        }
-    }
-
-    //Get an array of string policy instance ids
-    //Each item in the returned array will be regarded as one policy-instance-id.
-    rpc getPolicyInstances {
-        input {
-            leaf near-rt-ric-id {
-                type string;
-            }
-            leaf policy-type-id {
-                type uint32;
-            }
-        }
-
-        output {
-            leaf-list policy-instance-id-list {
-                type string;
-            }
-            leaf code {
-                type string;
-            }
-        }
-    }
-
-    //Create a policy instance
-    rpc createPolicyInstance {
-        input {
-            leaf near-rt-ric-id {
-                type string;
-            }
-            leaf policy-type-id {
-                type uint32;
-            }
-            leaf policy-instance-id {
-                type string;
-            }
-            leaf policy-instance {
-                type string;
-            }
-        }
-        output {
-            leaf code {
-                type string;
-            }
-        }
-    }
-
-    ///Get a policy instance
-    rpc getPolicyInstance {
-        input {
-            leaf near-rt-ric-id {
-                type string;
-            }
-            leaf policy-type-id {
-                type uint32;
-            }
-            leaf policy-instance-id {
-                type string;
-            }
-        }
-        output {
-            leaf policy-instance {
-                type string;
-            }
-            leaf code {
-                type string;
-            }
-        }
-    }
-
-    //Delete a policy instance
-    rpc deletePolicyInstance {
-        input {
-            leaf near-rt-ric-id {
-                type string;
-            }
-            leaf policy-type-id {
-                type uint32;
-            }
-            leaf policy-instance-id {
-                type string;
-            }
-        }
-        output {
-            leaf code {
-                type string;
-            }
-        }
-    }
-
-    //Get the status for a policy instance
-    rpc getStatus {
-        input {
-            leaf near-rt-ric-id {
-                type string;
-            }
-            leaf policy-type-id {
-                type uint32;
-            }
-            leaf policy-instance-id {
-                type string;
-            }
-        }
-        output {
-            leaf status {
-                type string;
-            }
-            leaf code {
+            leaf policy-id {
                 type string;
             }
         }

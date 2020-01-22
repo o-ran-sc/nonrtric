@@ -31,6 +31,7 @@
     <name>nonrtric</name>
     <modules>
         <module>policy-agent</module>
+	<module>sdnc-a1-controller</module>
         <module>dashboard</module>
         <module>near-rt-ric-simulator</module>
     </modules>
