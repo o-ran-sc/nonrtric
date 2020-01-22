@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1c4abdf6_98d24366",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/configuration/ApplicationConfig.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-01-22T08:41:42Z",
+      "side": 1,
+      "message": "No longer used, should be removed.",
+      "range": {
+        "startLine": 42,
+        "startChar": 32,
+        "endLine": 42,
+        "endChar": 39
+      },
+      "revId": "2d38f3f62c1b2613dea4f26e4fa670fdfb6208b8",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6f47cd2_af7858f8",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/StartupService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-01-22T08:41:42Z",
+      "side": 1,
+      "message": "This is no longer used within this class, so should be removed.",
+      "range": {
+        "startLine": 48,
+        "startChar": 22,
+        "endLine": 48,
+        "endChar": 39
+      },
+      "revId": "2d38f3f62c1b2613dea4f26e4fa670fdfb6208b8",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
