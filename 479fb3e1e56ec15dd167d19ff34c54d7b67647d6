@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9466d1d6_ac17c99a",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/A1ClientFactory.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-01-22T12:06:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "29e538f4_48b09152",
+      "range": {
+        "startLine": 53,
+        "startChar": 81,
+        "endLine": 53,
+        "endChar": 82
+      },
+      "revId": "479fb3e1e56ec15dd167d19ff34c54d7b67647d6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c616cd32_3e67a678",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/A1ClientImpl.java",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "479fb3e1e56ec15dd167d19ff34c54d7b67647d6",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7d4da2a_6a420f01",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/A1ClientImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-01-22T12:06:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c616cd32_3e67a678",
+      "range": {
+        "startLine": 37,
+        "startChar": 13,
+        "endLine": 37,
+        "endChar": 26
+      },
+      "revId": "479fb3e1e56ec15dd167d19ff34c54d7b67647d6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     },
     {
       "key": {
@@ -82,6 +130,30 @@
       "writtenOn": "2020-01-22T11:35:03Z",
       "side": 1,
       "message": "Shouldn\u0027t the name be OscA1ClientImpl, to match the other clients name?",
+      "range": {
+        "startLine": 32,
+        "startChar": 13,
+        "endLine": 32,
+        "endChar": 16
+      },
+      "revId": "479fb3e1e56ec15dd167d19ff34c54d7b67647d6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1074055c_34613e8f",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/OscA1Client.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-01-22T12:06:57Z",
+      "side": 1,
+      "message": "Done, I will remove Impl then.",
+      "parentUuid": "a889d333_701e6202",
       "range": {
         "startLine": 32,
         "startChar": 13,
