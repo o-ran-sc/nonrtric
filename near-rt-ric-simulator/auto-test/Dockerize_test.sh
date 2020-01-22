@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-TC_ONELINE_DESCR="Auto test for policy agent refreshing configurations from consul/cbs"
+TC_ONELINE_DESCR="dockerirze the test, setup docker container for policy agent, cbs, consul, near realtime ric simulator"
 
 . ../common/testcase_common.sh $1
 
@@ -19,4 +19,3 @@ check_policy_agent_logs
 #### TEST COMPLETE ####
 
 store_logs          END
-

@@ -2,7 +2,7 @@
 
 . ../common/test_env.sh
 
-echo "Test case started as: ${BASH_SOURCE[$i+1]} "$1 $2
+echo "Test case started as: ${BASH_SOURCE[$i+1]} "$1
 
 # This is a script that contains all the functions needed for auto test
 # Arg: local | remote
@@ -13,7 +13,7 @@ IMAGE_TAG="1.0.0-SNAPSHOT"
 IMAGE_TAG_REMOTE="1.0.0"
 
 if [ $# -lt 1 ] || [ $# -gt 2 ]; then
-	echo "Expected arg: local [<image-tag>] | remote [<image-tag>] "
+	echo "Expected arg: local  | remote  "
 	exit 1
 elif [ $1 == "local" ]; then
 	if [ -z $POLICY_AGENT_LOCAL_IMAGE ]; then
@@ -111,6 +111,22 @@ if [ $1 !=  "manual-container" ] && [ $1 !=  "manual-app" ]; then
 	fi
 fi
 
+echo ""
+
+echo "Building images for the simulators"
+curdir=$PWD
+cd $SIM_GROUP
+cd ../ric-plt/a1
+docker build -t ric-simulator:latest . &> /dev/null
+cd $curdir
+
+echo ""
+
+echo "Local registry images for simulators:"
+echo "Consul:             " $(docker images | grep consul)
+echo "CBS:                " $(docker images | grep platform.configbinding.app)
+echo "RIC:                " $(docker images | grep ric-simulator)
+echo ""
 
 
 __consul_config() {
