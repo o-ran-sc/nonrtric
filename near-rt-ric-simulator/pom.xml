@@ -80,7 +80,7 @@
         <inherited>false</inherited>
         <executions>
           <execution>
-            <id>push-policy-agent-image</id>
+            <id>push-near-rt-ric-simulator-image</id>
             <goals>
               <goal>build</goal>
               <goal>push</goal>
@@ -90,7 +90,7 @@
               <pushRegistry>${env.CONTAINER_PUSH_REGISTRY}</pushRegistry>
               <images>
                 <image>
-                  <name>o-ran-sc/policy-agent:${project.version}</name>
+                  <name>o-ran-sc/near-rt-ric-simulator:${project.version}</name>
                     <build>
                       <contextDir>${basedir}/ric-plt/a1</contextDir>
                       <dockerFile>Dockerfile</dockerFile>
