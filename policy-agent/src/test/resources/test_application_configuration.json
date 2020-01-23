@@ -19,5 +19,13 @@
             ]
          }
       ]
+   },
+   "streams_subscribes": {
+      "dmaap_subscriber": {
+         "dmaap_info": {
+            "topic_url": "http://dradmin:dradmin@localhost:2222/events/A1-P/users/sdnc1"
+         },
+         "type": "message_router"
+      }
    }
 }

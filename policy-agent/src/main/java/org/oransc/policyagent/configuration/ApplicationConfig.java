@@ -23,6 +23,7 @@ package org.oransc.policyagent.configuration;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Vector;
 
 import javax.validation.constraints.NotEmpty;
@@ -41,6 +42,7 @@ public class ApplicationConfig {
 
     private Collection<Observer> observers = new Vector<>();
     private Map<String, RicConfig> ricConfigs = new HashMap<>();
+    private Properties dmaapConsumerConfig;
 
     @Autowired
     public ApplicationConfig() {
@@ -48,6 +50,13 @@ public class ApplicationConfig {
 
     public String getLocalConfigurationFilePath() {
         return this.filepath;
+    }
+
+    /*
+     * Do not remove, used by framework!
+     */
+    public synchronized void setFilepath(String filepath) {
+        this.filepath = filepath;
     }
 
     public synchronized Collection<RicConfig> getRicConfigs() {
@@ -61,6 +70,10 @@ public class ApplicationConfig {
             }
         }
         throw new ServiceException("Could not find ric: " + ricName);
+    }
+
+    public Properties getDmaapConsumerConfig() {
+        return dmaapConsumerConfig;
     }
 
     public static enum RicConfigUpdate {
@@ -85,7 +98,7 @@ public class ApplicationConfig {
         }
     }
 
-    public void setConfiguration(@NotNull Collection<RicConfig> ricConfigs) {
+    public void setConfiguration(@NotNull Collection<RicConfig> ricConfigs, Properties dmaapConsumerConfig) {
         Collection<Notification> notifications = new Vector<>();
         synchronized (this) {
             Map<String, RicConfig> newRicConfigs = new HashMap<>();
@@ -109,6 +122,8 @@ public class ApplicationConfig {
             this.ricConfigs = newRicConfigs;
         }
         notifyObservers(notifications);
+
+        this.dmaapConsumerConfig = dmaapConsumerConfig;
     }
 
     private void notifyObservers(Collection<Notification> notifications) {

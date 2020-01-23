@@ -125,7 +125,7 @@ public class RefreshConfigTask {
         try {
             ApplicationConfigParser parser = new ApplicationConfigParser();
             parser.parse(jsonObject);
-            this.appConfig.setConfiguration(parser.getRicConfigs());
+            this.appConfig.setConfiguration(parser.getRicConfigs(), parser.getDmaapConsumerConfig());
         } catch (ServiceException e) {
             logger.error("Could not parse configuration {}", e.toString(), e);
         }
@@ -152,7 +152,7 @@ public class RefreshConfigTask {
             }
             ApplicationConfigParser appParser = new ApplicationConfigParser();
             appParser.parse(rootObject);
-            appConfig.setConfiguration(appParser.getRicConfigs());
+            appConfig.setConfiguration(appParser.getRicConfigs(), appParser.getDmaapConsumerConfig());
             logger.info("Local configuration file loaded: {}", filepath);
         } catch (JsonSyntaxException | ServiceException | IOException e) {
             logger.trace("Local configuration file not loaded: {}", filepath, e);

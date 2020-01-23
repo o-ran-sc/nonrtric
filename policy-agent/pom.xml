@@ -41,6 +41,7 @@
 		<sdk.version>1.1.6</sdk.version>
 		<swagger.version>2.0.0</swagger.version>
 		<json.version>20180130</json.version>
+        <commons-net.version>3.3</commons-net.version>
 		<awaitility.version>4.0.1</awaitility.version>
 		<maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
 		<formatter-maven-plugin.version>2.8.1</formatter-maven-plugin.version>
@@ -101,6 +102,11 @@
 			<artifactId>json</artifactId>
 			<version>${json.version}</version>
 		</dependency>
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+            <version>${commons-net.version}</version>
+        </dependency>
 		<!--TEST -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -115,6 +121,11 @@
 		<dependency>
 			<groupId>org.onap.dcaegen2.services.sdk.rest.services</groupId>
 			<artifactId>cbs-client</artifactId>
+            <version>${sdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.onap.dcaegen2.services.sdk.rest.services</groupId>
+            <artifactId>dmaap-client</artifactId>
 			<version>${sdk.version}</version>
 		</dependency>
 		<!--REQUIRED TO GENERATE DOCUMENTATION -->

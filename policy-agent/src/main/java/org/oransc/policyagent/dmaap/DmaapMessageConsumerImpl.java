@@ -3,13 +3,20 @@ package org.oransc.policyagent.dmaap;
 import java.util.Properties;
 
 import org.onap.dmaap.mr.client.impl.MRConsumerImpl;
+import org.oransc.policyagent.configuration.ApplicationConfig;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class DmaapMessageConsumerImpl implements DmaapMessageConsumer {
 
+    private final ApplicationConfig applicationConfig;
+
 	protected MRConsumerImpl consumer;
-	
-	public DmaapMessageConsumerImpl() {
-		// TODO Auto-generated constructor stub
+
+	@Autowired
+	public DmaapMessageConsumerImpl(ApplicationConfig applicationConfig) {
+		this.applicationConfig = applicationConfig;
 	}
 
 	@Override
@@ -20,6 +27,7 @@ public class DmaapMessageConsumerImpl implements DmaapMessageConsumer {
 
 	@Override
 	public void init(Properties baseProperties) {
+	    Properties dmaapConsumerConfig = applicationConfig.getDmaapConsumerConfig();
 		// Initialize the DMAAP with the properties
 		// TODO Auto-generated method stub
 
