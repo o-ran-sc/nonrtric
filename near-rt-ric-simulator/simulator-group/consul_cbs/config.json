@@ -2,19 +2,11 @@
   "//description": "Application configuration",
   "ric": [
     {
-      "name": "ric1",
-      "baseUrl": "http://localhost:8080/",
+      "name": "ric3",
+      "baseUrl": "http://ric3:8085/",
       "managedElementIds": [
-        "kista_1",
-        "kista_2"
-      ]
-    },
-    {
-      "name": "ric2",
-      "baseUrl": "http://localhost:8081/",
-      "managedElementIds": [
-        "kista_3",
-        "kista_4"
+        "kista_5",
+        "kista_6"
       ]
     }
   ]
