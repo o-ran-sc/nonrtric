@@ -23,6 +23,7 @@ package org.oransc.policyagent.tasks;
 import java.util.Collection;
 
 import org.oransc.policyagent.clients.A1Client;
+import org.oransc.policyagent.clients.A1ClientFactory;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
@@ -50,15 +51,15 @@ public class RepositorySupervision {
     private final Rics rics;
     private final Policies policies;
     private final PolicyTypes policyTypes;
-    private final A1Client a1Client;
+    private final A1ClientFactory a1ClientFactory;
     private final Services services;
 
     @Autowired
-    public RepositorySupervision(Rics rics, Policies policies, A1Client a1Client, PolicyTypes policyTypes,
+    public RepositorySupervision(Rics rics, Policies policies, A1ClientFactory a1ClientFactory, PolicyTypes policyTypes,
         Services services) {
         this.rics = rics;
         this.policies = policies;
-        this.a1Client = a1Client;
+        this.a1ClientFactory = a1ClientFactory;
         this.policyTypes = policyTypes;
         this.services = services;
     }
@@ -72,34 +73,51 @@ public class RepositorySupervision {
         createTask().subscribe(this::onRicChecked, this::onError, this::onComplete);
     }
 
-    private Flux<Ric> createTask() {
+    private Flux<RicData> createTask() {
         synchronized (this.rics) {
             return Flux.fromIterable(rics.getRics()) //
-                .flatMap(ric -> checkRicState(ric)) //
-                .flatMap(ric -> checkRicPolicies(ric)) //
-                .flatMap(ric -> checkRicPolicyTypes(ric));
+                .flatMap(ric -> createRicData(ric)) //
+                .flatMap(ricData -> checkRicState(ricData)) //
+                .flatMap(ricData -> checkRicPolicies(ricData)) //
+                .flatMap(ricData -> checkRicPolicyTypes(ricData));
         }
     }
 
-    private Mono<Ric> checkRicState(Ric ric) {
-        if (ric.state() == RicState.UNDEFINED) {
+    private static class RicData {
+        RicData(Ric ric, A1Client a1Client) {
+            this.ric = ric;
+            this.a1Client = a1Client;
+        }
+
+        final Ric ric;
+        final A1Client a1Client;
+    }
+
+    private Mono<RicData> createRicData(Ric ric) {
+        return Mono.just(ric) //
+            .flatMap(aRic -> this.a1ClientFactory.createA1Client(ric)) //
+            .flatMap(a1Client -> Mono.just(new RicData(ric, a1Client)));
+    }
+
+    private Mono<RicData> checkRicState(RicData ric) {
+        if (ric.ric.state() == RicState.UNDEFINED) {
             return startRecovery(ric);
-        } else if (ric.state() == RicState.RECOVERING) {
+        } else if (ric.ric.state() == RicState.RECOVERING) {
             return Mono.empty();
         } else {
             return Mono.just(ric);
         }
     }
 
-    private Mono<Ric> checkRicPolicies(Ric ric) {
-        return a1Client.getPolicyIdentities(ric.getConfig().baseUrl()) //
+    private Mono<RicData> checkRicPolicies(RicData ric) {
+        return ric.a1Client.getPolicyIdentities() //
             .onErrorResume(t -> Mono.empty()) //
             .flatMap(ricP -> validateInstances(ricP, ric));
     }
 
-    private Mono<Ric> validateInstances(Collection<String> ricPolicies, Ric ric) {
+    private Mono<RicData> validateInstances(Collection<String> ricPolicies, RicData ric) {
         synchronized (this.policies) {
-            if (ricPolicies.size() != policies.getForRic(ric.name()).size()) {
+            if (ricPolicies.size() != policies.getForRic(ric.ric.name()).size()) {
                 return startRecovery(ric);
             }
         }
@@ -111,34 +129,34 @@ public class RepositorySupervision {
         return Mono.just(ric);
     }
 
-    private Mono<Ric> checkRicPolicyTypes(Ric ric) {
-        return a1Client.getPolicyTypeIdentities(ric.getConfig().baseUrl()) //
+    private Mono<RicData> checkRicPolicyTypes(RicData ric) {
+        return ric.a1Client.getPolicyTypeIdentities() //
             .onErrorResume(t -> {
                 return Mono.empty();
             }) //
             .flatMap(ricTypes -> validateTypes(ricTypes, ric));
     }
 
-    private Mono<Ric> validateTypes(Collection<String> ricTypes, Ric ric) {
-        if (ricTypes.size() != ric.getSupportedPolicyTypes().size()) {
+    private Mono<RicData> validateTypes(Collection<String> ricTypes, RicData ric) {
+        if (ricTypes.size() != ric.ric.getSupportedPolicyTypes().size()) {
             return startRecovery(ric);
         }
         for (String typeName : ricTypes) {
-            if (!ric.isSupportingType(typeName)) {
+            if (!ric.ric.isSupportingType(typeName)) {
                 return startRecovery(ric);
             }
         }
         return Mono.just(ric);
     }
 
-    private Mono<Ric> startRecovery(Ric ric) {
-        RicRecoveryTask recovery = new RicRecoveryTask(a1Client, policyTypes, policies, services);
-        recovery.run(ric);
+    private Mono<RicData> startRecovery(RicData ric) {
+        RicRecoveryTask recovery = new RicRecoveryTask(a1ClientFactory, policyTypes, policies, services);
+        recovery.run(ric.ric);
         return Mono.empty();
     }
 
-    private void onRicChecked(Ric ric) {
-        logger.info("Ric: " + ric.name() + " checked");
+    private void onRicChecked(RicData ric) {
+        logger.info("Ric: " + ric.ric.name() + " checked");
     }
 
     private void onError(Throwable t) {

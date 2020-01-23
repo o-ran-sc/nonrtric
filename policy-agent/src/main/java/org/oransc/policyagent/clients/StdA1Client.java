@@ -28,43 +28,46 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.oransc.policyagent.configuration.RicConfig;
 import org.oransc.policyagent.repository.Policy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
-public class A1ClientImpl implements A1Client {
+public class StdA1Client implements A1Client {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static String getBaseUrl(final String nearRtRicUrl) {
-        return nearRtRicUrl + "/A1-P/v1";
+    private final RicConfig ricConfig;
+    private final AsyncRestClient restClient;
+
+    public StdA1Client(RicConfig ricConfig) {
+        this.ricConfig = ricConfig;
+        this.restClient = new AsyncRestClient(getBaseUrl());
     }
 
-    protected AsyncRestClient createClient(final String nearRtRicUrl) {
-        return new AsyncRestClient(getBaseUrl(nearRtRicUrl));
+    public StdA1Client(RicConfig ricConfig, AsyncRestClient restClient) {
+        this.ricConfig = ricConfig;
+        this.restClient = restClient;
     }
 
     @Override
-    public Mono<Collection<String>> getPolicyTypeIdentities(String nearRtRicUrl) {
-        logger.debug("getPolicyTypeIdentities nearRtRicUrl = {}", nearRtRicUrl);
-        AsyncRestClient client = createClient(nearRtRicUrl);
-        return client.get("/policytypes/identities") //
+    public Mono<Collection<String>> getPolicyTypeIdentities() {
+        logger.debug("getPolicyTypeIdentities nearRtRicUrl = {}", ricConfig.baseUrl());
+        return restClient.get("/policytypes/identities") //
             .flatMap(this::parseJsonArrayOfString);
     }
 
     @Override
-    public Mono<Collection<String>> getPolicyIdentities(String nearRtRicUrl) {
-        logger.debug("getPolicyIdentities nearRtRicUrl = {}", nearRtRicUrl);
-        AsyncRestClient client = createClient(nearRtRicUrl);
-        return client.get("/policies/identities") //
+    public Mono<Collection<String>> getPolicyIdentities() {
+        logger.debug("getPolicyIdentities nearRtRicUrl = {}", ricConfig.baseUrl());
+        return restClient.get("/policies/identities") //
             .flatMap(this::parseJsonArrayOfString);
     }
 
     @Override
-    public Mono<String> getPolicyType(String nearRtRicUrl, String policyTypeId) {
-        logger.debug("getPolicyType nearRtRicUrl = {}, policyTypeId = {}", nearRtRicUrl, policyTypeId);
-        AsyncRestClient client = createClient(nearRtRicUrl);
-        Mono<String> response = client.get("/policytypes/" + policyTypeId);
+    public Mono<String> getPolicyTypeSchema(String policyTypeId) {
+        logger.debug("getPolicyType nearRtRicUrl = {}, policyTypeId = {}", ricConfig.baseUrl(), policyTypeId);
+        Mono<String> response = restClient.get("/policytypes/" + policyTypeId);
         return response.flatMap(this::createMono);
     }
 
@@ -72,20 +75,28 @@ public class A1ClientImpl implements A1Client {
     public Mono<String> putPolicy(Policy policy) {
         logger.debug("putPolicy nearRtRicUrl = {}, policyId = {}, policyString = {}", //
             policy.ric().getConfig().baseUrl(), policy.id(), policy.json());
-        AsyncRestClient client = createClient(policy.ric().getConfig().baseUrl());
         // TODO update when simulator is updated to include policy type
         // Mono<String> response = client.put("/policies/" + policy.id() + "?policyTypeId=" + policy.type().name(),
         // policy.json());
-        Mono<String> response = client.put("/policies/" + policy.id(), policy.json());
+        Mono<String> response = restClient.put("/policies/" + policy.id(), policy.json());
 
         return response.flatMap(this::createMono);
     }
 
     @Override
-    public Mono<String> deletePolicy(String nearRtRicUrl, String policyId) {
-        logger.debug("deletePolicy nearRtRicUrl = {}, policyId = {}", nearRtRicUrl, policyId);
-        AsyncRestClient client = createClient(nearRtRicUrl);
-        return client.delete("/policies/" + policyId);
+    public Mono<String> deletePolicy(String policyId) {
+        logger.debug("deletePolicy nearRtRicUrl = {}, policyId = {}", ricConfig.baseUrl(), policyId);
+        return restClient.delete("/policies/" + policyId);
+    }
+
+    @Override
+    public Mono<A1ProtocolType> getProtocolVersion() {
+        return getPolicyTypeIdentities() //
+            .flatMap(x -> Mono.just(A1ProtocolType.STD_V1));
+    }
+
+    private String getBaseUrl() {
+        return ricConfig.baseUrl() + "/A1-P/v1";
     }
 
     private Mono<Collection<String>> parseJsonArrayOfString(String inputString) {
@@ -112,4 +123,5 @@ public class A1ClientImpl implements A1Client {
             return Mono.error(ex);
         }
     }
+
 }
