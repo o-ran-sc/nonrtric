@@ -23,68 +23,44 @@ package org.onap.sdnc.northbound.provider;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.gson.Gson;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.json.JSONObject;
-import org.onap.sdnc.northbound.exceptions.NearRtRicNotFoundException;
-import org.onap.sdnc.northbound.restadpter.NearRicUrlProvider;
-import org.onap.sdnc.northbound.restadpter.RestAdapter;
-import org.onap.sdnc.northbound.restadpter.RestAdapterImpl;
+import org.onap.sdnc.northbound.restadapter.NearRicUrlProvider;
+import org.onap.sdnc.northbound.restadapter.RestAdapter;
+import org.onap.sdnc.northbound.restadapter.RestAdapterImpl;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.A1ADAPTERAPIService;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.CreatePolicyInstanceInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.CreatePolicyInstanceOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.CreatePolicyInstanceOutputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.CreatePolicyTypeInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.CreatePolicyTypeOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.CreatePolicyTypeOutputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.DeletePolicyInstanceInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.DeletePolicyInstanceOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.DeletePolicyInstanceOutputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.DeletePolicyTypeInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.DeletePolicyTypeOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.DeletePolicyTypeOutputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetHealthCheckInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetHealthCheckOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetHealthCheckOutputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetNearRTRICsInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetNearRTRICsOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetNearRTRICsOutputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetPolicyInstanceInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetPolicyInstanceOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetPolicyInstanceOutputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetPolicyInstancesInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetPolicyInstancesOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetPolicyInstancesOutputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetPolicyTypeInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetPolicyTypeOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetPolicyTypeOutputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetPolicyTypesInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetPolicyTypesOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetPolicyTypesOutputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetStatusInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetStatusOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev191002.GetStatusOutputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.A1ADAPTERAPIService;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.DeletePolicyInput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.DeletePolicyOutput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.DeletePolicyOutputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyIdentitiesInput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyIdentitiesOutput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyIdentitiesOutputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyTypeIdentitiesInput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyTypeIdentitiesOutput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyTypeIdentitiesOutputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyTypeInput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyTypeOutput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyTypeOutputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.PutPolicyInput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.PutPolicyOutput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.PutPolicyOutputBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestClientResponseException;
 
 /**
  * Defines a base implementation for your provider. This class overrides the generated interface
@@ -200,189 +176,35 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
   }
 
   @Override
-  public ListenableFuture<RpcResult<CreatePolicyInstanceOutput>> createPolicyInstance(
-      CreatePolicyInstanceInput input) {
-    log.info("Start of createPolicyInstance");
-    CreatePolicyInstanceOutputBuilder responseBuilder = new CreatePolicyInstanceOutputBuilder();
-    try {
-        String uri = nearRicUrlProvider.getPolicyInstanceId(String.valueOf(input.getNearRtRicId()),
-                String.valueOf(input.getPolicyTypeId()), String.valueOf(input.getPolicyInstanceId()));
-        log.info("PUT Request input.getPolicyInstance() : {} ", input.getPolicyInstance());
-        ResponseEntity<Void> response = restAdapter.put(uri, input.getPolicyInstance());
-        responseBuilder.setCode(response.getStatusCode().toString());
-    } catch (NearRtRicNotFoundException ex) {
-        log.error("Caught exception: {}", ex);
-        responseBuilder.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
-    } catch (RestClientResponseException ex) {
-        log.error("Caught exception: {}", ex);
-        responseBuilder.setCode(String.valueOf(ex.getRawStatusCode()));
+  public ListenableFuture<RpcResult<GetPolicyTypeIdentitiesOutput>> getPolicyTypeIdentities(
+          GetPolicyTypeIdentitiesInput input) {
+    log.info("Start of getPolicyTypeIdentities");
+    GetPolicyTypeIdentitiesOutputBuilder responseBuilder = new GetPolicyTypeIdentitiesOutputBuilder();
+    String uri = nearRicUrlProvider.getPolicyTypeIdentitiesUrl(String.valueOf(input.getNearRtRicUrl()));
+    ResponseEntity<List<String>> response = restAdapter.get(uri, List.class);
+    if (response.hasBody()) {
+      log.info("Response getPolicyTypeIdentities : {} ", response.getBody());
+      responseBuilder.setPolicyTypeIdList(response.getBody());
     }
-    log.info("End of createPolicyInstance");
-    RpcResult<CreatePolicyInstanceOutput> rpcResult = RpcResultBuilder
-        .<CreatePolicyInstanceOutput>status(true).withResult(responseBuilder.build()).build();
-    return Futures.immediateFuture(rpcResult);
-  }
-
-  @Override
-  public ListenableFuture<RpcResult<CreatePolicyTypeOutput>> createPolicyType(
-      CreatePolicyTypeInput input) {
-    log.info("Start of createPolicyType");
-    CreatePolicyTypeOutputBuilder responseBuilder = new CreatePolicyTypeOutputBuilder();
-    try {
-        String uri = nearRicUrlProvider.getPolicyTypeId(String.valueOf(input.getNearRtRicId()),
-                String.valueOf(input.getPolicyTypeId()));
-        log.info("PUT Request input.getPolicyType() : {} ", input.getPolicyType());
-        ResponseEntity<Void> response = restAdapter.put(uri, input.getPolicyType());
-        responseBuilder.setCode(response.getStatusCode().toString());
-    } catch (NearRtRicNotFoundException ex) {
-        log.error("Caught exception: {}", ex);
-        responseBuilder.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
-    } catch (RestClientResponseException ex) {
-        log.error("Caught exception: {}", ex);
-        responseBuilder.setCode(String.valueOf(ex.getRawStatusCode()));
-    }
-    log.info("End of createPolicyType");
-    RpcResult<CreatePolicyTypeOutput> rpcResult = RpcResultBuilder
-        .<CreatePolicyTypeOutput>status(true).withResult(responseBuilder.build()).build();
-    return Futures.immediateFuture(rpcResult);
-  }
-
-  @Override
-  public ListenableFuture<RpcResult<DeletePolicyInstanceOutput>> deletePolicyInstance(
-      DeletePolicyInstanceInput input) {
-    log.info("Start of deletePolicyInstance");
-    DeletePolicyInstanceOutputBuilder responseBuilder = new DeletePolicyInstanceOutputBuilder();
-    try {
-        String uri = nearRicUrlProvider.getPolicyInstanceId(String.valueOf(input.getNearRtRicId()),
-                String.valueOf(input.getPolicyTypeId()), String.valueOf(input.getPolicyInstanceId()));
-        ResponseEntity<Void> response = restAdapter.delete(uri);
-        responseBuilder.setCode(response.getStatusCode().toString());
-    } catch (NearRtRicNotFoundException ex) {
-        log.error("Caught exception: {}", ex);
-        responseBuilder.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
-    } catch (RestClientResponseException ex) {
-        log.error("Caught exception: {}", ex);
-        responseBuilder.setCode(String.valueOf(ex.getRawStatusCode()));
-    }
-    log.info("End of deletePolicyInstance");
-    RpcResult<DeletePolicyInstanceOutput> rpcResult = RpcResultBuilder
-        .<DeletePolicyInstanceOutput>status(true).withResult(responseBuilder.build()).build();
-    return Futures.immediateFuture(rpcResult);
-  }
-
-  @Override
-  public ListenableFuture<RpcResult<DeletePolicyTypeOutput>> deletePolicyType(
-      DeletePolicyTypeInput input) {
-    log.info("Start of deletePolicyType");
-    DeletePolicyTypeOutputBuilder responseBuilder = new DeletePolicyTypeOutputBuilder();
-    try {
-        String uri = nearRicUrlProvider.getPolicyTypeId(String.valueOf(input.getNearRtRicId()),
-                String.valueOf(input.getPolicyTypeId()));
-        ResponseEntity<Void> response = restAdapter.delete(uri);
-        responseBuilder.setCode(response.getStatusCode().toString());
-    } catch (NearRtRicNotFoundException ex) {
-        log.error("Caught exception: {}", ex);
-        responseBuilder.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
-    } catch (RestClientResponseException ex) {
-        log.error("Caught exception: {}", ex);
-        responseBuilder.setCode(String.valueOf(ex.getRawStatusCode()));
-    }
-    log.info("End of deletePolicyType");
-    RpcResult<DeletePolicyTypeOutput> rpcResult = RpcResultBuilder
-        .<DeletePolicyTypeOutput>status(true).withResult(responseBuilder.build()).build();
-    return Futures.immediateFuture(rpcResult);
-  }
-
-  @Override
-  public ListenableFuture<RpcResult<GetHealthCheckOutput>> getHealthCheck(
-      GetHealthCheckInput input) {
-    log.info("Start of getHealthCheck");
-    GetHealthCheckOutputBuilder responseBuilder = new GetHealthCheckOutputBuilder();
-    try {
-        String uri = nearRicUrlProvider.getHealthCheck(String.valueOf(input.getNearRtRicId()));
-        ResponseEntity<Object> response = restAdapter.get(uri, Object.class);
-        responseBuilder.setHealthStatus(false);
-        if (response.getStatusCode().equals(HttpStatus.OK)) {
-            responseBuilder.setHealthStatus(true);
-        }
-        responseBuilder.setCode(response.getStatusCode().toString());
-    } catch (NearRtRicNotFoundException ex) {
-        log.error("Caught exception: {}", ex);
-        responseBuilder.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
-    } catch (RestClientResponseException ex) {
-        log.error("Caught exception: {}", ex);
-        responseBuilder.setCode(String.valueOf(ex.getRawStatusCode()));
-    }
-    log.info("End of getHealthCheck");
-    RpcResult<GetHealthCheckOutput> rpcResult = RpcResultBuilder.<GetHealthCheckOutput>status(true)
+    log.info("End of getPolicyTypeIdentities");
+    RpcResult<GetPolicyTypeIdentitiesOutput> rpcResult = RpcResultBuilder.<GetPolicyTypeIdentitiesOutput>status(true)
         .withResult(responseBuilder.build()).build();
     return Futures.immediateFuture(rpcResult);
   }
 
   @Override
-  public ListenableFuture<RpcResult<GetNearRTRICsOutput>> getNearRTRICs(GetNearRTRICsInput input) {
-      log.info("Start of getNearRTRICs");
-      GetNearRTRICsOutputBuilder responseBuilder = new GetNearRTRICsOutputBuilder();
-      responseBuilder.setNearRtRicIdList(nearRicUrlProvider.getNearRTRicIdsList());
-      responseBuilder.setCode(HttpStatus.OK.toString());
-      log.info("End of getNearRTRICs");
-      RpcResult<GetNearRTRICsOutput> rpcResult = RpcResultBuilder.<GetNearRTRICsOutput>status(true)
-          .withResult(responseBuilder.build()).build();
-      return Futures.immediateFuture(rpcResult);
-  }
-
-  @Override
-  public ListenableFuture<RpcResult<GetPolicyInstanceOutput>> getPolicyInstance(
-      GetPolicyInstanceInput input) {
-    log.info("Start of getPolicyInstance");
-    log.info("Policy Type Id : {},  Policy Instance Id : {}", input.getPolicyTypeId(), input.getPolicyInstanceId());
-    GetPolicyInstanceOutputBuilder responseBuilder = new GetPolicyInstanceOutputBuilder();
-    try {
-        String uri = nearRicUrlProvider.getPolicyInstanceId(String.valueOf(input.getNearRtRicId()),
-                String.valueOf(input.getPolicyTypeId()), String.valueOf(input.getPolicyInstanceId()));
-        ResponseEntity<String> response = restAdapter.get(uri, String.class);
-        if (response.hasBody()) {
-            log.info("Response getPolicyInstance : {} ", response.getBody());
-            responseBuilder.setPolicyInstance(response.getBody());
-        }
-        responseBuilder.setCode(response.getStatusCode().toString());
-    } catch (NearRtRicNotFoundException ex) {
-        log.error("Caught exception: {}", ex);
-        responseBuilder.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
-    } catch (RestClientResponseException ex) {
-        log.error("Caught exception: {}", ex);
-        responseBuilder.setCode(String.valueOf(ex.getRawStatusCode()));
+  public ListenableFuture<RpcResult<GetPolicyIdentitiesOutput>> getPolicyIdentities(GetPolicyIdentitiesInput input) {
+    log.info("Start of getPolicyIdentities");
+    GetPolicyIdentitiesOutputBuilder responseBuilder = new GetPolicyIdentitiesOutputBuilder();
+    String uri = nearRicUrlProvider.getPolicyIdentitiesUrl(String.valueOf(input.getNearRtRicUrl()));
+    ResponseEntity<List<String>> response = restAdapter.get(uri, List.class);
+    if (response.hasBody()) {
+      log.info("Response getPolicyIdentities : {} ", response.getBody());
+      responseBuilder.setPolicyIdList(response.getBody());
     }
-    log.info("End of getPolicyInstance");
-    RpcResult<GetPolicyInstanceOutput> rpcResult = RpcResultBuilder
-        .<GetPolicyInstanceOutput>status(true).withResult(responseBuilder.build()).build();
-    return Futures.immediateFuture(rpcResult);
-  }
-
-  @Override
-  public ListenableFuture<RpcResult<GetPolicyInstancesOutput>> getPolicyInstances(
-      GetPolicyInstancesInput input) {
-    log.info("Start of getPolicyInstances");
-    GetPolicyInstancesOutputBuilder responseBuilder = new GetPolicyInstancesOutputBuilder();
-    try {
-        String uri = nearRicUrlProvider.getPolicyInstances(String.valueOf(input.getNearRtRicId()),
-                String.valueOf(input.getPolicyTypeId()));
-        ResponseEntity<List<String>> response = restAdapter.get(uri, List.class);
-        if (response.hasBody()) {
-          log.info("Response getPolicyInstances : {} ", response.getBody());
-          responseBuilder.setPolicyInstanceIdList(response.getBody());
-        }
-        responseBuilder.setCode(response.getStatusCode().toString());
-    } catch (NearRtRicNotFoundException ex) {
-        log.error("Caught exception: {}", ex);
-        responseBuilder.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
-    } catch (RestClientResponseException ex) {
-        log.error("Caught exception: {}", ex);
-        responseBuilder.setCode(String.valueOf(ex.getRawStatusCode()));
-    }
-    log.info("End of getPolicyInstances");
-    RpcResult<GetPolicyInstancesOutput> rpcResult = RpcResultBuilder
-        .<GetPolicyInstancesOutput>status(true).withResult(responseBuilder.build()).build();
+    log.info("End of getPolicyIdentities");
+    RpcResult<GetPolicyIdentitiesOutput> rpcResult = RpcResultBuilder
+        .<GetPolicyIdentitiesOutput>status(true).withResult(responseBuilder.build()).build();
     return Futures.immediateFuture(rpcResult);
   }
 
@@ -391,24 +213,12 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
     log.info("Start of getPolicyType");
     log.info("Policy Type Id : {} ", input.getPolicyTypeId());
     GetPolicyTypeOutputBuilder responseBuilder = new GetPolicyTypeOutputBuilder();
-    try {
-        String uri = nearRicUrlProvider.getPolicyTypeId(String.valueOf(input.getNearRtRicId()),
-                String.valueOf(input.getPolicyTypeId()));
-        ResponseEntity<String> response = restAdapter.get(uri, String.class);
-        if (response.hasBody()) {
-            log.info("Response getPolicyType : {} ", response.getBody());
-            JSONObject policyTypeObj = new JSONObject(response.getBody());
-            responseBuilder.setDescription(policyTypeObj.getString("description"));
-            responseBuilder.setName(policyTypeObj.getString("name"));
-            responseBuilder.setPolicyType(policyTypeObj.getJSONObject("create_schema").toString());
-        }
-        responseBuilder.setCode(response.getStatusCode().toString());
-    } catch (NearRtRicNotFoundException ex) {
-        log.error("Caught exception: {}", ex);
-        responseBuilder.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
-    } catch (RestClientResponseException ex) {
-        log.error("Caught exception: {}", ex);
-        responseBuilder.setCode(String.valueOf(ex.getRawStatusCode()));
+    String uri = nearRicUrlProvider.getPolicyTypeUrl(String.valueOf(input.getNearRtRicUrl()),
+            String.valueOf(input.getPolicyTypeId()));
+    ResponseEntity<String> response = restAdapter.get(uri, String.class);
+    if (response.hasBody()) {
+      log.info("Response getPolicyType : {} ", response.getBody());
+      responseBuilder.setPolicyType(response.getBody());
     }
     log.info("End of getPolicyType");
     RpcResult<GetPolicyTypeOutput> rpcResult = RpcResultBuilder.<GetPolicyTypeOutput>status(true)
@@ -417,61 +227,33 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
   }
 
   @Override
-  public ListenableFuture<RpcResult<GetPolicyTypesOutput>> getPolicyTypes(
-      GetPolicyTypesInput input) {
-    log.info("Start of getPolicyTypes");
-    GetPolicyTypesOutputBuilder responseBuilder = new GetPolicyTypesOutputBuilder();
-    try {
-        String uri = nearRicUrlProvider.getPolicyTypes(String.valueOf(input.getNearRtRicId()));
-        ResponseEntity<List<Integer>> response = restAdapter.get(uri, List.class);
-        if (response.hasBody()) {
-            log.info("Response getPolicyTypes : {} ", response.getBody());
-            List<Integer> policyTypesListInteger = response.getBody();
-            List<Long> policyTypesListLong = new ArrayList<>();
-            for(Integer i : policyTypesListInteger){
-                policyTypesListLong.add(i.longValue());
-            }
-            responseBuilder.setPolicyTypeIdList(policyTypesListLong);
-        }
-        responseBuilder.setCode(response.getStatusCode().toString());
-    } catch (NearRtRicNotFoundException ex) {
-        log.error("Caught exception: {}", ex);
-        responseBuilder.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
-    } catch (RestClientResponseException ex) {
-        log.error("Caught exception: {}", ex);
-        responseBuilder.setCode(String.valueOf(ex.getRawStatusCode()));
+  public ListenableFuture<RpcResult<PutPolicyOutput>> putPolicy(PutPolicyInput input) {
+    log.info("Start of putPolicy");
+    PutPolicyOutputBuilder responseBuilder = new PutPolicyOutputBuilder();
+    String uri = nearRicUrlProvider.getPolicyUrl(String.valueOf(input.getNearRtRicUrl()),
+            String.valueOf(input.getPolicyId()));
+    log.info("PUT Request input.getPolicy() : {} ", input.getPolicy());
+    ResponseEntity<String> response = restAdapter.put(uri, input.getPolicy());
+    if (response.hasBody()) {
+      log.info("Response putPolicy : {} ", response.getBody());
+      responseBuilder.setReturnedPolicy(response.getBody());
     }
-    log.info("End of getPolicyTypes");
-    RpcResult<GetPolicyTypesOutput> rpcResult = RpcResultBuilder.<GetPolicyTypesOutput>status(true)
-        .withResult(responseBuilder.build()).build();
+    log.info("End of putPolicy");
+    RpcResult<PutPolicyOutput> rpcResult = RpcResultBuilder
+        .<PutPolicyOutput>status(true).withResult(responseBuilder.build()).build();
     return Futures.immediateFuture(rpcResult);
   }
 
   @Override
-  public ListenableFuture<RpcResult<GetStatusOutput>> getStatus(GetStatusInput input) {
-    log.info("Start of getStatus");
-    GetStatusOutputBuilder responseBuilder = new GetStatusOutputBuilder();
-    try {
-        String uri = nearRicUrlProvider.getPolicyInstanceIdStatus(String.valueOf(input.getNearRtRicId()),
-                String.valueOf(input.getPolicyTypeId()), String.valueOf(input.getPolicyInstanceId()));
-        ResponseEntity<List<Object>> response = restAdapter.get(uri, List.class);
-        if (response.hasBody()) {
-            log.info("Response getStatus : {} ", response.getBody());
-            // only return the status of first handler for compliance with current yang model, ignore handler_id
-            JSONObject statusObj = new JSONObject(new Gson().toJson(response.getBody().get(0)));
-            responseBuilder.setStatus(statusObj.getString("status"));
-        }
-        responseBuilder.setCode(response.getStatusCode().toString());
-    } catch (NearRtRicNotFoundException ex) {
-        log.error("Caught exception: {}", ex);
-        responseBuilder.setCode(HttpStatus.INTERNAL_SERVER_ERROR.toString());
-    } catch (RestClientResponseException ex) {
-        log.error("Caught exception: {}", ex);
-        responseBuilder.setCode(String.valueOf(ex.getRawStatusCode()));
-    }
-    log.info("End of getStatus");
-    RpcResult<GetStatusOutput> rpcResult =
-        RpcResultBuilder.<GetStatusOutput>status(true).withResult(responseBuilder.build()).build();
+  public ListenableFuture<RpcResult<DeletePolicyOutput>> deletePolicy(DeletePolicyInput input) {
+    log.info("Start of deletePolicy");
+    DeletePolicyOutputBuilder responseBuilder = new DeletePolicyOutputBuilder();
+    String uri = nearRicUrlProvider.getPolicyUrl(String.valueOf(input.getNearRtRicUrl()),
+            String.valueOf(input.getPolicyId()));
+    ResponseEntity<Void> response = restAdapter.delete(uri);
+    log.info("End of deletePolicy");
+    RpcResult<DeletePolicyOutput> rpcResult = RpcResultBuilder
+        .<DeletePolicyOutput>status(true).withResult(responseBuilder.build()).build();
     return Futures.immediateFuture(rpcResult);
   }
 }

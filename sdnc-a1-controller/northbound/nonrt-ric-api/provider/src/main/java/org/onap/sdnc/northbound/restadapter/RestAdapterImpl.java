@@ -18,7 +18,7 @@
  * ============LICENSE_END=========================================================
  */
 
-package org.onap.sdnc.northbound.restadpter;
+package org.onap.sdnc.northbound.restadapter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
