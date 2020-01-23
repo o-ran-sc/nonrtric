@@ -35,7 +35,7 @@ import static org.mockito.Mockito.when;
 import static org.oransc.policyagent.repository.Ric.RicState.IDLE;
 
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.List;
 import java.util.Vector;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -55,6 +55,8 @@ import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Ric.RicState;
 import org.oransc.policyagent.repository.Rics;
 import org.oransc.policyagent.repository.Services;
+
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(MockitoExtension.class)
@@ -90,13 +92,11 @@ public class StartupServiceTest {
 
     @Test
     public void startup_allOk() {
-        Mono<Collection<String>> policyTypes1 = Mono.just(Arrays.asList(POLICY_TYPE_1_NAME));
-        Mono<Collection<String>> policyTypes2 = Mono.just(Arrays.asList(POLICY_TYPE_1_NAME, POLICY_TYPE_2_NAME));
+        Mono<List<String>> policyTypes1 = Mono.just(Arrays.asList(POLICY_TYPE_1_NAME));
+        Mono<List<String>> policyTypes2 = Mono.just(Arrays.asList(POLICY_TYPE_1_NAME, POLICY_TYPE_2_NAME));
         doReturn(policyTypes1, policyTypes2).when(a1ClientMock).getPolicyTypeIdentities();
-        Mono<Collection<String>> policies = Mono.just(Arrays.asList(POLICY_ID_1, POLICY_ID_2));
-        doReturn(policies).when(a1ClientMock).getPolicyIdentities();
         doReturn(Mono.just("Schema")).when(a1ClientMock).getPolicyTypeSchema(anyString());
-        doReturn(Mono.just("OK")).when(a1ClientMock).deletePolicy(anyString());
+        doReturn(Flux.just("OK")).when(a1ClientMock).deleteAllPolicies();
 
         Rics rics = new Rics();
         PolicyTypes policyTypes = new PolicyTypes();
@@ -113,9 +113,7 @@ public class StartupServiceTest {
 
         await().untilAsserted(() -> assertThat(policyTypes.size()).isEqualTo(2));
 
-        verify(a1ClientMock, times(2)).getPolicyTypeIdentities();
-        verify(a1ClientMock, times(2)).deletePolicy(POLICY_ID_1);
-        verify(a1ClientMock, times(2)).deletePolicy(POLICY_ID_2);
+        verify(a1ClientMock, times(2)).deleteAllPolicies();
 
         assertTrue(policyTypes.contains(POLICY_TYPE_1_NAME), POLICY_TYPE_1_NAME + " not added to PolicyTypes.");
         assertTrue(policyTypes.contains(POLICY_TYPE_2_NAME), POLICY_TYPE_2_NAME + " not added to PolicyTypes.");
@@ -153,7 +151,6 @@ public class StartupServiceTest {
     public void startup_unableToConnectToGetTypes() {
         Mono<?> error = Mono.error(new Exception("Unable to contact ric."));
         doReturn(error, error).when(a1ClientMock).getPolicyTypeIdentities();
-        doReturn(error).when(a1ClientMock).getPolicyIdentities();
 
         Rics rics = new Rics();
         PolicyTypes policyTypes = new PolicyTypes();
@@ -168,13 +165,13 @@ public class StartupServiceTest {
     }
 
     @Test
-    public void startup_unableToConnectToGetPolicies() {
+    public void startup_unableToConnectToDeleteAllPolicies() {
 
-        Mono<Collection<String>> policyTypes = Mono.just(Arrays.asList(POLICY_TYPE_1_NAME));
+        Mono<List<String>> policyTypes = Mono.just(Arrays.asList(POLICY_TYPE_1_NAME));
         when(a1ClientMock.getPolicyTypeIdentities()).thenReturn(policyTypes);
         when(a1ClientMock.getPolicyTypeSchema(anyString())).thenReturn(Mono.just("Schema"));
-        Mono<?> error = Mono.error(new Exception("Unable to contact ric."));
-        doReturn(error).when(a1ClientMock).getPolicyIdentities();
+        Flux<?> error = Flux.error(new Exception("Unable to contact ric."));
+        doReturn(error).when(a1ClientMock).deleteAllPolicies();
 
         Rics rics = new Rics();
         StartupService serviceUnderTest = new StartupService(appConfigMock, refreshTaskMock, rics, new PolicyTypes(),

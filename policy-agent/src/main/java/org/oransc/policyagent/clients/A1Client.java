@@ -20,27 +20,31 @@
 
 package org.oransc.policyagent.clients;
 
-import java.util.Collection;
+import java.util.List;
 
 import org.oransc.policyagent.repository.Policy;
+
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public interface A1Client {
 
     public static enum A1ProtocolType {
-        UNKNOWN, STD_V1
+        UNKNOWN, STD_V1, OSC_V1
     }
 
     public Mono<A1ProtocolType> getProtocolVersion();
 
-    public Mono<Collection<String>> getPolicyTypeIdentities();
+    public Mono<List<String>> getPolicyTypeIdentities();
 
-    public Mono<Collection<String>> getPolicyIdentities();
+    public Mono<List<String>> getPolicyIdentities();
 
     public Mono<String> getPolicyTypeSchema(String policyTypeId);
 
     public Mono<String> putPolicy(Policy policy);
 
-    public Mono<String> deletePolicy(String policyId);
+    public Mono<String> deletePolicy(Policy policy);
+
+    public Flux<String> deleteAllPolicies();
 
 }

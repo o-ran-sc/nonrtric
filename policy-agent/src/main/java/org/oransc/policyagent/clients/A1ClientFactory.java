@@ -39,6 +39,8 @@ public class A1ClientFactory {
     private Mono<A1Client> createA1Client(Ric ric, A1ProtocolType version) {
         if (version == A1ProtocolType.STD_V1) {
             return Mono.just(createStdA1ClientImpl(ric));
+        } else if (version == A1ProtocolType.OSC_V1) {
+            return Mono.just(new OscA1Client(ric.getConfig()));
         }
         return Mono.error(new ServiceException("Not supported protocoltype: " + version));
     }
