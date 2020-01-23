@@ -82,7 +82,7 @@ public class RicRecoveryTask {
 
     private Flux<Object> startRecover(Ric ric, A1Client a1Client) {
         Flux<PolicyType> recoverTypes = recoverPolicyTypes(ric, a1Client);
-        Flux<?> deletePoliciesInRic = deleteAllPoliciesInRic(ric, a1Client);
+        Flux<?> deletePoliciesInRic = a1Client.deleteAllPolicies();
         Flux<?> recreatePoliciesInRic = recreateAllPoliciesInRic(ric, a1Client);
 
         return Flux.concat(recoverTypes, deletePoliciesInRic, recreatePoliciesInRic);
@@ -116,7 +116,7 @@ public class RicRecoveryTask {
         Flux<PolicyType> recoverTypes = this.a1ClientFactory.createA1Client(ric) //
             .flatMapMany(a1Client -> recoverPolicyTypes(ric, a1Client));
         Flux<?> deletePoliciesInRic = this.a1ClientFactory.createA1Client(ric) //
-            .flatMapMany(a1Client -> deleteAllPoliciesInRic(ric, a1Client));
+            .flatMapMany(a1Client -> a1Client.deleteAllPolicies());
 
         Flux.merge(recoverTypes, deletePoliciesInRic) //
             .subscribe(x -> logger.debug("Brute recover: " + x), //
@@ -166,13 +166,6 @@ public class RicRecoveryTask {
                 this.policies.remove(policy);
             }
         }
-    }
-
-    private Flux<String> deleteAllPoliciesInRic(Ric ric, A1Client a1Client) {
-        return a1Client.getPolicyIdentities() //
-            .flatMapMany(policyIds -> Flux.fromIterable(policyIds)) //
-            .doOnNext(policyId -> logger.debug("Deleting policy: {}, for ric: {}", policyId, ric.getConfig().name()))
-            .flatMap(policyId -> a1Client.deletePolicy(policyId)); //
     }
 
     private Flux<String> recreateAllPoliciesInRic(Ric ric, A1Client a1Client) {

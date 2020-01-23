@@ -148,7 +148,7 @@ public class PolicyController {
         if (policy != null && policy.ric().state().equals(Ric.RicState.IDLE)) {
             policies.remove(policy);
             return a1ClientFactory.createA1Client(policy.ric()) //
-                .flatMap(client -> client.deletePolicy(id)) //
+                .flatMap(client -> client.deletePolicy(policy)) //
                 .flatMap(notUsed -> {
                     return Mono.just(new ResponseEntity<>(HttpStatus.NO_CONTENT));
                 });

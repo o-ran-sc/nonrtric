@@ -29,7 +29,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.List;
 import java.util.Vector;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -52,6 +52,8 @@ import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Ric.RicState;
 import org.oransc.policyagent.repository.Rics;
 import org.oransc.policyagent.repository.Services;
+
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(MockitoExtension.class)
@@ -112,13 +114,13 @@ public class RepositorySupervisionTest {
         RepositorySupervision supervisorUnderTest =
             new RepositorySupervision(rics, policies, a1ClientFactory, types, services);
 
-        Mono<Collection<String>> policyIds = Mono.just(Arrays.asList("policyId1", "policyId2"));
+        Mono<List<String>> policyIds = Mono.just(Arrays.asList("policyId1", "policyId2"));
 
         doReturn(policyIds).when(a1ClientMock).getPolicyTypeIdentities();
         doReturn(policyIds).when(a1ClientMock).getPolicyIdentities();
-        doReturn(Mono.empty()).when(a1ClientMock).deletePolicy(anyString());
         doReturn(Mono.just("schema")).when(a1ClientMock).getPolicyTypeSchema(anyString());
         doReturn(Mono.just("OK")).when(a1ClientMock).putPolicy(any());
+        doReturn(Flux.empty()).when(a1ClientMock).deleteAllPolicies();
 
         supervisorUnderTest.checkAllRics();
 
@@ -126,7 +128,7 @@ public class RepositorySupervisionTest {
         await().untilAsserted(() -> RicState.IDLE.equals(ric2.state()));
         await().untilAsserted(() -> RicState.IDLE.equals(ric3.state()));
 
-        verify(a1ClientMock, times(3)).deletePolicy("policyId2");
+        verify(a1ClientMock, times(3)).deleteAllPolicies();
         verifyNoMoreInteractions(a1ClientMock);
     }
 }

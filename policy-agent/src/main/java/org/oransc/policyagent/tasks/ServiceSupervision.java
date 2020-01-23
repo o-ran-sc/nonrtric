@@ -87,7 +87,7 @@ public class ServiceSupervision {
 
     private Mono<Policy> deletePolicyInRic(Policy policy) {
         return a1ClientFactory.createA1Client(policy.ric()) //
-            .flatMap(client -> client.deletePolicy(policy.id()) //
+            .flatMap(client -> client.deletePolicy(policy) //
                 .onErrorResume(exception -> handleDeleteFromRicFailure(policy, exception)) //
                 .map((nothing) -> policy));
     }

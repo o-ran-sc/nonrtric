@@ -163,7 +163,8 @@ public class StdA1ClientTest {
     public void testDeletePolicy() {
         when(asyncRestClientMock.delete(POLICIES_URL + POLICY_1_ID)).thenReturn(Mono.empty());
 
-        Mono<?> responseMono = a1Client.deletePolicy(POLICY_1_ID);
+        Policy policy = createPolicy(RIC_URL, POLICY_1_ID, POLICY_JSON_VALID, POLICY_TYPE);
+        Mono<?> responseMono = a1Client.deletePolicy(policy);
         verify(asyncRestClientMock).delete(POLICIES_URL + POLICY_1_ID);
         StepVerifier.create(responseMono).expectComplete().verify();
     }

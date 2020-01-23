@@ -19,12 +19,17 @@
  */
 package org.oransc.policyagent.clients;
 
+import java.lang.invoke.MethodHandles;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 public class AsyncRestClient {
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final WebClient client;
 
     private static class AsyncRestClientException extends Exception {
@@ -41,6 +46,7 @@ public class AsyncRestClient {
     }
 
     public Mono<String> put(String uri, String body) {
+        logger.debug("PUT uri = '{}''", uri);
         return client.put() //
             .uri(uri) //
             .contentType(MediaType.APPLICATION_JSON) //
@@ -52,6 +58,7 @@ public class AsyncRestClient {
     }
 
     public Mono<String> get(String uri) {
+        logger.debug("GET uri = '{}''", uri);
         return client.get() //
             .uri(uri) //
             .retrieve() //
@@ -61,6 +68,7 @@ public class AsyncRestClient {
     }
 
     public Mono<String> delete(String uri) {
+        logger.debug("DELETE uri = '{}''", uri);
         return client.delete() //
             .uri(uri) //
             .retrieve() //

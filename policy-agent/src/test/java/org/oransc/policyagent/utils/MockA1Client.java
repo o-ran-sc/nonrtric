@@ -20,7 +20,7 @@
 
 package org.oransc.policyagent.utils;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Vector;
 
 import org.oransc.policyagent.clients.A1Client;
@@ -28,6 +28,8 @@ import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.PolicyTypes;
+
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class MockA1Client implements A1Client {
@@ -39,9 +41,9 @@ public class MockA1Client implements A1Client {
     }
 
     @Override
-    public Mono<Collection<String>> getPolicyTypeIdentities() {
+    public Mono<List<String>> getPolicyTypeIdentities() {
         synchronized (this.policyTypes) {
-            Vector<String> result = new Vector<>();
+            List<String> result = new Vector<>();
             for (PolicyType p : this.policyTypes.getAll()) {
                 result.add(p.name());
             }
@@ -50,7 +52,7 @@ public class MockA1Client implements A1Client {
     }
 
     @Override
-    public Mono<Collection<String>> getPolicyIdentities() {
+    public Mono<List<String>> getPolicyIdentities() {
         synchronized (this.policies) {
             Vector<String> result = new Vector<>();
             for (Policy policy : policies.getAll()) {
@@ -77,8 +79,8 @@ public class MockA1Client implements A1Client {
     }
 
     @Override
-    public Mono<String> deletePolicy(String policyId) {
-        this.policies.removeId(policyId);
+    public Mono<String> deletePolicy(Policy policy) {
+        this.policies.remove(policy);
         return Mono.just("OK");
     }
 
@@ -89,6 +91,12 @@ public class MockA1Client implements A1Client {
     @Override
     public Mono<A1ProtocolType> getProtocolVersion() {
         return Mono.just(A1ProtocolType.STD_V1);
+    }
+
+    @Override
+    public Flux<String> deleteAllPolicies() {
+        this.policies.clear();
+        return Flux.empty();
     }
 
 }
