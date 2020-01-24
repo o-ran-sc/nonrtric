@@ -196,6 +196,24 @@
     },
     {
       "key": {
+        "uuid": "eb62477a_86a4b142",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/utils/MockA1ClientFactory.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-01-24T15:18:54Z",
+      "side": 1,
+      "message": "There is a timing issue in that test. checkAllRics() is asyncronuous and did not complete when the result was verified. \n\nThe solution is to add the two last lines below (the await(). waits until the recovery is completed):\n\nsupervision.checkAllRics(); // The created policy should be put in the RIC\nRic ric \u003d this.rics.getRic(\"ric\");\nawait().untilAsserted(() -\u003e RicState.IDLE.equals(ric.state()));",
+      "parentUuid": "43597333_cba7c535",
+      "revId": "42d2d689686f6570fe8b04db44642e0857570f28",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "461acfda_00cd4e8d",
         "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/onap/sdnc/northbound/restadapter/RestAdapter.java",
         "patchSetId": 1
