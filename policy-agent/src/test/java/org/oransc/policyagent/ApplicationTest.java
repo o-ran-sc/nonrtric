@@ -26,8 +26,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -49,6 +52,7 @@ import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Rics;
+import org.oransc.policyagent.repository.Services;
 import org.oransc.policyagent.tasks.RepositorySupervision;
 import org.oransc.policyagent.utils.MockA1Client;
 import org.oransc.policyagent.utils.MockA1ClientFactory;
@@ -84,6 +88,9 @@ public class ApplicationTest {
 
     @Autowired
     RepositorySupervision supervision;
+
+    @Autowired
+    Services services;
 
     private static Gson gson = new GsonBuilder() //
         .serializeNulls() //
@@ -284,14 +291,6 @@ public class ApplicationTest {
         assertThat(policies.size()).isEqualTo(0);
     }
 
-    private static <T> List<T> parseList(String json, Class<T> clazz) {
-        if (null == json) {
-            return null;
-        }
-        return gson.fromJson(json, new TypeToken<T>() {}.getType());
-
-    }
-
     @Test
     public void testGetPolicySchemas() throws Exception {
         reset();
@@ -305,13 +304,13 @@ public class ApplicationTest {
         assertThat(rsp).contains("type2");
         assertThat(rsp).contains("title");
 
-        List<String> info = parseList(rsp, String.class);
+        List<String> info = parseSchemas(rsp);
         assertEquals(2, info.size());
 
         url = baseUrl() + "/policy_schemas?ric=ric1";
         rsp = this.restTemplate.getForObject(url, String.class);
         assertThat(rsp).contains("type1");
-        info = parseList(rsp, String.class);
+        info = parseSchemas(rsp);
         assertEquals(1, info.size());
     }
 
@@ -393,21 +392,48 @@ public class ApplicationTest {
 
     @Test
     public void testPutAndGetService() throws Exception {
+        // PUT
         putService("name");
 
-        String url = baseUrl() + "/service?name=name";
+        // GET
+        String url = baseUrl() + "/services?name=name";
         String rsp = this.restTemplate.getForObject(url, String.class);
-        ServiceStatus status = gson.fromJson(rsp, ImmutableServiceStatus.class);
+        List<ImmutableServiceStatus> info = parseList(rsp, ImmutableServiceStatus.class);
+        assertThat(info.size() == 1);
+        ServiceStatus status = info.iterator().next();
         assertThat(status.keepAliveInterval() == 1);
         assertThat(status.name().equals("name"));
 
+        // GET (all)
         url = baseUrl() + "/services";
         rsp = this.restTemplate.getForObject(url, String.class);
         assertThat(rsp.contains("name"));
         System.out.println(rsp);
 
-        url = baseUrl() + "/service/ping";
-        this.restTemplate.put(url, "name");
+        // DELETE
+        assertThat(services.size() == 1);
+        url = baseUrl() + "/services?name=name";
+        this.restTemplate.delete(url);
+        assertThat(services.size() == 0);
+    }
+
+    private static <T> List<T> parseList(String jsonString, Class<T> clazz) {
+        List<T> result = new ArrayList<>();
+        JsonArray jsonArr = new JsonParser().parse(jsonString).getAsJsonArray();
+        for (JsonElement jsonElement : jsonArr) {
+            T o = gson.fromJson(jsonElement.toString(), clazz);
+            result.add(o);
+        }
+        return result;
+    }
+
+    private static List<String> parseSchemas(String jsonString) {
+        JsonArray arrayOfSchema = new JsonParser().parse(jsonString).getAsJsonArray();
+        List<String> result = new ArrayList<>();
+        for (JsonElement schemaObject : arrayOfSchema) {
+            result.add(schemaObject.toString());
+        }
+        return result;
     }
 
 }

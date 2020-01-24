@@ -25,13 +25,16 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
+
 import javax.validation.constraints.NotNull;
+
 import org.oransc.policyagent.exceptions.ServiceException;
 
 public class ApplicationConfigParser {
