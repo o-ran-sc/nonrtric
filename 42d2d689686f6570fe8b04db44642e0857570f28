@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "95bcb4bc_9701600e",
+        "filename": "dashboard/webapp-backend/src/main/resources/application.properties",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-24T14:54:01Z",
+      "side": 1,
+      "message": "Docker image includes this file but keeping it localhost would make the dashboard docker container look inside itself, and it will not be able to communicate to the policy agent docker container via the docker network.\n\nOnly if you run the dashboard locally, you can use localhost.",
+      "parentUuid": "cb19c724_ddad733d",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 47,
+        "endChar": 64
+      },
+      "revId": "42d2d689686f6570fe8b04db44642e0857570f28",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "616f7536_01af9e9e",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/AsyncRestClient.java",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2020-01-24T13:36:14Z",
       "side": 1,
       "message": "Is it not better to have these in the uri likein the other cases? \nAt least, I think it should be the same in all cases?",
+      "range": {
+        "startLine": 47,
+        "startChar": 54,
+        "endLine": 47,
+        "endChar": 86
+      },
+      "revId": "42d2d689686f6570fe8b04db44642e0857570f28",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "404d6ca8_dab30a5c",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/AsyncRestClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-24T14:54:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "616f7536_01af9e9e",
       "range": {
         "startLine": 47,
         "startChar": 54,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "79d0b5fd_5ab67b75",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/ControllerA1Client.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-24T14:54:01Z",
+      "side": 1,
+      "message": "Included in the url now.",
+      "parentUuid": "33b6b669_00c2906e",
+      "range": {
+        "startLine": 41,
+        "startChar": 3,
+        "endLine": 42,
+        "endChar": 103
+      },
+      "revId": "42d2d689686f6570fe8b04db44642e0857570f28",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5d3a81ff_2ea40e23",
         "filename": "policy-agent/src/test/java/org/oransc/policyagent/utils/MockA1ClientFactory.java",
         "patchSetId": 1
@@ -88,6 +160,24 @@
     },
     {
       "key": {
+        "uuid": "1f37b392_0f25dc59",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/utils/MockA1ClientFactory.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-24T14:54:01Z",
+      "side": 1,
+      "message": "There is one test failure if I don\u0027t include this:\n\njava.lang.NullPointerException\n\tat org.oransc.policyagent.ApplicationTest.testRecovery(ApplicationTest.java:171)",
+      "parentUuid": "5d3a81ff_2ea40e23",
+      "revId": "42d2d689686f6570fe8b04db44642e0857570f28",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "461acfda_00cd4e8d",
         "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/onap/sdnc/northbound/restadapter/RestAdapter.java",
         "patchSetId": 1
@@ -99,6 +189,30 @@
       "writtenOn": "2020-01-24T13:36:14Z",
       "side": 1,
       "message": "should it not be Class\u003cT\u003e here to show that it is the same class?",
+      "range": {
+        "startLine": 52,
+        "startChar": 71,
+        "endLine": 52,
+        "endChar": 79
+      },
+      "revId": "42d2d689686f6570fe8b04db44642e0857570f28",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83897a99_eaba2ca0",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/onap/sdnc/northbound/restadapter/RestAdapter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-24T14:54:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "461acfda_00cd4e8d",
       "range": {
         "startLine": 52,
         "startChar": 71,
