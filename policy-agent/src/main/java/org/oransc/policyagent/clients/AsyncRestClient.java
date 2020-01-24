@@ -20,7 +20,6 @@
 package org.oransc.policyagent.clients;
 
 import java.lang.invoke.MethodHandles;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -43,6 +42,18 @@ public class AsyncRestClient {
 
     public AsyncRestClient(String baseUrl) {
         this.client = WebClient.create(baseUrl);
+    }
+
+    public Mono<String> post(String uri, String body, String username, String password) {
+        return client.post() //
+            .uri(uri) //
+            .headers(headers -> headers.setBasicAuth(username, password)) //
+            .contentType(MediaType.APPLICATION_JSON) //
+            .syncBody(body) //
+            .retrieve() //
+            .onStatus(HttpStatus::isError,
+                response -> Mono.error(new AsyncRestClientException(response.statusCode().toString()))) //
+            .bodyToMono(String.class);
     }
 
     public Mono<String> put(String uri, String body) {

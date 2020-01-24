@@ -9,14 +9,14 @@ import java.util.Properties;
  */
 public interface DmaapMessageConsumer extends Runnable {
 
-	public void init(Properties baseProperties);
+    public void init(Properties baseProperties);
 
-	public abstract void processMsg(String msg) throws Exception;
+    public abstract void processMsg(String msg) throws Exception;
 
-	public boolean isReady();
+    public boolean isReady();
 
-	public boolean isRunning();
+    public boolean isRunning();
 
-	public void stopConsumer();
+    public void stopConsumer();
 
 }

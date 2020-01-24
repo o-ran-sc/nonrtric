@@ -15,10 +15,10 @@ logging:
     org.springframework: ERROR
     org.springframework.data: ERROR
     org.springframework.web.reactive.function.client.ExchangeFunctions: ERROR
-    org.onap.dcaegen2.collectors.datafile: WARN
+    org.oransc.policyagent: WARN
   file: /var/log/policy-agent/application.log
 app:
-  filepath: src/test/resources/test_application_configuration.json
+  filepath: /opt/app/policy-agent/config/application_configuration.json
 
 server:
    port : 8081
