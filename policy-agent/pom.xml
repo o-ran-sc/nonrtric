@@ -48,7 +48,7 @@
 		<spotless-maven-plugin.version>1.18.0</spotless-maven-plugin.version>
 		<docker-maven-plugin>0.30.0</docker-maven-plugin>
 		<version.dmaap>1.1.9</version.dmaap>
-		<version.lombok>1.18.4</version.lombok>
+        <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -167,15 +167,19 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.onap.dmaap.messagerouter.dmaapclient</groupId>
 			<artifactId>dmaapClient</artifactId>
 			<version>${version.dmaap}</version>
 		</dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>${javax.ws.rs-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
+        </dependency>
 	</dependencies>
 	<build>
 		<plugins>

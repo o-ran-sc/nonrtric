@@ -10,6 +10,10 @@ policices. It provides support for
 -Consistency monitoring of the SMO view of policies and the actual situation in the RICs
 -Consistency monitoring of RIC capabilities (policy types)
 
+To Run Policy Agent in Local:
+Create a symbolic link with below command,
+ln -s <path to test_application_configuration.json> application_configuration.json
+
 The agent can be run stand alone in a simulated test mode. Then it 
 simulates RICs. 
 The REST API is published on port 8081 and it is started by command:
