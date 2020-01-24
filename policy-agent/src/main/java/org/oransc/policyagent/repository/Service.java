@@ -36,7 +36,7 @@ public class Service {
         ping();
     }
 
-    public synchronized String getName() {
+    public synchronized String name() {
         return this.name;
     }
 
@@ -44,7 +44,7 @@ public class Service {
         return this.keepAliveInterval;
     }
 
-    public synchronized void ping() {
+    private synchronized void ping() {
         this.lastPing = Instant.now();
     }
 

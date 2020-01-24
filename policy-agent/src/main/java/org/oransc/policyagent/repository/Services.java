@@ -48,12 +48,20 @@ public class Services {
     }
 
     public synchronized void put(Service service) {
-        logger.debug("Put service: " + service.getName());
-        services.put(service.getName(), service);
+        logger.debug("Put service: " + service.name());
+        services.put(service.name(), service);
     }
 
     public synchronized Iterable<Service> getAll() {
         return services.values();
+    }
+
+    public synchronized void remove(String name) {
+        services.remove(name);
+    }
+
+    public synchronized int size() {
+        return services.size();
     }
 
 }

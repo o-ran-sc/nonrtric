@@ -121,7 +121,6 @@ public class MockPolicyAgent {
                 }
             }
         }
-
     }
 
     @LocalServerPort

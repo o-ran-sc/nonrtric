@@ -55,14 +55,14 @@ public class PolicyAgentApiImpl implements PolicyAgentApi {
     RestTemplate restTemplate = new RestTemplate();
 
     private static com.google.gson.Gson gson = new GsonBuilder() //
-        .serializeNulls() //
-        .create(); //
+            .serializeNulls() //
+            .create(); //
 
     private final String urlPrefix;
 
     @Autowired
     public PolicyAgentApiImpl(
-        @org.springframework.beans.factory.annotation.Value("${policycontroller.url.prefix}") final String urlPrefix) {
+            @org.springframework.beans.factory.annotation.Value("${policycontroller.url.prefix}") final String urlPrefix) {
         logger.debug("ctor prefix '{}'", urlPrefix);
         this.urlPrefix = urlPrefix;
     }
@@ -115,7 +115,8 @@ public class PolicyAgentApiImpl implements PolicyAgentApi {
         }
 
         try {
-            Type listType = new TypeToken<List<ImmutablePolicyInfo>>() {}.getType();
+            Type listType = new TypeToken<List<ImmutablePolicyInfo>>() {
+            }.getType();
             List<PolicyInfo> rspParsed = gson.fromJson(rsp.getBody(), listType);
             PolicyInstances result = new PolicyInstances();
             for (PolicyInfo p : rspParsed) {
@@ -137,17 +138,17 @@ public class PolicyAgentApiImpl implements PolicyAgentApi {
 
     @Override
     public ResponseEntity<String> putPolicy(String policyTypeIdString, String policyInstanceId, String json,
-        String ric) {
+            String ric) {
         String url = baseUrl() + "/policy?type={type}&instance={instance}&ric={ric}&service={service}";
         Map<String, ?> uriVariables = Map.of( //
-            "type", policyTypeIdString, //
-            "instance", policyInstanceId, //
-            "ric", ric, //
-            "service", "dashboard");
+                "type", policyTypeIdString, //
+                "instance", policyInstanceId, //
+                "ric", ric, //
+                "service", "dashboard");
 
         try {
             this.restTemplate.put(url, json, uriVariables);
-            return new ResponseEntity<>("Policy was put successfully", HttpStatus.OK);
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -159,7 +160,7 @@ public class PolicyAgentApiImpl implements PolicyAgentApi {
         Map<String, ?> uriVariables = Map.of("instance", policyInstanceId);
         try {
             this.restTemplate.delete(url, uriVariables);
-            return new ResponseEntity<>("Policy was deleted successfully", HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
@@ -183,7 +184,8 @@ public class PolicyAgentApiImpl implements PolicyAgentApi {
         String rsp = this.restTemplate.getForObject(url, String.class, uriVariables);
 
         try {
-            Type listType = new TypeToken<List<ImmutableRicInfo>>() {}.getType();
+            Type listType = new TypeToken<List<ImmutableRicInfo>>() {
+            }.getType();
             List<RicInfo> rspParsed = gson.fromJson(rsp, listType);
             Collection<String> result = new Vector<>(rspParsed.size());
             for (RicInfo ric : rspParsed) {
