@@ -178,6 +178,24 @@
     },
     {
       "key": {
+        "uuid": "43597333_cba7c535",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/utils/MockA1ClientFactory.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-01-24T15:06:38Z",
+      "side": 1,
+      "message": "strange,I can look into that.",
+      "parentUuid": "1f37b392_0f25dc59",
+      "revId": "42d2d689686f6570fe8b04db44642e0857570f28",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "461acfda_00cd4e8d",
         "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/onap/sdnc/northbound/restadapter/RestAdapter.java",
         "patchSetId": 1
