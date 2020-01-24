@@ -72,7 +72,7 @@ public class ServiceSupervision {
         synchronized (services) {
             return Flux.fromIterable(services.getAll()) //
                 .filter(service -> service.isExpired()) //
-                .doOnNext(service -> logger.info("Service is expired:" + service.getName())) //
+                .doOnNext(service -> logger.info("Service is expired:" + service.name())) //
                 .flatMap(service -> getAllPolicies(service)) //
                 .doOnNext(policy -> this.policies.remove(policy)) //
                 .flatMap(policy -> deletePolicyInRic(policy));
@@ -81,7 +81,7 @@ public class ServiceSupervision {
 
     private Flux<Policy> getAllPolicies(Service service) {
         synchronized (policies) {
-            return Flux.fromIterable(policies.getForService(service.getName()));
+            return Flux.fromIterable(policies.getForService(service.name()));
         }
     }
 
