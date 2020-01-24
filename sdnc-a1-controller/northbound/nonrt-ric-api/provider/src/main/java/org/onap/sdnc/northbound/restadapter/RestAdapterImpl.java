@@ -57,11 +57,11 @@ public class RestAdapterImpl implements RestAdapter {
   }
 
   @Override
-  public <T> ResponseEntity<T> put(String uri, String body) {
+  public <T> ResponseEntity<T> put(String uri, String body, Class<T> clazz) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
     HttpEntity<String> entity = new HttpEntity<String>(body, headers);
-    return invokeHttpRequest(uri, HttpMethod.PUT, null, entity);
+    return invokeHttpRequest(uri, HttpMethod.PUT, clazz, entity);
   }
 
   @Override

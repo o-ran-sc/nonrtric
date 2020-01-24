@@ -143,8 +143,8 @@ public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
     Whitebox.setInternalState(nonrtRicApiProvider, "restAdapter", restAdapter);
     String uri = nearRicUrlProvider.getPolicyUrl(inputBuilder.build().getNearRtRicUrl(),
             inputBuilder.getPolicyId());
-    ResponseEntity<Object> putPolicyResponse = new ResponseEntity<>(testPolicy, HttpStatus.CREATED);
-    when(restAdapter.put(eq(uri), eq(testPolicy))).thenReturn(putPolicyResponse);
+    ResponseEntity<String> putPolicyResponse = new ResponseEntity<>(testPolicy, HttpStatus.CREATED);
+    when(restAdapter.put(eq(uri), eq(testPolicy), eq(String.class))).thenReturn(putPolicyResponse);
     ListenableFuture<RpcResult<PutPolicyOutput>> result =
         nonrtRicApiProvider.putPolicy(inputBuilder.build());
     Assert.assertEquals(testPolicy, result.get().getResult().getReturnedPolicy());

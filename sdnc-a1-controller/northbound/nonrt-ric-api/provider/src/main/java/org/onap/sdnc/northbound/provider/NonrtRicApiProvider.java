@@ -233,7 +233,7 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
     String uri = nearRicUrlProvider.getPolicyUrl(String.valueOf(input.getNearRtRicUrl()),
             String.valueOf(input.getPolicyId()));
     log.info("PUT Request input.getPolicy() : {} ", input.getPolicy());
-    ResponseEntity<String> response = restAdapter.put(uri, input.getPolicy());
+    ResponseEntity<String> response = restAdapter.put(uri, input.getPolicy(), String.class);
     if (response.hasBody()) {
       log.info("Response putPolicy : {} ", response.getBody());
       responseBuilder.setReturnedPolicy(response.getBody());

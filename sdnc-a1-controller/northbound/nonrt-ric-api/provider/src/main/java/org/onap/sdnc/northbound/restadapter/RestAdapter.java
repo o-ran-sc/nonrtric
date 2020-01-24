@@ -46,9 +46,10 @@ public interface RestAdapter {
    *
    * @param url the URL
    * @param request the String to be PUT (may be {@code null})
+   * @param clazz responseType the type of the return value
    * @return the response code
    */
-  <T> ResponseEntity<T> put(final String url, final String body);
+  <T> ResponseEntity<T> put(final String url, final String body, final Class<T> clazz);
 
   /**
    * Delete resource for the given object to the URI.

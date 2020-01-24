@@ -45,6 +45,17 @@ public class AsyncRestClient {
         this.client = WebClient.create(baseUrl);
     }
 
+    public Mono<String> post(String uri, String body) {
+        return client.post() //
+            .uri(uri) //
+            .contentType(MediaType.APPLICATION_JSON) //
+            .syncBody(body) //
+            .retrieve() //
+            .onStatus(HttpStatus::isError,
+                response -> Mono.error(new AsyncRestClientException(response.statusCode().toString()))) //
+            .bodyToMono(String.class);
+    }
+
     public Mono<String> put(String uri, String body) {
         logger.debug("PUT uri = '{}''", uri);
         return client.put() //
