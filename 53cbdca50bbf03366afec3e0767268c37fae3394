@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1e52ba1f_2f117c62",
+        "filename": "policy-agent/src/test/resources/test_application_configuration_with_dmaap_config.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1000211
+      },
+      "writtenOn": "2020-01-27T19:20:06Z",
+      "side": 1,
+      "message": "I am also still working on the dmmap blueprint work. And here the configuration should be modified. \n\nThe streams_publishes and streams_subscribes and ric should all be under the key \"config\". Because in the blueprint toscal model, all the configurations will be put under application configuration and then theses configurations will be put into consul under the key config. \n\nThus the parsing class should also be change. \nwe can discuss this tomorrow. \n\n{\n   \"config\": {\n      \"//description\": \"Application configuration\",\n      \"ric\": [\n         {\n            \"name\": \"ric1\",\n            \"baseUrl\": \"http://localhost:8080/\",\n            \"managedElementIds\": [\n               \"kista_1\",\n               \"kista_2\"\n            ]\n         },\n         {\n            \"name\": \"ric2\",\n            \"baseUrl\": \"http://localhost:8081/\",\n            \"managedElementIds\": [\n               \"kista_3\",\n               \"kista_4\"\n            ]\n         }\n      ],\n      \"streams_publishes\": {\n         \"dmaap_publisher\": {\n            \"type\": \"message_router\",\n            \"dmaap_info\": {\n               \"topic_url\": \"https://dradmin:dradmin@localhost:2222/events/A1-P-RESULT\"\n            }\n         }\n      },\n      \"streams_subscribes\": {\n         \"dmaap_subscriber\": {\n            \"dmaap_info\": {\n               \"topic_url\": \"http://dradmin:dradmin@localhost:2222/events/A1-P/users/sdnc1\"\n            },\n            \"type\": \"message_router\"\n         }\n      }\n   }\n}",
+      "range": {
+        "startLine": 27,
+        "startChar": 10,
+        "endLine": 27,
+        "endChar": 38
+      },
+      "revId": "53cbdca50bbf03366afec3e0767268c37fae3394",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    }
+  ]
+}
