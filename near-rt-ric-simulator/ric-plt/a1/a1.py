@@ -94,9 +94,6 @@ def delete_policy(policyId):
   else:
     return(set_error(None, "The policy identity does not exist.", 404, "No policy instance has been deleted.", None, "policyId", None))
 
-def get_all_policy_identities():
-  return(list(policy_instances.keys()), 200)
-
 def randomise_status():
   x = random()
   if x > 0.5001:
@@ -111,14 +108,6 @@ def randomise_reason():
   options = ["100", "200", "300", "800"]
   return choice(options)
 
-def get_all_policy_status():
-  all_s = copy.deepcopy(policy_status)
-  all_status = []
-  for i in all_s.keys():
-    all_s[i]["policyId"] = i
-    all_status.insert(len(all_status)-1, all_s[i])
-  return(all_status, 200)
-
 def get_policy_status(policyId):
   return(policy_status[policyId], 200)
 
@@ -128,32 +117,11 @@ def get_all_policytypes():
     all_policytypes.insert(len(all_policytypes)-1, policy_types[i])
   return(all_policytypes, 200)
 
-def get_all_policytypes_identities():
-  return(list(policy_types.keys()), 200)
-
 def get_policytypes(policyTypeId):
   if policyTypeId in policy_types.keys():
     return(policy_types[policyTypeId], 200)
   else:
     return(set_error(None, "The requested policy type does not exist.", 404, None, None, "policyTypeId", None))
-
-def put_policytypes_subscription():
-  global notificationDestination
-  data = request.data.decode("utf-8")
-  data = data.replace("'", "\"")
-  data = json.loads(data)
-  if not notificationDestination:
-    notificationDestination["notificationDestionation"] = data
-    return(None, 201)
-  else:
-    notificationDestination["notificationDestionation"] = data
-    return(None, 200)
-
-def get_policytypes_subscription():
-  if not notificationDestination:
-    return(set_error(None, "The notification destination has not been defined.", 404, None, None, "notificationDestination", None))
-  else:
-    return(notificationDestination["notificationDestionation"], 200)
 
 def set_error(type_of, title, status, detail, instance, param, reason):
   error = {}

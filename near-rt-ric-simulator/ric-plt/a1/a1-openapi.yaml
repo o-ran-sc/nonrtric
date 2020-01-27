@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: 'A1-P Policy Management Service'
-  version: 1.1.x
+  version: 1.1.x-alpha.2
   description: |
     API for Policy Management Service.
     © 2019, O-RAN Alliance.
@@ -19,26 +19,15 @@ paths:
   '/policies':
     get:
       operationId: a1.get_all_policies
-      description: 'Get all policies including their enforcement status'
-      tags:
-      - All Policy Objects
-      responses:
-        200:
-          description: 'Array of all policies and their enforcement status'
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  "$ref": "#/components/schemas/PolicyObject"
-                minItems: 0
-
-  '/policies/identities':
-    get:
-      operationId: a1.get_all_policy_identities
       description: 'Get all policy identities'
       tags:
       - All Policy Identities
+      parameters:
+        - name: policyTypeId
+          in: query
+          required: false
+          schema:
+            "$ref": "#/components/schemas/PolicyTypeId"
       responses:
         200:
           description: 'Array of all policy identities'
@@ -49,23 +38,10 @@ paths:
                 items:
                   "$ref": "#/components/schemas/PolicyId"
                 minItems: 0
-
-  '/policies/status':
-    get:
-      operationId: a1.get_all_policy_status
-      description: 'Get enforcement status for all policy instances'
-      tags:
-      - All Policy Status Objects
-      responses:
-        200:
-          description: 'Array of all policy identities and their related enforcement status'
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  "$ref": "#/components/schemas/PolicyStatusObject"
-                minItems: 0
+        429:
+          "$ref": "#/components/responses/429-TooManyRequests"
+        503:
+          "$ref": "#/components/responses/503-ServiceUnavailable"
 
   '/policies/{policyId}':
     parameters:
@@ -79,6 +55,12 @@ paths:
       description: 'Create, or update, a policy'
       tags:
       - Individual Policy Object
+      parameters:
+        - name: policyTypeId
+          in: query
+          required: false
+          schema:
+            "$ref": "#/components/schemas/PolicyTypeId"
       requestBody:
         content:
           application/json:
@@ -105,23 +87,15 @@ paths:
                 type: string
         400:
           "$ref": "#/components/responses/400-BadRequest"
-      callbacks:
-        policyNotification:
-          '$request.body#/notificationDestination':
-            post:
-              description: 'Notify about enforcement status changes for this policy'
-              requestBody:
-                required: true
-                content:
-                  application/json:
-                    schema:
-                      "$ref": "#/components/schemas/PolicyStatusObject"
-              responses:
-                204:
-                  description: 'Notification received'
+        429:
+          "$ref": "#/components/responses/429-TooManyRequests"
+        503:
+          "$ref": "#/components/responses/503-ServiceUnavailable"
+        507:
+          "$ref": "#/components/responses/507-InsufficientStorage"
     get:
       operationId: a1.get_policy
-      description: 'Query single policy'
+      description: 'Query a policy'
       tags:
       - Individual Policy Object
       responses:
@@ -133,9 +107,13 @@ paths:
                 "$ref": "#/components/schemas/PolicyObject"
         404:
           "$ref": "#/components/responses/404-NotFound"
+        429:
+          "$ref": "#/components/responses/429-TooManyRequests"
+        503:
+          "$ref": "#/components/responses/503-ServiceUnavailable"
     delete:
       operationId: a1.delete_policy
-      description: 'Delete policy'
+      description: 'Delete a policy'
       tags:
       - Individual Policy Object
       responses:
@@ -143,8 +121,12 @@ paths:
           description: 'The policy was deleted'
         404:
           "$ref": "#/components/responses/404-NotFound"
+        429:
+          "$ref": "#/components/responses/429-TooManyRequests"
+        503:
+          "$ref": "#/components/responses/503-ServiceUnavailable"
 
-  '/policies/{policyId}/status':
+  '/policystatus/{policyId}':
     parameters:
       - name: policyId
         in: path
@@ -153,39 +135,26 @@ paths:
           "$ref": "#/components/schemas/PolicyId"
     get:
       operationId: a1.get_policy_status
-      description: 'Get the enforcement status of a policy'
+      description: 'Query a policy status'
       tags:
       - Individual Policy Status Object
       responses:
         200:
-          description: 'The requested enforcement status'
+          description: 'The requested policy status'
           content:
             application/json:
               schema:
                 "$ref": "#/components/schemas/PolicyStatusObject"
         404:
           "$ref": "#/components/responses/404-NotFound"
+        429:
+          "$ref": "#/components/responses/429-TooManyRequests"
+        503:
+          "$ref": "#/components/responses/503-ServiceUnavailable"
 
   '/policytypes':
     get:
       operationId: a1.get_all_policytypes
-      description: 'Get all policy type schemas'
-      tags:
-      - All Policy Types
-      responses:
-        200:
-          description: 'Array of all policy type schemas'
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  "$ref": "#/components/schemas/PolicyTypeSchema"
-                minItems: 0
-
-  '/policytypes/identities':
-    get:
-      operationId: a1.get_all_policytypes_identities
       description: 'Get all policy type identities'
       tags:
       - All Policy Type Identities
@@ -199,6 +168,10 @@ paths:
                 items:
                   "$ref": "#/components/schemas/PolicyTypeId"
                 minItems: 0
+        429:
+          "$ref": "#/components/responses/429-TooManyRequests"
+        503:
+          "$ref": "#/components/responses/503-ServiceUnavailable"
 
   '/policytypes/{policyTypeId}':
     parameters:
@@ -209,113 +182,46 @@ paths:
           "$ref": "#/components/schemas/PolicyTypeId"
     get:
       operationId: a1.get_policytypes
-      description: 'Get the schema for a policy type'
+      description: 'Get the schemas for a policy type'
       tags:
       - Individual Policy Type
       responses:
         200:
-          description: 'The policy type schema'
+          description: 'The policy type schemas'
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/PolicyTypeSchema"
+                "$ref": "#/components/schemas/PolicyTypeObject"
         404:
           "$ref": "#/components/responses/404-NotFound"
-
-  '/policytypes/subscription':
-    put:
-      operationId: a1.put_policytypes_subscription
-      description: 'Subscribe to notification when any change is made to supported policy types'
-      tags:
-      - Policy Types Subscription Object
-      requestBody:
-        content:
-          application/json:
-            schema:
-              "$ref": "#/components/schemas/SubscriptionObject"
-      responses:
-        200:
-          description: 'The subscription was updated'
-        201:
-          description: 'The subscription was created'
-      callbacks:
-        policyTypesNotification:
-          '$request.body#/notificationDestination':
-            post:
-              description: 'Notify about any change in supported policy types'
-              responses:
-                204:
-                  description: 'Notification received'
-    get:
-      operationId: a1.get_policytypes_subscription
-      description: 'Get current notification destination'
-      tags:
-      - Policy Types Subscription Object
-      responses:
-        200:
-          description: 'The current notification destination'
-          content:
-            application/json:
-              schema:
-                "$ref": "#/components/schemas/SubscriptionObject"
-        404:
-          "$ref": "#/components/responses/404-NotFound"
+        429:
+          "$ref": "#/components/responses/429-TooManyRequests"
+        503:
+          "$ref": "#/components/responses/503-ServiceUnavailable"
 
 components:
   schemas:
     #
     # Representation objects
     #
-    PolicyStatusObject:
-      type: object
-      properties:
-        policyId:
-          "$ref": "#/components/schemas/PolicyId"
-        enforceStatus:
-          "$ref": "#/components/schemas/EnforcementStatusType"
-        enforceReason:
-          "$ref": "#/components/schemas/EnforcementReasonType"
-      required:
-      - policyId
-      - enforceStatus
-
     PolicyObject:
-      description: 'A policy object, including its identification, type information, its notification destination, and optionally its enforcement status.'
+      description: 'A generic policy object that can be used to transport any policy. Additionally, a policy shall be valid according to the schema of its specific policy type.'
       type: object
-      properties:
-        policyId:
-          "$ref": "#/components/schemas/PolicyId"
-        policyTypeId:
-          "$ref": "#/components/schemas/PolicyTypeId"
-        policyClause:
-          "$ref": "#/components/schemas/PolicyClause"
-        notificationDestination:
-          "$ref": "#/components/schemas/NotificationDestination"
-        enforceStatus:
-          "$ref": "#/components/schemas/EnforcementStatusType"
-      required:
-      - policyId
-      - policyTypeId
-      - policyClause
-      - notificationDestination
 
-    PolicyTypeSchema:
-      description: 'The JSON Schema for a policy type. All policies of a policy type shall validate against this schema.'
+    PolicyStatusObject:
+      description: 'A generic policy status object that can be used to transport any policy status. Additionally, a policy status shall be valid according to the schema of its specific policy type.'
+      type: object
+
+    PolicyTypeObject:
+      description: 'A definition of a policy type, i.e. the schemas for a policy respectively its status'
       type: object
       properties:
-        description:
-          type: string
-        properties:
-          type: object
-        title:
-          type: string
-        type:
-          type: string
+        policySchema:
+          "$ref": "#/components/schemas/JsonSchema"
+        statusSchema:
+          "$ref": "#/components/schemas/JsonSchema"
       required:
-      - description
-      - properties
-      - title
-      - type
+        - policySchema
 
     ProblemDetails:
       description: 'A problem detail to carry details in a HTTP response according to RFC 7807 extended with A1 specific attributes'
@@ -331,22 +237,13 @@ components:
           type: string
         instance:
           type: string
-        policyErrorCode:
-          "$ref": "#/components/schemas/PolicyErrorType"
+        cause:
+          type: string
         invalidParams:
           type: array
           items:
             "$ref": "#/components/schemas/InvalidParam"
           minItems: 1
-
-    SubscriptionObject:
-      description: 'A subscription object used for specifying the destination where to send notifications.'
-      type: object
-      properties:
-        notificationDestination:
-          "$ref": "#/components/schemas/NotificationDestination"
-      required:
-      - notificationDestination
 
     #
     # Structured data types
@@ -362,86 +259,20 @@ components:
       required:
         - param
 
-    PolicyClause:
-      description: 'The schema for a generic policy clause that shall be valid for all different specific policy types.'
-      type: object
-      properties:
-        scope:
-          "$ref": "#/components/schemas/ScopeIdentifier"
-        statement:
-          description: 'The statement for a specific policy type. The schema is specified by a specific policy type.'
-          type: object
-      required:
-      - scope
-      - statement
-
-    ScopeIdentifier:
-      description: 'The schema for a generic scope identifier that shall be valid for all different specific policy types.'
-      type: object
-      properties:
-        ueId:
-          description: 'UE identifier based on RAN UE Id'
-          type: string
-        groupId:
-          description: 'Identifier of a pre-defined group of UEs, SPID'
-          type: string
-        sliceId:
-          description: 'Network slice identifie, NSSAI'
-          type: string
-        qosId:
-          description: 'QoS identifer, 5QI'
-          type: string
-        cellId:
-          description: 'Network resource identifier for a cell'
-          type: string
-
     #
     # Simple data types
     #
+    JsonSchema:
+      description: 'A JSON schema following http://json-schema.org/draft-07/schema'
+      type: object
+
     PolicyId:
       description: 'Policy identifier assigned by the A1-P Consumer when a policy is created'
       type: string
 
     PolicyTypeId:
       description: 'Policy type identifier assigned by the A1-P Provider'
-      pattern: "^(STD|EXT)_[a-zA-Z]+_(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
       type: string
-
-    NotificationDestination:
-      description: 'A complete URI defined according to IETF RFC 3986 where to send notifications'
-      type: string
-      nullable: true
-
-    #
-    # Enumerations
-    #
-    EnforcementStatusType:
-      description: 'Indicating if a policy is being enforced or not'
-      type: string
-      enum:
-       - "ENFORCED"
-       - "NOT_ENFORCED"
-       - "UNDEFINED"
-
-    EnforcementReasonType:
-      description: 'Indicating the reason why a policy is not being enforced'
-      anyOf:
-      - type: string
-        enum:
-        - "100"
-        - "200"
-        - "300"
-        - "800"
-      - type: string
-
-    PolicyErrorType:
-      description: 'Represents information that can be provided in addition to the HTTP response error code. Corresponds to the "cause" attribute defined in 3GPP specification 29.501.'
-      anyOf:
-      - type: string
-        enum:
-        - "CONF_POLICY_ID"
-        - "BAD_REQ_MISSING_PARAM"
-      - type: string
 
   responses:
     400-BadRequest:
@@ -460,6 +291,27 @@ components:
 
     405-MethodNotAllowed:
       description: 'Method not allowed for the URI'
+      content:
+        application/problem+json:
+          schema:
+            "$ref": "#/components/schemas/ProblemDetails"
+
+    429-TooManyRequests:
+      description: 'Too many requests have been sent in a given amount of time'
+      content:
+        application/problem+json:
+          schema:
+            "$ref": "#/components/schemas/ProblemDetails"
+
+    503-ServiceUnavailable:
+      description: 'The provider is currently unable to handle the request due to a temporary overload'
+      content:
+        application/problem+json:
+          schema:
+            "$ref": "#/components/schemas/ProblemDetails"
+
+    507-InsufficientStorage:
+      description: 'The method could not be performed on the resource because the provider is unable to store the representation needed to successfully complete the request'
       content:
         application/problem+json:
           schema:

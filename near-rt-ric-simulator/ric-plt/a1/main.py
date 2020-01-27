@@ -25,10 +25,7 @@ def policy_type(policyTypeId):
 
 @app.route('/', methods=['GET'])
 def test():
-  if "STD_QoSNud_0.1.0" in policy_types.keys():
-    return("Something fishy!", 200)
-  else:
-    return(str(list(policy_types.keys())), 200)
+    return("Everything is fine", 200)
 
 @app.route('/deleteinstances', methods=['DELETE'])
 def delete_instances():

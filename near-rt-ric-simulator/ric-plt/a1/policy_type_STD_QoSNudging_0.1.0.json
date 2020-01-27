@@ -10,7 +10,7 @@
         "ueId": {"type": "string"},
         "qosId": {"type": "string"}
       },
-      "additionalProperties": false,
+      "additionalProperties": true,
       "required": ["ueId", "qosId"]
     },
     "statement": {
