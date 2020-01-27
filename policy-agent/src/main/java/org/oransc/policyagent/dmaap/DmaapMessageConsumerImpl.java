@@ -22,6 +22,7 @@ package org.oransc.policyagent.dmaap;
 
 import java.io.IOException;
 import java.util.Properties;
+
 import org.onap.dmaap.mr.client.MRClientFactory;
 import org.onap.dmaap.mr.client.MRConsumer;
 import org.onap.dmaap.mr.client.response.MRConsumerResponse;
@@ -40,18 +41,21 @@ public class DmaapMessageConsumerImpl implements DmaapMessageConsumer {
     private static final Logger logger = LoggerFactory.getLogger(DmaapMessageConsumerImpl.class);
 
     private boolean alive = false;
+    private final ApplicationConfig applicationConfig;
     protected MRConsumer consumer;
     private MRConsumerResponse response = null;
 
     @Autowired
     public DmaapMessageConsumerImpl(ApplicationConfig applicationConfig) {
-        Properties dmaapConsumerConfig = applicationConfig.getDmaapConsumerConfig();
-        init(dmaapConsumerConfig);
+        this.applicationConfig = applicationConfig;
     }
 
     @Scheduled(fixedRate = 1000 * 60)
     @Override
     public void run() {
+        if (!alive) {
+            init();
+        }
         while (this.alive) {
             try {
                 Iterable<String> dmaapMsgs = fetchAllMessages();
@@ -72,30 +76,24 @@ public class DmaapMessageConsumerImpl implements DmaapMessageConsumer {
             logger.debug("DMaaP consumer received {} : {}", response.getResponseCode(), response.getResponseMessage());
             if (!"200".equals(response.getResponseCode())) {
                 logger.error("DMaaP consumer received: {} : {}", response.getResponseCode(),
-                        response.getResponseMessage());
+                    response.getResponseMessage());
             }
         }
         return response.getActualMessages();
     }
 
     @Override
-    public void init(Properties properties) {
-        // Initialize the DMAAP with the properties
+    public void init() {
+        Properties dmaapConsumerProperties = applicationConfig.getDmaapConsumerConfig();
+        Properties dmaapPublisherProperties = applicationConfig.getDmaapPublisherConfig();
+        // No need to start if there is no configuration.
+        if (dmaapConsumerProperties == null || dmaapPublisherProperties == null || dmaapConsumerProperties.size() == 0
+            || dmaapPublisherProperties.size() == 0) {
+            return;
+        }
         // Do we need to do any validation of properties before calling the factory?
-        Properties prop = new Properties();
-        prop.setProperty("ServiceName", "localhost:6845/events");
-        prop.setProperty("topic", "A1-P");
-        prop.setProperty("host", "localhost:6845");
-        prop.setProperty("contenttype", "application/json");
-        prop.setProperty("username", "admin");
-        prop.setProperty("password", "admin");
-        prop.setProperty("group", "users");
-        prop.setProperty("id", "policy-agent");
-        prop.setProperty("TransportType", "HTTPNOAUTH");
-        prop.setProperty("timeout", "15000");
-        prop.setProperty("limit", "1000");
         try {
-            consumer = MRClientFactory.createConsumer(prop);
+            consumer = MRClientFactory.createConsumer(dmaapConsumerProperties);
             this.alive = true;
         } catch (IOException e) {
             logger.error("Exception occurred while creating Dmaap Consumer", e);
