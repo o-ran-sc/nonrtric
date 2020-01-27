@@ -180,7 +180,7 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
           GetPolicyTypeIdentitiesInput input) {
     log.info("Start of getPolicyTypeIdentities");
     GetPolicyTypeIdentitiesOutputBuilder responseBuilder = new GetPolicyTypeIdentitiesOutputBuilder();
-    String uri = nearRicUrlProvider.getPolicyTypeIdentitiesUrl(String.valueOf(input.getNearRtRicUrl()));
+    String uri = nearRicUrlProvider.policyTypesUrl(String.valueOf(input.getNearRtRicUrl()));
     ResponseEntity<List<String>> response = restAdapter.get(uri, List.class);
     if (response.hasBody()) {
       log.info("Response getPolicyTypeIdentities : {} ", response.getBody());
@@ -196,7 +196,7 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
   public ListenableFuture<RpcResult<GetPolicyIdentitiesOutput>> getPolicyIdentities(GetPolicyIdentitiesInput input) {
     log.info("Start of getPolicyIdentities");
     GetPolicyIdentitiesOutputBuilder responseBuilder = new GetPolicyIdentitiesOutputBuilder();
-    String uri = nearRicUrlProvider.getPolicyIdentitiesUrl(String.valueOf(input.getNearRtRicUrl()));
+    String uri = nearRicUrlProvider.policiesUrl(String.valueOf(input.getNearRtRicUrl()));
     ResponseEntity<List<String>> response = restAdapter.get(uri, List.class);
     if (response.hasBody()) {
       log.info("Response getPolicyIdentities : {} ", response.getBody());
@@ -230,8 +230,8 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
   public ListenableFuture<RpcResult<PutPolicyOutput>> putPolicy(PutPolicyInput input) {
     log.info("Start of putPolicy");
     PutPolicyOutputBuilder responseBuilder = new PutPolicyOutputBuilder();
-    String uri = nearRicUrlProvider.getPolicyUrl(String.valueOf(input.getNearRtRicUrl()),
-            String.valueOf(input.getPolicyId()));
+    String uri = nearRicUrlProvider.putPolicyUrl(String.valueOf(input.getNearRtRicUrl()),
+            String.valueOf(input.getPolicyId()), String.valueOf(input.getPolicyTypeId()));
     log.info("PUT Request input.getPolicy() : {} ", input.getPolicy());
     ResponseEntity<String> response = restAdapter.put(uri, input.getPolicy(), String.class);
     if (response.hasBody()) {
@@ -248,7 +248,7 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
   public ListenableFuture<RpcResult<DeletePolicyOutput>> deletePolicy(DeletePolicyInput input) {
     log.info("Start of deletePolicy");
     DeletePolicyOutputBuilder responseBuilder = new DeletePolicyOutputBuilder();
-    String uri = nearRicUrlProvider.getPolicyUrl(String.valueOf(input.getNearRtRicUrl()),
+    String uri = nearRicUrlProvider.deletePolicyUrl(String.valueOf(input.getNearRtRicUrl()),
             String.valueOf(input.getPolicyId()));
     ResponseEntity<Void> response = restAdapter.delete(uri);
     log.info("End of deletePolicy");
