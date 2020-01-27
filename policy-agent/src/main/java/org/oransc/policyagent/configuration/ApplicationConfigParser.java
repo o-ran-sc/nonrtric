@@ -25,16 +25,13 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
-
 import javax.validation.constraints.NotNull;
-
 import org.onap.dmaap.mr.test.clients.ProtocolTypeConstants;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.springframework.http.MediaType;
@@ -125,9 +122,9 @@ public class ApplicationConfigParser {
             String urlPath = url.getPath();
             DmaapUrlPath path = parseDmaapUrlPath(urlPath);
 
-            dmaapProps.put("ServiceName", url.getHost());
+            dmaapProps.put("ServiceName", url.getHost()+":"+url.getPort()+"/events");
             dmaapProps.put("topic", path.dmaapTopicName);
-            dmaapProps.put("host", url.getHost());
+            dmaapProps.put("host", url.getHost()+":"+url.getPort());
             dmaapProps.put("contenttype", MediaType.APPLICATION_JSON.toString());
             dmaapProps.put("userName", userName);
             dmaapProps.put("password", passwd);
@@ -136,7 +133,6 @@ public class ApplicationConfigParser {
             dmaapProps.put("TransportType", ProtocolTypeConstants.HTTPNOAUTH.toString());
             dmaapProps.put("timeout", 15000);
             dmaapProps.put("limit", 1000);
-            dmaapProps.put("port", url.getPort());
         } catch (MalformedURLException e) {
             throw new ServiceException("Could not parse the URL", e);
         }
@@ -166,7 +162,7 @@ public class ApplicationConfigParser {
             throw new ServiceException("The path has incorrect syntax: " + urlPath);
         }
 
-        final String dmaapTopicName = tokens[1] + "/" + tokens[2]; // /events/A1-P
+        final String dmaapTopicName =  tokens[2]; // /events/A1-P
         String consumerGroup = ""; // users
         String consumerId = ""; // sdnc1
         if (tokens.length == 5) {

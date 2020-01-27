@@ -24,14 +24,14 @@
       "dmaap_publisher": {
          "type": "message_router",
          "dmaap_info": {
-            "topic_url": "https://dradmin:dradmin@localhost:2222/events/A1-P-RESULT"
+            "topic_url": "http://admin:admin@localhost:6845/events/A1-POLICY-AGENT-WRITE"
          }
       }
    },
    "streams_subscribes": {
       "dmaap_subscriber": {
          "dmaap_info": {
-            "topic_url": "http://dradmin:dradmin@localhost:2222/events/A1-P/users/sdnc1"
+            "topic_url": "http://admin:admin@localhost:6845/events/A1-POLICY-AGENT-READ/users/policy-agent"
          },
          "type": "message_router"
       }

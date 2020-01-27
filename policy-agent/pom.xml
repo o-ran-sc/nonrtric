@@ -128,6 +128,11 @@
             <artifactId>dmaap-client</artifactId>
 			<version>${sdk.version}</version>
 		</dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+         <scope>provided</scope>
+        </dependency>
 		<!--REQUIRED TO GENERATE DOCUMENTATION -->
 		<dependency>
 			<groupId>io.springfox</groupId>
