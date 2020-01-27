@@ -22,6 +22,30 @@
       "revId": "c2d2466a0fe7f6249fd82e1e8c00087d7fa21ccb",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b92904f8_371bc285",
+        "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/policyagentapi/PolicyAgentApiImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-01-27T10:05:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ac3d91e8_dde8f40e",
+      "range": {
+        "startLine": 163,
+        "startChar": 40,
+        "endLine": 163,
+        "endChar": 61
+      },
+      "revId": "c2d2466a0fe7f6249fd82e1e8c00087d7fa21ccb",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
