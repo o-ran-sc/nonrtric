@@ -3,159 +3,135 @@ import copy
 import datetime
 import json
 import logging
-import requests
+#import requests
 
 from connexion import NoContent
-from flask import Flask, escape, request
+from flask import Flask, escape, request, make_response
 from jsonschema import validate
 from random import random, choice
-from var_declaration import policy_instances, policy_types, policy_status, notification_destination, notificationDestination
+from var_declaration import policy_instances, policy_types, policy_status, policy_type_per_instance
 
-def get_all_policies():
-  all_p = copy.deepcopy(policy_instances)
-  all_policies = []
-  for i in all_p.keys():
-    all_p[i]["enforceStatus"] = policy_status[i]["enforceStatus"]
-    all_policies.insert(len(all_policies)-1, all_p[i])
-  return(all_policies, 200)
+def get_all_policy_identities():
+  if len(request.args) == 0:
+    return(list(policy_instances.keys()), 200)
+  elif 'policyTypeId' in request.args:
+    policyTypeId = request.args.get('policyTypeId')
+    if policyTypeId not in list(policy_types.keys()):
+      return(set_error(None, "The policy type provided does not exist.", 400, "The policy type " + data["policyTypeId"] + " is not defined as a policy type.", None, None, "policyTypeId", None))
+    else:
+      return(list({key for key in policy_instances.keys() if policy_type_per_instance[key]==policyTypeId}), 200)
+  else:
+    return(send_error_code(request.args))
 
 def put_policy(policyId):
   data = request.data.decode("utf-8")
   data = data.replace("'", "\"")
   data = json.loads(data)
   ps = {}
+  if 'policyTypeId' in request.args:
+    policyTypeId = request.args.get('policyTypeId')
 
-  if data["policyTypeId"] not in list(policy_types.keys()):
-    return(set_error(None, "The policy type provided does not exist.", 404, "The policy type " + data["policyTypeId"] + " is not defined as a policy type.", None, "policyTypeId", None))
+    if policyTypeId not in list(policy_types.keys()):
+      return(set_error(None, "The policy type provided does not exist.", 400, "The policy type " + policyTypeId + " is not defined as a policy type.", None, None, "policyTypeId", None))
 
-  pt = data["policyTypeId"]
-  schema = policy_types[pt]
-  try:
-    validate(instance=data["policyClause"], schema=schema)
-  except:
-    return(set_error(None, "The json does not validate against the schema.", 400, None, None, None, None))
+    policy_schema = policy_types[policyTypeId]["policySchema"]
+    try:
+      validate(instance=data, schema=policy_schema)
+    except:
+      return(set_error(None, "The json does not validate against the schema.", 400, None, None, None, None, None))
 
-  if data["policyId"] in list(policy_instances.keys()):
-    if data["policyClause"]["scope"] != policy_instances[data["policyId"]]["policyClause"]["scope"]:
-      return(set_error(None, "The policy already exists with a different scope.", 404, "The policy put involves a modification of the existing scope, which is not allowed.", None, "scope", None))
+    for i in list(policy_instances.keys()):
+      if policyId != i and \
+         data == policy_instances[i] and \
+         policyTypeId == policy_type_per_instance[i]:
+        return(set_error(None, "The policy already exists with a different id.", 404, "No action has been taken. The id of the existing policy instance is: " + i + ".", None, None, None, None))
 
-  if data["policyId"] != policyId:
-    return(set_error(None, "Wrong policy identity.", 400, "The policy instance's identity does not match with the one specified in the address.", None, "policyId", "The policy identity " + data["policyId"] + " is different from the address: " + policyId))
+  if policyId in list(policy_instances.keys()):
+    if data["scope"] != policy_instances[policyId]["scope"]:
+      return(set_error(None, "The policy already exists with a different scope.", 404, "The policy put involves a modification of the existing scope, which is not allowed.", None, None, "scope", None))
 
-  for i in list(policy_instances.keys()):
-    if data["policyId"] != i and \
-       data["policyClause"] == policy_instances[i]["policyClause"] and \
-       data["policyTypeId"] == policy_instances[i]["policyTypeId"] and \
-       data["notificationDestination"] == policy_instances[i]["notificationDestination"]:
-      return(set_error(None, "The policy already exists with a different id.", 404, "No action has been taken. The id of the existing policy instance is: " + i + ".", None, None, None))
+  if 'code' in request.args:
+    return(send_error_code(request.args))
+
+  policy_instances[policyId] = data
+  policy_status[policyId] = set_status("UNDEFINED")
+  if 'policyTypeId' in request.args:
+    status_schema = policy_types[policyTypeId]["statusSchema"]
+    try:
+      validate(instance=policy_status[policyId], schema=status_schema)
+    except:
+      return(set_error(None, "The json does not validate against the status schema.", 400, None, None, None, None, None))
+    policy_type_per_instance[policyId] = policyTypeId
+  else:
+    policy_type_per_instance[policyId] = "UNDEFINED"
 
   if policyId in policy_instances.keys():
     code = 201
   else:
     code = 200
-  policy_instances[policyId] = data
-  policy_status[policyId] = set_status("UNDEFINED")
-  notification_destination[policyId] = data["notificationDestination"]
-  return(policy_instances[policyId], code)
+
+  response = make_response(policy_instances[policyId], code)
+  if code == 201:
+    response.headers['Location'] = "http://localhost:8085/A1-P/v1/policies/" + policyId
+  return response
 
 def set_status(*args):
   ps = {}
-  if len(args) == 0:
-    rand_status = randomise_status()
-    ps["policyId"] = policyId
-    ps["enforceStatus"] = rand_status
-    if rand_status == "NOT_ENFORCED":
-      rand_reason = randomise_reason()
-      ps["enforceReason"] = rand_reason
-  if args[0] in ["UNDEFINED", "ENFORCED", "NOT_ENFORCED"]:
-    ps["enforceStatus"] = args[0]
-  else:
-    return(set_error(None, "Wrong enforceStatus.", 400, None, None, "enforceStatus", "enforceStatus should be one of \"UNDEFINED\", \"ENFORCED\" or \"NOT_ENFORCED\""))
-  if args[0] == "NOT_ENFORCED":
-    if args[1] in ["100", "200", "300", "800"]:
-      ps["enforceReason"] = args[1]
-    else:
-      return(set_error(None, "Wrong enforceReason.", 400, None, None, "enforceReason", "enforceReason should be one of \"100\", \"200\", \"300\" or \"800\""))
+  ps["enforceStatus"] = args[0]
+  if len(args) == 2:
+    ps["enforceReason"] = args[1]
+  if len(args) > 2:
+    return(set_error(None, "Too many arguments", 400, "There should be no more than two status arguments: enforceStatus and enforceReason", None, None, None, None))
   return ps
 
 def get_policy(policyId):
-  if policyId in policy_instances.keys():
-    res = policy_instances[policyId]
-    res["enforceStatus"] = policy_status[policyId]["enforceStatus"]
-    return(res, 200)
+  if len(request.args) == 0:
+    if policyId in policy_instances.keys():
+      res = policy_instances[policyId]
+      res["enforceStatus"] = policy_status[policyId]["enforceStatus"]
+      return(res, 200)
+    else:
+      return(set_error(None, "The requested policy does not exist.", 404, None, None, None, "policyId", None))
   else:
-    return(set_error(None, "The requested policy does not exist.", 404, None, None, "policyId", None))
+    return(send_error_code(request.args))
 
 def delete_policy(policyId):
-  if policyId in policy_instances.keys():
-    policy_instances.pop(policyId)
-    policy_status.pop(policyId)
-    return(None, 204)
+  if len(request.args) == 0:
+    if policyId in policy_instances.keys():
+      policy_instances.pop(policyId)
+      policy_status.pop(policyId)
+      policy_type_per_instance.pop(policyId)
+      return(None, 204)
+    else:
+      return(set_error(None, "The policy identity does not exist.", 404, "No policy instance has been deleted.", None, None, "policyId", None))
   else:
-    return(set_error(None, "The policy identity does not exist.", 404, "No policy instance has been deleted.", None, "policyId", None))
-
-def get_all_policy_identities():
-  return(list(policy_instances.keys()), 200)
-
-def randomise_status():
-  x = random()
-  if x > 0.5001:
-    res = "ENFORCED"
-  elif x < 0.4999:
-    res = "NOT_ENFORCED"
-  else:
-    res = "UNDEFINED"
-  return res
-
-def randomise_reason():
-  options = ["100", "200", "300", "800"]
-  return choice(options)
-
-def get_all_policy_status():
-  all_s = copy.deepcopy(policy_status)
-  all_status = []
-  for i in all_s.keys():
-    all_s[i]["policyId"] = i
-    all_status.insert(len(all_status)-1, all_s[i])
-  return(all_status, 200)
+    return(send_error_code(request.args))
 
 def get_policy_status(policyId):
-  return(policy_status[policyId], 200)
-
-def get_all_policytypes():
-  all_policytypes = []
-  for i in policy_types.keys():
-    all_policytypes.insert(len(all_policytypes)-1, policy_types[i])
-  return(all_policytypes, 200)
+  if len(request.args) == 0:
+    if policyId in policy_instances.keys():
+      return(policy_status[policyId], 200)
+    else:
+      return(set_error(None, "The policy identity does not exist.", 404, "There is no existing policy instance with the identity: " + policyId, None, None, "policyId", None))
+  else:
+    return(send_error_code(request.args))
 
 def get_all_policytypes_identities():
-  return(list(policy_types.keys()), 200)
+  if len(request.args) == 0:
+    return(list(policy_types.keys()), 200)
+  else:
+    return(send_error_code(request.args))
 
 def get_policytypes(policyTypeId):
-  if policyTypeId in policy_types.keys():
-    return(policy_types[policyTypeId], 200)
+  if len(request.args) == 0:
+    if policyTypeId in policy_types.keys():
+      return(policy_types[policyTypeId], 200)
+    else:
+      return(set_error(None, "The requested policy type does not exist.", 404, None, None, None, "policyTypeId", None))
   else:
-    return(set_error(None, "The requested policy type does not exist.", 404, None, None, "policyTypeId", None))
+    return(send_error_code(request.args))
 
-def put_policytypes_subscription():
-  global notificationDestination
-  data = request.data.decode("utf-8")
-  data = data.replace("'", "\"")
-  data = json.loads(data)
-  if not notificationDestination:
-    notificationDestination["notificationDestionation"] = data
-    return(None, 201)
-  else:
-    notificationDestination["notificationDestionation"] = data
-    return(None, 200)
-
-def get_policytypes_subscription():
-  if not notificationDestination:
-    return(set_error(None, "The notification destination has not been defined.", 404, None, None, "notificationDestination", None))
-  else:
-    return(notificationDestination["notificationDestionation"], 200)
-
-def set_error(type_of, title, status, detail, instance, param, reason):
+def set_error(type_of, title, status, detail, instance, cause, param, reason):
   error = {}
   params = {}
   if type_of is not None:
@@ -168,6 +144,8 @@ def set_error(type_of, title, status, detail, instance, param, reason):
     error["detail"] = detail
   if instance is not None:
     error["instance"] = instance
+  if cause is not None:
+    error["cause"] = cause
   if param is not None:
     params["param"] = param
   if reason is not None:
@@ -175,3 +153,19 @@ def set_error(type_of, title, status, detail, instance, param, reason):
   if params:
     error["invalidParams"] = params
   return(error, error["status"])
+
+def send_error_code(args):
+  if 'code' in args.keys():
+    code = args['code']
+    if code == '405':
+      return(set_error(None, "Method not allowed", 405, "Method not allowed for the URI", None, None, None, None))
+    elif code == '429':
+      return(set_error(None, "Too many requests", 429, "Too many requests have been sent in a given amount of time", None, None, None, None))
+    elif code == '507':
+      return(set_error(None, "Insufficient storage", 507, "The method could not be performed on the resource because the provider is unable to store the representation needed to successfully complete the request", None, None, None, None))
+    elif code == '503':
+      return(set_error(None, "Service unavailable", 503, "The provider is currently unable to handle the request due to a temporary overload", None, None, None, None))
+    else:
+      return(set_error(None, "Not found", 400, "No resource found at the URI", None, None, None, None))
+  else:
+    return(set_error(None, "Not found", 400, "No resource found at the URI", None, None, None, None))
