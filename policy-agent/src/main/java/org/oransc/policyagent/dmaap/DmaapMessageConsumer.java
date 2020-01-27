@@ -21,8 +21,6 @@
 
 package org.oransc.policyagent.dmaap;
 
-import java.util.Properties;
-
 /**
  * The Dmaap consumer which has the base methods to be implemented by any class which implements this interface
  *
@@ -34,7 +32,7 @@ public interface DmaapMessageConsumer {
      *
      * @param properties
      */
-    public void init(Properties properties);
+    public void init();
 
     /**
      * This method process the message and call the respective Controller

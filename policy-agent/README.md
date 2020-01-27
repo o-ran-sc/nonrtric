@@ -1,21 +1,25 @@
 # O-RAN-SC NonRT RIC Dashboard Web Application
 
-The O-RAN NonRT RIC PolicyAgent provides a REST API for management of 
-policices. It provides support for 
--Policy configuration. This includes
- -One REST API towards all RICs in the network
- -Query functions that can find all policies in a RIC, all policies owned by a service (R-APP), all policies of a type etc.
- -Maps O1 resources (ManagedElement) as defined in O1 to the controlling RIC 
--Supervision of clients (R-APPs) to eliminate stray policies in case of failure
--Consistency monitoring of the SMO view of policies and the actual situation in the RICs
--Consistency monitoring of RIC capabilities (policy types)
+The O-RAN NonRT RIC PolicyAgent provides a REST API for management of policices.
+It provides support for:
+ -Supervision of clients (R-APPs) to eliminate stray policies in case of failure
+ -Consistency monitoring of the SMO view of policies and the actual situation in the RICs
+ -Consistency monitoring of RIC capabilities (policy types)
+ -Policy configuration. This includes:
+  -One REST API towards all RICs in the network
+  -Query functions that can find all policies in a RIC, all policies owned by a service (R-APP),
+   all policies of a type etc.
+  -Maps O1 resources (ManagedElement) as defined in O1 to the controlling RIC
 
 To Run Policy Agent in Local:
-Create a symbolic link with below command,
+In the folder /opt/app/policy-agent/config/, create a soft link with below command,
 ln -s <path to test_application_configuration.json> application_configuration.json
 
-The agent can be run stand alone in a simulated test mode. Then it 
-simulates RICs. 
+To Run Policy Agent in Local with the DMaaP polling turned on:
+In the folder /opt/app/policy-agent/config/, create a soft link with below command,
+ln -s <path to test_application_configuration_with_dmaap_config.json> application_configuration.json
+
+The agent can be run stand alone in a simulated test mode. Then it simulates RICs.
 The REST API is published on port 8081 and it is started by command:
 mvn -Dtest=MockPolicyAgent test
 
