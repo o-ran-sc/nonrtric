@@ -1,0 +1,20 @@
+{
+  "policySchema": {
+    "policyId": "pi1",
+    "policyTypeId": "STD_QoSNudging_0.2.0",
+    "policyClause": {
+      "scope": {
+        "ueId": "ue1",
+        "groupId": "group1",
+        "sliceId": "slice1",
+        "qosId": "qos1",
+        "cellId": "cell1"
+      },
+      "statement": {
+        "priorityLevel": 5
+      }
+    },
+    "notificationDestination": "http://localhost:8085/policynotifications"
+  }
+}
+

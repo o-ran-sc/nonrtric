@@ -8,7 +8,26 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "policySchema",
       "description": "policySchema",
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "scope": {
+          "type": "object",
+          "properties": {
+            "ueId": {"type": "string"},
+            "qosId": {"type": "string"}
+          },
+          "additionalProperties": true,
+          "required": ["ueId", "qosId"]
+        },
+        "statement": {
+          "type": "object",
+          "properties": {
+            "priorityLevel": {"type": "number"}
+          },
+          "additionalProperties": false,
+          "required": ["priorityLevel"]
+        }
+      }
     },
     "statusSchema": {
       "$schema": "http://json-schema.org/draft-07/schema#",
