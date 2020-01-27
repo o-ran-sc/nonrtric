@@ -42,6 +42,7 @@ public class ApplicationConfig {
 
     private Collection<Observer> observers = new Vector<>();
     private Map<String, RicConfig> ricConfigs = new HashMap<>();
+    private Properties dmaapPublisherConfig;
     private Properties dmaapConsumerConfig;
 
     @Autowired
@@ -72,6 +73,10 @@ public class ApplicationConfig {
         throw new ServiceException("Could not find ric: " + ricName);
     }
 
+    public Properties getDmaapPublisherConfig() {
+        return dmaapConsumerConfig;
+    }
+
     public Properties getDmaapConsumerConfig() {
         return dmaapConsumerConfig;
     }
@@ -98,7 +103,8 @@ public class ApplicationConfig {
         }
     }
 
-    public void setConfiguration(@NotNull Collection<RicConfig> ricConfigs, Properties dmaapConsumerConfig) {
+    public void setConfiguration(@NotNull Collection<RicConfig> ricConfigs, Properties dmaapPublisherConfig,
+        Properties dmaapConsumerConfig) {
         Collection<Notification> notifications = new Vector<>();
         synchronized (this) {
             Map<String, RicConfig> newRicConfigs = new HashMap<>();
@@ -123,6 +129,7 @@ public class ApplicationConfig {
         }
         notifyObservers(notifications);
 
+        this.dmaapPublisherConfig = dmaapPublisherConfig;
         this.dmaapConsumerConfig = dmaapConsumerConfig;
     }
 
