@@ -50,31 +50,28 @@ public class StdA1Client implements A1Client {
     }
 
     @Override
-    public Mono<List<String>> getPolicyTypeIdentities() {
-        return restClient.get("/policytypes/identities") //
+    public Mono<List<String>> getPolicyIdentities() {
+        return restClient.get("/policies") //
             .flatMap(this::parseJsonArrayOfString);
     }
 
     @Override
-    public Mono<List<String>> getPolicyIdentities() {
-        return restClient.get("/policies/identities") //
+    public Mono<String> putPolicy(Policy policy) {
+        String url = "/policies/" + policy.id() + "?policyTypeId=" + policy.type().name();
+        return restClient.put(url, policy.json()) //
+            .flatMap(this::validateJson);
+    }
+
+    @Override
+    public Mono<List<String>> getPolicyTypeIdentities() {
+        return restClient.get("/policytypes") //
             .flatMap(this::parseJsonArrayOfString);
     }
 
     @Override
     public Mono<String> getPolicyTypeSchema(String policyTypeId) {
-        Mono<String> response = restClient.get("/policytypes/" + policyTypeId);
-        return response.flatMap(this::createMono);
-    }
-
-    @Override
-    public Mono<String> putPolicy(Policy policy) {
-        // TODO update when simulator is updated to include policy type
-        // Mono<String> response = client.put("/policies/" + policy.id() + "?policyTypeId=" + policy.type().name(),
-        // policy.json());
-        Mono<String> response = restClient.put("/policies/" + policy.id(), policy.json());
-
-        return response.flatMap(this::createMono);
+        return restClient.get("/policytypes/" + policyTypeId) //
+            .flatMap(this::extractPolicySchema);
     }
 
     @Override
@@ -113,12 +110,21 @@ public class StdA1Client implements A1Client {
         }
     }
 
-    private Mono<String> createMono(String inputString) {
+    private Mono<String> extractPolicySchema(String inputString) {
         try {
             JSONObject jsonObject = new JSONObject(inputString);
-            String jsonString = jsonObject.toString();
-            logger.debug("A1 client: received string = {}", jsonString);
-            return Mono.just(jsonString);
+            JSONObject schemaObject = jsonObject.getJSONObject("policySchema");
+            String schemaString = schemaObject.toString();
+            return Mono.just(schemaString);
+        } catch (JSONException ex) { // invalid json
+            return Mono.error(ex);
+        }
+    }
+
+    private Mono<String> validateJson(String inputString) {
+        try {
+            new JSONObject(inputString);
+            return Mono.just(inputString);
         } catch (JSONException ex) { // invalid json
             return Mono.error(ex);
         }

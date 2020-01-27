@@ -21,6 +21,7 @@
 package org.oransc.policyagent.clients;
 
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -51,8 +52,8 @@ import reactor.test.StepVerifier;
 @RunWith(MockitoJUnitRunner.class)
 public class StdA1ClientTest {
     private static final String RIC_URL = "RicUrl";
-    private static final String POLICYTYPES_IDENTITIES_URL = "/policytypes/identities";
-    private static final String POLICIES_IDENTITIES_URL = "/policies/identities";
+    private static final String POLICYTYPES_IDENTITIES_URL = "/policytypes";
+    private static final String POLICIES_IDENTITIES_URL = "/policies";
     private static final String POLICYTYPES_URL = "/policytypes/";
     private static final String POLICIES_URL = "/policies/";
 
@@ -98,8 +99,10 @@ public class StdA1ClientTest {
 
     @Test
     public void testGetValidPolicyType() {
-        when(asyncRestClientMock.get(POLICYTYPES_URL + POLICY_TYPE_1_NAME))
-            .thenReturn(Mono.just(POLICY_TYPE_SCHEMA_VALID));
+        Mono<?> policyTypeResp =
+            Mono.just("{\"policySchema\": " + POLICY_TYPE_SCHEMA_VALID + ", \"statusSchema\": {} }");
+
+        doReturn(policyTypeResp).when(asyncRestClientMock).get(POLICYTYPES_URL + POLICY_TYPE_1_NAME);
 
         Mono<String> policyTypeMono = a1Client.getPolicyTypeSchema(POLICY_TYPE_1_NAME);
         verify(asyncRestClientMock).get(POLICYTYPES_URL + POLICY_TYPE_1_NAME);
@@ -123,7 +126,7 @@ public class StdA1ClientTest {
 
         Mono<String> policyMono =
             a1Client.putPolicy(createPolicy(RIC_URL, POLICY_1_ID, POLICY_JSON_VALID, POLICY_TYPE));
-        verify(asyncRestClientMock).put(POLICIES_URL + POLICY_1_ID, POLICY_JSON_VALID);
+        verify(asyncRestClientMock).put(POLICIES_URL + POLICY_1_ID + "?policyTypeId=" + POLICY_TYPE, POLICY_JSON_VALID);
         StepVerifier.create(policyMono).expectNext(POLICY_JSON_VALID).expectComplete().verify();
     }
 
