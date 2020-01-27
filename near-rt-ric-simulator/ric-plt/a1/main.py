@@ -4,7 +4,8 @@ import json
 import sys
 
 from flask import Flask, escape, request, make_response
-from var_declaration import policy_instances, policy_types, policy_status
+from jsonschema import validate
+from var_declaration import policy_instances, policy_types, policy_status, policy_type_per_instance
 
 app = connexion.App(__name__, specification_dir='.')
 
@@ -25,17 +26,16 @@ def policy_type(policyTypeId):
 
 @app.route('/', methods=['GET'])
 def test():
-  if "STD_QoSNud_0.1.0" in policy_types.keys():
-    return("Something fishy!", 200)
-  else:
-    return(str(list(policy_types.keys())), 200)
+    return("Everything is fine", 200)
 
 @app.route('/deleteinstances', methods=['DELETE'])
 def delete_instances():
   global policy_instances
   global policy_status
+  global policy_type_per_instance
   policy_instances.clear()
   policy_status.clear()
+  policy_type_per_instance.clear()
   return("All policy instances deleted", 200)
 
 @app.route('/deletetypes', methods=['DELETE'])
@@ -47,37 +47,35 @@ def delete_types():
 @app.route('/<string:policyId>/<string:enforceStatus>', methods=['PUT'])
 def set_status(policyId, enforceStatus):
   if policyId in policy_instances.keys():
-    if enforceStatus in ["UNDEFINED", "ENFORCED", "NOT_ENFORCED"]:
-      policy_status.pop(policyId)
-      ps = {}
-      ps["policyId"] = policyId
-      ps["enforceStatus"] = enforceStatus
-      policy_status[policyId] = ps
-      return("Status updated for policy: " + policyId, 200)
-    else:
-      return("enforceStatus should be one of \"UNDEFINED\", \"ENFORCED\" or \"NOT_ENFORCED\"", 400)
-  else:
-    return("The policy id does not correspond to any existing policy instance", 400)
+    policy_type_id = policy_type_per_instance[policyId]
+    status_schema = policy_types[policy_type_id]["statusSchema"]
+    ps = {}
+    ps["policyId"] = policyId
+    ps["enforceStatus"] = enforceStatus
+    try:
+      validate(instance=ps, schema=status_schema)
+    except:
+      return(set_error(None, "The json does not validate against the status schema.", 400, None, None, None, None, None))
+  policy_status.pop(policyId)
+  policy_status[policyId] = ps
+  return("Status updated for policy: " + policyId, 200)
 
 @app.route('/<string:policyId>/<string:enforceStatus>/<string:enforceReason>', methods=['PUT'])
 def set_status_with_reason(policyId, enforceStatus, enforceReason):
   if policyId in policy_instances.keys():
-    if enforceStatus == "NOT_ENFORCED":
-      if enforceReason in ["100", "200", "300", "800"]:
-        policy_status.pop(policyId)
-        ps = {}
-        ps["policyId"] = policyId
-        ps["enforceStatus"] = enforceStatus
-        ps["enforceReason"] = enforceReason
-        policy_status[policyId] = ps
-        return("Status updated for policy: " + policyId, 200)
-      else:
-        return("enforceReason should be one of \"100\", \"200\", \"300\" or \"800\"", 400)
-    else:
-      return("A status provided together with an enforcement reason should be \"NOT_ENFORCED\"", 400)
-  else:
-    return("The policy id does not correspond to any existing policy instance", 404)
-
+    policy_type_id = policy_type_per_instance[policyId]
+    status_schema = policy_types[policy_type_id]["statusSchema"]
+    ps = {}
+    ps["policyId"] = policyId
+    ps["enforceStatus"] = enforceStatus
+    ps["enforceReason"] = enforceReason
+    try:
+      validate(instance=ps, schema=status_schema)
+    except:
+      return(set_error(None, "The json does not validate against the status schema.", 400, None, None, None, None, None))
+  policy_status.pop(policyId)
+  policy_status[policyId] = ps
+  return("Status updated for policy: " + policyId, 200)
 
 port_number = 8085
 if len(sys.argv) >= 2:

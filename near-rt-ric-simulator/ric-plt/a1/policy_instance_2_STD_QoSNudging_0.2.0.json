@@ -1,0 +1,12 @@
+{
+  "scope": {
+    "ueId": "ue2",
+    "groupId": "group2",
+    "sliceId": "slice2",
+    "qosId": "qos2",
+    "cellId": "cell2"
+  },
+  "statement": {
+    "priorityLevel": 5
+  }
+}

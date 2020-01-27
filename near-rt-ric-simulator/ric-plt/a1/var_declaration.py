@@ -3,5 +3,4 @@
 policy_instances = {}
 policy_types = {}
 policy_status = {}
-notification_destination = {}
-notificationDestination = {}
+policy_type_per_instance = {}
