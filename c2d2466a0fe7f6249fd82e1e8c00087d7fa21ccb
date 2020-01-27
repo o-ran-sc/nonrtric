@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ac3d91e8_dde8f40e",
+        "filename": "dashboard/webapp-backend/src/main/java/org/oransc/ric/portal/dashboard/policyagentapi/PolicyAgentApiImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-27T09:57:54Z",
+      "side": 1,
+      "message": "The dashboard frontend is expecting the http code 200 for delete to be successful (file named policy-instance.component.ts). So, either we need to update here to HttpStatus.OK or change the frontend to expect the http code 204 instead of 200.\n\nI would suggest to change the frontend and include it in this commit.",
+      "range": {
+        "startLine": 163,
+        "startChar": 40,
+        "endLine": 163,
+        "endChar": 61
+      },
+      "revId": "c2d2466a0fe7f6249fd82e1e8c00087d7fa21ccb",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    }
+  ]
+}
