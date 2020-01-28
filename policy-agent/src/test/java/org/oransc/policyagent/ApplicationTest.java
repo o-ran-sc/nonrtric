@@ -165,12 +165,12 @@ public class ApplicationTest {
     @Test
     public void testRecovery() throws Exception {
         reset();
-        Policy policy = addPolicy("policyId", "typeName", "service", "ric"); // This should be created in the RIC
         Policy policy2 = addPolicy("policyId2", "typeName", "service", "ric");
 
         getA1Client("ric").putPolicy(policy2); // put it in the RIC
         policies.remove(policy2); // Remove it from the repo -> should be deleted in the RIC
 
+        Policy policy = addPolicy("policyId", "typeName", "service", "ric"); // This should be created in the RIC
         supervision.checkAllRics(); // The created policy should be put in the RIC
         Policies ricPolicies = getA1Client("ric").getPolicies();
         assertThat(ricPolicies.size()).isEqualTo(1);
@@ -419,7 +419,7 @@ public class ApplicationTest {
 
     private static <T> List<T> parseList(String jsonString, Class<T> clazz) {
         List<T> result = new ArrayList<>();
-        JsonArray jsonArr = new JsonParser().parse(jsonString).getAsJsonArray();
+        JsonArray jsonArr = JsonParser.parseString(jsonString).getAsJsonArray();
         for (JsonElement jsonElement : jsonArr) {
             T o = gson.fromJson(jsonElement.toString(), clazz);
             result.add(o);
@@ -428,7 +428,7 @@ public class ApplicationTest {
     }
 
     private static List<String> parseSchemas(String jsonString) {
-        JsonArray arrayOfSchema = new JsonParser().parse(jsonString).getAsJsonArray();
+        JsonArray arrayOfSchema = JsonParser.parseString(jsonString).getAsJsonArray();
         List<String> result = new ArrayList<>();
         for (JsonElement schemaObject : arrayOfSchema) {
             result.add(schemaObject.toString());

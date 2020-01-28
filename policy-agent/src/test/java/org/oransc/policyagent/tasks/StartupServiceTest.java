@@ -41,8 +41,6 @@ import java.util.Vector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.oransc.policyagent.clients.A1Client;
 import org.oransc.policyagent.clients.A1ClientFactory;
@@ -60,7 +58,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(MockitoExtension.class)
-@RunWith(MockitoJUnitRunner.class)
 public class StartupServiceTest {
     private static final String FIRST_RIC_NAME = "first";
     private static final String FIRST_RIC_URL = "firstUrl";
@@ -72,8 +69,6 @@ public class StartupServiceTest {
 
     private static final String POLICY_TYPE_1_NAME = "type1";
     private static final String POLICY_TYPE_2_NAME = "type2";
-    private static final String POLICY_ID_1 = "policy1";
-    private static final String POLICY_ID_2 = "policy2";
 
     ApplicationConfig appConfigMock;
     RefreshConfigTask refreshTaskMock;

@@ -34,7 +34,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import javax.validation.constraints.NotNull;
-
+import lombok.Getter;
 import org.onap.dmaap.mr.test.clients.ProtocolTypeConstants;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.springframework.http.MediaType;
@@ -47,40 +47,28 @@ public class ApplicationConfigParser {
         .serializeNulls() //
         .create(); //
 
-    private Vector<RicConfig> ricConfig;
+    @Getter
+    private Vector<RicConfig> ricConfigs;
+    @Getter
     private Properties dmaapPublisherConfig;
+    @Getter
     private Properties dmaapConsumerConfig;
 
-    public ApplicationConfigParser() {
-    }
-
     public void parse(JsonObject root) throws ServiceException {
-        JsonObject ricConfigJson = root.getAsJsonObject(CONFIG);
-        ricConfig = parseRics(ricConfigJson);
-        JsonObject dmaapPublisherConfigJson = root.getAsJsonObject("streams_publishes");
+        JsonObject agentConfigJson = root.getAsJsonObject(CONFIG);
+        ricConfigs = parseRics(agentConfigJson);
+        JsonObject dmaapPublisherConfigJson = agentConfigJson.getAsJsonObject("streams_publishes");
         if (dmaapPublisherConfigJson == null) {
             dmaapPublisherConfig = new Properties();
         } else {
             dmaapPublisherConfig = parseDmaapConfig(dmaapPublisherConfigJson);
         }
-        JsonObject dmaapConsumerConfigJson = root.getAsJsonObject("streams_subscribes");
+        JsonObject dmaapConsumerConfigJson = agentConfigJson.getAsJsonObject("streams_subscribes");
         if (dmaapConsumerConfigJson == null) {
             dmaapConsumerConfig = new Properties();
         } else {
             dmaapConsumerConfig = parseDmaapConfig(dmaapConsumerConfigJson);
         }
-    }
-
-    public Vector<RicConfig> getRicConfigs() {
-        return this.ricConfig;
-    }
-
-    public Properties getDmaapPublisherConfig() {
-        return dmaapPublisherConfig;
-    }
-
-    public Properties getDmaapConsumerConfig() {
-        return dmaapConsumerConfig;
     }
 
     private Vector<RicConfig> parseRics(JsonObject config) throws ServiceException {

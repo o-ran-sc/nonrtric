@@ -61,7 +61,7 @@ public class MockPolicyAgent {
     }
 
     /**
-     * overrides the BeanFactory
+     * Overrides the BeanFactory.
      */
     @TestConfiguration
     static class TestBeanFactory {
@@ -138,7 +138,7 @@ public class MockPolicyAgent {
     }
 
     private static String title(String jsonSchema) {
-        JsonObject parsedSchema = (JsonObject) new JsonParser().parse(jsonSchema);
+        JsonObject parsedSchema = (JsonObject) JsonParser.parseString(jsonSchema);
         String title = parsedSchema.get("title").getAsString();
         return title;
     }

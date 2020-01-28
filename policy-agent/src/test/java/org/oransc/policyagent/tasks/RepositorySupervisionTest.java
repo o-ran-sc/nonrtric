@@ -35,9 +35,7 @@ import java.util.Vector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.oransc.policyagent.clients.A1Client;
 import org.oransc.policyagent.clients.A1ClientFactory;
@@ -57,7 +55,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(MockitoExtension.class)
-@RunWith(MockitoJUnitRunner.class)
 public class RepositorySupervisionTest {
     @Mock
     A1Client a1ClientMock;
@@ -111,9 +108,6 @@ public class RepositorySupervisionTest {
         PolicyTypes types = new PolicyTypes();
         Services services = new Services();
 
-        RepositorySupervision supervisorUnderTest =
-            new RepositorySupervision(rics, policies, a1ClientFactory, types, services);
-
         Mono<List<String>> policyIds = Mono.just(Arrays.asList("policyId1", "policyId2"));
 
         doReturn(policyIds).when(a1ClientMock).getPolicyTypeIdentities();
@@ -121,6 +115,9 @@ public class RepositorySupervisionTest {
         doReturn(Mono.just("schema")).when(a1ClientMock).getPolicyTypeSchema(anyString());
         doReturn(Mono.just("OK")).when(a1ClientMock).putPolicy(any());
         doReturn(Flux.empty()).when(a1ClientMock).deleteAllPolicies();
+
+        RepositorySupervision supervisorUnderTest =
+            new RepositorySupervision(rics, policies, a1ClientFactory, types, services);
 
         supervisorUnderTest.checkAllRics();
 

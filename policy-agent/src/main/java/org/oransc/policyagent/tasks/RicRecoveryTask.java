@@ -41,7 +41,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Recovery handling of RIC, which means:
+ * Recovery handling of RIC.
+ * This means:
  * - load all policy types
  * - send all policy instances to the RIC
  * --- if that fails remove all policy instances
@@ -68,7 +69,7 @@ public class RicRecoveryTask {
         logger.debug("Handling ric: {}", ric.getConfig().name());
 
         synchronized (ric) {
-            if (ric.getState() == (Ric.RicState.RECOVERING)) {
+            if (ric.getState() == Ric.RicState.RECOVERING) {
                 return; // Already running
             }
             ric.setState(Ric.RicState.RECOVERING);

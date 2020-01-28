@@ -146,8 +146,7 @@ public class RefreshConfigTask {
         ServiceLoader.load(TypeAdapterFactory.class).forEach(gsonBuilder::registerTypeAdapterFactory);
 
         try (InputStream inputStream = createInputStream(filepath)) {
-            JsonParser parser = new JsonParser();
-            JsonObject rootObject = getJsonElement(parser, inputStream).getAsJsonObject();
+            JsonObject rootObject = getJsonElement(inputStream).getAsJsonObject();
             if (rootObject == null) {
                 throw new JsonSyntaxException("Root is not a json object");
             }
@@ -161,8 +160,8 @@ public class RefreshConfigTask {
         }
     }
 
-    JsonElement getJsonElement(JsonParser parser, InputStream inputStream) {
-        return parser.parse(new InputStreamReader(inputStream));
+    JsonElement getJsonElement(InputStream inputStream) {
+        return JsonParser.parseReader(new InputStreamReader(inputStream));
     }
 
     InputStream createInputStream(@NotNull String filepath) throws IOException {

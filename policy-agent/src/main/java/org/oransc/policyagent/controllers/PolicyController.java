@@ -145,7 +145,7 @@ public class PolicyController {
     public Mono<ResponseEntity<Void>> deletePolicy( //
         @RequestParam(name = "instance", required = true) String id) {
         Policy policy = policies.get(id);
-        if (policy != null && policy.ric().getState() == (Ric.RicState.IDLE)) {
+        if (policy != null && policy.ric().getState() == Ric.RicState.IDLE) {
             policies.remove(policy);
             return a1ClientFactory.createA1Client(policy.ric()) //
                 .flatMap(client -> client.deletePolicy(policy)) //
@@ -169,7 +169,7 @@ public class PolicyController {
 
         Ric ric = rics.get(ricName);
         PolicyType type = policyTypes.get(typeName);
-        if (ric != null && type != null && ric.getState() == (Ric.RicState.IDLE)) {
+        if (ric != null && type != null && ric.getState() == Ric.RicState.IDLE) {
             Policy policy = ImmutablePolicy.builder() //
                 .id(instanceId) //
                 .json(jsonBody) //
