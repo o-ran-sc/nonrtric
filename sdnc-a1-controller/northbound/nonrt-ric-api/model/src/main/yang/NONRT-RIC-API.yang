@@ -90,6 +90,9 @@ module A1-ADAPTER-API {
             leaf policy-id {
                 type string;
             }
+            leaf policy-type-id {
+                type string;
+            }
             leaf policy {
                 type string;
             }

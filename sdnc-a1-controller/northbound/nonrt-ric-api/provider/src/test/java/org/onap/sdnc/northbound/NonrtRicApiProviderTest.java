@@ -92,7 +92,7 @@ public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
     GetPolicyTypeIdentitiesInputBuilder inputBuilder = new GetPolicyTypeIdentitiesInputBuilder();
     inputBuilder.setNearRtRicUrl(nearRtRicUrl);
     Whitebox.setInternalState(nonrtRicApiProvider, "restAdapter", restAdapter);
-    String uri = nearRicUrlProvider.getPolicyTypeIdentitiesUrl(inputBuilder.build().getNearRtRicUrl());
+    String uri = nearRicUrlProvider.policyTypesUrl(inputBuilder.build().getNearRtRicUrl());
     List<String> policyTypeIdentities = new ArrayList<>();
     policyTypeIdentities.add(policyTypeId);
     ResponseEntity<Object> getPolicyTypeIdentitiesResponse = new ResponseEntity<>(policyTypeIdentities, HttpStatus.OK);
@@ -107,7 +107,7 @@ public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
     GetPolicyIdentitiesInputBuilder inputBuilder = new GetPolicyIdentitiesInputBuilder();
     inputBuilder.setNearRtRicUrl(nearRtRicUrl);
     Whitebox.setInternalState(nonrtRicApiProvider, "restAdapter", restAdapter);
-    String uri = nearRicUrlProvider.getPolicyIdentitiesUrl(inputBuilder.build().getNearRtRicUrl());
+    String uri = nearRicUrlProvider.policiesUrl(inputBuilder.build().getNearRtRicUrl());
     List<String> policyIdentities = new ArrayList<>();
     policyIdentities.add(policyId);
     ResponseEntity<Object> getPolicyIdentitiesResponse = new ResponseEntity<>(policyIdentities, HttpStatus.OK);
@@ -139,10 +139,11 @@ public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
     String testPolicy = "{}";
     inputBuilder.setNearRtRicUrl(nearRtRicUrl);
     inputBuilder.setPolicyId(policyId);
+    inputBuilder.setPolicyTypeId(policyTypeId);
     inputBuilder.setPolicy(testPolicy);
     Whitebox.setInternalState(nonrtRicApiProvider, "restAdapter", restAdapter);
-    String uri = nearRicUrlProvider.getPolicyUrl(inputBuilder.build().getNearRtRicUrl(),
-            inputBuilder.getPolicyId());
+    String uri = nearRicUrlProvider.putPolicyUrl(inputBuilder.build().getNearRtRicUrl(),
+            inputBuilder.getPolicyId(), inputBuilder.getPolicyTypeId());
     ResponseEntity<String> putPolicyResponse = new ResponseEntity<>(testPolicy, HttpStatus.CREATED);
     when(restAdapter.put(eq(uri), eq(testPolicy), eq(String.class))).thenReturn(putPolicyResponse);
     ListenableFuture<RpcResult<PutPolicyOutput>> result =

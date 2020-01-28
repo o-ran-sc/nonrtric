@@ -82,7 +82,8 @@ public class ControllerA1Client implements A1Client {
         logger.debug("POST getPolicyType inputJsonString = {}", inputJsonString);
 
         return restClient.post("/A1-ADAPTER-API:getPolicyType", inputJsonString) //
-            .flatMap(response -> getValueFromResponse(response, "policy-type"));
+            .flatMap(response -> getValueFromResponse(response, "policy-type")) //
+            .flatMap(this::extractPolicySchema);
     }
 
     @Override
@@ -90,12 +91,14 @@ public class ControllerA1Client implements A1Client {
         JSONObject paramsJson = new JSONObject();
         paramsJson.put("near-rt-ric-url", ricConfig.baseUrl());
         paramsJson.put("policy-id", policy.id());
+        paramsJson.put("policy-type-id", policy.type().name());
         paramsJson.put("policy", policy.json());
         String inputJsonString = createInputJsonString(paramsJson);
         logger.debug("POST putPolicy inputJsonString = {}", inputJsonString);
 
         return restClient.post("/A1-ADAPTER-API:putPolicy", inputJsonString) //
-            .flatMap(response -> getValueFromResponse(response, "returned-policy"));
+            .flatMap(response -> getValueFromResponse(response, "returned-policy")) //
+            .flatMap(this::validateJson);
     }
 
     @Override
@@ -153,6 +156,26 @@ public class ControllerA1Client implements A1Client {
             }
             logger.debug("A1 client: received list = {}", arrayList);
             return Mono.just(arrayList);
+        } catch (JSONException ex) { // invalid json
+            return Mono.error(ex);
+        }
+    }
+
+    private Mono<String> extractPolicySchema(String inputString) {
+        try {
+            JSONObject jsonObject = new JSONObject(inputString);
+            JSONObject schemaObject = jsonObject.getJSONObject("policySchema");
+            String schemaString = schemaObject.toString();
+            return Mono.just(schemaString);
+        } catch (JSONException ex) { // invalid json
+            return Mono.error(ex);
+        }
+    }
+
+    private Mono<String> validateJson(String inputString) {
+        try {
+            new JSONObject(inputString);
+            return Mono.just(inputString);
         } catch (JSONException ex) { // invalid json
             return Mono.error(ex);
         }
