@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2088de53_f919bbc9",
+        "filename": "policy-agent/dpo/blueprints/k8s-policy-agent.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1000211
+      },
+      "writtenOn": "2020-01-28T18:17:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9fea5393_45a71589",
+      "range": {
+        "startLine": 31,
+        "startChar": 14,
+        "endLine": 31,
+        "endChar": 25
+      },
+      "revId": "44b033797476fdedcca13b7f321ef399a85e1bd6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2dc47860_b062679d",
         "filename": "policy-agent/dpo/blueprints/k8s-policy-agent.yaml",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2020-01-28T14:05:24Z",
       "side": 1,
       "message": "Should be \"A1-POLICY-AGENT-READ\".",
+      "range": {
+        "startLine": 34,
+        "startChar": 14,
+        "endLine": 34,
+        "endChar": 18
+      },
+      "revId": "44b033797476fdedcca13b7f321ef399a85e1bd6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00d9cf75_87527ee5",
+        "filename": "policy-agent/dpo/blueprints/k8s-policy-agent.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1000211
+      },
+      "writtenOn": "2020-01-28T18:17:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2dc47860_b062679d",
       "range": {
         "startLine": 34,
         "startChar": 14,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "b06f216a_22c50ae3",
+        "filename": "policy-agent/dpo/blueprints/k8s-policy-agent.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1000211
+      },
+      "writtenOn": "2020-01-28T18:17:38Z",
+      "side": 1,
+      "message": "to in a line with parser, this is not changed for now.",
+      "parentUuid": "6c27752d_6340cd03",
+      "range": {
+        "startLine": 65,
+        "startChar": 87,
+        "endLine": 65,
+        "endChar": 97
+      },
+      "revId": "44b033797476fdedcca13b7f321ef399a85e1bd6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cbdec459_81a9165a",
         "filename": "policy-agent/dpo/blueprints/k8s-policy-agent.yaml",
         "patchSetId": 1
@@ -82,6 +154,30 @@
       "writtenOn": "2020-01-28T14:05:24Z",
       "side": 1,
       "message": "Better call it \"subscribe_topic_name\".",
+      "range": {
+        "startLine": 70,
+        "startChar": 87,
+        "endLine": 70,
+        "endChar": 97
+      },
+      "revId": "44b033797476fdedcca13b7f321ef399a85e1bd6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9dc0c788_ded9e714",
+        "filename": "policy-agent/dpo/blueprints/k8s-policy-agent.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1000211
+      },
+      "writtenOn": "2020-01-28T18:17:38Z",
+      "side": 1,
+      "message": "to in a line with parser, this is not changed for now.",
+      "parentUuid": "cbdec459_81a9165a",
       "range": {
         "startLine": 70,
         "startChar": 87,
