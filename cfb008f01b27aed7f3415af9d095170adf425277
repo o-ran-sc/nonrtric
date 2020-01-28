@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebe367f2_135da1df",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-28T08:55:48Z",
+      "side": 0,
+      "message": "This should be returned in the method \"get_all_policies\"",
+      "range": {
+        "startLine": 98,
+        "startChar": 2,
+        "endLine": 98,
+        "endChar": 44
+      },
+      "revId": "cfb008f01b27aed7f3415af9d095170adf425277",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "11846510_2f28ca65",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-28T08:55:48Z",
+      "side": 0,
+      "message": "This should be returned in the method \"get_all_policytypes\"",
+      "range": {
+        "startLine": 132,
+        "startChar": 2,
+        "endLine": 132,
+        "endChar": 40
+      },
+      "revId": "cfb008f01b27aed7f3415af9d095170adf425277",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    }
+  ]
+}
