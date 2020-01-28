@@ -4,7 +4,7 @@
       "ric": [
          {
             "name": "ric1",
-            "baseUrl": "http://localhost:8080/",
+            "baseUrl": "http://localhost:8085/",
             "managedElementIds": [
                "kista_1",
                "kista_2"
