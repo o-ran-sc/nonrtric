@@ -27,7 +27,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class DmaapMessage {
+public class DmaapRequestMessage {
 
     @NotNull
     private String type;
@@ -35,7 +35,6 @@ public class DmaapMessage {
     private String correlationId;
     @NotNull
     private String target;
-    @NotNull
     private Timestamp timestamp;
     private String apiVersion;
     @NotNull
