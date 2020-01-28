@@ -22,7 +22,6 @@ package org.oransc.policyagent.dmaap;
 
 import java.io.IOException;
 import java.util.Properties;
-import javax.annotation.PostConstruct;
 import org.onap.dmaap.mr.client.MRClientFactory;
 import org.onap.dmaap.mr.client.MRConsumer;
 import org.onap.dmaap.mr.client.response.MRConsumerResponse;
@@ -55,9 +54,9 @@ public class DmaapMessageConsumerImpl implements DmaapMessageConsumer {
     @Scheduled(fixedRate = 1000 * 10) // , initialDelay=60000)
     @Override
     public void run() {
-        /*
-         * if (!alive) { init(); }
-         */
+        if (!alive) {
+            init();
+        }
         if (this.alive) {
             try {
                 Iterable<String> dmaapMsgs = fetchAllMessages();
@@ -85,7 +84,8 @@ public class DmaapMessageConsumerImpl implements DmaapMessageConsumer {
         return response.getActualMessages();
     }
 
-    @PostConstruct
+    // Properties are not loaded in first atempt. Need to fix this and then uncomment the post construct annotation
+    // @PostConstruct
     @Override
     public void init() {
         Properties dmaapConsumerProperties = applicationConfig.getDmaapConsumerConfig();
