@@ -1,0 +1,516 @@
+swagger: '2.0'
+info:
+  description: Api Documentation
+  version: '1.0'
+  title: Api Documentation
+  termsOfService: 'urn:tos'
+  contact: {}
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0'
+host: 'localhost:8081'
+basePath: /
+tags:
+  - name: policy-controller
+    description: Policy Controller
+  - name: ric-repository-controller
+    description: Ric Repository Controller
+  - name: service-controller
+    description: Service Controller
+  - name: status-controller
+    description: Status Controller
+paths:
+  /policies:
+    get:
+      tags:
+        - policy-controller
+      summary: Returns the policies
+      operationId: getPoliciesUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: type
+          in: query
+          description: type
+          required: false
+          type: string
+        - name: ric
+          in: query
+          description: ric
+          required: false
+          type: string
+        - name: service
+          in: query
+          description: service
+          required: false
+          type: string
+      responses:
+        '200':
+          description: Policies
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/PolicyInfo'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /policy:
+    get:
+      tags:
+        - policy-controller
+      summary: Returns a policy configuration
+      operationId: getPolicyUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: instance
+          in: query
+          description: instance
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Policy found
+          schema:
+            type: object
+        '204':
+          description: Policy is not found
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+    put:
+      tags:
+        - policy-controller
+      summary: Put a policy
+      operationId: putPolicyUsingPUT
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: type
+          in: query
+          description: type
+          required: true
+          type: string
+        - name: instance
+          in: query
+          description: instance
+          required: true
+          type: string
+        - name: ric
+          in: query
+          description: ric
+          required: true
+          type: string
+        - name: service
+          in: query
+          description: service
+          required: true
+          type: string
+        - in: body
+          name: jsonBody
+          description: jsonBody
+          required: true
+          schema:
+            type: object
+      responses:
+        '200':
+          description: Policy created or updated
+          schema:
+            type: string
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+    delete:
+      tags:
+        - policy-controller
+      summary: Deletes the policy
+      operationId: deletePolicyUsingDELETE
+      produces:
+        - '*/*'
+      parameters:
+        - name: instance
+          in: query
+          description: instance
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Mono«ResponseEntity«Void»»'
+        '204':
+          description: Policy deleted
+          schema:
+            $ref: '#/definitions/Mono«ResponseEntity«Void»»'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  /policy_schema:
+    get:
+      tags:
+        - policy-controller
+      summary: Returns one policy type schema definition
+      operationId: getPolicySchemaUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: id
+          in: query
+          description: id
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Policy schema
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /policy_schemas:
+    get:
+      tags:
+        - policy-controller
+      summary: Returns policy type schema definitions
+      operationId: getPolicySchemasUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: ric
+          in: query
+          description: ric
+          required: false
+          type: string
+      responses:
+        '200':
+          description: Policy schemas
+          schema:
+            type: array
+            items:
+              type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /policy_types:
+    get:
+      tags:
+        - policy-controller
+      summary: Returns policy types
+      operationId: getPolicyTypesUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: ric
+          in: query
+          description: ric
+          required: false
+          type: string
+      responses:
+        '200':
+          description: Policy type names
+          schema:
+            type: array
+            items:
+              type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /ric:
+    get:
+      tags:
+        - ric-repository-controller
+      summary: Returns the name of a RIC managing one Mananged Element
+      operationId: getRicUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: managedElementId
+          in: query
+          description: managedElementId
+          required: false
+          type: string
+      responses:
+        '200':
+          description: RIC is fond
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: RIC is not fond
+          schema:
+            type: string
+  /rics:
+    get:
+      tags:
+        - ric-repository-controller
+      summary: Returns NearRT RIC information
+      operationId: getRicsUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: policyType
+          in: query
+          description: policyType
+          required: false
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/RicInfo'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /service:
+    put:
+      tags:
+        - service-controller
+      summary: Register a service
+      operationId: putServiceUsingPUT
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - in: body
+          name: registrationInfo
+          description: registrationInfo
+          required: true
+          schema:
+            $ref: '#/definitions/ServiceRegistrationInfo'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: string
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /services:
+    get:
+      tags:
+        - service-controller
+      summary: Returns service information
+      operationId: getServicesUsingGET
+      produces:
+        - '*/*'
+      parameters:
+        - name: name
+          in: query
+          description: name
+          required: false
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ServiceStatus'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+    delete:
+      tags:
+        - service-controller
+      summary: Delete a service
+      operationId: deleteServiceUsingDELETE
+      produces:
+        - '*/*'
+      parameters:
+        - name: name
+          in: query
+          description: name
+          required: true
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: string
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+  /services/keepalive:
+    post:
+      tags:
+        - service-controller
+      summary: Keep the poilicies alive for a service
+      operationId: keepAliveServiceUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - '*/*'
+      parameters:
+        - name: name
+          in: query
+          description: name
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Policies timeout supervision refreshed
+          schema:
+            type: string
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: 'The service is not found, needs re-registration'
+  /status:
+    get:
+      tags:
+        - status-controller
+      summary: Returns status and statistics of the service
+      operationId: getStatusUsingGET
+      produces:
+        - '*/*'
+      responses:
+        '200':
+          description: Service is living
+          schema:
+            type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+definitions:
+  Mono«ResponseEntity«Void»»:
+    type: object
+    title: Mono«ResponseEntity«Void»»
+  Mono«ResponseEntity«string»»:
+    type: object
+    title: Mono«ResponseEntity«string»»
+  PolicyInfo:
+    type: object
+    properties:
+      id:
+        type: string
+        description: identity of the policy
+        allowEmptyValue: false
+      json:
+        type: string
+        description: the configuration of the policy
+        allowEmptyValue: false
+      lastModified:
+        type: string
+        description: 'timestamp, last modification time'
+        allowEmptyValue: false
+      ric:
+        type: string
+        description: identity the target NearRT RIC
+        allowEmptyValue: false
+      service:
+        type: string
+        description: the name of the service owning the policy
+        allowEmptyValue: false
+      type:
+        type: string
+        description: name of the policy type
+        allowEmptyValue: false
+    title: PolicyInfo
+  RicInfo:
+    type: object
+    properties:
+      managedElementIds:
+        type: array
+        description: O1 identities for managed entities
+        allowEmptyValue: false
+        items:
+          type: string
+      name:
+        type: string
+        description: identity of the ric
+        allowEmptyValue: false
+      policyTypes:
+        type: array
+        description: supported policy types
+        allowEmptyValue: false
+        items:
+          type: string
+    title: RicInfo
+  ServiceRegistrationInfo:
+    type: object
+    properties:
+      callbackUrl:
+        type: string
+        description: callback for notifying of RIC recovery
+        allowEmptyValue: false
+      keepAliveIntervalSeconds:
+        type: integer
+        format: int64
+        description: keep alive interval for policies owned by the service. 0 means no timeout supervision. Polcies that are not refreshed within this time are removed
+        allowEmptyValue: false
+      name:
+        type: string
+        description: identity of the service
+        allowEmptyValue: false
+    title: ServiceRegistrationInfo
+  ServiceStatus:
+    type: object
+    properties:
+      keepAliveIntervalSeconds:
+        type: integer
+        format: int64
+        description: policy keep alive timeout
+        allowEmptyValue: false
+      name:
+        type: string
+        description: identity of the service
+        allowEmptyValue: false
+      timeSincePingSeconds:
+        type: integer
+        format: int64
+        description: time since last invocation by the service
+        allowEmptyValue: false
+    title: ServiceStatus
+

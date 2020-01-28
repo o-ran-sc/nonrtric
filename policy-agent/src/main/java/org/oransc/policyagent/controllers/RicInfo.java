@@ -20,18 +20,28 @@
 
 package org.oransc.policyagent.controllers;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.util.Collection;
 
 import org.immutables.gson.Gson;
-import org.immutables.value.Value;
 
-@Value.Immutable
 @Gson.TypeAdapters
-interface RicInfo {
+@ApiModel(value = "RicInfo")
+class RicInfo {
+    @ApiModelProperty(value = "identity of the ric")
+    public final String name;
 
-    public String name();
+    @ApiModelProperty(value = "O1 identities for managed entities")
+    public final Collection<String> managedElementIds;
 
-    public Collection<String> managedElementIds();
+    @ApiModelProperty(value = "supported policy types")
+    public final Collection<String> policyTypes;
 
-    public Collection<String> policyTypes();
+    RicInfo(String name, Collection<String> managedElementIds, Collection<String> policyTypes) {
+        this.name = name;
+        this.managedElementIds = managedElementIds;
+        this.policyTypes = policyTypes;
+    }
 }

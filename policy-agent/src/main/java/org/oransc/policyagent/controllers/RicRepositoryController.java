@@ -60,11 +60,11 @@ public class RicRepositoryController {
      * Example: http://localhost:8080/rics?managedElementId=kista_1
      */
     @GetMapping("/ric")
-    @ApiOperation(value = "Returns the name of a RIC managing one Mananged Element", response = String.class)
+    @ApiOperation(value = "Returns the name of a RIC managing one Mananged Element")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "RIC is fond"), //
-            @ApiResponse(code = 404, message = "RIC is not fond") //
+            @ApiResponse(code = 200, message = "RIC is fond", response = String.class), //
+            @ApiResponse(code = 404, message = "RIC is not fond", response = String.class) //
         })
     public ResponseEntity<String> getRic(
         @RequestParam(name = "managedElementId", required = false, defaultValue = "") String managedElementId) {
@@ -83,10 +83,10 @@ public class RicRepositoryController {
      *         Example: http://localhost:8080/ric
      */
     @GetMapping("/rics")
-    @ApiOperation(value = "Returns defined NearRT RIC:s as Json", response = RicInfo.class)
+    @ApiOperation(value = "Returns NearRT RIC information")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "OK", response = RicInfo.class) //
+            @ApiResponse(code = 200, message = "OK", response = RicInfo.class, responseContainer = "List") //
         })
     public ResponseEntity<String> getRics(
         @RequestParam(name = "policyType", required = false) String supportingPolicyType) {
@@ -95,11 +95,7 @@ public class RicRepositoryController {
         synchronized (rics) {
             for (Ric ric : rics.getRics()) {
                 if (supportingPolicyType == null || ric.isSupportingType(supportingPolicyType)) {
-                    result.add(ImmutableRicInfo.builder() //
-                        .name(ric.name()) //
-                        .managedElementIds(ric.getManagedElementIds()) //
-                        .policyTypes(ric.getSupportedPolicyTypeNames()) //
-                        .build());
+                    result.add(new RicInfo(ric.name(), ric.getManagedElementIds(), ric.getSupportedPolicyTypeNames()));
                 }
             }
         }

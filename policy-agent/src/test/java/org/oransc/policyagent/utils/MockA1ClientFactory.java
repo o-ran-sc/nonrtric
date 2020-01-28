@@ -45,11 +45,6 @@ public class MockA1ClientFactory extends A1ClientFactory {
         return getOrCreateA1Client(ric.name());
     }
 
-    @Override
-    protected A1Client createControllerA1Client(Ric ric) {
-        return getOrCreateA1Client(ric.name());
-    }
-
     public MockA1Client getOrCreateA1Client(String ricName) {
         if (!clients.containsKey(ricName)) {
             logger.debug("Creating client for RIC: {}", ricName);

@@ -76,7 +76,9 @@ public class PolicyController {
 
     @GetMapping("/policy_schemas")
     @ApiOperation(value = "Returns policy type schema definitions")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Policy Types found")})
+    @ApiResponses(
+        value = {
+            @ApiResponse(code = 200, message = "Policy schemas", response = String.class, responseContainer = "List")})
     public ResponseEntity<String> getPolicySchemas(@RequestParam(name = "ric", required = false) String ricName) {
         synchronized (this.policyTypes) {
             if (ricName == null) {
@@ -95,7 +97,7 @@ public class PolicyController {
 
     @GetMapping("/policy_schema")
     @ApiOperation(value = "Returns one policy type schema definition")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Policy Type found")})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Policy schema", response = Object.class)})
     public ResponseEntity<String> getPolicySchema(@RequestParam(name = "id", required = true) String id) {
         try {
             PolicyType type = policyTypes.getType(id);
@@ -107,7 +109,12 @@ public class PolicyController {
 
     @GetMapping("/policy_types")
     @ApiOperation(value = "Returns policy types")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Policy Types found")})
+    @ApiResponses(
+        value = {@ApiResponse(
+            code = 200,
+            message = "Policy type names",
+            response = String.class,
+            responseContainer = "List")})
     public ResponseEntity<String> getPolicyTypes(@RequestParam(name = "ric", required = false) String ricName) {
         synchronized (this.policyTypes) {
             if (ricName == null) {
@@ -125,10 +132,13 @@ public class PolicyController {
     }
 
     @GetMapping("/policy")
-    @ApiOperation(value = "Returns the policy")
+    @ApiOperation(value = "Returns a policy configuration") //
     @ApiResponses(
-        value = {@ApiResponse(code = 200, message = "Policy found"),
-            @ApiResponse(code = 204, message = "Policy is not found")})
+        value = { //
+            @ApiResponse(code = 200, message = "Policy found", response = Object.class), //
+            @ApiResponse(code = 204, message = "Policy is not found")} //
+    )
+
     public ResponseEntity<String> getPolicy( //
         @RequestParam(name = "instance", required = true) String instance) {
         try {
@@ -140,8 +150,8 @@ public class PolicyController {
     }
 
     @DeleteMapping("/policy")
-    @ApiOperation(value = "Deletes the policy")
-    @ApiResponses(value = {@ApiResponse(code = 204, message = "Policy deleted")})
+    @ApiOperation(value = "Deletes the policy", response = Object.class)
+    @ApiResponses(value = {@ApiResponse(code = 204, message = "Policy deleted", response = Object.class)})
     public Mono<ResponseEntity<Void>> deletePolicy( //
         @RequestParam(name = "instance", required = true) String id) {
         Policy policy = policies.get(id);
@@ -158,21 +168,23 @@ public class PolicyController {
     }
 
     @PutMapping(path = "/policy")
-    @ApiOperation(value = "Create the policy")
-    @ApiResponses(value = {@ApiResponse(code = 201, message = "Policy created")})
+    @ApiOperation(value = "Put a policy", response = String.class)
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Policy created or updated")})
     public Mono<ResponseEntity<String>> putPolicy( //
         @RequestParam(name = "type", required = true) String typeName, //
         @RequestParam(name = "instance", required = true) String instanceId, //
         @RequestParam(name = "ric", required = true) String ricName, //
         @RequestParam(name = "service", required = true) String service, //
-        @RequestBody String jsonBody) {
+        @RequestBody Object jsonBody) {
+
+        String jsonString = gson.toJson(jsonBody);
 
         Ric ric = rics.get(ricName);
         PolicyType type = policyTypes.get(typeName);
         if (ric != null && type != null && ric.getState() == Ric.RicState.IDLE) {
             Policy policy = ImmutablePolicy.builder() //
                 .id(instanceId) //
-                .json(jsonBody) //
+                .json(jsonString) //
                 .type(type) //
                 .ric(ric) //
                 .ownerServiceName(service) //
@@ -182,7 +194,7 @@ public class PolicyController {
                 .flatMap(client -> client.putPolicy(policy)) //
                 .doOnNext(notUsed -> policies.put(policy)) //
                 .flatMap(notUsed -> {
-                    return Mono.just(new ResponseEntity<>(HttpStatus.CREATED));
+                    return Mono.just(new ResponseEntity<>(HttpStatus.OK));
                 });
         }
         return Mono.just(new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -190,7 +202,9 @@ public class PolicyController {
 
     @GetMapping("/policies")
     @ApiOperation(value = "Returns the policies")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Policies found")})
+    @ApiResponses(
+        value = {
+            @ApiResponse(code = 200, message = "Policies", response = PolicyInfo.class, responseContainer = "List")})
     public ResponseEntity<String> getPolicies( //
         @RequestParam(name = "type", required = false) String type, //
         @RequestParam(name = "ric", required = false) String ric, //
@@ -237,14 +251,16 @@ public class PolicyController {
     private String policiesToJson(Collection<Policy> policies) {
         Vector<PolicyInfo> v = new Vector<>(policies.size());
         for (Policy p : policies) {
-            PolicyInfo policyInfo = ImmutablePolicyInfo.builder() //
-                .json(p.json()) //
-                .id(p.id()) //
-                .ric(p.ric().name()) //
-                .type(p.type().name()) //
-                .service(p.ownerServiceName()) //
-                .lastModified(p.lastModified()) //
-                .build();
+            PolicyInfo policyInfo = new PolicyInfo();
+            policyInfo.id = p.id();
+            policyInfo.json = p.json();
+            policyInfo.ric = p.ric().name();
+            policyInfo.type = p.type().name();
+            policyInfo.service = p.ownerServiceName();
+            policyInfo.lastModified = p.lastModified();
+            if (!policyInfo.validate()) {
+                throw new RuntimeException("BUG, all fields must be set");
+            }
             v.add(policyInfo);
         }
         return gson.toJson(v);

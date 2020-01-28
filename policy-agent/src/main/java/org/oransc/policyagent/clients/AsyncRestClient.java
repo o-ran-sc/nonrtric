@@ -49,7 +49,7 @@ public class AsyncRestClient {
         return client.post() //
             .uri(uri) //
             .contentType(MediaType.APPLICATION_JSON) //
-            .syncBody(body) //
+            .bodyValue(body) //
             .retrieve() //
             .onStatus(HttpStatus::isError,
                 response -> Mono.error(new AsyncRestClientException(response.statusCode().toString()))) //
@@ -61,7 +61,7 @@ public class AsyncRestClient {
         return client.put() //
             .uri(uri) //
             .contentType(MediaType.APPLICATION_JSON) //
-            .syncBody(body) //
+            .bodyValue(body) //
             .retrieve() //
             .onStatus(HttpStatus::isError,
                 response -> Mono.error(new AsyncRestClientException(response.statusCode().toString()))) //

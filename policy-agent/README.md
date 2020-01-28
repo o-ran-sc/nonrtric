@@ -24,7 +24,7 @@ The REST API is published on port 8081 and it is started by command:
 mvn -Dtest=MockPolicyAgent test
 
 The backend server publishes live API documentation at the
-URL `http://your-host-name-here:8080/swagger-ui.html`
+URL `http://your-host-name-here:8081/swagger-ui.html`
 
 ## License
 
