@@ -22,7 +22,9 @@ package org.oransc.policyagent.dmaap;
 
 import java.io.IOException;
 import java.util.Properties;
+
 import javax.annotation.PostConstruct;
+
 import org.onap.dmaap.mr.client.MRClientFactory;
 import org.onap.dmaap.mr.client.MRConsumer;
 import org.onap.dmaap.mr.client.response.MRConsumerResponse;
@@ -79,7 +81,7 @@ public class DmaapMessageConsumerImpl implements DmaapMessageConsumer {
             logger.debug("DMaaP consumer received {} : {}", response.getResponseCode(), response.getResponseMessage());
             if (!"200".equals(response.getResponseCode())) {
                 logger.error("DMaaP consumer received: {} : {}", response.getResponseCode(),
-                        response.getResponseMessage());
+                    response.getResponseMessage());
             }
         }
         return response.getActualMessages();
@@ -92,7 +94,7 @@ public class DmaapMessageConsumerImpl implements DmaapMessageConsumer {
         Properties dmaapPublisherProperties = applicationConfig.getDmaapPublisherConfig();
         // No need to start if there is no configuration.
         if (dmaapConsumerProperties == null || dmaapPublisherProperties == null || dmaapConsumerProperties.size() == 0
-                || dmaapPublisherProperties.size() == 0) {
+            || dmaapPublisherProperties.size() == 0) {
             logger.error("DMaaP properties Failed to Load");
             return;
         }

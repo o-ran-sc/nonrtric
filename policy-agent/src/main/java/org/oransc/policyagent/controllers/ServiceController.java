@@ -71,7 +71,7 @@ public class ServiceController {
         Collection<ServiceStatus> servicesStatus = new Vector<>();
         synchronized (this.services) {
             for (Service s : this.services.getAll()) {
-                if (name == null || name.equals(s.name())) {
+                if (name == null || name.equals(s.getName())) {
                     servicesStatus.add(toServiceStatus(s));
                 }
             }
@@ -83,7 +83,7 @@ public class ServiceController {
 
     private ServiceStatus toServiceStatus(Service s) {
         return ImmutableServiceStatus.builder() //
-            .name(s.name()) //
+            .name(s.getName()) //
             .keepAliveInterval(s.getKeepAliveInterval().toSeconds()) //
             .timeSincePing(s.timeSinceLastPing().toSeconds()) //
             .build();
@@ -118,14 +118,14 @@ public class ServiceController {
     private Service removeService(String name) throws ServiceException {
         synchronized (this.services) {
             Service service = this.services.getService(name);
-            this.services.remove(service.name());
+            this.services.remove(service.getName());
             return service;
         }
     }
 
     private void removePolicies(Service service) {
         synchronized (this.policies) {
-            Vector<Policy> policyList = new Vector<>(this.policies.getForService(service.name()));
+            Vector<Policy> policyList = new Vector<>(this.policies.getForService(service.getName()));
             for (Policy policy : policyList) {
                 this.policies.remove(policy);
             }

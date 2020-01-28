@@ -124,9 +124,9 @@ public class RepositorySupervisionTest {
 
         supervisorUnderTest.checkAllRics();
 
-        await().untilAsserted(() -> RicState.IDLE.equals(ric1.state()));
-        await().untilAsserted(() -> RicState.IDLE.equals(ric2.state()));
-        await().untilAsserted(() -> RicState.IDLE.equals(ric3.state()));
+        await().untilAsserted(() -> RicState.IDLE.equals(ric1.getState()));
+        await().untilAsserted(() -> RicState.IDLE.equals(ric2.getState()));
+        await().untilAsserted(() -> RicState.IDLE.equals(ric3.getState()));
 
         verify(a1ClientMock, times(3)).deleteAllPolicies();
         verifyNoMoreInteractions(a1ClientMock);

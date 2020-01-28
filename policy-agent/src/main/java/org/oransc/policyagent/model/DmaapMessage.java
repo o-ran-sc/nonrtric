@@ -21,7 +21,9 @@
 package org.oransc.policyagent.model;
 
 import java.sql.Timestamp;
+
 import javax.validation.constraints.NotNull;
+
 import lombok.Getter;
 import lombok.Setter;
 

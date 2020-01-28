@@ -21,6 +21,7 @@
 package org.oransc.policyagent.configuration;
 
 import java.util.concurrent.Executor;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
@@ -34,7 +35,7 @@ public class AsyncConfiguration implements AsyncConfigurer {
     @Override
     @Bean(name = "threadPoolTaskExecutor")
     public Executor getAsyncExecutor() {
-        //Set this configuration value from common properties file
+        // Set this configuration value from common properties file
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(5);
         executor.setMaxPoolSize(10);

@@ -21,8 +21,10 @@
 package org.oransc.policyagent.dmaap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.IOException;
 import java.util.Properties;
+
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -83,18 +85,18 @@ public class DmaapMessageHandler {
             logger.debug("DMAAP Message- {}", dmaapMessage);
             logger.debug("Post Accepted Message to Client");
             restClient
-                    .post("A1-POLICY-AGENT-WRITE", buildDmaapResponse(dmaapMessage.getCorrelationId(),
-                            dmaapMessage.getOriginatorId(), dmaapMessage.getRequestId(), "ACCEPTED", StringUtils.EMPTY))
-                    .block(); //
+                .post("A1-POLICY-AGENT-WRITE", buildDmaapResponse(dmaapMessage.getCorrelationId(),
+                    dmaapMessage.getOriginatorId(), dmaapMessage.getRequestId(), "ACCEPTED", StringUtils.EMPTY))
+                .block(); //
             // Call the Controller
             logger.debug("Invoke the Policy Agent Controller");
             response = invokeController(dmaapMessage);
             // Post the Response message to the DMAAP bus
             logger.debug("DMAAP Response Message to Client- {}", response);
             restClient
-                    .post("A1-POLICY-AGENT-WRITE", buildDmaapResponse(dmaapMessage.getCorrelationId(),
-                            dmaapMessage.getOriginatorId(), dmaapMessage.getRequestId(), "SUCCESS", response.getBody()))
-                    .block(); //
+                .post("A1-POLICY-AGENT-WRITE", buildDmaapResponse(dmaapMessage.getCorrelationId(),
+                    dmaapMessage.getOriginatorId(), dmaapMessage.getRequestId(), "SUCCESS", response.getBody()))
+                .block(); //
         } catch (IOException e) {
             logger.error("Exception occured during message processing", e);
         }
@@ -153,11 +155,11 @@ public class DmaapMessageHandler {
     }
 
     private String buildDmaapResponse(String correlationId, String originatorId, String requestId, String status,
-            String message) {
+        String message) {
         System.out.println("buildResponse ");
         return new JSONObject().put("type", "response").put(correlationId, correlationId).put("timestamp", "")
-                .put("originatorId", originatorId).put("requestId", requestId).put("status", status)
-                .put("message", message).toString();
+            .put("originatorId", originatorId).put("requestId", requestId).put("status", status).put("message", message)
+            .toString();
     }
 
     // @PostConstruct

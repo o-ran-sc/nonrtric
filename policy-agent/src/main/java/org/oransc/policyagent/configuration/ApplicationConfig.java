@@ -29,6 +29,8 @@ import java.util.Vector;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
+import lombok.Getter;
+
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -42,7 +44,9 @@ public class ApplicationConfig {
 
     private Collection<Observer> observers = new Vector<>();
     private Map<String, RicConfig> ricConfigs = new HashMap<>();
+    @Getter
     private Properties dmaapPublisherConfig;
+    @Getter
     private Properties dmaapConsumerConfig;
 
     @Autowired
@@ -71,14 +75,6 @@ public class ApplicationConfig {
             }
         }
         throw new ServiceException("Could not find ric: " + ricName);
-    }
-
-    public Properties getDmaapPublisherConfig() {
-        return dmaapConsumerConfig;
-    }
-
-    public Properties getDmaapConsumerConfig() {
-        return dmaapConsumerConfig;
     }
 
     public static enum RicConfigUpdate {
