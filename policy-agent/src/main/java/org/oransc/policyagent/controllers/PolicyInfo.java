@@ -20,23 +20,38 @@
 
 package org.oransc.policyagent.controllers;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import org.immutables.gson.Gson;
-import org.immutables.value.Value;
 
-@Value.Immutable
 @Gson.TypeAdapters
-interface PolicyInfo {
+@ApiModel(value = "PolicyInfo")
+public class PolicyInfo {
 
-    public String id();
+    @ApiModelProperty(value = "identity of the policy")
+    public String id;
 
-    public String type();
+    @ApiModelProperty(value = "name of the policy type")
+    public String type;
 
-    public String ric();
+    @ApiModelProperty(value = "identity the target NearRT RIC")
+    public String ric;
 
-    public String json();
+    @ApiModelProperty(value = "the configuration of the policy")
+    public String json;
 
-    public String service();
+    @ApiModelProperty(value = "the name of the service owning the policy")
+    public String service;
 
-    public String lastModified();
+    @ApiModelProperty(value = "timestamp, last modification time")
+    public String lastModified;
+
+    PolicyInfo() {
+    }
+
+    public boolean validate() {
+        return id != null && type != null && ric != null && json != null && service != null && lastModified != null;
+    }
 
 }

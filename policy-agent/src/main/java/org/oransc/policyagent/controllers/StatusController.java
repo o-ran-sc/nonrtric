@@ -37,7 +37,7 @@ public class StatusController {
     @ApiOperation(value = "Returns status and statistics of the service")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "Service is living") //
+            @ApiResponse(code = 200, message = "Service is living", response = String.class) //
         })
     public Mono<ResponseEntity<String>> getStatus() {
         Mono<ResponseEntity<String>> response = Mono.just(new ResponseEntity<>("hunky dory", HttpStatus.OK));

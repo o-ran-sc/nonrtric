@@ -21,6 +21,7 @@ package org.oransc.ric.portal.dashboard.controller;
 
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.onap.portalsdk.core.onboarding.util.PortalApiConstants;

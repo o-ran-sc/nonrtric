@@ -20,22 +20,28 @@
 
 package org.oransc.policyagent.controllers;
 
-import com.google.gson.annotations.SerializedName;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 import org.immutables.gson.Gson;
-import org.immutables.value.Value;
 
-@Value.Immutable
 @Gson.TypeAdapters
-public interface ServiceStatus {
+@ApiModel(value = "ServiceStatus")
+public class ServiceStatus {
 
-    @SerializedName("name")
-    public String name();
+    @ApiModelProperty(value = "identity of the service")
+    public final String name;
 
-    @SerializedName("keepAlive")
-    public long keepAliveInterval();
+    @ApiModelProperty(value = "policy keep alive timeout")
+    public final long keepAliveIntervalSeconds;
 
-    @SerializedName("timeSincePing")
-    public long timeSincePing();
+    @ApiModelProperty(value = "time since last invocation by the service")
+    public final long timeSincePingSeconds;
+
+    ServiceStatus(String name, long keepAliveIntervalSeconds, long timeSincePingSeconds) {
+        this.name = name;
+        this.keepAliveIntervalSeconds = keepAliveIntervalSeconds;
+        this.timeSincePingSeconds = timeSincePingSeconds;
+    }
 
 }

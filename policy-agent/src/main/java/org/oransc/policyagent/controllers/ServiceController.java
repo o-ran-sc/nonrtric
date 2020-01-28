@@ -41,6 +41,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -63,8 +64,9 @@ public class ServiceController {
     }
 
     @GetMapping("/services")
-    @ApiOperation(value = "Returns service information", response = ServiceStatus.class)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK")})
+    @ApiOperation(value = "Returns service information")
+    @ApiResponses(
+        value = {@ApiResponse(code = 200, message = "OK", response = ServiceStatus.class, responseContainer = "List")})
     public ResponseEntity<String> getServices( //
         @RequestParam(name = "name", required = false) String name) {
 
@@ -82,25 +84,24 @@ public class ServiceController {
     }
 
     private ServiceStatus toServiceStatus(Service s) {
-        return ImmutableServiceStatus.builder() //
-            .name(s.getName()) //
-            .keepAliveInterval(s.getKeepAliveInterval().toSeconds()) //
-            .timeSincePing(s.timeSinceLastPing().toSeconds()) //
-            .build();
+        return new ServiceStatus(s.getName(), s.getKeepAliveInterval().toSeconds(), s.timeSinceLastPing().toSeconds());
     }
 
+    @ApiOperation(value = "Register a service")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = String.class)})
     @PutMapping("/service")
     public ResponseEntity<String> putService( //
-        @RequestBody String jsonBody) {
+        @RequestBody ServiceRegistrationInfo registrationInfo) {
         try {
-            ServiceRegistrationInfo s = gson.fromJson(jsonBody, ImmutableServiceRegistrationInfo.class);
-            this.services.put(toService(s));
+            this.services.put(toService(registrationInfo));
             return new ResponseEntity<String>("OK", HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<String>(e.getMessage(), HttpStatus.NO_CONTENT);
         }
     }
 
+    @ApiOperation(value = "Delete a service")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK")})
     @DeleteMapping("/services")
     public ResponseEntity<String> deleteService( //
         @RequestParam(name = "name", required = true) String name) {
@@ -112,6 +113,21 @@ public class ServiceController {
             return new ResponseEntity<String>("OK", HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return new ResponseEntity<String>(e.getMessage(), HttpStatus.NO_CONTENT);
+        }
+    }
+
+    @ApiOperation(value = "Keep the poilicies alive for a service")
+    @ApiResponses(
+        value = {@ApiResponse(code = 200, message = "Policies timeout supervision refreshed"),
+            @ApiResponse(code = 404, message = "The service is not found, needs re-registration")})
+    @PostMapping("/services/keepalive")
+    public ResponseEntity<String> keepAliveService( //
+        @RequestParam(name = "name", required = true) String name) {
+        try {
+            services.getService(name).ping();
+            return new ResponseEntity<String>("OK", HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -133,7 +149,7 @@ public class ServiceController {
     }
 
     private Service toService(ServiceRegistrationInfo s) {
-        return new Service(s.name(), Duration.ofSeconds(s.keepAliveInterval()), s.callbackUrl());
+        return new Service(s.name, Duration.ofSeconds(s.keepAliveIntervalSeconds), s.callbackUrl);
     }
 
 }
