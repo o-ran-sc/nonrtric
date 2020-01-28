@@ -23,7 +23,6 @@ package org.oransc.policyagent.dmaap;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Properties;
-import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -79,13 +78,6 @@ public class DmaapMessageHandler {
          */
         try {
             dmaapMessage = mapper.readValue(msg, DmaapMessage.class);
-            // Post the accepted message to the DMAAP bus
-            logger.debug("DMAAP Message- {}", dmaapMessage);
-            logger.debug("Post Accepted Message to Client");
-            restClient
-                    .post("A1-POLICY-AGENT-WRITE", buildDmaapResponse(dmaapMessage.getCorrelationId(),
-                            dmaapMessage.getOriginatorId(), dmaapMessage.getRequestId(), "ACCEPTED", StringUtils.EMPTY))
-                    .block(); //
             // Call the Controller
             logger.debug("Invoke the Policy Agent Controller");
             response = invokeController(dmaapMessage);
@@ -120,7 +112,15 @@ public class DmaapMessageHandler {
             case "getPolicySchema":
                 String policyTypeId = (String) jsonObject.get("id");
                 logger.debug("Received the request for getPolicySchema with Policy Type Id- {}", policyTypeId);
-                System.out.println("policyTypeId" + policyTypeId);
+                //Wait for the A-Adapter call. Based on that this logic will vary
+                /*
+                 * ResponseEntity<String> resp = policyController.getPolicySchema(policyTypeId); if(resp.getStatusCode()
+                 * == HttpStatus.OK) {
+                 *
+                 * } else {
+                 *
+                 * }
+                 */
                 return policyController.getPolicySchema(policyTypeId);
             case "getPolicyTypes":
                 ricName = (String) jsonObject.get("ricName");
@@ -154,7 +154,9 @@ public class DmaapMessageHandler {
 
     private String buildDmaapResponse(String correlationId, String originatorId, String requestId, String status,
             String message) {
-        System.out.println("buildResponse ");
+        logger.debug(
+                "Build the DMAAP Response - correlationId :{},originatorId: {} , requestId: {}, status: {}, message:{}",
+                correlationId, originatorId, requestId, status, message);
         return new JSONObject().put("type", "response").put(correlationId, correlationId).put("timestamp", "")
                 .put("originatorId", originatorId).put("requestId", requestId).put("status", status)
                 .put("message", message).toString();
