@@ -70,6 +70,30 @@
       "revId": "53cbdca50bbf03366afec3e0767268c37fae3394",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d3af486_8a299aed",
+        "filename": "policy-agent/src/test/resources/test_application_configuration_with_dmaap_config.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-01-28T07:14:53Z",
+      "side": 1,
+      "message": "I will fix that in a new commit.",
+      "parentUuid": "9b99424a_1f66f83f",
+      "range": {
+        "startLine": 27,
+        "startChar": 10,
+        "endLine": 27,
+        "endChar": 38
+      },
+      "revId": "53cbdca50bbf03366afec3e0767268c37fae3394",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
