@@ -23,7 +23,10 @@ package org.oransc.policyagent.repository;
 import java.time.Duration;
 import java.time.Instant;
 
+import lombok.Getter;
+
 public class Service {
+    @Getter
     private final String name;
     private final Duration keepAliveInterval;
     private Instant lastPing;
@@ -34,10 +37,6 @@ public class Service {
         this.keepAliveInterval = keepAliveInterval;
         this.callbackUrl = callbackUrl;
         ping();
-    }
-
-    public synchronized String name() {
-        return this.name;
     }
 
     public synchronized Duration getKeepAliveInterval() {

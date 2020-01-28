@@ -100,9 +100,9 @@ public class RepositorySupervision {
     }
 
     private Mono<RicData> checkRicState(RicData ric) {
-        if (ric.ric.state() == RicState.UNDEFINED) {
+        if (ric.ric.getState() == RicState.UNDEFINED) {
             return startRecovery(ric);
-        } else if (ric.ric.state() == RicState.RECOVERING) {
+        } else if (ric.ric.getState() == RicState.RECOVERING) {
             return Mono.empty();
         } else {
             return Mono.just(ric);

@@ -122,7 +122,7 @@ public class StartupServiceTest {
         Ric firstRic = rics.get(FIRST_RIC_NAME);
         assertNotNull(firstRic, "Ric " + FIRST_RIC_NAME + " not added to repository");
         assertEquals(FIRST_RIC_NAME, firstRic.name(), FIRST_RIC_NAME + " not added to Rics");
-        assertEquals(IDLE, firstRic.state(), "Not correct state for ric " + FIRST_RIC_NAME);
+        assertEquals(IDLE, firstRic.getState(), "Not correct state for ric " + FIRST_RIC_NAME);
         assertEquals(1, firstRic.getSupportedPolicyTypes().size(),
             "Not correct no of types supported for ric " + FIRST_RIC_NAME);
         assertTrue(firstRic.isSupportingType(POLICY_TYPE_1_NAME),
@@ -134,7 +134,7 @@ public class StartupServiceTest {
         Ric secondRic = rics.get(SECOND_RIC_NAME);
         assertNotNull(secondRic, "Ric " + SECOND_RIC_NAME + " not added to repository");
         assertEquals(SECOND_RIC_NAME, secondRic.name(), SECOND_RIC_NAME + " not added to Rics");
-        assertEquals(IDLE, secondRic.state(), "Not correct state for " + SECOND_RIC_NAME);
+        assertEquals(IDLE, secondRic.getState(), "Not correct state for " + SECOND_RIC_NAME);
         assertEquals(2, secondRic.getSupportedPolicyTypes().size(),
             "Not correct no of types supported for ric " + SECOND_RIC_NAME);
         assertTrue(secondRic.isSupportingType(POLICY_TYPE_1_NAME),
@@ -161,7 +161,8 @@ public class StartupServiceTest {
         serviceUnderTest.onRicConfigUpdate(getRicConfig(FIRST_RIC_NAME, FIRST_RIC_URL, MANAGED_NODE_A),
             ApplicationConfig.RicConfigUpdate.ADDED);
 
-        assertEquals(RicState.UNDEFINED, rics.get(FIRST_RIC_NAME).state(), "Not correct state for " + FIRST_RIC_NAME);
+        assertEquals(RicState.UNDEFINED, rics.get(FIRST_RIC_NAME).getState(),
+            "Not correct state for " + FIRST_RIC_NAME);
     }
 
     @Test
@@ -181,7 +182,8 @@ public class StartupServiceTest {
         serviceUnderTest.onRicConfigUpdate(getRicConfig(FIRST_RIC_NAME, FIRST_RIC_URL, MANAGED_NODE_A),
             ApplicationConfig.RicConfigUpdate.ADDED);
 
-        assertEquals(RicState.UNDEFINED, rics.get(FIRST_RIC_NAME).state(), "Not correct state for " + FIRST_RIC_NAME);
+        assertEquals(RicState.UNDEFINED, rics.get(FIRST_RIC_NAME).getState(),
+            "Not correct state for " + FIRST_RIC_NAME);
     }
 
     @SafeVarargs

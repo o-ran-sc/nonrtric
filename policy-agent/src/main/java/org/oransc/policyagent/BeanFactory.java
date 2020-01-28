@@ -21,6 +21,7 @@
 package org.oransc.policyagent;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.oransc.policyagent.clients.A1ClientFactory;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.repository.Policies;
@@ -64,7 +65,7 @@ class BeanFactory {
 
     @Bean
     public ObjectMapper mapper() {
-      return new ObjectMapper();
+        return new ObjectMapper();
     }
 
 }
