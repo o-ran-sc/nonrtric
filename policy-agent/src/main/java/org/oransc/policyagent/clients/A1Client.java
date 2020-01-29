@@ -30,7 +30,7 @@ import reactor.core.publisher.Mono;
 public interface A1Client {
 
     public static enum A1ProtocolType {
-        UNKNOWN, STD_V1, OSC_V1, CONTROLLER
+        UNKNOWN, STD_V1, OSC_V1, SDNC_OSC, SDNR_ONAP
     }
 
     public Mono<A1ProtocolType> getProtocolVersion();

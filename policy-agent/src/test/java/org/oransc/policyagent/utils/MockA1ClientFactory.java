@@ -46,7 +46,12 @@ public class MockA1ClientFactory extends A1ClientFactory {
     }
 
     @Override
-    protected A1Client createControllerA1Client(Ric ric) {
+    protected A1Client createSdncOscA1Client(Ric ric) {
+        return getOrCreateA1Client(ric.name());
+    }
+
+    @Override
+    protected A1Client createSdnrOnapA1Client(Ric ric) {
         return getOrCreateA1Client(ric.name());
     }
 
