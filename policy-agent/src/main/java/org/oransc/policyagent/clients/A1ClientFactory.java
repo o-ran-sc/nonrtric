@@ -41,15 +41,18 @@ public class A1ClientFactory {
             return Mono.just(createStdA1ClientImpl(ric));
         } else if (version == A1ProtocolType.OSC_V1) {
             return Mono.just(new OscA1Client(ric.getConfig()));
-        } else if (version == A1ProtocolType.CONTROLLER) {
-            return Mono.just(createControllerA1Client(ric));
+        } else if (version == A1ProtocolType.SDNC_OSC) {
+            return Mono.just(createSdncOscA1Client(ric));
+        } else if (version == A1ProtocolType.SDNR_ONAP) {
+            return Mono.just(createSdnrOnapA1Client(ric));
         }
         return Mono.error(new ServiceException("Not supported protocoltype: " + version));
     }
 
     private Mono<A1Client.A1ProtocolType> getProtocolVersion(Ric ric) {
         if (ric.getProtocolVersion() == A1ProtocolType.UNKNOWN) {
-            return fetchVersion(ric, createControllerA1Client(ric)) //
+            return fetchVersion(ric, createSdnrOnapA1Client(ric)) //
+                .onErrorResume(err -> fetchVersion(ric, createSdncOscA1Client(ric)))
                 .onErrorResume(err -> fetchVersion(ric, new OscA1Client(ric.getConfig())))
                 .onErrorResume(err -> fetchVersion(ric, createStdA1ClientImpl(ric)))
                 .doOnNext(version -> ric.setProtocolVersion(version))
@@ -64,8 +67,12 @@ public class A1ClientFactory {
         return new StdA1Client(ric.getConfig());
     }
 
-    protected A1Client createControllerA1Client(Ric ric) {
-        return new ControllerA1Client(ric.getConfig());
+    protected A1Client createSdncOscA1Client(Ric ric) {
+        return new SdncOscA1Client(ric.getConfig());
+    }
+
+    protected A1Client createSdnrOnapA1Client(Ric ric) {
+        return new SdnrOnapA1Client(ric.getConfig());
     }
 
     private Mono<A1Client.A1ProtocolType> fetchVersion(Ric ric, A1Client a1Client) {
