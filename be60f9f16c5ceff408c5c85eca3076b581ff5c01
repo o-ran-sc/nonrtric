@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "10ba94d2_2f1daefc",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageConsumerImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-01-29T13:37:06Z",
+      "side": 1,
+      "message": "This is only used fetchAllMessages, so it should be a local variable there.",
+      "range": {
+        "startLine": 47,
+        "startChar": 4,
+        "endLine": 47,
+        "endChar": 47
+      },
+      "revId": "be60f9f16c5ceff408c5c85eca3076b581ff5c01",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba416116_397c5295",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageConsumerImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-01-29T13:37:06Z",
+      "side": 1,
+      "message": "I think that this is from the DFC, which could be stopped over a REST call. \nThat is not the case here, so I think all this about alive and stop/start can be removed.",
+      "range": {
+        "startLine": 129,
+        "startChar": 4,
+        "endLine": 131,
+        "endChar": 5
+      },
+      "revId": "be60f9f16c5ceff408c5c85eca3076b581ff5c01",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd73cc4e_bd53c462",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageConsumerImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-01-29T13:37:06Z",
+      "side": 1,
+      "message": "I think this is not needed, it will wait a while before next attempt anyway.",
+      "range": {
+        "startLine": 133,
+        "startChar": 4,
+        "endLine": 140,
+        "endChar": 5
+      },
+      "revId": "be60f9f16c5ceff408c5c85eca3076b581ff5c01",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
