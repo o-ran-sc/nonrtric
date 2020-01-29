@@ -50,17 +50,14 @@ public class DmaapMessageHandler {
     @Autowired
     private PolicyController policyController;
     private AsyncRestClient restClient;
+    @Autowired
     private ApplicationConfig applicationConfig;
     private String topic = "";
-
-    @Autowired
-    public DmaapMessageHandler(ApplicationConfig applicationConfig) {
-        this.applicationConfig = applicationConfig;
-    }
 
     // The publish properties is corrupted. It contains the subscribe property values.
     @Async("threadPoolTaskExecutor")
     public void handleDmaapMsg(String msg) {
+        logger.debug("Message  ---------->{}", msg);
         init();
         DmaapRequestMessage dmaapRequestMessage = null;
         Optional<String> dmaapResponse = null;
@@ -71,7 +68,7 @@ public class DmaapMessageHandler {
          * "apiVersion": "1.0", "originatorId": "849e6c6b420", "requestId": "23343221", "operation": "getPolicySchemas",
          * "payload": "{\"ricName\":\"ric1\"}" }
          *
-         * --------------------------------------------------------------------------------------------------------------
+         * -------------------------------------------------------------------------------------------------------------
          * Sample Response Message to DMAAP {type=response, correlationId=c09ac7d1-de62-0016-2000-e63701125557-201,
          * timestamp=null, originatorId=849e6c6b420, requestId=23343221, status=200 OK, message=[]}
          * -------------------------------------------------------------------------------------------------------------
@@ -162,15 +159,11 @@ public class DmaapMessageHandler {
         return Optional.empty();
     }
 
-    // @PostConstruct
-    // The application properties value is always NULL for the first time
-    // Need to fix this
     public void init() {
         logger.debug("Reading DMAAP Publisher bus details from Application Config");
         Properties dmaapPublisherConfig = applicationConfig.getDmaapPublisherConfig();
         String host = (String) dmaapPublisherConfig.get("ServiceName");
         topic = dmaapPublisherConfig.getProperty("topic");
-        System.out.println("\"Read the topic ---------->" + topic);
         logger.debug("Read the topic & Service Name - {} , {}", host, topic);
         this.restClient = new AsyncRestClient("http://" + host + "/"); // get this value from application config
 

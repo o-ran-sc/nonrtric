@@ -65,7 +65,7 @@ public class StartupService implements ApplicationConfig.Observer {
     @Autowired
     private Services services;
 
-    // Only for unittesting
+    // Only for unit testing
     StartupService(ApplicationConfig appConfig, RefreshConfigTask refreshTask, Rics rics, PolicyTypes policyTypes,
         A1ClientFactory a1ClientFactory, Policies policies, Services services) {
         this.applicationConfig = appConfig;

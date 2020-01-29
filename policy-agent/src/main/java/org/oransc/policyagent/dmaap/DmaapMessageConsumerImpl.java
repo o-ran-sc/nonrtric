@@ -84,8 +84,6 @@ public class DmaapMessageConsumerImpl implements DmaapMessageConsumer {
         return response.getActualMessages();
     }
 
-    // Properties are not loaded in first atempt. Need to fix this and then uncomment the post construct annotation
-    // @PostConstruct
     @Override
     public void init() {
         Properties dmaapConsumerProperties = applicationConfig.getDmaapConsumerConfig();
@@ -98,8 +96,8 @@ public class DmaapMessageConsumerImpl implements DmaapMessageConsumer {
         }
         try {
             logger.debug("Creating DMAAP Client");
-            System.out.println("dmaapConsumerProperties--->"+dmaapConsumerProperties.getProperty("topic"));
-            System.out.println("dmaapPublisherProperties--->"+dmaapPublisherProperties.getProperty("topic"));
+            logger.debug("dmaapConsumerProperties---> {}", dmaapConsumerProperties.getProperty("topic"));
+            logger.debug("dmaapPublisherProperties---> {}", dmaapPublisherProperties.getProperty("topic"));
             consumer = MRClientFactory.createConsumer(dmaapConsumerProperties);
             this.alive = true;
         } catch (IOException e) {

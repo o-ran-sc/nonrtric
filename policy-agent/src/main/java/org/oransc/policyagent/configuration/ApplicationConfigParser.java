@@ -91,13 +91,14 @@ public class ApplicationConfigParser {
         return get(obj, memberName).getAsJsonArray();
     }
 
-    private Properties parseDmaapConfig(JsonObject consumerCfg) throws ServiceException {
-        Set<Entry<String, JsonElement>> topics = consumerCfg.entrySet();
-        if (topics.size() != 1) {
-            throw new ServiceException("Invalid configuration, number of topic must be one, config: " + topics);
+    private Properties parseDmaapConfig(JsonObject streamCfg) throws ServiceException {
+        Set<Entry<String, JsonElement>> streamConfigEntries = streamCfg.entrySet();
+        if (streamConfigEntries.size() != 1) {
+            throw new ServiceException(
+                "Invalid configuration. Number of streams must be one, config: " + streamConfigEntries);
         }
-        JsonObject topic = topics.iterator().next().getValue().getAsJsonObject();
-        JsonObject dmaapInfo = get(topic, "dmaap_info").getAsJsonObject();
+        JsonObject streamConfigEntry = streamConfigEntries.iterator().next().getValue().getAsJsonObject();
+        JsonObject dmaapInfo = get(streamConfigEntry, "dmaap_info").getAsJsonObject();
         String topicUrl = getAsString(dmaapInfo, "topic_url");
 
         Properties dmaapProps = new Properties();
