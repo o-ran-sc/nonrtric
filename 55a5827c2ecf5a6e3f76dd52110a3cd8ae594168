@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a611651_8719107e",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/AsyncRestClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-01-29T10:39:31Z",
+      "side": 1,
+      "message": "Google code style says camel case, \n postWithAuthHeader",
+      "range": {
+        "startLine": 59,
+        "startChar": 26,
+        "endLine": 59,
+        "endChar": 32
+      },
+      "revId": "55a5827c2ecf5a6e3f76dd52110a3cd8ae594168",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b31bc86_2c5d74b7",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/utils/MockA1ClientFactory.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-01-29T10:39:31Z",
+      "side": 1,
+      "message": "These were needed due a timing issue in a test.\nI fixed that in my latest commit (which is not merged yet). \nBut these can be removed.",
+      "range": {
+        "startLine": 48,
+        "startChar": 3,
+        "endLine": 56,
+        "endChar": 5
+      },
+      "revId": "55a5827c2ecf5a6e3f76dd52110a3cd8ae594168",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
