@@ -30,6 +30,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -39,8 +40,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.configuration.ImmutableRicConfig;
 import org.oransc.policyagent.configuration.RicConfig;
-import org.oransc.policyagent.controllers.ImmutableServiceRegistrationInfo;
-import org.oransc.policyagent.controllers.ImmutableServiceStatus;
+import org.oransc.policyagent.controllers.PolicyInfo;
 import org.oransc.policyagent.controllers.ServiceRegistrationInfo;
 import org.oransc.policyagent.controllers.ServiceStatus;
 import org.oransc.policyagent.exceptions.ServiceException;
@@ -53,6 +53,7 @@ import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Rics;
 import org.oransc.policyagent.repository.Services;
+import org.oransc.policyagent.repository.Ric.RicState;
 import org.oransc.policyagent.tasks.RepositorySupervision;
 import org.oransc.policyagent.utils.MockA1Client;
 import org.oransc.policyagent.utils.MockA1ClientFactory;
@@ -63,10 +64,18 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatus.Series;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
+
+import static org.awaitility.Awaitility.await;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -141,11 +150,26 @@ public class ApplicationTest {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
+    public class RestTemplateResponseErrorHandler implements ResponseErrorHandler {
+
+        @Override
+        public boolean hasError(ClientHttpResponse httpResponse) throws IOException {
+            return (httpResponse.getStatusCode().series() == Series.CLIENT_ERROR
+                || httpResponse.getStatusCode().series() == Series.SERVER_ERROR);
+        }
+
+        @Override
+        public void handleError(ClientHttpResponse httpResponse) throws IOException {
+            System.out.println("Error " + httpResponse.toString());
+        }
+    }
+
     private void reset() {
         rics.clear();
         policies.clear();
         policyTypes.clear();
         assertThat(policies.size()).isEqualTo(0);
+        restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
     }
 
     @Test
@@ -172,6 +196,8 @@ public class ApplicationTest {
 
         Policy policy = addPolicy("policyId", "typeName", "service", "ric"); // This should be created in the RIC
         supervision.checkAllRics(); // The created policy should be put in the RIC
+        await().untilAsserted(() -> RicState.IDLE.equals(rics.getRic("ric").getState()));
+
         Policies ricPolicies = getA1Client("ric").getPolicies();
         assertThat(ricPolicies.size()).isEqualTo(1);
         Policy ricPolicy = ricPolicies.get("policyId");
@@ -191,21 +217,20 @@ public class ApplicationTest {
 
         String rsp = this.restTemplate.getForObject(url, String.class);
         System.out.println(rsp);
-
         assertThat(rsp).isEqualTo("ric1");
     }
 
     @Test
     public void testPutPolicy() throws Exception {
+        reset();
         putService("service1");
+        addPolicyType("type1", "ric1");
 
         String url = baseUrl() + "/policy?type=type1&instance=instance1&ric=ric1&service=service1";
-        String json = "{}";
-        addPolicyType("type1", "ric1");
+        final String json = jsonString();
         this.rics.getRic("ric1").setState(Ric.RicState.IDLE);
 
-        this.restTemplate.put(url, json);
-
+        this.restTemplate.put(url, createJsonHttpEntity(json));
         Policy policy = policies.getPolicy("instance1");
 
         assertThat(policy).isNotNull();
@@ -243,10 +268,33 @@ public class ApplicationTest {
         return ric;
     }
 
+    private String createServiceJson(String name) {
+        ServiceRegistrationInfo service = new ServiceRegistrationInfo(name, 1, "callbackUrl");
+
+        String json = gson.toJson(service);
+        return json;
+    }
+
+    HttpEntity<String> createJsonHttpEntity(String content) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return new HttpEntity<String>(content, headers);
+    }
+
+    private void putService(String name) {
+        String url = baseUrl() + "/service";
+        HttpEntity<String> entity = createJsonHttpEntity(createServiceJson(name));
+        this.restTemplate.put(url, entity);
+    }
+
+    private String jsonString() {
+        return "{\n  \"servingCellNrcgi\": \"1\"\n }";
+    }
+
     private Policy addPolicy(String id, String typeName, String service, String ric) throws ServiceException {
         addRic(ric);
         Policy p = ImmutablePolicy.builder().id(id) //
-            .json("{}") //
+            .json(jsonString()) //
             .ownerServiceName(service) //
             .ric(rics.getRic(ric)) //
             .type(addPolicyType(typeName, ric)) //
@@ -346,12 +394,16 @@ public class ApplicationTest {
     public void testGetPolicies() throws Exception {
         String url = baseUrl() + "/policies";
         addPolicy("id1", "type1", "service1");
-        addPolicy("id2", "type2", "service2");
 
         String rsp = this.restTemplate.getForObject(url, String.class);
         System.out.println(rsp);
-        assertThat(rsp).contains("id1");
-        assertThat(rsp).contains("id2");
+        List<PolicyInfo> info = parseList(rsp, PolicyInfo.class);
+        assertThat(info).size().isEqualTo(1);
+        PolicyInfo policyInfo = info.get(0);
+        assert (policyInfo.validate());
+        assertThat(policyInfo.id).isEqualTo("id1");
+        assertThat(policyInfo.type).isEqualTo("type1");
+        assertThat(policyInfo.service).isEqualTo("service1");
     }
 
     @Test
@@ -375,34 +427,20 @@ public class ApplicationTest {
         assertFalse(rsp.contains("id3"));
     }
 
-    private String createServiceJson(String name) {
-        ServiceRegistrationInfo service = ImmutableServiceRegistrationInfo.builder() //
-            .keepAliveInterval(1) //
-            .name(name) //
-            .callbackUrl("callbackUrl") //
-            .build();
-        String json = gson.toJson(service);
-        return json;
-    }
-
-    private void putService(String name) {
-        String url = baseUrl() + "/service";
-        this.restTemplate.put(url, createServiceJson(name));
-    }
-
     @Test
     public void testPutAndGetService() throws Exception {
+        reset();
         // PUT
         putService("name");
 
         // GET
         String url = baseUrl() + "/services?name=name";
         String rsp = this.restTemplate.getForObject(url, String.class);
-        List<ImmutableServiceStatus> info = parseList(rsp, ImmutableServiceStatus.class);
+        List<ServiceStatus> info = parseList(rsp, ServiceStatus.class);
         assertThat(info.size() == 1);
         ServiceStatus status = info.iterator().next();
-        assertThat(status.keepAliveInterval() == 1);
-        assertThat(status.name().equals("name"));
+        assertThat(status.keepAliveIntervalSeconds == 1);
+        assertThat(status.name.equals("name"));
 
         // GET (all)
         url = baseUrl() + "/services";
@@ -410,11 +448,21 @@ public class ApplicationTest {
         assertThat(rsp.contains("name"));
         System.out.println(rsp);
 
+        // Keep alive
+        url = baseUrl() + "/services/keepalive?name=name";
+        rsp = this.restTemplate.postForObject(url, null, String.class);
+        assertThat(rsp.contains("OK"));
+
         // DELETE
         assertThat(services.size() == 1);
         url = baseUrl() + "/services?name=name";
         this.restTemplate.delete(url);
         assertThat(services.size() == 0);
+
+        // Keep alive, no registerred service
+        url = baseUrl() + "/services/keepalive?name=nameXXX";
+        ResponseEntity<String> entity = this.restTemplate.postForEntity(url, null, String.class);
+        assertThat(entity.getStatusCode().equals(HttpStatus.NOT_FOUND));
     }
 
     private static <T> List<T> parseList(String jsonString, Class<T> clazz) {

@@ -20,17 +20,33 @@
 
 package org.oransc.policyagent.controllers;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import org.immutables.gson.Gson;
-import org.immutables.value.Value;
 
-@Value.Immutable
 @Gson.TypeAdapters
-public interface ServiceRegistrationInfo {
+@ApiModel(value = "ServiceRegistrationInfo")
+public class ServiceRegistrationInfo {
 
-    public String name();
+    @ApiModelProperty(value = "identity of the service")
+    public String name;
 
-    public long keepAliveInterval();
+    @ApiModelProperty(
+        value = "keep alive interval for policies owned by the service. 0 means no timeout supervision."
+            + " Polcies that are not refreshed within this time are removed")
+    public long keepAliveIntervalSeconds;
 
-    public String callbackUrl();
+    @ApiModelProperty(value = "callback for notifying of RIC recovery")
+    public String callbackUrl;
+
+    public ServiceRegistrationInfo() {
+    }
+
+    public ServiceRegistrationInfo(String name, long keepAliveIntervalSeconds, String callbackUrl) {
+        this.name = name;
+        this.keepAliveIntervalSeconds = keepAliveIntervalSeconds;
+        this.callbackUrl = callbackUrl;
+    }
 
 }

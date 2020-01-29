@@ -43,12 +43,12 @@ public class Service {
         return this.keepAliveInterval;
     }
 
-    private synchronized void ping() {
+    public synchronized void ping() {
         this.lastPing = Instant.now();
     }
 
     public synchronized boolean isExpired() {
-        return timeSinceLastPing().compareTo(this.keepAliveInterval) > 0;
+        return this.keepAliveInterval.getSeconds() > 0 && timeSinceLastPing().compareTo(this.keepAliveInterval) > 0;
     }
 
     public synchronized Duration timeSinceLastPing() {
