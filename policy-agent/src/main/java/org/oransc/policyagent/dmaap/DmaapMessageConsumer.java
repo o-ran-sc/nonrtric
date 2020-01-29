@@ -50,11 +50,6 @@ public interface DmaapMessageConsumer {
     public boolean isAlive();
 
     /**
-     * To Stop the DMAAP Listener
-     */
-    public void stopConsumer();
-
-    /**
      * It's a infinite loop run every configured seconds to fetch the message from DMAAP. This method can be stop by
      * setting the alive flag to false
      */

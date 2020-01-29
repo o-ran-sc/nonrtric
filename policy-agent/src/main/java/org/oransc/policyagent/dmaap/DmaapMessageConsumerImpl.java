@@ -22,6 +22,8 @@ package org.oransc.policyagent.dmaap;
 
 import java.io.IOException;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import org.onap.dmaap.mr.client.MRClientFactory;
 import org.onap.dmaap.mr.client.MRConsumer;
 import org.onap.dmaap.mr.client.response.MRConsumerResponse;
@@ -42,16 +44,18 @@ public class DmaapMessageConsumerImpl implements DmaapMessageConsumer {
     private boolean alive = false;
     private final ApplicationConfig applicationConfig;
     protected MRConsumer consumer;
-    private MRConsumerResponse response = null;
     @Autowired
     private DmaapMessageHandler dmaapMessageHandler;
+    private final long FETCHTIMEOUT = 30000;
+
+    private CountDownLatch sleep = new CountDownLatch(1);
 
     @Autowired
     public DmaapMessageConsumerImpl(ApplicationConfig applicationConfig) {
         this.applicationConfig = applicationConfig;
     }
 
-    @Scheduled(fixedRate = 1000 * 10) // , initialDelay=60000)
+    @Scheduled(fixedRate = 1000 * 10)
     @Override
     public void run() {
         if (!alive) {
@@ -60,9 +64,11 @@ public class DmaapMessageConsumerImpl implements DmaapMessageConsumer {
         if (this.alive) {
             try {
                 Iterable<String> dmaapMsgs = fetchAllMessages();
-                logger.debug("Fetched all the messages from DMAAP and will start to process the messages");
-                for (String msg : dmaapMsgs) {
-                    processMsg(msg);
+                if (dmaapMsgs != null) {
+                    logger.debug("Fetched all the messages from DMAAP and will start to process the messages");
+                    for (String msg : dmaapMsgs) {
+                        processMsg(msg);
+                    }
                 }
             } catch (Exception e) {
                 logger.error("{}: cannot fetch because of ", this, e.getMessage(), e);
@@ -71,15 +77,17 @@ public class DmaapMessageConsumerImpl implements DmaapMessageConsumer {
     }
 
     private Iterable<String> fetchAllMessages() {
-        response = consumer.fetchWithReturnConsumerResponse();
-        if (response == null) {
+        MRConsumerResponse response = null;
+        try {
+            response = consumer.fetchWithReturnConsumerResponse();
+        } catch (Exception e) {
+            logger.error("Failed to get message from DMAAP", e);
+        }
+        if (response == null || !"200".equals(response.getResponseCode())) {
             logger.warn("{}: DMaaP NULL response received", this);
+            sleepAfterFailure();
         } else {
             logger.debug("DMaaP consumer received {} : {}", response.getResponseCode(), response.getResponseMessage());
-            if (!"200".equals(response.getResponseCode())) {
-                logger.error("DMaaP consumer received: {} : {}", response.getResponseCode(),
-                        response.getResponseMessage());
-            }
         }
         return response.getActualMessages();
     }
@@ -117,8 +125,12 @@ public class DmaapMessageConsumerImpl implements DmaapMessageConsumer {
         return alive;
     }
 
-    @Override
-    public void stopConsumer() {
-        alive = false;
+    private void sleepAfterFailure() {
+        logger.warn("DMAAP message Consumer is put to Sleep for {} milliseconds", FETCHTIMEOUT);
+        try {
+            sleep.await(FETCHTIMEOUT, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            logger.error("Failed to put the thread to sleep: {}", e);
+        }
     }
 }

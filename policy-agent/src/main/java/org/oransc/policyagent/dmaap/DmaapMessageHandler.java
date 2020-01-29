@@ -45,6 +45,7 @@ public class DmaapMessageHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(DmaapMessageHandler.class);
 
+    private boolean initialize = false;
     @Autowired
     private ObjectMapper mapper;
     @Autowired
@@ -58,7 +59,9 @@ public class DmaapMessageHandler {
     @Async("threadPoolTaskExecutor")
     public void handleDmaapMsg(String msg) {
         logger.debug("Message  ---------->{}", msg);
-        init();
+        if (!initialize) {
+            init();
+        }
         DmaapRequestMessage dmaapRequestMessage = null;
         Optional<String> dmaapResponse = null;
         // Process the message
@@ -166,6 +169,7 @@ public class DmaapMessageHandler {
         topic = dmaapPublisherConfig.getProperty("topic");
         logger.debug("Read the topic & Service Name - {} , {}", host, topic);
         this.restClient = new AsyncRestClient("http://" + host + "/"); // get this value from application config
+        initialize = true;
 
     }
 }
