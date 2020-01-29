@@ -25,6 +25,74 @@
     },
     {
       "key": {
+        "uuid": "aac4204c_a24c2633",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/AsyncRestClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1000112
+      },
+      "writtenOn": "2020-01-29T10:41:21Z",
+      "side": 1,
+      "message": "Can\u0027t we have just one post method that takes uri,body,header and if the header is empty or null the logic will not set the value. So that we avoid the code duplication.",
+      "revId": "55a5827c2ecf5a6e3f76dd52110a3cd8ae594168",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30af7f30_1ebe9e3a",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdncOscA1Client.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1000112
+      },
+      "writtenOn": "2020-01-29T10:41:21Z",
+      "side": 1,
+      "message": "Same as other comment",
+      "revId": "55a5827c2ecf5a6e3f76dd52110a3cd8ae594168",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "79175f07_687ac514",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdncOscA1Client.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1000112
+      },
+      "writtenOn": "2020-01-29T10:41:21Z",
+      "side": 1,
+      "message": "Aren\u0027t we duplicating this logic in multiple Clients? Why don\u0027t we ask the client to create the input before passing to deletePolicy or any operation in this class?",
+      "revId": "55a5827c2ecf5a6e3f76dd52110a3cd8ae594168",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d42a11f0_df88c09b",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdnrOnapA1Client.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1000112
+      },
+      "writtenOn": "2020-01-29T10:41:21Z",
+      "side": 1,
+      "message": "It is good to have url, credentials to the application config json file",
+      "revId": "55a5827c2ecf5a6e3f76dd52110a3cd8ae594168",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1b31bc86_2c5d74b7",
         "filename": "policy-agent/src/test/java/org/oransc/policyagent/utils/MockA1ClientFactory.java",
         "patchSetId": 1
