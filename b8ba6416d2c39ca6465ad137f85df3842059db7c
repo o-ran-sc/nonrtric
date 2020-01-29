@@ -1,0 +1,228 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b65ce7ce_30aec2f7",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2020-01-29T11:53:29Z",
+      "side": 1,
+      "message": "Yaml seem to include policy type as optional parameter",
+      "range": {
+        "startLine": 14,
+        "startChar": 4,
+        "endLine": 14,
+        "endChar": 32
+      },
+      "revId": "b8ba6416d2c39ca6465ad137f85df3842059db7c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b48ce3f8_da171fd4",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2020-01-29T11:53:29Z",
+      "side": 1,
+      "message": "Should validate towards the status schema",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 74,
+        "endChar": 11
+      },
+      "revId": "b8ba6416d2c39ca6465ad137f85df3842059db7c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26f04b4a_fa9a6fc4",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2020-01-29T11:53:29Z",
+      "side": 1,
+      "message": "Perhaps remove the instance from policy_type_per_instance as well.",
+      "range": {
+        "startLine": 84,
+        "startChar": 0,
+        "endLine": 84,
+        "endChar": 28
+      },
+      "revId": "b8ba6416d2c39ca6465ad137f85df3842059db7c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "095d8b26_ca6d7bee",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2020-01-29T11:53:29Z",
+      "side": 1,
+      "message": "Should validate towards the status schema",
+      "range": {
+        "startLine": 92,
+        "startChar": 0,
+        "endLine": 100,
+        "endChar": 12
+      },
+      "revId": "b8ba6416d2c39ca6465ad137f85df3842059db7c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "994750c1_f3ab02a2",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2020-01-29T11:53:29Z",
+      "side": 1,
+      "message": "Not needed now I think.",
+      "range": {
+        "startLine": 102,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 24
+      },
+      "revId": "b8ba6416d2c39ca6465ad137f85df3842059db7c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40ec52bd_b16ece64",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/policy_instance_1_STD_QoSNudging_0.2.0.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2020-01-29T11:53:29Z",
+      "side": 1,
+      "message": "Should this be the policy only (scope + statement) validating towards the policy type schema?",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 1
+      },
+      "revId": "b8ba6416d2c39ca6465ad137f85df3842059db7c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "667603b3_1947effe",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/policy_instance_1_bis_STD_QoSNudging_0.2.0.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2020-01-29T11:53:29Z",
+      "side": 1,
+      "message": "Should this be the policy only (scope + statement) validating towards the policy type schema?",
+      "revId": "b8ba6416d2c39ca6465ad137f85df3842059db7c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52225fdf_785fb00b",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/policy_instance_2_STD_QoSNudging_0.2.0.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2020-01-29T11:53:29Z",
+      "side": 1,
+      "message": "Should this be the policy only (scope + statement) validating towards the policy type schema?",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 1
+      },
+      "revId": "b8ba6416d2c39ca6465ad137f85df3842059db7c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be9f1582_3f639d87",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/policy_type_STD_QoSNudging_0.1.0.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2020-01-29T11:53:29Z",
+      "side": 1,
+      "message": "Should be two separate schemas. Ok to combine in one file for easy handling with curl.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 1
+      },
+      "revId": "b8ba6416d2c39ca6465ad137f85df3842059db7c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06f17fdf_ebb815db",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/policy_type_STD_QoSNudging_0.2.0.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2020-01-29T11:53:29Z",
+      "side": 1,
+      "message": "Should be two separate schemas. Ok to combine in one file for easy handling with curl.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 1
+      },
+      "revId": "b8ba6416d2c39ca6465ad137f85df3842059db7c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
