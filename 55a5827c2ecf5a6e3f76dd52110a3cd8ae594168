@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "686b9ee1_92890cc0",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/AsyncRestClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-29T11:57:55Z",
+      "side": 1,
+      "message": "That\u0027s what I thought as well. But I am not sure how can I include the \"if condition\" for headers in this single return statement. If we combine two return statements from both methods into a single method, still we would have code duplication.\n\nIf you have any idea, please suggest.",
+      "parentUuid": "aac4204c_a24c2633",
+      "revId": "55a5827c2ecf5a6e3f76dd52110a3cd8ae594168",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "30af7f30_1ebe9e3a",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdncOscA1Client.java",
         "patchSetId": 1
@@ -76,6 +94,24 @@
     },
     {
       "key": {
+        "uuid": "5f23852a_5c17d5ef",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdncOscA1Client.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-29T11:57:55Z",
+      "side": 1,
+      "message": "I am not sure if I understand your point here.\n\nBut this input json string is only used by SDNC/SDNR clients and requires to be in this particular format. Other clients (STD/OSC) directly put the policy.json(), and don\u0027t need any json for delete operation at all.",
+      "parentUuid": "79175f07_687ac514",
+      "revId": "55a5827c2ecf5a6e3f76dd52110a3cd8ae594168",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d42a11f0_df88c09b",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdnrOnapA1Client.java",
         "patchSetId": 1
@@ -87,6 +123,24 @@
       "writtenOn": "2020-01-29T10:41:21Z",
       "side": 1,
       "message": "It is good to have url, credentials to the application config json file",
+      "revId": "55a5827c2ecf5a6e3f76dd52110a3cd8ae594168",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9ad8e2c_b5752d6f",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdnrOnapA1Client.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-29T11:57:55Z",
+      "side": 1,
+      "message": "Since these are constants (the URL, port, credentials), I don\u0027t see the need for making them configurable and including in config json file. I think it would be confusing for people who are not aware about the controller implementation.",
+      "parentUuid": "d42a11f0_df88c09b",
       "revId": "55a5827c2ecf5a6e3f76dd52110a3cd8ae594168",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
