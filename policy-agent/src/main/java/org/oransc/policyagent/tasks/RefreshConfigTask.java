@@ -81,9 +81,9 @@ public class RefreshConfigTask {
         stop();
         loadConfigurationFromFile();
         refreshTask = createRefreshTask() //
-            .subscribe(notUsed -> logger.info("Refreshed configuration data"),
+            .subscribe(notUsed -> logger.debug("Refreshed configuration data"),
                 throwable -> logger.error("Configuration refresh terminated due to exception", throwable),
-                () -> logger.error("Configuration refresh terminated"));
+                () -> logger.debug("Configuration refresh completed"));
     }
 
     public void stop() {
