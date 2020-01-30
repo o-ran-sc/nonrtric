@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "745c6d8d_7ce160d4",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-30T09:01:26Z",
+      "side": 1,
+      "message": "this should be policyTypeId according to yaml (with small p)",
+      "range": {
+        "startLine": 17,
+        "startChar": 8,
+        "endLine": 17,
+        "endChar": 20
+      },
+      "revId": "f9c9ff16265992785afb93b6bff03d57108f1901",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d4f6dee3_fff5eed5",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-30T09:01:26Z",
+      "side": 1,
+      "message": "same as other comment, also need to update this in commands file",
+      "range": {
+        "startLine": 18,
+        "startChar": 37,
+        "endLine": 18,
+        "endChar": 49
+      },
+      "revId": "f9c9ff16265992785afb93b6bff03d57108f1901",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bcf4599a_2bb0867b",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/policy_type_STD_QoSNudging_0.2.0.json",
+        "patchSetId": 4
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-01-30T09:01:26Z",
+      "side": 1,
+      "message": "This must be updated to:\n\"title\": \"STD_QoSNudging_0.2.0\",\n\"description\": \"QoS policy type\"\n\nThe dashboard considers this \"title\" to be the policyTypeId, and there is actually no policyTypeId with the name \"policySchema\". That was the reason why dashboard was not behaving properly.",
+      "range": {
+        "startLine": 4,
+        "startChar": 4,
+        "endLine": 5,
+        "endChar": 34
+      },
+      "revId": "f9c9ff16265992785afb93b6bff03d57108f1901",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    }
+  ]
+}
