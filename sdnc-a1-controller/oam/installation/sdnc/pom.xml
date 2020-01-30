@@ -63,28 +63,7 @@
     <dependencies>
         <dependency>
             <groupId>org.onap.sdnc.northbound</groupId>
-            <artifactId>generic-resource-api-installer</artifactId>
-            <version>${sdnc.northbound.version}</version>
-            <classifier>repo</classifier>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.onap.sdnc.northbound</groupId>
             <artifactId>nonrt-ric-api-installer</artifactId>
-            <version>${sdnc.northbound.version}</version>
-            <classifier>repo</classifier>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.onap.sdnc.northbound</groupId>
-            <artifactId>vnfapi-installer</artifactId>
-            <version>${sdnc.northbound.version}</version>
-            <classifier>repo</classifier>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.onap.sdnc.northbound</groupId>
-            <artifactId>vnftools-installer</artifactId>
             <version>${sdnc.northbound.version}</version>
             <classifier>repo</classifier>
             <type>zip</type>
@@ -96,7 +75,6 @@
             <classifier>repo</classifier>
             <type>zip</type>
         </dependency>
-
         <dependency>
             <groupId>org.onap.ccsdk.features.sdnr.northbound</groupId>
             <artifactId>oofpcipoc-installer</artifactId>
@@ -104,7 +82,6 @@
             <classifier>repo</classifier>
             <type>zip</type>
         </dependency>
-
         <dependency>
             <groupId>org.onap.ccsdk.features.sdnr.northbound</groupId>
             <artifactId>sdnr-northbound-features-installer</artifactId>
