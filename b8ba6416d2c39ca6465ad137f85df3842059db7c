@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "cff90301_ff598c1c",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-01-30T15:22:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b65ce7ce_30aec2f7",
+      "range": {
+        "startLine": 14,
+        "startChar": 4,
+        "endLine": 14,
+        "endChar": 32
+      },
+      "revId": "b8ba6416d2c39ca6465ad137f85df3842059db7c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b48ce3f8_da171fd4",
         "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2020-01-29T11:53:29Z",
       "side": 1,
       "message": "Should validate towards the status schema",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 74,
+        "endChar": 11
+      },
+      "revId": "b8ba6416d2c39ca6465ad137f85df3842059db7c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d03b07d_c3023b50",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-01-30T15:22:33Z",
+      "side": 1,
+      "message": "validate added in put_policy, but impossible to use if policy type is not provided.",
+      "parentUuid": "b48ce3f8_da171fd4",
       "range": {
         "startLine": 55,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "13b65f73_4c56be29",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-01-30T15:22:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26f04b4a_fa9a6fc4",
+      "range": {
+        "startLine": 84,
+        "startChar": 0,
+        "endLine": 84,
+        "endChar": 28
+      },
+      "revId": "b8ba6416d2c39ca6465ad137f85df3842059db7c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "095d8b26_ca6d7bee",
         "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
         "patchSetId": 2
@@ -91,6 +163,30 @@
       "revId": "b8ba6416d2c39ca6465ad137f85df3842059db7c",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7454c7b_01c1cde4",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-01-30T15:22:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "095d8b26_ca6d7bee",
+      "range": {
+        "startLine": 92,
+        "startChar": 0,
+        "endLine": 100,
+        "endChar": 12
+      },
+      "revId": "b8ba6416d2c39ca6465ad137f85df3842059db7c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "00203a4f_87981771",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/a1.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-01-30T15:22:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "994750c1_f3ab02a2",
+      "range": {
+        "startLine": 102,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 24
+      },
+      "revId": "b8ba6416d2c39ca6465ad137f85df3842059db7c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "40ec52bd_b16ece64",
         "filename": "near-rt-ric-simulator/ric-plt/a1/policy_instance_1_STD_QoSNudging_0.2.0.json",
         "patchSetId": 2
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "3046e680_db164f0e",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/policy_instance_1_STD_QoSNudging_0.2.0.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-01-30T15:22:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "40ec52bd_b16ece64",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 1
+      },
+      "revId": "b8ba6416d2c39ca6465ad137f85df3842059db7c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "667603b3_1947effe",
         "filename": "near-rt-ric-simulator/ric-plt/a1/policy_instance_1_bis_STD_QoSNudging_0.2.0.json",
         "patchSetId": 2
@@ -154,6 +298,24 @@
       "revId": "b8ba6416d2c39ca6465ad137f85df3842059db7c",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c43fe3e_4c644f33",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/policy_instance_1_bis_STD_QoSNudging_0.2.0.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-01-30T15:22:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "667603b3_1947effe",
+      "revId": "b8ba6416d2c39ca6465ad137f85df3842059db7c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     },
     {
       "key": {
@@ -180,6 +342,30 @@
     },
     {
       "key": {
+        "uuid": "9a5dd00a_91de9f64",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/policy_instance_2_STD_QoSNudging_0.2.0.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-01-30T15:22:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "52225fdf_785fb00b",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 1
+      },
+      "revId": "b8ba6416d2c39ca6465ad137f85df3842059db7c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "be9f1582_3f639d87",
         "filename": "near-rt-ric-simulator/ric-plt/a1/policy_type_STD_QoSNudging_0.1.0.json",
         "patchSetId": 2
@@ -203,6 +389,30 @@
     },
     {
       "key": {
+        "uuid": "887e0e41_2035970a",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/policy_type_STD_QoSNudging_0.1.0.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-01-30T15:22:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "be9f1582_3f639d87",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 1
+      },
+      "revId": "b8ba6416d2c39ca6465ad137f85df3842059db7c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cc97a16d_26e206d6",
         "filename": "near-rt-ric-simulator/ric-plt/a1/policy_type_STD_QoSNudging_0.2.0.json",
         "patchSetId": 2
@@ -214,6 +424,30 @@
       "writtenOn": "2020-01-29T14:25:58Z",
       "side": 1,
       "message": "As far as I understand the yaml, policySchema and statusSchema should not come under \"properties\". They should be at the same level as \"$schema\" and \"title\".",
+      "range": {
+        "startLine": 7,
+        "startChar": 5,
+        "endLine": 7,
+        "endChar": 17
+      },
+      "revId": "b8ba6416d2c39ca6465ad137f85df3842059db7c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "763c7a12_410491b6",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/policy_type_STD_QoSNudging_0.2.0.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-01-30T15:22:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cc97a16d_26e206d6",
       "range": {
         "startLine": 7,
         "startChar": 5,
@@ -246,6 +480,30 @@
       "revId": "b8ba6416d2c39ca6465ad137f85df3842059db7c",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75957cc8_7b8f4564",
+        "filename": "near-rt-ric-simulator/ric-plt/a1/policy_type_STD_QoSNudging_0.2.0.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-01-30T15:22:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "06f17fdf_ebb815db",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 1
+      },
+      "revId": "b8ba6416d2c39ca6465ad137f85df3842059db7c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
