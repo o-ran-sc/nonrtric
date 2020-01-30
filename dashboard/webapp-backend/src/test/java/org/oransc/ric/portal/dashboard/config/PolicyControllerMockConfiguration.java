@@ -57,8 +57,8 @@ public class PolicyControllerMockConfiguration {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static com.google.gson.Gson gson = new GsonBuilder() //
-        .serializeNulls() //
-        .create(); //
+            .serializeNulls() //
+            .create(); //
 
     @Bean
     public PolicyAgentApi policyAgentApi() {
@@ -76,7 +76,7 @@ public class PolicyControllerMockConfiguration {
 
         @Override
         public ResponseEntity<String> putPolicy(String policyTypeIdString, String policyInstanceId, String json,
-            String ric) {
+                String ric) {
             database.putInstance(policyTypeIdString, policyInstanceId, json, ric);
             return new ResponseEntity<>("Policy was put successfully", HttpStatus.OK);
         }
@@ -115,32 +115,23 @@ public class PolicyControllerMockConfiguration {
     class Database {
 
         Database() {
-            String schema = getStringFromFile("anr-policy-schema.json");
-            PolicyType policy = new PolicyType("ANR", schema);
-            types.put("ANR", policy);
-
-            schema = getStringFromFile("demo-policy-schema-1.json");
-            policy = new PolicyType("type2", schema);
-            types.put("type2", policy);
+            String schema = getStringFromFile("demo-policy-schema-1.json");
+            PolicyType policyType = new PolicyType("type2", schema);
+            types.put("type2", policyType);
 
             schema = getStringFromFile("demo-policy-schema-2.json");
-            policy = new PolicyType("type3", schema);
-            types.put("type3", policy);
+            policyType = new PolicyType("type3", schema);
+            types.put("type3", policyType);
 
             schema = getStringFromFile("demo-policy-schema-3.json");
-            policy = new PolicyType("type4", schema);
-            types.put("type4", policy);
-            try {
-                putInstance("ANR", "ANR-1", getStringFromFile("anr-policy-instance.json"), "ric_1");
-            } catch (Exception e) {
-                // Nothing
-            }
+            policyType = new PolicyType("type4", schema);
+            types.put("type4", policyType);
         }
 
         private String getStringFromFile(String path) {
             try {
-                InputStream inputStream =
-                    MethodHandles.lookup().lookupClass().getClassLoader().getResourceAsStream(path);
+                InputStream inputStream = MethodHandles.lookup().lookupClass().getClassLoader()
+                        .getResourceAsStream(path);
                 return new BufferedReader(new InputStreamReader(inputStream)).lines().collect(Collectors.joining("\n"));
             } catch (Exception e) {
                 logger.error("Cannot read file :" + path, e);
@@ -158,7 +149,7 @@ public class PolicyControllerMockConfiguration {
 
         void putInstance(String typeId, String instanceId, String instanceData, String ric) {
             PolicyInfo i = ImmutablePolicyInfo.builder().json(instanceData).lastModified(getTimeStampUTC())
-                .id(instanceId).ric(ric).service("service").type(typeId).build();
+                    .id(instanceId).ric(ric).service("service").type(typeId).build();
             instances.put(instanceId, i);
         }
 

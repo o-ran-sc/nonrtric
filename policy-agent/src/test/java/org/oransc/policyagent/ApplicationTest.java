@@ -180,7 +180,7 @@ public class ApplicationTest {
         System.out.println(rsp);
         assertThat(rsp).contains("kista_1");
 
-        url = baseUrl() + "/rics?policyType=ANR";
+        url = baseUrl() + "/rics?policyType=STD_PolicyModelUnconstrained_0.2.0";
         rsp = this.restTemplate.getForObject(url, String.class);
         assertThat(rsp).isEqualTo("[]");
     }
