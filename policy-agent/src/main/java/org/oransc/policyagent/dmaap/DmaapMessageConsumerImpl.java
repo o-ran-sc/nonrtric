@@ -21,17 +21,22 @@
 package org.oransc.policyagent.dmaap;
 
 import com.google.common.collect.Iterables;
+
 import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import org.onap.dmaap.mr.client.MRBatchingPublisher;
 import org.onap.dmaap.mr.client.MRClientFactory;
 import org.onap.dmaap.mr.client.MRConsumer;
 import org.onap.dmaap.mr.client.response.MRConsumerResponse;
+import org.oransc.policyagent.clients.AsyncRestClient;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -45,11 +50,13 @@ public class DmaapMessageConsumerImpl implements DmaapMessageConsumer {
     private boolean alive = false;
     private final ApplicationConfig applicationConfig;
     protected MRConsumer consumer;
-    @Autowired
-    private DmaapMessageHandler dmaapMessageHandler;
+    private MRBatchingPublisher producer;
     private final long FETCHTIMEOUT = 30000;
 
     private CountDownLatch sleep = new CountDownLatch(1);
+
+    @Value("${server.port}")
+    private int localServerPort;
 
     @Autowired
     public DmaapMessageConsumerImpl(ApplicationConfig applicationConfig) {
@@ -99,7 +106,7 @@ public class DmaapMessageConsumerImpl implements DmaapMessageConsumer {
         Properties dmaapPublisherProperties = applicationConfig.getDmaapPublisherConfig();
         // No need to start if there is no configuration.
         if (dmaapConsumerProperties == null || dmaapPublisherProperties == null || dmaapConsumerProperties.size() == 0
-                || dmaapPublisherProperties.size() == 0) {
+            || dmaapPublisherProperties.size() == 0) {
             logger.error("DMaaP properties Failed to Load");
             return;
         }
@@ -108,6 +115,7 @@ public class DmaapMessageConsumerImpl implements DmaapMessageConsumer {
             logger.debug("dmaapConsumerProperties---> {}", dmaapConsumerProperties.getProperty("topic"));
             logger.debug("dmaapPublisherProperties---> {}", dmaapPublisherProperties.getProperty("topic"));
             consumer = MRClientFactory.createConsumer(dmaapConsumerProperties);
+            producer = MRClientFactory.createBatchingPublisher(dmaapConsumerProperties);
             this.alive = true;
         } catch (IOException e) {
             logger.error("Exception occurred while creating Dmaap Consumer", e);
@@ -117,8 +125,13 @@ public class DmaapMessageConsumerImpl implements DmaapMessageConsumer {
     @Override
     public void processMsg(String msg) throws Exception {
         logger.debug("Message Reveived from DMAAP : {}", msg);
-        // Call the concurrent Task executor to handle the incoming request
-        dmaapMessageHandler.handleDmaapMsg(msg);
+        createDmaapMessageHandler().handleDmaapMsg(msg);
+    }
+
+    protected DmaapMessageHandler createDmaapMessageHandler() {
+        String agentBaseUrl = "http://localhost:" + this.localServerPort;
+        AsyncRestClient agentClient = new AsyncRestClient(agentBaseUrl);
+        return new DmaapMessageHandler(this.producer, this.applicationConfig, agentClient);
     }
 
     @Override

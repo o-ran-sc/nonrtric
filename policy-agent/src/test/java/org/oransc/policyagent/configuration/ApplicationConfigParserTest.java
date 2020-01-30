@@ -29,6 +29,7 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,6 +37,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
+
 import org.junit.jupiter.api.Test;
 import org.onap.dmaap.mr.test.clients.ProtocolTypeConstants;
 import org.springframework.http.MediaType;
