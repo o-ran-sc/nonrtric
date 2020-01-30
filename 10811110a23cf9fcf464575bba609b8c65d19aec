@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2def87ae_e1629bba",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/onap/sdnc/northbound/restadapter/NearRicUrlProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-01-30T15:36:53Z",
+      "side": 1,
+      "message": "I suggest you try and use UriComponentsBuilder:(String name, Object... values) to add the query parameter instead of manipulating the string. The UriComponentsBuilder.fromUriString method returns a UriComponentsBuilder so the calls can be chained. If that works, please also put the calls on separate lines:\nUriComponentsBuilder.fromUriString(policiesUrl(nearRtRicUrl)) //\n            .pathSegment(policyId) //\n            .queryParam(\"policyTypeId\", policyTypeId) //\n            .build().toString();",
+      "range": {
+        "startLine": 92,
+        "startChar": 38,
+        "endLine": 92,
+        "endChar": 67
+      },
+      "revId": "10811110a23cf9fcf464575bba609b8c65d19aec",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
