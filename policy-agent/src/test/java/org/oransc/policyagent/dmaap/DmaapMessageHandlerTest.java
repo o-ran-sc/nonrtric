@@ -91,6 +91,7 @@ public class DmaapMessageHandlerTest {
         verifyNoMoreInteractions(agentClient);
 
         verify(dmaapClient, times(1)).send(anyString());
+        verify(dmaapClient).sendBatchWithResponse();
         verifyNoMoreInteractions(dmaapClient);
     }
 
@@ -109,6 +110,7 @@ public class DmaapMessageHandlerTest {
 
         // Error response
         verify(dmaapClient, times(1)).send(anyString());
+        verify(dmaapClient).sendBatchWithResponse();
         verifyNoMoreInteractions(dmaapClient);
     }
 
