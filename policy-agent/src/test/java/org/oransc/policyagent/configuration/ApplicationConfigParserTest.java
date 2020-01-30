@@ -51,29 +51,33 @@ public class ApplicationConfigParserTest {
 
         Properties actualPublisherConfig = parserUnderTest.getDmaapPublisherConfig();
         assertAll("publisherConfig",
-            () -> assertEquals("localhost:6845/events", actualPublisherConfig.get("ServiceName")),
-            () -> assertEquals("A1-POLICY-AGENT-WRITE", actualPublisherConfig.get("topic")),
-            () -> assertEquals("localhost:6845", actualPublisherConfig.get("host")),
-            () -> assertEquals(MediaType.APPLICATION_JSON.toString(), actualPublisherConfig.get("contenttype")),
-            () -> assertEquals("admin", actualPublisherConfig.get("userName")),
-            () -> assertEquals("admin", actualPublisherConfig.get("password")),
-            () -> assertEquals(ProtocolTypeConstants.HTTPNOAUTH.toString(), actualPublisherConfig.get("TransportType")),
-            () -> assertEquals(15000, actualPublisherConfig.get("timeout")),
-            () -> assertEquals(100, actualPublisherConfig.get("limit")));
+            () -> assertEquals("localhost:6845/events", actualPublisherConfig.get("ServiceName"), "Wrong ServiceName"),
+            () -> assertEquals("A1-POLICY-AGENT-WRITE", actualPublisherConfig.get("topic"), "Wrong topic"),
+            () -> assertEquals("localhost:6845", actualPublisherConfig.get("host"), "Wrong host"),
+            () -> assertEquals(MediaType.APPLICATION_JSON.toString(), actualPublisherConfig.get("contenttype"),
+                "Wrong contenttype"),
+            () -> assertEquals("admin", actualPublisherConfig.get("userName"), "Wrong userName"),
+            () -> assertEquals("admin", actualPublisherConfig.get("password"), "Wrong password"),
+            () -> assertEquals(ProtocolTypeConstants.HTTPNOAUTH.toString(), actualPublisherConfig.get("TransportType"),
+                "Wrong TransportType"),
+            () -> assertEquals(15000, actualPublisherConfig.get("timeout"), "Wrong timeout"),
+            () -> assertEquals(100, actualPublisherConfig.get("limit"), "Wrong limit"));
 
         Properties actualConsumerConfig = parserUnderTest.getDmaapConsumerConfig();
         assertAll("consumerConfig",
-            () -> assertEquals("localhost:6845/events", actualConsumerConfig.get("ServiceName")),
-            () -> assertEquals("A1-POLICY-AGENT-READ", actualConsumerConfig.get("topic")),
-            () -> assertEquals("localhost:6845", actualConsumerConfig.get("host")),
-            () -> assertEquals(MediaType.APPLICATION_JSON.toString(), actualConsumerConfig.get("contenttype")),
-            () -> assertEquals("admin", actualConsumerConfig.get("userName")),
-            () -> assertEquals("admin", actualConsumerConfig.get("password")),
-            () -> assertEquals("users", actualConsumerConfig.get("group")),
-            () -> assertEquals("policy-agent", actualConsumerConfig.get("id")),
-            () -> assertEquals(ProtocolTypeConstants.HTTPNOAUTH.toString(), actualConsumerConfig.get("TransportType")),
-            () -> assertEquals(15000, actualConsumerConfig.get("timeout")),
-            () -> assertEquals(100, actualConsumerConfig.get("limit")));
+            () -> assertEquals("localhost:6845/events", actualConsumerConfig.get("ServiceName"), "Wrong ServiceName"),
+            () -> assertEquals("A1-POLICY-AGENT-READ", actualConsumerConfig.get("topic"), "Wrong topic"),
+            () -> assertEquals("localhost:6845", actualConsumerConfig.get("host"), "Wrong host"),
+            () -> assertEquals(MediaType.APPLICATION_JSON.toString(), actualConsumerConfig.get("contenttype"),
+                "Wrong contenttype"),
+            () -> assertEquals("admin", actualConsumerConfig.get("userName"), "Wrong userName"),
+            () -> assertEquals("admin", actualConsumerConfig.get("password"), "Wrong password"),
+            () -> assertEquals("users", actualConsumerConfig.get("group"), "Wrong group"),
+            () -> assertEquals("policy-agent", actualConsumerConfig.get("id"), "Wrong id"),
+            () -> assertEquals(ProtocolTypeConstants.HTTPNOAUTH.toString(), actualConsumerConfig.get("TransportType"),
+                "Wrong TransportType"),
+            () -> assertEquals(15000, actualConsumerConfig.get("timeout"), "Wrong timeout"),
+            () -> assertEquals(100, actualConsumerConfig.get("limit"), "Wrong limit"));
     }
 
     private JsonObject getJsonRootObject() throws JsonIOException, JsonSyntaxException, IOException {
