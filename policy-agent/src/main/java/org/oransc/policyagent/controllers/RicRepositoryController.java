@@ -83,7 +83,7 @@ public class RicRepositoryController {
      *         Example: http://localhost:8080/ric
      */
     @GetMapping("/rics")
-    @ApiOperation(value = "Returns NearRT RIC information")
+    @ApiOperation(value = "Query NearRT RIC information")
     @ApiResponses(
         value = { //
             @ApiResponse(code = 200, message = "OK", response = RicInfo.class, responseContainer = "List") //

@@ -195,6 +195,7 @@ public class ApplicationTest {
 
         Policy policy = addPolicy("policyId", "typeName", "service", "ric"); // This should be created in the RIC
         supervision.checkAllRics(); // The created policy should be put in the RIC
+        await().untilAsserted(() -> RicState.RECOVERING.equals(rics.getRic("ric").getState()));
         await().untilAsserted(() -> RicState.IDLE.equals(rics.getRic("ric").getState()));
 
         Policies ricPolicies = getA1Client("ric").getPolicies();

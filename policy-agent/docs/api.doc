@@ -1,16 +1,13 @@
 swagger: '2.0'
 info:
-  description: Api Documentation
+  description: This page lists all the rest apis for Policy server.
   version: '1.0'
-  title: Api Documentation
-  termsOfService: 'urn:tos'
-  contact: {}
-  license:
-    name: Apache 2.0
-    url: 'http://www.apache.org/licenses/LICENSE-2.0'
+  title: Policy server
 host: 'localhost:8081'
 basePath: /
 tags:
+  - name: operation-handler
+    description: Operation Handler
   - name: policy-controller
     description: Policy Controller
   - name: ric-repository-controller
@@ -19,12 +16,310 @@ tags:
     description: Service Controller
   - name: status-controller
     description: Status Controller
+  - name: web-mvc-links-handler
+    description: Web Mvc Links Handler
 paths:
+  /actuator:
+    get:
+      tags:
+        - web-mvc-links-handler
+      summary: links
+      operationId: linksUsingGET
+      produces:
+        - application/vnd.spring-boot.actuator.v3+json
+        - application/json
+        - application/vnd.spring-boot.actuator.v2+json
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            additionalProperties:
+              type: object
+              additionalProperties:
+                $ref: '#/definitions/Link'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /actuator/health:
+    get:
+      tags:
+        - operation-handler
+      summary: handle
+      operationId: handleUsingGET_1
+      produces:
+        - application/vnd.spring-boot.actuator.v3+json
+        - application/json
+        - application/vnd.spring-boot.actuator.v2+json
+      parameters:
+        - in: body
+          name: body
+          description: body
+          required: false
+          schema:
+            type: object
+            additionalProperties:
+              type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /actuator/health/**:
+    get:
+      tags:
+        - operation-handler
+      summary: handle
+      operationId: handleUsingGET
+      produces:
+        - application/vnd.spring-boot.actuator.v3+json
+        - application/json
+        - application/vnd.spring-boot.actuator.v2+json
+      parameters:
+        - in: body
+          name: body
+          description: body
+          required: false
+          schema:
+            type: object
+            additionalProperties:
+              type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /actuator/info:
+    get:
+      tags:
+        - operation-handler
+      summary: handle
+      operationId: handleUsingGET_2
+      produces:
+        - application/vnd.spring-boot.actuator.v3+json
+        - application/json
+        - application/vnd.spring-boot.actuator.v2+json
+      parameters:
+        - in: body
+          name: body
+          description: body
+          required: false
+          schema:
+            type: object
+            additionalProperties:
+              type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /actuator/logfile:
+    get:
+      tags:
+        - operation-handler
+      summary: handle
+      operationId: handleUsingGET_3
+      produces:
+        - text/plain;charset=UTF-8
+      parameters:
+        - in: body
+          name: body
+          description: body
+          required: false
+          schema:
+            type: object
+            additionalProperties:
+              type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /actuator/loggers:
+    get:
+      tags:
+        - operation-handler
+      summary: handle
+      operationId: handleUsingGET_5
+      produces:
+        - application/vnd.spring-boot.actuator.v3+json
+        - application/json
+        - application/vnd.spring-boot.actuator.v2+json
+      parameters:
+        - in: body
+          name: body
+          description: body
+          required: false
+          schema:
+            type: object
+            additionalProperties:
+              type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  '/actuator/loggers/{name}':
+    get:
+      tags:
+        - operation-handler
+      summary: handle
+      operationId: handleUsingGET_4
+      produces:
+        - application/vnd.spring-boot.actuator.v3+json
+        - application/json
+        - application/vnd.spring-boot.actuator.v2+json
+      parameters:
+        - in: body
+          name: body
+          description: body
+          required: false
+          schema:
+            type: object
+            additionalProperties:
+              type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+    post:
+      tags:
+        - operation-handler
+      summary: handle
+      operationId: handleUsingPOST
+      consumes:
+        - application/vnd.spring-boot.actuator.v3+json
+        - application/json
+        - application/vnd.spring-boot.actuator.v2+json
+      produces:
+        - '*/*'
+      parameters:
+        - in: body
+          name: body
+          description: body
+          required: false
+          schema:
+            type: object
+            additionalProperties:
+              type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  /actuator/metrics:
+    get:
+      tags:
+        - operation-handler
+      summary: handle
+      operationId: handleUsingGET_7
+      produces:
+        - application/vnd.spring-boot.actuator.v3+json
+        - application/json
+        - application/vnd.spring-boot.actuator.v2+json
+      parameters:
+        - in: body
+          name: body
+          description: body
+          required: false
+          schema:
+            type: object
+            additionalProperties:
+              type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+  '/actuator/metrics/{requiredMetricName}':
+    get:
+      tags:
+        - operation-handler
+      summary: handle
+      operationId: handleUsingGET_6
+      produces:
+        - application/vnd.spring-boot.actuator.v3+json
+        - application/json
+        - application/vnd.spring-boot.actuator.v2+json
+      parameters:
+        - in: body
+          name: body
+          description: body
+          required: false
+          schema:
+            type: object
+            additionalProperties:
+              type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
   /policies:
     get:
       tags:
         - policy-controller
-      summary: Returns the policies
+      summary: Query policies
       operationId: getPoliciesUsingGET
       produces:
         - '*/*'
@@ -138,7 +433,7 @@ paths:
     delete:
       tags:
         - policy-controller
-      summary: Deletes the policy
+      summary: Delete a policy
       operationId: deletePolicyUsingDELETE
       produces:
         - '*/*'
@@ -152,11 +447,11 @@ paths:
         '200':
           description: OK
           schema:
-            $ref: '#/definitions/Mono«ResponseEntity«Void»»'
+            type: object
         '204':
           description: Policy deleted
           schema:
-            $ref: '#/definitions/Mono«ResponseEntity«Void»»'
+            type: object
         '401':
           description: Unauthorized
         '403':
@@ -217,7 +512,7 @@ paths:
     get:
       tags:
         - policy-controller
-      summary: Returns policy types
+      summary: Query policy type names
       operationId: getPolicyTypesUsingGET
       produces:
         - '*/*'
@@ -271,7 +566,7 @@ paths:
     get:
       tags:
         - ric-repository-controller
-      summary: Returns NearRT RIC information
+      summary: Query NearRT RIC information
       operationId: getRicsUsingGET
       produces:
         - '*/*'
@@ -424,6 +719,19 @@ paths:
         '404':
           description: Not Found
 definitions:
+  Link:
+    type: object
+    properties:
+      href:
+        type: string
+      templated:
+        type: boolean
+    title: Link
+  'Map«string,Link»':
+    type: object
+    title: 'Map«string,Link»'
+    additionalProperties:
+      $ref: '#/definitions/Link'
   Mono«ResponseEntity«Void»»:
     type: object
     title: Mono«ResponseEntity«Void»»
