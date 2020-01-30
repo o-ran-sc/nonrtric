@@ -164,6 +164,9 @@ public class SdnrOnapA1Client implements A1Client {
         try {
             JSONObject outputJson = new JSONObject(response);
             JSONObject responseParams = outputJson.getJSONObject("output");
+            if (!responseParams.has(key)) {
+                return Mono.just("");
+            }
             String value = responseParams.get(key).toString();
             return Mono.just(value);
         } catch (JSONException ex) { // invalid json
@@ -174,6 +177,9 @@ public class SdnrOnapA1Client implements A1Client {
     private Mono<List<String>> parseJsonArrayOfString(String inputString) {
         try {
             List<String> arrayList = new ArrayList<>();
+            if (inputString.isEmpty()) {
+                return Mono.just(arrayList);
+            }
             JSONArray jsonArray = new JSONArray(inputString);
             for (int i = 0; i < jsonArray.length(); i++) {
                 arrayList.add(jsonArray.getString(i));
