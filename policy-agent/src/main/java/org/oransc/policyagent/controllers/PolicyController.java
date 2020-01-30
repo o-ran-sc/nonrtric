@@ -108,7 +108,7 @@ public class PolicyController {
     }
 
     @GetMapping("/policy_types")
-    @ApiOperation(value = "Returns policy types")
+    @ApiOperation(value = "Query policy type names")
     @ApiResponses(
         value = {@ApiResponse(
             code = 200,
@@ -150,7 +150,7 @@ public class PolicyController {
     }
 
     @DeleteMapping("/policy")
-    @ApiOperation(value = "Deletes the policy", response = Object.class)
+    @ApiOperation(value = "Delete a policy", response = Object.class)
     @ApiResponses(value = {@ApiResponse(code = 204, message = "Policy deleted", response = Object.class)})
     public Mono<ResponseEntity<Void>> deletePolicy( //
         @RequestParam(name = "instance", required = true) String id) {
@@ -201,7 +201,7 @@ public class PolicyController {
     }
 
     @GetMapping("/policies")
-    @ApiOperation(value = "Returns the policies")
+    @ApiOperation(value = "Query policies")
     @ApiResponses(
         value = {
             @ApiResponse(code = 200, message = "Policies", response = PolicyInfo.class, responseContainer = "List")})

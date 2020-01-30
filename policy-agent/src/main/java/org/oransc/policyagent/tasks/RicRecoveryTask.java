@@ -70,7 +70,8 @@ public class RicRecoveryTask {
 
         synchronized (ric) {
             if (ric.getState() == Ric.RicState.RECOVERING) {
-                return; // Already running
+                logger.debug("Recovery ric: {} is already running", ric.getConfig().name());
+                return;
             }
             ric.setState(Ric.RicState.RECOVERING);
         }
