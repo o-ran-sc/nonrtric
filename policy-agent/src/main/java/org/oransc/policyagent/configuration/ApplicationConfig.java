@@ -42,6 +42,15 @@ public class ApplicationConfig {
     @NotEmpty
     private String filepath;
 
+    @NotEmpty
+    private String a1ControllerBaseUrl;
+
+    @NotEmpty
+    private String a1ControllerUsername;
+
+    @NotEmpty
+    private String a1ControllerPassword;
+
     private Collection<Observer> observers = new Vector<>();
     private Map<String, RicConfig> ricConfigs = new HashMap<>();
     @Getter
@@ -57,11 +66,35 @@ public class ApplicationConfig {
         return this.filepath;
     }
 
+    public String getA1ControllerBaseUrl() {
+        return this.a1ControllerBaseUrl;
+    }
+
+    public String getA1ControllerUsername() {
+        return this.a1ControllerUsername;
+    }
+
+    public String getA1ControllerPassword() {
+        return this.a1ControllerPassword;
+    }
+
     /*
      * Do not remove, used by framework!
      */
     public synchronized void setFilepath(String filepath) {
         this.filepath = filepath;
+    }
+
+    public synchronized void setA1ControllerBaseUrl(String a1ControllerBaseUrl) {
+        this.a1ControllerBaseUrl = a1ControllerBaseUrl;
+    }
+
+    public synchronized void setA1ControllerUsername(String a1ControllerUsername) {
+        this.a1ControllerUsername = a1ControllerUsername;
+    }
+
+    public synchronized void setA1ControllerPassword(String a1ControllerPassword) {
+        this.a1ControllerPassword = a1ControllerPassword;
     }
 
     public synchronized Collection<RicConfig> getRicConfigs() {

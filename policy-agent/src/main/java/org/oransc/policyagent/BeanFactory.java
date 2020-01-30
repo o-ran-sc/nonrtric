@@ -60,7 +60,7 @@ class BeanFactory {
 
     @Bean
     A1ClientFactory getA1ClientFactory() {
-        return new A1ClientFactory();
+        return new A1ClientFactory(getApplicationConfig());
     }
 
     @Bean
