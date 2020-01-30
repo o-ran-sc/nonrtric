@@ -110,7 +110,7 @@ public class ApplicationConfig {
                     newRicConfigs.put(newConfig.name(), newConfig);
                     notifications.add(new Notification(newConfig, RicConfigUpdate.ADDED));
                     this.ricConfigs.remove(newConfig.name());
-                } else if (!newConfig.equals(newConfig)) {
+                } else if (!newConfig.equals(oldConfig)) {
                     notifications.add(new Notification(newConfig, RicConfigUpdate.CHANGED));
                     newRicConfigs.put(newConfig.name(), newConfig);
                     this.ricConfigs.remove(newConfig.name());
