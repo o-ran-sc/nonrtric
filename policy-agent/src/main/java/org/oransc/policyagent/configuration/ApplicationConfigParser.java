@@ -25,18 +25,14 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
-
 import javax.validation.constraints.NotNull;
-
 import lombok.Getter;
-
 import org.onap.dmaap.mr.test.clients.ProtocolTypeConstants;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.springframework.http.MediaType;
@@ -126,7 +122,11 @@ public class ApplicationConfigParser {
             dmaapProps.put("id", path.consumerId);
             dmaapProps.put("TransportType", ProtocolTypeConstants.HTTPNOAUTH.toString());
             dmaapProps.put("timeout", 15000);
-            dmaapProps.put("limit", 1000);
+            dmaapProps.put("limit", 100);
+            dmaapProps.put("maxBatchSize", "10");
+            dmaapProps.put("maxAgeMs", "10000");
+            dmaapProps.put("compress", true);
+            dmaapProps.put("MessageSentThreadOccurance", "2");
         } catch (MalformedURLException e) {
             throw new ServiceException("Could not parse the URL", e);
         }

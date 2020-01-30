@@ -22,9 +22,7 @@ package org.oransc.policyagent.dmaap;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import java.io.IOException;
-
 import org.onap.dmaap.mr.client.MRBatchingPublisher;
 import org.oransc.policyagent.clients.AsyncRestClient;
 import org.oransc.policyagent.configuration.ApplicationConfig;
@@ -39,14 +37,14 @@ public class DmaapMessageHandler {
     private static final Logger logger = LoggerFactory.getLogger(DmaapMessageHandler.class);
 
     private static Gson gson = new GsonBuilder() //
-        .serializeNulls() //
-        .create(); //
+            .serializeNulls() //
+            .create(); //
 
     private final MRBatchingPublisher dmaapClient;
     private final AsyncRestClient agentClient;
 
     public DmaapMessageHandler(MRBatchingPublisher dmaapClient, ApplicationConfig applicationConfig,
-        AsyncRestClient agentClient) {
+            AsyncRestClient agentClient) {
         this.agentClient = agentClient;
         this.dmaapClient = dmaapClient;
     }
@@ -54,9 +52,9 @@ public class DmaapMessageHandler {
     public void handleDmaapMsg(String msg) {
         try {
             this.createTask(msg) //
-                .subscribe(x -> logger.debug("handleDmaapMsg: " + x), //
-                    throwable -> logger.warn("handleDmaapMsg failure ", throwable), //
-                    () -> logger.debug("handleDmaapMsg complete"));
+                    .subscribe(x -> logger.debug("handleDmaapMsg: " + x), //
+                            throwable -> logger.warn("handleDmaapMsg failure ", throwable), //
+                            () -> logger.debug("handleDmaapMsg complete"));
         } catch (Exception e) {
             logger.warn("Received unparsable message from DMAAP: {}", msg);
         }
@@ -67,8 +65,8 @@ public class DmaapMessageHandler {
             DmaapRequestMessage dmaapRequestMessage = gson.fromJson(msg, ImmutableDmaapRequestMessage.class);
 
             return this.invokePolicyAgent(dmaapRequestMessage) //
-                .onErrorResume(t -> handleAgentCallError(t, dmaapRequestMessage)) //
-                .flatMap(response -> sendDmaapResponse(response, dmaapRequestMessage, HttpStatus.OK));
+                    .onErrorResume(t -> handleAgentCallError(t, dmaapRequestMessage)) //
+                    .flatMap(response -> sendDmaapResponse(response, dmaapRequestMessage, HttpStatus.OK));
 
         } catch (Exception e) {
             logger.warn("Received unparsable message from DMAAP: {}", msg);
@@ -79,7 +77,7 @@ public class DmaapMessageHandler {
     private Mono<String> handleAgentCallError(Throwable t, DmaapRequestMessage dmaapRequestMessage) {
         logger.debug("Agent call failed: " + t.getMessage());
         return sendDmaapResponse(t.toString(), dmaapRequestMessage, HttpStatus.NOT_FOUND) //
-            .flatMap(s -> Mono.empty());
+                .flatMap(s -> Mono.empty());
     }
 
     private Mono<String> invokePolicyAgent(DmaapRequestMessage dmaapRequestMessage) {
@@ -101,15 +99,17 @@ public class DmaapMessageHandler {
     }
 
     private Mono<String> sendDmaapResponse(String response, DmaapRequestMessage dmaapRequestMessage,
-        HttpStatus status) {
+            HttpStatus status) {
         return getDmaapResponseMessage(dmaapRequestMessage, response, status) //
-            .flatMap(body -> sendToDmaap(body)) //
-            .onErrorResume(t -> handleResponseCallError(t, dmaapRequestMessage));
+                .flatMap(body -> sendToDmaap(body)) //
+                .onErrorResume(t -> handleResponseCallError(t, dmaapRequestMessage));
     }
 
     private Mono<String> sendToDmaap(String body) {
         try {
+            logger.debug("sendToDmaap: {} ", body);
             dmaapClient.send(body);
+            dmaapClient.sendBatchWithResponse();
             return Mono.just("OK");
         } catch (IOException e) {
             return Mono.error(e);
@@ -122,16 +122,16 @@ public class DmaapMessageHandler {
     }
 
     private Mono<String> getDmaapResponseMessage(DmaapRequestMessage dmaapRequestMessage, String response,
-        HttpStatus status) {
+            HttpStatus status) {
         DmaapResponseMessage dmaapResponseMessage = ImmutableDmaapResponseMessage.builder() //
-            .status(status.toString()) //
-            .message(response) //
-            .type("response") //
-            .correlationId(dmaapRequestMessage.correlationId()) //
-            .originatorId(dmaapRequestMessage.originatorId()) //
-            .requestId(dmaapRequestMessage.requestId()) //
-            .timestamp(dmaapRequestMessage.timestamp()) //
-            .build();
+                .status(status.toString()) //
+                .message(response) //
+                .type("response") //
+                .correlationId(dmaapRequestMessage.correlationId()) //
+                .originatorId(dmaapRequestMessage.originatorId()) //
+                .requestId(dmaapRequestMessage.requestId()) //
+                .timestamp(dmaapRequestMessage.timestamp()) //
+                .build();
         String str = gson.toJson(dmaapResponseMessage);
 
         return Mono.just(str);
