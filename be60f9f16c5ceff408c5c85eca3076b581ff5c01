@@ -140,6 +140,30 @@
       "revId": "be60f9f16c5ceff408c5c85eca3076b581ff5c01",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c94150e8_a7a23a6d",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageConsumerImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-01-30T07:49:24Z",
+      "side": 1,
+      "message": "Since this whole procedure is scheduled by the spring framework, this sleep might block all other scheduling in the process also. \nSo it might affect all sceduled activited. \n\nIt does make sense to poll even if the Dmaap WEB server is terminated because that is the only way we can find out that it has been started again.\nIt should not be terminated, that woudl be a fault.",
+      "parentUuid": "da69d7ec_6f0e59fa",
+      "range": {
+        "startLine": 133,
+        "startChar": 4,
+        "endLine": 140,
+        "endChar": 5
+      },
+      "revId": "be60f9f16c5ceff408c5c85eca3076b581ff5c01",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
