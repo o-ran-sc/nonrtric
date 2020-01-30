@@ -49,6 +49,29 @@
     },
     {
       "key": {
+        "uuid": "5bbc793e_667bf725",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageConsumerImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-01-30T08:42:44Z",
+      "side": 1,
+      "message": "If response is null there will NullPOinterEXception here.",
+      "range": {
+        "startLine": 92,
+        "startChar": 7,
+        "endLine": 92,
+        "endChar": 44
+      },
+      "revId": "be60f9f16c5ceff408c5c85eca3076b581ff5c01",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ba416116_397c5295",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageConsumerImpl.java",
         "patchSetId": 1
