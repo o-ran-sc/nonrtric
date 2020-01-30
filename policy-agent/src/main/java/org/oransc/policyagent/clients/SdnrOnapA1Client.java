@@ -205,4 +205,9 @@ public class SdnrOnapA1Client implements A1Client {
             return Mono.error(ex);
         }
     }
+
+    @Override
+    public Mono<String> getPolicyStatus(Policy policy) {
+        return Mono.error(new Exception("Status not implemented in the controller"));
+    }
 }

@@ -130,4 +130,11 @@ public class OscA1Client implements A1Client {
             return Mono.error(ex);
         }
     }
+
+    @Override
+    public Mono<String> getPolicyStatus(Policy policy) {
+        // /a1-p/policytypes/{policy_type_id}/policies/{policy_instance_id}/status
+        return restClient.get("/policytypes/" + policy.type().name() + "/policies/" + policy.id() + "/status");
+
+    }
 }

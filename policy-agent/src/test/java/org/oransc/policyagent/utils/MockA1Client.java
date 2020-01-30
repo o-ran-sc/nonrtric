@@ -99,4 +99,9 @@ public class MockA1Client implements A1Client {
         return Flux.empty();
     }
 
+    @Override
+    public Mono<String> getPolicyStatus(Policy policy) {
+        return Mono.just("OK");
+    }
+
 }

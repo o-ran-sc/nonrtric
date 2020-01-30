@@ -130,4 +130,9 @@ public class StdA1Client implements A1Client {
         }
     }
 
+    @Override
+    public Mono<String> getPolicyStatus(Policy policy) {
+        return restClient.get("/policies/" + policy.id() + "/status");
+    }
+
 }

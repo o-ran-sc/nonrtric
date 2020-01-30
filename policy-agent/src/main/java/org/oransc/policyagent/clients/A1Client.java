@@ -47,4 +47,6 @@ public interface A1Client {
 
     public Flux<String> deleteAllPolicies();
 
+    public Mono<String> getPolicyStatus(Policy policy);
+
 }

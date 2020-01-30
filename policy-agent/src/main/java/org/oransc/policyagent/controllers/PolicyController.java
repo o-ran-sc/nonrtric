@@ -108,7 +108,7 @@ public class PolicyController {
     }
 
     @GetMapping("/policy_types")
-    @ApiOperation(value = "Returns policy types")
+    @ApiOperation(value = "Query policy type names")
     @ApiResponses(
         value = {@ApiResponse(
             code = 200,
@@ -138,7 +138,6 @@ public class PolicyController {
             @ApiResponse(code = 200, message = "Policy found", response = Object.class), //
             @ApiResponse(code = 204, message = "Policy is not found")} //
     )
-
     public ResponseEntity<String> getPolicy( //
         @RequestParam(name = "instance", required = true) String instance) {
         try {
@@ -150,7 +149,7 @@ public class PolicyController {
     }
 
     @DeleteMapping("/policy")
-    @ApiOperation(value = "Deletes the policy", response = Object.class)
+    @ApiOperation(value = "Delete a policy", response = Object.class)
     @ApiResponses(value = {@ApiResponse(code = 204, message = "Policy deleted", response = Object.class)})
     public Mono<ResponseEntity<Void>> deletePolicy( //
         @RequestParam(name = "instance", required = true) String id) {
@@ -201,7 +200,7 @@ public class PolicyController {
     }
 
     @GetMapping("/policies")
-    @ApiOperation(value = "Returns the policies")
+    @ApiOperation(value = "Query policies")
     @ApiResponses(
         value = {
             @ApiResponse(code = 200, message = "Policies", response = PolicyInfo.class, responseContainer = "List")})
@@ -227,6 +226,26 @@ public class PolicyController {
             }
 
             return new ResponseEntity<String>(policiesToJson(result), HttpStatus.OK);
+        }
+    }
+
+    @GetMapping("/policy_status")
+    @ApiOperation(value = "Returns a policy status") //
+    @ApiResponses(
+        value = { //
+            @ApiResponse(code = 200, message = "Policy status", response = Object.class), //
+            @ApiResponse(code = 204, message = "Policy is not found", response = String.class)} //
+    )
+    public Mono<ResponseEntity<String>> getPolicyStatus( //
+        @RequestParam(name = "instance", required = true) String instance) {
+        try {
+            Policy policy = policies.getPolicy(instance);
+
+            return a1ClientFactory.createA1Client(policy.ric()) //
+                .flatMap(client -> client.getPolicyStatus(policy)) //
+                .flatMap(status -> Mono.just(new ResponseEntity<String>(status, HttpStatus.OK)));
+        } catch (ServiceException e) {
+            return Mono.just(new ResponseEntity<String>(e.getMessage(), HttpStatus.NO_CONTENT));
         }
     }
 
