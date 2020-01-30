@@ -27,19 +27,16 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import java.io.IOException;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.onap.dmaap.mr.client.MRBatchingPublisher;
+import org.onap.dmaap.mr.client.response.MRPublisherResponse;
 import org.oransc.policyagent.clients.AsyncRestClient;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.dmaap.DmaapRequestMessage.Operation;
-
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -80,6 +77,7 @@ public class DmaapMessageHandlerTest {
     public void successfulCase() throws IOException {
         doReturn(Mono.just("OK")).when(agentClient).delete("url");
         doReturn(1).when(dmaapClient).send(anyString());
+        doReturn(new MRPublisherResponse()).when(dmaapClient).sendBatchWithResponse();
 
         StepVerifier //
             .create(testedObject.createTask(dmaapInputMessage(Operation.DELETE))) //
@@ -91,6 +89,7 @@ public class DmaapMessageHandlerTest {
         verifyNoMoreInteractions(agentClient);
 
         verify(dmaapClient, times(1)).send(anyString());
+        verify(dmaapClient, times(1)).sendBatchWithResponse();
         verifyNoMoreInteractions(dmaapClient);
     }
 
@@ -98,7 +97,7 @@ public class DmaapMessageHandlerTest {
     public void errorCase() throws IOException {
         doReturn(Mono.error(new Exception("Refused"))).when(agentClient).put("url", "payload");
         doReturn(1).when(dmaapClient).send(anyString());
-
+        doReturn(new MRPublisherResponse()).when(dmaapClient).sendBatchWithResponse();
         StepVerifier //
             .create(testedObject.createTask(dmaapInputMessage(Operation.PUT))) //
             .expectSubscription() //
@@ -109,6 +108,7 @@ public class DmaapMessageHandlerTest {
 
         // Error response
         verify(dmaapClient, times(1)).send(anyString());
+        verify(dmaapClient, times(1)).sendBatchWithResponse();
         verifyNoMoreInteractions(dmaapClient);
     }
 
