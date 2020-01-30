@@ -18,29 +18,26 @@
  * ========================LICENSE_END===================================
  */
 
-package org.oransc.policyagent.model;
+package org.oransc.policyagent.dmaap;
 
-import java.sql.Timestamp;
-import javax.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
+import org.immutables.gson.Gson;
+import org.immutables.value.Value;
 
-@Getter
-@Setter
-public class DmaapRequestMessage {
+@Value.Immutable
+@Gson.TypeAdapters
+public interface DmaapResponseMessage {
 
-    @NotNull
-    private String type;
-    @NotNull
-    private String correlationId;
-    @NotNull
-    private String target;
-    private Timestamp timestamp;
-    private String apiVersion;
-    @NotNull
-    private String originatorId;
-    private String requestId;
-    @NotNull
-    private String operation;
-    private String payload;
+    String type();
+
+    String correlationId();
+
+    String timestamp();
+
+    String originatorId();
+
+    String requestId();
+
+    String status();
+
+    String message();
 }

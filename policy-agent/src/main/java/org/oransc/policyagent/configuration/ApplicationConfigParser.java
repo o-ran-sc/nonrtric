@@ -34,7 +34,9 @@ import java.util.Set;
 import java.util.Vector;
 
 import javax.validation.constraints.NotNull;
+
 import lombok.Getter;
+
 import org.onap.dmaap.mr.test.clients.ProtocolTypeConstants;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.springframework.http.MediaType;
