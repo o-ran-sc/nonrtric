@@ -25,14 +25,18 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
+
 import javax.validation.constraints.NotNull;
+
 import lombok.Getter;
+
 import org.onap.dmaap.mr.test.clients.ProtocolTypeConstants;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.springframework.http.MediaType;
@@ -48,25 +52,24 @@ public class ApplicationConfigParser {
     @Getter
     private Vector<RicConfig> ricConfigs;
     @Getter
-    private Properties dmaapPublisherConfig;
+    private Properties dmaapPublisherConfig = new Properties();
     @Getter
-    private Properties dmaapConsumerConfig;
+    private Properties dmaapConsumerConfig = new Properties();
 
     public void parse(JsonObject root) throws ServiceException {
         JsonObject agentConfigJson = root.getAsJsonObject(CONFIG);
         ricConfigs = parseRics(agentConfigJson);
-        JsonObject dmaapPublisherConfigJson = agentConfigJson.getAsJsonObject("streams_publishes");
-        if (dmaapPublisherConfigJson == null) {
-            dmaapPublisherConfig = new Properties();
-        } else {
-            dmaapPublisherConfig = parseDmaapConfig(dmaapPublisherConfigJson);
+
+        JsonObject json = agentConfigJson.getAsJsonObject("streams_publishes");
+        if (json != null) {
+            this.dmaapPublisherConfig = parseDmaapConfig(json);
         }
-        JsonObject dmaapConsumerConfigJson = agentConfigJson.getAsJsonObject("streams_subscribes");
-        if (dmaapConsumerConfigJson == null) {
-            dmaapConsumerConfig = new Properties();
-        } else {
-            dmaapConsumerConfig = parseDmaapConfig(dmaapConsumerConfigJson);
+
+        json = agentConfigJson.getAsJsonObject("streams_subscribes");
+        if (json != null) {
+            this.dmaapConsumerConfig = parseDmaapConfig(json);
         }
+
     }
 
     private Vector<RicConfig> parseRics(JsonObject config) throws ServiceException {
@@ -99,8 +102,8 @@ public class ApplicationConfigParser {
         JsonObject dmaapInfo = get(streamConfigEntry, "dmaap_info").getAsJsonObject();
         String topicUrl = getAsString(dmaapInfo, "topic_url");
 
-        Properties dmaapProps = new Properties();
         try {
+            Properties dmaapProps = new Properties();
             URL url = new URL(topicUrl);
             String passwd = "";
             String userName = "";
@@ -127,11 +130,11 @@ public class ApplicationConfigParser {
             dmaapProps.put("maxAgeMs", "10000");
             dmaapProps.put("compress", true);
             dmaapProps.put("MessageSentThreadOccurance", "2");
+            return dmaapProps;
         } catch (MalformedURLException e) {
             throw new ServiceException("Could not parse the URL", e);
         }
 
-        return dmaapProps;
     }
 
     private static @NotNull String getAsString(JsonObject obj, String memberName) throws ServiceException {

@@ -101,6 +101,7 @@ public class ApplicationConfig {
 
     public void setConfiguration(@NotNull Collection<RicConfig> ricConfigs, Properties dmaapPublisherConfig,
         Properties dmaapConsumerConfig) {
+
         Collection<Notification> notifications = new Vector<>();
         synchronized (this) {
             Map<String, RicConfig> newRicConfigs = new HashMap<>();
@@ -123,10 +124,11 @@ public class ApplicationConfig {
             }
             this.ricConfigs = newRicConfigs;
         }
-        notifyObservers(notifications);
 
+        notifyObservers(notifications);
         this.dmaapPublisherConfig = dmaapPublisherConfig;
         this.dmaapConsumerConfig = dmaapConsumerConfig;
+
     }
 
     private void notifyObservers(Collection<Notification> notifications) {
