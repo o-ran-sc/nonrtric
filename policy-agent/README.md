@@ -26,6 +26,31 @@ mvn -Dtest=MockPolicyAgent test
 The backend server publishes live API documentation at the
 URL `http://your-host-name-here:8081/swagger-ui.html`
 
+PolicyAgent uses A1-POLICY-AGENT-READ & A1-POLICY-AGENT-WRITE topic for subscribe & Publish to the DMaap.
+Sample Request Message to DMaaP:
+{
+  "type": "request",
+  "target": "policy-agent",
+  "timestamp": "2019-05-14T11:44:51.36Z",
+  "operation": "GET",
+  "correlationId": "c09ac7d1-de62-0016-2000-e63701125557-201",
+  "apiVersion": "1.0",
+  "originatorId": "849e6c6b420",
+  "requestId": "23343221",
+  "url": "/policies?type=type1&ric=ric1&service=service1"
+}
+
+Sample Response Message to DMaaP:
+{
+  "type": "response",
+  "timestamp": "2019-05-14T11:44:51.36Z",
+  "correlationId": "c09ac7d1-de62-0016-2000-e63701125557-201",
+  "originatorId": "849e6c6b420",
+  "requestId": "23343221",
+  "status": "200 OK",
+  "message": []
+}
+
 ## License
 
 Copyright (C) 2019 Nordix Foundation. All rights reserved.
