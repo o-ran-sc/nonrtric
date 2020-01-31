@@ -21,15 +21,24 @@
 package org.oransc.policyagent.clients;
 
 import org.oransc.policyagent.clients.A1Client.A1ProtocolType;
+import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.repository.Ric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
 
 public class A1ClientFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(A1ClientFactory.class);
+
+    private final ApplicationConfig appConfig;
+
+    @Autowired
+    public A1ClientFactory(ApplicationConfig appConfig) {
+        this.appConfig = appConfig;
+    }
 
     public Mono<A1Client> createA1Client(Ric ric) {
         return getProtocolVersion(ric) //
@@ -68,11 +77,13 @@ public class A1ClientFactory {
     }
 
     protected A1Client createSdncOscA1Client(Ric ric) {
-        return new SdncOscA1Client(ric.getConfig());
+        return new SdncOscA1Client(ric.getConfig(), appConfig.getA1ControllerBaseUrl(),
+            appConfig.getA1ControllerUsername(), appConfig.getA1ControllerPassword());
     }
 
     protected A1Client createSdnrOnapA1Client(Ric ric) {
-        return new SdnrOnapA1Client(ric.getConfig());
+        return new SdnrOnapA1Client(ric.getConfig(), appConfig.getA1ControllerBaseUrl(),
+            appConfig.getA1ControllerUsername(), appConfig.getA1ControllerPassword());
     }
 
     private Mono<A1Client.A1ProtocolType> fetchVersion(Ric ric, A1Client a1Client) {

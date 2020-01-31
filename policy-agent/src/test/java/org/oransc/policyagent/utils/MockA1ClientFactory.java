@@ -20,12 +20,15 @@
 
 package org.oransc.policyagent.utils;
 
+import static org.mockito.Mockito.mock;
+
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.oransc.policyagent.clients.A1Client;
 import org.oransc.policyagent.clients.A1ClientFactory;
+import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
 import org.slf4j.Logger;
@@ -37,6 +40,7 @@ public class MockA1ClientFactory extends A1ClientFactory {
     private final PolicyTypes policyTypes;
 
     public MockA1ClientFactory(PolicyTypes policyTypes) {
+        super(mock(ApplicationConfig.class));
         this.policyTypes = policyTypes;
     }
 

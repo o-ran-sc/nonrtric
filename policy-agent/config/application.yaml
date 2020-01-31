@@ -19,6 +19,9 @@ logging:
   file: /var/log/policy-agent/application.log
 app:
   filepath: /opt/app/policy-agent/config/application_configuration.json
+  a1ControllerBaseUrl: http://a1-controller-container:8181
+  a1ControllerUsername: admin
+  a1ControllerPassword: Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U
 
 server:
    port : 8081

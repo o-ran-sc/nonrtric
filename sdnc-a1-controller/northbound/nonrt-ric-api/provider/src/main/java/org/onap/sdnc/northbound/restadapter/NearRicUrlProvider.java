@@ -88,8 +88,8 @@ public class NearRicUrlProvider {
    * @return the putPolicy url
    */
   public String putPolicyUrl(final String nearRtRicUrl, final String policyId, final String policyTypeId) {
-    return UriComponentsBuilder.fromUriString(policiesUrl(nearRtRicUrl)).pathSegment(policyId)
-            .pathSegment("?policyTypeId=").pathSegment(policyTypeId).build().toString();
+    return UriComponentsBuilder.fromUriString(policiesUrl(nearRtRicUrl))
+            .pathSegment(policyId + "?policyTypeId=" + policyTypeId).build().toString();
   }
 
   /**

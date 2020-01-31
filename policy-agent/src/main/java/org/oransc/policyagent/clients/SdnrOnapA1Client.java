@@ -37,17 +37,21 @@ import reactor.core.publisher.Mono;
 
 public class SdnrOnapA1Client implements A1Client {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private static final String A1_CONTROLLER_URL = "http://sdnc_controller_container:8181/restconf/operations";
-    private static final String A1_CONTROLLER_USERNAME = "admin";
-    private static final String A1_CONTROLLER_PASSWORD = "Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U";
 
+    private String a1ControllerBaseUrl;
+    private String a1ControllerUsername;
+    private String a1ControllerPassword;
     private final RicConfig ricConfig;
     private final AsyncRestClient restClient;
 
-    public SdnrOnapA1Client(RicConfig ricConfig) {
+    public SdnrOnapA1Client(RicConfig ricConfig, String baseUrl, String username, String password) {
         this.ricConfig = ricConfig;
-        this.restClient = new AsyncRestClient(A1_CONTROLLER_URL);
-        logger.debug("SdnrOnapA1Client for ric: {}", this.ricConfig.name());
+        this.a1ControllerBaseUrl = baseUrl;
+        this.a1ControllerUsername = username;
+        this.a1ControllerPassword = password;
+        this.restClient = new AsyncRestClient(a1ControllerBaseUrl + "/restconf/operations");
+        logger.debug("SdnrOnapA1Client for ric: {}, a1ControllerBaseUrl: {}", this.ricConfig.name(),
+            a1ControllerBaseUrl);
     }
 
     @Override
@@ -58,8 +62,8 @@ public class SdnrOnapA1Client implements A1Client {
         logger.debug("POST getPolicyTypeIdentities inputJsonString = {}", inputJsonString);
 
         return restClient
-            .postWithAuthHeader("/A1-ADAPTER-API:getPolicyTypes", inputJsonString, A1_CONTROLLER_USERNAME,
-                A1_CONTROLLER_PASSWORD) //
+            .postWithAuthHeader("/A1-ADAPTER-API:getPolicyTypes", inputJsonString, a1ControllerUsername,
+                a1ControllerPassword) //
             .flatMap(response -> getValueFromResponse(response, "policy-type-id-list")) //
             .flatMap(this::parseJsonArrayOfString);
     }
@@ -81,8 +85,8 @@ public class SdnrOnapA1Client implements A1Client {
         logger.debug("POST getPolicyIdentities inputJsonString = {}", inputJsonString);
 
         return restClient
-            .postWithAuthHeader("/A1-ADAPTER-API:getPolicyInstances", inputJsonString, A1_CONTROLLER_USERNAME,
-                A1_CONTROLLER_PASSWORD) //
+            .postWithAuthHeader("/A1-ADAPTER-API:getPolicyInstances", inputJsonString, a1ControllerUsername,
+                a1ControllerPassword) //
             .flatMap(response -> getValueFromResponse(response, "policy-instance-id-list")) //
             .flatMap(this::parseJsonArrayOfString);
     }
@@ -96,8 +100,8 @@ public class SdnrOnapA1Client implements A1Client {
         logger.debug("POST getPolicyType inputJsonString = {}", inputJsonString);
 
         return restClient
-            .postWithAuthHeader("/A1-ADAPTER-API:getPolicyType", inputJsonString, A1_CONTROLLER_USERNAME,
-                A1_CONTROLLER_PASSWORD) //
+            .postWithAuthHeader("/A1-ADAPTER-API:getPolicyType", inputJsonString, a1ControllerUsername,
+                a1ControllerPassword) //
             .flatMap(response -> getValueFromResponse(response, "policy-type")) //
             .flatMap(this::extractPolicySchema);
     }
@@ -114,7 +118,7 @@ public class SdnrOnapA1Client implements A1Client {
         logger.debug("POST putPolicy inputJsonString = {}", inputJsonString);
 
         return restClient.postWithAuthHeader("/A1-ADAPTER-API:createPolicyInstance", inputJsonString,
-            A1_CONTROLLER_USERNAME, A1_CONTROLLER_PASSWORD);
+            a1ControllerUsername, a1ControllerPassword);
     }
 
     public Mono<String> deletePolicy(String policyTypeId, String policyId) {
@@ -126,7 +130,7 @@ public class SdnrOnapA1Client implements A1Client {
         logger.debug("POST deletePolicy inputJsonString = {}", inputJsonString);
 
         return restClient.postWithAuthHeader("/A1-ADAPTER-API:deletePolicyInstance", inputJsonString,
-            A1_CONTROLLER_USERNAME, A1_CONTROLLER_PASSWORD);
+            a1ControllerUsername, a1ControllerPassword);
     }
 
     @Override
@@ -164,6 +168,9 @@ public class SdnrOnapA1Client implements A1Client {
         try {
             JSONObject outputJson = new JSONObject(response);
             JSONObject responseParams = outputJson.getJSONObject("output");
+            if (!responseParams.has(key)) {
+                return Mono.just("");
+            }
             String value = responseParams.get(key).toString();
             return Mono.just(value);
         } catch (JSONException ex) { // invalid json
@@ -174,6 +181,9 @@ public class SdnrOnapA1Client implements A1Client {
     private Mono<List<String>> parseJsonArrayOfString(String inputString) {
         try {
             List<String> arrayList = new ArrayList<>();
+            if (inputString.isEmpty()) {
+                return Mono.just(arrayList);
+            }
             JSONArray jsonArray = new JSONArray(inputString);
             for (int i = 0; i < jsonArray.length(); i++) {
                 arrayList.add(jsonArray.getString(i));
