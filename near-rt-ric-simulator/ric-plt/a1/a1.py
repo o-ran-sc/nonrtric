@@ -44,11 +44,11 @@ def put_policy(policyId):
       if policyId != i and \
          data == policy_instances[i] and \
          policyTypeId == policy_type_per_instance[i]:
-        return(set_error(None, "The policy already exists with a different id.", 404, "No action has been taken. The id of the existing policy instance is: " + i + ".", None, None, None, None))
+        return(set_error(None, "The policy already exists with a different id.", 400, "No action has been taken. The id of the existing policy instance is: " + i + ".", None, None, None, None))
 
   if policyId in list(policy_instances.keys()):
     if data["scope"] != policy_instances[policyId]["scope"]:
-      return(set_error(None, "The policy already exists with a different scope.", 404, "The policy put involves a modification of the existing scope, which is not allowed.", None, None, "scope", None))
+      return(set_error(None, "The policy already exists with a different scope.", 400, "The policy put involves a modification of the existing scope, which is not allowed.", None, None, "scope", None))
 
   if 'code' in request.args:
     return(send_error_code(request.args))
