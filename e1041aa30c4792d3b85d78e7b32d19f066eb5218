@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "15daadb3_17f478d6",
+        "filename": "docs/developer-guide.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-01-31T15:32:38Z",
+      "side": 1,
+      "message": "Can you insert a reference to docks/api.yaml (which defines the REST API)?",
+      "range": {
+        "startLine": 45,
+        "startChar": 103,
+        "endLine": 45,
+        "endChar": 148
+      },
+      "revId": "e1041aa30c4792d3b85d78e7b32d19f066eb5218",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
