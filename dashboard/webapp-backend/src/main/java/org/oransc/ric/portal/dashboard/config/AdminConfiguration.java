@@ -38,21 +38,21 @@ import org.springframework.context.annotation.Profile;
 @Profile("!test")
 public class AdminConfiguration {
 
-	private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	// Populated by the autowired constructor
-	private final String userfile;
+    // Populated by the autowired constructor
+    private final String userfile;
 
-	@Autowired
-	public AdminConfiguration(@Value("${userfile}") final String userfile) {
-		logger.debug("ctor userfile '{}'", userfile);
-		this.userfile = userfile;
-	}
+    @Autowired
+    public AdminConfiguration(@Value("${userfile}") final String userfile) {
+        logger.debug("ctor userfile '{}'", userfile);
+        this.userfile = userfile;
+    }
 
-	@Bean
-	// The bean (method) name must be globally unique
-	public DashboardUserManager userManager() throws IOException {
-		return new DashboardUserManager(userfile);
-	}
+    @Bean
+    // The bean (method) name must be globally unique
+    public DashboardUserManager userManager() throws IOException {
+        return new DashboardUserManager(userfile);
+    }
 
 }

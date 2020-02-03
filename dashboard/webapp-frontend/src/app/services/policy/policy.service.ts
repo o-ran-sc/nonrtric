@@ -66,7 +66,7 @@ export class PolicyService {
         return this.httpClient.get<PolicyType[]>(url);
     }
 
-    getPolicyInstances(policyTypeId: number): Observable<PolicyInstance[]> {
+    getPolicyInstances(policyTypeId: string): Observable<PolicyInstance[]> {
         const url = this.buildPath(this.policyTypePath, policyTypeId, this.policyPath);
         return this.httpClient.get<PolicyInstance[]>(url);
     }
@@ -75,7 +75,7 @@ export class PolicyService {
      * Gets policy parameters.
      * @returns Observable that should yield a policy instance
      */
-    getPolicy(policyTypeId: number, policyInstanceId: string): Observable<any> {
+    getPolicy(policyTypeId: string, policyInstanceId: string): Observable<any> {
         const url = this.buildPath(this.policyTypePath, policyTypeId, this.policyPath, policyInstanceId);
         return this.httpClient.get<any>(url);
     }
@@ -87,8 +87,8 @@ export class PolicyService {
      * @param policyJson Json with the policy content
      * @returns Observable that should yield a response code, no data
      */
-    putPolicy(policyTypeId: number, policyInstanceId: string, policyJson: string): Observable<any> {
-        const url = this.buildPath(this.policyTypePath, policyTypeId, this.policyPath, policyInstanceId);
+    putPolicy(policyTypeId: string, policyInstanceId: string, policyJson: string, ric: string): Observable<any> {
+        const url = this.buildPath(this.policyTypePath, policyTypeId, this.policyPath, policyInstanceId) + "?ric=" + ric;
         return this.httpClient.put<PolicyInstanceAck>(url, policyJson, { observe: 'response' });
     }
 
@@ -97,8 +97,14 @@ export class PolicyService {
      * @param policyTypeId
      * @returns Observable that should yield a response code, no data
      */
-    deletePolicy(policyTypeId: number, policyInstanceId: string): Observable<any> {
+    deletePolicy(policyTypeId: string, policyInstanceId: string): Observable<any> {
         const url = this.buildPath(this.policyTypePath, policyTypeId, this.policyPath, policyInstanceId);
         return this.httpClient.delete(url, { observe: 'response' });
+    }
+
+
+    getRics(policyTypeId: string): Observable<string[]> {
+        const url = this.buildPath('rics') + '?policyType=' + policyTypeId;
+        return this.httpClient.get<any>(url);
     }
 }

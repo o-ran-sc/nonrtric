@@ -21,24 +21,24 @@ package org.oransc.ric.portal.dashboard;
 
 public abstract class DashboardConstants {
 
-	private DashboardConstants() {
-		// Sonar insists on hiding the constructor
-	}
+    private DashboardConstants() {
+        // Sonar insists on hiding the constructor
+    }
 
-	public static final String ENDPOINT_PREFIX = "/api";
-	// Factor out method names used in multiple controllers
-	public static final String VERSION_METHOD = "version";
-	public static final String APP_NAME_AC = "AC";
-	public static final String APP_NAME_MC = "MC";
-	// The role names are defined by ONAP Portal.
-	// The prefix "ROLE_" is required by Spring.
-	// These are used in Java code annotations that require constants.
-	public static final String ROLE_NAME_STANDARD = "Standard_User";
-	public static final String ROLE_NAME_ADMIN = "System_Administrator";
-	private static final String ROLE_PREFIX = "ROLE_";
-	public static final String ROLE_ADMIN = ROLE_PREFIX + ROLE_NAME_ADMIN;
-	public static final String ROLE_STANDARD = ROLE_PREFIX + ROLE_NAME_STANDARD;
-	public static final String A1_CONTROLLER_USERNAME = "admin";
-	public static final String A1_CONTROLLER_PASSWORD = "Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U";
+    public static final String ENDPOINT_PREFIX = "/api";
+    // Factor out method names used in multiple controllers
+    public static final String VERSION_METHOD = "version";
+    public static final String APP_NAME_AC = "AC";
+    public static final String APP_NAME_MC = "MC";
+    // The role names are defined by ONAP Portal.
+    // The prefix "ROLE_" is required by Spring.
+    // These are used in Java code annotations that require constants.
+    public static final String ROLE_NAME_STANDARD = "Standard_User";
+    public static final String ROLE_NAME_ADMIN = "System_Administrator";
+    private static final String ROLE_PREFIX = "ROLE_";
+    public static final String ROLE_ADMIN = ROLE_PREFIX + ROLE_NAME_ADMIN;
+    public static final String ROLE_STANDARD = ROLE_PREFIX + ROLE_NAME_STANDARD;
+    public static final String POLICY_CONTROLLER_USERNAME = "admin";
+    public static final String POLICY_CONTROLLER_PASSWORD = "Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U";
 
 }

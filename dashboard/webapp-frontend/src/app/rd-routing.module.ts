@@ -22,20 +22,20 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Routes, RouterModule } from '@angular/router';
 import { MainComponent } from './main/main.component';
-import { PolicyControlComponent} from './policy-control/policy-control.component';
+import { PolicyControlComponent } from './policy-control/policy-control.component';
 
 
 const routes: Routes = [
-    {path: '', component: MainComponent},  
-    {path: 'policy', component: PolicyControlComponent}
+    { path: '', component: MainComponent },
+    { path: 'policy', component: PolicyControlComponent }
 ];
 
 @NgModule({
-  imports: [
-      CommonModule,
-      RouterModule.forRoot(routes)],
-  exports: [
-      RouterModule
+    imports: [
+        CommonModule,
+        RouterModule.forRoot(routes)],
+    exports: [
+        RouterModule
     ],
     declarations: []
 })

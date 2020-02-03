@@ -1,10 +1,6 @@
 .. This work is licensed under a Creative Commons Attribution 4.0 International License.
 .. SPDX-License-Identifier: CC-BY-4.0
 
-A1 Mediation:
-1. SDNC Controller
-2. Near-RT RIC Simulator
-
 SDNC A1 Controller Developer Guide
 ==================================
 
@@ -42,6 +38,22 @@ The SDNC url to access the Northbound API,
     http://localhost:8282/apidoc/explorer/index.html
 
 Credentials: admin/Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U
+
+Policy Agent
+=====================================
+The O-RAN NonRT RIC PolicyAgent provides a REST API for management of policices. It provides support for:
+
+ * Supervision of clients (R-APPs) to eliminate stray policies in case of failure
+ * Consistency monitoring of the SMO view of policies and the actual situation in the RICs
+ * Consistency monitoring of RIC capabilities (policy types)
+ * Policy configuration. This includes:
+
+   * One REST API towards all RICs in the network
+   * Query functions that can find all policies in a RIC, all policies owned by a service (R-APP), all policies of a type etc.
+   * Maps O1 resources (ManagedElement) as defined in O1 to the controlling RIC.
+  
+The PolicyAgent can be accessed over the REST API or through the DMaaP Interface. The REST API is documented in the *nonrtric/policy-agent/docs/api.yaml* file. Please Refer README file of PolicyAgent to know more about the API's.
+
 
 Near-RT RIC Simulator Developer Guide
 =====================================

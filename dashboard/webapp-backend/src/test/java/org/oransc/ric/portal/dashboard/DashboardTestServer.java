@@ -19,7 +19,10 @@
  */
 package org.oransc.ric.portal.dashboard;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.lang.invoke.MethodHandles;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
@@ -45,25 +47,25 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
-@ActiveProfiles("test")
 public class DashboardTestServer {
 
-	private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	/*
-	 * Keeps the test server alive forever. Use a guard so this test is never run by
-	 * Jenkins.
-	 */
-	@EnabledIfSystemProperty(named = "org.oransc.ric.portal.dashboard", matches = "mock")
-	@Test
-	public void keepServerAlive() {
-		logger.warn("Keeping server alive!");
-		try {
-			synchronized (this) {
-				this.wait();
-			}
-		} catch (Exception ex) {
-			logger.warn(ex.toString());
-		}
-	}
+    /*
+     * Keeps the test server alive forever. Use a guard so this test is never run by
+     * Jenkins.
+     */
+    @EnabledIfSystemProperty(named = "org.oransc.ric.portal.dashboard", matches = "mock")
+    @Test
+    public void keepServerAlive() {
+        logger.warn("Keeping server alive!");
+        try {
+            synchronized (this) {
+                this.wait();
+            }
+        } catch (Exception ex) {
+            logger.warn(ex.toString());
+        }
+        assertEquals(1, 2);
+    }
 }

@@ -1,0 +1,7 @@
+#Eclipse
+.project
+.classpath
+.settings
+target
+.checkstyle
+policy-agent.iml

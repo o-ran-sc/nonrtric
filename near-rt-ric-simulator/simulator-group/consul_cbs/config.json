@@ -1,0 +1,13 @@
+{
+  "//description": "Application configuration",
+  "ric": [
+    {
+      "name": "ric3",
+      "baseUrl": "http://ric3:8085/",
+      "managedElementIds": [
+        "kista_5",
+        "kista_6"
+      ]
+    }
+  ]
+}

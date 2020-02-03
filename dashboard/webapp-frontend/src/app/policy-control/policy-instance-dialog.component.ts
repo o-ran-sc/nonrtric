@@ -74,14 +74,29 @@ export class PolicyInstanceDialogComponent implements OnInit, AfterViewInit {
     formValidationErrors: any;
     formIsValid = false;
 
-
     @ViewChild(MatMenuTrigger, { static: true }) menuTrigger: MatMenuTrigger;
 
-    public policyInstanceId: string;
-    public policyTypeName: string;
+    policyInstanceId: string; // null if not yet created
+    policyTypeName: string;
     darkMode: boolean;
-    private policyTypeId: number;
+    ric: string;
+    allRics: string[];
 
+    private fetchRics() {
+        console.log('fetchRics ' + this.policyTypeName);
+        const self: PolicyInstanceDialogComponent = this;
+        this.dataService.getRics(this.policyTypeName).subscribe(
+            {
+                next(value) {
+                    self.allRics = value;
+                    console.log(value);
+                },
+                error(error) {
+                    self.errorService.displayError('Fetching of rics failed: ' + error.message);
+                },
+                complete() { }
+            });
+    }
 
     constructor(
         private dataService: PolicyService,
@@ -93,9 +108,9 @@ export class PolicyInstanceDialogComponent implements OnInit, AfterViewInit {
         this.formActive = false;
         this.policyInstanceId = data.instanceId;
         this.policyTypeName = data.name;
-        this.policyTypeId = data.policyTypeId;
         this.jsonSchemaObject = data.createSchema;
         this.jsonObject = this.parseJson(data.instanceJson);
+        this.ric = data.ric;
     }
 
     ngOnInit() {
@@ -104,6 +119,9 @@ export class PolicyInstanceDialogComponent implements OnInit, AfterViewInit {
         this.ui.darkModeState.subscribe((isDark) => {
             this.darkMode = isDark;
         });
+        if (!this.policyInstanceId) {
+            this.fetchRics();
+        }
     }
 
     ngAfterViewInit() {
@@ -115,7 +133,7 @@ export class PolicyInstanceDialogComponent implements OnInit, AfterViewInit {
         }
         const policyJson: string = this.prettyLiveFormData;
         const self: PolicyInstanceDialogComponent = this;
-        this.dataService.putPolicy(this.policyTypeId, this.policyInstanceId, policyJson).subscribe(
+        this.dataService.putPolicy(this.policyTypeName, this.policyInstanceId, policyJson, this.ric).subscribe(
             {
                 next(value) {
                     self.notificationService.success('Policy ' + self.policyTypeName + ':' + self.policyInstanceId + ' submitted');
@@ -194,11 +212,11 @@ export class PolicyInstanceDialogComponent implements OnInit, AfterViewInit {
 }
 
 export function getPolicyDialogProperties(policyType: PolicyType, instance: PolicyInstance, darkMode: boolean): MatDialogConfig {
-    const policyTypeId = policyType.policy_type_id;
     const createSchema = policyType.schemaObject;
-    const instanceId = instance ? instance.instanceId : null;
-    const instanceJson = instance ? instance.instance : null;
+    const instanceId = instance ? instance.id : null;
+    const instanceJson = instance ? instance.json : null;
     const name = policyType.name;
+    const ric = instance ? instance.ric : null;
     return {
         maxWidth: '1200px',
         maxHeight: '900px',
@@ -207,11 +225,11 @@ export function getPolicyDialogProperties(policyType: PolicyType, instance: Poli
         disableClose: false,
         panelClass: darkMode ? 'dark-theme' : '',
         data: {
-            policyTypeId,
             createSchema,
             instanceId,
             instanceJson,
-            name
+            name,
+            ric
         }
     };
 }

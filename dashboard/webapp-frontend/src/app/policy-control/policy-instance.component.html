@@ -22,7 +22,25 @@
 
     <ng-container matColumnDef="instanceId">
         <mat-header-cell mat-sort-header *matHeaderCellDef>Instance</mat-header-cell>
-        <mat-cell *matCellDef="let element" (click)="modifyInstance(element)">{{element.instanceId}}
+        <mat-cell *matCellDef="let element" (click)="modifyInstance(element)">{{element.id}}
+        </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="ric">
+        <mat-header-cell mat-sort-header *matHeaderCellDef>Ric</mat-header-cell>
+        <mat-cell *matCellDef="let element" (click)="modifyInstance(element)">{{element.ric}}
+        </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="service">
+        <mat-header-cell mat-sort-header *matHeaderCellDef>Owner</mat-header-cell>
+        <mat-cell *matCellDef="let element" (click)="modifyInstance(element)">{{element.service}}
+        </mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="lastModified">
+        <mat-header-cell mat-sort-header *matHeaderCellDef>Last modified</mat-header-cell>
+        <mat-cell *matCellDef="let element" (click)="modifyInstance(element)">{{toLocalTime(element.lastModified)}}
         </mat-cell>
     </ng-container>
 
@@ -42,9 +60,10 @@
         <mat-footer-cell *matFooterCellDef>No records found.</mat-footer-cell>
     </ng-container>
 
-    <mat-header-row *matHeaderRowDef="['instanceId',  'action']" [ngClass]="{'display-none': !this.hasInstances()}">
+    <mat-header-row *matHeaderRowDef="['instanceId', 'ric', 'service', 'lastModified', 'action']"
+        [ngClass]="{'display-none': !this.hasInstances()}">
     </mat-header-row>
-    <mat-row *matRowDef="let instance; columns: ['instanceId', 'action'];"></mat-row>
+    <mat-row *matRowDef="let instance; columns: ['instanceId', 'ric', 'service', 'lastModified', 'action'];"></mat-row>
 
     <mat-footer-row *matFooterRowDef="['noRecordsFound']" [ngClass]="{'display-none': this.hasInstances()}">
     </mat-footer-row>

@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ERIC_QoSNudging_0.2.0",
+  "description": "QoS nudging policy type with priorityLevel and ueId and qosId as scope",
+  "type": "object",
+  "properties": {
+    "scope": {
+      "type": "object",
+      "properties": {
+        "ueId": {"type": "string"},
+        "qosId": {"type": "string"}
+      },
+      "additionalProperties": false,
+      "required": ["ueId", "qosId"]
+    },
+    "qosObjectives": {
+      "type": "object",
+      "properties": {
+        "priorityLevel": {"type": "number"}
+      },
+      "additionalProperties": false,
+      "required": ["priorityLevel"]
+    }
+  },
+  "additionalProperties": false,
+  "required": ["scope", "qosObjectives"]
+}

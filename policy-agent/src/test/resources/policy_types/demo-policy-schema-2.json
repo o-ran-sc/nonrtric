@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Example_QoETarget_1.0.0",
+  "description": "Example QoE Target policy type",
+  "type": "object",
+  "properties": {
+    "scope": {
+      "type": "object",
+      "properties": {
+        "ueId": {
+          "type": "string"
+        },
+        "sliceId": {
+          "type": "string"
+        },
+        "qosId": {
+          "type": "string"
+        },
+        "cellId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "ueId",
+        "sliceId"
+      ]
+    },
+    "statement": {
+      "type": "object",
+      "properties": {
+        "qoeScore": {
+          "type": "number"
+        },
+        "initialBuffering": {
+          "type": "number"
+        },
+        "reBuffFreq": {
+          "type": "number"
+        },
+        "stallRatio": {
+          "type": "number"
+        }
+      },
+      "minProperties": 1,
+      "additionalProperties": false
+    }
+  }
+}

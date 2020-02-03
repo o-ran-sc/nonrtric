@@ -23,47 +23,35 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PolicyType {
 
-	@JsonProperty("policy_type_id")
-	Integer policyTypeId;
+    @JsonProperty("name")
+    String name;
 
-	@JsonProperty("name")
-	String name;
+    @JsonProperty("schema")
+    String schema;
 
-	@JsonProperty("schema")
-	String schema;
+    public PolicyType(String name, String schema) {
+        this.name = name;
+        this.schema = schema;
+    }
 
-	public PolicyType(Integer policyId, String name, String schema) {
-		this.policyTypeId = policyId;
-		this.name = name;
-		this.schema = schema;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public Integer getPolicyTypeId() {
-		return policyTypeId;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setPolicyTypeId(Integer policyTypeId) {
-		this.policyTypeId = policyTypeId;
-	}
+    public String getSchema() {
+        return schema;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public void setSchema(String schema) {
+        this.schema = schema;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getSchema() {
-		return schema;
-	}
-
-	public void setSchema(String schema) {
-		this.schema = schema;
-	}
-
-	@Override
-	public String toString() {
-		return "[policy_type_id:" + policyTypeId + ", name:" + name + ", schema:" + schema + "]";
-	}
+    @Override
+    public String toString() {
+        return "[name:" + name + ", schema:" + schema + "]";
+    }
 }

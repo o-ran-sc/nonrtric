@@ -23,9 +23,10 @@ package org.oransc.ric.portal.dashboard.config;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
+
 import org.onap.portalsdk.core.onboarding.util.PortalApiConstants;
 import org.oransc.ric.portal.dashboard.DashboardUserManager;
-import org.oransc.ric.portal.dashboard.controller.A1Controller;
+import org.oransc.ric.portal.dashboard.controller.PolicyController;
 import org.oransc.ric.portal.dashboard.controller.SimpleErrorController;
 import org.oransc.ric.portal.dashboard.portalapi.PortalAuthManager;
 import org.oransc.ric.portal.dashboard.portalapi.PortalAuthenticationFilter;
@@ -50,77 +51,77 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 @Profile("!test")
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-	private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-	// Although constructor arguments are recommended over field injection,
-	// this results in fewer lines of code.
-	@Value("${portalapi.security}")
-	private Boolean portalapiSecurity;
-	@Value("${portalapi.appname}")
-	private String appName;
-	@Value("${portalapi.username}")
-	private String userName;
-	@Value("${portalapi.password}")
-	private String password;
-	@Value("${portalapi.decryptor}")
-	private String decryptor;
-	@Value("${portalapi.usercookie}")
-	private String userCookie;
+    // Although constructor arguments are recommended over field injection,
+    // this results in fewer lines of code.
+    @Value("${portalapi.security}")
+    private Boolean portalapiSecurity;
+    @Value("${portalapi.appname}")
+    private String appName;
+    @Value("${portalapi.username}")
+    private String userName;
+    @Value("${portalapi.password}")
+    private String password;
+    @Value("${portalapi.decryptor}")
+    private String decryptor;
+    @Value("${portalapi.usercookie}")
+    private String userCookie;
 
-	@Autowired
-	DashboardUserManager userManager;
+    @Autowired
+    DashboardUserManager userManager;
 
-	@Override
+    @Override
     protected void configure(HttpSecurity http) throws Exception {
-		logger.debug("configure: portalapi.username {}", userName);
-		// A chain of ".and()" always baffles me
-		http.authorizeRequests().anyRequest().authenticated();
-		http.headers().frameOptions().disable();
-		http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
-		http.addFilterBefore(portalAuthenticationFilterBean(), BasicAuthenticationFilter.class);
-	}
+        logger.debug("configure: portalapi.username {}", userName);
+        // A chain of ".and()" always baffles me
+        http.authorizeRequests().anyRequest().authenticated();
+        http.headers().frameOptions().disable();
+        http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+        http.addFilterBefore(portalAuthenticationFilterBean(), BasicAuthenticationFilter.class);
+    }
 
-	/**
-	 * Resource paths that do not require authentication, especially including
-	 * Swagger-generated documentation.
-	 */
-	public static final String[] OPEN_PATHS = { //
-			"/v2/api-docs", //
-			"/swagger-resources/**", //
-			"/swagger-ui.html", //
-			"/webjars/**", //
-			PortalApiConstants.API_PREFIX + "/**", //
-			A1Controller.CONTROLLER_PATH + "/" + A1Controller.VERSION_METHOD, //					
-			SimpleErrorController.ERROR_PATH };
+    /**
+     * Resource paths that do not require authentication, especially including
+     * Swagger-generated documentation.
+     */
+    public static final String[] OPEN_PATHS = { //
+        "/v2/api-docs", //
+        "/swagger-resources/**", //
+        "/swagger-ui.html", //
+        "/webjars/**", //
+        PortalApiConstants.API_PREFIX + "/**", //
+        PolicyController.CONTROLLER_PATH + "/" + PolicyController.VERSION_METHOD, //
+        SimpleErrorController.ERROR_PATH};
 
-	@Override
-	public void configure(WebSecurity web) throws Exception {
-		// This disables Spring security, but not the app's filter.
-		web.ignoring().antMatchers(OPEN_PATHS);
-	}
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        // This disables Spring security, but not the app's filter.
+        web.ignoring().antMatchers(OPEN_PATHS);
+    }
 
-	@Bean
-	public PortalAuthManager portalAuthManagerBean()
-			throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException,
-			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
-		return new PortalAuthManager(appName, userName, password, decryptor, userCookie);
-	}
+    @Bean
+    public PortalAuthManager portalAuthManagerBean()
+        throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException,
+        IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+        return new PortalAuthManager(appName, userName, password, decryptor, userCookie);
+    }
 
-	/*
-	 * If this is annotated with @Bean, it is created automatically AND REGISTERED,
-	 * and Spring processes annotations in the source of the class. However, the
-	 * filter is added in the chain apparently in the wrong order. Alternately, with
-	 * no @Bean and added to the chain up in the configure() method in the desired
-	 * order, the ignoring() matcher pattern configured above causes Spring to
-	 * bypass this filter, which seems to me means the filter participates
-	 * correctly.
-	 */
-	public PortalAuthenticationFilter portalAuthenticationFilterBean()
-			throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException,
-			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
-		PortalAuthenticationFilter portalAuthenticationFilter = new PortalAuthenticationFilter(portalapiSecurity,
-				portalAuthManagerBean(), this.userManager);
-		return portalAuthenticationFilter;
-	}
+    /*
+     * If this is annotated with @Bean, it is created automatically AND REGISTERED,
+     * and Spring processes annotations in the source of the class. However, the
+     * filter is added in the chain apparently in the wrong order. Alternately, with
+     * no @Bean and added to the chain up in the configure() method in the desired
+     * order, the ignoring() matcher pattern configured above causes Spring to
+     * bypass this filter, which seems to me means the filter participates
+     * correctly.
+     */
+    public PortalAuthenticationFilter portalAuthenticationFilterBean()
+        throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException,
+        IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+        PortalAuthenticationFilter portalAuthenticationFilter =
+            new PortalAuthenticationFilter(portalapiSecurity, portalAuthManagerBean(), this.userManager);
+        return portalAuthenticationFilter;
+    }
 
 }

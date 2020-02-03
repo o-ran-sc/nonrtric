@@ -36,7 +36,19 @@
 <div class="text-muted" *ngIf="jsonSchemaObject.description">{{jsonSchemaObject.description}}</div>
 
 <div fxLayout="row" fxLayoutAlign="space-around start" fxLayout.lt-sm="column" fxLayoutAlign.lt-sm="flex-start center">
+
+
     <mat-card class="card" [ngClass]="{'card-dark': darkMode}">
+
+        <mat-form-field *ngIf="!this.policyInstanceId">
+            <mat-label [class.text-danger]="!this.ric">Select RIC</mat-label>
+            <mat-select [(value)]="this.ric">
+                <mat-option *ngFor="let ric of this.allRics" [value]="ric">
+                    {{ric}}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+
         <h4 class="default-cursor" (click)="toggleVisible('form')">
             <mat-icon matTooltip="Properties">{{isVisible.form ? 'expand_less' : 'expand_more'}}</mat-icon>
             Properties
@@ -51,8 +63,8 @@
             </json-schema-form>
         </div>
         <hr />
-        <button mat-raised-button (click)="this.onSubmit()" [disabled]="!this.formIsValid" class="submitBtn"
-            style="margin-right:10px">Submit</button>
+        <button mat-raised-button (click)="this.onSubmit()" [disabled]="!this.formIsValid || !this.ric"
+            class="submitBtn">Submit</button>
         <button mat-raised-button (click)="this.onClose()">Close</button>
         <hr />
         <h4 [class.text-danger]="!formIsValid && !isVisible.json" [class.default-cursor]="formIsValid || isVisible.json"
