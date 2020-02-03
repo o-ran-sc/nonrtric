@@ -71,7 +71,7 @@ See the following document for the Policy Agent API: nonrtric/policy-agent/docs/
 
 Near-RT RIC Simulator
 =====================
-A simulator that simulates a Neat-RT RIC, with a termination of the A1 interface. It also provides an administrative API to manage types and instances so it can be programatically set up for use in tests.
+A simulator that simulates a Near-RT RIC, with a termination of the A1 interface. It also provides an administrative API to manage types and instances so it can be programatically set up for use in tests.
 
 See the README.md file in the nonrtric/near-rt-ric-simulator repo for info about how to use it.
 

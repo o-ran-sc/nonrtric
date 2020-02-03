@@ -41,8 +41,18 @@ Credentials: admin/Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U
 
 Policy Agent
 =====================================
-The O-RAN NonRT RIC PolicyAgent provides a REST API for management of policices. It provides support for: -Supervision of clients (R-APPs) to eliminate stray policies in case of failure -Consistency monitoring of the SMO view of policies and the actual situation in the RICs -Consistency monitoring of RIC capabilities (policy types) -Policy configuration. This includes: -One REST API towards all RICs in the network -Query functions that can find all policies in a RIC, all policies owned by a service (R-APP), all policies of a type etc. -Maps O1 resources (ManagedElement) as defined in O1 to the controlling RIC.
-The PolicyAgent can be accessed over the REST API or throught DMaaP Interface. Please Refer README file of PolicyAgent to know more about the API's.
+The O-RAN NonRT RIC PolicyAgent provides a REST API for management of policices. It provides support for:
+
+ * Supervision of clients (R-APPs) to eliminate stray policies in case of failure
+ * Consistency monitoring of the SMO view of policies and the actual situation in the RICs
+ * Consistency monitoring of RIC capabilities (policy types)
+ * Policy configuration. This includes:
+
+   * One REST API towards all RICs in the network
+   * Query functions that can find all policies in a RIC, all policies owned by a service (R-APP), all policies of a type etc.
+   * Maps O1 resources (ManagedElement) as defined in O1 to the controlling RIC.
+  
+The PolicyAgent can be accessed over the REST API or through the DMaaP Interface. The REST API is documented in the *nonrtric/policy-agent/docs/api.yaml* file. Please Refer README file of PolicyAgent to know more about the API's.
 
 
 Near-RT RIC Simulator Developer Guide
