@@ -32,7 +32,7 @@ To run the dashboard locally, you can follow these steps:
 
 - Fetch the latest code from `gerrit`_
 
-.. _gerrit: https://gerrit.nordix.org/c/oransc/nonrtric/+/2747/
+.. _gerrit: https://gerrit.o-ran-sc.org/r/admin/repos/nonrtric
 
 - Before compiling, run the following commands::
 
