@@ -4,7 +4,7 @@ container_release_tag: 1.7.3
 container_pull_registry: nexus3.o-ran-sc.org:10004
 container_push_registry: nexus3.o-ran-sc.org:10002
 project: nonrtric
-ref: ec3829493c0b71c5e5908a430edd1e493504178e
+ref: 08691d2192981c302a5528669fdb71e48cb3dcbc
 containers:
     - name: nonrtric-a1-controller
       version: 1.7.3
