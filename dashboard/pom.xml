@@ -33,7 +33,7 @@ limitations under the License.
 	<artifactId>ric-dash-parent</artifactId>
 	<name>NonRT RIC Dashboard project</name>
 	<packaging>pom</packaging>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<properties>
 		<java.version>11</java.version>
 		<!-- Properties for the license-maven-plugin in child POMs -->
