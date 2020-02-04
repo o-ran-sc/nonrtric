@@ -2,57 +2,34 @@
 .. SPDX-License-Identifier: CC-BY-4.0
 
 
-..please write your project overview
-..please delete this content after editing
-
-
-Non-RT RIC Overview
-===================
+Requirements for the Non-RT RIC project
+==========================================
 
 Find detailed description of what Non-RT RIC is on this `page`_.
 
 .. _page: https://wiki.o-ran-sc.org/display/RICNR/
 
-A-release architecture
-----------------------
-
-The architecture is as shown on the following picture:
-
-.. image:: ./images/architecture.png
-   :scale: 50 %
-
-The A1 controller is located in SDNC, an ONAP component. It communicates with ORAN via the A1 interface with the Near-RT RIC simulator.
-
-On the other end, it is accessible via a dashboard, that allows to interact with policies. The dashboard itself is split into the backend and the frontend, and can be deployed following the instructions on the `human interfaces page`_.
-
-.. _human interfaces page: ./human-interfaces.html
-
-Requirements for the Non-RT RIC project
----------------------------------------
-
 There are functional requirements emitted by O-RAN WG2 for the Non-RT RIC, which are the following:
 
-1. Non-RT RIC shall support data retrieval and analysis; the data may include performance, configuration or other data related to the application (recommended data shown in required data section for  different use cases).
-2. Non-RT RIC shall support relevant AI/ML model training based on the data in 1. for non-real-time optimization of configuration parameters in RAN or Near-RT RIC, as applicable for the use case.
-3. Non-RT RIC shall support relevant AI/ML model training based on the data in 1. for generating/optimizing policies and intents to guide the behavior of applications in Near-RT RIC or RAN, as applicable for the use case.
-4. Non-RT RIC shall support training of relevant AI/ML models based on the data in 1. to be deployed/updated in Near-RT RIC as required by the applications.
-5. Non-RT RIC shall support performance monitoring and evaluation.
-6. Non-RT RIC shall support a fallback mechanism to prevent drastic degradation/fluctuation of performance, e.g. to restore to the previous policy or configuration.
+#. Non-RT RIC shall support data retrieval and analysis; the data may include performance, configuration or other data related to the application (recommended data shown in required data section for  different use cases).
+#. Non-RT RIC shall support relevant AI/ML model training based on the data in 1. for non-real-time optimization of configuration parameters in RAN or Near-RT RIC, as applicable for the use case.
+#. Non-RT RIC shall support relevant AI/ML model training based on the data in 1. for generating/optimizing policies and intents to guide the behavior of applications in Near-RT RIC or RAN, as applicable for the use case.
+#. Non-RT RIC shall support training of relevant AI/ML models based on the data in 1. to be deployed/updated in Near-RT RIC as required by the applications.
+#. Non-RT RIC shall support performance monitoring and evaluation.
+#. Non-RT RIC shall support a fallback mechanism to prevent drastic degradation/fluctuation of performance, e.g. to restore to the previous policy or configuration.
 
 The non-functional requirements are the following ones:
 
-1. Non-RT RIC shall not update the same policy or configuration parameter for a given near-RT RIC or RAN function more often than once per second.
-2. Non-RT RIC shall be able to update policies in several near-RT RICs.
+#. Non-RT RIC shall not update the same policy or configuration parameter for a given near-RT RIC or RAN function more often than once per second.
+#. Non-RT RIC shall be able to update policies in several near-RT RICs.
 
 Moreover, there are functional requirements regarding the A1 interface:
 
-1. A1 interface shall support communication of policies/intents from Non-RT RIC to Near-RT RIC.
-2. A1 interface shall support AI/ML model deployment and update from Non-RT RIC to Near-RT RIC.
-3. A1 interface shall support communication of enrichment information from Non-RT RIC to Near-RT RIC.
-4. A1 interface shall support feedback from Near-RT RIC for monitoring AI/ML model performance.
-5. A1 interface shall support the policy/intents feedback from Near-RT RIC to Non-RT RIC.
-
-.. _a1_policy_procedure:
+#. A1 interface shall support communication of policies/intents from Non-RT RIC to Near-RT RIC.
+#. A1 interface shall support AI/ML model deployment and update from Non-RT RIC to Near-RT RIC.
+#. A1 interface shall support communication of enrichment information from Non-RT RIC to Near-RT RIC.
+#. A1 interface shall support feedback from Near-RT RIC for monitoring AI/ML model performance.
+#. A1 interface shall support the policy/intents feedback from Near-RT RIC to Non-RT RIC.
 
 A1 policy procedure
 -------------------
@@ -72,3 +49,60 @@ As for A-release, the methods are as follows:
 +---------------------+--------------------------+--------------------------+
 | Notify policy       | POST                     | POST                     |
 +---------------------+--------------------------+--------------------------+
+
+Policy Agent Overview
+=======================
+
+The Policy Agent maintains a transient ropository of the following items to support R-Apps:
+
+ * All NearRT RICs in the network. This information is configured using the ONAP CDS database (which is using the Cloudify Consul database).
+ * All Policy types for all NearRT RICs
+ * All configured Policy instances in the network
+
+It provides an NBI for the R-Apps (and for the dashboard) for policy management. This is a REST API.
+As an option, policy management can also be done via asynchronous messages through ONAP/Dmaap.
+The NBI provides support for an R-APP to locate the correct NearRT RIC based on identifiers as defined in O1.
+
+The agent monitors all Near-RT RICs and recovers from data inconsistencies, which may happen when (for instance) an Near-RT RIC restarts.
+
+The R-Apps can be monitored so that their Policies can be automatically removed when an R-App is stopped/removed.
+
+On its southbound side the agent can connect to a number of different A1 providers:
+
+ * Directly to the NonRT RIC:
+
+      - OSC API, which is influenced by the A1 standard
+      - The NonRT RIC simulator, which supports the A1 standard with a number of not yet CRs included.
+ * To an ONAP style controller.
+
+Amber release Policy Agent architecture
+-----------------------------------------
+
+.. image:: ./images/NonRtRicComponents.png
+   :scale: 50 %
+
+NonRT RIC components:
+
+ #. Non-RT RIC Dashboard
+ #. Policy agent
+ #. SDNC A1 Controller
+ #. Near-RT RIC Simulator
+
+Dashboard Overview
+===================
+
+The NonRT RIC Dashboard is a graphical user  user interface that enables the user to manage the Policies in the network. The dashboard interacts with the Policy agent via a REST API.
+The dashboard generates its GUI from JSON schemas in a model driven fashion.
+
+The dashboards consists of a back end implemented as a Java Springboot application and a fronted developed using the Angular framework.
+
+Amber release Dashboard architecture
+-----------------------------------------
+
+The architecture of the dashboardis as shown on the following picture:
+
+.. image:: ./images/architecture.png
+   :scale: 50 %
+
+The dashboard itself is split
+into the backend and the frontend, and can be deployed following the instructions in the README.md file in the repo.
