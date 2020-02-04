@@ -46,6 +46,7 @@
     <properties>
         <image.name>onap/sdnc-aaf-image</image.name>
         <standalone.image.name>o-ran-sc/nonrtric-a1-controller</standalone.image.name>
+	<standalone.image.version>1.7.4-SNAPSHOT</standalone.image.version>
         <sdnc.project.version>${project.version}</sdnc.project.version>
         <sdnc.build.timestamp>${maven.build.timestamp}</sdnc.build.timestamp>
         <sdnc.northbound.version>1.7.3-SNAPSHOT</sdnc.northbound.version>
@@ -133,13 +134,13 @@
                      <configuration>
                       <images>
                        <image>
-                        <name>${standalone.image.name}:${project.version}</name>
+                        <name>${standalone.image.name}:${standalone.image.version}</name>
                         <build>
                          <cleanup>try</cleanup>
                          <dockerFileDir>${basedir}/target/docker-stage</dockerFileDir>
                          <dockerFile>standalone.Dockerfile</dockerFile>
                          <tags>
-                             <tag>${project.version}</tag>
+                             <tag>${standalone.image.version}</tag>
                          </tags>
                         </build>
                        </image>
@@ -157,13 +158,13 @@
                        <pushRegistry>${env.CONTAINER_PUSH_REGISTRY}</pushRegistry>
                        <images>
                         <image>
-                         <name>${standalone.image.name}:${project.version}</name>
+                         <name>${standalone.image.name}:${standalone.image.version}</name>
                          <build>
                           <cleanup>try</cleanup>
                           <dockerFileDir>${basedir}/target/docker-stage</dockerFileDir>
                           <dockerFile>standalone.Dockerfile</dockerFile>
                           <tags>
-                             <tag>${project.version}</tag>
+                             <tag>${standalone.image.version}</tag>
                           </tags>
                          </build>
                         </image>
