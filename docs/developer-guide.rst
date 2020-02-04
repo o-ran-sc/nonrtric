@@ -1,10 +1,13 @@
 .. This work is licensed under a Creative Commons Attribution 4.0 International License.
 .. SPDX-License-Identifier: CC-BY-4.0
 
-SDNC A1 Controller Developer Guide
-==================================
+Developer Guide
+===============
 
-This document provides a quickstart for developers of the O-RAN SC A1 Controller SDNC Application
+This document provides a quickstart for developers of the Non-RT RIC.
+
+SDNC A1 Controller
+==================================
 
 Prerequisites
 -------------
@@ -15,6 +18,8 @@ Prerequisites
 4. Docker, version 19.03.1 or later
 5. Docker Compose, version 1.24.1 or later
 
+Build and run
+-------------
 Go to the northbound directory and run this command ::
     mvn clean install
 
@@ -40,7 +45,7 @@ The SDNC url to access the Northbound API,
 Credentials: admin/Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U
 
 Policy Agent
-=====================================
+============================
 The O-RAN NonRT RIC PolicyAgent provides a REST API for management of policices. It provides support for:
 
  * Supervision of clients (R-APPs) to eliminate stray policies in case of failure
@@ -51,32 +56,33 @@ The O-RAN NonRT RIC PolicyAgent provides a REST API for management of policices.
    * One REST API towards all RICs in the network
    * Query functions that can find all policies in a RIC, all policies owned by a service (R-APP), all policies of a type etc.
    * Maps O1 resources (ManagedElement) as defined in O1 to the controlling RIC.
-  
-The PolicyAgent can be accessed over the REST API or through the DMaaP Interface. The REST API is documented in the *nonrtric/policy-agent/docs/api.yaml* file. Please Refer README file of PolicyAgent to know more about the API's.
+
+| The PolicyAgent can be accessed over the REST API or through the DMaaP Interface. The REST API is documented in the
+| *nonrtric/policy-agent/docs/api.yaml* file. Please refer to the README file of PolicyAgent to know more about the API's.
 
 
-Near-RT RIC Simulator Developer Guide
+Near-RT RIC Simulator
 =====================================
+
 
 Prerequisites
 -------------
+ 1. Java development kit (JDK), version 8
+ 2. Maven dependency-management tool, version 3.4 or later
 
-1. Java development kit (JDK), version 8
-2. Maven dependency-management tool, version 3.4 or later
+Build and run
+-------------
 
-Go to the nearric-simulator/ directory and run this command ::
+Go to the near-rt-ric-simulator/ directory and run this command::
      mvn clean install
+The docker image can be built using::
+    docker build -t {desiredImageName} .
+The image can be run using the command::
+    docker run -it -p {desiredPort}:8085 {desiredImageName}
 
-If you want to genereate the sources from A1 yaml file, Go to nearric-simulator/a1-med-api/ and run this command ::
-     mvn generate-sources
+The functions written in *a1.py* are the ones matching the requests listed in the A1 open api yaml file. The functions written in *main.py* are the ones used for development purpose.
 
-This will generate the A1PApi.java you need to call the generate-sources maven life cycle to generate the file
-
-The backend server listens for requests at this URL:
-   http://localhost:8080
-
-The backend server publishes live API documentation at the URL
-   http://localhost:8080/swagger-ui.html
+Different error codes can be thrown back according to the yaml file. In order to simulate an error code, simply add the query ?code={desiredCodeNumber} at the end of the address in the curl request.
 
 End-to-end call
 ===============

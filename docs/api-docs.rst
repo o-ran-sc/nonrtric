@@ -59,28 +59,33 @@ When the instances are listed, it is possible to edit or delete each instance fr
 
 Policy Agent
 ============
+
 The Policy Agent provides common functionality useful for R-Apps, for instance:
  * A repository of available Near-T RICs, their policy types and policy instances.
  * An A1 connection to he Near-RT RICs.
 
 See the README.md file in the nonrtric/policy-agent repo for info about how to use it.
 
-API Functins
-------------
+API Functions
+-------------
+
 See the following document for the Policy Agent API: nonrtric/policy-agent/docs/api.doc.
 
 Near-RT RIC Simulator
 =====================
+
 A simulator that simulates a Near-RT RIC, with a termination of the A1 interface. It also provides an administrative API to manage types and instances so it can be programatically set up for use in tests.
 
 See the README.md file in the nonrtric/near-rt-ric-simulator repo for info about how to use it.
 
 API Functions
 -------------
+
 See the admnistrative API in: nonrtric/near-rt-ric-simulator/ric-plt/a1/main.py.
 
 Sdnc A1 Controller
 ==================
+
 An ONAP SDNC Controller for the A1 interface.
 
 See the README.md file in the nonrtric/sdnc-a1-controller repo for info about how to use it.
