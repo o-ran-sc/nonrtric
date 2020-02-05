@@ -123,4 +123,5 @@ public class ApplicationConfigTest {
 
         assertEquals("Could not find ric: name", exception.getMessage());
     }
+
 }

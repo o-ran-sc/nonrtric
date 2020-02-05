@@ -27,9 +27,12 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import java.io.IOException;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.onap.dmaap.mr.client.MRBatchingPublisher;
@@ -37,6 +40,7 @@ import org.onap.dmaap.mr.client.response.MRPublisherResponse;
 import org.oransc.policyagent.clients.AsyncRestClient;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.dmaap.DmaapRequestMessage.Operation;
+
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 

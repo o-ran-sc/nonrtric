@@ -195,6 +195,7 @@ public class ApplicationTest {
 
         Policy policy = addPolicy("policyId", "typeName", "service", "ric"); // This should be created in the RIC
         supervision.checkAllRics(); // The created policy should be put in the RIC
+        await().untilAsserted(() -> RicState.RECOVERING.equals(rics.getRic("ric").getState()));
         await().untilAsserted(() -> RicState.IDLE.equals(rics.getRic("ric").getState()));
 
         Policies ricPolicies = getA1Client("ric").getPolicies();
@@ -462,6 +463,18 @@ public class ApplicationTest {
         url = baseUrl() + "/services/keepalive?name=nameXXX";
         ResponseEntity<String> entity = this.restTemplate.postForEntity(url, null, String.class);
         assertThat(entity.getStatusCode().equals(HttpStatus.NOT_FOUND));
+    }
+
+    @Test
+    public void testGetPolicyStatus() throws Exception {
+        reset();
+        Policy policy = addPolicy("id", "typeName", "service1", "ric1");
+        policy.ric().setState(Ric.RicState.IDLE);
+        assertThat(policies.size()).isEqualTo(1);
+
+        String url = baseUrl() + "/policy_status?instance=id";
+        String rsp = this.restTemplate.getForObject(url, String.class);
+        assertThat(rsp.equals("OK"));
     }
 
     private static <T> List<T> parseList(String jsonString, Class<T> clazz) {

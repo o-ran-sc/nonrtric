@@ -36,8 +36,7 @@ import org.oransc.policyagent.configuration.RicConfig;
  */
 public class Ric {
     private final RicConfig ricConfig;
-    @Getter
-    @Setter
+
     private RicState state = RicState.UNDEFINED;
     private Map<String, PolicyType> supportedPolicyTypes = new HashMap<>();
     @Getter
@@ -61,13 +60,21 @@ public class Ric {
         return this.ricConfig;
     }
 
+    public synchronized RicState getState() {
+        return this.state;
+    }
+
+    public synchronized void setState(RicState state) {
+        this.state = state;
+    }
+
     /**
      * Gets the nodes managed by this Ric.
      *
      * @return a vector containing the nodes managed by this Ric.
      */
-    public Vector<String> getManagedElementIds() {
-        return ricConfig.managedElementIds();
+    public synchronized Collection<String> getManagedElementIds() {
+        return new Vector<>(ricConfig.managedElementIds());
     }
 
     /**
@@ -76,7 +83,7 @@ public class Ric {
      * @param managedElementId the node name to check.
      * @return true if the given node is managed by this Ric.
      */
-    public boolean isManaging(String managedElementId) {
+    public synchronized boolean isManaging(String managedElementId) {
         return ricConfig.managedElementIds().contains(managedElementId);
     }
 
@@ -85,7 +92,7 @@ public class Ric {
      *
      * @param managedElementId the node to add.
      */
-    public void addManagedElement(String managedElementId) {
+    public synchronized void addManagedElement(String managedElementId) {
         if (!ricConfig.managedElementIds().contains(managedElementId)) {
             ricConfig.managedElementIds().add(managedElementId);
         }
@@ -96,7 +103,7 @@ public class Ric {
      *
      * @param managedElementId the node to remove.
      */
-    public void removeManagedElement(String managedElementId) {
+    public synchronized void removeManagedElement(String managedElementId) {
         ricConfig.managedElementIds().remove(managedElementId);
     }
 
@@ -105,12 +112,12 @@ public class Ric {
      *
      * @return the policy types supported by this Ric in an unmodifiable list.
      */
-    public Collection<PolicyType> getSupportedPolicyTypes() {
-        return supportedPolicyTypes.values();
+    public synchronized Collection<PolicyType> getSupportedPolicyTypes() {
+        return new Vector<>(supportedPolicyTypes.values());
     }
 
-    public Collection<String> getSupportedPolicyTypeNames() {
-        return supportedPolicyTypes.keySet();
+    public synchronized Collection<String> getSupportedPolicyTypeNames() {
+        return new Vector<>(supportedPolicyTypes.keySet());
     }
 
     /**
@@ -118,14 +125,14 @@ public class Ric {
      *
      * @param type the policy type to support.
      */
-    public void addSupportedPolicyType(PolicyType type) {
+    public synchronized void addSupportedPolicyType(PolicyType type) {
         supportedPolicyTypes.put(type.name(), type);
     }
 
     /**
      * Removes all policy type as supported by this Ric.
      */
-    public void clearSupportedPolicyTypes() {
+    public synchronized void clearSupportedPolicyTypes() {
         supportedPolicyTypes.clear();
     }
 
@@ -136,12 +143,12 @@ public class Ric {
      *
      * @return true if the given type is supported by this Ric, false otherwise.
      */
-    public boolean isSupportingType(String typeName) {
+    public synchronized boolean isSupportingType(String typeName) {
         return supportedPolicyTypes.containsKey(typeName);
     }
 
     @Override
-    public String toString() {
+    public synchronized String toString() {
         return Ric.class.getSimpleName() + ": " + "name: " + name() + ", state: " + state + ", baseUrl: "
             + ricConfig.baseUrl() + ", managedNodes: " + ricConfig.managedElementIds();
     }
