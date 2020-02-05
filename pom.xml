@@ -31,8 +31,18 @@
     <name>nonrtric</name>
     <modules>
         <module>policy-agent</module>
-	<module>sdnc-a1-controller</module>
+        <module>sdnc-a1-controller</module>
         <module>dashboard</module>
         <module>near-rt-ric-simulator</module>
     </modules>
- </project>
+    <build>
+        <plugins>
+            <!-- support sonar in multi-module project -->
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>3.6.0.1398</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>
