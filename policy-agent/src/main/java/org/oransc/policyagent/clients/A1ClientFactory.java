@@ -29,6 +29,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
 
+/**
+ * Factory for A1 clients that supports four different protocol versions of the A1 api.
+ */
 public class A1ClientFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(A1ClientFactory.class);
@@ -40,6 +43,19 @@ public class A1ClientFactory {
         this.appConfig = appConfig;
     }
 
+    /**
+     * Creates an A1 client with the correct A1 protocol for the provided Ric.
+     *
+     * <p>It detects the protocol version by trial and error, since there is no getVersion method specified in the A1
+     * api yet.
+     *
+     * <p>As a side effect it also sets the protocol version in the provided Ric. This means that after the first
+     * successful creation it won't have to try which protocol to use, but can create the client directly.
+     *
+     * @param ric The Ric to get a client for.
+     * @return a client with the correct protocol, or a ServiceException if none of the protocols are supported by the
+     *         Ric.
+     */
     public Mono<A1Client> createA1Client(Ric ric) {
         return getProtocolVersion(ric) //
             .flatMap(version -> createA1Client(ric, version));
@@ -49,27 +65,32 @@ public class A1ClientFactory {
         if (version == A1ProtocolType.STD_V1) {
             return Mono.just(createStdA1ClientImpl(ric));
         } else if (version == A1ProtocolType.OSC_V1) {
-            return Mono.just(new OscA1Client(ric.getConfig()));
+            return Mono.just(createOscA1Client(ric));
         } else if (version == A1ProtocolType.SDNC_OSC) {
             return Mono.just(createSdncOscA1Client(ric));
         } else if (version == A1ProtocolType.SDNR_ONAP) {
             return Mono.just(createSdnrOnapA1Client(ric));
+        } else {
+            return Mono.error(new ServiceException("Not supported protocol type: " + version));
         }
-        return Mono.error(new ServiceException("Not supported protocoltype: " + version));
     }
 
     private Mono<A1Client.A1ProtocolType> getProtocolVersion(Ric ric) {
         if (ric.getProtocolVersion() == A1ProtocolType.UNKNOWN) {
-            return fetchVersion(ric, createSdnrOnapA1Client(ric)) //
-                .onErrorResume(err -> fetchVersion(ric, createSdncOscA1Client(ric)))
-                .onErrorResume(err -> fetchVersion(ric, new OscA1Client(ric.getConfig())))
-                .onErrorResume(err -> fetchVersion(ric, createStdA1ClientImpl(ric)))
-                .doOnNext(version -> ric.setProtocolVersion(version))
-                .doOnNext(version -> logger.debug("Recover ric: {}, protocol version:{}", ric.name(), version)) //
-                .doOnError(t -> logger.warn("Could not get protocol version from RIC: {}", ric.name())); //
+            return fetchVersion(createSdnrOnapA1Client(ric)) //
+                .onErrorResume(err -> fetchVersion(createSdncOscA1Client(ric))) //
+                .onErrorResume(err -> fetchVersion(createOscA1Client(ric))) //
+                .onErrorResume(err -> fetchVersion(createStdA1ClientImpl(ric))) //
+                .onErrorResume(err -> handleNoProtocol(ric)) //
+                .doOnNext(version -> setProtocolVersion(ric, version)) //
+                .doOnNext(version -> logger.debug("Recover ric: {}, protocol version: {}", ric.name(), version));
         } else {
             return Mono.just(ric.getProtocolVersion());
         }
+    }
+
+    protected A1Client createOscA1Client(Ric ric) {
+        return new OscA1Client(ric.getConfig());
     }
 
     protected A1Client createStdA1ClientImpl(Ric ric) {
@@ -86,9 +107,17 @@ public class A1ClientFactory {
             appConfig.getA1ControllerUsername(), appConfig.getA1ControllerPassword());
     }
 
-    private Mono<A1Client.A1ProtocolType> fetchVersion(Ric ric, A1Client a1Client) {
+    private Mono<A1ProtocolType> fetchVersion(A1Client a1Client) {
         return Mono.just(a1Client) //
             .flatMap(client -> a1Client.getProtocolVersion());
     }
 
+    private Mono<A1ProtocolType> handleNoProtocol(Ric ric) {
+        logger.warn("Could not get protocol version from RIC: {}", ric.name());
+        return Mono.just(A1ProtocolType.UNKNOWN);
+    }
+
+    private void setProtocolVersion(Ric ric, A1ProtocolType version) {
+        ric.setProtocolVersion(version);
+    }
 }
