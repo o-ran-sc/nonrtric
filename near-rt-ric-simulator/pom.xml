@@ -90,12 +90,13 @@
               <pushRegistry>${env.CONTAINER_PUSH_REGISTRY}</pushRegistry>
               <images>
                 <image>
-                  <name>o-ran-sc/near-rt-ric-simulator:${project.version}</name>
+                  <name>o-ran-sc/nonrtric-near-rt-ric-simulator:${project.version}</name>
                     <build>
                       <contextDir>${basedir}/ric-plt/a1</contextDir>
                       <dockerFile>Dockerfile</dockerFile>
                       <tags>
                         <tag>${project.version}</tag>
+                        <tag>latest</tag>
                       </tags>
                     </build>
                   </image>
