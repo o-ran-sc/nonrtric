@@ -104,9 +104,9 @@ public class ServiceController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "OK")})
     @DeleteMapping("/services")
     public ResponseEntity<String> deleteService( //
-        @RequestParam(name = "name", required = true) String name) {
+        @RequestParam(name = "serviceName", required = true) String serviceName) {
         try {
-            Service service = removeService(name);
+            Service service = removeService(serviceName);
             // Remove the policies from the repo and let the consistency monitoring
             // do the rest.
             removePolicies(service);
@@ -122,9 +122,9 @@ public class ServiceController {
             @ApiResponse(code = 404, message = "The service is not found, needs re-registration")})
     @PostMapping("/services/keepalive")
     public ResponseEntity<String> keepAliveService( //
-        @RequestParam(name = "name", required = true) String name) {
+        @RequestParam(name = "serviceName", required = true) String serviceName) {
         try {
-            services.getService(name).ping();
+            services.getService(serviceName).ping();
             return new ResponseEntity<String>("OK", HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -149,7 +149,7 @@ public class ServiceController {
     }
 
     private Service toService(ServiceRegistrationInfo s) {
-        return new Service(s.name, Duration.ofSeconds(s.keepAliveIntervalSeconds), s.callbackUrl);
+        return new Service(s.serviceName, Duration.ofSeconds(s.keepAliveIntervalSeconds), s.callbackUrl);
     }
 
 }

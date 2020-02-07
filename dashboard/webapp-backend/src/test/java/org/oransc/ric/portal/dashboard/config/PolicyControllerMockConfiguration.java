@@ -70,12 +70,12 @@ public class PolicyControllerMockConfiguration {
         private final Database database = new Database();
 
         @Override
-        public ResponseEntity<String> getPolicyInstance(String id) {
+        public ResponseEntity<Object> getPolicyInstance(String id) {
             return new ResponseEntity<>(database.getInstance(id), HttpStatus.OK);
         }
 
         @Override
-        public ResponseEntity<String> putPolicy(String policyTypeIdString, String policyInstanceId, String json,
+        public ResponseEntity<String> putPolicy(String policyTypeIdString, String policyInstanceId, Object json,
                 String ric) {
             database.putInstance(policyTypeIdString, policyInstanceId, json, ric);
             return new ResponseEntity<>("Policy was put successfully", HttpStatus.OK);
@@ -147,7 +147,7 @@ public class PolicyControllerMockConfiguration {
             return java.time.Instant.now().toString();
         }
 
-        void putInstance(String typeId, String instanceId, String instanceData, String ric) {
+        void putInstance(String typeId, String instanceId, Object instanceData, String ric) {
             PolicyInfo i = ImmutablePolicyInfo.builder().json(instanceData).lastModified(getTimeStampUTC())
                     .id(instanceId).ric(ric).service("service").type(typeId).build();
             instances.put(instanceId, i);
@@ -157,7 +157,7 @@ public class PolicyControllerMockConfiguration {
             instances.remove(instanceId);
         }
 
-        String getInstance(String id) throws RestClientException {
+        Object getInstance(String id) throws RestClientException {
             PolicyInfo i = instances.get(id);
             if (i == null) {
                 throw new RestClientException("Type not found: " + id);

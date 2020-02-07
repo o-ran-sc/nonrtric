@@ -58,14 +58,14 @@ public class PolicyAgentApiImpl implements PolicyAgentApi {
     RestTemplate restTemplate = new RestTemplate();
 
     private static com.google.gson.Gson gson = new GsonBuilder() //
-        .serializeNulls() //
-        .create(); //
+            .serializeNulls() //
+            .create(); //
 
     private final String urlPrefix;
 
     @Autowired
     public PolicyAgentApiImpl(
-        @org.springframework.beans.factory.annotation.Value("${policycontroller.url.prefix}") final String urlPrefix) {
+            @org.springframework.beans.factory.annotation.Value("${policycontroller.url.prefix}") final String urlPrefix) {
         logger.debug("ctor prefix '{}'", urlPrefix);
         this.urlPrefix = urlPrefix;
     }
@@ -119,7 +119,8 @@ public class PolicyAgentApiImpl implements PolicyAgentApi {
         }
 
         try {
-            Type listType = new TypeToken<List<ImmutablePolicyInfo>>() {}.getType();
+            Type listType = new TypeToken<List<ImmutablePolicyInfo>>() {
+            }.getType();
             List<PolicyInfo> rspParsed = gson.fromJson(rsp.getBody(), listType);
             PolicyInstances result = new PolicyInstances();
             for (PolicyInfo p : rspParsed) {
@@ -132,22 +133,22 @@ public class PolicyAgentApiImpl implements PolicyAgentApi {
     }
 
     @Override
-    public ResponseEntity<String> getPolicyInstance(String id) {
+    public ResponseEntity<Object> getPolicyInstance(String id) {
         String url = baseUrl() + "/policy?instance={id}";
         Map<String, ?> uriVariables = Map.of("id", id);
 
-        return this.restTemplate.getForEntity(url, String.class, uriVariables);
+        return this.restTemplate.getForEntity(url, Object.class, uriVariables);
     }
 
     @Override
-    public ResponseEntity<String> putPolicy(String policyTypeIdString, String policyInstanceId, String json,
-        String ric) {
+    public ResponseEntity<String> putPolicy(String policyTypeIdString, String policyInstanceId, Object json,
+            String ric) {
         String url = baseUrl() + "/policy?type={type}&instance={instance}&ric={ric}&service={service}";
         Map<String, ?> uriVariables = Map.of( //
-            "type", policyTypeIdString, //
-            "instance", policyInstanceId, //
-            "ric", ric, //
-            "service", "dashboard");
+                "type", policyTypeIdString, //
+                "instance", policyInstanceId, //
+                "ric", ric, //
+                "service", "dashboard");
 
         try {
             this.restTemplate.put(url, createJsonHttpEntity(json), uriVariables);
@@ -187,7 +188,8 @@ public class PolicyAgentApiImpl implements PolicyAgentApi {
         String rsp = this.restTemplate.getForObject(url, String.class, uriVariables);
 
         try {
-            Type listType = new TypeToken<List<ImmutableRicInfo>>() {}.getType();
+            Type listType = new TypeToken<List<ImmutableRicInfo>>() {
+            }.getType();
             List<RicInfo> rspParsed = gson.fromJson(rsp, listType);
             Collection<String> result = new Vector<>(rspParsed.size());
             for (RicInfo ric : rspParsed) {
@@ -199,10 +201,10 @@ public class PolicyAgentApiImpl implements PolicyAgentApi {
         }
     }
 
-    private HttpEntity<String> createJsonHttpEntity(String content) {
+    private HttpEntity<Object> createJsonHttpEntity(Object content) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        return new HttpEntity<String>(content, headers);
+        return new HttpEntity<Object>(content, headers);
     }
 
 }

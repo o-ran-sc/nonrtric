@@ -78,7 +78,7 @@ public class PolicyController {
     @ApiOperation(value = "Returns policy type schema definitions")
     @ApiResponses(
         value = {
-            @ApiResponse(code = 200, message = "Policy schemas", response = String.class, responseContainer = "List")})
+            @ApiResponse(code = 200, message = "Policy schemas", response = Object.class, responseContainer = "List")})
     public ResponseEntity<String> getPolicySchemas(@RequestParam(name = "ric", required = false) String ricName) {
         synchronized (this.policyTypes) {
             if (ricName == null) {
@@ -272,7 +272,7 @@ public class PolicyController {
         for (Policy p : policies) {
             PolicyInfo policyInfo = new PolicyInfo();
             policyInfo.id = p.id();
-            policyInfo.json = p.json();
+            policyInfo.json = fromJson(p.json());
             policyInfo.ric = p.ric().name();
             policyInfo.type = p.type().name();
             policyInfo.service = p.ownerServiceName();
@@ -283,6 +283,10 @@ public class PolicyController {
             v.add(policyInfo);
         }
         return gson.toJson(v);
+    }
+
+    private Object fromJson(String jsonStr) {
+        return gson.fromJson(jsonStr, Object.class);
     }
 
     private String toPolicyTypeSchemasJson(Collection<PolicyType> types) {

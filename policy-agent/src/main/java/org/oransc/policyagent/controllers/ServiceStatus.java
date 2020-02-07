@@ -30,7 +30,7 @@ import org.immutables.gson.Gson;
 public class ServiceStatus {
 
     @ApiModelProperty(value = "identity of the service")
-    public final String name;
+    public final String serviceName;
 
     @ApiModelProperty(value = "policy keep alive timeout")
     public final long keepAliveIntervalSeconds;
@@ -39,7 +39,7 @@ public class ServiceStatus {
     public final long timeSincePingSeconds;
 
     ServiceStatus(String name, long keepAliveIntervalSeconds, long timeSincePingSeconds) {
-        this.name = name;
+        this.serviceName = name;
         this.keepAliveIntervalSeconds = keepAliveIntervalSeconds;
         this.timeSincePingSeconds = timeSincePingSeconds;
     }

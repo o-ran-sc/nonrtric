@@ -39,7 +39,7 @@ public class PolicyInfo {
     public String ric;
 
     @ApiModelProperty(value = "the configuration of the policy")
-    public String json;
+    public Object json;
 
     @ApiModelProperty(value = "the name of the service owning the policy")
     public String service;
