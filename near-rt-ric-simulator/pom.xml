@@ -96,6 +96,7 @@
                       <dockerFile>Dockerfile</dockerFile>
                       <tags>
                         <tag>${project.version}</tag>
+                        <tag>latest</tag>
                       </tags>
                     </build>
                   </image>
