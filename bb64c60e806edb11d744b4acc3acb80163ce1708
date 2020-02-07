@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d282312f_2b7ba994",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/A1ClientFactory.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-02-07T10:03:23Z",
+      "side": 1,
+      "message": "Not sure about the purpose of the change, but previously en error was returned when it was not possible to get the version. Now instead, UNKNOWN is returned. \nAn error will be logged \"Not supported protocoltype: UNKOWN\", and that does not make sense to me.",
+      "range": {
+        "startLine": 86,
+        "startChar": 13,
+        "endLine": 86,
+        "endChar": 100
+      },
+      "revId": "bb64c60e806edb11d744b4acc3acb80163ce1708",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "860dc228_99673d9e",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/A1ClientFactoryTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-02-07T10:03:23Z",
+      "side": 1,
+      "message": "This is a general comment. I think the tested subject is a very simple, easy to maintain class. \nBut the unit test is not easy to read and maintain and is about twice the size of the tested class. Is there a more efficient way to write unit tests?\n\nThis is just a comment for discussion, which you can ignore if you want.",
+      "range": {
+        "startLine": 137,
+        "startChar": 7,
+        "endLine": 157,
+        "endChar": 95
+      },
+      "revId": "bb64c60e806edb11d744b4acc3acb80163ce1708",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
