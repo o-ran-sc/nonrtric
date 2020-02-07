@@ -60,6 +60,7 @@
         <docker-maven-plugin>0.30.0</docker-maven-plugin>
         <version.dmaap>1.1.9</version.dmaap>
         <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
+        <sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
     </properties>
     <dependencies>
         <dependency>
@@ -322,6 +323,12 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <!-- support sonar in multi-module project -->
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>${sonar-maven-plugin.version}</version>
             </plugin>
         </plugins>
     </build>
