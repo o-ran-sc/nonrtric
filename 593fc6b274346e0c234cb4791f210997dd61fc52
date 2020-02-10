@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b163059_ea7a3ca3",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/A1ClientFactory.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-02-10T11:09:06Z",
+      "side": 1,
+      "message": "Avoid using \"Ric\" - please use nearrtric instead to differentiate the near- and NON-realtimeRIC functions.",
+      "range": {
+        "startLine": 54,
+        "startChar": 22,
+        "endLine": 54,
+        "endChar": 26
+      },
+      "revId": "593fc6b274346e0c234cb4791f210997dd61fc52",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "058f1e98_ee5402a0",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/A1ClientFactory.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-02-10T11:09:06Z",
+      "side": 1,
+      "message": "Please dont identify this A1 adapter as \"SDNR\" A1Client.  e.g. OnapSDNCA1Client is fine.",
+      "range": {
+        "startLine": 77,
+        "startChar": 38,
+        "endLine": 77,
+        "endChar": 42
+      },
+      "revId": "593fc6b274346e0c234cb4791f210997dd61fc52",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}

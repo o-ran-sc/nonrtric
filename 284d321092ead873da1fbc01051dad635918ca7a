@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3952da39_a2b6edab",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/A1ClientFactory.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-02-10T11:09:06Z",
+      "side": 0,
+      "message": "Would a config file not be easier? Pending a proper way to get version.",
+      "range": {
+        "startLine": 64,
+        "startChar": 17,
+        "endLine": 66,
+        "endChar": 84
+      },
+      "revId": "284d321092ead873da1fbc01051dad635918ca7a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
