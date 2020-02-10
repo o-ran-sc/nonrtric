@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7fc4c6f_924713c6",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageConsumer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1000112
+      },
+      "writtenOn": "2020-02-10T11:51:13Z",
+      "side": 1,
+      "message": "We can set this values in properties file",
+      "revId": "f7abf32ee966cdfcee0107331d7d5125b54ec40e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64c25f9d_24df2f4e",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageConsumer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1000112
+      },
+      "writtenOn": "2020-02-10T11:51:13Z",
+      "side": 1,
+      "message": "The hostname should come from the properties file as the DMaaP has both secured/unsecured ports",
+      "revId": "f7abf32ee966cdfcee0107331d7d5125b54ec40e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f9fe41c_be3b0250",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageConsumer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1000112
+      },
+      "writtenOn": "2020-02-10T11:51:13Z",
+      "side": 1,
+      "message": "Why do we need to these instances for every message to process?",
+      "revId": "f7abf32ee966cdfcee0107331d7d5125b54ec40e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe3f4c4f_42243d2d",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageConsumer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 1000112
+      },
+      "writtenOn": "2020-02-10T11:51:13Z",
+      "side": 1,
+      "message": "return sleep.await(duration.toMillis(), TimeUnit.MILLISECONDS);\n\nlogger.error(\"Failed to put the thread to sleep\",e);",
+      "revId": "f7abf32ee966cdfcee0107331d7d5125b54ec40e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
