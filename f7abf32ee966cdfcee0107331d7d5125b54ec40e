@@ -36,6 +36,23 @@
     },
     {
       "key": {
+        "uuid": "8af03b1f_a5d1ff27",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageConsumer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 1000112
+      },
+      "writtenOn": "2020-02-10T12:02:24Z",
+      "side": 1,
+      "message": "As per the current configuration, DMaaP adapter can fetch up to 100 message at once instance. The current logic will wait for all the messages to be process before polling DMaaP again. This involves the (PolicyAgent -\u003e A1-Adapter -\u003e NearRIC , \u0026 DMaaP response)\nCan we use some thread pool to process the messages parallel. \nJust some food for thought !!",
+      "revId": "f7abf32ee966cdfcee0107331d7d5125b54ec40e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "64c25f9d_24df2f4e",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageConsumer.java",
         "patchSetId": 1
