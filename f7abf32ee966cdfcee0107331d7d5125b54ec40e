@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4468ffd4_f6ca0caf",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageConsumer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-02-10T13:47:43Z",
+      "side": 1,
+      "message": "This is simpler. A file in a docker container is part of the docker image, so it would not make much difference. \nAnyway, I can remove the parameter.",
+      "parentUuid": "f7fc4c6f_924713c6",
+      "revId": "f7abf32ee966cdfcee0107331d7d5125b54ec40e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "054d4efb_09320a21",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageConsumer.java",
         "patchSetId": 1
@@ -98,6 +116,24 @@
       "writtenOn": "2020-02-10T11:51:13Z",
       "side": 1,
       "message": "return sleep.await(duration.toMillis(), TimeUnit.MILLISECONDS);\n\nlogger.error(\"Failed to put the thread to sleep\",e);",
+      "revId": "f7abf32ee966cdfcee0107331d7d5125b54ec40e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3080331d_15865413",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageConsumer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-02-10T13:47:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fe3f4c4f_42243d2d",
       "revId": "f7abf32ee966cdfcee0107331d7d5125b54ec40e",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
