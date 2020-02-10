@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "054d4efb_09320a21",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageConsumer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1000112
+      },
+      "writtenOn": "2020-02-10T11:53:37Z",
+      "side": 1,
+      "message": "Please add the missing JavaDoc",
+      "revId": "f7abf32ee966cdfcee0107331d7d5125b54ec40e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "64c25f9d_24df2f4e",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageConsumer.java",
         "patchSetId": 1
