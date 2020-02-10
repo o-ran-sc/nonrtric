@@ -10,7 +10,7 @@ echo "Test case started as: ${BASH_SOURCE[$i+1]} "$1
 STARTED_POLICY_AGENT="" #Policy agent app names added to this var to keep track of started container in the script
 START_ARG=$1
 IMAGE_TAG="1.0.0-SNAPSHOT"
-IMAGE_TAG_REMOTE="1.0.0"
+IMAGE_TAG_REMOTE="latest"
 
 if [ $# -lt 1 ] || [ $# -gt 2 ]; then
 	echo "Expected arg: local  | remote  "
