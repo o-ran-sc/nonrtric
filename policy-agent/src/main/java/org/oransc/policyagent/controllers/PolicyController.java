@@ -27,8 +27,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Vector;
 
 import org.oransc.policyagent.clients.A1ClientFactory;
@@ -83,13 +84,13 @@ public class PolicyController {
         synchronized (this.policyTypes) {
             if (ricName == null) {
                 Collection<PolicyType> types = this.policyTypes.getAll();
-                return new ResponseEntity<String>(toPolicyTypeSchemasJson(types), HttpStatus.OK);
+                return new ResponseEntity<>(toPolicyTypeSchemasJson(types), HttpStatus.OK);
             } else {
                 try {
                     Collection<PolicyType> types = rics.getRic(ricName).getSupportedPolicyTypes();
-                    return new ResponseEntity<String>(toPolicyTypeSchemasJson(types), HttpStatus.OK);
+                    return new ResponseEntity<>(toPolicyTypeSchemasJson(types), HttpStatus.OK);
                 } catch (ServiceException e) {
-                    return new ResponseEntity<String>(e.toString(), HttpStatus.NOT_FOUND);
+                    return new ResponseEntity<>(e.toString(), HttpStatus.NOT_FOUND);
                 }
             }
         }
@@ -101,9 +102,9 @@ public class PolicyController {
     public ResponseEntity<String> getPolicySchema(@RequestParam(name = "id", required = true) String id) {
         try {
             PolicyType type = policyTypes.getType(id);
-            return new ResponseEntity<String>(type.schema(), HttpStatus.OK);
+            return new ResponseEntity<>(type.schema(), HttpStatus.OK);
         } catch (ServiceException e) {
-            return new ResponseEntity<String>(e.toString(), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(e.toString(), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -119,13 +120,13 @@ public class PolicyController {
         synchronized (this.policyTypes) {
             if (ricName == null) {
                 Collection<PolicyType> types = this.policyTypes.getAll();
-                return new ResponseEntity<String>(toPolicyTypeIdsJson(types), HttpStatus.OK);
+                return new ResponseEntity<>(toPolicyTypeIdsJson(types), HttpStatus.OK);
             } else {
                 try {
                     Collection<PolicyType> types = rics.getRic(ricName).getSupportedPolicyTypes();
-                    return new ResponseEntity<String>(toPolicyTypeIdsJson(types), HttpStatus.OK);
+                    return new ResponseEntity<>(toPolicyTypeIdsJson(types), HttpStatus.OK);
                 } catch (ServiceException e) {
-                    return new ResponseEntity<String>(e.toString(), HttpStatus.NOT_FOUND);
+                    return new ResponseEntity<>(e.toString(), HttpStatus.NOT_FOUND);
                 }
             }
         }
@@ -142,9 +143,9 @@ public class PolicyController {
         @RequestParam(name = "instance", required = true) String instance) {
         try {
             Policy p = policies.getPolicy(instance);
-            return new ResponseEntity<String>(p.json(), HttpStatus.OK);
+            return new ResponseEntity<>(p.json(), HttpStatus.OK);
         } catch (ServiceException e) {
-            return new ResponseEntity<String>(e.getMessage(), HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
         }
     }
 
@@ -158,9 +159,7 @@ public class PolicyController {
             policies.remove(policy);
             return a1ClientFactory.createA1Client(policy.ric()) //
                 .flatMap(client -> client.deletePolicy(policy)) //
-                .flatMap(notUsed -> {
-                    return Mono.just(new ResponseEntity<>(HttpStatus.NO_CONTENT));
-                });
+                .flatMap(notUsed -> Mono.just(new ResponseEntity<>(HttpStatus.NO_CONTENT)));
         } else {
             return Mono.just(new ResponseEntity<>(HttpStatus.NOT_FOUND));
         }
@@ -187,14 +186,12 @@ public class PolicyController {
                 .type(type) //
                 .ric(ric) //
                 .ownerServiceName(service) //
-                .lastModified(getTimeStampUTC()) //
+                .lastModified(getTimeStampUtc()) //
                 .build();
             return a1ClientFactory.createA1Client(ric) //
                 .flatMap(client -> client.putPolicy(policy)) //
                 .doOnNext(notUsed -> policies.put(policy)) //
-                .flatMap(notUsed -> {
-                    return Mono.just(new ResponseEntity<>(HttpStatus.OK));
-                });
+                .flatMap(notUsed -> Mono.just(new ResponseEntity<>(HttpStatus.OK)));
         }
         return Mono.just(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -219,13 +216,18 @@ public class PolicyController {
                 result = policies.getForService(service);
                 result = filter(result, type, ric, null);
             } else if (ric != null) {
-                result = policies.getForRic(ric);
-                result = filter(result, type, null, service);
+                result = filter(policies.getForRic(ric), type, null, service);
             } else {
                 result = policies.getAll();
             }
 
-            return new ResponseEntity<String>(policiesToJson(result), HttpStatus.OK);
+            String policiesJson;
+            try {
+                policiesJson = policiesToJson(result);
+            } catch (ServiceException e) {
+                return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
+            }
+            return new ResponseEntity<>(policiesJson, HttpStatus.OK);
         }
     }
 
@@ -243,9 +245,9 @@ public class PolicyController {
 
             return a1ClientFactory.createA1Client(policy.ric()) //
                 .flatMap(client -> client.getPolicyStatus(policy)) //
-                .flatMap(status -> Mono.just(new ResponseEntity<String>(status, HttpStatus.OK)));
+                .flatMap(status -> Mono.just(new ResponseEntity<>(status, HttpStatus.OK)));
         } catch (ServiceException e) {
-            return Mono.just(new ResponseEntity<String>(e.getMessage(), HttpStatus.NO_CONTENT));
+            return Mono.just(new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT));
         }
     }
 
@@ -257,7 +259,7 @@ public class PolicyController {
         if (type == null && ric == null && service == null) {
             return collection;
         }
-        Vector<Policy> filtered = new Vector<>();
+        List<Policy> filtered = new ArrayList<>();
         for (Policy p : collection) {
             if (include(type, p.type().name()) && include(ric, p.ric().name())
                 && include(service, p.ownerServiceName())) {
@@ -267,8 +269,8 @@ public class PolicyController {
         return filtered;
     }
 
-    private String policiesToJson(Collection<Policy> policies) {
-        Vector<PolicyInfo> v = new Vector<>(policies.size());
+    private String policiesToJson(Collection<Policy> policies) throws ServiceException {
+        List<PolicyInfo> v = new ArrayList<>(policies.size());
         for (Policy p : policies) {
             PolicyInfo policyInfo = new PolicyInfo();
             policyInfo.id = p.id();
@@ -278,7 +280,7 @@ public class PolicyController {
             policyInfo.service = p.ownerServiceName();
             policyInfo.lastModified = p.lastModified();
             if (!policyInfo.validate()) {
-                throw new RuntimeException("BUG, all fields must be set");
+                throw new ServiceException("BUG, all fields must be set");
             }
             v.add(policyInfo);
         }
@@ -305,14 +307,14 @@ public class PolicyController {
     }
 
     private String toPolicyTypeIdsJson(Collection<PolicyType> types) {
-        Vector<String> v = new Vector<>(types.size());
+        List<String> v = new ArrayList<>(types.size());
         for (PolicyType t : types) {
             v.add(t.name());
         }
         return gson.toJson(v);
     }
 
-    private String getTimeStampUTC() {
+    private String getTimeStampUtc() {
         return java.time.Instant.now().toString();
     }
 
