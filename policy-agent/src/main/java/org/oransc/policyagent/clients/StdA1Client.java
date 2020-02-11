@@ -23,7 +23,6 @@ package org.oransc.policyagent.clients;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,59 +30,80 @@ import org.oransc.policyagent.configuration.RicConfig;
 import org.oransc.policyagent.repository.Policy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class StdA1Client implements A1Client {
+    private static final String URL_PREFIX = "/A1-P/v1";
+
+    private static final String POLICYTYPES_URI = "/policytypes";
+    private static final String POLICY_TYPE_ID = "policyTypeId";
+
+    private static final String POLICIES_URI = "/policies";
+    private static final String POLICY_SCHEMA = "policySchema";
+
+    private static final UriComponentsBuilder POLICY_TYPE_SCHEMA_URI =
+        UriComponentsBuilder.fromPath("/policytypes/{policy-type-name}");
+
+    private static final UriComponentsBuilder POLICY_URI =
+        UriComponentsBuilder.fromPath("/policies/{policy-id}").queryParam(POLICY_TYPE_ID, "{policy-type-name}");
+
+    private static final UriComponentsBuilder POLICY_DELETE_URI =
+        UriComponentsBuilder.fromPath("/policies/{policy-id}");
+
+    private static final UriComponentsBuilder POLICY_STATUS_URI =
+        UriComponentsBuilder.fromPath("/policies/{policy-id}/status");
+
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private final AsyncRestClient restClient;
 
     public StdA1Client(RicConfig ricConfig) {
-        String baseUrl = ricConfig.baseUrl() + "/A1-P/v1";
+        String baseUrl = ricConfig.baseUrl() + URL_PREFIX;
         this.restClient = new AsyncRestClient(baseUrl);
     }
 
-    public StdA1Client(RicConfig ricConfig, AsyncRestClient restClient) {
+    public StdA1Client(AsyncRestClient restClient) {
         this.restClient = restClient;
     }
 
     @Override
     public Mono<List<String>> getPolicyIdentities() {
-        return restClient.get("/policies") //
+        return restClient.get(POLICIES_URI) //
             .flatMap(this::parseJsonArrayOfString);
     }
 
     @Override
     public Mono<String> putPolicy(Policy policy) {
-        String url = "/policies/" + policy.id() + "?policyTypeId=" + policy.type().name();
-        return restClient.put(url, policy.json()) //
+        String uri = POLICY_URI.buildAndExpand(policy.id(), policy.type().name()).toUriString();
+        return restClient.put(uri, policy.json()) //
             .flatMap(this::validateJson);
     }
 
     @Override
     public Mono<List<String>> getPolicyTypeIdentities() {
-        return restClient.get("/policytypes") //
+        return restClient.get(POLICYTYPES_URI) //
             .flatMap(this::parseJsonArrayOfString);
     }
 
     @Override
     public Mono<String> getPolicyTypeSchema(String policyTypeId) {
-        return restClient.get("/policytypes/" + policyTypeId) //
+        String uri = POLICY_TYPE_SCHEMA_URI.buildAndExpand(policyTypeId).toUriString();
+        return restClient.get(uri) //
             .flatMap(this::extractPolicySchema);
     }
 
     @Override
     public Mono<String> deletePolicy(Policy policy) {
-        return deletePolicy(policy.id());
+        return deletePolicyById(policy.id());
     }
 
     @Override
     public Flux<String> deleteAllPolicies() {
         return getPolicyIdentities() //
             .flatMapMany(policyIds -> Flux.fromIterable(policyIds)) // )
-            .flatMap(policyId -> deletePolicy(policyId)); //
+            .flatMap(policyId -> deletePolicyById(policyId)); //
     }
 
     @Override
@@ -92,8 +112,15 @@ public class StdA1Client implements A1Client {
             .flatMap(x -> Mono.just(A1ProtocolType.STD_V1));
     }
 
-    private Mono<String> deletePolicy(String policyId) {
-        return restClient.delete("/policies/" + policyId);
+    @Override
+    public Mono<String> getPolicyStatus(Policy policy) {
+        String uri = POLICY_STATUS_URI.buildAndExpand(policy.id()).toUriString();
+        return restClient.get(uri);
+    }
+
+    private Mono<String> deletePolicyById(String policyId) {
+        String uri = POLICY_DELETE_URI.buildAndExpand(policyId).toUriString();
+        return restClient.delete(uri);
     }
 
     private Mono<List<String>> parseJsonArrayOfString(String inputString) {
@@ -113,7 +140,7 @@ public class StdA1Client implements A1Client {
     private Mono<String> extractPolicySchema(String inputString) {
         try {
             JSONObject jsonObject = new JSONObject(inputString);
-            JSONObject schemaObject = jsonObject.getJSONObject("policySchema");
+            JSONObject schemaObject = jsonObject.getJSONObject(POLICY_SCHEMA);
             String schemaString = schemaObject.toString();
             return Mono.just(schemaString);
         } catch (JSONException ex) { // invalid json
@@ -128,11 +155,6 @@ public class StdA1Client implements A1Client {
         } catch (JSONException ex) { // invalid json
             return Mono.error(ex);
         }
-    }
-
-    @Override
-    public Mono<String> getPolicyStatus(Policy policy) {
-        return restClient.get("/policies/" + policy.id() + "/status");
     }
 
 }

@@ -40,6 +40,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class SdnrOnapA1Client implements A1Client {
+    private static final String URL_PREFIX = "/A1-ADAPTER-API:";
+
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private final String a1ControllerUsername;
@@ -74,7 +76,7 @@ public class SdnrOnapA1Client implements A1Client {
         logger.debug("POST getPolicyTypeIdentities inputJsonString = {}", inputJsonString);
 
         return restClient
-            .postWithAuthHeader("/A1-ADAPTER-API:getPolicyTypes", inputJsonString, a1ControllerUsername,
+            .postWithAuthHeader(URL_PREFIX + "getPolicyTypes", inputJsonString, a1ControllerUsername,
                 a1ControllerPassword) //
             .flatMap(response -> getValueFromResponse(response, "policy-type-id-list")) //
             .flatMap(this::parseJsonArrayOfString);
@@ -98,7 +100,7 @@ public class SdnrOnapA1Client implements A1Client {
         logger.debug("POST getPolicyIdentities inputJsonString = {}", inputJsonString);
 
         return restClient
-            .postWithAuthHeader("/A1-ADAPTER-API:getPolicyInstances", inputJsonString, a1ControllerUsername,
+            .postWithAuthHeader(URL_PREFIX + "getPolicyInstances", inputJsonString, a1ControllerUsername,
                 a1ControllerPassword) //
             .flatMap(response -> getValueFromResponse(response, "policy-instance-id-list")) //
             .flatMap(this::parseJsonArrayOfString);
@@ -114,7 +116,7 @@ public class SdnrOnapA1Client implements A1Client {
         logger.debug("POST getPolicyType inputJsonString = {}", inputJsonString);
 
         return restClient
-            .postWithAuthHeader("/A1-ADAPTER-API:getPolicyType", inputJsonString, a1ControllerUsername,
+            .postWithAuthHeader(URL_PREFIX + "getPolicyType", inputJsonString, a1ControllerUsername,
                 a1ControllerPassword) //
             .flatMap(response -> getValueFromResponse(response, "policy-type")) //
             .flatMap(this::extractPolicySchema);
@@ -132,11 +134,11 @@ public class SdnrOnapA1Client implements A1Client {
         String inputJsonString = createInputJsonString(inputParams);
         logger.debug("POST putPolicy inputJsonString = {}", inputJsonString);
 
-        return restClient.postWithAuthHeader("/A1-ADAPTER-API:createPolicyInstance", inputJsonString,
+        return restClient.postWithAuthHeader(URL_PREFIX + "createPolicyInstance", inputJsonString,
             a1ControllerUsername, a1ControllerPassword);
     }
 
-    public Mono<String> deletePolicy(String policyTypeId, String policyId) {
+    public Mono<String> deletePolicyByIds(String policyTypeId, String policyId) {
         SdnrOnapAdapterInput inputParams = ImmutableSdnrOnapAdapterInput.builder() //
             .nearRtRicId(ricConfig.baseUrl()) //
             .policyTypeId(policyTypeId) //
@@ -145,13 +147,13 @@ public class SdnrOnapA1Client implements A1Client {
         String inputJsonString = createInputJsonString(inputParams);
         logger.debug("POST deletePolicy inputJsonString = {}", inputJsonString);
 
-        return restClient.postWithAuthHeader("/A1-ADAPTER-API:deletePolicyInstance", inputJsonString,
+        return restClient.postWithAuthHeader(URL_PREFIX + "deletePolicyInstance", inputJsonString,
             a1ControllerUsername, a1ControllerPassword);
     }
 
     @Override
     public Mono<String> deletePolicy(Policy policy) {
-        return deletePolicy(policy.type().name(), policy.id());
+        return deletePolicyByIds(policy.type().name(), policy.id());
     }
 
     @Override
@@ -161,22 +163,15 @@ public class SdnrOnapA1Client implements A1Client {
             .flatMap(typeId -> deletePoliciesForType(typeId)); //
     }
 
-    private Flux<String> deletePoliciesForType(String typeId) {
-        return getPolicyIdentities(typeId) //
-            .flatMapMany(policyIds -> Flux.fromIterable(policyIds)) //
-            .flatMap(policyId -> deletePolicy(typeId, policyId)); //
-    }
-
     @Override
     public Mono<A1ProtocolType> getProtocolVersion() {
         return getPolicyTypeIdentities() //
             .flatMap(x -> Mono.just(A1ProtocolType.SDNR_ONAP));
     }
 
-    private String createInputJsonString(SdnrOnapAdapterInput inputParams) {
-        JSONObject inputJson = new JSONObject();
-        inputJson.put("input", new JSONObject(gson.toJson(inputParams)));
-        return inputJson.toString();
+    @Override
+    public Mono<String> getPolicyStatus(Policy policy) {
+        return Mono.error(new Exception("Status not implemented in the controller"));
     }
 
     private Mono<String> getValueFromResponse(String response, String key) {
@@ -222,8 +217,15 @@ public class SdnrOnapA1Client implements A1Client {
         }
     }
 
-    @Override
-    public Mono<String> getPolicyStatus(Policy policy) {
-        return Mono.error(new Exception("Status not implemented in the controller"));
+    private Flux<String> deletePoliciesForType(String typeId) {
+        return getPolicyIdentities(typeId) //
+            .flatMapMany(policyIds -> Flux.fromIterable(policyIds)) //
+            .flatMap(policyId -> deletePolicyByIds(typeId, policyId)); //
+    }
+
+    private String createInputJsonString(SdnrOnapAdapterInput inputParams) {
+        JSONObject inputJson = new JSONObject();
+        inputJson.put("input", new JSONObject(gson.toJson(inputParams)));
+        return inputJson.toString();
     }
 }
