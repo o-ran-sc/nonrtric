@@ -32,7 +32,7 @@ public interface PolicyInfo {
 
     public String ric();
 
-    public String json();
+    public Object json();
 
     public String service();
 

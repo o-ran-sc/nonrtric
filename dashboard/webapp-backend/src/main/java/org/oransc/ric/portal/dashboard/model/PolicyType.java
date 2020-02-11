@@ -27,9 +27,9 @@ public class PolicyType {
     String name;
 
     @JsonProperty("schema")
-    String schema;
+    Object schema;
 
-    public PolicyType(String name, String schema) {
+    public PolicyType(String name, Object schema) {
         this.name = name;
         this.schema = schema;
     }
@@ -42,16 +42,16 @@ public class PolicyType {
         this.name = name;
     }
 
-    public String getSchema() {
+    public Object getSchema() {
         return schema;
     }
 
-    public void setSchema(String schema) {
+    public void setSchema(Object schema) {
         this.schema = schema;
     }
 
     @Override
     public String toString() {
-        return "[name:" + name + ", schema:" + schema + "]";
+        return "[name:" + name + ", schema:" + schema.toString() + "]";
     }
 }

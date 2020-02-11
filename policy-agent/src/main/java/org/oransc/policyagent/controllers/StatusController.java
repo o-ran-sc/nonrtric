@@ -34,7 +34,7 @@ import reactor.core.publisher.Mono;
 public class StatusController {
 
     @GetMapping("/status")
-    @ApiOperation(value = "Returns status and statistics of the service")
+    @ApiOperation(value = "Returns status and statistics of this service")
     @ApiResponses(
         value = { //
             @ApiResponse(code = 200, message = "Service is living", response = String.class) //

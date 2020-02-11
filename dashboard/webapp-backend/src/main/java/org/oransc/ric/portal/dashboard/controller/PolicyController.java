@@ -81,7 +81,7 @@ public class PolicyController {
      */
     @ApiOperation(value = "Gets the policy types from Near Realtime-RIC")
     @GetMapping(POLICY_TYPES_METHOD)
-    @Secured({DashboardConstants.ROLE_ADMIN, DashboardConstants.ROLE_STANDARD})
+    @Secured({ DashboardConstants.ROLE_ADMIN, DashboardConstants.ROLE_STANDARD })
     public ResponseEntity<String> getAllPolicyTypes(HttpServletResponse response) {
         logger.debug("getAllPolicyTypes");
         return this.policyAgentApi.getAllPolicyTypes();
@@ -89,7 +89,7 @@ public class PolicyController {
 
     @ApiOperation(value = "Returns the policy instances for the given policy type.")
     @GetMapping(POLICY_TYPES_METHOD + "/{" + POLICY_TYPE_ID_NAME + "}/" + POLICIES_NAME)
-    @Secured({DashboardConstants.ROLE_ADMIN, DashboardConstants.ROLE_STANDARD})
+    @Secured({ DashboardConstants.ROLE_ADMIN, DashboardConstants.ROLE_STANDARD })
     public ResponseEntity<String> getPolicyInstances(@PathVariable(POLICY_TYPE_ID_NAME) String policyTypeIdString) {
         logger.debug("getPolicyInstances {}", policyTypeIdString);
         return this.policyAgentApi.getPolicyInstancesForType(policyTypeIdString);
@@ -97,41 +97,41 @@ public class PolicyController {
 
     @ApiOperation(value = "Returns a policy instance of a type")
     @GetMapping(POLICY_TYPES_METHOD + "/{" + POLICY_TYPE_ID_NAME + "}/" + POLICIES_NAME + "/{" + POLICY_INSTANCE_ID_NAME
-        + "}")
-    @Secured({DashboardConstants.ROLE_ADMIN, DashboardConstants.ROLE_STANDARD})
-    public ResponseEntity<String> getPolicyInstance(@PathVariable(POLICY_TYPE_ID_NAME) String policyTypeIdString,
-        @PathVariable(POLICY_INSTANCE_ID_NAME) String policyInstanceId) {
+            + "}")
+    @Secured({ DashboardConstants.ROLE_ADMIN, DashboardConstants.ROLE_STANDARD })
+    public ResponseEntity<Object> getPolicyInstance(@PathVariable(POLICY_TYPE_ID_NAME) String policyTypeIdString,
+            @PathVariable(POLICY_INSTANCE_ID_NAME) String policyInstanceId) {
         logger.debug("getPolicyInstance {}:{}", policyTypeIdString, policyInstanceId);
         return this.policyAgentApi.getPolicyInstance(policyInstanceId);
     }
 
     @ApiOperation(value = "Creates the policy instances for the given policy type.")
     @PutMapping(POLICY_TYPES_METHOD + "/{" + POLICY_TYPE_ID_NAME + "}/" + POLICIES_NAME + "/{" + POLICY_INSTANCE_ID_NAME
-        + "}")
-    @Secured({DashboardConstants.ROLE_ADMIN})
+            + "}")
+    @Secured({ DashboardConstants.ROLE_ADMIN })
     public ResponseEntity<String> putPolicyInstance(@PathVariable(POLICY_TYPE_ID_NAME) String policyTypeIdString,
-        @RequestParam(name = "ric", required = true) String ric,
-        @PathVariable(POLICY_INSTANCE_ID_NAME) String policyInstanceId, @RequestBody String instance) {
+            @RequestParam(name = "ric", required = true) String ric,
+            @PathVariable(POLICY_INSTANCE_ID_NAME) String policyInstanceId, @RequestBody String instance) {
         logger.debug("putPolicyInstance typeId: {}, instanceId: {}, instance: {}", policyTypeIdString, policyInstanceId,
-            instance);
+                instance);
         return this.policyAgentApi.putPolicy(policyTypeIdString, policyInstanceId, instance, ric);
     }
 
     @ApiOperation(value = "Deletes the policy instances for the given policy type.")
     @DeleteMapping(POLICY_TYPES_METHOD + "/{" + POLICY_TYPE_ID_NAME + "}/" + POLICIES_NAME + "/{"
-        + POLICY_INSTANCE_ID_NAME + "}")
-    @Secured({DashboardConstants.ROLE_ADMIN})
+            + POLICY_INSTANCE_ID_NAME + "}")
+    @Secured({ DashboardConstants.ROLE_ADMIN })
     public ResponseEntity<String> deletePolicyInstance(@PathVariable(POLICY_TYPE_ID_NAME) String policyTypeIdString,
-        @PathVariable(POLICY_INSTANCE_ID_NAME) String policyInstanceId) {
+            @PathVariable(POLICY_INSTANCE_ID_NAME) String policyInstanceId) {
         logger.debug("deletePolicyInstance typeId: {}, instanceId: {}", policyTypeIdString, policyInstanceId);
         return this.policyAgentApi.deletePolicy(policyInstanceId);
     }
 
     @ApiOperation(value = "Returns the rics supporting the given policy type.")
     @GetMapping("/rics")
-    @Secured({DashboardConstants.ROLE_ADMIN, DashboardConstants.ROLE_STANDARD})
+    @Secured({ DashboardConstants.ROLE_ADMIN, DashboardConstants.ROLE_STANDARD })
     public ResponseEntity<String> getRicsSupportingType(
-        @RequestParam(name = "policyType", required = true) String supportingPolicyType) {
+            @RequestParam(name = "policyType", required = true) String supportingPolicyType) {
         logger.debug("getRicsSupportingType {}", supportingPolicyType);
 
         return this.policyAgentApi.getRicsSupportingType(supportingPolicyType);

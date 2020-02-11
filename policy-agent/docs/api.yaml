@@ -516,7 +516,7 @@ paths:
           schema:
             type: array
             items:
-              type: string
+              type: object
         '401':
           description: Unauthorized
         '403':
@@ -705,9 +705,9 @@ paths:
       produces:
         - '*/*'
       parameters:
-        - name: name
+        - name: serviceName
           in: query
-          description: name
+          description: serviceName
           required: true
           type: string
       responses:
@@ -733,9 +733,9 @@ paths:
       produces:
         - '*/*'
       parameters:
-        - name: name
+        - name: serviceName
           in: query
-          description: name
+          description: serviceName
           required: true
           type: string
       responses:
@@ -756,7 +756,7 @@ paths:
     get:
       tags:
         - status-controller
-      summary: Returns status and statistics of the service
+      summary: Returns status and statistics of this service
       operationId: getStatusUsingGET
       produces:
         - '*/*'
@@ -799,7 +799,7 @@ definitions:
         type: string
         description: identity of the policy
       json:
-        type: string
+        type: object
         description: the configuration of the policy
       lastModified:
         type: string
@@ -841,7 +841,7 @@ definitions:
         type: integer
         format: int64
         description: keep alive interval for policies owned by the service. 0 means no timeout supervision. Polcies that are not refreshed within this time are removed
-      name:
+      serviceName:
         type: string
         description: identity of the service
     title: ServiceRegistrationInfo
@@ -852,7 +852,7 @@ definitions:
         type: integer
         format: int64
         description: policy keep alive timeout
-      name:
+      serviceName:
         type: string
         description: identity of the service
       timeSincePingSeconds:

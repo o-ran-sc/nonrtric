@@ -30,7 +30,7 @@ import org.immutables.gson.Gson;
 public class ServiceRegistrationInfo {
 
     @ApiModelProperty(value = "identity of the service")
-    public String name;
+    public String serviceName;
 
     @ApiModelProperty(
         value = "keep alive interval for policies owned by the service. 0 means no timeout supervision."
@@ -44,7 +44,7 @@ public class ServiceRegistrationInfo {
     }
 
     public ServiceRegistrationInfo(String name, long keepAliveIntervalSeconds, String callbackUrl) {
-        this.name = name;
+        this.serviceName = name;
         this.keepAliveIntervalSeconds = keepAliveIntervalSeconds;
         this.callbackUrl = callbackUrl;
     }

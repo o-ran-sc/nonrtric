@@ -57,7 +57,7 @@ public class RicRepositoryController {
     }
 
     /**
-     * Example: http://localhost:8080/rics?managedElementId=kista_1
+     * Example: http://localhost:8081/rics?managedElementId=kista_1
      */
     @GetMapping("/ric")
     @ApiOperation(value = "Returns the name of a RIC managing one Mananged Element")
@@ -80,7 +80,7 @@ public class RicRepositoryController {
 
     /**
      * @return a Json array of all RIC data
-     *         Example: http://localhost:8080/ric
+     *         Example: http://localhost:8081/ric
      */
     @GetMapping("/rics")
     @ApiOperation(value = "Query NearRT RIC information")

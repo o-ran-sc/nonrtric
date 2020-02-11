@@ -27,10 +27,10 @@ public interface PolicyAgentApi {
 
     public ResponseEntity<String> getPolicyInstancesForType(String type);
 
-    public ResponseEntity<String> getPolicyInstance(String id);
+    public ResponseEntity<Object> getPolicyInstance(String id);
 
-    public ResponseEntity<String> putPolicy(String policyTypeIdString, String policyInstanceId, String json,
-        String ric);
+    public ResponseEntity<String> putPolicy(String policyTypeIdString, String policyInstanceId, Object json,
+            String ric);
 
     public ResponseEntity<String> deletePolicy(String policyInstanceId);
 

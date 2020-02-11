@@ -349,8 +349,7 @@ public class ApplicationTest {
         String rsp = this.restTemplate.getForObject(url, String.class);
         System.out.println("*** " + rsp);
         assertThat(rsp).contains("type1");
-        assertThat(rsp).contains("type2");
-        assertThat(rsp).contains("title");
+        assertThat(rsp).contains("[{\"title\":\"type2\"}");
 
         List<String> info = parseSchemas(rsp);
         assertEquals(2, info.size());
@@ -440,7 +439,7 @@ public class ApplicationTest {
         assertThat(info.size() == 1);
         ServiceStatus status = info.iterator().next();
         assertThat(status.keepAliveIntervalSeconds == 1);
-        assertThat(status.name.equals("name"));
+        assertThat(status.serviceName.equals("name"));
 
         // GET (all)
         url = baseUrl() + "/services";
