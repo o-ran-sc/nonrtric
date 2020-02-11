@@ -42,7 +42,6 @@ import org.oransc.policyagent.repository.ImmutablePolicyType;
 import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.Ric;
-
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -71,7 +70,7 @@ public class StdA1ClientTest {
     @BeforeEach
     public void init() {
         asyncRestClientMock = mock(AsyncRestClient.class);
-        a1Client = spy(new StdA1Client(createRic(RIC_URL).getConfig(), asyncRestClientMock));
+        a1Client = spy(new StdA1Client(asyncRestClientMock));
     }
 
     @Test
