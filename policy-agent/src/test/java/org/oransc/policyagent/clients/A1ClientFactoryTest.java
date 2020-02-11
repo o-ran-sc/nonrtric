@@ -130,7 +130,7 @@ public class A1ClientFactoryTest {
             .expectNext(sdnrOnapA1ClientMock) //
             .verifyComplete();
 
-        assertEquals(A1ProtocolType.SDNR_ONAP, ric.getProtocolVersion(), "Not correct protocol");
+        assertEquals(A1ProtocolType.SDNC_ONAP, ric.getProtocolVersion(), "Not correct protocol");
     }
 
     @Test
@@ -180,7 +180,7 @@ public class A1ClientFactoryTest {
 
     private void whenGetProtocolVersionSdnrOnapA1ClientReturnCorrectProtocol() {
         doReturn(sdnrOnapA1ClientMock).when(factoryUnderTest).createSdnrOnapA1Client(any(Ric.class));
-        when(sdnrOnapA1ClientMock.getProtocolVersion()).thenReturn(Mono.just(A1ProtocolType.SDNR_ONAP));
+        when(sdnrOnapA1ClientMock.getProtocolVersion()).thenReturn(Mono.just(A1ProtocolType.SDNC_ONAP));
     }
 
     private void whenGetProtocolVersionSdncOscA1ClientThrowException() {
