@@ -22,7 +22,6 @@ package org.oransc.policyagent.clients;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -32,9 +31,9 @@ import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.oransc.policyagent.repository.Policy;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -59,12 +58,12 @@ public class StdA1ClientTest {
 
     StdA1Client clientUnderTest;
 
+    @Mock
     AsyncRestClient asyncRestClientMock;
 
     @BeforeEach
     public void init() {
-        asyncRestClientMock = mock(AsyncRestClient.class);
-        clientUnderTest = new StdA1Client(A1ClientHelper.createRic(RIC_URL).getConfig(), asyncRestClientMock);
+        clientUnderTest = new StdA1Client(asyncRestClientMock);
     }
 
     @Test

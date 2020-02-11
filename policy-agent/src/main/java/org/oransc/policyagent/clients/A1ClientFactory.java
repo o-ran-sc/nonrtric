@@ -102,7 +102,7 @@ public class A1ClientFactory {
     }
 
     protected A1Client createSdnrOnapA1Client(Ric ric) {
-        return new SdnrOnapA1Client(ric.getConfig(), appConfig.getA1ControllerBaseUrl(),
+        return new SdncOnapA1Client(ric.getConfig(), appConfig.getA1ControllerBaseUrl(),
             appConfig.getA1ControllerUsername(), appConfig.getA1ControllerPassword());
     }
 
