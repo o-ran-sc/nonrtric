@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "279768f8_c6208df7",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/A1ClientFactory.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-02-11T13:01:45Z",
+      "side": 1,
+      "message": "Since the last statemnet is an else clause, it will always return something, so there is no warning. The method createA1Client will never be called if the type is UNKNOWN when an error is returned from getProtocolVersion,so there is no point in having the return of an error here. Dead code is not good code.",
+      "parentUuid": "87712221_830199dc",
+      "revId": "6c1af5cf09756b4c91a786f90f65f5b94ca21aa7",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8433d116_0302709b",
         "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/A1ClientFactoryTest.java",
         "patchSetId": 5
