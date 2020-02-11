@@ -83,6 +83,7 @@ public class SdncOscA1ClientTest {
         whenAsyncPostThenReturn(policyTypeIdsResp);
 
         Mono<List<String>> returnedMono = clientUnderTest.getPolicyTypeIdentities();
+
         verify(asyncRestClientMock).postWithAuthHeader(POLICYTYPES_IDENTITIES_URL, inputJsonString, CONTROLLER_USERNAME,
             CONTROLLER_PASSWORD);
         StepVerifier.create(returnedMono).expectNext(policyTypeIds).expectComplete().verify();
@@ -100,6 +101,7 @@ public class SdncOscA1ClientTest {
         whenAsyncPostThenReturn(policyIdsResp);
 
         Mono<List<String>> returnedMono = clientUnderTest.getPolicyIdentities();
+
         verify(asyncRestClientMock).postWithAuthHeader(POLICIES_IDENTITIES_URL, inputJsonString, CONTROLLER_USERNAME,
             CONTROLLER_PASSWORD);
         StepVerifier.create(returnedMono).expectNext(policyIds).expectComplete().verify();
@@ -118,6 +120,7 @@ public class SdncOscA1ClientTest {
         whenAsyncPostThenReturn(policyTypeResp);
 
         Mono<String> returnedMono = clientUnderTest.getPolicyTypeSchema(POLICY_TYPE_1_ID);
+
         verify(asyncRestClientMock).postWithAuthHeader(POLICYTYPES_URL, inputJsonString, CONTROLLER_USERNAME,
             CONTROLLER_PASSWORD);
         StepVerifier.create(returnedMono).expectNext(POLICY_TYPE_SCHEMA_VALID).expectComplete().verify();
@@ -136,6 +139,7 @@ public class SdncOscA1ClientTest {
         whenAsyncPostThenReturn(policyTypeResp);
 
         Mono<String> returnedMono = clientUnderTest.getPolicyTypeSchema(POLICY_TYPE_1_ID);
+
         verify(asyncRestClientMock).postWithAuthHeader(POLICYTYPES_URL, inputJsonString, CONTROLLER_USERNAME,
             CONTROLLER_PASSWORD);
         StepVerifier.create(returnedMono).expectErrorMatches(throwable -> throwable instanceof JSONException).verify();
@@ -156,6 +160,7 @@ public class SdncOscA1ClientTest {
 
         Mono<String> returnedMono = clientUnderTest
             .putPolicy(A1ClientHelper.createPolicy(RIC_1_URL, POLICY_1_ID, POLICY_JSON_VALID, POLICY_TYPE_1_ID));
+
         verify(asyncRestClientMock).postWithAuthHeader(PUT_POLICY_URL, inputJsonString, CONTROLLER_USERNAME,
             CONTROLLER_PASSWORD);
         StepVerifier.create(returnedMono).expectNext(POLICY_JSON_VALID).expectComplete().verify();
@@ -176,6 +181,7 @@ public class SdncOscA1ClientTest {
 
         Mono<String> returnedMono = clientUnderTest
             .putPolicy(A1ClientHelper.createPolicy(RIC_1_URL, POLICY_1_ID, POLICY_JSON_VALID, POLICY_TYPE_1_ID));
+
         verify(asyncRestClientMock).postWithAuthHeader(PUT_POLICY_URL, inputJsonString, CONTROLLER_USERNAME,
             CONTROLLER_PASSWORD);
         StepVerifier.create(returnedMono).expectErrorMatches(throwable -> throwable instanceof JSONException).verify();
@@ -193,6 +199,7 @@ public class SdncOscA1ClientTest {
 
         Mono<String> returnedMono = clientUnderTest
             .deletePolicy(A1ClientHelper.createPolicy(RIC_1_URL, POLICY_1_ID, POLICY_JSON_VALID, POLICY_TYPE_1_ID));
+
         verify(asyncRestClientMock).postWithAuthHeader(DELETE_POLICY_URL, inputJsonString, CONTROLLER_USERNAME,
             CONTROLLER_PASSWORD);
         StepVerifier.create(returnedMono).expectComplete().verify();
@@ -220,6 +227,7 @@ public class SdncOscA1ClientTest {
         whenAsyncPostThenReturn(policyIdsResp).thenReturn(Mono.empty());
 
         Flux<String> returnedFlux = clientUnderTest.deleteAllPolicies();
+
         StepVerifier.create(returnedFlux).expectComplete().verify();
         verify(asyncRestClientMock).postWithAuthHeader(POLICIES_IDENTITIES_URL, inputJsonStringGetIds,
             CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
