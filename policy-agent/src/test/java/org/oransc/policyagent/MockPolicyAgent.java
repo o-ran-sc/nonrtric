@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.repository.ImmutablePolicyType;
@@ -143,7 +142,7 @@ public class MockPolicyAgent {
         return title;
     }
 
-    @Test
+//    @Test
     public void runMock() throws Exception {
         keepServerAlive();
     }
