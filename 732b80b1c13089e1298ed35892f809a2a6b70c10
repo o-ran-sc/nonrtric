@@ -163,6 +163,53 @@
     },
     {
       "key": {
+        "uuid": "af3e724b_fc5003dd",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdnrOnapA1Client.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-02-12T11:11:12Z",
+      "side": 1,
+      "message": "why is this public? Nobody except the factory should see the class.",
+      "range": {
+        "startLine": 132,
+        "startChar": 4,
+        "endLine": 132,
+        "endChar": 10
+      },
+      "revId": "732b80b1c13089e1298ed35892f809a2a6b70c10",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4ac12a2_14888189",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdnrOnapA1Client.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-02-12T11:11:12Z",
+      "side": 1,
+      "message": "Why, it is typeId and poicyId that identifies the policy. \nI think \u0027byId\u0027 does not add anything.",
+      "parentUuid": "91f3d7b5_13e157ee",
+      "range": {
+        "startLine": 132,
+        "startChar": 24,
+        "endLine": 132,
+        "endChar": 36
+      },
+      "revId": "732b80b1c13089e1298ed35892f809a2a6b70c10",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4c26c62b_ae6a5dd5",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/StdA1Client.java",
         "patchSetId": 1
