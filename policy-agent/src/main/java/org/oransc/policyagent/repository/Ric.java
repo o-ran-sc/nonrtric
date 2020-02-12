@@ -20,14 +20,14 @@
 
 package org.oransc.policyagent.repository;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-
 import lombok.Getter;
 import lombok.Setter;
-
 import org.oransc.policyagent.clients.A1Client.A1ProtocolType;
 import org.oransc.policyagent.configuration.RicConfig;
 
@@ -36,12 +36,14 @@ import org.oransc.policyagent.configuration.RicConfig;
  */
 public class Ric {
     private final RicConfig ricConfig;
+    private final List<String> managedElementIds;
 
     private RicState state = RicState.UNDEFINED;
     private Map<String, PolicyType> supportedPolicyTypes = new HashMap<>();
     @Getter
     @Setter
     private A1ProtocolType protocolVersion = A1ProtocolType.UNKNOWN;
+
 
     /**
      * Creates the Ric. Initial state is {@link RicState.NOT_INITIATED}.
@@ -50,6 +52,7 @@ public class Ric {
      */
     public Ric(RicConfig ricConfig) {
         this.ricConfig = ricConfig;
+        this.managedElementIds = new ArrayList<>(ricConfig.managedElementIds());
     }
 
     public String name() {
@@ -74,7 +77,7 @@ public class Ric {
      * @return a vector containing the nodes managed by this Ric.
      */
     public synchronized Collection<String> getManagedElementIds() {
-        return new Vector<>(ricConfig.managedElementIds());
+        return managedElementIds;
     }
 
     /**
@@ -84,7 +87,7 @@ public class Ric {
      * @return true if the given node is managed by this Ric.
      */
     public synchronized boolean isManaging(String managedElementId) {
-        return ricConfig.managedElementIds().contains(managedElementId);
+        return managedElementIds.contains(managedElementId);
     }
 
     /**
@@ -93,8 +96,8 @@ public class Ric {
      * @param managedElementId the node to add.
      */
     public synchronized void addManagedElement(String managedElementId) {
-        if (!ricConfig.managedElementIds().contains(managedElementId)) {
-            ricConfig.managedElementIds().add(managedElementId);
+        if (!managedElementIds.contains(managedElementId)) {
+            managedElementIds.add(managedElementId);
         }
     }
 
@@ -104,7 +107,7 @@ public class Ric {
      * @param managedElementId the node to remove.
      */
     public synchronized void removeManagedElement(String managedElementId) {
-        ricConfig.managedElementIds().remove(managedElementId);
+        managedElementIds.remove(managedElementId);
     }
 
     /**
@@ -150,13 +153,13 @@ public class Ric {
     @Override
     public synchronized String toString() {
         return Ric.class.getSimpleName() + ": " + "name: " + name() + ", state: " + state + ", baseUrl: "
-            + ricConfig.baseUrl() + ", managedNodes: " + ricConfig.managedElementIds();
+            + ricConfig.baseUrl() + ", managedNodes: " + managedElementIds;
     }
 
     /**
      * Represents the states possible for a Ric.
      */
-    public static enum RicState {
+    public enum RicState {
         /**
          * The agent view of the agent may be inconsistent.
          */

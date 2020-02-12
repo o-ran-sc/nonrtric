@@ -20,18 +20,15 @@
 
 package org.oransc.policyagent.configuration;
 
-import java.util.Vector;
-
-import org.immutables.gson.Gson;
+import com.google.common.collect.ImmutableList;
 import org.immutables.value.Value;
 
 @Value.Immutable
-@Gson.TypeAdapters
 public interface RicConfig {
     public String name();
 
     public String baseUrl();
 
-    public Vector<String> managedElementIds();
+    public ImmutableList<String> managedElementIds();
 
 }
