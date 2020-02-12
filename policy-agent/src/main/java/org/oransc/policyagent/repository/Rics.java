@@ -66,7 +66,7 @@ public class Rics {
 
     public synchronized Optional<Ric> lookupRicForManagedElement(String managedElementId) {
         for (Ric ric : this.rics.values()) {
-            if (ric.getConfig().managedElementIds().contains(managedElementId)) {
+            if (ric.getManagedElementIds().contains(managedElementId)) {
                 return Optional.of(ric);
             }
         }

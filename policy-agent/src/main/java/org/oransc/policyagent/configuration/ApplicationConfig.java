@@ -20,19 +20,15 @@
 
 package org.oransc.policyagent.configuration;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Vector;
-
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-
 import lombok.Getter;
-
 import org.oransc.policyagent.exceptions.ServiceException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
@@ -51,16 +47,12 @@ public class ApplicationConfig {
     @NotEmpty
     private String a1ControllerPassword;
 
-    private Collection<Observer> observers = new Vector<>();
+    private Collection<Observer> observers = new ArrayList<>();
     private Map<String, RicConfig> ricConfigs = new HashMap<>();
     @Getter
     private Properties dmaapPublisherConfig;
     @Getter
     private Properties dmaapConsumerConfig;
-
-    @Autowired
-    public ApplicationConfig() {
-    }
 
     public String getLocalConfigurationFilePath() {
         return this.filepath;
@@ -110,7 +102,7 @@ public class ApplicationConfig {
         throw new ServiceException("Could not find ric: " + ricName);
     }
 
-    public static enum RicConfigUpdate {
+    public enum RicConfigUpdate {
         ADDED, CHANGED, REMOVED
     }
 
@@ -135,7 +127,7 @@ public class ApplicationConfig {
     public void setConfiguration(@NotNull Collection<RicConfig> ricConfigs, Properties dmaapPublisherConfig,
         Properties dmaapConsumerConfig) {
 
-        Collection<Notification> notifications = new Vector<>();
+        Collection<Notification> notifications = new ArrayList<>();
         synchronized (this) {
             this.dmaapPublisherConfig = dmaapPublisherConfig;
             this.dmaapConsumerConfig = dmaapConsumerConfig;
