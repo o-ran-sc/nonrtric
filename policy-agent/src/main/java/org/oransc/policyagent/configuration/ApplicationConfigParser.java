@@ -20,23 +20,19 @@
 
 package org.oransc.policyagent.configuration;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Vector;
-
 import javax.validation.constraints.NotNull;
-
 import lombok.Getter;
-
 import org.onap.dmaap.mr.test.clients.ProtocolTypeConstants;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.springframework.http.MediaType;
@@ -45,12 +41,8 @@ public class ApplicationConfigParser {
 
     private static final String CONFIG = "config";
 
-    private static Gson gson = new GsonBuilder() //
-        .serializeNulls() //
-        .create(); //
-
     @Getter
-    private Vector<RicConfig> ricConfigs;
+    private List<RicConfig> ricConfigs;
     @Getter
     private Properties dmaapPublisherConfig = new Properties();
     @Getter
@@ -72,12 +64,28 @@ public class ApplicationConfigParser {
 
     }
 
-    private Vector<RicConfig> parseRics(JsonObject config) throws ServiceException {
-        Vector<RicConfig> result = new Vector<RicConfig>();
+    private List<RicConfig> parseRics(JsonObject config) throws ServiceException {
+        List<RicConfig> result = new ArrayList<>();
         for (JsonElement ricElem : getAsJsonArray(config, "ric")) {
-            result.add(gson.fromJson(ricElem.getAsJsonObject(), ImmutableRicConfig.class));
+            JsonObject ricAsJson = ricElem.getAsJsonObject();
+            ImmutableRicConfig ricConfig = ImmutableRicConfig.builder() //
+                .name(ricAsJson.get("name").getAsString()) //
+                .baseUrl(ricAsJson.get("baseUrl").getAsString()) //
+                .managedElementIds(parseManagedElementIds(ricAsJson.get("managedElementIds").getAsJsonArray())) //
+                .build();
+            result.add(ricConfig);
         }
         return result;
+    }
+
+    private List<String> parseManagedElementIds(JsonArray asJsonObject) {
+        Iterator<JsonElement> iterator = asJsonObject.iterator();
+        List<String> managedElementIds = new ArrayList<>();
+        while (iterator.hasNext()) {
+            managedElementIds.add(iterator.next().getAsString());
+
+        }
+        return managedElementIds;
     }
 
     private static JsonElement get(JsonObject obj, String memberName) throws ServiceException {
