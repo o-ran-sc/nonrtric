@@ -224,22 +224,38 @@ public class ApplicationTest {
     public void testPutPolicy() throws Exception {
         reset();
         putService("service1");
+        this.addRic("ric1").setState(Ric.RicState.IDLE);
         addPolicyType("type1", "ric1");
 
-        String url = baseUrl() + "/policy?type=type1&instance=instance1&ric=ric1&service=service1";
         final String json = jsonString();
-        this.rics.getRic("ric1").setState(Ric.RicState.IDLE);
-
+        String url = baseUrl() + "/policy?type=type1&instance=instance1&ric=ric1&service=service1";
         this.restTemplate.put(url, createJsonHttpEntity(json));
         Policy policy = policies.getPolicy("instance1");
 
         assertThat(policy).isNotNull();
         assertThat(policy.id()).isEqualTo("instance1");
         assertThat(policy.ownerServiceName()).isEqualTo("service1");
+        assertThat(policy.ric().name()).isEqualTo("ric1");
 
         url = baseUrl() + "/policies";
         String rsp = this.restTemplate.getForObject(url, String.class);
         System.out.println(rsp);
+
+    }
+
+    @Test
+    public void testRefuseToUpdatePolicy() throws Exception {
+        // Test that only the json can be changed for a already created policy
+        // In this case service is attempted to be changed
+        reset();
+        this.addRic("ric1").setState(Ric.RicState.IDLE);
+        this.addRic("ricXXX").setState(Ric.RicState.IDLE);
+
+        this.addPolicy("instance1", "type1", "service1", "ric1");
+        String urlWrongRic = baseUrl() + "/policy?type=type1&instance=instance1&ric=ricXXX&service=service1";
+        this.restTemplate.put(urlWrongRic, createJsonHttpEntity(jsonString()));
+        Policy policy = policies.getPolicy("instance1");
+        assertThat(policy.ric().name()).isEqualTo("ric1"); // Not changed
     }
 
     private PolicyType addPolicyType(String policyTypeName, String ricName) {

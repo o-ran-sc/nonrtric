@@ -27,10 +27,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Vector;
 
 import org.oransc.policyagent.clients.A1ClientFactory;
 import org.oransc.policyagent.configuration.ApplicationConfig;
@@ -188,12 +188,25 @@ public class PolicyController {
                 .ownerServiceName(service) //
                 .lastModified(getTimeStampUtc()) //
                 .build();
-            return a1ClientFactory.createA1Client(ric) //
+
+            return validateModifiedPolicy(policy) //
+                .flatMap(x -> a1ClientFactory.createA1Client(ric)) //
                 .flatMap(client -> client.putPolicy(policy)) //
                 .doOnNext(notUsed -> policies.put(policy)) //
                 .flatMap(notUsed -> Mono.just(new ResponseEntity<>(HttpStatus.OK)));
         }
         return Mono.just(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    private Mono<Object> validateModifiedPolicy(Policy policy) {
+        // Check that ric is not updated
+        Policy current = this.policies.get(policy.id());
+        if (current != null) {
+            if (!current.ric().name().equals(policy.ric().name())) {
+                return Mono.error(new Exception("Policy cannot change RIC or service"));
+            }
+        }
+        return Mono.just("OK");
     }
 
     @GetMapping("/policies")
