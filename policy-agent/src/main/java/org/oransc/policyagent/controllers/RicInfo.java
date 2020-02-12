@@ -31,7 +31,7 @@ import org.immutables.gson.Gson;
 @ApiModel(value = "RicInfo")
 class RicInfo {
     @ApiModelProperty(value = "identity of the ric")
-    public final String name;
+    public final String ricName;
 
     @ApiModelProperty(value = "O1 identities for managed entities")
     public final Collection<String> managedElementIds;
@@ -40,7 +40,7 @@ class RicInfo {
     public final Collection<String> policyTypes;
 
     RicInfo(String name, Collection<String> managedElementIds, Collection<String> policyTypes) {
-        this.name = name;
+        this.ricName = name;
         this.managedElementIds = managedElementIds;
         this.policyTypes = policyTypes;
     }

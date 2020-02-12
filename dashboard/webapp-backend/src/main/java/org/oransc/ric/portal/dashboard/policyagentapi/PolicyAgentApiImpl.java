@@ -174,7 +174,7 @@ public class PolicyAgentApiImpl implements PolicyAgentApi {
     @Value.Immutable
     @Gson.TypeAdapters
     interface RicInfo {
-        public String name();
+        public String ricName();
 
         public Collection<String> nodeNames();
 
@@ -193,7 +193,7 @@ public class PolicyAgentApiImpl implements PolicyAgentApi {
             List<RicInfo> rspParsed = gson.fromJson(rsp, listType);
             Collection<String> result = new Vector<>(rspParsed.size());
             for (RicInfo ric : rspParsed) {
-                result.add(ric.name());
+                result.add(ric.ricName());
             }
             return new ResponseEntity<>(gson.toJson(result), HttpStatus.OK);
         } catch (Exception e) {
