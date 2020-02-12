@@ -47,9 +47,6 @@ public class Application {
      */
     @Bean
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
-        return args -> {
-
-            startupService.startup();
-        };
+        return args -> startupService.startup();
     }
 }
