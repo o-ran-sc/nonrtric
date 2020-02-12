@@ -48,7 +48,7 @@
     <properties>
         <java.version>11</java.version>
         <springfox.version>2.9.2</springfox.version>
-        <immutable.version>2.7.1</immutable.version>
+        <immutable.version>2.7.4</immutable.version>
         <sdk.version>1.1.6</sdk.version>
         <swagger.version>2.0.0</swagger.version>
         <json.version>20180130</json.version>
