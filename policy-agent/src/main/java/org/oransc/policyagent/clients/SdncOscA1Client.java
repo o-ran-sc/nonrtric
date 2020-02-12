@@ -54,6 +54,13 @@ public class SdncOscA1Client implements A1Client {
             a1ControllerBaseUrl);
     }
 
+    public SdncOscA1Client(RicConfig ricConfig, String username, String password, AsyncRestClient restClient) {
+        this.ricConfig = ricConfig;
+        this.a1ControllerUsername = username;
+        this.a1ControllerPassword = password;
+        this.restClient = restClient;
+    }
+
     @Override
     public Mono<List<String>> getPolicyTypeIdentities() {
         JSONObject paramsJson = new JSONObject();
