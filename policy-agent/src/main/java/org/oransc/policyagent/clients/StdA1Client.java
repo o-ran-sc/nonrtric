@@ -37,7 +37,7 @@ import reactor.core.publisher.Mono;
 public class StdA1Client implements A1Client {
     private static final String URL_PREFIX = "/A1-P/v1";
 
-    private static final String POLICYTYPES_URI = "/policytypes";
+    private static final String POLICY_TYPES_URI = "/policytypes";
     private static final String POLICY_TYPE_ID = "policyTypeId";
 
     private static final String POLICIES_URI = "/policies";
@@ -70,8 +70,8 @@ public class StdA1Client implements A1Client {
 
     @Override
     public Mono<List<String>> getPolicyIdentities() {
-        return restClient.get(POLICIES_URI) //
-            .flatMap(this::parseJsonArrayOfString);
+        return getPolicyIds() //
+            .collectList();
     }
 
     @Override
@@ -83,8 +83,9 @@ public class StdA1Client implements A1Client {
 
     @Override
     public Mono<List<String>> getPolicyTypeIdentities() {
-        return restClient.get(POLICYTYPES_URI) //
-            .flatMap(this::parseJsonArrayOfString);
+        return restClient.get(POLICY_TYPES_URI) //
+            .flatMapMany(this::parseJsonArrayOfString) //
+            .collectList();
     }
 
     @Override
@@ -101,9 +102,8 @@ public class StdA1Client implements A1Client {
 
     @Override
     public Flux<String> deleteAllPolicies() {
-        return getPolicyIdentities() //
-            .flatMapMany(policyIds -> Flux.fromIterable(policyIds)) // )
-            .flatMap(policyId -> deletePolicyById(policyId)); //
+        return getPolicyIds() //
+            .flatMap(this::deletePolicyById); //
     }
 
     @Override
@@ -118,12 +118,17 @@ public class StdA1Client implements A1Client {
         return restClient.get(uri);
     }
 
+    private Flux<String> getPolicyIds() {
+        return restClient.get(POLICIES_URI) //
+            .flatMapMany(this::parseJsonArrayOfString);
+    }
+
     private Mono<String> deletePolicyById(String policyId) {
         String uri = POLICY_DELETE_URI.buildAndExpand(policyId).toUriString();
         return restClient.delete(uri);
     }
 
-    private Mono<List<String>> parseJsonArrayOfString(String inputString) {
+    private Flux<String> parseJsonArrayOfString(String inputString) {
         try {
             List<String> arrayList = new ArrayList<>();
             JSONArray jsonArray = new JSONArray(inputString);
@@ -131,9 +136,9 @@ public class StdA1Client implements A1Client {
                 arrayList.add(jsonArray.getString(i));
             }
             logger.debug("A1 client: received list = {}", arrayList);
-            return Mono.just(arrayList);
+            return Flux.fromIterable(arrayList);
         } catch (JSONException ex) { // invalid json
-            return Mono.error(ex);
+            return Flux.error(ex);
         }
     }
 
