@@ -23,7 +23,6 @@ package org.oransc.policyagent.clients;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,7 +30,6 @@ import org.oransc.policyagent.configuration.RicConfig;
 import org.oransc.policyagent.repository.Policy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -65,39 +63,15 @@ public class SdnrOnapA1Client implements A1Client {
 
     @Override
     public Mono<List<String>> getPolicyTypeIdentities() {
-        JSONObject paramsJson = new JSONObject();
-        paramsJson.put(NEAR_RT_RIC_ID, ricConfig.baseUrl());
-        String inputJsonString = createInputJsonString(paramsJson);
-        logger.debug("POST getPolicyTypeIdentities inputJsonString = {}", inputJsonString);
-
-        return restClient
-            .postWithAuthHeader(URL_PREFIX + "getPolicyTypes", inputJsonString, a1ControllerUsername,
-                a1ControllerPassword) //
-            .flatMap(response -> getValueFromResponse(response, "policy-type-id-list")) //
-            .flatMap(this::parseJsonArrayOfString);
+        return getPolicyTypeIds() //
+            .collectList();
     }
 
     @Override
     public Mono<List<String>> getPolicyIdentities() {
-        return getPolicyTypeIdentities() //
-            .flatMapMany(types -> Flux.fromIterable(types)) //
-            .flatMap(type -> getPolicyIdentities(type)) //
-            .flatMap(policyIds -> Flux.fromIterable(policyIds)) //
+        return getPolicyTypeIds() //
+            .flatMap(this::getPolicyIdentitiesByType) //
             .collectList();
-    }
-
-    public Mono<List<String>> getPolicyIdentities(String policyTypeId) {
-        JSONObject paramsJson = new JSONObject();
-        paramsJson.put(NEAR_RT_RIC_ID, ricConfig.baseUrl());
-        paramsJson.put(POLICY_TYPE_ID, policyTypeId);
-        String inputJsonString = createInputJsonString(paramsJson);
-        logger.debug("POST getPolicyIdentities inputJsonString = {}", inputJsonString);
-
-        return restClient
-            .postWithAuthHeader(URL_PREFIX + "getPolicyInstances", inputJsonString, a1ControllerUsername,
-                a1ControllerPassword) //
-            .flatMap(response -> getValueFromResponse(response, "policy-instance-id-list")) //
-            .flatMap(this::parseJsonArrayOfString);
     }
 
     @Override
@@ -130,39 +104,53 @@ public class SdnrOnapA1Client implements A1Client {
             a1ControllerUsername, a1ControllerPassword);
     }
 
-    public Mono<String> deletePolicyByIds(String policyTypeId, String policyId) {
-        JSONObject paramsJson = new JSONObject();
-        paramsJson.put(NEAR_RT_RIC_ID, ricConfig.baseUrl());
-        paramsJson.put(POLICY_INSTANCE_ID, policyId);
-        paramsJson.put(POLICY_TYPE_ID, policyTypeId);
-        String inputJsonString = createInputJsonString(paramsJson);
-        logger.debug("POST deletePolicy inputJsonString = {}", inputJsonString);
-
-        return restClient.postWithAuthHeader(URL_PREFIX + "deletePolicyInstance", inputJsonString,
-            a1ControllerUsername, a1ControllerPassword);
-    }
-
     @Override
     public Mono<String> deletePolicy(Policy policy) {
-        return deletePolicyByIds(policy.type().name(), policy.id());
+        return deletePolicyByTypeId(policy.type().name(), policy.id());
     }
 
     @Override
     public Flux<String> deleteAllPolicies() {
-        return getPolicyTypeIdentities() //
-            .flatMapMany(types -> Flux.fromIterable(types)) //
-            .flatMap(typeId -> deletePoliciesForType(typeId)); //
+        return getPolicyTypeIds() //
+            .flatMap(this::deletePoliciesForType); //
     }
 
     @Override
     public Mono<A1ProtocolType> getProtocolVersion() {
         return getPolicyTypeIdentities() //
-            .flatMap(x -> Mono.just(A1ProtocolType.SDNR_ONAP));
+            .flatMap(notUsed -> Mono.just(A1ProtocolType.SDNR_ONAP));
     }
 
     @Override
     public Mono<String> getPolicyStatus(Policy policy) {
         return Mono.error(new Exception("Status not implemented in the controller"));
+    }
+
+    private Flux<String> getPolicyTypeIds() {
+        JSONObject paramsJson = new JSONObject();
+        paramsJson.put(NEAR_RT_RIC_ID, ricConfig.baseUrl());
+        String inputJsonString = createInputJsonString(paramsJson);
+        logger.debug("POST getPolicyTypeIdentities inputJsonString = {}", inputJsonString);
+
+        return restClient
+            .postWithAuthHeader("/A1-ADAPTER-API:getPolicyTypes", inputJsonString, a1ControllerUsername,
+                a1ControllerPassword) //
+            .flatMap(response -> getValueFromResponse(response, "policy-type-id-list")) //
+            .flatMapMany(this::parseJsonArrayOfString);
+    }
+
+    private Flux<String> getPolicyIdentitiesByType(String policyTypeId) {
+        JSONObject paramsJson = new JSONObject();
+        paramsJson.put(NEAR_RT_RIC_ID, ricConfig.baseUrl());
+        paramsJson.put(POLICY_TYPE_ID, policyTypeId);
+        String inputJsonString = createInputJsonString(paramsJson);
+        logger.debug("POST getPolicyIdentities inputJsonString = {}", inputJsonString);
+
+        return restClient
+            .postWithAuthHeader("/A1-ADAPTER-API:getPolicyInstances", inputJsonString, a1ControllerUsername,
+                a1ControllerPassword) //
+            .flatMap(response -> getValueFromResponse(response, "policy-instance-id-list")) //
+            .flatMapMany(this::parseJsonArrayOfString);
     }
 
     private String createInputJsonString(JSONObject paramsJson) {
@@ -186,20 +174,19 @@ public class SdnrOnapA1Client implements A1Client {
         }
     }
 
-    private Mono<List<String>> parseJsonArrayOfString(String inputString) {
+    private Flux<String> parseJsonArrayOfString(String inputString) {
         try {
             List<String> arrayList = new ArrayList<>();
-            if (inputString.isEmpty()) {
-                return Mono.just(arrayList);
-            }
-            JSONArray jsonArray = new JSONArray(inputString);
-            for (int i = 0; i < jsonArray.length(); i++) {
-                arrayList.add(jsonArray.getString(i));
+            if (!inputString.isEmpty()) {
+                JSONArray jsonArray = new JSONArray(inputString);
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    arrayList.add(jsonArray.getString(i));
+                }
             }
             logger.debug("A1 client: received list = {}", arrayList);
-            return Mono.just(arrayList);
+            return Flux.fromIterable(arrayList);
         } catch (JSONException ex) { // invalid json
-            return Mono.error(ex);
+            return Flux.error(ex);
         }
     }
 
@@ -215,8 +202,19 @@ public class SdnrOnapA1Client implements A1Client {
     }
 
     private Flux<String> deletePoliciesForType(String typeId) {
-        return getPolicyIdentities(typeId) //
-            .flatMapMany(policyIds -> Flux.fromIterable(policyIds)) //
-            .flatMap(policyId -> deletePolicyByIds(typeId, policyId)); //
+        return getPolicyIdentitiesByType(typeId) //
+            .flatMap(policyId -> deletePolicyByTypeId(typeId, policyId)); //
+    }
+
+    private Mono<String> deletePolicyByTypeId(String policyTypeId, String policyId) {
+        JSONObject paramsJson = new JSONObject();
+        paramsJson.put(NEAR_RT_RIC_ID, ricConfig.baseUrl());
+        paramsJson.put(POLICY_INSTANCE_ID, policyId);
+        paramsJson.put(POLICY_TYPE_ID, policyTypeId);
+        String inputJsonString = createInputJsonString(paramsJson);
+        logger.debug("POST deletePolicy inputJsonString = {}", inputJsonString);
+
+        return restClient.postWithAuthHeader("/A1-ADAPTER-API:deletePolicyInstance", inputJsonString,
+            a1ControllerUsername, a1ControllerPassword);
     }
 }

@@ -44,9 +44,9 @@ public class SdncOscA1ClientTest {
     private static final String CONTROLLER_USERNAME = "username";
     private static final String CONTROLLER_PASSWORD = "password";
     private static final String RIC_1_URL = "RicUrl";
-    private static final String POLICYTYPES_IDENTITIES_URL = "/A1-ADAPTER-API:getPolicyTypeIdentities";
-    private static final String POLICIES_IDENTITIES_URL = "/A1-ADAPTER-API:getPolicyIdentities";
-    private static final String POLICYTYPES_URL = "/A1-ADAPTER-API:getPolicyType";
+    private static final String POLICY_TYPES_IDENTITIES_URL = "/A1-ADAPTER-API:getPolicyTypeIdentities";
+    private static final String POLICY_IDENTITIES_URL = "/A1-ADAPTER-API:getPolicyIdentities";
+    private static final String POLICY_TYPES_URL = "/A1-ADAPTER-API:getPolicyType";
     private static final String PUT_POLICY_URL = "/A1-ADAPTER-API:putPolicy";
     private static final String DELETE_POLICY_URL = "/A1-ADAPTER-API:deletePolicy";
 
@@ -83,8 +83,8 @@ public class SdncOscA1ClientTest {
         whenAsyncPostThenReturn(policyTypeIdsResp);
 
         Mono<List<String>> returnedMono = clientUnderTest.getPolicyTypeIdentities();
-        verify(asyncRestClientMock).postWithAuthHeader(POLICYTYPES_IDENTITIES_URL, inputJsonString, CONTROLLER_USERNAME,
-            CONTROLLER_PASSWORD);
+        verify(asyncRestClientMock).postWithAuthHeader(POLICY_TYPES_IDENTITIES_URL, inputJsonString,
+            CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
         StepVerifier.create(returnedMono).expectNext(policyTypeIds).expectComplete().verify();
     }
 
@@ -100,7 +100,7 @@ public class SdncOscA1ClientTest {
         whenAsyncPostThenReturn(policyIdsResp);
 
         Mono<List<String>> returnedMono = clientUnderTest.getPolicyIdentities();
-        verify(asyncRestClientMock).postWithAuthHeader(POLICIES_IDENTITIES_URL, inputJsonString, CONTROLLER_USERNAME,
+        verify(asyncRestClientMock).postWithAuthHeader(POLICY_IDENTITIES_URL, inputJsonString, CONTROLLER_USERNAME,
             CONTROLLER_PASSWORD);
         StepVerifier.create(returnedMono).expectNext(policyIds).expectComplete().verify();
     }
@@ -118,7 +118,7 @@ public class SdncOscA1ClientTest {
         whenAsyncPostThenReturn(policyTypeResp);
 
         Mono<String> returnedMono = clientUnderTest.getPolicyTypeSchema(POLICY_TYPE_1_ID);
-        verify(asyncRestClientMock).postWithAuthHeader(POLICYTYPES_URL, inputJsonString, CONTROLLER_USERNAME,
+        verify(asyncRestClientMock).postWithAuthHeader(POLICY_TYPES_URL, inputJsonString, CONTROLLER_USERNAME,
             CONTROLLER_PASSWORD);
         StepVerifier.create(returnedMono).expectNext(POLICY_TYPE_SCHEMA_VALID).expectComplete().verify();
     }
@@ -136,7 +136,7 @@ public class SdncOscA1ClientTest {
         whenAsyncPostThenReturn(policyTypeResp);
 
         Mono<String> returnedMono = clientUnderTest.getPolicyTypeSchema(POLICY_TYPE_1_ID);
-        verify(asyncRestClientMock).postWithAuthHeader(POLICYTYPES_URL, inputJsonString, CONTROLLER_USERNAME,
+        verify(asyncRestClientMock).postWithAuthHeader(POLICY_TYPES_URL, inputJsonString, CONTROLLER_USERNAME,
             CONTROLLER_PASSWORD);
         StepVerifier.create(returnedMono).expectErrorMatches(throwable -> throwable instanceof JSONException).verify();
     }
@@ -221,7 +221,7 @@ public class SdncOscA1ClientTest {
 
         Flux<String> returnedFlux = clientUnderTest.deleteAllPolicies();
         StepVerifier.create(returnedFlux).expectComplete().verify();
-        verify(asyncRestClientMock).postWithAuthHeader(POLICIES_IDENTITIES_URL, inputJsonStringGetIds,
+        verify(asyncRestClientMock).postWithAuthHeader(POLICY_IDENTITIES_URL, inputJsonStringGetIds,
             CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
         verify(asyncRestClientMock).postWithAuthHeader(DELETE_POLICY_URL, inputJsonStringDeletePolicy1,
             CONTROLLER_USERNAME, CONTROLLER_PASSWORD);

@@ -27,7 +27,6 @@ import com.google.gson.GsonBuilder;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,7 +34,6 @@ import org.oransc.policyagent.configuration.RicConfig;
 import org.oransc.policyagent.repository.Policy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -79,22 +77,14 @@ public class SdncOscA1Client implements A1Client {
             .postWithAuthHeader(URL_PREFIX + "getPolicyTypeIdentities", inputJsonString, a1ControllerUsername,
                 a1ControllerPassword) //
             .flatMap(response -> getValueFromResponse(response, "policy-type-id-list")) //
-            .flatMap(this::parseJsonArrayOfString);
+            .flatMapMany(this::parseJsonArrayOfString) //
+            .collectList();
     }
 
     @Override
     public Mono<List<String>> getPolicyIdentities() {
-        SdncOscAdapterInput inputParams = ImmutableSdncOscAdapterInput.builder() //
-            .nearRtRicUrl(ricConfig.baseUrl()) //
-            .build();
-        String inputJsonString = createInputJsonString(gson.toJson(inputParams));
-        logger.debug("POST getPolicyIdentities inputJsonString = {}", inputJsonString);
-
-        return restClient
-            .postWithAuthHeader(URL_PREFIX + "getPolicyIdentities", inputJsonString, a1ControllerUsername,
-                a1ControllerPassword) //
-            .flatMap(response -> getValueFromResponse(response, "policy-id-list")) //
-            .flatMap(this::parseJsonArrayOfString);
+        return getPolicyIds() //
+            .collectList();
     }
 
     @Override
@@ -125,8 +115,7 @@ public class SdncOscA1Client implements A1Client {
         logger.debug("POST putPolicy inputJsonString = {}", inputJsonString);
 
         return restClient
-            .postWithAuthHeader(URL_PREFIX + "putPolicy", inputJsonString, a1ControllerUsername,
-                a1ControllerPassword) //
+            .postWithAuthHeader(URL_PREFIX + "putPolicy", inputJsonString, a1ControllerUsername, a1ControllerPassword)
             .flatMap(response -> getValueFromResponse(response, "returned-policy")) //
             .flatMap(this::validateJson);
     }
@@ -138,9 +127,8 @@ public class SdncOscA1Client implements A1Client {
 
     @Override
     public Flux<String> deleteAllPolicies() {
-        return getPolicyIdentities() //
-            .flatMapMany(policyIds -> Flux.fromIterable(policyIds)) // )
-            .flatMap(policyId -> deletePolicyById(policyId)); //
+        return getPolicyIds() //
+            .flatMap(this::deletePolicyById); //
     }
 
     @Override
@@ -154,10 +142,18 @@ public class SdncOscA1Client implements A1Client {
         return Mono.error(new Exception("Status not implemented in the SDNC controller"));
     }
 
-    private String createInputJsonString(JSONObject paramsJson) {
-        JSONObject inputJson = new JSONObject();
-        inputJson.put("input", new JSONObject(paramsJson));
-        return inputJson.toString();
+    private Flux<String> getPolicyIds() {
+        SdncOscAdapterInput inputParams = ImmutableSdncOscAdapterInput.builder() //
+            .nearRtRicUrl(ricConfig.baseUrl()) //
+            .build();
+        String inputJsonString = createInputJsonString(gson.toJson(inputParams));
+        logger.debug("POST getPolicyIdentities inputJsonString = {}", inputJsonString);
+
+        return restClient
+            .postWithAuthHeader("/A1-ADAPTER-API:getPolicyIdentities", inputJsonString, a1ControllerUsername,
+                a1ControllerPassword) //
+            .flatMap(response -> getValueFromResponse(response, "policy-id-list")) //
+            .flatMapMany(this::parseJsonArrayOfString);
     }
 
     private Mono<String> getValueFromResponse(String response, String key) {
@@ -175,20 +171,19 @@ public class SdncOscA1Client implements A1Client {
         }
     }
 
-    private Mono<List<String>> parseJsonArrayOfString(String inputString) {
+    private Flux<String> parseJsonArrayOfString(String inputString) {
         try {
             List<String> arrayList = new ArrayList<>();
-            if (inputString.isEmpty()) {
-                return Mono.just(arrayList);
-            }
-            JSONArray jsonArray = new JSONArray(inputString);
-            for (int i = 0; i < jsonArray.length(); i++) {
-                arrayList.add(jsonArray.getString(i));
+            if (!inputString.isEmpty()) {
+                JSONArray jsonArray = new JSONArray(inputString);
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    arrayList.add(jsonArray.getString(i));
+                }
             }
             logger.debug("A1 client: received list = {}", arrayList);
-            return Mono.just(arrayList);
+            return Flux.fromIterable(arrayList);
         } catch (JSONException ex) { // invalid json
-            return Mono.error(ex);
+            return Flux.error(ex);
         }
     }
 
@@ -218,7 +213,7 @@ public class SdncOscA1Client implements A1Client {
             .policyId(policyId) //
             .build();
 
-         String inputJsonString = createInputJsonString(gson.toJson(inputParams));
+        String inputJsonString = createInputJsonString(gson.toJson(inputParams));
         logger.debug("POST deletePolicy inputJsonString = {}", inputJsonString);
 
         return restClient.postWithAuthHeader(URL_PREFIX + "deletePolicy", inputJsonString, a1ControllerUsername,
