@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5e488e0_efef3c7e",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/OscA1Client.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-02-12T09:34:23Z",
+      "side": 1,
+      "message": "Identifiers should in general have as small scope as possible.\nThese does not need to have class scope when they are only used in one function.\nThis is a general comment.",
+      "range": {
+        "startLine": 39,
+        "startChar": 4,
+        "endLine": 39,
+        "endChar": 60
+      },
+      "revId": "732b80b1c13089e1298ed35892f809a2a6b70c10",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b2f094f_654e92ff",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/OscA1Client.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-02-12T09:34:23Z",
+      "side": 1,
+      "message": "Sorry, but the code was far more readable before this change. This is a general comment. \n\nrestClient.get(\"/policytypes/\" + policyTypeId) \n\nvs \n\nGET_POLICY_TYPE_SCHEMA_URI_BUILDER.buildAndExpand(policyTypeId).toUriString()",
+      "range": {
+        "startLine": 88,
+        "startChar": 21,
+        "endLine": 88,
+        "endChar": 96
+      },
+      "revId": "732b80b1c13089e1298ed35892f809a2a6b70c10",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c26c62b_ae6a5dd5",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/StdA1Client.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-02-12T09:34:23Z",
+      "side": 1,
+      "message": "I think it is better to define identifiers in local scope (in the function that uses them).\nAnd they do not have be capitalized then (I think these names looks ugly).\nIn local scope the variable can just be called uriBuilder or builder.\nGeneral comment.",
+      "range": {
+        "startLine": 79,
+        "startChar": 21,
+        "endLine": 79,
+        "endChar": 43
+      },
+      "revId": "732b80b1c13089e1298ed35892f809a2a6b70c10",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d42ef18a_a97d9812",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/StdA1Client.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-02-12T09:34:23Z",
+      "side": 1,
+      "message": "use localscope",
+      "range": {
+        "startLine": 117,
+        "startChar": 21,
+        "endLine": 117,
+        "endChar": 51
+      },
+      "revId": "732b80b1c13089e1298ed35892f809a2a6b70c10",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46f66885_5445db24",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/StdA1Client.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-02-12T09:34:23Z",
+      "side": 1,
+      "message": "use localscope",
+      "range": {
+        "startLine": 122,
+        "startChar": 21,
+        "endLine": 122,
+        "endChar": 47
+      },
+      "revId": "732b80b1c13089e1298ed35892f809a2a6b70c10",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
