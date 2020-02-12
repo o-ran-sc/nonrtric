@@ -23,7 +23,6 @@ package org.oransc.policyagent.clients;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,7 +37,7 @@ import reactor.core.publisher.Mono;
 public class OscA1Client implements A1Client {
     private static final String URL_PREFIX = "/a1-p";
 
-    private static final String POLICYTYPES = "/policytypes";
+    private static final String POLICY_TYPES = "/policytypes";
     private static final String CREATE_SCHEMA = "create_schema";
     private static final String TITLE = "title";
 
@@ -74,16 +73,14 @@ public class OscA1Client implements A1Client {
 
     @Override
     public Mono<List<String>> getPolicyTypeIdentities() {
-        return restClient.get(POLICYTYPES) //
-            .flatMap(this::parseJsonArrayOfString);
+        return getPolicyTypeIds() //
+            .collectList();
     }
 
     @Override
     public Mono<List<String>> getPolicyIdentities() {
-        return getPolicyTypeIdentities() //
-            .flatMapMany(types -> Flux.fromIterable(types)) //
-            .flatMap(type -> getPolicyIdentitiesById(type)) //
-            .flatMap(policyIds -> Flux.fromIterable(policyIds)) //
+        return getPolicyTypeIds() //
+            .flatMap(this::getPolicyIdentitiesByType) //
             .collectList();
     }
 
@@ -108,14 +105,13 @@ public class OscA1Client implements A1Client {
     @Override
     public Mono<A1ProtocolType> getProtocolVersion() {
         return restClient.get(HEALTHCHECK) //
-            .flatMap(resp -> Mono.just(A1ProtocolType.OSC_V1));
+            .flatMap(notUsed -> Mono.just(A1ProtocolType.OSC_V1));
     }
 
     @Override
     public Flux<String> deleteAllPolicies() {
-        return getPolicyTypeIdentities() //
-            .flatMapMany(types -> Flux.fromIterable(types)) //
-            .flatMap(typeId -> deletePoliciesForType(typeId)); //
+        return getPolicyTypeIds() //
+            .flatMap(this::deletePoliciesForType);
     }
 
     @Override
@@ -125,10 +121,14 @@ public class OscA1Client implements A1Client {
 
     }
 
-    private Mono<List<String>> getPolicyIdentitiesById(String typeId) {
-        String uri = POLICY_IDS_URI.buildAndExpand(typeId).toUriString();
-        return restClient.get(uri) //
-            .flatMap(this::parseJsonArrayOfString);
+    private Flux<String> getPolicyTypeIds() {
+        return restClient.get(POLICY_TYPES) //
+            .flatMapMany(this::parseJsonArrayOfString);
+    }
+
+    private Flux<String> getPolicyIdentitiesByType(String typeId) {
+        return restClient.get(POLICY_IDS_URI.buildAndExpand(typeId).toUriString()) //
+            .flatMapMany(this::parseJsonArrayOfString);
     }
 
     private Mono<String> getCreateSchema(String policyTypeResponse, String policyTypeId) {
@@ -149,12 +149,11 @@ public class OscA1Client implements A1Client {
     }
 
     private Flux<String> deletePoliciesForType(String typeId) {
-        return getPolicyIdentitiesById(typeId) //
-            .flatMapMany(policyIds -> Flux.fromIterable(policyIds)) //
-            .flatMap(policyId -> deletePolicyById(typeId, policyId)); //
+        return getPolicyIdentitiesByType(typeId) //
+            .flatMap(policyId -> deletePolicyById(typeId, policyId));
     }
 
-    private Mono<List<String>> parseJsonArrayOfString(String inputString) {
+    private Flux<String> parseJsonArrayOfString(String inputString) {
         try {
             List<String> arrayList = new ArrayList<>();
             JSONArray jsonArray = new JSONArray(inputString);
@@ -162,9 +161,9 @@ public class OscA1Client implements A1Client {
                 arrayList.add(jsonArray.getString(i));
             }
             logger.debug("A1 client: received list = {}", arrayList);
-            return Mono.just(arrayList);
+            return Flux.fromIterable(arrayList);
         } catch (JSONException ex) { // invalid json
-            return Mono.error(ex);
+            return Flux.error(ex);
         }
     }
 }
