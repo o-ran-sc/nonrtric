@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d4ed34d3_a9aaa3fa",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdncOscA1Client.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-02-12T15:41:02Z",
+      "side": 1,
+      "message": "this does not seem to used.",
+      "range": {
+        "startLine": 41,
+        "startChar": 3,
+        "endLine": 41,
+        "endChar": 39
+      },
+      "revId": "798ca3c65a97486582932c4ff1bc3b79e39c0a8b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f6e35a6_65c2686c",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdncOscA1Client.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-02-12T15:41:02Z",
+      "side": 1,
+      "message": "all attributes that should be set in the constructor and not modified should be final (which I think is for both these)",
+      "range": {
+        "startLine": 42,
+        "startChar": 3,
+        "endLine": 43,
+        "endChar": 40
+      },
+      "revId": "798ca3c65a97486582932c4ff1bc3b79e39c0a8b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "33f869c0_47e1b6b6",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdncOscA1Client.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-02-12T15:41:02Z",
+      "side": 1,
+      "message": "it is better to extend a constructor than repeating everything.\n\n public SdncOscA1Client(RicConfig ricConfig, String baseUrl, String username, String password) {\n        this(ricConfig, username, password, new AsyncRestClient(baseUrl + \"/restconf/operations\"));\n    }",
+      "range": {
+        "startLine": 47,
+        "startChar": 3,
+        "endLine": 55,
+        "endChar": 5
+      },
+      "revId": "798ca3c65a97486582932c4ff1bc3b79e39c0a8b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a0f63f7_c8d733ec",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdncOscA1Client.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-02-12T15:41:02Z",
+      "side": 1,
+      "message": "why is not an immutable gson type adapter used like in other places of the agent?\n\nSee example on how to use \n\n@Value.Immutable\n@Gson.TypeAdapters\npublic interface RicConfig {",
+      "range": {
+        "startLine": 109,
+        "startChar": 7,
+        "endLine": 113,
+        "endChar": 48
+      },
+      "revId": "798ca3c65a97486582932c4ff1bc3b79e39c0a8b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12851e02_23ca241d",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/SdncOscA1ClientTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-02-12T15:41:02Z",
+      "side": 1,
+      "message": "If a immutable/gson type adapter was used, all these constant for propertynames would not be needed and the unittest could use that too.",
+      "revId": "798ca3c65a97486582932c4ff1bc3b79e39c0a8b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
