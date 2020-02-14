@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "97d6eca0_2d405a93",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdncOscA1Client.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-02-14T09:41:29Z",
+      "side": 1,
+      "message": "Maybe something like getPolicyIds would be more explicit, so that one understands more easily what parameter is used by the function.",
+      "range": {
+        "startLine": 123,
+        "startChar": 15,
+        "endLine": 123,
+        "endChar": 26
+      },
+      "revId": "21c939a150ac5dcaad88bd2c793954dd7a0cfd12",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0026a74d_f9915f21",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdnrOnapA1Client.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-02-14T09:41:29Z",
+      "side": 1,
+      "message": "Isn\u0027t it a place where to use this::deletePolicyByTypeId too?",
+      "range": {
+        "startLine": 205,
+        "startChar": 21,
+        "endLine": 205,
+        "endChar": 71
+      },
+      "revId": "21c939a150ac5dcaad88bd2c793954dd7a0cfd12",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
