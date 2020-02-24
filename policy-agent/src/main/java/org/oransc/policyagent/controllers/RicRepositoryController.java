@@ -27,10 +27,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import java.util.Vector;
-
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Rics;
@@ -91,7 +90,7 @@ public class RicRepositoryController {
     public ResponseEntity<String> getRics(
         @RequestParam(name = "policyType", required = false) String supportingPolicyType) {
 
-        Vector<RicInfo> result = new Vector<>();
+        List<RicInfo> result = new ArrayList<>();
         synchronized (rics) {
             for (Ric ric : rics.getRics()) {
                 if (supportingPolicyType == null || ric.isSupportingType(supportingPolicyType)) {

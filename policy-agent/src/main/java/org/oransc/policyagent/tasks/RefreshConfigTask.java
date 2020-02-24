@@ -116,8 +116,9 @@ public class RefreshConfigTask {
         return cbsClient.updates(getConfigRequest, initialDelay, refreshPeriod);
     }
 
-    private <R> Mono<R> onErrorResume(Throwable trowable) {
-        logger.error("Could not refresh application configuration {}", trowable.toString());
+    private <R> Mono<R> onErrorResume(Throwable throwable) {
+        String errMsg = throwable.toString();
+        logger.error("Could not refresh application configuration. {}", errMsg);
         return Mono.empty();
     }
 
@@ -136,7 +137,7 @@ public class RefreshConfigTask {
     /**
      * Reads the configuration from file.
      */
-    public void loadConfigurationFromFile() {
+    void loadConfigurationFromFile() {
         String filepath = appConfig.getLocalConfigurationFilePath();
         if (filepath == null) {
             logger.debug("No localconfiguration file used");
@@ -147,9 +148,6 @@ public class RefreshConfigTask {
 
         try (InputStream inputStream = createInputStream(filepath)) {
             JsonObject rootObject = getJsonElement(inputStream).getAsJsonObject();
-            if (rootObject == null) {
-                throw new JsonSyntaxException("Root is not a json object");
-            }
             ApplicationConfigParser appParser = new ApplicationConfigParser();
             appParser.parse(rootObject);
             appConfig.setConfiguration(appParser.getRicConfigs(), appParser.getDmaapPublisherConfig(),
