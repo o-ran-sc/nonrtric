@@ -51,6 +51,12 @@ public class A1ClientHelper {
         return inputJson.toString();
     }
 
+    protected static String createInputJsonString(SdnrOnapAdapterInput inputParams) {
+        JSONObject inputJson = new JSONObject();
+        inputJson.put("input", new JSONObject(gson.toJson(inputParams)));
+        return inputJson.toString();
+    }
+
     protected static Mono<String> createOutputJsonResponse(String key, String value) {
         JSONObject paramsJson = new JSONObject();
         paramsJson.put(key, value);

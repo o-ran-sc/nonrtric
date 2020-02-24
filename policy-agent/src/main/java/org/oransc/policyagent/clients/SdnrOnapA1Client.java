@@ -20,6 +20,10 @@
 
 package org.oransc.policyagent.clients;
 
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,27 +42,35 @@ import reactor.core.publisher.Mono;
 public class SdnrOnapA1Client implements A1Client {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private String a1ControllerBaseUrl;
-    private String a1ControllerUsername;
-    private String a1ControllerPassword;
+    private final String a1ControllerUsername;
+    private final String a1ControllerPassword;
     private final RicConfig ricConfig;
     private final AsyncRestClient restClient;
 
+    private static Gson gson = new GsonBuilder() //
+        .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DASHES) //
+        .create(); //
+
     public SdnrOnapA1Client(RicConfig ricConfig, String baseUrl, String username, String password) {
+        this(ricConfig, username, password, new AsyncRestClient(baseUrl + "/restconf/operations"));
+        if (logger.isDebugEnabled()) {
+            logger.debug("SdnrOnapA1Client for ric: {}, a1ControllerBaseUrl: {}", ricConfig.name(), baseUrl);
+        }
+    }
+
+    public SdnrOnapA1Client(RicConfig ricConfig, String username, String password, AsyncRestClient restClient) {
         this.ricConfig = ricConfig;
-        this.a1ControllerBaseUrl = baseUrl;
         this.a1ControllerUsername = username;
         this.a1ControllerPassword = password;
-        this.restClient = new AsyncRestClient(a1ControllerBaseUrl + "/restconf/operations");
-        logger.debug("SdnrOnapA1Client for ric: {}, a1ControllerBaseUrl: {}", this.ricConfig.name(),
-            a1ControllerBaseUrl);
+        this.restClient = restClient;
     }
 
     @Override
     public Mono<List<String>> getPolicyTypeIdentities() {
-        JSONObject paramsJson = new JSONObject();
-        paramsJson.put("near-rt-ric-id", ricConfig.baseUrl());
-        String inputJsonString = createInputJsonString(paramsJson);
+        SdnrOnapAdapterInput inputParams = ImmutableSdnrOnapAdapterInput.builder() //
+            .nearRtRicId(ricConfig.baseUrl()) //
+            .build();
+        String inputJsonString = createInputJsonString(gson.toJson(inputParams));
         logger.debug("POST getPolicyTypeIdentities inputJsonString = {}", inputJsonString);
 
         return restClient
@@ -78,10 +90,11 @@ public class SdnrOnapA1Client implements A1Client {
     }
 
     public Mono<List<String>> getPolicyIdentities(String policyTypeId) {
-        JSONObject paramsJson = new JSONObject();
-        paramsJson.put("near-rt-ric-id", ricConfig.baseUrl());
-        paramsJson.put("policy-type-id", policyTypeId);
-        String inputJsonString = createInputJsonString(paramsJson);
+        SdnrOnapAdapterInput inputParams = ImmutableSdnrOnapAdapterInput.builder() //
+            .nearRtRicId(ricConfig.baseUrl()) //
+            .policyTypeId(policyTypeId) //
+            .build();
+        String inputJsonString = createInputJsonString(gson.toJson(inputParams));
         logger.debug("POST getPolicyIdentities inputJsonString = {}", inputJsonString);
 
         return restClient
@@ -93,10 +106,11 @@ public class SdnrOnapA1Client implements A1Client {
 
     @Override
     public Mono<String> getPolicyTypeSchema(String policyTypeId) {
-        JSONObject paramsJson = new JSONObject();
-        paramsJson.put("near-rt-ric-id", ricConfig.baseUrl());
-        paramsJson.put("policy-type-id", policyTypeId);
-        String inputJsonString = createInputJsonString(paramsJson);
+        SdnrOnapAdapterInput inputParams = ImmutableSdnrOnapAdapterInput.builder() //
+            .nearRtRicId(ricConfig.baseUrl()) //
+            .policyTypeId(policyTypeId) //
+            .build();
+        String inputJsonString = createInputJsonString(gson.toJson(inputParams));
         logger.debug("POST getPolicyType inputJsonString = {}", inputJsonString);
 
         return restClient
@@ -108,13 +122,14 @@ public class SdnrOnapA1Client implements A1Client {
 
     @Override
     public Mono<String> putPolicy(Policy policy) {
-        JSONObject paramsJson = new JSONObject();
-        paramsJson.put("near-rt-ric-id", ricConfig.baseUrl());
-        paramsJson.put("policy-instance-id", policy.id());
-        paramsJson.put("policy-type-id", policy.type().name());
-        paramsJson.put("policy-instance", policy.json());
-        paramsJson.put("properties", new JSONArray());
-        String inputJsonString = createInputJsonString(paramsJson);
+        SdnrOnapAdapterInput inputParams = ImmutableSdnrOnapAdapterInput.builder() //
+            .nearRtRicId(ricConfig.baseUrl()) //
+            .policyTypeId(policy.type().name()) //
+            .policyInstanceId(policy.id()) //
+            .policyInstance(policy.json()) //
+            .properties(new ArrayList<String>()) //
+            .build();
+        String inputJsonString = createInputJsonString(gson.toJson(inputParams));
         logger.debug("POST putPolicy inputJsonString = {}", inputJsonString);
 
         return restClient.postWithAuthHeader("/A1-ADAPTER-API:createPolicyInstance", inputJsonString,
@@ -122,11 +137,12 @@ public class SdnrOnapA1Client implements A1Client {
     }
 
     public Mono<String> deletePolicy(String policyTypeId, String policyId) {
-        JSONObject paramsJson = new JSONObject();
-        paramsJson.put("near-rt-ric-id", ricConfig.baseUrl());
-        paramsJson.put("policy-instance-id", policyId);
-        paramsJson.put("policy-type-id", policyTypeId);
-        String inputJsonString = createInputJsonString(paramsJson);
+        SdnrOnapAdapterInput inputParams = ImmutableSdnrOnapAdapterInput.builder() //
+            .nearRtRicId(ricConfig.baseUrl()) //
+            .policyTypeId(policyTypeId) //
+            .policyInstanceId(policyId) //
+            .build();
+        String inputJsonString = createInputJsonString(gson.toJson(inputParams));
         logger.debug("POST deletePolicy inputJsonString = {}", inputJsonString);
 
         return restClient.postWithAuthHeader("/A1-ADAPTER-API:deletePolicyInstance", inputJsonString,
@@ -157,9 +173,9 @@ public class SdnrOnapA1Client implements A1Client {
             .flatMap(x -> Mono.just(A1ProtocolType.SDNR_ONAP));
     }
 
-    private String createInputJsonString(JSONObject paramsJson) {
+    private String createInputJsonString(String paramsJson) {
         JSONObject inputJson = new JSONObject();
-        inputJson.put("input", paramsJson);
+        inputJson.put("input", new JSONObject(paramsJson));
         return inputJson.toString();
     }
 
