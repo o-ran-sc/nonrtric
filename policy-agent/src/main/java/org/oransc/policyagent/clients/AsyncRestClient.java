@@ -32,7 +32,7 @@ public class AsyncRestClient {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final WebClient client;
 
-    private static class AsyncRestClientException extends Exception {
+    public class AsyncRestClientException extends Exception {
 
         private static final long serialVersionUID = 1L;
 

@@ -150,6 +150,11 @@
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>mockwebserver</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!--REQUIRED TO GENERATE DOCUMENTATION -->
         <dependency>
             <groupId>io.springfox</groupId>
