@@ -29,10 +29,3 @@ services:
     depends_on:
       - consul-server
 
-  ric-simulator:
-    networks:
-      - nonrtric-docker-net
-    container_name: ric3
-    image: ric-simulator:latest
-    ports:
-      - "8085:8085"
