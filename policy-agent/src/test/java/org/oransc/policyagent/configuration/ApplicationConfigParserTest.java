@@ -22,24 +22,28 @@ package org.oransc.policyagent.configuration;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
+import com.google.gson.Gson;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
+
 import org.junit.jupiter.api.Test;
 import org.onap.dmaap.mr.test.clients.ProtocolTypeConstants;
+import org.oransc.policyagent.exceptions.ServiceException;
 import org.springframework.http.MediaType;
 
 public class ApplicationConfigParserTest {
@@ -95,4 +99,127 @@ public class ApplicationConfigParserTest {
         return new ByteArrayInputStream((string.getBytes(StandardCharsets.UTF_8)));
     }
 
+    @Test
+    public void whenDmaapConfigHasSeveralStreamsPublishing() throws Exception {
+        ApplicationConfigParser parserUnderTest = new ApplicationConfigParser();
+
+        JsonObject jsonRootObject = getJsonRootObject();
+        JsonObject json = jsonRootObject.getAsJsonObject("config").getAsJsonObject("streams_publishes");
+        json.addProperty("fake_info", "fake");
+        DataPublishing data = new Gson().fromJson(json.toString(), DataPublishing.class);
+        final String message = "Invalid configuration. Number of streams must be one, config: " + data.toString();
+
+        Exception exception = assertThrows(ServiceException.class, () -> parserUnderTest.parse(jsonRootObject));
+
+        assertEquals(message.replace("\"", ""), exception.getMessage().replace("\"", ""), "Wrong error message when the DMaaP config has several streams publishes publishing");
+    }
+
+    class DataPublishing{
+        private JsonObject dmaap_publisher;
+        private String fake_info;
+
+        public JsonObject getDmaapPublisher() {return dmaap_publisher;}
+        public String getFakeInfo() {return fake_info;}
+
+        public String toString() {
+            return String.format("[dmaap_publisher=%s, fake_info=%s]", dmaap_publisher.toString(), fake_info);
+        }
+    }
+
+    @Test
+    public void whenDmaapConfigHasSeveralStreamsSubscribing() throws Exception {
+        ApplicationConfigParser parserUnderTest = new ApplicationConfigParser();
+
+        JsonObject jsonRootObject = getJsonRootObject();
+        JsonObject json = jsonRootObject.getAsJsonObject("config").getAsJsonObject("streams_subscribes");
+        json.addProperty("fake_info", "fake");
+        DataSubscribing data = new Gson().fromJson(json.toString(), DataSubscribing.class);
+        final String message = "Invalid configuration. Number of streams must be one, config: " + data.toString();
+
+        Exception exception = assertThrows(ServiceException.class, () -> parserUnderTest.parse(jsonRootObject));
+
+        assertEquals(message.replace("\"", ""), exception.getMessage().replace("\"", ""), "Wrong error message when the DMaaP config has several streams publishes subscribing");
+    }
+
+    private class DataSubscribing{
+        private JsonObject dmaap_subscriber;
+        private String fake_info;
+
+        public String toString() {
+            return String.format("[dmaap_subscriber=%s, fake_info=%s]", dmaap_subscriber.toString(), fake_info);
+        }
+    }
+
+    @Test
+    public void whenMalformedUrlStreamsSubscribing() throws Exception {
+        ApplicationConfigParser parserUnderTest = new ApplicationConfigParser();
+
+        JsonObject jsonRootObject = getJsonRootObject();
+        final String wrongTopicUrl = "WrongTopicUrl";
+        JsonObject json = jsonRootObject.getAsJsonObject("config").getAsJsonObject("streams_subscribes").getAsJsonObject("dmaap_subscriber").getAsJsonObject("dmaap_info");
+        json.addProperty("topic_url", wrongTopicUrl);
+        final String message = "Could not parse the URL";
+
+        Exception exception = assertThrows(ServiceException.class, () -> parserUnderTest.parse(jsonRootObject));
+        assertEquals(message, exception.getMessage().replace("\"", ""), "Wrong error message when the streams subscribes' URL is malformed");
+        assertEquals(MalformedURLException.class, exception.getCause().getClass(), "The exception is not a MalformedURLException");
+    }
+
+    @Test
+    public void whenMalformedUrlStreamsPublishing() throws Exception {
+        ApplicationConfigParser parserUnderTest = new ApplicationConfigParser();
+
+        JsonObject jsonRootObject = getJsonRootObject();
+        final String wrongTopicUrl = "WrongTopicUrl";
+        JsonObject json = jsonRootObject.getAsJsonObject("config").getAsJsonObject("streams_publishes").getAsJsonObject("dmaap_publisher").getAsJsonObject("dmaap_info");
+        json.addProperty("topic_url", wrongTopicUrl);
+        final String message = "Could not parse the URL";
+
+        Exception exception = assertThrows(ServiceException.class, () -> parserUnderTest.parse(jsonRootObject));
+        assertEquals(message, exception.getMessage().replace("\"", ""), "Wrong error message when the streams publishes' URL is malformed");
+        assertEquals(MalformedURLException.class, exception.getCause().getClass(), "The exception is not a MalformedURLException");
+    }
+
+    @Test
+    public void whenWrongMemberNameInObject() throws Exception{
+        ApplicationConfigParser parserUnderTest = new ApplicationConfigParser();
+
+        JsonObject jsonRootObject = getJsonRootObject();
+        JsonObject json = jsonRootObject.getAsJsonObject("config");
+        json.remove("ric");
+        Exception exception = assertThrows(ServiceException.class, () -> parserUnderTest.parse(jsonRootObject));
+
+        final String message = "Could not find member: " + "ric" + " in: " + json;
+        assertEquals(message, exception.getMessage(), "Wrong error message");
+    }
+
+    @Test
+    public void whenWrongUrlPathStreamsSubscribing() throws Exception{
+        ApplicationConfigParser parserUnderTest = new ApplicationConfigParser();
+
+        final String wrongTopicUrlString = "http://admin:admin@localhost:6845/events/A1-POLICY-AGENT-READ/users/policy-agent/wrong-topic-url";
+        final URL wrongTopicUrl = new URL(wrongTopicUrlString);
+        JsonObject jsonRootObject = getJsonRootObject();
+        JsonObject json = jsonRootObject.getAsJsonObject("config").getAsJsonObject("streams_subscribes").getAsJsonObject("dmaap_subscriber").getAsJsonObject("dmaap_info");
+        json.addProperty("topic_url", wrongTopicUrlString);
+        final String message = "The path has incorrect syntax: " + wrongTopicUrl.getPath();
+
+        Exception exception = assertThrows(ServiceException.class, () -> parserUnderTest.parse(jsonRootObject));
+        assertEquals(message, exception.getMessage(), "Wrong error message when the streams subscribes' URL has incorrect syntax");
+    }
+
+    @Test
+    public void whenWrongUrlPathStreamsPublishing() throws Exception{
+        ApplicationConfigParser parserUnderTest = new ApplicationConfigParser();
+
+        final String wrongTopicUrlString = "http://admin:admin@localhost:6845/events/A1-POLICY-AGENT-WRITE/wrong-topic-url";
+        final URL wrongTopicUrl = new URL(wrongTopicUrlString);
+        JsonObject jsonRootObject = getJsonRootObject();
+        JsonObject json = jsonRootObject.getAsJsonObject("config").getAsJsonObject("streams_publishes").getAsJsonObject("dmaap_publisher").getAsJsonObject("dmaap_info");
+        json.addProperty("topic_url", wrongTopicUrlString);
+        final String message = "The path has incorrect syntax: " + wrongTopicUrl.getPath();
+
+        Exception exception = assertThrows(ServiceException.class, () -> parserUnderTest.parse(jsonRootObject));
+        assertEquals(message, exception.getMessage(), "Wrong error message when the streams publishes' URL has incorrect syntax");
+    }
 }
