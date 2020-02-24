@@ -43,6 +43,7 @@ import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.Ric;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -134,6 +135,19 @@ public class StdA1ClientTest {
         Mono<String> policyMono =
             a1Client.putPolicy(createPolicy(RIC_URL, POLICY_1_ID, POLICY_JSON_VALID, POLICY_TYPE));
         StepVerifier.create(policyMono).expectErrorMatches(throwable -> throwable instanceof JSONException).verify();
+    }
+
+    @Test
+    public void testDeleteAllPolicies() {
+        Mono<String> policyIds = Mono.just(Arrays.toString(new String[] {POLICY_1_ID, POLICY_2_ID}));
+        when(asyncRestClientMock.get(POLICIES_IDENTITIES_URL)).thenReturn(policyIds);
+        when(asyncRestClientMock.delete(anyString())).thenReturn(Mono.empty());
+
+        Flux<String> responseFlux = a1Client.deleteAllPolicies();
+        StepVerifier.create(responseFlux).expectComplete().verify();
+        verify(asyncRestClientMock).get(POLICIES_IDENTITIES_URL);
+        verify(asyncRestClientMock).delete(POLICIES_URL + POLICY_1_ID);
+        verify(asyncRestClientMock).delete(POLICIES_URL + POLICY_2_ID);
     }
 
     private Policy createPolicy(String nearRtRicUrl, String policyId, String json, String type) {
