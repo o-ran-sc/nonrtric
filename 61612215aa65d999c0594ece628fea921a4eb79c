@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e09d86f3_2736a153",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/SdncOscA1ClientTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-02-24T13:39:05Z",
+      "side": 1,
+      "message": "This is a difficult statement to read and it appears in all test cases. I suggest replacing this with a method, called something like \"whenAsyncPostThenReturn\", that takes the response as an argument. Then it will be easier to understand what is happening.",
+      "revId": "61612215aa65d999c0594ece628fea921a4eb79c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
