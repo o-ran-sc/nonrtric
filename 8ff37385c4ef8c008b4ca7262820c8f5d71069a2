@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "f99038fc_55265a98",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/ServiceController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-24T12:23:31Z",
+      "side": 1,
+      "message": "I am not sure if dashboard is using this name and whether it will be impacted by this change.",
+      "range": {
+        "startLine": 71,
+        "startChar": 30,
+        "endLine": 71,
+        "endChar": 41
+      },
+      "revId": "8ff37385c4ef8c008b4ca7262820c8f5d71069a2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "02d525a4_d77d8332",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageConsumer.java",
         "patchSetId": 1
@@ -16,6 +39,29 @@
       "revId": "8ff37385c4ef8c008b4ca7262820c8f5d71069a2",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f999a5ba_913ee039",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/repository/Policies.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-24T12:23:31Z",
+      "side": 1,
+      "message": "Change to List?",
+      "range": {
+        "startLine": 62,
+        "startChar": 23,
+        "endLine": 62,
+        "endChar": 29
+      },
+      "revId": "8ff37385c4ef8c008b4ca7262820c8f5d71069a2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     },
     {
       "key": {
