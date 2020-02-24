@@ -20,6 +20,7 @@
 
 package org.oransc.policyagent.clients;
 
+import static ch.qos.logback.classic.Level.WARN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -28,7 +29,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import java.util.Vector;
@@ -137,14 +137,14 @@ public class A1ClientFactoryTest {
         whenGetProtocolVersionOscA1ClientThrowException();
         whenGetProtocolVersionStdA1ClientThrowException();
 
-        final ListAppender<ILoggingEvent> logAppender = LoggingUtils.getLogListAppender(A1ClientFactory.class);
+        final ListAppender<ILoggingEvent> logAppender = LoggingUtils.getLogListAppender(A1ClientFactory.class, WARN);
         StepVerifier.create(factoryUnderTest.createA1Client(ric)) //
             .expectSubscription() //
             .expectErrorMatches(
                 throwable -> throwable instanceof Exception && throwable.getMessage().equals(EXCEPTION_MESSAGE))
             .verify();
 
-        assertEquals(Level.WARN, logAppender.list.get(0).getLevel(), "Warning not logged");
+        assertEquals(WARN, logAppender.list.get(0).getLevel(), "Warning not logged");
         assertTrue(logAppender.list.toString().contains("Could not get protocol version from RIC: " + RIC_NAME),
             "Correct message not logged");
 

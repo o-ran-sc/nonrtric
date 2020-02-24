@@ -75,12 +75,12 @@ public class A1ClientFactory {
     private Mono<A1Client.A1ProtocolType> getProtocolVersion(Ric ric) {
         if (ric.getProtocolVersion() == A1ProtocolType.UNKNOWN) {
             return fetchVersion(createSdnrOnapA1Client(ric)) //
-                .onErrorResume(err -> fetchVersion(createSdncOscA1Client(ric))) //
-                .onErrorResume(err -> fetchVersion(createOscA1Client(ric))) //
-                .onErrorResume(err -> fetchVersion(createStdA1ClientImpl(ric))) //
-                .doOnNext(version -> ric.setProtocolVersion(version))
+                .onErrorResume(notUsed -> fetchVersion(createSdncOscA1Client(ric))) //
+                .onErrorResume(notUsed -> fetchVersion(createOscA1Client(ric))) //
+                .onErrorResume(notUsed -> fetchVersion(createStdA1ClientImpl(ric))) //
+                .doOnNext(ric::setProtocolVersion)
                 .doOnNext(version -> logger.debug("Recover ric: {}, protocol version:{}", ric.name(), version)) //
-                .doOnError(t -> logger.warn("Could not get protocol version from RIC: {}", ric.name())); //
+                .doOnError(notUsed -> logger.warn("Could not get protocol version from RIC: {}", ric.name())); //
         } else {
             return Mono.just(ric.getProtocolVersion());
         }

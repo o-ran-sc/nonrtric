@@ -35,9 +35,6 @@ public class Policies {
     private Map<String, Map<String, Policy>> policiesService = new HashMap<>();
     private Map<String, Map<String, Policy>> policiesType = new HashMap<>();
 
-    public Policies() {
-    }
-
     public synchronized void put(Policy policy) {
         policiesId.put(policy.id(), policy);
         multiMapPut(policiesRic, policy.ric().name(), policy);
@@ -46,12 +43,7 @@ public class Policies {
     }
 
     private void multiMapPut(Map<String, Map<String, Policy>> multiMap, String key, Policy value) {
-        Map<String, Policy> map = multiMap.get(key);
-        if (map == null) {
-            map = new HashMap<>();
-            multiMap.put(key, map);
-        }
-        map.put(value.id(), value);
+        multiMap.computeIfAbsent(key, k -> new HashMap<>()).put(value.id(), value);
     }
 
     private void multiMapRemove(Map<String, Map<String, Policy>> multiMap, String key, Policy value) {
@@ -67,7 +59,7 @@ public class Policies {
     private Collection<Policy> multiMapGet(Map<String, Map<String, Policy>> multiMap, String key) {
         Map<String, Policy> map = multiMap.get(key);
         if (map == null) {
-            return new Vector<Policy>();
+            return new Vector<>();
         }
         return Collections.unmodifiableCollection(map.values());
     }

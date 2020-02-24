@@ -41,7 +41,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Regularly checks the exisiting rics towards the local repository to keep it consistent.
+ * Regularly checks the existing rics towards the local repository to keep it consistent.
  */
 @Component
 @EnableScheduling
@@ -65,21 +65,21 @@ public class RepositorySupervision {
     }
 
     /**
-     * Regularly contacts all Rics to check if they are alive.
+     * Regularly contacts all Rics to check if they are alive and synchronized.
      */
     @Scheduled(fixedRate = 1000 * 60)
     public void checkAllRics() {
         logger.debug("Checking Rics starting");
-        createTask().subscribe(this::onRicChecked, this::onError, this::onComplete);
+        createTask().subscribe(this::onRicChecked, null, this::onComplete);
     }
 
     private Flux<RicData> createTask() {
         synchronized (this.rics) {
             return Flux.fromIterable(rics.getRics()) //
-                .flatMap(ric -> createRicData(ric)) //
-                .flatMap(ricData -> checkRicState(ricData)) //
-                .flatMap(ricData -> checkRicPolicies(ricData)) //
-                .flatMap(ricData -> checkRicPolicyTypes(ricData));
+                .flatMap(this::createRicData) //
+                .flatMap(this::checkRicState) //
+                .flatMap(this::checkRicPolicies) //
+                .flatMap(this::checkRicPolicyTypes);
         }
     }
 
@@ -101,8 +101,8 @@ public class RepositorySupervision {
 
     private Mono<RicData> checkRicState(RicData ric) {
         if (ric.ric.getState() == RicState.UNDEFINED) {
-            return startRecovery(ric);
-        } else if (ric.ric.getState() == RicState.RECOVERING) {
+            return startSynchronization(ric);
+        } else if (ric.ric.getState() == RicState.SYNCHRONIZING) {
             return Mono.empty();
         } else {
             return Mono.just(ric);
@@ -118,12 +118,12 @@ public class RepositorySupervision {
     private Mono<RicData> validateInstances(Collection<String> ricPolicies, RicData ric) {
         synchronized (this.policies) {
             if (ricPolicies.size() != policies.getForRic(ric.ric.name()).size()) {
-                return startRecovery(ric);
+                return startSynchronization(ric);
             }
         }
         for (String policyId : ricPolicies) {
             if (!policies.containsPolicy(policyId)) {
-                return startRecovery(ric);
+                return startSynchronization(ric);
             }
         }
         return Mono.just(ric);
@@ -131,40 +131,38 @@ public class RepositorySupervision {
 
     private Mono<RicData> checkRicPolicyTypes(RicData ric) {
         return ric.a1Client.getPolicyTypeIdentities() //
-            .onErrorResume(t -> {
-                return Mono.empty();
-            }) //
+            .onErrorResume(notUsed -> Mono.empty()) //
             .flatMap(ricTypes -> validateTypes(ricTypes, ric));
     }
 
     private Mono<RicData> validateTypes(Collection<String> ricTypes, RicData ric) {
         if (ricTypes.size() != ric.ric.getSupportedPolicyTypes().size()) {
-            return startRecovery(ric);
+            return startSynchronization(ric);
         }
         for (String typeName : ricTypes) {
             if (!ric.ric.isSupportingType(typeName)) {
-                return startRecovery(ric);
+                return startSynchronization(ric);
             }
         }
         return Mono.just(ric);
     }
 
-    private Mono<RicData> startRecovery(RicData ric) {
-        RicRecoveryTask recovery = new RicRecoveryTask(a1ClientFactory, policyTypes, policies, services);
+    private Mono<RicData> startSynchronization(RicData ric) {
+        RicSynchronizationTask recovery = createSynchronizationTask();
         recovery.run(ric.ric);
         return Mono.empty();
     }
 
+    @SuppressWarnings("squid:S2629")
     private void onRicChecked(RicData ric) {
-        logger.info("Ric: " + ric.ric.name() + " checked");
-    }
-
-    private void onError(Throwable t) {
-        logger.error("Rics supervision failed", t);
+        logger.info("Ric: {} checked", ric.ric.name());
     }
 
     private void onComplete() {
         logger.debug("Checking Rics completed");
     }
 
+    RicSynchronizationTask createSynchronizationTask() {
+        return new RicSynchronizationTask(a1ClientFactory, policyTypes, policies, services);
+    }
 }
