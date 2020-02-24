@@ -45,7 +45,7 @@ public class A1ClientHelper {
     private A1ClientHelper() {
     }
 
-    protected static String createInputJsonString(SdncOscAdapterInput inputParams) {
+    protected static <T> String createInputJsonString(T inputParams) {
         JSONObject inputJson = new JSONObject();
         inputJson.put("input", new JSONObject(gson.toJson(inputParams)));
         return inputJson.toString();

@@ -70,7 +70,7 @@ public class SdncOscA1Client implements A1Client {
         SdncOscAdapterInput inputParams = ImmutableSdncOscAdapterInput.builder() //
             .nearRtRicUrl(ricConfig.baseUrl()) //
             .build();
-        String inputJsonString = createInputJsonString(gson.toJson(inputParams));
+        String inputJsonString = createInputJsonString(inputParams);
         logger.debug("POST getPolicyTypeIdentities inputJsonString = {}", inputJsonString);
 
         return restClient
@@ -85,7 +85,7 @@ public class SdncOscA1Client implements A1Client {
         SdncOscAdapterInput inputParams = ImmutableSdncOscAdapterInput.builder() //
             .nearRtRicUrl(ricConfig.baseUrl()) //
             .build();
-        String inputJsonString = createInputJsonString(gson.toJson(inputParams));
+        String inputJsonString = createInputJsonString(inputParams);
         logger.debug("POST getPolicyIdentities inputJsonString = {}", inputJsonString);
 
         return restClient
@@ -101,7 +101,7 @@ public class SdncOscA1Client implements A1Client {
             .nearRtRicUrl(ricConfig.baseUrl()) //
             .policyTypeId(policyTypeId) //
             .build();
-        String inputJsonString = createInputJsonString(gson.toJson(inputParams));
+        String inputJsonString = createInputJsonString(inputParams);
         logger.debug("POST getPolicyType inputJsonString = {}", inputJsonString);
 
         return restClient
@@ -119,7 +119,7 @@ public class SdncOscA1Client implements A1Client {
             .policyId(policy.id()) //
             .policy(policy.json()) //
             .build();
-        String inputJsonString = createInputJsonString(gson.toJson(inputParams));
+        String inputJsonString = createInputJsonString(inputParams);
         logger.debug("POST putPolicy inputJsonString = {}", inputJsonString);
 
         return restClient
@@ -146,7 +146,7 @@ public class SdncOscA1Client implements A1Client {
             .nearRtRicUrl(ricConfig.baseUrl()) //
             .policyId(policyId) //
             .build();
-        String inputJsonString = createInputJsonString(gson.toJson(inputParams));
+        String inputJsonString = createInputJsonString(inputParams);
         logger.debug("POST deletePolicy inputJsonString = {}", inputJsonString);
 
         return restClient.postWithAuthHeader("/A1-ADAPTER-API:deletePolicy", inputJsonString, a1ControllerUsername,
@@ -159,9 +159,9 @@ public class SdncOscA1Client implements A1Client {
             .flatMap(x -> Mono.just(A1ProtocolType.SDNC_OSC));
     }
 
-    private String createInputJsonString(String paramsJson) {
+    private String createInputJsonString(SdncOscAdapterInput inputParams) {
         JSONObject inputJson = new JSONObject();
-        inputJson.put("input", new JSONObject(paramsJson));
+        inputJson.put("input", new JSONObject(gson.toJson(inputParams)));
         return inputJson.toString();
     }
 
