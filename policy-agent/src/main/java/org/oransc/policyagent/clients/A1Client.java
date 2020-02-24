@@ -21,7 +21,6 @@
 package org.oransc.policyagent.clients;
 
 import java.util.List;
-
 import org.oransc.policyagent.repository.Policy;
 
 import reactor.core.publisher.Flux;
@@ -52,5 +51,4 @@ public interface A1Client {
     public Flux<String> deleteAllPolicies();
 
     public Mono<String> getPolicyStatus(Policy policy);
-
 }

@@ -30,13 +30,10 @@ import org.slf4j.LoggerFactory;
 public class Services {
     private static final Logger logger = LoggerFactory.getLogger(Services.class);
 
-    private Map<String, Service> services = new HashMap<>();
-
-    public Services() {
-    }
+    private Map<String, Service> registeredServices = new HashMap<>();
 
     public synchronized Service getService(String name) throws ServiceException {
-        Service s = services.get(name);
+        Service s = registeredServices.get(name);
         if (s == null) {
             throw new ServiceException("Could not find service: " + name);
         }
@@ -44,24 +41,27 @@ public class Services {
     }
 
     public synchronized Service get(String name) {
-        return services.get(name);
+        return registeredServices.get(name);
     }
 
     public synchronized void put(Service service) {
-        logger.debug("Put service: " + service.getName());
-        services.put(service.getName(), service);
+        logger.debug("Put service: {}", service.getName());
+        registeredServices.put(service.getName(), service);
     }
 
     public synchronized Iterable<Service> getAll() {
-        return services.values();
+        return registeredServices.values();
     }
 
     public synchronized void remove(String name) {
-        services.remove(name);
+        registeredServices.remove(name);
     }
 
     public synchronized int size() {
-        return services.size();
+        return registeredServices.size();
     }
 
+    public void clear() {
+        registeredServices.clear();
+    }
 }

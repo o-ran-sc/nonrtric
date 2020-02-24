@@ -27,7 +27,7 @@ import org.immutables.value.Value;
 @Gson.TypeAdapters
 public interface DmaapRequestMessage {
 
-    public static enum Operation {
+    public enum Operation {
         PUT, GET, DELETE, POST
     }
 

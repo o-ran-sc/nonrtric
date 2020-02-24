@@ -30,23 +30,27 @@ import org.slf4j.LoggerFactory;
 public class LoggingUtils {
 
     /**
-     * Returns a ListAppender that contains all logging events. Call this method at the very beginning of the test
+     * Returns a ListAppender that contains all logging events. Call this method right before calling the tested
+     * method.
+     *
+     * @return the log list appender for the given class.
      */
     public static ListAppender<ILoggingEvent> getLogListAppender(Class<?> logClass) {
-        return getLogListAppender(logClass, false);
+        return getLogListAppender(logClass, Level.ALL);
     }
 
     /**
-     * Returns a ListAppender that contains all logging events. Call this method at the very beginning of the test
+     * Returns a ListAppender that contains events for the given level. Call this method right before calling the tested
+     * method.
      *
      * @param logClass class whose appender is wanted.
-     * @param allLevels true if all log levels should be activated.
+     * @param level the log level to log at.
+     *
+     * @return the log list appender for the given class logging on the given level.
      */
-    public static ListAppender<ILoggingEvent> getLogListAppender(Class<?> logClass, boolean allLevels) {
+    public static ListAppender<ILoggingEvent> getLogListAppender(Class<?> logClass, Level level) {
         Logger logger = (Logger) LoggerFactory.getLogger(logClass);
-        if (allLevels) {
-            logger.setLevel(Level.ALL);
-        }
+        logger.setLevel(level);
         ListAppender<ILoggingEvent> listAppender = new ListAppender<>();
         listAppender.start();
         logger.addAppender(listAppender);
