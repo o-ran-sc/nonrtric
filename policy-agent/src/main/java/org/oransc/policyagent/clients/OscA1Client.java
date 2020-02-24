@@ -46,6 +46,10 @@ public class OscA1Client implements A1Client {
         logger.debug("OscA1Client for ric: {}", ricConfig.name());
     }
 
+    public OscA1Client(AsyncRestClient restClient) {
+        this.restClient = restClient;
+    }
+
     @Override
     public Mono<List<String>> getPolicyTypeIdentities() {
         return restClient.get("/policytypes") //
