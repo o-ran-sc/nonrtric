@@ -82,4 +82,10 @@ public class A1ClientHelper {
         return ImmutablePolicyType.builder().name(name).schema("schema").build();
     }
 
+    protected static String getCreateSchema(String policyType, String policyTypeId) {
+        JSONObject obj = new JSONObject(policyType);
+        JSONObject schemaObj = obj.getJSONObject("create_schema");
+        schemaObj.put("title", policyTypeId);
+        return schemaObj.toString();
+    }
 }
