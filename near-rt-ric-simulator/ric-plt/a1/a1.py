@@ -53,6 +53,11 @@ def put_policy(policyId):
   if 'code' in request.args:
     return(send_error_code(request.args))
 
+  if policyId in policy_instances.keys():
+    code = 201
+  else:
+    code = 200
+
   policy_instances[policyId] = data
   policy_status[policyId] = set_status("UNDEFINED")
   if 'policyTypeId' in request.args:
@@ -64,11 +69,6 @@ def put_policy(policyId):
     policy_type_per_instance[policyId] = policyTypeId
   else:
     policy_type_per_instance[policyId] = "UNDEFINED"
-
-  if policyId in policy_instances.keys():
-    code = 201
-  else:
-    code = 200
 
   response = make_response(policy_instances[policyId], code)
   if code == 201:
