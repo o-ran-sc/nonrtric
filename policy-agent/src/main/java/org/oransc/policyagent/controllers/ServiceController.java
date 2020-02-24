@@ -28,9 +28,9 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Vector;
-
+import java.util.List;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.Policy;
@@ -67,10 +67,10 @@ public class ServiceController {
     @ApiOperation(value = "Returns service information")
     @ApiResponses(
         value = {@ApiResponse(code = 200, message = "OK", response = ServiceStatus.class, responseContainer = "List")})
-    public ResponseEntity<String> getServices( //
-        @RequestParam(name = "name", required = false) String name) {
+    public ResponseEntity<String> getServices(//
+        @RequestParam(name = "serviceName", required = false) String name) {
 
-        Collection<ServiceStatus> servicesStatus = new Vector<>();
+        Collection<ServiceStatus> servicesStatus = new ArrayList<>();
         synchronized (this.services) {
             for (Service s : this.services.getAll()) {
                 if (name == null || name.equals(s.getName())) {
@@ -80,7 +80,7 @@ public class ServiceController {
         }
 
         String res = gson.toJson(servicesStatus);
-        return new ResponseEntity<String>(res, HttpStatus.OK);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
     private ServiceStatus toServiceStatus(Service s) {
@@ -90,29 +90,29 @@ public class ServiceController {
     @ApiOperation(value = "Register a service")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "OK", response = String.class)})
     @PutMapping("/service")
-    public ResponseEntity<String> putService( //
+    public ResponseEntity<String> putService(//
         @RequestBody ServiceRegistrationInfo registrationInfo) {
         try {
             this.services.put(toService(registrationInfo));
-            return new ResponseEntity<String>("OK", HttpStatus.OK);
+            return new ResponseEntity<>("OK", HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<String>(e.getMessage(), HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
         }
     }
 
     @ApiOperation(value = "Delete a service")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "OK")})
     @DeleteMapping("/services")
-    public ResponseEntity<String> deleteService( //
+    public ResponseEntity<String> deleteService(//
         @RequestParam(name = "serviceName", required = true) String serviceName) {
         try {
             Service service = removeService(serviceName);
             // Remove the policies from the repo and let the consistency monitoring
             // do the rest.
             removePolicies(service);
-            return new ResponseEntity<String>("OK", HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>("OK", HttpStatus.NO_CONTENT);
         } catch (Exception e) {
-            return new ResponseEntity<String>(e.getMessage(), HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
         }
     }
 
@@ -121,13 +121,13 @@ public class ServiceController {
         value = {@ApiResponse(code = 200, message = "Policies timeout supervision refreshed"),
             @ApiResponse(code = 404, message = "The service is not found, needs re-registration")})
     @PostMapping("/services/keepalive")
-    public ResponseEntity<String> keepAliveService( //
+    public ResponseEntity<String> keepAliveService(//
         @RequestParam(name = "serviceName", required = true) String serviceName) {
         try {
             services.getService(serviceName).ping();
-            return new ResponseEntity<String>("OK", HttpStatus.OK);
+            return new ResponseEntity<>("OK", HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<String>(e.getMessage(), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -141,7 +141,7 @@ public class ServiceController {
 
     private void removePolicies(Service service) {
         synchronized (this.policies) {
-            Vector<Policy> policyList = new Vector<>(this.policies.getForService(service.getName()));
+            List<Policy> policyList = new ArrayList<>(this.policies.getForService(service.getName()));
             for (Policy policy : policyList) {
                 this.policies.remove(policy);
             }

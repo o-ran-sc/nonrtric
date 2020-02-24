@@ -46,6 +46,9 @@ import reactor.test.StepVerifier;
 
 public class DmaapMessageHandlerTest {
 
+    private static final String URL = "url";
+    private static final String PAYLOAD = "payload";
+
     private ApplicationConfig appConfig = mock(ApplicationConfig.class);
     private final MRBatchingPublisher dmaapClient = mock(MRBatchingPublisher.class);
     private final AsyncRestClient agentClient = mock(AsyncRestClient.class);
@@ -56,20 +59,20 @@ public class DmaapMessageHandlerTest {
 
     @BeforeEach
     private void setUp() throws Exception {
-        testedObject = spy(new DmaapMessageHandler(dmaapClient, appConfig, agentClient));
+        testedObject = spy(new DmaapMessageHandler(dmaapClient, agentClient));
     }
 
-    ImmutableDmaapRequestMessage dmaapRequestMessage(Operation operation) {
+    DmaapRequestMessage dmaapRequestMessage(Operation operation) {
         return ImmutableDmaapRequestMessage.builder().apiVersion("apiVersion") //
             .correlationId("correlationId") //
             .operation(operation) //
             .originatorId("originatorId") //
-            .payload("payload") //
+            .payload(PAYLOAD) //
             .requestId("requestId") //
             .target("target") //
             .timestamp("timestamp") //
             .type("type") //
-            .url("url") //
+            .url(URL) //
             .build();
     }
 
@@ -78,8 +81,8 @@ public class DmaapMessageHandlerTest {
     }
 
     @Test
-    public void successfulCase() throws IOException {
-        doReturn(Mono.just("OK")).when(agentClient).delete("url");
+    public void successfulDelete() throws IOException {
+        doReturn(Mono.just("OK")).when(agentClient).delete(anyString());
         doReturn(1).when(dmaapClient).send(anyString());
         doReturn(new MRPublisherResponse()).when(dmaapClient).sendBatchWithResponse();
 
@@ -89,7 +92,67 @@ public class DmaapMessageHandlerTest {
             .expectNext("OK") //
             .verifyComplete(); //
 
-        verify(agentClient, times(1)).delete("url");
+        verify(agentClient, times(1)).delete(URL);
+        verifyNoMoreInteractions(agentClient);
+
+        verify(dmaapClient, times(1)).send(anyString());
+        verify(dmaapClient, times(1)).sendBatchWithResponse();
+        verifyNoMoreInteractions(dmaapClient);
+    }
+
+    @Test
+    public void successfulGet() throws IOException {
+        doReturn(Mono.just("OK")).when(agentClient).get(anyString());
+        doReturn(1).when(dmaapClient).send(anyString());
+        doReturn(new MRPublisherResponse()).when(dmaapClient).sendBatchWithResponse();
+
+        StepVerifier //
+            .create(testedObject.createTask(dmaapInputMessage(Operation.GET))) //
+            .expectSubscription() //
+            .expectNext("OK") //
+            .verifyComplete(); //
+
+        verify(agentClient, times(1)).get(URL);
+        verifyNoMoreInteractions(agentClient);
+
+        verify(dmaapClient, times(1)).send(anyString());
+        verify(dmaapClient, times(1)).sendBatchWithResponse();
+        verifyNoMoreInteractions(dmaapClient);
+    }
+
+    @Test
+    public void successfulPut() throws IOException {
+        doReturn(Mono.just("OK")).when(agentClient).put(anyString(), anyString());
+        doReturn(1).when(dmaapClient).send(anyString());
+        doReturn(new MRPublisherResponse()).when(dmaapClient).sendBatchWithResponse();
+
+        StepVerifier //
+            .create(testedObject.createTask(dmaapInputMessage(Operation.PUT))) //
+            .expectSubscription() //
+            .expectNext("OK") //
+            .verifyComplete(); //
+
+        verify(agentClient, times(1)).put(URL, PAYLOAD);
+        verifyNoMoreInteractions(agentClient);
+
+        verify(dmaapClient, times(1)).send(anyString());
+        verify(dmaapClient, times(1)).sendBatchWithResponse();
+        verifyNoMoreInteractions(dmaapClient);
+    }
+
+    @Test
+    public void successfulPost() throws IOException {
+        doReturn(Mono.just("OK")).when(agentClient).post(anyString(), anyString());
+        doReturn(1).when(dmaapClient).send(anyString());
+        doReturn(new MRPublisherResponse()).when(dmaapClient).sendBatchWithResponse();
+
+        StepVerifier //
+            .create(testedObject.createTask(dmaapInputMessage(Operation.POST))) //
+            .expectSubscription() //
+            .expectNext("OK") //
+            .verifyComplete(); //
+
+        verify(agentClient, times(1)).post(URL, PAYLOAD);
         verifyNoMoreInteractions(agentClient);
 
         verify(dmaapClient, times(1)).send(anyString());
@@ -99,7 +162,7 @@ public class DmaapMessageHandlerTest {
 
     @Test
     public void errorCase() throws IOException {
-        doReturn(Mono.error(new Exception("Refused"))).when(agentClient).put("url", "payload");
+        doReturn(Mono.error(new Exception("Refused"))).when(agentClient).put(anyString(), anyString());
         doReturn(1).when(dmaapClient).send(anyString());
         doReturn(new MRPublisherResponse()).when(dmaapClient).sendBatchWithResponse();
         StepVerifier //
@@ -107,7 +170,7 @@ public class DmaapMessageHandlerTest {
             .expectSubscription() //
             .verifyComplete(); //
 
-        verify(agentClient, times(1)).put("url", "payload");
+        verify(agentClient, times(1)).put(URL, PAYLOAD);
         verifyNoMoreInteractions(agentClient);
 
         // Error response
