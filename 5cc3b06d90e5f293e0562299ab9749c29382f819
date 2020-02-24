@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "adc4f02b_9de80958",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/AsyncRestClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1000112
+      },
+      "writtenOn": "2020-02-24T11:43:25Z",
+      "side": 1,
+      "message": "Do we need static here?",
+      "revId": "5cc3b06d90e5f293e0562299ab9749c29382f819",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
