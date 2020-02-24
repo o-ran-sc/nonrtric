@@ -16,6 +16,24 @@
       "revId": "61612215aa65d999c0594ece628fea921a4eb79c",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "652f1055_6b596e02",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/SdncOscA1ClientTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-24T13:56:56Z",
+      "side": 1,
+      "message": "Ok, but it does not seem to work when we have multiple responses from this statement. For example, in testDeleteAllPolicies:\n\nwhen(asyncRestClientMock.postWithAuthHeader(anyString(), anyString(), anyString(), anyString()))\n            .thenReturn(policyIdsResp).thenReturn(Mono.empty());",
+      "parentUuid": "e09d86f3_2736a153",
+      "revId": "61612215aa65d999c0594ece628fea921a4eb79c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
