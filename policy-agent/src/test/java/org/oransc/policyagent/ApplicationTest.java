@@ -22,20 +22,16 @@ package org.oransc.policyagent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.oransc.policyagent.configuration.ApplicationConfig;
@@ -163,14 +159,6 @@ public class ApplicationTest {
         }
     }
 
-    private void reset() {
-        rics.clear();
-        policies.clear();
-        policyTypes.clear();
-        assertThat(policies.size()).isEqualTo(0);
-        restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
-    }
-
     @Test
     public void testGetRics() throws Exception {
         reset();
@@ -188,58 +176,88 @@ public class ApplicationTest {
     @Test
     public void testRecovery() throws Exception {
         reset();
-        Policy policy2 = addPolicy("policyId2", "typeName", "service", "ric");
+        String ricName = "ric";
+        Policy policy2 = addPolicy("policyId2", "typeName", "service", ricName);
 
-        getA1Client("ric").putPolicy(policy2); // put it in the RIC
+        getA1Client(ricName).putPolicy(policy2); // put it in the RIC
         policies.remove(policy2); // Remove it from the repo -> should be deleted in the RIC
 
-        Policy policy = addPolicy("policyId", "typeName", "service", "ric"); // This should be created in the RIC
+        String policyId = "policyId";
+        Policy policy = addPolicy(policyId, "typeName", "service", ricName); // This should be created in the RIC
         supervision.checkAllRics(); // The created policy should be put in the RIC
-        await().untilAsserted(() -> RicState.RECOVERING.equals(rics.getRic("ric").getState()));
-        await().untilAsserted(() -> RicState.IDLE.equals(rics.getRic("ric").getState()));
+        await().untilAsserted(() -> RicState.SYNCHRONIZING.equals(rics.getRic(ricName).getState()));
+        await().untilAsserted(() -> RicState.IDLE.equals(rics.getRic(ricName).getState()));
 
-        Policies ricPolicies = getA1Client("ric").getPolicies();
+        Policies ricPolicies = getA1Client(ricName).getPolicies();
         assertThat(ricPolicies.size()).isEqualTo(1);
-        Policy ricPolicy = ricPolicies.get("policyId");
+        Policy ricPolicy = ricPolicies.get(policyId);
         assertThat(ricPolicy.json()).isEqualTo(policy.json());
     }
 
-    MockA1Client getA1Client(String ricName) throws ServiceException {
-        return a1ClientFactory.getOrCreateA1Client(ricName);
+    @Test
+    public void testGetRicForManagedElement_thenReturnCorrectRic() throws Exception {
+        reset();
+        addRic("notCorrectRic1");
+        addRic("notCorrectRic2");
+        addRic("notCorrectRic3");
+        addRic("notCorrectRic4");
+        addRic("notCorrectRic5");
+        addRic("notCorrectRic6");
+
+        String ricName = "ric1";
+        Ric ric = addRic(ricName);
+        String managedElementId = "kista_1";
+        ric.addManagedElement(managedElementId);
+
+        String url = baseUrl() + "/ric?managedElementId=" + managedElementId;
+        String rsp = this.restTemplate.getForObject(url, String.class);
+
+        assertThat(rsp).isEqualTo(ricName);
     }
 
     @Test
-    public void testGetRic() throws Exception {
+    public void testGetRicForManagedElementThatDoesNotExist_thenReturnEmpty() throws Exception {
         reset();
-        Ric ric = addRic("ric1");
-        ric.addManagedElement("kista_1");
-        String url = baseUrl() + "/ric?managedElementId=kista_1";
+        addRic("notCorrectRic1");
+        addRic("notCorrectRic2");
+        addRic("notCorrectRic3");
+        addRic("notCorrectRic4");
+        addRic("notCorrectRic5");
+        addRic("notCorrectRic6");
 
+        String url = baseUrl() + "/ric?managedElementId=kista_1";
         String rsp = this.restTemplate.getForObject(url, String.class);
-        System.out.println(rsp);
-        assertThat(rsp).isEqualTo("ric1");
+
+        assertThat(rsp).isNull();
     }
 
     @Test
     public void testPutPolicy() throws Exception {
         reset();
-        putService("service1");
-        this.addRic("ric1").setState(Ric.RicState.IDLE);
-        addPolicyType("type1", "ric1");
+        String serviceName = "service1";
+        String ricName = "ric1";
+        String policyTypeName = "type1";
+        String policyInstanceId = "instance1";
 
+        putService(serviceName);
+        addPolicyType(policyTypeName, ricName);
+
+        String url = baseUrl() + "/policy?type=" + policyTypeName + "&instance=" + policyInstanceId + "&ric=" + ricName
+            + "&service=" + serviceName;
         final String json = jsonString();
-        String url = baseUrl() + "/policy?type=type1&instance=instance1&ric=ric1&service=service1";
-        this.restTemplate.put(url, createJsonHttpEntity(json));
-        Policy policy = policies.getPolicy("instance1");
+        this.rics.getRic(ricName).setState(Ric.RicState.IDLE);
 
+        this.restTemplate.put(url, createJsonHttpEntity(json));
+
+        Policy policy = policies.getPolicy(policyInstanceId);
         assertThat(policy).isNotNull();
-        assertThat(policy.id()).isEqualTo("instance1");
-        assertThat(policy.ownerServiceName()).isEqualTo("service1");
+        assertThat(policy.id()).isEqualTo(policyInstanceId);
+        assertThat(policy.ownerServiceName()).isEqualTo(serviceName);
         assertThat(policy.ric().name()).isEqualTo("ric1");
 
         url = baseUrl() + "/policies";
         String rsp = this.restTemplate.getForObject(url, String.class);
-        System.out.println(rsp);
+        assertThat(rsp.contains(policyInstanceId)).isTrue();
 
     }
 
@@ -256,75 +274,6 @@ public class ApplicationTest {
         this.restTemplate.put(urlWrongRic, createJsonHttpEntity(jsonString()));
         Policy policy = policies.getPolicy("instance1");
         assertThat(policy.ric().name()).isEqualTo("ric1"); // Not changed
-    }
-
-    private PolicyType addPolicyType(String policyTypeName, String ricName) {
-        PolicyType type = ImmutablePolicyType.builder() //
-            .name(policyTypeName) //
-            .schema("{\"title\":\"" + policyTypeName + "\"}") //
-            .build();
-
-        policyTypes.put(type);
-        addRic(ricName).addSupportedPolicyType(type);
-        return type;
-    }
-
-    private Ric addRic(String ricName) {
-        if (rics.get(ricName) != null) {
-            return rics.get(ricName);
-        }
-        Vector<String> mes = new Vector<>();
-        RicConfig conf = ImmutableRicConfig.builder() //
-            .name(ricName) //
-            .baseUrl(ricName) //
-            .managedElementIds(mes) //
-            .build();
-        Ric ric = new Ric(conf);
-        this.rics.put(ric);
-        return ric;
-    }
-
-    private String createServiceJson(String name) {
-        ServiceRegistrationInfo service = new ServiceRegistrationInfo(name, 1, "callbackUrl");
-
-        String json = gson.toJson(service);
-        return json;
-    }
-
-    HttpEntity<String> createJsonHttpEntity(String content) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        return new HttpEntity<String>(content, headers);
-    }
-
-    private void putService(String name) {
-        String url = baseUrl() + "/service";
-        HttpEntity<String> entity = createJsonHttpEntity(createServiceJson(name));
-        this.restTemplate.put(url, entity);
-    }
-
-    private String jsonString() {
-        return "{\n  \"servingCellNrcgi\": \"1\"\n }";
-    }
-
-    private Policy addPolicy(String id, String typeName, String service, String ric) throws ServiceException {
-        addRic(ric);
-        Policy p = ImmutablePolicy.builder().id(id) //
-            .json(jsonString()) //
-            .ownerServiceName(service) //
-            .ric(rics.getRic(ric)) //
-            .type(addPolicyType(typeName, ric)) //
-            .lastModified("lastModified").build();
-        policies.put(p);
-        return p;
-    }
-
-    private Policy addPolicy(String id, String typeName, String service) throws ServiceException {
-        return addPolicy(id, typeName, service, "ric");
-    }
-
-    private String baseUrl() {
-        return "http://localhost:" + port;
     }
 
     @Test
@@ -368,13 +317,13 @@ public class ApplicationTest {
         assertThat(rsp).contains("[{\"title\":\"type2\"}");
 
         List<String> info = parseSchemas(rsp);
-        assertEquals(2, info.size());
+        assertThat(info.size()).isEqualTo(2);
 
         url = baseUrl() + "/policy_schemas?ric=ric1";
         rsp = this.restTemplate.getForObject(url, String.class);
         assertThat(rsp).contains("type1");
         info = parseSchemas(rsp);
-        assertEquals(1, info.size());
+        assertThat(info.size()).isEqualTo(1);
     }
 
     @Test
@@ -407,6 +356,7 @@ public class ApplicationTest {
 
     @Test
     public void testGetPolicies() throws Exception {
+        reset();
         String url = baseUrl() + "/policies";
         addPolicy("id1", "type1", "service1");
 
@@ -432,14 +382,14 @@ public class ApplicationTest {
         System.out.println(rsp);
         assertThat(rsp).contains("id1");
         assertThat(rsp).contains("id2");
-        assertFalse(rsp.contains("id3"));
+        assertThat(rsp.contains("id3")).isFalse();
 
         url = baseUrl() + "/policies?type=type1&service=service2";
         rsp = this.restTemplate.getForObject(url, String.class);
         System.out.println(rsp);
-        assertFalse(rsp.contains("id1"));
+        assertThat(rsp.contains("id1")).isFalse();
         assertThat(rsp).contains("id2");
-        assertFalse(rsp.contains("id3"));
+        assertThat(rsp.contains("id3")).isFalse();
     }
 
     @Test
@@ -449,35 +399,35 @@ public class ApplicationTest {
         putService("name");
 
         // GET
-        String url = baseUrl() + "/services?name=name";
+        String url = baseUrl() + "/services?serviceName=name";
         String rsp = this.restTemplate.getForObject(url, String.class);
         List<ServiceStatus> info = parseList(rsp, ServiceStatus.class);
-        assertThat(info.size() == 1);
+        assertThat(info.size()).isEqualTo(1);
         ServiceStatus status = info.iterator().next();
-        assertThat(status.keepAliveIntervalSeconds == 1);
-        assertThat(status.serviceName.equals("name"));
+        assertThat(status.keepAliveIntervalSeconds).isEqualTo(1);
+        assertThat(status.serviceName).isEqualTo("name");
 
         // GET (all)
         url = baseUrl() + "/services";
         rsp = this.restTemplate.getForObject(url, String.class);
-        assertThat(rsp.contains("name"));
+        assertThat(rsp.contains("name")).isTrue();
         System.out.println(rsp);
 
         // Keep alive
-        url = baseUrl() + "/services/keepalive?name=name";
+        url = baseUrl() + "/services/keepalive?serviceName=name";
         rsp = this.restTemplate.postForObject(url, null, String.class);
-        assertThat(rsp.contains("OK"));
+        assertThat(rsp.contains("OK")).isTrue();
 
         // DELETE
-        assertThat(services.size() == 1);
-        url = baseUrl() + "/services?name=name";
+        assertThat(services.size()).isEqualTo(1);
+        url = baseUrl() + "/services?serviceName=name";
         this.restTemplate.delete(url);
-        assertThat(services.size() == 0);
+        assertThat(services.size()).isEqualTo(0);
 
         // Keep alive, no registerred service
-        url = baseUrl() + "/services/keepalive?name=nameXXX";
+        url = baseUrl() + "/services/keepalive?serviceName=nameXXX";
         ResponseEntity<String> entity = this.restTemplate.postForEntity(url, null, String.class);
-        assertThat(entity.getStatusCode().equals(HttpStatus.NOT_FOUND));
+        assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
@@ -489,7 +439,89 @@ public class ApplicationTest {
 
         String url = baseUrl() + "/policy_status?instance=id";
         String rsp = this.restTemplate.getForObject(url, String.class);
-        assertThat(rsp.equals("OK"));
+        assertThat(rsp.equals("OK")).isTrue();
+    }
+
+    private PolicyType addPolicyType(String policyTypeName, String ricName) {
+        PolicyType type = ImmutablePolicyType.builder() //
+            .name(policyTypeName) //
+            .schema("{\"title\":\"" + policyTypeName + "\"}") //
+            .build();
+
+        policyTypes.put(type);
+        addRic(ricName).addSupportedPolicyType(type);
+        return type;
+    }
+
+    private Ric addRic(String ricName) {
+        if (rics.get(ricName) != null) {
+            return rics.get(ricName);
+        }
+        Vector<String> mes = new Vector<>();
+        RicConfig conf = ImmutableRicConfig.builder() //
+            .name(ricName) //
+            .baseUrl(ricName) //
+            .managedElementIds(mes) //
+            .build();
+        Ric ric = new Ric(conf);
+        this.rics.put(ric);
+        return ric;
+    }
+
+    private Policy addPolicy(String id, String typeName, String service, String ric) throws ServiceException {
+        addRic(ric);
+        Policy p = ImmutablePolicy.builder().id(id) //
+            .json(jsonString()) //
+            .ownerServiceName(service) //
+            .ric(rics.getRic(ric)) //
+            .type(addPolicyType(typeName, ric)) //
+            .lastModified("lastModified").build();
+        policies.put(p);
+        return p;
+    }
+
+    private Policy addPolicy(String id, String typeName, String service) throws ServiceException {
+        return addPolicy(id, typeName, service, "ric");
+    }
+
+    private String createServiceJson(String name) {
+        ServiceRegistrationInfo service = new ServiceRegistrationInfo(name, 1, "callbackUrl");
+
+        String json = gson.toJson(service);
+        return json;
+    }
+
+    private void putService(String name) {
+        String url = baseUrl() + "/service";
+        HttpEntity<String> entity = createJsonHttpEntity(createServiceJson(name));
+        this.restTemplate.put(url, entity);
+    }
+
+    private String baseUrl() {
+        return "http://localhost:" + port;
+    }
+
+    private void reset() {
+        rics.clear();
+        policies.clear();
+        policyTypes.clear();
+        services.clear();
+        assertThat(policies.size()).isEqualTo(0);
+        restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
+    }
+
+    private String jsonString() {
+        return "{\n  \"servingCellNrcgi\": \"1\"\n }";
+    }
+
+    private MockA1Client getA1Client(String ricName) throws ServiceException {
+        return a1ClientFactory.getOrCreateA1Client(ricName);
+    }
+
+    private HttpEntity<String> createJsonHttpEntity(String content) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return new HttpEntity<String>(content, headers);
     }
 
     private static <T> List<T> parseList(String jsonString, Class<T> clazz) {

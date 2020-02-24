@@ -20,12 +20,14 @@
 
 package org.oransc.policyagent.tasks;
 
+import static org.oransc.policyagent.repository.Ric.RicState;
+
+import java.util.Collection;
 import java.util.Vector;
 
 import org.oransc.policyagent.clients.A1Client;
 import org.oransc.policyagent.clients.A1ClientFactory;
 import org.oransc.policyagent.clients.AsyncRestClient;
-import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.repository.ImmutablePolicyType;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.Policy;
@@ -41,23 +43,23 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Recovery handling of RIC.
+ * Synchronizes the content of a RIC with the content in the repository.
  * This means:
  * - load all policy types
  * - send all policy instances to the RIC
  * --- if that fails remove all policy instances
  * - Notify subscribing services
  */
-public class RicRecoveryTask {
+public class RicSynchronizationTask {
 
-    private static final Logger logger = LoggerFactory.getLogger(RicRecoveryTask.class);
+    private static final Logger logger = LoggerFactory.getLogger(RicSynchronizationTask.class);
 
     private final A1ClientFactory a1ClientFactory;
     private final PolicyTypes policyTypes;
     private final Policies policies;
     private final Services services;
 
-    public RicRecoveryTask(A1ClientFactory a1ClientFactory, PolicyTypes policyTypes, Policies policies,
+    public RicSynchronizationTask(A1ClientFactory a1ClientFactory, PolicyTypes policyTypes, Policies policies,
         Services services) {
         this.a1ClientFactory = a1ClientFactory;
         this.policyTypes = policyTypes;
@@ -65,35 +67,41 @@ public class RicRecoveryTask {
         this.services = services;
     }
 
+    @SuppressWarnings("squid:S2629")
     public void run(Ric ric) {
         logger.debug("Handling ric: {}", ric.getConfig().name());
 
         synchronized (ric) {
-            if (ric.getState() == Ric.RicState.RECOVERING) {
-                logger.debug("Recovery ric: {} is already running", ric.getConfig().name());
+            if (ric.getState() == RicState.SYNCHRONIZING) {
+                logger.debug("Ric: {} is already being synchronized", ric.getConfig().name());
                 return;
             }
-            ric.setState(Ric.RicState.RECOVERING);
+            ric.setState(RicState.SYNCHRONIZING);
         }
         this.a1ClientFactory.createA1Client(ric)//
-            .flatMapMany(client -> startRecover(ric, client)) //
-            .subscribe(x -> logger.debug("Recover: " + x), //
-                throwable -> onRecoveryError(ric, throwable), //
-                () -> onRecoveryComplete(ric));
+            .flatMapMany(client -> startSynchronization(ric, client)) //
+            .subscribe(x -> logger.debug("Synchronize: {}", x), //
+                throwable -> onSynchronizationError(ric, throwable), //
+                () -> onSynchronizationComplete(ric));
     }
 
-    private Flux<Object> startRecover(Ric ric, A1Client a1Client) {
-        Flux<PolicyType> recoverTypes = recoverPolicyTypes(ric, a1Client);
-        Flux<?> deletePoliciesInRic = a1Client.deleteAllPolicies();
-        Flux<?> recreatePoliciesInRic = recreateAllPoliciesInRic(ric, a1Client);
-
-        return Flux.concat(recoverTypes, deletePoliciesInRic, recreatePoliciesInRic);
+    private Flux<Object> startSynchronization(Ric ric, A1Client a1Client) {
+        Flux<PolicyType> recoverTypes = synchronizePolicyTypes(ric, a1Client);
+        Collection<Policy> policiesForRic = policies.getForRic(ric.name());
+        Flux<?> policiesDeletedInRic = Flux.empty();
+        Flux<?> policiesRecreatedInRic = Flux.empty();
+        if (!policiesForRic.isEmpty()) {
+            policiesDeletedInRic = a1Client.deleteAllPolicies();
+            policiesRecreatedInRic = recreateAllPoliciesInRic(ric, a1Client);
+        }
+        return Flux.concat(recoverTypes, policiesDeletedInRic, policiesRecreatedInRic);
     }
 
-    private void onRecoveryComplete(Ric ric) {
-        logger.debug("Recovery completed for:" + ric.name());
-        ric.setState(Ric.RicState.IDLE);
-        notifyAllServices("Recovery completed for:" + ric.name());
+    @SuppressWarnings("squid:S2629")
+    private void onSynchronizationComplete(Ric ric) {
+        logger.debug("Synchronization completed for: {}", ric.name());
+        ric.setState(RicState.IDLE);
+        notifyAllServices("Synchronization completed for:" + ric.name());
     }
 
     private void notifyAllServices(String body) {
@@ -101,56 +109,57 @@ public class RicRecoveryTask {
             for (Service service : services.getAll()) {
                 String url = service.getCallbackUrl();
                 if (service.getCallbackUrl().length() > 0) {
-                    createClient(url) //
+                    createNotificationClient(url) //
                         .put("", body) //
-                        .subscribe(rsp -> logger.debug("Service called"),
-                            throwable -> logger.warn("Service called failed", throwable),
-                            () -> logger.debug("Service called complete"));
+                        .subscribe(
+                            notUsed -> logger.debug("Service {} notified", service.getName()), throwable -> logger
+                                .warn("Service notification failed for service: {}", service.getName(), throwable),
+                            () -> logger.debug("All services notified"));
                 }
             }
         }
     }
 
-    private void onRecoveryError(Ric ric, Throwable t) {
-        logger.warn("Recovery failed for: {}, reason: {}", ric.name(), t.getMessage());
+    @SuppressWarnings("squid:S2629")
+    private void onSynchronizationError(Ric ric, Throwable t) {
+        logger.warn("Synchronization failed for ric: {}, reason: {}", ric.name(), t.getMessage());
+        deleteAllPoliciesInRepository(ric);
+
+        Flux<PolicyType> typesRecoveredForRic = this.a1ClientFactory.createA1Client(ric) //
+            .flatMapMany(a1Client -> synchronizePolicyTypes(ric, a1Client));
+
         // If recovery fails, try to remove all instances
-        deleteAllPolicies(ric);
-        Flux<PolicyType> recoverTypes = this.a1ClientFactory.createA1Client(ric) //
-            .flatMapMany(a1Client -> recoverPolicyTypes(ric, a1Client));
-        Flux<?> deletePoliciesInRic = this.a1ClientFactory.createA1Client(ric) //
-            .flatMapMany(a1Client -> a1Client.deleteAllPolicies());
+        Flux<?> policiesDeletedInRic = this.a1ClientFactory.createA1Client(ric) //
+            .flatMapMany(A1Client::deleteAllPolicies);
 
-        Flux.merge(recoverTypes, deletePoliciesInRic) //
-            .subscribe(x -> logger.debug("Brute recover: " + x), //
-                throwable -> onRemoveAllError(ric, throwable), //
-                () -> onRecoveryComplete(ric));
+        Flux.merge(typesRecoveredForRic, policiesDeletedInRic) //
+            .subscribe(x -> logger.debug("Brute recover: {}", x), //
+                throwable -> onRecoveryError(ric, throwable), //
+                () -> onSynchronizationComplete(ric));
     }
 
-    private void onRemoveAllError(Ric ric, Throwable t) {
-        logger.warn("Remove all failed for: {}, reason: {}", ric.name(), t.getMessage());
-        ric.setState(Ric.RicState.UNDEFINED);
+    @SuppressWarnings("squid:S2629")
+    private void onRecoveryError(Ric ric, Throwable t) {
+        logger.warn("Synchronization failure recovery failed for ric: {}, reason: {}", ric.name(), t.getMessage());
+        ric.setState(RicState.UNDEFINED);
     }
 
-    private AsyncRestClient createClient(final String url) {
+    AsyncRestClient createNotificationClient(final String url) {
         return new AsyncRestClient(url);
     }
 
-    private Flux<PolicyType> recoverPolicyTypes(Ric ric, A1Client a1Client) {
+    private Flux<PolicyType> synchronizePolicyTypes(Ric ric, A1Client a1Client) {
         ric.clearSupportedPolicyTypes();
         return a1Client.getPolicyTypeIdentities() //
-            .flatMapMany(types -> Flux.fromIterable(types)) //
+            .flatMapMany(Flux::fromIterable) //
             .doOnNext(typeId -> logger.debug("For ric: {}, handling type: {}", ric.getConfig().name(), typeId)) //
-            .flatMap((policyTypeId) -> getPolicyType(ric, policyTypeId, a1Client)) //
-            .doOnNext(policyType -> ric.addSupportedPolicyType(policyType)); //
+            .flatMap(policyTypeId -> getPolicyType(policyTypeId, a1Client)) //
+            .doOnNext(ric::addSupportedPolicyType); //
     }
 
-    private Mono<PolicyType> getPolicyType(Ric ric, String policyTypeId, A1Client a1Client) {
+    private Mono<PolicyType> getPolicyType(String policyTypeId, A1Client a1Client) {
         if (policyTypes.contains(policyTypeId)) {
-            try {
-                return Mono.just(policyTypes.getType(policyTypeId));
-            } catch (ServiceException e) {
-                return Mono.error(e);
-            }
+            return Mono.just(policyTypes.get(policyTypeId));
         }
         return a1Client.getPolicyTypeSchema(policyTypeId) //
             .flatMap(schema -> createPolicyType(policyTypeId, schema));
@@ -162,7 +171,7 @@ public class RicRecoveryTask {
         return Mono.just(pt);
     }
 
-    private void deleteAllPolicies(Ric ric) {
+    private void deleteAllPoliciesInRepository(Ric ric) {
         synchronized (policies) {
             for (Policy policy : policies.getForRic(ric.name())) {
                 this.policies.remove(policy);
@@ -175,7 +184,7 @@ public class RicRecoveryTask {
             return Flux.fromIterable(new Vector<>(policies.getForRic(ric.name()))) //
                 .doOnNext(
                     policy -> logger.debug("Recreating policy: {}, for ric: {}", policy.id(), ric.getConfig().name()))
-                .flatMap(policy -> a1Client.putPolicy(policy));
+                .flatMap(a1Client::putPolicy);
         }
     }
 

@@ -22,12 +22,9 @@ package org.oransc.policyagent.dmaap;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import java.io.IOException;
-
 import org.onap.dmaap.mr.client.MRBatchingPublisher;
 import org.oransc.policyagent.clients.AsyncRestClient;
-import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.dmaap.DmaapRequestMessage.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,15 +42,14 @@ public class DmaapMessageHandler {
     private final MRBatchingPublisher dmaapClient;
     private final AsyncRestClient agentClient;
 
-    public DmaapMessageHandler(MRBatchingPublisher dmaapClient, ApplicationConfig applicationConfig,
-        AsyncRestClient agentClient) {
+    public DmaapMessageHandler(MRBatchingPublisher dmaapClient, AsyncRestClient agentClient) {
         this.agentClient = agentClient;
         this.dmaapClient = dmaapClient;
     }
 
     public void handleDmaapMsg(String msg) {
         this.createTask(msg) //
-            .subscribe(x -> logger.debug("handleDmaapMsg: " + x), //
+            .subscribe(message -> logger.debug("handleDmaapMsg: {}", message), //
                 throwable -> logger.warn("handleDmaapMsg failure ", throwable), //
                 () -> logger.debug("handleDmaapMsg complete"));
     }
@@ -73,9 +69,9 @@ public class DmaapMessageHandler {
     }
 
     private Mono<String> handleAgentCallError(Throwable t, DmaapRequestMessage dmaapRequestMessage) {
-        logger.debug("Agent call failed: " + t.getMessage());
+        logger.debug("Agent call failed: {}", t.getMessage());
         return sendDmaapResponse(t.toString(), dmaapRequestMessage, HttpStatus.NOT_FOUND) //
-            .flatMap(s -> Mono.empty());
+            .flatMap(notUsed -> Mono.empty());
     }
 
     private Mono<String> invokePolicyAgent(DmaapRequestMessage dmaapRequestMessage) {
@@ -99,8 +95,8 @@ public class DmaapMessageHandler {
     private Mono<String> sendDmaapResponse(String response, DmaapRequestMessage dmaapRequestMessage,
         HttpStatus status) {
         return getDmaapResponseMessage(dmaapRequestMessage, response, status) //
-            .flatMap(body -> sendToDmaap(body)) //
-            .onErrorResume(t -> handleResponseCallError(t, dmaapRequestMessage));
+            .flatMap(this::sendToDmaap) //
+            .onErrorResume(this::handleResponseCallError);
     }
 
     private Mono<String> sendToDmaap(String body) {
@@ -114,8 +110,8 @@ public class DmaapMessageHandler {
         }
     }
 
-    private Mono<String> handleResponseCallError(Throwable t, DmaapRequestMessage dmaapRequestMessage) {
-        logger.debug("Failed to respond: " + t.getMessage());
+    private Mono<String> handleResponseCallError(Throwable t) {
+        logger.debug("Failed to respond: {}", t.getMessage());
         return Mono.empty();
     }
 
@@ -135,5 +131,4 @@ public class DmaapMessageHandler {
         return Mono.just(str);
 
     }
-
 }

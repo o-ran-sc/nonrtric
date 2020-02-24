@@ -22,7 +22,6 @@ package org.oransc.policyagent.controllers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -31,7 +30,6 @@ import io.swagger.annotations.ApiResponses;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import org.oransc.policyagent.clients.A1ClientFactory;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.exceptions.ServiceException;

@@ -30,18 +30,18 @@ import org.oransc.policyagent.exceptions.ServiceException;
  * Dynamic representation of all Rics in the system.
  */
 public class Rics {
-    Map<String, Ric> rics = new HashMap<>();
+    Map<String, Ric> registeredRics = new HashMap<>();
 
     public synchronized void put(Ric ric) {
-        rics.put(ric.name(), ric);
+        registeredRics.put(ric.name(), ric);
     }
 
     public synchronized Iterable<Ric> getRics() {
-        return rics.values();
+        return registeredRics.values();
     }
 
     public synchronized Ric getRic(String name) throws ServiceException {
-        Ric ric = rics.get(name);
+        Ric ric = registeredRics.get(name);
         if (ric == null) {
             throw new ServiceException("Could not find ric: " + name);
         }
@@ -49,23 +49,23 @@ public class Rics {
     }
 
     public synchronized Ric get(String name) {
-        return rics.get(name);
+        return registeredRics.get(name);
     }
 
     public synchronized void remove(String name) {
-        rics.remove(name);
+        registeredRics.remove(name);
     }
 
     public synchronized int size() {
-        return rics.size();
+        return registeredRics.size();
     }
 
     public synchronized void clear() {
-        this.rics.clear();
+        this.registeredRics.clear();
     }
 
     public synchronized Optional<Ric> lookupRicForManagedElement(String managedElementId) {
-        for (Ric ric : this.rics.values()) {
+        for (Ric ric : this.registeredRics.values()) {
             if (ric.getManagedElementIds().contains(managedElementId)) {
                 return Optional.of(ric);
             }

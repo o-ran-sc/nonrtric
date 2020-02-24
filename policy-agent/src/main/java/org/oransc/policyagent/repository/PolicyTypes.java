@@ -28,10 +28,7 @@ import java.util.Map;
 import org.oransc.policyagent.exceptions.ServiceException;
 
 public class PolicyTypes {
-    private Map<String, PolicyType> types = new HashMap<String, PolicyType>();
-
-    public PolicyTypes() {
-    }
+    private Map<String, PolicyType> types = new HashMap<>();
 
     public synchronized PolicyType getType(String name) throws ServiceException {
         PolicyType t = types.get(name);

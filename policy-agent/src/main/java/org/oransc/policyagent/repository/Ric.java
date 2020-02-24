@@ -161,7 +161,7 @@ public class Ric {
      */
     public enum RicState {
         /**
-         * The agent view of the agent may be inconsistent.
+         * The agent view of the Ric may be inconsistent.
          */
         UNDEFINED,
         /**
@@ -169,8 +169,8 @@ public class Ric {
          */
         IDLE,
         /**
-         * The Ric states are recovered.
+         * The agent is synchronizing the view of the Ric.
          */
-        RECOVERING
+        SYNCHRONIZING
     }
 }

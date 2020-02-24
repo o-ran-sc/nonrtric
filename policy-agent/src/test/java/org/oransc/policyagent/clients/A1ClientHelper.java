@@ -40,14 +40,14 @@ import reactor.core.publisher.Mono;
 public class A1ClientHelper {
     private static Gson gson = new GsonBuilder() //
         .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DASHES) //
-        .create(); //
+        .create();
 
     private A1ClientHelper() {
     }
 
     protected static <T> String createInputJsonString(T inputParams) {
         JSONObject inputJson = new JSONObject();
-        inputJson.put("input", new JSONObject(gson.toJson(inputParams)));
+        inputJson.put("input", gson.toJson(inputParams));
         return inputJson.toString();
     }
 

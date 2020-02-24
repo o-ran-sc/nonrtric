@@ -84,12 +84,13 @@ public class StartupService implements ApplicationConfig.Observer {
                 || event.equals(ApplicationConfig.RicConfigUpdate.CHANGED)) {
                 Ric ric = new Ric(ricConfig);
                 rics.put(ric);
-                RicRecoveryTask recoveryTask = new RicRecoveryTask(a1ClientFactory, policyTypes, policies, services);
+                RicSynchronizationTask recoveryTask =
+                    new RicSynchronizationTask(a1ClientFactory, policyTypes, policies, services);
                 recoveryTask.run(ric);
             } else if (event.equals(ApplicationConfig.RicConfigUpdate.REMOVED)) {
                 rics.remove(ricConfig.name());
             } else {
-                logger.debug("Unhandled event :" + event);
+                logger.debug("Unhandled event: {}", event);
             }
         }
     }

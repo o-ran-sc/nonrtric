@@ -20,18 +20,18 @@
 
 package org.oransc.policyagent.tasks;
 
-import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,83 +49,264 @@ import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Ric.RicState;
 import org.oransc.policyagent.repository.Rics;
-import org.oransc.policyagent.repository.Services;
-
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(MockitoExtension.class)
 public class RepositorySupervisionTest {
-    @Mock
-    A1Client a1ClientMock;
+    private static final String POLICY_TYPE_1_NAME = "type1";
+    private static final PolicyType POLICY_TYPE_1 = ImmutablePolicyType.builder() //
+        .name(POLICY_TYPE_1_NAME) //
+        .schema("") //
+        .build();
+
+    private static final Ric RIC_1 = new Ric(ImmutableRicConfig.builder() //
+        .name("ric1") //
+        .baseUrl("baseUrl1") //
+        .managedElementIds(new Vector<String>(Arrays.asList("kista_1", "kista_2"))) //
+        .build());
+
+    private static final String POLICY_1_ID = "policyId1";
+    private static final Policy POLICY_1 = ImmutablePolicy.builder() //
+        .id(POLICY_1_ID) //
+        .json("") //
+        .ownerServiceName("service") //
+        .ric(RIC_1) //
+        .type(POLICY_TYPE_1) //
+        .lastModified("now") //
+        .build();
+
+    private static final Policy POLICY_2 = ImmutablePolicy.builder() //
+        .id("policyId2") //
+        .json("") //
+        .ownerServiceName("service") //
+        .ric(RIC_1) //
+        .type(POLICY_TYPE_1) //
+        .lastModified("now") //
+        .build();
 
     @Mock
-    A1ClientFactory a1ClientFactory;
+    private A1Client a1ClientMock;
+
+    @Mock
+    private A1ClientFactory a1ClientFactory;
+
+    @Mock
+    private RicSynchronizationTask recoveryTaskMock;
+
+    private PolicyTypes types;
+    private Policies policies;
+    private Rics rics;
 
     @BeforeEach
     public void init() {
-        doReturn(Mono.just(a1ClientMock)).when(a1ClientFactory).createA1Client(any());
+        doReturn(Mono.just(a1ClientMock)).when(a1ClientFactory).createA1Client(any(Ric.class));
+        types = new PolicyTypes();
+        policies = new Policies();
+        rics = new Rics();
+        RIC_1.setState(RicState.UNDEFINED);
+        RIC_1.clearSupportedPolicyTypes();
     }
 
     @Test
-    public void test() {
-        Ric ric1 = new Ric(ImmutableRicConfig.builder() //
-            .name("ric1") //
-            .baseUrl("baseUrl1") //
-            .managedElementIds(new Vector<String>(Arrays.asList("kista_1", "kista_2"))) //
-            .build());
-        ric1.setState(Ric.RicState.IDLE);
-        Ric ric2 = new Ric(ImmutableRicConfig.builder() //
-            .name("ric2") //
-            .baseUrl("baseUrl2") //
-            .managedElementIds(new Vector<String>(Arrays.asList("kista_3", "kista_4"))) //
-            .build());
-        ric2.setState(Ric.RicState.UNDEFINED);
-        Ric ric3 = new Ric(ImmutableRicConfig.builder() //
-            .name("ric3") //
-            .baseUrl("baseUrl3") //
-            .managedElementIds(new Vector<String>(Arrays.asList("kista_5"))) //
-            .build());
-        Rics rics = new Rics();
-        rics.put(ric1);
-        rics.put(ric2);
-        rics.put(ric3);
+    public void whenRicIdleAndNoChangedPoliciesOrPolicyTypes_thenNoRecovery() {
+        RIC_1.setState(RicState.IDLE);
+        RIC_1.addSupportedPolicyType(POLICY_TYPE_1);
+        rics.put(RIC_1);
 
-        PolicyType policyType = ImmutablePolicyType.builder() //
-            .name("type") //
-            .schema("") //
-            .build();
-        Policy policy1 = ImmutablePolicy.builder() //
-            .id("policyId1") //
-            .json("") //
-            .ownerServiceName("service") //
-            .ric(ric1) //
-            .type(policyType) //
-            .lastModified("now") //
-            .build();
-        Policies policies = new Policies();
-        policies.put(policy1);
-        PolicyTypes types = new PolicyTypes();
-        Services services = new Services();
+        types.put(POLICY_TYPE_1);
 
-        Mono<List<String>> policyIds = Mono.just(Arrays.asList("policyId1", "policyId2"));
+        policies.put(POLICY_1);
 
-        doReturn(policyIds).when(a1ClientMock).getPolicyTypeIdentities();
-        doReturn(policyIds).when(a1ClientMock).getPolicyIdentities();
-        doReturn(Mono.just("schema")).when(a1ClientMock).getPolicyTypeSchema(anyString());
-        doReturn(Mono.just("OK")).when(a1ClientMock).putPolicy(any());
-        doReturn(Flux.empty()).when(a1ClientMock).deleteAllPolicies();
+        setUpGetPolicyIdentitiesToReturn(new ArrayList<>(Arrays.asList(POLICY_1_ID)));
+        setUpGetPolicyTypeIdentitiesToReturn(new ArrayList<>(Arrays.asList(POLICY_TYPE_1_NAME)));
 
         RepositorySupervision supervisorUnderTest =
-            new RepositorySupervision(rics, policies, a1ClientFactory, types, services);
+            spy(new RepositorySupervision(rics, policies, a1ClientFactory, types, null));
 
         supervisorUnderTest.checkAllRics();
 
-        await().untilAsserted(() -> RicState.IDLE.equals(ric1.getState()));
-        await().untilAsserted(() -> RicState.IDLE.equals(ric2.getState()));
-        await().untilAsserted(() -> RicState.IDLE.equals(ric3.getState()));
+        verify(supervisorUnderTest).checkAllRics();
+        verifyNoMoreInteractions(supervisorUnderTest);
+    }
 
-        verify(a1ClientMock, times(3)).deleteAllPolicies();
-        verifyNoMoreInteractions(a1ClientMock);
+    @Test
+    public void whenRicUndefined_thenRecovery() {
+        RIC_1.setState(RicState.UNDEFINED);
+        rics.put(RIC_1);
+
+        RepositorySupervision supervisorUnderTest =
+            spy(new RepositorySupervision(rics, policies, a1ClientFactory, types, null));
+
+        doReturn(recoveryTaskMock).when(supervisorUnderTest).createSynchronizationTask();
+
+        supervisorUnderTest.checkAllRics();
+
+        verify(supervisorUnderTest).checkAllRics();
+        verify(supervisorUnderTest).createSynchronizationTask();
+        verify(recoveryTaskMock).run(RIC_1);
+        verifyNoMoreInteractions(supervisorUnderTest);
+    }
+
+    @Test
+    public void whenRicRecovering_thenNoRecovery() {
+        RIC_1.setState(RicState.SYNCHRONIZING);
+        rics.put(RIC_1);
+
+        RepositorySupervision supervisorUnderTest =
+            spy(new RepositorySupervision(rics, policies, a1ClientFactory, types, null));
+
+        supervisorUnderTest.checkAllRics();
+
+        verify(supervisorUnderTest).checkAllRics();
+        verifyNoMoreInteractions(supervisorUnderTest);
+    }
+
+    @Test
+    public void whenRicIdleAndErrorGettingPolicyIdentities_thenNoRecovery() {
+        RIC_1.setState(RicState.IDLE);
+        RIC_1.addSupportedPolicyType(POLICY_TYPE_1);
+        rics.put(RIC_1);
+
+        setUpGetPolicyIdentitiesToReturn(new Exception("Failed"));
+
+        RepositorySupervision supervisorUnderTest =
+            spy(new RepositorySupervision(rics, policies, a1ClientFactory, types, null));
+        supervisorUnderTest.checkAllRics();
+
+        verify(supervisorUnderTest).checkAllRics();
+        verifyNoMoreInteractions(supervisorUnderTest);
+    }
+
+    @Test
+    public void whenRicIdleAndNotSameAmountOfPolicies_thenRecovery() {
+        RIC_1.setState(RicState.IDLE);
+        rics.put(RIC_1);
+
+        policies.put(POLICY_1);
+        policies.put(POLICY_2);
+
+        setUpGetPolicyIdentitiesToReturn(new ArrayList<>(Arrays.asList(POLICY_1_ID)));
+
+        RepositorySupervision supervisorUnderTest =
+            spy(new RepositorySupervision(rics, policies, a1ClientFactory, types, null));
+
+        doReturn(recoveryTaskMock).when(supervisorUnderTest).createSynchronizationTask();
+
+        supervisorUnderTest.checkAllRics();
+
+        verify(supervisorUnderTest).checkAllRics();
+        verify(supervisorUnderTest).createSynchronizationTask();
+        verify(recoveryTaskMock).run(RIC_1);
+        verifyNoMoreInteractions(supervisorUnderTest);
+    }
+
+    @Test
+    public void whenRicIdleAndSameAmountOfPoliciesButNotSamePolicies_thenRecovery() {
+        RIC_1.setState(RicState.IDLE);
+        rics.put(RIC_1);
+
+        policies.put(POLICY_1);
+        policies.put(POLICY_2);
+
+        setUpGetPolicyIdentitiesToReturn(new ArrayList<>(Arrays.asList(POLICY_1_ID, "Another_policy")));
+
+        RepositorySupervision supervisorUnderTest =
+            spy(new RepositorySupervision(rics, policies, a1ClientFactory, types, null));
+
+        doReturn(recoveryTaskMock).when(supervisorUnderTest).createSynchronizationTask();
+
+        supervisorUnderTest.checkAllRics();
+
+        verify(supervisorUnderTest).checkAllRics();
+        verify(supervisorUnderTest).createSynchronizationTask();
+        verify(recoveryTaskMock).run(RIC_1);
+        verifyNoMoreInteractions(supervisorUnderTest);
+    }
+
+    @Test
+    public void whenRicIdleAndErrorGettingPolicyTypes_thenNoRecovery() {
+        RIC_1.setState(RicState.IDLE);
+        RIC_1.addSupportedPolicyType(POLICY_TYPE_1);
+        rics.put(RIC_1);
+
+        setUpGetPolicyIdentitiesToReturn(Collections.emptyList());
+        setUpGetPolicyTypeIdentitiesToReturn(new Exception("Failed"));
+
+        RepositorySupervision supervisorUnderTest =
+            spy(new RepositorySupervision(rics, policies, a1ClientFactory, types, null));
+        supervisorUnderTest.checkAllRics();
+
+        verify(supervisorUnderTest).checkAllRics();
+        verifyNoMoreInteractions(supervisorUnderTest);
+    }
+
+    @Test
+    public void whenRicIdleAndNotSameAmountOfPolicyTypes_thenRecovery() {
+        RIC_1.setState(RicState.IDLE);
+        RIC_1.addSupportedPolicyType(POLICY_TYPE_1);
+        rics.put(RIC_1);
+
+        types.put(POLICY_TYPE_1);
+
+        setUpGetPolicyIdentitiesToReturn(Collections.emptyList());
+        setUpGetPolicyTypeIdentitiesToReturn(new ArrayList<>(Arrays.asList(POLICY_TYPE_1_NAME, "another_policy_type")));
+
+        RepositorySupervision supervisorUnderTest =
+            spy(new RepositorySupervision(rics, policies, a1ClientFactory, types, null));
+
+        doReturn(recoveryTaskMock).when(supervisorUnderTest).createSynchronizationTask();
+
+        supervisorUnderTest.checkAllRics();
+
+        verify(supervisorUnderTest).checkAllRics();
+        verify(supervisorUnderTest).createSynchronizationTask();
+        verify(recoveryTaskMock).run(RIC_1);
+        verifyNoMoreInteractions(supervisorUnderTest);
+    }
+
+    @Test
+    public void whenRicIdleAndSameAmountOfPolicyTypesButNotSameTypes_thenRecovery() {
+        PolicyType policyType2 = ImmutablePolicyType.builder() //
+            .name("policyType2") //
+            .schema("") //
+            .build();
+
+        RIC_1.setState(RicState.IDLE);
+        RIC_1.addSupportedPolicyType(POLICY_TYPE_1);
+        RIC_1.addSupportedPolicyType(policyType2);
+        rics.put(RIC_1);
+
+        setUpGetPolicyIdentitiesToReturn(Collections.emptyList());
+        setUpGetPolicyTypeIdentitiesToReturn(new ArrayList<>(Arrays.asList(POLICY_TYPE_1_NAME, "another_policy_type")));
+
+        RepositorySupervision supervisorUnderTest =
+            spy(new RepositorySupervision(rics, policies, a1ClientFactory, types, null));
+
+        doReturn(recoveryTaskMock).when(supervisorUnderTest).createSynchronizationTask();
+
+        supervisorUnderTest.checkAllRics();
+
+        verify(supervisorUnderTest).checkAllRics();
+        verify(supervisorUnderTest).createSynchronizationTask();
+        verify(recoveryTaskMock).run(RIC_1);
+        verifyNoMoreInteractions(supervisorUnderTest);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void setUpGetPolicyIdentitiesToReturn(Object returnValue) {
+        if (returnValue instanceof List<?>) {
+            when(a1ClientMock.getPolicyIdentities()).thenReturn(Mono.just((List<String>) returnValue));
+        } else if (returnValue instanceof Exception) {
+            when(a1ClientMock.getPolicyIdentities()).thenReturn(Mono.error((Exception) returnValue));
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void setUpGetPolicyTypeIdentitiesToReturn(Object returnValue) {
+        if (returnValue instanceof List<?>) {
+            when(a1ClientMock.getPolicyTypeIdentities()).thenReturn(Mono.just((List<String>) returnValue));
+        } else if (returnValue instanceof Exception) {
+            when(a1ClientMock.getPolicyTypeIdentities()).thenReturn(Mono.error((Exception) returnValue));
+        }
     }
 }
