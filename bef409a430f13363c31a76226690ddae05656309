@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c357f302_fd692009",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/configuration/RicConfig.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-24T10:53:51Z",
+      "side": 0,
+      "message": "Is it not needed here? If that\u0027s the case, we should remove it from all immutable classes in policy-agent.",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 18
+      },
+      "revId": "bef409a430f13363c31a76226690ddae05656309",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    }
+  ]
+}

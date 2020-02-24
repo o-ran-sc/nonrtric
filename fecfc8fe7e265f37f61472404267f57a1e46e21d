@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d567021_7456488b",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/configuration/ApplicationConfigParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-24T10:53:51Z",
+      "side": 1,
+      "message": "Just wondering what is wrong with the current approach whereas it seems to be more concise?",
+      "range": {
+        "startLine": 70,
+        "startChar": 12,
+        "endLine": 76,
+        "endChar": 34
+      },
+      "revId": "fecfc8fe7e265f37f61472404267f57a1e46e21d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    }
+  ]
+}
