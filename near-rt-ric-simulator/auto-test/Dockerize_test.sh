@@ -2,11 +2,15 @@
 
 TC_ONELINE_DESCR="dockerirze the test, setup docker container for policy agent, cbs, consul, near realtime ric simulator"
 
-. ../common/testcase_common.sh $1
+. ../common/testcase_common.sh $1 $2
 
 #### TEST BEGIN ####
 
 clean_containers
+
+start_ric_simulator
+
+prepare_consul_config
 
 start_simulators
 

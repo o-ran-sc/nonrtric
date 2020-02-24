@@ -2,18 +2,20 @@
 
 . ../common/test_env.sh
 
-echo "Test case started as: ${BASH_SOURCE[$i+1]} "$1
+echo "Test case started as: ${BASH_SOURCE[$i+1]} "$1 $2
+echo "Numbers of ric simulator started" $2
 
 # This is a script that contains all the functions needed for auto test
-# Arg: local | remote
+# Arg: local | remote (1, 2, 3, 4....)
 
 STARTED_POLICY_AGENT="" #Policy agent app names added to this var to keep track of started container in the script
 START_ARG=$1
 IMAGE_TAG="1.0.0-SNAPSHOT"
 IMAGE_TAG_REMOTE="latest"
+RIC_NUMBER=$2
 
 if [ $# -lt 1 ] || [ $# -gt 2 ]; then
-	echo "Expected arg: local  | remote  "
+	echo "Expected arg: local  | remote  and numbers of the rics "
 	exit 1
 elif [ $1 == "local" ]; then
 	if [ -z $POLICY_AGENT_LOCAL_IMAGE ]; then
@@ -144,12 +146,48 @@ consul_config_app() {
 
 }
 
+
+
+start_ric_simulator() {
+
+  DOCKER_SIM_NWNAME="nonrtric-docker-net"
+  echo "Creating docker network $DOCKER_SIM_NWNAME, if needed"
+  docker network ls| grep $DOCKER_SIM_NWNAME > /dev/null || docker network create $DOCKER_SIM_NWNAME
+
+  echo "start ric simulator"
+  curdir=$PWD
+  cd $SIM_GROUP
+  cd ric/
+
+  docker-compose up --scale ric-simulator=$RIC_NUMBER -d
+
+  cd $curdir
+	echo ""
+}
+
+prepare_consul_config() {
+  echo "prepare consul config"
+  curdir=$PWD
+  cd $SIM_GROUP
+  cd ric/
+
+  python3 cleanConsul.py
+  python3 prepareConsul.py
+
+  cd $curdir
+	echo ""
+
+
+}
+
+
 # Start all simulators in the simulator group
 start_simulators() {
 
 	echo "Starting all simulators"
 	curdir=$PWD
 	cd $SIM_GROUP
+
 	$SIM_GROUP/simulators-start.sh
 	cd $curdir
 	echo ""
@@ -160,6 +198,10 @@ clean_containers() {
 	docker stop $(docker ps -q --filter name=/policy-agent) &> /dev/null
 	echo "Removing all containers, policy agent app and simulators with name prefix 'policy_agent'"
 	docker rm $(docker ps -a -q --filter name=/policy-agent) &> /dev/null
+	echo "Stopping all containers, policy agent app(s) and simulators with name prefix 'ric-simulator'"
+	docker stop $(docker ps -q --filter name=ric-simulator) &> /dev/null
+	echo "Removing all containers, policy agent app and simulators with name prefix 'ric-simulator'"
+	docker rm $(docker ps -a -q --filter name=ric-simulator) &> /dev/null
 	echo "Removing unused docker networks with substring 'policy agent' in network name"
 	docker network rm $(docker network ls -q --filter name=nonrtric)
 	echo ""

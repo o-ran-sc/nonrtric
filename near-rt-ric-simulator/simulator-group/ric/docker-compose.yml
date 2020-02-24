@@ -1,0 +1,12 @@
+networks:
+  nonrtric-docker-net:
+    external:
+      name: nonrtric-docker-net
+services:
+  ric-simulator:
+    image: ric-simulator:latest
+    networks:
+      nonrtric-docker-net: null
+    ports:
+    - 8085/tcp
+version: '3.0'
