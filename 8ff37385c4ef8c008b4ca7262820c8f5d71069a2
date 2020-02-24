@@ -67,6 +67,57 @@
       "revId": "8ff37385c4ef8c008b4ca7262820c8f5d71069a2",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ba57896_f311bf11",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RicSynchronizationTask.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 1000112
+      },
+      "writtenOn": "2020-02-24T11:27:54Z",
+      "side": 1,
+      "message": "if(logger.isWarnEnabled()) will fix this sonar error",
+      "revId": "8ff37385c4ef8c008b4ca7262820c8f5d71069a2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8efaadc_aedf7a72",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/ServiceSupervision.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1000112
+      },
+      "writtenOn": "2020-02-24T11:27:54Z",
+      "side": 1,
+      "message": "Please have consistent log level in onPolicyDeleted \u0026 onComplete.\nAlso if its debug, then add isDebugEnabled to fix the sonar error.",
+      "revId": "8ff37385c4ef8c008b4ca7262820c8f5d71069a2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b48ff78a_7682aa05",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/ServiceSupervision.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 1000112
+      },
+      "writtenOn": "2020-02-24T11:27:54Z",
+      "side": 1,
+      "message": "if(logger.isWarnEnabled()) will fix this sonar error",
+      "revId": "8ff37385c4ef8c008b4ca7262820c8f5d71069a2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
