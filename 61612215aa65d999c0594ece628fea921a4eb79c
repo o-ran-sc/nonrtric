@@ -188,6 +188,24 @@
     },
     {
       "key": {
+        "uuid": "422c9e19_1b9f987f",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/SdncOscA1ClientTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-02-24T14:51:53Z",
+      "side": 1,
+      "message": "private OngoingStubbing\u003cMono\u003cString\u003e\u003e whenAsyncPostThenReturn (Mono\u003cString\u003e response) {\n     return when(asyncRestClientMock.postWithAuthHeader(anyString(), anyString(), anyString(), anyString())).thenReturn(response);\n}",
+      "parentUuid": "992cfa30_5184aefd",
+      "revId": "61612215aa65d999c0594ece628fea921a4eb79c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "af7ae52d_09d86b12",
         "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/SdncOscA1ClientTest.java",
         "patchSetId": 2
