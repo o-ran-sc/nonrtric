@@ -22,7 +22,6 @@ package org.oransc.policyagent.dmaap;
 
 import com.google.common.collect.Iterables;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Properties;
@@ -83,7 +82,7 @@ public class DmaapMessageConsumer implements Runnable {
         }
     }
 
-    private Iterable<String> fetchAllMessages() throws ServiceException, FileNotFoundException, IOException {
+    private Iterable<String> fetchAllMessages() throws ServiceException, IOException {
         Properties dmaapConsumerProperties = this.applicationConfig.getDmaapConsumerConfig();
         MRConsumer consumer = MRClientFactory.createConsumer(dmaapConsumerProperties);
         MRConsumerResponse response = consumer.fetchWithReturnConsumerResponse();
@@ -95,18 +94,18 @@ public class DmaapMessageConsumer implements Runnable {
         }
     }
 
-    private void processMsg(String msg) throws Exception {
+    private void processMsg(String msg) throws IOException {
         logger.debug("Message Reveived from DMAAP : {}", msg);
         createDmaapMessageHandler().handleDmaapMsg(msg);
     }
 
-    private DmaapMessageHandler createDmaapMessageHandler() throws FileNotFoundException, IOException {
+    private DmaapMessageHandler createDmaapMessageHandler() throws IOException {
         String agentBaseUrl = "http://localhost:" + this.localServerPort;
         AsyncRestClient agentClient = new AsyncRestClient(agentBaseUrl);
         Properties dmaapPublisherProperties = applicationConfig.getDmaapPublisherConfig();
         MRBatchingPublisher producer = MRClientFactory.createBatchingPublisher(dmaapPublisherProperties);
 
-        return new DmaapMessageHandler(producer, this.applicationConfig, agentClient);
+        return new DmaapMessageHandler(producer, agentClient);
     }
 
     private boolean sleep(Duration duration) {

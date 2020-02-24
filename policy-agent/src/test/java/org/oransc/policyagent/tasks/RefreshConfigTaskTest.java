@@ -21,23 +21,21 @@
 package org.oransc.policyagent.tasks;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,8 +45,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.Vector;
-
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -61,15 +57,14 @@ import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.configuration.ApplicationConfigParser;
 import org.oransc.policyagent.configuration.ImmutableRicConfig;
 import org.oransc.policyagent.configuration.RicConfig;
-import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.utils.LoggingUtils;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
 public class RefreshConfigTaskTest {
+
 
     private RefreshConfigTask refreshTaskUnderTest;
 
@@ -79,8 +74,9 @@ public class RefreshConfigTaskTest {
     @Mock
     CbsClient cbsClient;
 
+    private static final String RIC_1_NAME = "ric1";
     public static final ImmutableRicConfig CORRECT_RIC_CONIFG = ImmutableRicConfig.builder() //
-        .name("ric1") //
+        .name(RIC_1_NAME) //
         .baseUrl("http://localhost:8080/") //
         .managedElementIds(new Vector<String>(Arrays.asList("kista_1", "kista_2"))) //
         .build();
@@ -95,7 +91,7 @@ public class RefreshConfigTaskTest {
     }
 
     @Test
-    public void whenTheConfigurationFits() throws IOException, ServiceException {
+    public void whenTheConfigurationFits_thenConfiguredRicsArePutInRepository() throws Exception {
         refreshTaskUnderTest = spy(new RefreshConfigTask(appConfig));
         refreshTaskUnderTest.systemEnvironment = new Properties();
         // When
@@ -113,7 +109,7 @@ public class RefreshConfigTaskTest {
     }
 
     @Test
-    public void whenFileIsExistsButJsonIsIncorrect() throws IOException, ServiceException {
+    public void whenFileExistsButJsonIsIncorrect_thenNoRicsArePutInRepository() throws Exception {
         refreshTaskUnderTest = spy(new RefreshConfigTask(appConfig));
         refreshTaskUnderTest.systemEnvironment = new Properties();
 
@@ -124,11 +120,11 @@ public class RefreshConfigTaskTest {
 
         // Then
         verify(refreshTaskUnderTest, times(1)).loadConfigurationFromFile();
-        Assertions.assertEquals(0, appConfig.getRicConfigs().size());
+        assertThat(appConfig.getRicConfigs().size()).isEqualTo(0);
     }
 
     @Test
-    public void whenPeriodicConfigRefreshNoEnvironmentVariables() {
+    public void whenPeriodicConfigRefreshNoEnvironmentVariables_thenErrorIsLogged() {
         refreshTaskUnderTest = spy(new RefreshConfigTask(appConfig));
         refreshTaskUnderTest.systemEnvironment = new Properties();
 
@@ -137,11 +133,12 @@ public class RefreshConfigTaskTest {
 
         StepVerifier.create(task).expectSubscription().verifyComplete();
 
-        assertTrue(logAppender.list.toString().contains("$CONSUL_HOST environment has not been defined"));
+        assertThat(logAppender.list.get(0).getLevel()).isEqualTo(Level.ERROR);
+        assertThat(logAppender.list.toString().contains("$CONSUL_HOST environment has not been defined")).isTrue();
     }
 
     @Test
-    public void whenPeriodicConfigRefreshNoConsul() {
+    public void whenPeriodicConfigRefreshNoConsul_thenErrorIsLogged() {
         refreshTaskUnderTest = spy(new RefreshConfigTask(appConfig));
         refreshTaskUnderTest.systemEnvironment = new Properties();
 
@@ -160,12 +157,14 @@ public class RefreshConfigTaskTest {
             .expectSubscription() //
             .verifyComplete();
 
-        assertTrue(
-            logAppender.list.toString().contains("Could not refresh application configuration java.io.IOException"));
+        assertThat(logAppender.list.get(0).getLevel()).isEqualTo(Level.ERROR);
+        assertThat(
+            logAppender.list.toString().contains("Could not refresh application configuration. java.io.IOException"))
+                .isTrue();
     }
 
     @Test
-    public void whenPeriodicConfigRefreshSuccess() throws JsonIOException, JsonSyntaxException, IOException {
+    public void whenPeriodicConfigRefreshSuccess_thenNewConfigIsCreated() throws Exception {
         refreshTaskUnderTest = spy(new RefreshConfigTask(appConfig));
         refreshTaskUnderTest.systemEnvironment = new Properties();
 
@@ -173,7 +172,10 @@ public class RefreshConfigTaskTest {
         doReturn(Mono.just(props)).when(refreshTaskUnderTest).getEnvironment(any());
         doReturn(Mono.just(cbsClient)).when(refreshTaskUnderTest).createCbsClient(props);
 
-        Flux<JsonObject> json = Flux.just(getJsonRootObject());
+        JsonObject configAsJson = getJsonRootObject();
+        String newBaseUrl = "newBaseUrl";
+        modifyTheRicConfiguration(configAsJson, newBaseUrl);
+        Flux<JsonObject> json = Flux.just(configAsJson);
         doReturn(json).when(cbsClient).updates(any(), any(), any());
 
         Flux<ApplicationConfig> task = refreshTaskUnderTest.createRefreshTask();
@@ -184,7 +186,13 @@ public class RefreshConfigTaskTest {
             .expectNext(appConfig) //
             .verifyComplete();
 
-        Assertions.assertNotNull(appConfig.getRicConfigs());
+        assertThat(appConfig.getRicConfigs()).isNotNull();
+        assertThat(appConfig.getRic(RIC_1_NAME).baseUrl()).isEqualTo(newBaseUrl);
+    }
+
+    private void modifyTheRicConfiguration(JsonObject configAsJson, String newBaseUrl) {
+        ((JsonObject) configAsJson.getAsJsonObject("config").getAsJsonArray("ric").get(0)).addProperty("baseUrl",
+            newBaseUrl);
     }
 
     private JsonObject getJsonRootObject() throws JsonIOException, JsonSyntaxException, IOException {
