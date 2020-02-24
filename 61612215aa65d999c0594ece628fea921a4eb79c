@@ -224,6 +224,52 @@
     },
     {
       "key": {
+        "uuid": "81622b0e_87e664e2",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/SdncOscA1ClientTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-02-24T14:58:33Z",
+      "side": 1,
+      "message": "This declaration should be moved nearer to where the variable is used.",
+      "range": {
+        "startLine": 230,
+        "startChar": 15,
+        "endLine": 230,
+        "endChar": 37
+      },
+      "revId": "61612215aa65d999c0594ece628fea921a4eb79c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b2f716a_510b9e19",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/SdncOscA1ClientTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-02-24T14:58:33Z",
+      "side": 1,
+      "message": "This declaration should be moved nearer to where the variable is used.",
+      "range": {
+        "startLine": 235,
+        "startChar": 15,
+        "endLine": 235,
+        "endChar": 44
+      },
+      "revId": "61612215aa65d999c0594ece628fea921a4eb79c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "af7ae52d_09d86b12",
         "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/SdncOscA1ClientTest.java",
         "patchSetId": 2
