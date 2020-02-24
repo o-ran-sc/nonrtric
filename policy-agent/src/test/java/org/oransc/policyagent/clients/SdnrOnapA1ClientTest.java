@@ -29,6 +29,7 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -45,15 +46,15 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
-public class SdncOscA1ClientTest {
+public class SdnrOnapA1ClientTest {
     private static final String CONTROLLER_USERNAME = "username";
     private static final String CONTROLLER_PASSWORD = "password";
     private static final String RIC_1_URL = "RicUrl";
-    private static final String POLICYTYPES_IDENTITIES_URL = "/A1-ADAPTER-API:getPolicyTypeIdentities";
-    private static final String POLICIES_IDENTITIES_URL = "/A1-ADAPTER-API:getPolicyIdentities";
+    private static final String POLICYTYPES_IDENTITIES_URL = "/A1-ADAPTER-API:getPolicyTypes";
+    private static final String POLICIES_IDENTITIES_URL = "/A1-ADAPTER-API:getPolicyInstances";
     private static final String POLICYTYPES_URL = "/A1-ADAPTER-API:getPolicyType";
-    private static final String PUT_POLICY_URL = "/A1-ADAPTER-API:putPolicy";
-    private static final String DELETE_POLICY_URL = "/A1-ADAPTER-API:deletePolicy";
+    private static final String PUT_POLICY_URL = "/A1-ADAPTER-API:createPolicyInstance";
+    private static final String DELETE_POLICY_URL = "/A1-ADAPTER-API:deletePolicyInstance";
 
     private static final String POLICY_TYPE_1_ID = "type1";
     private static final String POLICY_TYPE_2_ID = "type2";
@@ -62,9 +63,8 @@ public class SdncOscA1ClientTest {
     private static final String POLICY_1_ID = "policy1";
     private static final String POLICY_2_ID = "policy2";
     private static final String POLICY_JSON_VALID = "{\"scope\":{\"ueId\":\"ue1\"}}";
-    private static final String POLICY_JSON_INVALID = "\"scope\":{\"ueId\":\"ue1\"}}";
 
-    SdncOscA1Client clientUnderTest;
+    SdnrOnapA1Client clientUnderTest;
 
     AsyncRestClient asyncRestClientMock;
 
@@ -75,14 +75,14 @@ public class SdncOscA1ClientTest {
     @BeforeEach
     public void init() {
         asyncRestClientMock = mock(AsyncRestClient.class);
-        clientUnderTest = new SdncOscA1Client(A1ClientHelper.createRic(RIC_1_URL).getConfig(), CONTROLLER_USERNAME,
+        clientUnderTest = new SdnrOnapA1Client(A1ClientHelper.createRic(RIC_1_URL).getConfig(), CONTROLLER_USERNAME,
             CONTROLLER_PASSWORD, asyncRestClientMock);
     }
 
     @Test
     public void testGetPolicyTypeIdentities() {
-        SdncOscAdapterInput inputParams = ImmutableSdncOscAdapterInput.builder() //
-            .nearRtRicUrl(RIC_1_URL) //
+        SdnrOnapAdapterInput inputParams = ImmutableSdnrOnapAdapterInput.builder() //
+            .nearRtRicId(RIC_1_URL) //
             .build();
         String inputJsonString = createInputJsonString(inputParams);
 
@@ -99,25 +99,46 @@ public class SdncOscA1ClientTest {
 
     @Test
     public void testGetPolicyIdentities() {
-        SdncOscAdapterInput inputParams = ImmutableSdncOscAdapterInput.builder() //
-            .nearRtRicUrl(RIC_1_URL) //
+        SdnrOnapAdapterInput inputParams = ImmutableSdnrOnapAdapterInput.builder() //
+            .nearRtRicId(RIC_1_URL) //
             .build();
-        String inputJsonString = createInputJsonString(inputParams);
+        String inputJsonStringGetTypeIds = createInputJsonString(inputParams);
+        inputParams = ImmutableSdnrOnapAdapterInput.builder() //
+            .nearRtRicId(RIC_1_URL) //
+            .policyTypeId(POLICY_TYPE_1_ID) //
+            .build();
+        String inputJsonStringGetPolicyIdsType1 = createInputJsonString(inputParams);
+        inputParams = ImmutableSdnrOnapAdapterInput.builder() //
+            .nearRtRicId(RIC_1_URL) //
+            .policyTypeId(POLICY_TYPE_2_ID) //
+            .build();
+        String inputJsonStringGetPolicyIdsType2 = createInputJsonString(inputParams);
 
-        List<String> policyIds = Arrays.asList(POLICY_1_ID, POLICY_2_ID);
-        Mono<String> policyIdsResp = A1ClientHelper.createOutputJsonResponse("policy-id-list", policyIds.toString());
-        whenAsyncPostThenReturn(policyIdsResp);
+        List<String> policyTypeIds = Arrays.asList(POLICY_TYPE_1_ID, POLICY_TYPE_2_ID);
+        Mono<String> policyTypeIdsResp =
+            A1ClientHelper.createOutputJsonResponse("policy-type-id-list", policyTypeIds.toString());
+        List<String> policyIdsType1 = Arrays.asList(POLICY_1_ID);
+        Mono<String> policyIdsType1Resp =
+            A1ClientHelper.createOutputJsonResponse("policy-instance-id-list", policyIdsType1.toString());
+        List<String> policyIdsType2 = Arrays.asList(POLICY_2_ID);
+        Mono<String> policyIdsType2Resp =
+            A1ClientHelper.createOutputJsonResponse("policy-instance-id-list", policyIdsType2.toString());
+        whenAsyncPostThenReturn(policyTypeIdsResp).thenReturn(policyIdsType1Resp).thenReturn(policyIdsType2Resp);
 
         Mono<List<String>> returnedMono = clientUnderTest.getPolicyIdentities();
-        verify(asyncRestClientMock).postWithAuthHeader(POLICIES_IDENTITIES_URL, inputJsonString, CONTROLLER_USERNAME,
-            CONTROLLER_PASSWORD);
-        StepVerifier.create(returnedMono).expectNext(policyIds).expectComplete().verify();
+        StepVerifier.create(returnedMono).expectNext(Arrays.asList(POLICY_1_ID, POLICY_2_ID)).expectComplete().verify();
+        verify(asyncRestClientMock).postWithAuthHeader(POLICYTYPES_IDENTITIES_URL, inputJsonStringGetTypeIds,
+            CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
+        verify(asyncRestClientMock).postWithAuthHeader(POLICIES_IDENTITIES_URL, inputJsonStringGetPolicyIdsType1,
+            CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
+        verify(asyncRestClientMock).postWithAuthHeader(POLICIES_IDENTITIES_URL, inputJsonStringGetPolicyIdsType2,
+            CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
     }
 
     @Test
     public void testGetValidPolicyType() {
-        SdncOscAdapterInput inputParams = ImmutableSdncOscAdapterInput.builder() //
-            .nearRtRicUrl(RIC_1_URL) //
+        SdnrOnapAdapterInput inputParams = ImmutableSdnrOnapAdapterInput.builder() //
+            .nearRtRicId(RIC_1_URL) //
             .policyTypeId(POLICY_TYPE_1_ID) //
             .build();
         String inputJsonString = createInputJsonString(inputParams);
@@ -134,8 +155,8 @@ public class SdncOscA1ClientTest {
 
     @Test
     public void testGetInvalidPolicyType() {
-        SdncOscAdapterInput inputParams = ImmutableSdncOscAdapterInput.builder() //
-            .nearRtRicUrl(RIC_1_URL) //
+        SdnrOnapAdapterInput inputParams = ImmutableSdnrOnapAdapterInput.builder() //
+            .nearRtRicId(RIC_1_URL) //
             .policyTypeId(POLICY_TYPE_1_ID) //
             .build();
         String inputJsonString = createInputJsonString(inputParams);
@@ -151,50 +172,31 @@ public class SdncOscA1ClientTest {
     }
 
     @Test
-    public void testPutPolicyValidResponse() {
-        SdncOscAdapterInput inputParams = ImmutableSdncOscAdapterInput.builder() //
-            .nearRtRicUrl(RIC_1_URL) //
+    public void testPutPolicy() {
+        SdnrOnapAdapterInput inputParams = ImmutableSdnrOnapAdapterInput.builder() //
+            .nearRtRicId(RIC_1_URL) //
             .policyTypeId(POLICY_TYPE_1_ID) //
-            .policyId(POLICY_1_ID) //
-            .policy(POLICY_JSON_VALID) //
+            .policyInstanceId(POLICY_1_ID) //
+            .policyInstance(POLICY_JSON_VALID) //
+            .properties(new ArrayList<String>()) //
             .build();
         String inputJsonString = createInputJsonString(inputParams);
 
-        Mono<String> policyResp = A1ClientHelper.createOutputJsonResponse("returned-policy", POLICY_JSON_VALID);
-        whenAsyncPostThenReturn(policyResp);
+        whenAsyncPostThenReturn(Mono.empty());
 
         Mono<String> returnedMono = clientUnderTest
             .putPolicy(A1ClientHelper.createPolicy(RIC_1_URL, POLICY_1_ID, POLICY_JSON_VALID, POLICY_TYPE_1_ID));
         verify(asyncRestClientMock).postWithAuthHeader(PUT_POLICY_URL, inputJsonString, CONTROLLER_USERNAME,
             CONTROLLER_PASSWORD);
-        StepVerifier.create(returnedMono).expectNext(POLICY_JSON_VALID).expectComplete().verify();
-    }
-
-    @Test
-    public void testPutPolicyInvalidResponse() {
-        SdncOscAdapterInput inputParams = ImmutableSdncOscAdapterInput.builder() //
-            .nearRtRicUrl(RIC_1_URL) //
-            .policyTypeId(POLICY_TYPE_1_ID) //
-            .policyId(POLICY_1_ID) //
-            .policy(POLICY_JSON_VALID) //
-            .build();
-        String inputJsonString = createInputJsonString(inputParams);
-
-        Mono<String> policyResp = A1ClientHelper.createOutputJsonResponse("returned-policy", POLICY_JSON_INVALID);
-        whenAsyncPostThenReturn(policyResp);
-
-        Mono<String> returnedMono = clientUnderTest
-            .putPolicy(A1ClientHelper.createPolicy(RIC_1_URL, POLICY_1_ID, POLICY_JSON_VALID, POLICY_TYPE_1_ID));
-        verify(asyncRestClientMock).postWithAuthHeader(PUT_POLICY_URL, inputJsonString, CONTROLLER_USERNAME,
-            CONTROLLER_PASSWORD);
-        StepVerifier.create(returnedMono).expectErrorMatches(throwable -> throwable instanceof JSONException).verify();
+        StepVerifier.create(returnedMono).expectComplete().verify();
     }
 
     @Test
     public void testDeletePolicy() {
-        SdncOscAdapterInput inputParams = ImmutableSdncOscAdapterInput.builder() //
-            .nearRtRicUrl(RIC_1_URL) //
-            .policyId(POLICY_1_ID) //
+        SdnrOnapAdapterInput inputParams = ImmutableSdnrOnapAdapterInput.builder() //
+            .nearRtRicId(RIC_1_URL) //
+            .policyTypeId(POLICY_TYPE_1_ID) //
+            .policyInstanceId(POLICY_1_ID) //
             .build();
         String inputJsonString = createInputJsonString(inputParams);
 
@@ -209,30 +211,54 @@ public class SdncOscA1ClientTest {
 
     @Test
     public void testDeleteAllPolicies() {
-        SdncOscAdapterInput inputParams = ImmutableSdncOscAdapterInput.builder() //
-            .nearRtRicUrl(RIC_1_URL) //
+        SdnrOnapAdapterInput inputParams = ImmutableSdnrOnapAdapterInput.builder() //
+            .nearRtRicId(RIC_1_URL) //
             .build();
-        String inputJsonStringGetIds = createInputJsonString(inputParams);
-        inputParams = ImmutableSdncOscAdapterInput.builder() //
-            .nearRtRicUrl(RIC_1_URL) //
-            .policyId(POLICY_1_ID) //
+        String inputJsonStringGetTypeIds = createInputJsonString(inputParams);
+        inputParams = ImmutableSdnrOnapAdapterInput.builder() //
+            .nearRtRicId(RIC_1_URL) //
+            .policyTypeId(POLICY_TYPE_1_ID) //
+            .build();
+        String inputJsonStringGetPolicyIdsType1 = createInputJsonString(inputParams);
+        inputParams = ImmutableSdnrOnapAdapterInput.builder() //
+            .nearRtRicId(RIC_1_URL) //
+            .policyTypeId(POLICY_TYPE_2_ID) //
+            .build();
+        String inputJsonStringGetPolicyIdsType2 = createInputJsonString(inputParams);
+        inputParams = ImmutableSdnrOnapAdapterInput.builder() //
+            .nearRtRicId(RIC_1_URL) //
+            .policyTypeId(POLICY_TYPE_1_ID) //
+            .policyInstanceId(POLICY_1_ID) //
             .build();
         String inputJsonStringDeletePolicy1 = createInputJsonString(inputParams);
-        inputParams = ImmutableSdncOscAdapterInput.builder() //
-            .nearRtRicUrl(RIC_1_URL) //
-            .policyId(POLICY_2_ID) //
+        inputParams = ImmutableSdnrOnapAdapterInput.builder() //
+            .nearRtRicId(RIC_1_URL) //
+            .policyTypeId(POLICY_TYPE_2_ID) //
+            .policyInstanceId(POLICY_2_ID) //
             .build();
         String inputJsonStringDeletePolicy2 = createInputJsonString(inputParams);
 
-        List<String> policyIds = Arrays.asList(POLICY_1_ID, POLICY_2_ID);
-        Mono<String> policyIdsResp = A1ClientHelper.createOutputJsonResponse("policy-id-list", policyIds.toString());
-        whenAsyncPostThenReturn(policyIdsResp).thenReturn(Mono.empty());
+        List<String> policyTypeIds = Arrays.asList(POLICY_TYPE_1_ID, POLICY_TYPE_2_ID);
+        Mono<String> policyTypeIdsResp =
+            A1ClientHelper.createOutputJsonResponse("policy-type-id-list", policyTypeIds.toString());
+        List<String> policyIdsType1 = Arrays.asList(POLICY_1_ID);
+        Mono<String> policyIdsType1Resp =
+            A1ClientHelper.createOutputJsonResponse("policy-instance-id-list", policyIdsType1.toString());
+        List<String> policyIdsType2 = Arrays.asList(POLICY_2_ID);
+        Mono<String> policyIdsType2Resp =
+            A1ClientHelper.createOutputJsonResponse("policy-instance-id-list", policyIdsType2.toString());
+        whenAsyncPostThenReturn(policyTypeIdsResp).thenReturn(policyIdsType1Resp).thenReturn(Mono.empty())
+            .thenReturn(policyIdsType2Resp).thenReturn(Mono.empty());
 
         Flux<String> returnedFlux = clientUnderTest.deleteAllPolicies();
         StepVerifier.create(returnedFlux).expectComplete().verify();
-        verify(asyncRestClientMock).postWithAuthHeader(POLICIES_IDENTITIES_URL, inputJsonStringGetIds,
+        verify(asyncRestClientMock).postWithAuthHeader(POLICYTYPES_IDENTITIES_URL, inputJsonStringGetTypeIds,
+            CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
+        verify(asyncRestClientMock).postWithAuthHeader(POLICIES_IDENTITIES_URL, inputJsonStringGetPolicyIdsType1,
             CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
         verify(asyncRestClientMock).postWithAuthHeader(DELETE_POLICY_URL, inputJsonStringDeletePolicy1,
+            CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
+        verify(asyncRestClientMock).postWithAuthHeader(POLICIES_IDENTITIES_URL, inputJsonStringGetPolicyIdsType2,
             CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
         verify(asyncRestClientMock).postWithAuthHeader(DELETE_POLICY_URL, inputJsonStringDeletePolicy2,
             CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
@@ -243,7 +269,7 @@ public class SdncOscA1ClientTest {
             .thenReturn(response);
     }
 
-    private String createInputJsonString(SdncOscAdapterInput inputParams) {
+    private String createInputJsonString(SdnrOnapAdapterInput inputParams) {
         JSONObject inputJson = new JSONObject();
         inputJson.put("input", new JSONObject(gson.toJson(inputParams)));
         return inputJson.toString();

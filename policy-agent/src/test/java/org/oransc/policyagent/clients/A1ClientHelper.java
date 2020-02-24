@@ -20,10 +20,6 @@
 
 package org.oransc.policyagent.clients;
 
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import java.util.Arrays;
 import java.util.Vector;
 
@@ -38,17 +34,7 @@ import org.oransc.policyagent.repository.Ric;
 import reactor.core.publisher.Mono;
 
 public class A1ClientHelper {
-    private static Gson gson = new GsonBuilder() //
-        .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DASHES) //
-        .create(); //
-
     private A1ClientHelper() {
-    }
-
-    protected static String createInputJsonString(SdncOscAdapterInput inputParams) {
-        JSONObject inputJson = new JSONObject();
-        inputJson.put("input", new JSONObject(gson.toJson(inputParams)));
-        return inputJson.toString();
     }
 
     protected static Mono<String> createOutputJsonResponse(String key, String value) {
