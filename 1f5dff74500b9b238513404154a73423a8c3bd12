@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ed552ddf_e24b9629",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/OscA1Client.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-24T10:41:52Z",
+      "side": 1,
+      "message": "I think this method should be renamed because it fetches the list of policyTypeIds, e.g., [policy1, policy2]. It does not fetch the policyTypes.",
+      "range": {
+        "startLine": 120,
+        "startChar": 25,
+        "endLine": 120,
+        "endChar": 39
+      },
+      "revId": "1f5dff74500b9b238513404154a73423a8c3bd12",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0dac7bb5_ea19190e",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/OscA1Client.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-24T10:41:52Z",
+      "side": 1,
+      "message": "Why do we need to change Mono\u003cList\u003c\u003e\u003e to Flux\u003c\u003e? Is that a code smell?",
+      "range": {
+        "startLine": 153,
+        "startChar": 12,
+        "endLine": 153,
+        "endChar": 24
+      },
+      "revId": "1f5dff74500b9b238513404154a73423a8c3bd12",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a656118c_c5484f45",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdncOscA1Client.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-24T10:41:52Z",
+      "side": 1,
+      "message": "The same as other comment. It fetches the IDs, not the policies.",
+      "range": {
+        "startLine": 138,
+        "startChar": 25,
+        "endLine": 138,
+        "endChar": 36
+      },
+      "revId": "1f5dff74500b9b238513404154a73423a8c3bd12",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2a7f7428_d03be71d",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdnrOnapA1Client.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-24T10:41:52Z",
+      "side": 1,
+      "message": "The same as other comment.",
+      "range": {
+        "startLine": 128,
+        "startChar": 25,
+        "endLine": 128,
+        "endChar": 39
+      },
+      "revId": "1f5dff74500b9b238513404154a73423a8c3bd12",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f356b833_b0a98eb1",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/StdA1Client.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-24T10:41:52Z",
+      "side": 1,
+      "message": "The same as other comment.",
+      "range": {
+        "startLine": 121,
+        "startChar": 25,
+        "endLine": 121,
+        "endChar": 36
+      },
+      "revId": "1f5dff74500b9b238513404154a73423a8c3bd12",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    }
+  ]
+}
