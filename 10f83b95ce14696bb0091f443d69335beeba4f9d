@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1e4e28a2_17f7ff0a",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/A1ClientHelper.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-25T13:22:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "41431bb7_b1e7a435",
+      "range": {
+        "startLine": 48,
+        "startChar": 28,
+        "endLine": 48,
+        "endChar": 49
+      },
+      "revId": "10f83b95ce14696bb0091f443d69335beeba4f9d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "03c1a202_edb49ff9",
         "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/A1ClientHelper.java",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2020-02-25T13:09:15Z",
       "side": 1,
       "message": "This method must be specific for the SdnrOnapA1Client, so it shouldn\u0027t be in a common class.",
+      "range": {
+        "startLine": 54,
+        "startChar": 28,
+        "endLine": 54,
+        "endChar": 49
+      },
+      "revId": "10f83b95ce14696bb0091f443d69335beeba4f9d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c9c71ea_c076f37d",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/A1ClientHelper.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-25T13:22:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "03c1a202_edb49ff9",
       "range": {
         "startLine": 54,
         "startChar": 28,
