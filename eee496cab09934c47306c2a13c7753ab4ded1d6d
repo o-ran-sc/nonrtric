@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "1ed73522_b1cf9dd7",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdncOscA1Client.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 1000112
+      },
+      "writtenOn": "2020-02-25T16:43:22Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "5d60eb85_512eddbc",
+      "revId": "eee496cab09934c47306c2a13c7753ab4ded1d6d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "33c6ec53_8a7d0fa5",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdncOscA1Client.java",
         "patchSetId": 4
