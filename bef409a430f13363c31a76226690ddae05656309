@@ -22,6 +22,30 @@
       "revId": "bef409a430f13363c31a76226690ddae05656309",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "273448c3_a85d88bb",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/configuration/RicConfig.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-02-25T08:33:29Z",
+      "side": 0,
+      "message": "See answer in ApplicationConfigParser. It is only the RicConfig class that cannot use the Gson.TypeAdapters due to that it cannot handle an ImmutableList.",
+      "parentUuid": "c357f302_fd692009",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 18
+      },
+      "revId": "bef409a430f13363c31a76226690ddae05656309",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }

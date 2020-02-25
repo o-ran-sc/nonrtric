@@ -22,6 +22,30 @@
       "revId": "fecfc8fe7e265f37f61472404267f57a1e46e21d",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1c665401_eb2fad62",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/configuration/ApplicationConfigParser.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-02-25T08:33:29Z",
+      "side": 1,
+      "message": "There was a Sonar issue with the RicConfig::managedElementIds, that it was a Vector when it was not synchronized. When I changed it to ImmutableList the Gson TypeAdapter couldn\u0027t handle that, so I had to do it this way.",
+      "parentUuid": "1d567021_7456488b",
+      "range": {
+        "startLine": 70,
+        "startChar": 12,
+        "endLine": 76,
+        "endChar": 34
+      },
+      "revId": "fecfc8fe7e265f37f61472404267f57a1e46e21d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
