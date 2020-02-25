@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a4cd0513_00ade246",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/OscA1ClientTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-25T12:02:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f7da6acf_1ae8238c",
+      "range": {
+        "startLine": 74,
+        "startChar": 19,
+        "endLine": 74,
+        "endChar": 22
+      },
+      "revId": "28767bbd98da8fc487f5556ee5cfc0dc9931c508",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2b75eb81_1c9be9ba",
         "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/OscA1ClientTest.java",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2020-02-24T15:42:33Z",
       "side": 1,
       "message": "No need to create an array here since the \"asList\" method takes an arbitrary number of strings as parameters.",
+      "range": {
+        "startLine": 79,
+        "startChar": 51,
+        "endLine": 79,
+        "endChar": 65
+      },
+      "revId": "28767bbd98da8fc487f5556ee5cfc0dc9931c508",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7fc80bb_02bc5a6a",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/OscA1ClientTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-25T12:02:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2b75eb81_1c9be9ba",
       "range": {
         "startLine": 79,
         "startChar": 51,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "fd95f5ff_49945657",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/OscA1ClientTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-25T12:02:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "992bb62b_f6b0d337",
+      "range": {
+        "startLine": 90,
+        "startChar": 51,
+        "endLine": 90,
+        "endChar": 117
+      },
+      "revId": "28767bbd98da8fc487f5556ee5cfc0dc9931c508",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b8cb49a7_ffd7dcb6",
         "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/OscA1ClientTest.java",
         "patchSetId": 1
@@ -82,6 +154,30 @@
       "writtenOn": "2020-02-24T15:42:33Z",
       "side": 1,
       "message": "Use Arrays.asList(POLICY_TYPE_1_ID).toString()",
+      "range": {
+        "startLine": 91,
+        "startChar": 52,
+        "endLine": 91,
+        "endChar": 95
+      },
+      "revId": "28767bbd98da8fc487f5556ee5cfc0dc9931c508",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62afbe5f_4c060ae7",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/OscA1ClientTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-25T12:02:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b8cb49a7_ffd7dcb6",
       "range": {
         "startLine": 91,
         "startChar": 52,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "03df1dad_e7753e21",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/OscA1ClientTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-25T12:02:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "286189cb_f3f08beb",
+      "range": {
+        "startLine": 92,
+        "startChar": 52,
+        "endLine": 92,
+        "endChar": 95
+      },
+      "revId": "28767bbd98da8fc487f5556ee5cfc0dc9931c508",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f35aeb1c_7cca3411",
         "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/OscA1ClientTest.java",
         "patchSetId": 1
@@ -128,6 +248,30 @@
       "writtenOn": "2020-02-24T15:42:33Z",
       "side": 1,
       "message": "No need to create an array here",
+      "range": {
+        "startLine": 97,
+        "startChar": 67,
+        "endLine": 97,
+        "endChar": 81
+      },
+      "revId": "28767bbd98da8fc487f5556ee5cfc0dc9931c508",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e4b5411_6917cbae",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/OscA1ClientTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-25T12:02:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f35aeb1c_7cca3411",
       "range": {
         "startLine": 97,
         "startChar": 67,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "2646e637_d150669f",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/OscA1ClientTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-25T12:02:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "10acbea7_537a6a10",
+      "range": {
+        "startLine": 163,
+        "startChar": 51,
+        "endLine": 163,
+        "endChar": 117
+      },
+      "revId": "28767bbd98da8fc487f5556ee5cfc0dc9931c508",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d007af62_de9b1bc6",
         "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/OscA1ClientTest.java",
         "patchSetId": 1
@@ -186,6 +354,30 @@
     },
     {
       "key": {
+        "uuid": "8ce8d761_c7dfb39d",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/OscA1ClientTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-25T12:02:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d007af62_de9b1bc6",
+      "range": {
+        "startLine": 164,
+        "startChar": 52,
+        "endLine": 164,
+        "endChar": 95
+      },
+      "revId": "28767bbd98da8fc487f5556ee5cfc0dc9931c508",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5624f70d_638467d8",
         "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/OscA1ClientTest.java",
         "patchSetId": 1
@@ -197,6 +389,30 @@
       "writtenOn": "2020-02-24T15:42:33Z",
       "side": 1,
       "message": "Use Arrays.asList(POLICY_TYPE_2_ID).toString()",
+      "range": {
+        "startLine": 165,
+        "startChar": 52,
+        "endLine": 165,
+        "endChar": 95
+      },
+      "revId": "28767bbd98da8fc487f5556ee5cfc0dc9931c508",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "091424c4_6da4fe40",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/OscA1ClientTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-25T12:02:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5624f70d_638467d8",
       "range": {
         "startLine": 165,
         "startChar": 52,
