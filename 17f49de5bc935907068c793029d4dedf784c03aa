@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "199c8370_de2baec6",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/JsonHelper.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-25T16:41:15Z",
+      "side": 1,
+      "message": "Please update this in the new patch (and remove the corresponding code in both SdncOscA1Client and SdnrOnapA1Client):\n\npublic static \u003cT\u003e String createInputJsonString(T inputParams) {\n        JSONObject inputJson \u003d new JSONObject();\n        inputJson.put(\"input\", new JSONObject(gson.toJson(inputParams)));\n        return inputJson.toString();\n    }",
+      "range": {
+        "startLine": 51,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 5
+      },
+      "revId": "17f49de5bc935907068c793029d4dedf784c03aa",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    }
+  ]
+}
