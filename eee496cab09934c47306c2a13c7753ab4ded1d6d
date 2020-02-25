@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b98332ea_fb4ae0d0",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdncOscA1Client.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-25T15:36:53Z",
+      "side": 1,
+      "message": "Both methods take different inputParams, one takes SdncOscAdapterInput and the other SdnrOnapAdapterInput.\n\nIn order to make the code more readable, inputParams was passed rather than paramsJson string such that gson.toJson() could be called inside this method.",
+      "parentUuid": "4c2826c4_6afacd43",
+      "revId": "eee496cab09934c47306c2a13c7753ab4ded1d6d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "33c6ec53_8a7d0fa5",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdncOscA1Client.java",
         "patchSetId": 4
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "66cfa269_ce1f931f",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdncOscA1Client.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-25T15:36:53Z",
+      "side": 1,
+      "message": "This is fixed in Henrik\u0027s commit that will be rebased over this one.",
+      "parentUuid": "33c6ec53_8a7d0fa5",
+      "revId": "eee496cab09934c47306c2a13c7753ab4ded1d6d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1f738a92_1194a425",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdncOscA1Client.java",
         "patchSetId": 4
@@ -47,6 +83,24 @@
       "writtenOn": "2020-02-25T15:21:12Z",
       "side": 1,
       "message": "do you need this line?",
+      "revId": "eee496cab09934c47306c2a13c7753ab4ded1d6d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf610634_28382836",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdncOscA1Client.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-25T15:36:53Z",
+      "side": 1,
+      "message": "This line actually validates that the inputString is valid Json. If not, we will get JSONException.",
+      "parentUuid": "1f738a92_1194a425",
       "revId": "eee496cab09934c47306c2a13c7753ab4ded1d6d",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
