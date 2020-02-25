@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "890d81d5_437ff380",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdncOscA1Client.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 1000112
+      },
+      "writtenOn": "2020-02-25T16:22:31Z",
+      "side": 1,
+      "message": "private \u003cT\u003e String createInputJsonString(T inputParams)",
+      "parentUuid": "b98332ea_fb4ae0d0",
+      "revId": "eee496cab09934c47306c2a13c7753ab4ded1d6d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "33c6ec53_8a7d0fa5",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdncOscA1Client.java",
         "patchSetId": 4
@@ -69,6 +87,24 @@
       "revId": "eee496cab09934c47306c2a13c7753ab4ded1d6d",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c7aeb79_ef6a06fe",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdncOscA1Client.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1000112
+      },
+      "writtenOn": "2020-02-25T16:22:31Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "66cfa269_ce1f931f",
+      "revId": "eee496cab09934c47306c2a13c7753ab4ded1d6d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     },
     {
       "key": {
