@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "5d60eb85_512eddbc",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdncOscA1Client.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-25T16:36:05Z",
+      "side": 1,
+      "message": "Thanks for the suggestion. I fixed it for the test classes. For SdncOscA1Client and SdnrOnapA1Client, this will be moved to a common class, named JsonHelper in Henrik\u0027s commit.",
+      "parentUuid": "890d81d5_437ff380",
+      "revId": "eee496cab09934c47306c2a13c7753ab4ded1d6d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "33c6ec53_8a7d0fa5",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdncOscA1Client.java",
         "patchSetId": 4
