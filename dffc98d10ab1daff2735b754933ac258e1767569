@@ -22,6 +22,30 @@
       "revId": "dffc98d10ab1daff2735b754933ac258e1767569",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc48b2ba_b2b4aa48",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdnrOnapA1Client.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-25T14:21:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "07e79a9b_05faec0c",
+      "range": {
+        "startLine": 73,
+        "startChar": 55,
+        "endLine": 73,
+        "endChar": 67
+      },
+      "revId": "dffc98d10ab1daff2735b754933ac258e1767569",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
