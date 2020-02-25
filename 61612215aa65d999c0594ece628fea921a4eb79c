@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e9937345_6ca8d022",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/SdncOscA1ClientTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-25T09:00:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "978a6974_3c8d9ac1",
+      "range": {
+        "startLine": 75,
+        "startChar": 20,
+        "endLine": 75,
+        "endChar": 28
+      },
+      "revId": "61612215aa65d999c0594ece628fea921a4eb79c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0c30306e_a7639d2c",
         "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/SdncOscA1ClientTest.java",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2020-02-24T14:12:48Z",
       "side": 1,
       "message": "There is no need to spy on this since no mocking is done for it.",
+      "range": {
+        "startLine": 86,
+        "startChar": 19,
+        "endLine": 86,
+        "endChar": 22
+      },
+      "revId": "61612215aa65d999c0594ece628fea921a4eb79c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "979bd30f_23874c53",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/SdncOscA1ClientTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-25T09:00:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0c30306e_a7639d2c",
       "range": {
         "startLine": 86,
         "startChar": 19,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "23b5b19b_896a9bf8",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/SdncOscA1ClientTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-25T09:00:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b1d190f5_f552078f",
+      "range": {
+        "startLine": 95,
+        "startChar": 55,
+        "endLine": 95,
+        "endChar": 67
+      },
+      "revId": "61612215aa65d999c0594ece628fea921a4eb79c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2771c74a_cd20ecf5",
         "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/SdncOscA1ClientTest.java",
         "patchSetId": 2
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "fa62167f_994630c5",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/SdncOscA1ClientTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-25T09:00:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2771c74a_cd20ecf5",
+      "range": {
+        "startLine": 97,
+        "startChar": 51,
+        "endLine": 97,
+        "endChar": 65
+      },
+      "revId": "61612215aa65d999c0594ece628fea921a4eb79c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2eae1618_7db44675",
         "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/SdncOscA1ClientTest.java",
         "patchSetId": 2
@@ -105,6 +201,30 @@
       "writtenOn": "2020-02-24T14:12:48Z",
       "side": 1,
       "message": "Maybe create a method called \"createJsonResponse\" that uses the \"createOutputJsonString\" method but wraps the result in a Mono? Would make the code easier to read.",
+      "range": {
+        "startLine": 99,
+        "startChar": 22,
+        "endLine": 99,
+        "endChar": 44
+      },
+      "revId": "61612215aa65d999c0594ece628fea921a4eb79c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da65b3db_8d5050cd",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/SdncOscA1ClientTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-25T09:00:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2eae1618_7db44675",
       "range": {
         "startLine": 99,
         "startChar": 22,
@@ -224,6 +344,24 @@
     },
     {
       "key": {
+        "uuid": "4be39fa1_e4732c39",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/SdncOscA1ClientTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-25T09:00:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bb3a80f2_dd910c05",
+      "revId": "61612215aa65d999c0594ece628fea921a4eb79c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "81622b0e_87e664e2",
         "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/SdncOscA1ClientTest.java",
         "patchSetId": 2
@@ -235,6 +373,30 @@
       "writtenOn": "2020-02-24T14:58:33Z",
       "side": 1,
       "message": "This declaration should be moved nearer to where the variable is used.",
+      "range": {
+        "startLine": 230,
+        "startChar": 15,
+        "endLine": 230,
+        "endChar": 37
+      },
+      "revId": "61612215aa65d999c0594ece628fea921a4eb79c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d61080ef_2b49076f",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/SdncOscA1ClientTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-25T09:00:02Z",
+      "side": 1,
+      "message": "I would still prefer to keep it here for consistency reasons, unless there is some sonar issue. We have a common pattern in each of the tests. 1) define inputStrings 2) mock the response 3) call method and verify.\n\nSo, I think moving these declarations further down would make it a bit messy.",
+      "parentUuid": "81622b0e_87e664e2",
       "range": {
         "startLine": 230,
         "startChar": 15,
@@ -270,6 +432,30 @@
     },
     {
       "key": {
+        "uuid": "dee00565_bb4fe35b",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/SdncOscA1ClientTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-25T09:00:02Z",
+      "side": 1,
+      "message": "Same as above.",
+      "parentUuid": "2b2f716a_510b9e19",
+      "range": {
+        "startLine": 235,
+        "startChar": 15,
+        "endLine": 235,
+        "endChar": 44
+      },
+      "revId": "61612215aa65d999c0594ece628fea921a4eb79c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "af7ae52d_09d86b12",
         "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/SdncOscA1ClientTest.java",
         "patchSetId": 2
@@ -281,6 +467,24 @@
       "writtenOn": "2020-02-24T14:12:48Z",
       "side": 1,
       "message": "Maybe these methods that are exactly the same in many of the client test classes can be broken out to static methods in a test utility class to reduce duplicated code?",
+      "revId": "61612215aa65d999c0594ece628fea921a4eb79c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d27518a1_9a12d2ba",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/clients/SdncOscA1ClientTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-02-25T09:00:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "af7ae52d_09d86b12",
       "revId": "61612215aa65d999c0594ece628fea921a4eb79c",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
