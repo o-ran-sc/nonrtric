@@ -16,6 +16,149 @@
       "revId": "5e4894a22d1067c409f02f9c84109e9e8a802bf7",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "724e9b85_8cd9ffcf",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/configuration/ApplicationConfigParserTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-02-26T15:22:10Z",
+      "side": 1,
+      "message": "This could be changed to a field, since the parser is stateless.",
+      "range": {
+        "startLine": 104,
+        "startChar": 32,
+        "endLine": 104,
+        "endChar": 48
+      },
+      "revId": "5e4894a22d1067c409f02f9c84109e9e8a802bf7",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59ddb8fb_f24918ae",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/configuration/ApplicationConfigParserTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-02-26T15:22:10Z",
+      "side": 1,
+      "message": "If this is named expectedMessage, it is easier to read the code. This is the same for all tests below.",
+      "range": {
+        "startLine": 110,
+        "startChar": 21,
+        "endLine": 110,
+        "endChar": 29
+      },
+      "revId": "5e4894a22d1067c409f02f9c84109e9e8a802bf7",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28db73fb_8906524e",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/configuration/ApplicationConfigParserTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-02-26T15:22:10Z",
+      "side": 1,
+      "message": "If this is named actualException, it is easier to read the code. This is the same for all tests below.",
+      "range": {
+        "startLine": 112,
+        "startChar": 18,
+        "endLine": 112,
+        "endChar": 28
+      },
+      "revId": "5e4894a22d1067c409f02f9c84109e9e8a802bf7",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09097714_18f4052a",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/configuration/ApplicationConfigParserTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-02-26T15:22:10Z",
+      "side": 1,
+      "message": "The getter methods are not needed, should be removed.",
+      "revId": "5e4894a22d1067c409f02f9c84109e9e8a802bf7",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15c6f53f_f6f13efd",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/configuration/ApplicationConfigParserTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-02-26T15:22:10Z",
+      "side": 1,
+      "message": "Leaving an empty line between the test execution and the verification makes it easier to read the test code. This is the same for all tests below.",
+      "revId": "5e4894a22d1067c409f02f9c84109e9e8a802bf7",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "841c17dd_ef592e50",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/configuration/ApplicationConfigParserTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-02-26T15:22:10Z",
+      "side": 1,
+      "message": "This could be moved to a method, called e.g. getDmaapInfo, and reused in tests below, to increase readability. Also include JsonObject jsonRootObject \u003d getJsonRootObject(); in the method.",
+      "range": {
+        "startLine": 174,
+        "startChar": 26,
+        "endLine": 174,
+        "endChar": 168
+      },
+      "revId": "5e4894a22d1067c409f02f9c84109e9e8a802bf7",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78d0089f_8b6832c7",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/configuration/ApplicationConfigParserTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-02-26T15:22:10Z",
+      "side": 1,
+      "message": "Leaving an empty line between the test setup and execution makes it easier to read the test code.",
+      "revId": "5e4894a22d1067c409f02f9c84109e9e8a802bf7",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
