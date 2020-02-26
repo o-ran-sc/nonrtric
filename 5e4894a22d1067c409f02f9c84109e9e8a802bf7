@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2f731ffd_7a830cf5",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/configuration/ApplicationConfigParserTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-02-26T14:53:34Z",
+      "side": 1,
+      "message": "Please run the formatter: mvn formatter:format spotless:apply process-sources",
+      "revId": "5e4894a22d1067c409f02f9c84109e9e8a802bf7",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
