@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b4f9df23_25902067",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RicSynchronizationTask.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-02-27T19:20:12Z",
+      "side": 1,
+      "message": "some null checks might be useful here? These values flow down from unit tests or autowired tests? so might be null?",
+      "range": {
+        "startLine": 65,
+        "startChar": 16,
+        "endLine": 66,
+        "endChar": 25
+      },
+      "revId": "cb93b52ef013d7ec6f1141cbf0459014b935b565",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa4804b5_40e47feb",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/ServiceSupervision.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-02-27T19:20:12Z",
+      "side": 1,
+      "message": "does this need to be configurable?",
+      "range": {
+        "startLine": 58,
+        "startChar": 4,
+        "endLine": 58,
+        "endChar": 37
+      },
+      "revId": "cb93b52ef013d7ec6f1141cbf0459014b935b565",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55dc829b_7b7fcdb5",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/ServiceSupervision.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-02-27T19:20:12Z",
+      "side": 1,
+      "message": "do you need a short comment about what this suppressed warning is?",
+      "range": {
+        "startLine": 64,
+        "startChar": 19,
+        "endLine": 64,
+        "endChar": 36
+      },
+      "revId": "cb93b52ef013d7ec6f1141cbf0459014b935b565",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
