@@ -28,10 +28,17 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.oransc.policyagent.configuration.ApplicationConfig;
@@ -43,6 +50,7 @@ import org.oransc.policyagent.controllers.ServiceStatus;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.repository.ImmutablePolicy;
 import org.oransc.policyagent.repository.ImmutablePolicyType;
+import org.oransc.policyagent.repository.Lock.LockType;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.PolicyType;
@@ -63,6 +71,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatus.Series;
 import org.springframework.http.MediaType;
@@ -125,18 +134,8 @@ public class ApplicationTest {
         }
 
         @Bean
-        public Policies getPolicies() {
-            return new Policies();
-        }
-
-        @Bean
         public PolicyTypes getPolicyTypes() {
             return this.policyTypes;
-        }
-
-        @Bean
-        public Rics getRics() {
-            return new Rics();
         }
     }
 
@@ -159,9 +158,30 @@ public class ApplicationTest {
         }
     }
 
+    private void setRestErrorhandler() {
+        restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
+    }
+
+    @BeforeEach
+    public void reset() {
+        rics.clear();
+        policies.clear();
+        policyTypes.clear();
+        services.clear();
+    }
+
+    @AfterEach
+    public void verifyNoRicLocks() {
+        for (Ric ric : this.rics.getRics()) {
+            ric.getLock().lockBlocking(LockType.EXCLUSIVE);
+            assertThat(ric.getLock().getLockCounter()).isEqualTo(1);
+            assertThat(ric.getState()).isEqualTo(Ric.RicState.IDLE);
+            ric.getLock().unlock();
+        }
+    }
+
     @Test
     public void testGetRics() throws Exception {
-        reset();
         addRic("kista_1");
         String url = baseUrl() + "/rics";
         String rsp = this.restTemplate.getForObject(url, String.class);
@@ -175,7 +195,7 @@ public class ApplicationTest {
 
     @Test
     public void testRecovery() throws Exception {
-        reset();
+        addRic("ric").setState(Ric.RicState.UNDEFINED);
         String ricName = "ric";
         Policy policy2 = addPolicy("policyId2", "typeName", "service", ricName);
 
@@ -196,7 +216,6 @@ public class ApplicationTest {
 
     @Test
     public void testGetRicForManagedElement_thenReturnCorrectRic() throws Exception {
-        reset();
         addRic("notCorrectRic1");
         addRic("notCorrectRic2");
         addRic("notCorrectRic3");
@@ -216,24 +235,15 @@ public class ApplicationTest {
     }
 
     @Test
-    public void testGetRicForManagedElementThatDoesNotExist_thenReturnEmpty() throws Exception {
-        reset();
-        addRic("notCorrectRic1");
-        addRic("notCorrectRic2");
-        addRic("notCorrectRic3");
-        addRic("notCorrectRic4");
-        addRic("notCorrectRic5");
-        addRic("notCorrectRic6");
-
+    public void testGetRicForManagedElementThatDoesNotExist() throws Exception {
+        this.setRestErrorhandler();
         String url = baseUrl() + "/ric?managedElementId=kista_1";
-        String rsp = this.restTemplate.getForObject(url, String.class);
-
-        assertThat(rsp).isNull();
+        ResponseEntity<String> entity = this.restTemplate.getForEntity(url, String.class);
+        assertThat(entity.getStatusCode().equals(HttpStatus.NOT_FOUND));
     }
 
     @Test
     public void testPutPolicy() throws Exception {
-        reset();
         String serviceName = "service1";
         String ricName = "ric1";
         String policyTypeName = "type1";
@@ -265,13 +275,15 @@ public class ApplicationTest {
     public void testRefuseToUpdatePolicy() throws Exception {
         // Test that only the json can be changed for a already created policy
         // In this case service is attempted to be changed
-        reset();
-        this.addRic("ric1").setState(Ric.RicState.IDLE);
-        this.addRic("ricXXX").setState(Ric.RicState.IDLE);
+        this.addRic("ric1");
+        this.addRic("ricXXX");
 
         this.addPolicy("instance1", "type1", "service1", "ric1");
+        this.setRestErrorhandler();
         String urlWrongRic = baseUrl() + "/policy?type=type1&instance=instance1&ric=ricXXX&service=service1";
-        this.restTemplate.put(urlWrongRic, createJsonHttpEntity(jsonString()));
+        ResponseEntity<String> entity = this.putForEntity(urlWrongRic, jsonString());
+        assertThat(entity.getStatusCode().equals(HttpStatus.METHOD_NOT_ALLOWED));
+
         Policy policy = policies.getPolicy("instance1");
         assertThat(policy.ric().name()).isEqualTo("ric1"); // Not changed
     }
@@ -293,10 +305,8 @@ public class ApplicationTest {
 
     @Test
     public void testDeletePolicy() throws Exception {
-        reset();
         String url = baseUrl() + "/policy?instance=id";
-        Policy policy = addPolicy("id", "typeName", "service1", "ric1");
-        policy.ric().setState(Ric.RicState.IDLE);
+        addPolicy("id", "typeName", "service1", "ric1");
         assertThat(policies.size()).isEqualTo(1);
 
         this.restTemplate.delete(url);
@@ -306,7 +316,6 @@ public class ApplicationTest {
 
     @Test
     public void testGetPolicySchemas() throws Exception {
-        reset();
         addPolicyType("type1", "ric1");
         addPolicyType("type2", "ric2");
 
@@ -328,7 +337,6 @@ public class ApplicationTest {
 
     @Test
     public void testGetPolicySchema() throws Exception {
-        reset();
         addPolicyType("type1", "ric1");
         addPolicyType("type2", "ric2");
 
@@ -341,7 +349,6 @@ public class ApplicationTest {
 
     @Test
     public void testGetPolicyTypes() throws Exception {
-        reset();
         addPolicyType("type1", "ric1");
         addPolicyType("type2", "ric2");
 
@@ -394,7 +401,6 @@ public class ApplicationTest {
 
     @Test
     public void testPutAndGetService() throws Exception {
-        reset();
         // PUT
         putService("name");
 
@@ -414,58 +420,31 @@ public class ApplicationTest {
         System.out.println(rsp);
 
         // Keep alive
-        url = baseUrl() + "/services/keepalive?serviceName=name";
-        rsp = this.restTemplate.postForObject(url, null, String.class);
-        assertThat(rsp.contains("OK")).isTrue();
+        url = baseUrl() + "/services/keepalive?name=name";
+        ResponseEntity<String> entity = this.restTemplate.postForEntity(url, null, String.class);
+        assertThat(entity.getStatusCode().equals(HttpStatus.OK));
 
         // DELETE
         assertThat(services.size()).isEqualTo(1);
-        url = baseUrl() + "/services?serviceName=name";
+        url = baseUrl() + "/services?name=name";
         this.restTemplate.delete(url);
         assertThat(services.size()).isEqualTo(0);
 
         // Keep alive, no registerred service
-        url = baseUrl() + "/services/keepalive?serviceName=nameXXX";
-        ResponseEntity<String> entity = this.restTemplate.postForEntity(url, null, String.class);
+        url = baseUrl() + "/services/keepalive?name=name";
+        setRestErrorhandler();
+        entity = this.restTemplate.postForEntity(url, null, String.class);
         assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
     public void testGetPolicyStatus() throws Exception {
-        reset();
-        Policy policy = addPolicy("id", "typeName", "service1", "ric1");
-        policy.ric().setState(Ric.RicState.IDLE);
+        addPolicy("id", "typeName", "service1", "ric1");
         assertThat(policies.size()).isEqualTo(1);
 
         String url = baseUrl() + "/policy_status?instance=id";
         String rsp = this.restTemplate.getForObject(url, String.class);
         assertThat(rsp.equals("OK")).isTrue();
-    }
-
-    private PolicyType addPolicyType(String policyTypeName, String ricName) {
-        PolicyType type = ImmutablePolicyType.builder() //
-            .name(policyTypeName) //
-            .schema("{\"title\":\"" + policyTypeName + "\"}") //
-            .build();
-
-        policyTypes.put(type);
-        addRic(ricName).addSupportedPolicyType(type);
-        return type;
-    }
-
-    private Ric addRic(String ricName) {
-        if (rics.get(ricName) != null) {
-            return rics.get(ricName);
-        }
-        Vector<String> mes = new Vector<>();
-        RicConfig conf = ImmutableRicConfig.builder() //
-            .name(ricName) //
-            .baseUrl(ricName) //
-            .managedElementIds(mes) //
-            .build();
-        Ric ric = new Ric(conf);
-        this.rics.put(ric);
-        return ric;
     }
 
     private Policy addPolicy(String id, String typeName, String service, String ric) throws ServiceException {
@@ -501,27 +480,103 @@ public class ApplicationTest {
         return "http://localhost:" + port;
     }
 
-    private void reset() {
-        rics.clear();
-        policies.clear();
-        policyTypes.clear();
-        services.clear();
-        assertThat(policies.size()).isEqualTo(0);
-        restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
-    }
-
     private String jsonString() {
         return "{\n  \"servingCellNrcgi\": \"1\"\n }";
+    }
+
+    private static class ConcurrencyTestRunnable implements Runnable {
+        private final RestTemplate restTemplate = new RestTemplate();
+        private final String baseUrl;
+        static AtomicInteger nextCount = new AtomicInteger(0);
+        private final int count;
+        private final RepositorySupervision supervision;
+
+        ConcurrencyTestRunnable(String baseUrl, RepositorySupervision supervision) {
+            this.baseUrl = baseUrl;
+            this.count = nextCount.incrementAndGet();
+            this.supervision = supervision;
+        }
+
+        public void run() {
+            for (int i = 0; i < 100; ++i) {
+                if (i % 10 == 0) {
+                    this.supervision.checkAllRics();
+                }
+                String name = "policy:" + count + ":" + i;
+                putPolicy(name);
+                deletePolicy(name);
+            }
+        }
+
+        private void putPolicy(String name) {
+            String putUrl = baseUrl + "/policy?type=type1&instance=" + name + "&ric=ric1&service=service1";
+            this.restTemplate.put(putUrl, createJsonHttpEntity("{}"));
+        }
+
+        private void deletePolicy(String name) {
+            String deleteUrl = baseUrl + "/policy?instance=" + name;
+            this.restTemplate.delete(deleteUrl);
+        }
+    }
+
+    @Test
+    public void testConcurrency() throws Exception {
+        final Instant startTime = Instant.now();
+        List<Thread> threads = new ArrayList<>();
+        addRic("ric1");
+        addPolicyType("type1", "ric1");
+
+        for (int i = 0; i < 100; ++i) {
+            Thread t = new Thread(new ConcurrencyTestRunnable(baseUrl(), this.supervision), "TestThread_" + i);
+            t.start();
+            threads.add(t);
+        }
+        for (Thread t : threads) {
+            t.join();
+        }
+        assertThat(policies.size()).isEqualTo(0);
+        System.out.println("Concurrency test took " + Duration.between(startTime, Instant.now()));
     }
 
     private MockA1Client getA1Client(String ricName) throws ServiceException {
         return a1ClientFactory.getOrCreateA1Client(ricName);
     }
 
-    private HttpEntity<String> createJsonHttpEntity(String content) {
+    private PolicyType addPolicyType(String policyTypeName, String ricName) {
+        PolicyType type = ImmutablePolicyType.builder() //
+            .name(policyTypeName) //
+            .schema("{\"title\":\"" + policyTypeName + "\"}") //
+            .build();
+
+        policyTypes.put(type);
+        addRic(ricName).addSupportedPolicyType(type);
+        return type;
+    }
+
+    private Ric addRic(String ricName) {
+        if (rics.get(ricName) != null) {
+            return rics.get(ricName);
+        }
+        Vector<String> mes = new Vector<>();
+        RicConfig conf = ImmutableRicConfig.builder() //
+            .name(ricName) //
+            .baseUrl(ricName) //
+            .managedElementIds(mes) //
+            .build();
+        Ric ric = new Ric(conf);
+        ric.setState(Ric.RicState.IDLE);
+        this.rics.put(ric);
+        return ric;
+    }
+
+    private static HttpEntity<String> createJsonHttpEntity(String content) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         return new HttpEntity<String>(content, headers);
+    }
+
+    private ResponseEntity<String> putForEntity(String url, String jsonBody) {
+        return restTemplate.exchange(url, HttpMethod.PUT, createJsonHttpEntity(jsonBody), String.class);
     }
 
     private static <T> List<T> parseList(String jsonString, Class<T> clazz) {
@@ -542,5 +597,4 @@ public class ApplicationTest {
         }
         return result;
     }
-
 }
