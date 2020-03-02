@@ -73,7 +73,7 @@ Prerequisites
 Build and run
 -------------
 
-Go to the near-rt-ric-simulator/ directory and run this command::
+Go to the near-rt-ric-simulator/ric-plt-a1/ directory and run this command::
      mvn clean install
 The docker image can be built using::
     docker build -t {desiredImageName} .
@@ -83,6 +83,9 @@ The image can be run using the command::
 The functions written in *a1.py* are the ones matching the requests listed in the A1 open api yaml file. The functions written in *main.py* are the ones used for development purpose.
 
 Different error codes can be thrown back according to the yaml file. In order to simulate an error code, simply add the query ?code={desiredCodeNumber} at the end of the address in the curl request.
+
+For running the simulator outside of a docker container, run ./run_me.sh. It is possible to use the port of your choice, by adding it in the command: ./run_me.sh {desiredPort}.
+After that, it is the exact same use with or without a container.
 
 End-to-end call
 ===============
