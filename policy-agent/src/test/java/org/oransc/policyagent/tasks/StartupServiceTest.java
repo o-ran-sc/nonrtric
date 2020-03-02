@@ -33,6 +33,7 @@ import static org.mockito.Mockito.when;
 import static org.oransc.policyagent.repository.Ric.RicState.IDLE;
 
 import com.google.common.collect.ImmutableList;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -93,6 +94,7 @@ public class StartupServiceTest {
         Mono<List<String>> policyTypes2 = Mono.just(Arrays.asList(POLICY_TYPE_1_NAME, POLICY_TYPE_2_NAME));
         doReturn(policyTypes1, policyTypes2).when(a1ClientMock).getPolicyTypeIdentities();
         doReturn(Mono.just("Schema")).when(a1ClientMock).getPolicyTypeSchema(anyString());
+        doReturn(Flux.empty()).when(a1ClientMock).deleteAllPolicies();
 
         Rics rics = new Rics();
         PolicyTypes policyTypes = new PolicyTypes();
@@ -107,16 +109,18 @@ public class StartupServiceTest {
             getRicConfig(SECOND_RIC_NAME, SECOND_RIC_URL, MANAGED_NODE_B, MANAGED_NODE_C),
             ApplicationConfig.RicConfigUpdate.ADDED);
 
-        await().untilAsserted(() -> assertThat(policyTypes.size()).isEqualTo(2));
+        Ric firstRic = rics.get(FIRST_RIC_NAME);
+        Ric secondRic = rics.get(SECOND_RIC_NAME);
+        await().untilAsserted(() -> assertThat(firstRic.getState()).isEqualTo(IDLE));
+        await().untilAsserted(() -> assertThat(secondRic.getState()).isEqualTo(IDLE));
 
         assertTrue(policyTypes.contains(POLICY_TYPE_1_NAME), POLICY_TYPE_1_NAME + " not added to PolicyTypes.");
         assertTrue(policyTypes.contains(POLICY_TYPE_2_NAME), POLICY_TYPE_2_NAME + " not added to PolicyTypes.");
         assertEquals(2, rics.size(), "Correct number of Rics not added to Rics");
 
-        Ric firstRic = rics.get(FIRST_RIC_NAME);
         assertNotNull(firstRic, "Ric " + FIRST_RIC_NAME + " not added to repository");
         assertEquals(FIRST_RIC_NAME, firstRic.name(), FIRST_RIC_NAME + " not added to Rics");
-        assertEquals(IDLE, firstRic.getState(), "Not correct state for ric " + FIRST_RIC_NAME);
+
         assertEquals(1, firstRic.getSupportedPolicyTypes().size(),
             "Not correct no of types supported for ric " + FIRST_RIC_NAME);
         assertTrue(firstRic.isSupportingType(POLICY_TYPE_1_NAME),
@@ -125,10 +129,8 @@ public class StartupServiceTest {
             "Not correct no of managed nodes for ric " + FIRST_RIC_NAME);
         assertTrue(firstRic.isManaging(MANAGED_NODE_A), MANAGED_NODE_A + " not managed by ric " + FIRST_RIC_NAME);
 
-        Ric secondRic = rics.get(SECOND_RIC_NAME);
         assertNotNull(secondRic, "Ric " + SECOND_RIC_NAME + " not added to repository");
         assertEquals(SECOND_RIC_NAME, secondRic.name(), SECOND_RIC_NAME + " not added to Rics");
-        assertEquals(IDLE, secondRic.getState(), "Not correct state for " + SECOND_RIC_NAME);
         assertEquals(2, secondRic.getSupportedPolicyTypes().size(),
             "Not correct no of types supported for ric " + SECOND_RIC_NAME);
         assertTrue(secondRic.isSupportingType(POLICY_TYPE_1_NAME),

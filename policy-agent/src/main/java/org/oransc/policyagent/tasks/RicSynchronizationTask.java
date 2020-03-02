@@ -22,13 +22,13 @@ package org.oransc.policyagent.tasks;
 
 import static org.oransc.policyagent.repository.Ric.RicState;
 
-import java.util.Collection;
 import java.util.Vector;
 
 import org.oransc.policyagent.clients.A1Client;
 import org.oransc.policyagent.clients.A1ClientFactory;
 import org.oransc.policyagent.clients.AsyncRestClient;
 import org.oransc.policyagent.repository.ImmutablePolicyType;
+import org.oransc.policyagent.repository.Lock.LockType;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.PolicyType;
@@ -43,12 +43,16 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Synchronizes the content of a RIC with the content in the repository.
- * This means:
- * - load all policy types
- * - send all policy instances to the RIC
- * --- if that fails remove all policy instances
- * - Notify subscribing services
+ * Synchronizes the content of a RIC with the content in the repository. This
+ * means:
+ * <p>
+ * load all policy types
+ * <p>
+ * send all policy instances to the RIC
+ * <p>
+ * if that fails remove all policy instances
+ * <p>
+ * Notify subscribing services
  */
 public class RicSynchronizationTask {
 
@@ -78,6 +82,8 @@ public class RicSynchronizationTask {
             }
             ric.setState(RicState.SYNCHRONIZING);
         }
+        ric.getLock().lockBlocking(LockType.EXCLUSIVE); // Make sure no NBI updates are running
+        ric.getLock().unlock();
         this.a1ClientFactory.createA1Client(ric)//
             .flatMapMany(client -> startSynchronization(ric, client)) //
             .subscribe(x -> logger.debug("Synchronize: {}", x), //
@@ -87,13 +93,9 @@ public class RicSynchronizationTask {
 
     private Flux<Object> startSynchronization(Ric ric, A1Client a1Client) {
         Flux<PolicyType> recoverTypes = synchronizePolicyTypes(ric, a1Client);
-        Collection<Policy> policiesForRic = policies.getForRic(ric.name());
-        Flux<?> policiesDeletedInRic = Flux.empty();
-        Flux<?> policiesRecreatedInRic = Flux.empty();
-        if (!policiesForRic.isEmpty()) {
-            policiesDeletedInRic = a1Client.deleteAllPolicies();
-            policiesRecreatedInRic = recreateAllPoliciesInRic(ric, a1Client);
-        }
+        Flux<?> policiesDeletedInRic = a1Client.deleteAllPolicies();
+        Flux<?> policiesRecreatedInRic = recreateAllPoliciesInRic(ric, a1Client);
+
         return Flux.concat(recoverTypes, policiesDeletedInRic, policiesRecreatedInRic);
     }
 
@@ -123,17 +125,17 @@ public class RicSynchronizationTask {
     @SuppressWarnings("squid:S2629")
     private void onSynchronizationError(Ric ric, Throwable t) {
         logger.warn("Synchronization failed for ric: {}, reason: {}", ric.name(), t.getMessage());
+        // If recovery fails, try to remove all instances
         deleteAllPoliciesInRepository(ric);
 
-        Flux<PolicyType> typesRecoveredForRic = this.a1ClientFactory.createA1Client(ric) //
+        Flux<PolicyType> recoverTypes = this.a1ClientFactory.createA1Client(ric) //
             .flatMapMany(a1Client -> synchronizePolicyTypes(ric, a1Client));
+        Flux<?> deletePoliciesInRic = this.a1ClientFactory.createA1Client(ric) //
+            .flatMapMany(a1Client -> a1Client.deleteAllPolicies()) //
+            .doOnComplete(() -> deleteAllPoliciesInRepository(ric));
 
-        // If recovery fails, try to remove all instances
-        Flux<?> policiesDeletedInRic = this.a1ClientFactory.createA1Client(ric) //
-            .flatMapMany(A1Client::deleteAllPolicies);
-
-        Flux.merge(typesRecoveredForRic, policiesDeletedInRic) //
-            .subscribe(x -> logger.debug("Brute recover: {}", x), //
+        Flux.concat(recoverTypes, deletePoliciesInRic) //
+            .subscribe(x -> logger.debug("Brute recover: " + x), //
                 throwable -> onRecoveryError(ric, throwable), //
                 () -> onSynchronizationComplete(ric));
     }
@@ -149,8 +151,8 @@ public class RicSynchronizationTask {
     }
 
     private Flux<PolicyType> synchronizePolicyTypes(Ric ric, A1Client a1Client) {
-        ric.clearSupportedPolicyTypes();
         return a1Client.getPolicyTypeIdentities() //
+            .doOnNext(x -> ric.clearSupportedPolicyTypes()) //
             .flatMapMany(Flux::fromIterable) //
             .doOnNext(typeId -> logger.debug("For ric: {}, handling type: {}", ric.getConfig().name(), typeId)) //
             .flatMap(policyTypeId -> getPolicyType(policyTypeId, a1Client)) //
