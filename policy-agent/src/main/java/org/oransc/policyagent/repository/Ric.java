@@ -26,8 +26,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+
 import lombok.Getter;
 import lombok.Setter;
+
 import org.oransc.policyagent.clients.A1Client.A1ProtocolType;
 import org.oransc.policyagent.configuration.RicConfig;
 
@@ -35,6 +37,7 @@ import org.oransc.policyagent.configuration.RicConfig;
  * Represents the dynamic information about a NearRealtime-RIC.
  */
 public class Ric {
+
     private final RicConfig ricConfig;
     private final List<String> managedElementIds;
 
@@ -44,6 +47,7 @@ public class Ric {
     @Setter
     private A1ProtocolType protocolVersion = A1ProtocolType.UNKNOWN;
 
+    private final Lock lock = new Lock();
 
     /**
      * Creates the Ric. Initial state is {@link RicState.NOT_INITIATED}.
@@ -52,7 +56,12 @@ public class Ric {
      */
     public Ric(RicConfig ricConfig) {
         this.ricConfig = ricConfig;
-        this.managedElementIds = new ArrayList<>(ricConfig.managedElementIds());
+        this.managedElementIds = new ArrayList<>(ricConfig.managedElementIds()); // TODO, this is config why is it
+                                                                                 // copied here?
+    }
+
+    public Lock getLock() {
+        return this.lock;
     }
 
     public String name() {

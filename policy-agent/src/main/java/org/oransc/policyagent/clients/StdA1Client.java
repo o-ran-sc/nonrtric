@@ -23,6 +23,7 @@ package org.oransc.policyagent.clients;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,6 +32,7 @@ import org.oransc.policyagent.repository.Policy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.util.UriComponentsBuilder;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

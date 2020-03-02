@@ -134,8 +134,8 @@ public class SdncOnapA1Client implements A1Client {
         String inputJsonString = createInputJsonString(inputParams);
         logger.debug("POST putPolicy inputJsonString = {}", inputJsonString);
 
-        return restClient.postWithAuthHeader(URL_PREFIX + "createPolicyInstance", inputJsonString,
-            a1ControllerUsername, a1ControllerPassword);
+        return restClient.postWithAuthHeader(URL_PREFIX + "createPolicyInstance", inputJsonString, a1ControllerUsername,
+            a1ControllerPassword);
     }
 
     public Mono<String> deletePolicyByIds(String policyTypeId, String policyId) {
@@ -147,8 +147,8 @@ public class SdncOnapA1Client implements A1Client {
         String inputJsonString = createInputJsonString(inputParams);
         logger.debug("POST deletePolicy inputJsonString = {}", inputJsonString);
 
-        return restClient.postWithAuthHeader(URL_PREFIX + "deletePolicyInstance", inputJsonString,
-            a1ControllerUsername, a1ControllerPassword);
+        return restClient.postWithAuthHeader(URL_PREFIX + "deletePolicyInstance", inputJsonString, a1ControllerUsername,
+            a1ControllerPassword);
     }
 
     @Override

@@ -24,6 +24,7 @@ import java.util.Collection;
 
 import org.oransc.policyagent.clients.A1Client;
 import org.oransc.policyagent.clients.A1ClientFactory;
+import org.oransc.policyagent.repository.Lock.LockType;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
@@ -78,8 +79,10 @@ public class RepositorySupervision {
             return Flux.fromIterable(rics.getRics()) //
                 .flatMap(ric -> createRicData(ric)) //
                 .flatMap(ricData -> checkRicState(ricData)) //
+                .doOnNext(ricData -> ricData.ric.getLock().lockBlocking(LockType.EXCLUSIVE)) //
                 .flatMap(ricData -> checkRicPolicies(ricData)) //
-                .flatMap(ricData -> checkRicPolicyTypes(ricData));
+                .doOnNext(ricData -> ricData.ric.getLock().unlock()) //
+                .flatMap(ricData -> checkRicPolicyTypes(ricData)); //
         }
     }
 
@@ -111,22 +114,28 @@ public class RepositorySupervision {
 
     private Mono<RicData> checkRicPolicies(RicData ric) {
         return ric.a1Client.getPolicyIdentities() //
-            .onErrorResume(t -> Mono.empty()) //
+            .onErrorResume(t -> {
+                ric.ric.getLock().unlock();
+                return Mono.empty();
+            }) //
             .flatMap(ricP -> validateInstances(ricP, ric));
     }
 
     private Mono<RicData> validateInstances(Collection<String> ricPolicies, RicData ric) {
         synchronized (this.policies) {
             if (ricPolicies.size() != policies.getForRic(ric.ric.name()).size()) {
+                ric.ric.getLock().unlock();
                 return startRecovery(ric);
             }
-        }
-        for (String policyId : ricPolicies) {
-            if (!policies.containsPolicy(policyId)) {
-                return startRecovery(ric);
+
+            for (String policyId : ricPolicies) {
+                if (!policies.containsPolicy(policyId)) {
+                    ric.ric.getLock().unlock();
+                    return startRecovery(ric);
+                }
             }
+            return Mono.just(ric);
         }
-        return Mono.just(ric);
     }
 
     private Mono<RicData> checkRicPolicyTypes(RicData ric) {

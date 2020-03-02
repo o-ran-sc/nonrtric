@@ -21,6 +21,7 @@
 package org.oransc.policyagent.configuration;
 
 import com.google.common.collect.ImmutableList;
+
 import org.immutables.value.Value;
 
 @Value.Immutable

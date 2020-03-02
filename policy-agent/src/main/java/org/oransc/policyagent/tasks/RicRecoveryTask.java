@@ -27,6 +27,7 @@ import org.oransc.policyagent.clients.A1ClientFactory;
 import org.oransc.policyagent.clients.AsyncRestClient;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.repository.ImmutablePolicyType;
+import org.oransc.policyagent.repository.Lock.LockType;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.PolicyType;
@@ -75,6 +76,8 @@ public class RicRecoveryTask {
             }
             ric.setState(Ric.RicState.RECOVERING);
         }
+        ric.getLock().lockBlocking(LockType.EXCLUSIVE); // Make sure no NBI updates are running
+        ric.getLock().unlock();
         this.a1ClientFactory.createA1Client(ric)//
             .flatMapMany(client -> startRecover(ric, client)) //
             .subscribe(x -> logger.debug("Recover: " + x), //
@@ -114,13 +117,14 @@ public class RicRecoveryTask {
     private void onRecoveryError(Ric ric, Throwable t) {
         logger.warn("Recovery failed for: {}, reason: {}", ric.name(), t.getMessage());
         // If recovery fails, try to remove all instances
-        deleteAllPolicies(ric);
+
         Flux<PolicyType> recoverTypes = this.a1ClientFactory.createA1Client(ric) //
             .flatMapMany(a1Client -> recoverPolicyTypes(ric, a1Client));
         Flux<?> deletePoliciesInRic = this.a1ClientFactory.createA1Client(ric) //
-            .flatMapMany(a1Client -> a1Client.deleteAllPolicies());
+            .flatMapMany(a1Client -> a1Client.deleteAllPolicies()) //
+            .doOnComplete(() -> deleteAllPolicies(ric));
 
-        Flux.merge(recoverTypes, deletePoliciesInRic) //
+        Flux.concat(recoverTypes, deletePoliciesInRic) //
             .subscribe(x -> logger.debug("Brute recover: " + x), //
                 throwable -> onRemoveAllError(ric, throwable), //
                 () -> onRecoveryComplete(ric));
@@ -136,8 +140,8 @@ public class RicRecoveryTask {
     }
 
     private Flux<PolicyType> recoverPolicyTypes(Ric ric, A1Client a1Client) {
-        ric.clearSupportedPolicyTypes();
         return a1Client.getPolicyTypeIdentities() //
+            .doOnNext(x -> ric.clearSupportedPolicyTypes()) //
             .flatMapMany(types -> Flux.fromIterable(types)) //
             .doOnNext(typeId -> logger.debug("For ric: {}, handling type: {}", ric.getConfig().name(), typeId)) //
             .flatMap((policyTypeId) -> getPolicyType(ric, policyTypeId, a1Client)) //
