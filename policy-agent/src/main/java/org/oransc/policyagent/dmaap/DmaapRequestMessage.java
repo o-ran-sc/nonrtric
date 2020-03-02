@@ -20,6 +20,8 @@
 
 package org.oransc.policyagent.dmaap;
 
+import com.google.gson.JsonObject;
+
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
 
@@ -49,5 +51,5 @@ public interface DmaapRequestMessage {
 
     String url();
 
-    String payload();
+    JsonObject payload();
 }

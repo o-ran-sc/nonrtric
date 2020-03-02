@@ -20,6 +20,8 @@
 
 package org.oransc.policyagent.dmaap;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -30,6 +32,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 
 import java.io.IOException;
 
@@ -40,6 +43,8 @@ import org.onap.dmaap.mr.client.response.MRPublisherResponse;
 import org.oransc.policyagent.clients.AsyncRestClient;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.dmaap.DmaapRequestMessage.Operation;
+import org.oransc.policyagent.repository.ImmutablePolicyType;
+import org.oransc.policyagent.repository.PolicyType;
 
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -59,12 +64,18 @@ public class DmaapMessageHandlerTest {
         testedObject = spy(new DmaapMessageHandler(dmaapClient, appConfig, agentClient));
     }
 
+    JsonObject jsonObject() {
+        PolicyType pt = ImmutablePolicyType.builder().name("name").schema("schema").build();
+        String str = gson.toJson(pt);
+        return gson.fromJson(str, JsonObject.class);
+    }
+
     ImmutableDmaapRequestMessage dmaapRequestMessage(Operation operation) {
         return ImmutableDmaapRequestMessage.builder().apiVersion("apiVersion") //
             .correlationId("correlationId") //
             .operation(operation) //
             .originatorId("originatorId") //
-            .payload("payload") //
+            .payload(jsonObject()) //
             .requestId("requestId") //
             .target("target") //
             .timestamp("timestamp") //
@@ -83,8 +94,12 @@ public class DmaapMessageHandlerTest {
         doReturn(1).when(dmaapClient).send(anyString());
         doReturn(new MRPublisherResponse()).when(dmaapClient).sendBatchWithResponse();
 
+        String message = dmaapInputMessage(Operation.DELETE);
+        DmaapRequestMessage parsedMessage = gson.fromJson(message, ImmutableDmaapRequestMessage.class);
+        assertTrue(parsedMessage != null);
+
         StepVerifier //
-            .create(testedObject.createTask(dmaapInputMessage(Operation.DELETE))) //
+            .create(testedObject.createTask(message)) //
             .expectSubscription() //
             .expectNext("OK") //
             .verifyComplete(); //
@@ -99,7 +114,7 @@ public class DmaapMessageHandlerTest {
 
     @Test
     public void errorCase() throws IOException {
-        doReturn(Mono.error(new Exception("Refused"))).when(agentClient).put("url", "payload");
+        doReturn(Mono.error(new Exception("Refused"))).when(agentClient).put(anyString(), any());
         doReturn(1).when(dmaapClient).send(anyString());
         doReturn(new MRPublisherResponse()).when(dmaapClient).sendBatchWithResponse();
         StepVerifier //
@@ -107,7 +122,7 @@ public class DmaapMessageHandlerTest {
             .expectSubscription() //
             .verifyComplete(); //
 
-        verify(agentClient, times(1)).put("url", "payload");
+        verify(agentClient, times(1)).put(anyString(), anyString());
         verifyNoMoreInteractions(agentClient);
 
         // Error response

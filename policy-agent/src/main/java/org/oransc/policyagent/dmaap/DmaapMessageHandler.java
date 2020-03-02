@@ -87,13 +87,17 @@ public class DmaapMessageHandler {
         } else if (operation == Operation.GET) {
             result = agentClient.get(uri);
         } else if (operation == Operation.PUT) {
-            result = agentClient.put(uri, dmaapRequestMessage.payload());
+            result = agentClient.put(uri, payload(dmaapRequestMessage));
         } else if (operation == Operation.POST) {
-            result = agentClient.post(uri, dmaapRequestMessage.payload());
+            result = agentClient.post(uri, payload(dmaapRequestMessage));
         } else {
             return Mono.error(new Exception("Not implemented operation: " + operation));
         }
         return result;
+    }
+
+    private String payload(DmaapRequestMessage message) {
+        return gson.toJson(message.payload());
     }
 
     private Mono<String> sendDmaapResponse(String response, DmaapRequestMessage dmaapRequestMessage,
