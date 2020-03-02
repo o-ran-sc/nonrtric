@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6b188cfc_48848d6b",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/configuration/ApplicationConfigParserTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-02T13:05:15Z",
+      "side": 1,
+      "message": "Use the new getDmaapInfo method here also.",
+      "range": {
+        "startLine": 158,
+        "startChar": 26,
+        "endLine": 159,
+        "endChar": 78
+      },
+      "revId": "26cb726d4cb391f81ad6662c7f40a97b0de5342c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa0ff49b_72b7022c",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/configuration/ApplicationConfigParserTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-02T13:05:15Z",
+      "side": 1,
+      "message": "Use the new getDmaapInfo method here also.",
+      "range": {
+        "startLine": 175,
+        "startChar": 26,
+        "endLine": 176,
+        "endChar": 77
+      },
+      "revId": "26cb726d4cb391f81ad6662c7f40a97b0de5342c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
