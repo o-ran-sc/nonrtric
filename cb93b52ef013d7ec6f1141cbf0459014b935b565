@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d93ffc12_b161d523",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RicSynchronizationTask.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-02T12:51:59Z",
+      "side": 1,
+      "message": "No need for null checks for test cases.",
+      "parentUuid": "b4f9df23_25902067",
+      "range": {
+        "startLine": 65,
+        "startChar": 16,
+        "endLine": 66,
+        "endChar": 25
+      },
+      "revId": "cb93b52ef013d7ec6f1141cbf0459014b935b565",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa4804b5_40e47feb",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/ServiceSupervision.java",
         "patchSetId": 5
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "3856e8b7_317e4ba8",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/ServiceSupervision.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-02T12:51:59Z",
+      "side": 1,
+      "message": "Eventually it might need to be configurable. But until we have more requirements on performance it can remain hard coded.",
+      "parentUuid": "fa4804b5_40e47feb",
+      "range": {
+        "startLine": 58,
+        "startChar": 4,
+        "endLine": 58,
+        "endChar": 37
+      },
+      "revId": "cb93b52ef013d7ec6f1141cbf0459014b935b565",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "55dc829b_7b7fcdb5",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/ServiceSupervision.java",
         "patchSetId": 5
@@ -68,6 +116,30 @@
       "revId": "cb93b52ef013d7ec6f1141cbf0459014b935b565",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8983f9b1_8c69d3bc",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/ServiceSupervision.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-02T12:51:59Z",
+      "side": 1,
+      "message": "Maybe. But adding a comment explaining why we suppress the warning here would require quite a bit of extra text. And since the whole point of suppressing the warning is to not complicate things unnecessarily, that would defeat the purpose of the suppression.",
+      "parentUuid": "55dc829b_7b7fcdb5",
+      "range": {
+        "startLine": 64,
+        "startChar": 19,
+        "endLine": 64,
+        "endChar": 36
+      },
+      "revId": "cb93b52ef013d7ec6f1141cbf0459014b935b565",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
