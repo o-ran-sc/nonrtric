@@ -121,7 +121,8 @@ public class ApplicationConfigParserTest {
         private JsonObject fake_info_object;
 
         public String toString() {
-            return String.format("[dmaap_publisher=%s, fake_info_object=%s]", dmaap_publisher.toString(), fake_info_object.toString());
+            return String.format("[dmaap_publisher=%s, fake_info_object=%s]", dmaap_publisher.toString(),
+                fake_info_object.toString());
         }
     }
 
@@ -147,7 +148,8 @@ public class ApplicationConfigParserTest {
         private JsonObject fake_info_object;
 
         public String toString() {
-            return String.format("[dmaap_subscriber=%s, fake_info_object=%s]", dmaap_subscriber.toString(), fake_info_object.toString());
+            return String.format("[dmaap_subscriber=%s, fake_info_object=%s]", dmaap_subscriber.toString(),
+                fake_info_object.toString());
         }
     }
 
@@ -227,8 +229,8 @@ public class ApplicationConfigParserTest {
             "Wrong error message when the streams publishes' URL has incorrect syntax");
     }
 
-    public JsonObject getDmaapInfo(JsonObject jsonRootObject, String streamsPublishesOrSubscribes, String dmaapPublisherOrSubscriber)
-        throws Exception {
+    public JsonObject getDmaapInfo(JsonObject jsonRootObject, String streamsPublishesOrSubscribes,
+        String dmaapPublisherOrSubscriber) throws Exception {
         return jsonRootObject.getAsJsonObject("config").getAsJsonObject(streamsPublishesOrSubscribes)
             .getAsJsonObject(dmaapPublisherOrSubscriber).getAsJsonObject("dmaap_info");
     }

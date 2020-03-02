@@ -22,6 +22,7 @@ package org.oransc.policyagent.controllers;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -30,6 +31,7 @@ import io.swagger.annotations.ApiResponses;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
 import org.oransc.policyagent.clients.A1ClientFactory;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.exceptions.ServiceException;
@@ -150,14 +152,22 @@ public class PolicyController {
     @DeleteMapping("/policy")
     @ApiOperation(value = "Delete a policy", response = Object.class)
     @ApiResponses(value = {@ApiResponse(code = 204, message = "Policy deleted", response = Object.class)})
-    public Mono<ResponseEntity<Void>> deletePolicy( //
+    public Mono<ResponseEntity<Object>> deletePolicy( //
         @RequestParam(name = "instance", required = true) String id) {
         Policy policy = policies.get(id);
-        if (policy != null && policy.ric().getState() == Ric.RicState.IDLE) {
-            policies.remove(policy);
-            return a1ClientFactory.createA1Client(policy.ric()) //
-                .flatMap(client -> client.deletePolicy(policy)) //
-                .flatMap(notUsed -> Mono.just(new ResponseEntity<>(HttpStatus.NO_CONTENT)));
+        if (policy != null) {
+            Ric ric = policy.ric();
+            if (ric.getState() == Ric.RicState.IDLE) {
+                return a1ClientFactory.createA1Client(policy.ric()) //
+                    .doOnNext(notUsed -> ric.getLock().lockBlocking()) //
+                    .doOnNext(notUsed -> policies.remove(policy)) //
+                    .flatMap(client -> client.deletePolicy(policy)) //
+                    .doOnNext(notUsed -> ric.getLock().unlock()) //
+                    .doOnError(notUsed -> ric.getLock().unlock()) //
+                    .flatMap(notUsed -> Mono.just(new ResponseEntity<>(HttpStatus.NO_CONTENT)));
+            } else {
+                return Mono.just(new ResponseEntity<>("Busy, recovering", HttpStatus.LOCKED));
+            }
         } else {
             return Mono.just(new ResponseEntity<>(HttpStatus.NOT_FOUND));
         }
@@ -166,7 +176,7 @@ public class PolicyController {
     @PutMapping(path = "/policy")
     @ApiOperation(value = "Put a policy", response = String.class)
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Policy created or updated")})
-    public Mono<ResponseEntity<String>> putPolicy( //
+    public Mono<ResponseEntity<Object>> putPolicy( //
         @RequestParam(name = "type", required = true) String typeName, //
         @RequestParam(name = "instance", required = true) String instanceId, //
         @RequestParam(name = "ric", required = true) String ricName, //
@@ -187,13 +197,22 @@ public class PolicyController {
                 .lastModified(getTimeStampUtc()) //
                 .build();
 
-            return validateModifiedPolicy(policy) //
-                .flatMap(x -> a1ClientFactory.createA1Client(ric)) //
+            final boolean isCreate = this.policies.get(policy.id()) == null;
+
+            return Mono.just(policy) //
+                .doOnNext(notUsed -> ric.getLock().lockBlocking()) //
+                .flatMap(p -> validateModifiedPolicy(policy)) //
+                .flatMap(notUsed -> a1ClientFactory.createA1Client(ric)) //
                 .flatMap(client -> client.putPolicy(policy)) //
                 .doOnNext(notUsed -> policies.put(policy)) //
-                .flatMap(notUsed -> Mono.just(new ResponseEntity<>(HttpStatus.OK)));
+                .doOnNext(notUsed -> ric.getLock().unlock()) //
+                .doOnError(t -> ric.getLock().unlock()) //
+                .flatMap(notUsed -> Mono.just(new ResponseEntity<>(isCreate ? HttpStatus.CREATED : HttpStatus.OK))) //
+                .onErrorResume(t -> Mono.just(new ResponseEntity<>(t.getMessage(), HttpStatus.METHOD_NOT_ALLOWED)));
         }
-        return Mono.just(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+
+        return ric == null && type == null ? Mono.just(new ResponseEntity<>(HttpStatus.NOT_FOUND))
+            : Mono.just(new ResponseEntity<>(HttpStatus.CONFLICT)); // Recovering
     }
 
     private Mono<Object> validateModifiedPolicy(Policy policy) {
@@ -201,7 +220,9 @@ public class PolicyController {
         Policy current = this.policies.get(policy.id());
         if (current != null) {
             if (!current.ric().name().equals(policy.ric().name())) {
-                return Mono.error(new Exception("Policy cannot change RIC or service"));
+                return Mono.error(new Exception("Policy cannot change RIC, policyId: " + current.id() + //
+                    ", RIC name: " + current.ric().name() + //
+                    ", new name: " + policy.ric().name()));
             }
         }
         return Mono.just("OK");
