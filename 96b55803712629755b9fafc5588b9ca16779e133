@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da302030_ed7b730a",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/PolicyController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-03-02T14:55:41Z",
+      "side": 1,
+      "message": "isCreated might be more explicit with then !\u003d null instead of \u003d\u003d null",
+      "range": {
+        "startLine": 200,
+        "startChar": 26,
+        "endLine": 200,
+        "endChar": 34
+      },
+      "revId": "96b55803712629755b9fafc5588b9ca16779e133",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "114a4593_750197f3",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/tasks/RepositorySupervisionTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-03-02T14:55:41Z",
+      "side": 1,
+      "message": "Maybe a more explicit error message could be good.",
+      "range": {
+        "startLine": 169,
+        "startChar": 47,
+        "endLine": 169,
+        "endChar": 51
+      },
+      "revId": "96b55803712629755b9fafc5588b9ca16779e133",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f24a79a_a927fd11",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/tasks/RepositorySupervisionTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-03-02T14:55:41Z",
+      "side": 1,
+      "message": "Maybe a more explicit error message could be good.",
+      "range": {
+        "startLine": 196,
+        "startChar": 47,
+        "endLine": 196,
+        "endChar": 51
+      },
+      "revId": "96b55803712629755b9fafc5588b9ca16779e133",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
