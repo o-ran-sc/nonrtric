@@ -22,7 +22,9 @@ package org.oransc.policyagent.dmaap;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import java.io.IOException;
+
 import org.onap.dmaap.mr.client.MRBatchingPublisher;
 import org.oransc.policyagent.clients.AsyncRestClient;
 import org.oransc.policyagent.dmaap.DmaapRequestMessage.Operation;
@@ -36,7 +38,6 @@ public class DmaapMessageHandler {
     private static final Logger logger = LoggerFactory.getLogger(DmaapMessageHandler.class);
 
     private static Gson gson = new GsonBuilder() //
-        .serializeNulls() //
         .create(); //
 
     private final MRBatchingPublisher dmaapClient;
@@ -83,13 +84,22 @@ public class DmaapMessageHandler {
         } else if (operation == Operation.GET) {
             result = agentClient.get(uri);
         } else if (operation == Operation.PUT) {
-            result = agentClient.put(uri, dmaapRequestMessage.payload());
+            result = agentClient.put(uri, payload(dmaapRequestMessage));
         } else if (operation == Operation.POST) {
-            result = agentClient.post(uri, dmaapRequestMessage.payload());
+            result = agentClient.post(uri, payload(dmaapRequestMessage));
         } else {
             return Mono.error(new Exception("Not implemented operation: " + operation));
         }
         return result;
+    }
+
+    private String payload(DmaapRequestMessage message) {
+        if (message.payload().isPresent()) {
+            return gson.toJson(message.payload().get());
+        } else {
+            logger.warn("Expected payload in message from DMAAP: {}", message);
+            return "";
+        }
     }
 
     private Mono<String> sendDmaapResponse(String response, DmaapRequestMessage dmaapRequestMessage,
