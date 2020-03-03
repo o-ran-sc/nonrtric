@@ -45,9 +45,8 @@ public class PortalAuthManager {
     private final String userIdCookieName;
 
     public PortalAuthManager(final String appName, final String username, final String password,
-        final String decryptorClassName, final String userCookie)
-        throws ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException,
-        InvocationTargetException, NoSuchMethodException, SecurityException {
+        final String decryptorClassName, final String userCookie) throws ClassNotFoundException, InstantiationException,
+        IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         credentialsMap = new HashMap<>();
         credentialsMap.put(IPortalRestCentralService.CREDENTIALS_APP, appName);
         credentialsMap.put(IPortalRestCentralService.CREDENTIALS_USER, username);
