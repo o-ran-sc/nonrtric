@@ -59,6 +59,7 @@ public class SimpleErrorController implements ErrorController {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+    @SuppressWarnings("squid:S1075")
     public static final String ERROR_PATH = "/error";
 
     private final ErrorAttributes errorAttributes;
@@ -81,9 +82,7 @@ public class SimpleErrorController implements ErrorController {
         if (t != null)
             logger.warn("handleError", t);
         Map<String, Object> attributes = errorAttributes.getErrorAttributes(servletWebRequest, true);
-        attributes.forEach((attribute, value) -> {
-            logger.warn("handleError: {} -> {}", attribute, value);
-        });
+        attributes.forEach((attribute, value) -> logger.warn("handleError: {} -> {}", attribute, value));
         // Return the name of the page INCLUDING suffix, which I guess is a "view" name.
         // Just "error" is not enough, but don't seem to need a ModelAndView object.
         return "error.html";

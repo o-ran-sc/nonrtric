@@ -85,7 +85,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
      * Resource paths that do not require authentication, especially including
      * Swagger-generated documentation.
      */
-    public static final String[] OPEN_PATHS = { //
+    @SuppressWarnings("squid:S1075")
+    protected static final String[] OPEN_PATHS = { //
         "/v2/api-docs", //
         "/swagger-resources/**", //
         "/swagger-ui.html", //
@@ -101,9 +102,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public PortalAuthManager portalAuthManagerBean()
-        throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException,
-        IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+    public PortalAuthManager portalAuthManagerBean() throws ClassNotFoundException, InstantiationException,
+        IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         return new PortalAuthManager(appName, userName, password, decryptor, userCookie);
     }
 
@@ -116,12 +116,9 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
      * bypass this filter, which seems to me means the filter participates
      * correctly.
      */
-    public PortalAuthenticationFilter portalAuthenticationFilterBean()
-        throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException,
-        IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
-        PortalAuthenticationFilter portalAuthenticationFilter =
-            new PortalAuthenticationFilter(portalapiSecurity, portalAuthManagerBean(), this.userManager);
-        return portalAuthenticationFilter;
+    public PortalAuthenticationFilter portalAuthenticationFilterBean() throws ClassNotFoundException,
+        InstantiationException, IllegalAccessException, IOException, InvocationTargetException, NoSuchMethodException {
+        return new PortalAuthenticationFilter(portalapiSecurity, portalAuthManagerBean(), this.userManager);
     }
 
 }

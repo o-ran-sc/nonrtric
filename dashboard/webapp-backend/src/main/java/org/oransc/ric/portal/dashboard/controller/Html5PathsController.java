@@ -57,8 +57,8 @@ public class Html5PathsController {
      *         On error
      */
     @RequestMapping(
-        method = {RequestMethod.OPTIONS, RequestMethod.GET}, //
-        path = {"/policy", "/user"})
+        method = {RequestMethod.GET}, //
+        path = {"/policy"})
     public void forwardAngularRoutes(HttpServletRequest request, HttpServletResponse response) throws IOException {
         URL url = new URL(request.getScheme(), request.getServerName(), request.getServerPort(), "/index.html");
         if (logger.isDebugEnabled())
