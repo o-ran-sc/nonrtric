@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "663bf4ae_160bba34",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/PolicyController.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-03T12:03:09Z",
+      "side": 1,
+      "message": "1) Because the ric is needed as a variable further down in the code. \n2) I wanted to return HttpStatus.LOCKED if the RIC was not IDLE and HttpStatus.NOT_FOUND\n   if the policy does not exist. So these are two different cases.\nI will change it,but it not an improvement.",
+      "parentUuid": "00247063_d475f087",
+      "range": {
+        "startLine": 158,
+        "startChar": 1,
+        "endLine": 160,
+        "endChar": 54
+      },
+      "revId": "2d0a2f4a77c10e0a0a43fe4fe7f960df0559b03e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "538743a5_ca7b4568",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/repository/Lock.java",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "2d0a2f4a77c10e0a0a43fe4fe7f960df0559b03e",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "302a7f41_e8d34184",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/repository/Lock.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-03T12:03:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "538743a5_ca7b4568",
+      "range": {
+        "startLine": 34,
+        "startChar": 54,
+        "endLine": 34,
+        "endChar": 59
+      },
+      "revId": "2d0a2f4a77c10e0a0a43fe4fe7f960df0559b03e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "b3b763a2_6d27180e",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/repository/Lock.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-03T12:03:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1df11934_063d7d09",
+      "range": {
+        "startLine": 36,
+        "startChar": 51,
+        "endLine": 36,
+        "endChar": 60
+      },
+      "revId": "2d0a2f4a77c10e0a0a43fe4fe7f960df0559b03e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5c34185d_37286b2e",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/repository/Lock.java",
         "patchSetId": 2
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "1e75e6e3_9fd3ca62",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/repository/Lock.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-03T12:03:09Z",
+      "side": 1,
+      "message": "Non exclusive and shared means the same thing. \nI have already several changes in this class in another commit.",
+      "parentUuid": "5c34185d_37286b2e",
+      "range": {
+        "startLine": 37,
+        "startChar": 2,
+        "endLine": 37,
+        "endChar": 17
+      },
+      "revId": "2d0a2f4a77c10e0a0a43fe4fe7f960df0559b03e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5bdb39b9_eab67d98",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/repository/Lock.java",
         "patchSetId": 2
@@ -105,6 +201,30 @@
       "writtenOn": "2020-03-03T09:37:59Z",
       "side": 1,
       "message": "The only times this method is used, it is with the EXCLUSIVE type. So why not call this method lockExclusive and remove the parameter? It would make the code easier to understand.",
+      "range": {
+        "startLine": 50,
+        "startChar": 29,
+        "endLine": 50,
+        "endChar": 41
+      },
+      "revId": "2d0a2f4a77c10e0a0a43fe4fe7f960df0559b03e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "12001404_45af1913",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/repository/Lock.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-03T12:03:09Z",
+      "side": 1,
+      "message": "I have another commit. Not sure about the name yet. \nIt is right now called lockBlocking(locktype) and lock(locktype) for the non blocking.",
+      "parentUuid": "5bdb39b9_eab67d98",
       "range": {
         "startLine": 50,
         "startChar": 29,
@@ -163,6 +283,30 @@
     },
     {
       "key": {
+        "uuid": "2d3ce12a_65fddcde",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/repository/Lock.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-03T12:03:09Z",
+      "side": 1,
+      "message": "It will be used.",
+      "parentUuid": "74fc1658_9bca50e6",
+      "range": {
+        "startLine": 60,
+        "startChar": 35,
+        "endLine": 60,
+        "endChar": 39
+      },
+      "revId": "2d0a2f4a77c10e0a0a43fe4fe7f960df0559b03e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d9005817_00fbc570",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/repository/Lock.java",
         "patchSetId": 2
@@ -174,6 +318,24 @@
       "writtenOn": "2020-03-03T09:37:59Z",
       "side": 1,
       "message": "Since the lock(LockType lockType) method is never called, all code regarding the queue is dead code that is never used.",
+      "revId": "2d0a2f4a77c10e0a0a43fe4fe7f960df0559b03e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "891d9fad_15b92da9",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/repository/Lock.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-03T12:03:09Z",
+      "side": 1,
+      "message": "It will be used.",
+      "parentUuid": "d9005817_00fbc570",
       "revId": "2d0a2f4a77c10e0a0a43fe4fe7f960df0559b03e",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
@@ -203,6 +365,30 @@
     },
     {
       "key": {
+        "uuid": "582aee22_bc594306",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/repository/Ric.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-03T12:03:09Z",
+      "side": 1,
+      "message": "That sounds strange. It should not change in the Ric?\nWhat happens if the config is updated, is it copied again then?",
+      "parentUuid": "e2907bf1_3627ab90",
+      "range": {
+        "startLine": 59,
+        "startChar": 83,
+        "endLine": 60,
+        "endChar": 96
+      },
+      "revId": "2d0a2f4a77c10e0a0a43fe4fe7f960df0559b03e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b74a31ea_d0273758",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/repository/Ric.java",
         "patchSetId": 2
@@ -214,6 +400,30 @@
       "writtenOn": "2020-03-03T09:37:59Z",
       "side": 1,
       "message": "Remove this and use Lombok annotation @Getter on the field instead.",
+      "range": {
+        "startLine": 63,
+        "startChar": 16,
+        "endLine": 63,
+        "endChar": 23
+      },
+      "revId": "2d0a2f4a77c10e0a0a43fe4fe7f960df0559b03e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "011f9a75_cf0303ea",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/repository/Ric.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-03T12:03:09Z",
+      "side": 1,
+      "message": "OK, but I do not really see the advantage.",
+      "parentUuid": "b74a31ea_d0273758",
       "range": {
         "startLine": 63,
         "startChar": 16,
