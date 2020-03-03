@@ -30,7 +30,7 @@ public interface PolicyAgentApi {
     public ResponseEntity<Object> getPolicyInstance(String id);
 
     public ResponseEntity<String> putPolicy(String policyTypeIdString, String policyInstanceId, Object json,
-            String ric);
+        String ric);
 
     public ResponseEntity<String> deletePolicy(String policyInstanceId);
 

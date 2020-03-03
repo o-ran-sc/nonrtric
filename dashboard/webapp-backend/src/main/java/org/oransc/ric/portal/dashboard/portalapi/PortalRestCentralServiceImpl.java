@@ -32,6 +32,7 @@ import org.oransc.ric.portal.dashboard.DashboardUserManager;
 import org.oransc.ric.portal.dashboard.config.SpringContextCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -47,11 +48,13 @@ public class PortalRestCentralServiceImpl implements IPortalRestCentralService {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
+    @Autowired
+    private SpringContextCache springContextCache;
     private final PortalAuthManager authManager;
     private final DashboardUserManager userManager;
 
     public PortalRestCentralServiceImpl() throws IOException, PortalAPIException {
-        final ApplicationContext context = SpringContextCache.getApplicationContext();
+        final ApplicationContext context = springContextCache.getApplicationContext();
         authManager = context.getBean(PortalAuthManager.class);
         userManager = context.getBean(DashboardUserManager.class);
     }
