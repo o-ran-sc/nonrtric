@@ -49,6 +49,53 @@
     },
     {
       "key": {
+        "uuid": "2d89ef6c_29d44f34",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/PolicyController.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-03T12:25:28Z",
+      "side": 1,
+      "message": "I only saw the policy.ric() call on line 161, and didn\u0027t see the other places where the ric variable is used. Sonar might actually detect that the variable is used, and not complain. Otherwise you can add a @SuppressWarning, since you have a reason for doing it.",
+      "parentUuid": "663bf4ae_160bba34",
+      "range": {
+        "startLine": 158,
+        "startChar": 1,
+        "endLine": 160,
+        "endChar": 54
+      },
+      "revId": "2d0a2f4a77c10e0a0a43fe4fe7f960df0559b03e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a013bb57_28e89bc0",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/PolicyController.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-03T12:25:28Z",
+      "side": 1,
+      "message": "Should use the ric variable, if the uncollapsed solution is used.",
+      "range": {
+        "startLine": 161,
+        "startChar": 54,
+        "endLine": 161,
+        "endChar": 67
+      },
+      "revId": "2d0a2f4a77c10e0a0a43fe4fe7f960df0559b03e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "538743a5_ca7b4568",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/repository/Lock.java",
         "patchSetId": 2
@@ -377,6 +424,30 @@
       "side": 1,
       "message": "That sounds strange. It should not change in the Ric?\nWhat happens if the config is updated, is it copied again then?",
       "parentUuid": "e2907bf1_3627ab90",
+      "range": {
+        "startLine": 59,
+        "startChar": 83,
+        "endLine": 60,
+        "endChar": 96
+      },
+      "revId": "2d0a2f4a77c10e0a0a43fe4fe7f960df0559b03e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5350004f_eeabbc28",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/repository/Ric.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-03T12:25:28Z",
+      "side": 1,
+      "message": "There are methods to add and remove managed elements on the Ric class. But if they are not needed they should be removed and then the list could be made immutable.",
+      "parentUuid": "582aee22_bc594306",
       "range": {
         "startLine": 59,
         "startChar": 83,
