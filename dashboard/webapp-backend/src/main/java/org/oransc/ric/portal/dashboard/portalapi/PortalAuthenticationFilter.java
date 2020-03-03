@@ -72,7 +72,7 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
  * created and EPService cookie is set.
  * </UL>
  *
- * TODO: What about sessions? Will this be stateless?
+ * Open question: What about sessions? Will this be stateless?
  *
  * This filter uses no annotations to avoid Spring's automatic registration,
  * which add this filter in the chain in the wrong order.
@@ -94,7 +94,7 @@ public class PortalAuthenticationFilter implements Filter {
     private final DashboardUserManager userManager;
 
     public PortalAuthenticationFilter(boolean portalSecurity, PortalAuthManager authManager,
-        DashboardUserManager userManager) {
+        DashboardUserManager userManager) throws IOException {
         this.enforcePortalSecurity = portalSecurity;
         this.authManager = authManager;
         this.userManager = userManager;
@@ -105,7 +105,7 @@ public class PortalAuthenticationFilter implements Filter {
                 if (in == null) {
                     String msg = "Failed to find property file on classpath: " + pf;
                     logger.error(msg);
-                    throw new RuntimeException(msg);
+                    throw new IOException(msg);
                 } else {
                     try {
                         in.close();
@@ -225,7 +225,7 @@ public class PortalAuthenticationFilter implements Filter {
         String redirectUrl = portalBaseUrl + "?" + PortalAuthenticationFilter.REDIRECT_URL_KEY + "=" + encodedAppUrl;
         String aHref = "<a href=\"" + redirectUrl + "\">";
         // If only Java had "here" documents.
-        String body = String.join(//
+        return String.join(//
             System.getProperty("line.separator"), //
             "<html>", //
             "<head>", //
@@ -244,7 +244,6 @@ public class PortalAuthenticationFilter implements Filter {
             "</p>", //
             "</body>", //
             "</html>");
-        return body;
     }
 
     /**
