@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "86da3f91_978043a4",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/dmaap/DmaapMessageHandlerTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-03T07:59:56Z",
+      "side": 1,
+      "message": "Use logging instead of System.out.println.",
+      "range": {
+        "startLine": 101,
+        "startChar": 8,
+        "endLine": 101,
+        "endChar": 36
+      },
+      "revId": "72c98f3b7ef556cf3556c398e12078d9b9eb6d1a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e7691ec_589513c5",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/dmaap/DmaapMessageHandlerTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-03T07:59:56Z",
+      "side": 1,
+      "message": "Use logging instead of System.out.println.",
+      "range": {
+        "startLine": 107,
+        "startChar": 8,
+        "endLine": 107,
+        "endChar": 36
+      },
+      "revId": "72c98f3b7ef556cf3556c398e12078d9b9eb6d1a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
