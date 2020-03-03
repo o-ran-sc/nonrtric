@@ -22,12 +22,14 @@ package org.oransc.policyagent.clients;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
+
 import org.json.JSONObject;
 import org.oransc.policyagent.configuration.RicConfig;
 import org.oransc.policyagent.repository.Policy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.util.UriComponentsBuilder;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -135,7 +137,7 @@ public class OscA1Client implements A1Client {
             schemaObj.put(TITLE, policyTypeId);
             return Mono.just(schemaObj.toString());
         } catch (Exception e) {
-            logger.error("Unexcpected response for policy type: {}", policyTypeResponse, e);
+            logger.error("Unexpected response for policy type: {}, exception: {}", policyTypeResponse, e.toString());
             return Mono.error(e);
         }
     }
