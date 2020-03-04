@@ -46,6 +46,29 @@
       "revId": "e31c55048928e9ca8f4f746c92843753e33278a8",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f8faac2_0345ad81",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RepositorySupervision.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-04T11:46:58Z",
+      "side": 1,
+      "message": "I will try to simplify this.",
+      "range": {
+        "startLine": 132,
+        "startChar": 13,
+        "endLine": 132,
+        "endChar": 51
+      },
+      "revId": "e31c55048928e9ca8f4f746c92843753e33278a8",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
