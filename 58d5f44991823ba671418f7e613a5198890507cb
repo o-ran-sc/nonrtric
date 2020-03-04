@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "eeff10f9_f9b20ad2",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/repository/Ric.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-04T09:24:07Z",
+      "side": 1,
+      "message": "I can fix this in another commit as there seems to be other problems with updating the configuration.  \nThe problem was not only that the list was copied. \nWhen the config is updated, it might very well contain another list after the update (depending on the implementation, but it cannot be both immutable and updateable). \nSo the managedElementIds attribute should not be here at all and must be retrieved when needed.",
+      "range": {
+        "startLine": 59,
+        "startChar": 8,
+        "endLine": 59,
+        "endChar": 63
+      },
+      "revId": "58d5f44991823ba671418f7e613a5198890507cb",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
