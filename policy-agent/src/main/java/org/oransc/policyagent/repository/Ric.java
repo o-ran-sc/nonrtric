@@ -51,7 +51,7 @@ public class Ric {
     private final Lock lock = new Lock();
 
     /**
-     * Creates the Ric. Initial state is {@link RicState.NOT_INITIATED}.
+     * Creates the Ric. Initial state is {@link RicState.UNDEFINED}.
      *
      * @param ricConfig The {@link RicConfig} for this Ric.
      */

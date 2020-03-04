@@ -20,6 +20,7 @@
 
 package org.oransc.policyagent.tasks;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
@@ -33,6 +34,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,6 +45,7 @@ import org.oransc.policyagent.clients.A1ClientFactory;
 import org.oransc.policyagent.configuration.ImmutableRicConfig;
 import org.oransc.policyagent.repository.ImmutablePolicy;
 import org.oransc.policyagent.repository.ImmutablePolicyType;
+import org.oransc.policyagent.repository.Lock.LockType;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.PolicyType;
@@ -61,7 +64,7 @@ public class RepositorySupervisionTest {
         .build();
 
     private static final Ric RIC_1 = new Ric(ImmutableRicConfig.builder() //
-        .name("ric1") //
+        .name("RIC_1") //
         .baseUrl("baseUrl1") //
         .managedElementIds(new Vector<String>(Arrays.asList("kista_1", "kista_2"))) //
         .build());
@@ -94,18 +97,27 @@ public class RepositorySupervisionTest {
     @Mock
     private RicSynchronizationTask recoveryTaskMock;
 
-    private PolicyTypes types;
-    private Policies policies;
-    private Rics rics;
+    private final PolicyTypes types = new PolicyTypes();
+    private Policies policies = new Policies();
+    private Rics rics = new Rics();
 
     @BeforeEach
     public void init() {
         doReturn(Mono.just(a1ClientMock)).when(a1ClientFactory).createA1Client(any(Ric.class));
-        types = new PolicyTypes();
-        policies = new Policies();
-        rics = new Rics();
+        types.clear();
+        policies.clear();
+        rics.clear();
         RIC_1.setState(RicState.UNDEFINED);
         RIC_1.clearSupportedPolicyTypes();
+    }
+
+    @AfterEach
+    public void verifyNoRicLocks() {
+        for (Ric ric : this.rics.getRics()) {
+            ric.getLock().lockBlocking(LockType.EXCLUSIVE);
+            ric.getLock().unlockBlocking();
+            assertThat(ric.getLock().getLockCounter()).isEqualTo(0);
+        }
     }
 
     @Test
