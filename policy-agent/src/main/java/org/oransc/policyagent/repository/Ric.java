@@ -20,10 +20,9 @@
 
 package org.oransc.policyagent.repository;
 
-import java.util.ArrayList;
+import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
@@ -39,7 +38,7 @@ import org.oransc.policyagent.configuration.RicConfig;
 public class Ric {
 
     private final RicConfig ricConfig;
-    private final List<String> managedElementIds;
+    private final ImmutableList<String> managedElementIds;
 
     private RicState state = RicState.UNDEFINED;
     private Map<String, PolicyType> supportedPolicyTypes = new HashMap<>();
@@ -57,8 +56,7 @@ public class Ric {
      */
     public Ric(RicConfig ricConfig) {
         this.ricConfig = ricConfig;
-        this.managedElementIds = new ArrayList<>(ricConfig.managedElementIds()); // TODO, this is config why is it
-                                                                                 // copied here?
+        this.managedElementIds = ricConfig.managedElementIds();
     }
 
     public String name() {
@@ -94,26 +92,6 @@ public class Ric {
      */
     public synchronized boolean isManaging(String managedElementId) {
         return managedElementIds.contains(managedElementId);
-    }
-
-    /**
-     * Adds the given node as managed by this Ric.
-     *
-     * @param managedElementId the node to add.
-     */
-    public synchronized void addManagedElement(String managedElementId) {
-        if (!managedElementIds.contains(managedElementId)) {
-            managedElementIds.add(managedElementId);
-        }
-    }
-
-    /**
-     * Removes the given node as managed by this Ric.
-     *
-     * @param managedElementId the node to remove.
-     */
-    public synchronized void removeManagedElement(String managedElementId) {
-        managedElementIds.remove(managedElementId);
     }
 
     /**

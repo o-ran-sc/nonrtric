@@ -35,7 +35,7 @@ public class Application {
     private StartupService startupService;
 
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+        SpringApplication.run(Application.class);
     }
 
     /**
