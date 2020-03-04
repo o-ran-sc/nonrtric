@@ -22,6 +22,30 @@
       "revId": "26546d0531dfe0b7330f8b86f572821a873a85c6",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2260471a_5b4b0624",
+        "filename": "dashboard/webapp-backend/src/test/java/org/oransc/ric/portal/dashboard/DashboardTestServer.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-04T07:17:06Z",
+      "side": 1,
+      "message": "A test without an assertion will also render a Sonar warning. So then it is better to put in a @SuppressWarning instead.\n\nDone",
+      "parentUuid": "59e1da23_c3165a67",
+      "range": {
+        "startLine": 71,
+        "startChar": 8,
+        "endLine": 71,
+        "endChar": 33
+      },
+      "revId": "26546d0531dfe0b7330f8b86f572821a873a85c6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
