@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "59e1da23_c3165a67",
+        "filename": "dashboard/webapp-backend/src/test/java/org/oransc/ric/portal/dashboard/DashboardTestServer.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-04T06:36:00Z",
+      "side": 1,
+      "message": "this was understandable before, but is not now. \nBesides that, it will assert 1 \u003d\u003d 1, which is pointless. \nBefore it would assert if wait() returns or throws an exception which should never happen. \nThen it is better to remove the assertion.",
+      "range": {
+        "startLine": 71,
+        "startChar": 8,
+        "endLine": 71,
+        "endChar": 33
+      },
+      "revId": "26546d0531dfe0b7330f8b86f572821a873a85c6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
