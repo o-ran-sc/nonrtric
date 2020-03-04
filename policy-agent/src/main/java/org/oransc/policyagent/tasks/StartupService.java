@@ -84,9 +84,9 @@ public class StartupService implements ApplicationConfig.Observer {
                 || event.equals(ApplicationConfig.RicConfigUpdate.CHANGED)) {
                 Ric ric = new Ric(ricConfig);
                 rics.put(ric);
-                RicSynchronizationTask recoveryTask =
+                RicSynchronizationTask synchronizationTask =
                     new RicSynchronizationTask(a1ClientFactory, policyTypes, policies, services);
-                recoveryTask.run(ric);
+                synchronizationTask.run(ric);
             } else if (event.equals(ApplicationConfig.RicConfigUpdate.REMOVED)) {
                 rics.remove(ricConfig.name());
             } else {
