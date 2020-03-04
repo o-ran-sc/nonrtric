@@ -22,6 +22,7 @@ package org.oransc.policyagent.tasks;
 
 import org.oransc.policyagent.clients.A1ClientFactory;
 import org.oransc.policyagent.configuration.ApplicationConfig;
+import org.oransc.policyagent.configuration.ApplicationConfig.RicConfigUpdate;
 import org.oransc.policyagent.configuration.RicConfig;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.PolicyTypes;
@@ -78,19 +79,23 @@ public class StartupService implements ApplicationConfig.Observer {
     }
 
     @Override
-    public void onRicConfigUpdate(RicConfig ricConfig, ApplicationConfig.RicConfigUpdate event) {
+    public void onRicConfigUpdate(RicConfig ricConfig, RicConfigUpdate event) {
         synchronized (this.rics) {
-            if (event.equals(ApplicationConfig.RicConfigUpdate.ADDED)
-                || event.equals(ApplicationConfig.RicConfigUpdate.CHANGED)) {
-                Ric ric = new Ric(ricConfig);
-                rics.put(ric);
-                RicSynchronizationTask synchronizationTask =
-                    new RicSynchronizationTask(a1ClientFactory, policyTypes, policies, services);
-                synchronizationTask.run(ric);
-            } else if (event.equals(ApplicationConfig.RicConfigUpdate.REMOVED)) {
-                rics.remove(ricConfig.name());
-            } else {
-                logger.debug("Unhandled event: {}", event);
+            switch (event) {
+                case ADDED:
+                case CHANGED:
+                    Ric ric = new Ric(ricConfig);
+                    rics.put(ric);
+                    RicSynchronizationTask synchronizationTask = createSynchronizationTask();
+                    synchronizationTask.run(ric);
+                    break;
+
+                case REMOVED:
+                    rics.remove(ricConfig.name());
+                    break;
+
+                default:
+                    logger.error("Unhandled ric event: {}", event);
             }
         }
     }
@@ -104,4 +109,7 @@ public class StartupService implements ApplicationConfig.Observer {
         refreshConfigTask.start();
     }
 
+    RicSynchronizationTask createSynchronizationTask() {
+        return new RicSynchronizationTask(a1ClientFactory, policyTypes, policies, services);
+    }
 }
