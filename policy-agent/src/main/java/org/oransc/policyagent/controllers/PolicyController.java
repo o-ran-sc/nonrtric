@@ -36,6 +36,7 @@ import org.oransc.policyagent.clients.A1ClientFactory;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.repository.ImmutablePolicy;
+import org.oransc.policyagent.repository.Lock.LockType;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.PolicyType;
@@ -157,12 +158,12 @@ public class PolicyController {
         Policy policy = policies.get(id);
         if (policy != null && policy.ric().getState() == Ric.RicState.IDLE) {
             Ric ric = policy.ric();
-            return a1ClientFactory.createA1Client(policy.ric()) //
-                .doOnNext(notUsed -> ric.getLock().lockBlocking()) //
+            return ric.getLock().lock(LockType.SHARED) // //
+                .flatMap(lock -> a1ClientFactory.createA1Client(policy.ric())) //
                 .doOnNext(notUsed -> policies.remove(policy)) //
                 .flatMap(client -> client.deletePolicy(policy)) //
-                .doOnNext(notUsed -> ric.getLock().unlock()) //
-                .doOnError(notUsed -> ric.getLock().unlock()) //
+                .doOnNext(notUsed -> ric.getLock().unlockBlocking()) //
+                .doOnError(notUsed -> ric.getLock().unlockBlocking()) //
                 .flatMap(notUsed -> Mono.just(new ResponseEntity<>(HttpStatus.NO_CONTENT)));
         } else if (policy != null) {
             return Mono.just(new ResponseEntity<>("Busy, recovering", HttpStatus.LOCKED));
@@ -197,14 +198,13 @@ public class PolicyController {
 
             final boolean isCreate = this.policies.get(policy.id()) == null;
 
-            return Mono.just(policy) //
-                .doOnNext(notUsed -> ric.getLock().lockBlocking()) //
+            return ric.getLock().lock(LockType.SHARED) //
                 .flatMap(p -> validateModifiedPolicy(policy)) //
                 .flatMap(notUsed -> a1ClientFactory.createA1Client(ric)) //
                 .flatMap(client -> client.putPolicy(policy)) //
                 .doOnNext(notUsed -> policies.put(policy)) //
-                .doOnNext(notUsed -> ric.getLock().unlock()) //
-                .doOnError(t -> ric.getLock().unlock()) //
+                .doOnNext(notUsed -> ric.getLock().unlockBlocking()) //
+                .doOnError(t -> ric.getLock().unlockBlocking()) //
                 .flatMap(notUsed -> Mono.just(new ResponseEntity<>(isCreate ? HttpStatus.CREATED : HttpStatus.OK))) //
                 .onErrorResume(t -> Mono.just(new ResponseEntity<>(t.getMessage(), HttpStatus.METHOD_NOT_ALLOWED)));
         }

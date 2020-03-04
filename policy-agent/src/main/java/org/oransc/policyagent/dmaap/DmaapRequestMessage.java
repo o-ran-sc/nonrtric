@@ -20,9 +20,9 @@
 
 package org.oransc.policyagent.dmaap;
 
-import java.util.Optional;
-
 import com.google.gson.JsonObject;
+
+import java.util.Optional;
 
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
