@@ -125,7 +125,7 @@ public class RicSynchronizationTask {
     @SuppressWarnings("squid:S2629")
     private void onSynchronizationError(Ric ric, Throwable t) {
         logger.warn("Synchronization failed for ric: {}, reason: {}", ric.name(), t.getMessage());
-        // If recovery fails, try to remove all instances
+        // If synchronization fails, try to remove all instances
         deleteAllPoliciesInRepository(ric);
 
         Flux<PolicyType> recoverTypes = this.a1ClientFactory.createA1Client(ric) //

@@ -158,8 +158,8 @@ public class RepositorySupervision {
     }
 
     private Mono<RicData> startSynchronization(RicData ric) {
-        RicSynchronizationTask recovery = createSynchronizationTask();
-        recovery.run(ric.ric);
+        RicSynchronizationTask synchronizationTask = createSynchronizationTask();
+        synchronizationTask.run(ric.ric);
         return Mono.empty();
     }
 
