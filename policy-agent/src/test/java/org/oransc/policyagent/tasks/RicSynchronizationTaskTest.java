@@ -35,9 +35,11 @@ import static org.mockito.Mockito.when;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,6 +60,7 @@ import org.oransc.policyagent.repository.Ric.RicState;
 import org.oransc.policyagent.repository.Service;
 import org.oransc.policyagent.repository.Services;
 import org.oransc.policyagent.utils.LoggingUtils;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -150,7 +153,7 @@ public class RicSynchronizationTaskTest {
 
         synchronizerUnderTest.run(RIC_1);
 
-        verify(a1ClientMock).getPolicyTypeIdentities();
+        verify(a1ClientMock, times(1)).getPolicyTypeIdentities();
         verifyNoMoreInteractions(a1ClientMock);
 
         verify(synchronizerUnderTest).run(RIC_1);
@@ -303,6 +306,7 @@ public class RicSynchronizationTaskTest {
 
     private void setUpCreationOfA1Client() {
         when(a1ClientFactoryMock.createA1Client(any(Ric.class))).thenReturn(Mono.just(a1ClientMock));
+        doReturn(Flux.empty()).when(a1ClientMock).deleteAllPolicies();
     }
 
     private AsyncRestClient setUpCreationOfAsyncRestClient(RicSynchronizationTask synchronizerUnderTest) {

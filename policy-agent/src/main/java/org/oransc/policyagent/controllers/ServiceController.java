@@ -31,6 +31,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.Policy;
@@ -68,7 +69,7 @@ public class ServiceController {
     @ApiResponses(
         value = {@ApiResponse(code = 200, message = "OK", response = ServiceStatus.class, responseContainer = "List")})
     public ResponseEntity<String> getServices(//
-        @RequestParam(name = "serviceName", required = false) String name) {
+        @RequestParam(name = "name", required = false) String name) {
 
         Collection<ServiceStatus> servicesStatus = new ArrayList<>();
         synchronized (this.services) {
@@ -104,7 +105,7 @@ public class ServiceController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "OK")})
     @DeleteMapping("/services")
     public ResponseEntity<String> deleteService(//
-        @RequestParam(name = "serviceName", required = true) String serviceName) {
+        @RequestParam(name = "name", required = true) String serviceName) {
         try {
             Service service = removeService(serviceName);
             // Remove the policies from the repo and let the consistency monitoring
@@ -122,7 +123,7 @@ public class ServiceController {
             @ApiResponse(code = 404, message = "The service is not found, needs re-registration")})
     @PostMapping("/services/keepalive")
     public ResponseEntity<String> keepAliveService(//
-        @RequestParam(name = "serviceName", required = true) String serviceName) {
+        @RequestParam(name = "name", required = true) String serviceName) {
         try {
             services.getService(serviceName).ping();
             return new ResponseEntity<>("OK", HttpStatus.OK);

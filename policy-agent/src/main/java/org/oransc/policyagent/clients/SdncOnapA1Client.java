@@ -23,10 +23,12 @@ package org.oransc.policyagent.clients;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.oransc.policyagent.configuration.RicConfig;
 import org.oransc.policyagent.repository.Policy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -96,8 +98,8 @@ public class SdncOnapA1Client implements A1Client {
         String inputJsonString = JsonHelper.createInputJsonString(inputParams);
         logger.debug("POST putPolicy inputJsonString = {}", inputJsonString);
 
-        return restClient.postWithAuthHeader(URL_PREFIX + "createPolicyInstance", inputJsonString,
-            a1ControllerUsername, a1ControllerPassword);
+        return restClient.postWithAuthHeader(URL_PREFIX + "createPolicyInstance", inputJsonString, a1ControllerUsername,
+            a1ControllerPassword);
     }
 
     @Override

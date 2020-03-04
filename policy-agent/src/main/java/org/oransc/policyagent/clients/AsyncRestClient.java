@@ -32,6 +32,7 @@ import reactor.core.publisher.Mono;
 public class AsyncRestClient {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final WebClient client;
+    private final String baseUrl;
 
     public class AsyncRestClientException extends Exception {
 
@@ -44,9 +45,11 @@ public class AsyncRestClient {
 
     public AsyncRestClient(String baseUrl) {
         this.client = WebClient.create(baseUrl);
+        this.baseUrl = baseUrl;
     }
 
     public Mono<String> post(String uri, String body) {
+        logger.debug("POST uri = '{}{}''", baseUrl, uri);
         return client.post() //
             .uri(uri) //
             .contentType(MediaType.APPLICATION_JSON) //
@@ -58,6 +61,7 @@ public class AsyncRestClient {
     }
 
     public Mono<String> postWithAuthHeader(String uri, String body, String username, String password) {
+        logger.debug("POST (auth) uri = '{}{}''", baseUrl, uri);
         return client.post() //
             .uri(uri) //
             .headers(headers -> headers.setBasicAuth(username, password)) //
@@ -70,7 +74,7 @@ public class AsyncRestClient {
     }
 
     public Mono<String> put(String uri, String body) {
-        logger.debug("PUT uri = '{}''", uri);
+        logger.debug("PUT uri = '{}{}''", baseUrl, uri);
         return client.put() //
             .uri(uri) //
             .contentType(MediaType.APPLICATION_JSON) //
@@ -82,7 +86,7 @@ public class AsyncRestClient {
     }
 
     public Mono<String> get(String uri) {
-        logger.debug("GET uri = '{}''", uri);
+        logger.debug("GET uri = '{}{}''", baseUrl, uri);
         return client.get() //
             .uri(uri) //
             .retrieve() //
@@ -92,7 +96,7 @@ public class AsyncRestClient {
     }
 
     public Mono<String> delete(String uri) {
-        logger.debug("DELETE uri = '{}''", uri);
+        logger.debug("DELETE uri = '{}{}''", baseUrl, uri);
         return client.delete() //
             .uri(uri) //
             .retrieve() //
