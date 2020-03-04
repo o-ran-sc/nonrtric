@@ -34,7 +34,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.AfterEach;
@@ -224,9 +223,8 @@ public class ApplicationTest {
         addRic("notCorrectRic6");
 
         String ricName = "ric1";
-        Ric ric = addRic(ricName);
         String managedElementId = "kista_1";
-        ric.addManagedElement(managedElementId);
+        addRic(ricName, managedElementId);
 
         String url = baseUrl() + "/ric?managedElementId=" + managedElementId;
         String rsp = this.restTemplate.getForObject(url, String.class);
@@ -497,6 +495,7 @@ public class ApplicationTest {
             this.supervision = supervision;
         }
 
+        @Override
         public void run() {
             for (int i = 0; i < 100; ++i) {
                 if (i % 10 == 0) {
@@ -554,10 +553,17 @@ public class ApplicationTest {
     }
 
     private Ric addRic(String ricName) {
+        return addRic(ricName, null);
+    }
+
+    private Ric addRic(String ricName, String managedElement) {
         if (rics.get(ricName) != null) {
             return rics.get(ricName);
         }
-        Vector<String> mes = new Vector<>();
+        List<String> mes = new ArrayList<>();
+        if (managedElement != null) {
+            mes.add(managedElement);
+        }
         RicConfig conf = ImmutableRicConfig.builder() //
                 .name(ricName) //
                 .baseUrl(ricName) //

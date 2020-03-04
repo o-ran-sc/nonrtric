@@ -216,12 +216,10 @@ public class PolicyController {
     private Mono<Object> validateModifiedPolicy(Policy policy) {
         // Check that ric is not updated
         Policy current = this.policies.get(policy.id());
-        if (current != null) {
-            if (!current.ric().name().equals(policy.ric().name())) {
-                return Mono.error(new Exception("Policy cannot change RIC, policyId: " + current.id() + //
-                    ", RIC name: " + current.ric().name() + //
-                    ", new name: " + policy.ric().name()));
-            }
+        if (current != null && !current.ric().name().equals(policy.ric().name())) {
+            return Mono.error(new Exception("Policy cannot change RIC, policyId: " + current.id() + //
+                ", RIC name: " + current.ric().name() + //
+                ", new name: " + policy.ric().name()));
         }
         return Mono.just("OK");
     }
