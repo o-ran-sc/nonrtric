@@ -106,8 +106,8 @@ public class ApplicationTest {
     Services services;
 
     private static Gson gson = new GsonBuilder() //
-            .serializeNulls() //
-            .create(); //
+        .serializeNulls() //
+        .create(); //
 
     public static class MockApplicationConfig extends ApplicationConfig {
         @Override
@@ -149,7 +149,7 @@ public class ApplicationTest {
         @Override
         public boolean hasError(ClientHttpResponse httpResponse) throws IOException {
             return (httpResponse.getStatusCode().series() == Series.CLIENT_ERROR
-                    || httpResponse.getStatusCode().series() == Series.SERVER_ERROR);
+                || httpResponse.getStatusCode().series() == Series.SERVER_ERROR);
         }
 
         @Override
@@ -174,7 +174,7 @@ public class ApplicationTest {
     public void verifyNoRicLocks() {
         for (Ric ric : this.rics.getRics()) {
             ric.getLock().lockBlocking(LockType.EXCLUSIVE);
-            ric.getLock().unlock();
+            ric.getLock().unlockBlocking();
             assertThat(ric.getLock().getLockCounter()).isEqualTo(0);
             assertThat(ric.getState()).isEqualTo(Ric.RicState.IDLE);
         }
@@ -216,13 +216,6 @@ public class ApplicationTest {
 
     @Test
     public void testGetRicForManagedElement_thenReturnCorrectRic() throws Exception {
-        addRic("notCorrectRic1");
-        addRic("notCorrectRic2");
-        addRic("notCorrectRic3");
-        addRic("notCorrectRic4");
-        addRic("notCorrectRic5");
-        addRic("notCorrectRic6");
-
         String ricName = "ric1";
         Ric ric = addRic(ricName);
         String managedElementId = "kista_1";
@@ -253,7 +246,7 @@ public class ApplicationTest {
         addPolicyType(policyTypeName, ricName);
 
         String url = baseUrl() + "/policy?type=" + policyTypeName + "&instance=" + policyInstanceId + "&ric=" + ricName
-                + "&service=" + serviceName;
+            + "&service=" + serviceName;
         final String json = jsonString();
         this.rics.getRic(ricName).setState(Ric.RicState.IDLE);
 
@@ -450,11 +443,11 @@ public class ApplicationTest {
     private Policy addPolicy(String id, String typeName, String service, String ric) throws ServiceException {
         addRic(ric);
         Policy p = ImmutablePolicy.builder().id(id) //
-                .json(jsonString()) //
-                .ownerServiceName(service) //
-                .ric(rics.getRic(ric)) //
-                .type(addPolicyType(typeName, ric)) //
-                .lastModified("lastModified").build();
+            .json(jsonString()) //
+            .ownerServiceName(service) //
+            .ric(rics.getRic(ric)) //
+            .type(addPolicyType(typeName, ric)) //
+            .lastModified("lastModified").build();
         policies.put(p);
         return p;
     }
@@ -544,9 +537,9 @@ public class ApplicationTest {
 
     private PolicyType addPolicyType(String policyTypeName, String ricName) {
         PolicyType type = ImmutablePolicyType.builder() //
-                .name(policyTypeName) //
-                .schema("{\"title\":\"" + policyTypeName + "\"}") //
-                .build();
+            .name(policyTypeName) //
+            .schema("{\"title\":\"" + policyTypeName + "\"}") //
+            .build();
 
         policyTypes.put(type);
         addRic(ricName).addSupportedPolicyType(type);
@@ -559,10 +552,10 @@ public class ApplicationTest {
         }
         Vector<String> mes = new Vector<>();
         RicConfig conf = ImmutableRicConfig.builder() //
-                .name(ricName) //
-                .baseUrl(ricName) //
-                .managedElementIds(mes) //
-                .build();
+            .name(ricName) //
+            .baseUrl(ricName) //
+            .managedElementIds(mes) //
+            .build();
         Ric ric = new Ric(conf);
         ric.setState(Ric.RicState.IDLE);
         this.rics.put(ric);

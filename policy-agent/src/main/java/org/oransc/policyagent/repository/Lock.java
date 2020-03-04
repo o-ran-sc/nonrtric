@@ -20,6 +20,7 @@
 
 package org.oransc.policyagent.repository;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,10 +32,9 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoSink;
 
 /**
- * A resource lock. The caller thread will be blocked until the lock is granted.
- * Exclusive means that the caller takes exclusive ownership of the resurce. Non
- * exclusive lock means that several users can lock the resource (for shared
- * usage).
+ * A resource lock. Exclusive means that the caller takes exclusive ownership of
+ * the resurce. Non exclusive lock means that several users can lock the
+ * resource (for shared usage).
  */
 public class Lock {
     private static final Logger logger = LoggerFactory.getLogger(Lock.class);
@@ -46,16 +46,14 @@ public class Lock {
         EXCLUSIVE, SHARED
     }
 
+    /** The caller thread will be blocked util the lock is granted. */
     public synchronized void lockBlocking(LockType locktype) {
         while (!tryLock(locktype)) {
             this.waitForUnlock();
         }
     }
 
-    public synchronized void lockBlocking() {
-        lockBlocking(LockType.SHARED);
-    }
-
+    /** Reactive version. The Lock will be emitted when the lock is granted */
     public synchronized Mono<Lock> lock(LockType lockType) {
         if (tryLock(lockType)) {
             return Mono.just(this);
@@ -64,46 +62,69 @@ public class Lock {
         }
     }
 
-    public synchronized void unlock() {
-        if (disable()) {
-            return;
-        }
-        if (cnt <= 0) {
-            cnt = -1; // Might as well stop, to make it easier to find the problem
-            throw new RuntimeException("Number of unlocks must match the number of locks");
-        }
-        this.cnt--;
-        if (cnt == 0) {
-            isExclusive = false;
+    public Mono<Lock> unlock() {
+        return Mono.create(monoSink -> {
+            unlockBlocking();
+            monoSink.success(this);
+        });
+    }
+
+    public void unlockBlocking() {
+        synchronized (this) {
+            if (cnt <= 0) {
+                cnt = -1; // Might as well stop, to make it easier to find the problem
+                throw new RuntimeException("Number of unlocks must match the number of locks");
+            }
+            this.cnt--;
+            if (cnt == 0) {
+                isExclusive = false;
+            }
+            this.notifyAll();
         }
         this.processQueuedEntries();
-        this.notifyAll();
+
+    }
+
+    @Override
+    public String toString() {
+        return "Lock cnt: " + this.cnt + " exclusive: " + this.isExclusive;
+    }
+
+    /** returns the current number of granted locks */
+    public synchronized int getLockCounter() {
+        return this.cnt;
     }
 
     private void processQueuedEntries() {
-        for (Iterator<QueueEntry> i = queue.iterator(); i.hasNext();) {
-            QueueEntry e = i.next();
-            if (tryLock(e.lockType)) {
-                i.remove();
-                e.callback.success(this);
+        List<LockRequest> granted = new ArrayList<>();
+        synchronized (this) {
+            for (Iterator<LockRequest> i = lockRequestQueue.iterator(); i.hasNext();) {
+                LockRequest request = i.next();
+                if (tryLock(request.lockType)) {
+                    i.remove();
+                    granted.add(request);
+                }
             }
+        }
+        for (LockRequest request : granted) {
+            request.callback.success(this);
         }
     }
 
-    static class QueueEntry {
+    private static class LockRequest {
         final MonoSink<Lock> callback;
         final LockType lockType;
 
-        QueueEntry(MonoSink<Lock> callback, LockType lockType) {
+        LockRequest(MonoSink<Lock> callback, LockType lockType) {
             this.callback = callback;
             this.lockType = lockType;
         }
     }
 
-    private final List<QueueEntry> queue = new LinkedList<>();
+    private final List<LockRequest> lockRequestQueue = new LinkedList<>();
 
     private synchronized void addToQueue(MonoSink<Lock> callback, LockType lockType) {
-        queue.add(new QueueEntry(callback, lockType));
+        lockRequestQueue.add(new LockRequest(callback, lockType));
     }
 
     private void waitForUnlock() {
@@ -114,14 +135,7 @@ public class Lock {
         }
     }
 
-    private boolean disable() {
-        return true;
-    }
-
     private boolean tryLock(LockType lockType) {
-        if (disable()) {
-            return true;
-        }
         if (this.isExclusive) {
             return false;
         }
@@ -131,10 +145,6 @@ public class Lock {
         cnt++;
         this.isExclusive = lockType == LockType.EXCLUSIVE;
         return true;
-    }
-
-    public synchronized int getLockCounter() {
-        return this.cnt;
     }
 
 }

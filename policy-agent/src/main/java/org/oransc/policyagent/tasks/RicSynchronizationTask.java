@@ -82,9 +82,10 @@ public class RicSynchronizationTask {
             }
             ric.setState(RicState.SYNCHRONIZING);
         }
-        ric.getLock().lockBlocking(LockType.EXCLUSIVE); // Make sure no NBI updates are running
-        ric.getLock().unlock();
-        this.a1ClientFactory.createA1Client(ric)//
+
+        ric.getLock().lock(LockType.EXCLUSIVE) // Make sure no NBI updates are running
+            .flatMap(lock -> lock.unlock()) //
+            .flatMap(lock -> this.a1ClientFactory.createA1Client(ric)) //
             .flatMapMany(client -> startSynchronization(ric, client)) //
             .subscribe(x -> logger.debug("Synchronize: {}", x), //
                 throwable -> onSynchronizationError(ric, throwable), //

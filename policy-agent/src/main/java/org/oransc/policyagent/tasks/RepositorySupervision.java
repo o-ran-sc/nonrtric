@@ -79,12 +79,16 @@ public class RepositorySupervision {
         synchronized (this.rics) {
             return Flux.fromIterable(rics.getRics()) //
                 .flatMap(this::createRicData) //
-                .flatMap(this::checkRicState) //
-                .doOnNext(ricData -> ricData.ric.getLock().lockBlocking(LockType.EXCLUSIVE)) //
-                .flatMap(this::checkRicPolicies) //
-                .doOnNext(ricData -> ricData.ric.getLock().unlock()) //
-                .flatMap(this::checkRicPolicyTypes); //
+                .flatMap(this::checkOneRic);
         }
+    }
+
+    private Mono<RicData> checkOneRic(RicData ricData) {
+        return checkRicState(ricData) //
+            .flatMap(x -> ricData.ric.getLock().lock(LockType.EXCLUSIVE)) //
+            .flatMap(x -> checkRicPolicies(ricData)) //
+            .flatMap(x -> ricData.ric.getLock().unlock()) //
+            .flatMap(x -> checkRicPolicyTypes(ricData)); //
     }
 
     private static class RicData {
@@ -116,7 +120,7 @@ public class RepositorySupervision {
     private Mono<RicData> checkRicPolicies(RicData ric) {
         return ric.a1Client.getPolicyIdentities() //
             .onErrorResume(t -> {
-                ric.ric.getLock().unlock();
+                ric.ric.getLock().unlockBlocking();
                 return Mono.empty();
             }) //
             .flatMap(ricP -> validateInstances(ricP, ric));
@@ -125,13 +129,13 @@ public class RepositorySupervision {
     private Mono<RicData> validateInstances(Collection<String> ricPolicies, RicData ric) {
         synchronized (this.policies) {
             if (ricPolicies.size() != policies.getForRic(ric.ric.name()).size()) {
-                ric.ric.getLock().unlock();
+                ric.ric.getLock().unlockBlocking();
                 return startSynchronization(ric);
             }
 
             for (String policyId : ricPolicies) {
                 if (!policies.containsPolicy(policyId)) {
-                    ric.ric.getLock().unlock();
+                    ric.ric.getLock().unlockBlocking();
                     return startSynchronization(ric);
                 }
             }
