@@ -84,13 +84,10 @@ public class StartupService implements ApplicationConfig.Observer {
                 || event.equals(ApplicationConfig.RicConfigUpdate.CHANGED)) {
                 Ric ric = new Ric(ricConfig);
                 rics.put(ric);
-                RicSynchronizationTask synchronizationTask =
-                    new RicSynchronizationTask(a1ClientFactory, policyTypes, policies, services);
+                RicSynchronizationTask synchronizationTask = createSynchronizationTask();
                 synchronizationTask.run(ric);
             } else if (event.equals(ApplicationConfig.RicConfigUpdate.REMOVED)) {
                 rics.remove(ricConfig.name());
-            } else {
-                logger.debug("Unhandled event: {}", event);
             }
         }
     }
@@ -104,4 +101,7 @@ public class StartupService implements ApplicationConfig.Observer {
         refreshConfigTask.start();
     }
 
+    RicSynchronizationTask createSynchronizationTask() {
+        return new RicSynchronizationTask(a1ClientFactory, policyTypes, policies, services);
+    }
 }
