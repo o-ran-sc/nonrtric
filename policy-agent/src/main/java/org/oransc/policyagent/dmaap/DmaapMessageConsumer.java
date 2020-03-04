@@ -44,7 +44,9 @@ public class DmaapMessageConsumer implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(DmaapMessageConsumer.class);
 
+    @SuppressWarnings("squid:S00116") // To avoid warning about DMAAP abbreviation.
     final Duration TIME_BETWEEN_DMAAP_POLLS = Duration.ofSeconds(10);
+
     private final ApplicationConfig applicationConfig;
 
     @Value("${server.port}")
