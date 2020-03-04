@@ -109,7 +109,7 @@ public class AsyncRestClientTest {
         mockWebServer.enqueue(new MockResponse().setResponseCode(SUCCESS_CODE));
 
         Mono<String> returnedMono = clientUnderTest.delete(REQUEST_URL);
-        StepVerifier.create(returnedMono).expectComplete().verify();
+        StepVerifier.create(returnedMono).expectNext("").expectComplete().verify();
     }
 
     @Test

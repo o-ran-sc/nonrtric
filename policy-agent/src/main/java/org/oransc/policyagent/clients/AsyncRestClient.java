@@ -57,7 +57,8 @@ public class AsyncRestClient {
             .retrieve() //
             .onStatus(HttpStatus::isError,
                 response -> Mono.error(new AsyncRestClientException(response.statusCode().toString()))) //
-            .bodyToMono(String.class);
+            .bodyToMono(String.class) //
+            .defaultIfEmpty("");
     }
 
     public Mono<String> postWithAuthHeader(String uri, String body, String username, String password) {
@@ -70,7 +71,8 @@ public class AsyncRestClient {
             .retrieve() //
             .onStatus(HttpStatus::isError,
                 response -> Mono.error(new AsyncRestClientException(response.statusCode().toString()))) //
-            .bodyToMono(String.class);
+            .bodyToMono(String.class) //
+            .defaultIfEmpty("");
     }
 
     public Mono<String> put(String uri, String body) {
@@ -82,7 +84,8 @@ public class AsyncRestClient {
             .retrieve() //
             .onStatus(HttpStatus::isError,
                 response -> Mono.error(new AsyncRestClientException(response.statusCode().toString()))) //
-            .bodyToMono(String.class);
+            .bodyToMono(String.class) //
+            .defaultIfEmpty("");
     }
 
     public Mono<String> get(String uri) {
@@ -92,7 +95,8 @@ public class AsyncRestClient {
             .retrieve() //
             .onStatus(HttpStatus::isError,
                 response -> Mono.error(new AsyncRestClientException(response.statusCode().toString()))) //
-            .bodyToMono(String.class);
+            .bodyToMono(String.class) //
+            .defaultIfEmpty("");
     }
 
     public Mono<String> delete(String uri) {
@@ -102,6 +106,7 @@ public class AsyncRestClient {
             .retrieve() //
             .onStatus(HttpStatus::isError,
                 response -> Mono.error(new AsyncRestClientException(response.statusCode().toString()))) //
-            .bodyToMono(String.class);
+            .bodyToMono(String.class) //
+            .defaultIfEmpty("");
     }
 }
