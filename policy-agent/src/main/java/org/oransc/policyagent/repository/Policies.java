@@ -110,6 +110,13 @@ public class Policies {
         multiMapRemove(policiesType, policy.type().name(), policy);
     }
 
+    public synchronized void removePoliciesForRic(String ricName) {
+        Collection<Policy> policiesForRic = getForRic(ricName);
+        for (Policy policy : policiesForRic) {
+            remove(policy);
+        }
+    }
+
     public synchronized int size() {
         return policiesId.size();
     }

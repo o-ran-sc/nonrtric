@@ -92,6 +92,7 @@ public class StartupService implements ApplicationConfig.Observer {
 
                 case REMOVED:
                     rics.remove(ricConfig.name());
+                    policies.removePoliciesForRic(ricConfig.name());
                     break;
 
                 default:

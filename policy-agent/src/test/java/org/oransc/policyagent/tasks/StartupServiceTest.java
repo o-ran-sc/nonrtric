@@ -23,9 +23,11 @@ package org.oransc.policyagent.tasks;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +39,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.configuration.ImmutableRicConfig;
 import org.oransc.policyagent.configuration.RicConfig;
+import org.oransc.policyagent.repository.Policies;
+import org.oransc.policyagent.repository.Policy;
+import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Rics;
 
@@ -106,17 +111,33 @@ public class StartupServiceTest {
     }
 
     @Test
-    public void oneRicIsRemoved_thenNoSynchronizationIsStartedAndRicIsDeletedFromRepository() {
+    public void oneRicIsRemoved_thenNoSynchronizationIsStartedAndRicAndItsPoliciesAreDeletedFromRepository() {
         Rics rics = new Rics();
         RicConfig ricConfig = getRicConfig(FIRST_RIC_NAME);
-        rics.put(new Ric(ricConfig));
+        Ric ric = new Ric(ricConfig);
+        rics.put(ric);
+
+        Policies policies = addPolicyForRic(ric);
 
         StartupService serviceUnderTest =
-            new StartupService(appConfigMock, refreshTaskMock, rics, null, null, null, null);
+            new StartupService(appConfigMock, refreshTaskMock, rics, null, null, policies, null);
 
         serviceUnderTest.onRicConfigUpdate(ricConfig, ApplicationConfig.RicConfigUpdate.REMOVED);
 
         assertEquals(0, rics.size(), "Ric not deleted");
+        assertEquals(0, policies.size(), "Ric's policies not deleted");
+    }
+
+    private Policies addPolicyForRic(Ric ric) {
+        Policies policies = new Policies();
+        Policy policyMock = mock(Policy.class);
+        when(policyMock.id()).thenReturn("policyId");
+        when(policyMock.ric()).thenReturn(ric);
+        PolicyType policyTypeMock = mock(PolicyType.class);
+        when(policyTypeMock.name()).thenReturn("typeName");
+        when(policyMock.type()).thenReturn(policyTypeMock);
+        policies.put(policyMock);
+        return policies;
     }
 
     private RicConfig getRicConfig(String name) {
