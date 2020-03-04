@@ -19,8 +19,6 @@
  */
 package org.oransc.ric.portal.dashboard;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.lang.invoke.MethodHandles;
 
 import org.junit.jupiter.api.Test;
@@ -55,6 +53,7 @@ public class DashboardTestServer {
      * Keeps the test server alive forever. Use a guard so this test is never run by
      * Jenkins.
      */
+    @SuppressWarnings("squid:S2699") // To avoid warning about missing assertion.
     @EnabledIfSystemProperty(named = "org.oransc.ric.portal.dashboard", matches = "mock")
     @Test
     public void keepServerAlive() {
@@ -66,6 +65,5 @@ public class DashboardTestServer {
         } catch (Exception ex) {
             logger.warn(ex.toString());
         }
-        assertEquals(1, 2);
     }
 }

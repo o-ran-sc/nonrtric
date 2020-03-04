@@ -19,14 +19,13 @@
  */
 package org.oransc.ric.portal.dashboard;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -42,8 +41,6 @@ import org.slf4j.LoggerFactory;
  * Provides simple user-management services.
  *
  * This first implementation serializes user details to a file.
- *
- * TODO: migrate to a database.
  */
 public class DashboardUserManager {
 
@@ -70,7 +67,7 @@ public class DashboardUserManager {
             logger.debug("ctor: removing file {}", userFile.getAbsolutePath());
             File f = new File(DashboardUserManager.USER_FILE_PATH);
             if (f.exists())
-                f.delete();
+                Files.delete(f.toPath());
             users.clear();
         }
     }
@@ -124,7 +121,7 @@ public class DashboardUserManager {
         return null;
     }
 
-    private void saveUsers() throws JsonGenerationException, JsonMappingException, IOException {
+    private void saveUsers() throws IOException {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(userFile, users);
     }
@@ -133,7 +130,9 @@ public class DashboardUserManager {
      * Allow at most one thread to create a user at one time.
      */
     public synchronized void createUser(EcompUser user) throws PortalAPIException {
-        logger.debug("createUser: loginId is " + user.getLoginId());
+        if (logger.isDebugEnabled()) {
+            logger.debug("createUser: loginId is {}", user.getLoginId());
+        }
         if (users.contains(user))
             throw new PortalAPIException("User exists: " + user.getLoginId());
         users.add(user);
@@ -149,7 +148,7 @@ public class DashboardUserManager {
      * last-edit-wins of course.
      */
     public synchronized void updateUser(String loginId, EcompUser user) throws PortalAPIException {
-        logger.debug("editUser: loginId is " + loginId);
+        logger.debug("editUser: loginId is {}", loginId);
         int index = users.indexOf(user);
         if (index < 0)
             throw new PortalAPIException("User does not exist: " + user.getLoginId());
