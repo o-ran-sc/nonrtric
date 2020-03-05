@@ -1,0 +1,65 @@
+# ==================================================================================
+#   Modifications Copyright (c) 2019 Nordix Foundation.
+#
+#   Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#          http://www.apache.org/licenses/LICENSE-2.0
+#
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+# ==================================================================================
+version: '2.1'
+
+networks:
+  default:
+    driver: bridge
+    name: nonrtric-docker-net
+
+services:
+  db:
+    image: mysql/mysql-server:5.6
+    container_name: sdnc_db_container
+    networks:
+      - default
+    ports:
+      - "3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=openECOMP1.0
+      - MYSQL_ROOT_HOST=%
+    logging:
+      driver:   "json-file"
+      options:
+        max-size: "30m"
+        max-file: "5"
+
+  a1-controller:
+    image: nexus3.o-ran-sc.org:10002/o-ran-sc/nonrtric-a1-controller:1.7.4
+    depends_on :
+      - db
+    container_name: a1-controller-container
+    networks:
+      - default
+    entrypoint: ["/opt/onap/sdnc/bin/startODL.sh"]
+    ports:
+      - "8282:8181"
+    links:
+      - db:dbhost
+      - db:sdnctldb01
+      - db:sdnctldb02
+    environment:
+      - MYSQL_ROOT_PASSWORD=openECOMP1.0
+      - SDNC_CONFIG_DIR=/opt/onap/sdnc/data/properties
+    dns:
+      - ${DNS_IP_ADDR-10.0.100.1}
+    logging:
+      driver:   "json-file"
+      options:
+        max-size: "30m"
+        max-file: "5"
+    extra_hosts:
+        aaf.osaaf.org: 10.12.6.214

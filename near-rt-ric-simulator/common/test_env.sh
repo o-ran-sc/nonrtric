@@ -2,10 +2,14 @@
 
 # Set the images for the Policy agent app to use for the auto tests. Do not add the image tag.
 #
-# Local image and tag, shall point to locally built image (non-nexus path)
+# Local Policy Agent image and tag, shall point to locally built image (non-nexus path)
 export POLICY_AGENT_LOCAL_IMAGE=o-ran-sc/nonrtric-policy-agent
 # Remote image
 export POLICY_AGENT_REMOTE_IMAGE=nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-policy-agent
+# SDNC A1 Adapter remote image
+export SDNC_A1_ADAPTER_IMAGE=nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-a1-controller:1.7.4
+# Dashboard remote image
+export DASHBOARD_IMAGE=nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-dashboard:1.0.1
 
 # Common env var for auto-test.
 

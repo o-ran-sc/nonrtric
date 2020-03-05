@@ -2,7 +2,7 @@
 
 . ../common/test_env.sh
 
-echo "Test case started as: ${BASH_SOURCE[$i+1]} "$1 $2
+echo "Test case started as: ${BASH_SOURCE[$i+1]} "$1 $2 $3
 echo "Numbers of ric simulator started" $2
 
 # This is a script that contains all the functions needed for auto test
@@ -13,9 +13,10 @@ START_ARG=$1
 IMAGE_TAG="1.0.0-SNAPSHOT"
 IMAGE_TAG_REMOTE="latest"
 RIC_NUMBER=$2
+SDNC=$3
 
-if [ $# -lt 1 ] || [ $# -gt 2 ]; then
-	echo "Expected arg: local  | remote  and numbers of the rics "
+if [ $# -lt 1 ] || [ $# -gt 4 ]; then
+	echo "Expected arg: local  | remote  and numbers of the rics and SDNC "
 	exit 1
 elif [ $1 == "local" ]; then
 	if [ -z $POLICY_AGENT_LOCAL_IMAGE ]; then
@@ -165,6 +166,42 @@ start_ric_simulator() {
 	echo ""
 }
 
+start_dashboard() {
+
+  DOCKER_SIM_NWNAME="nonrtric-docker-net"
+  echo "Creating docker network $DOCKER_SIM_NWNAME, if needed"
+  docker network ls| grep $DOCKER_SIM_NWNAME > /dev/null || docker network create $DOCKER_SIM_NWNAME
+
+  echo "start dashboard"
+  curdir=$PWD
+  cd $SIM_GROUP
+  cd dashboard/
+
+  docker-compose up -d
+
+  cd $curdir
+	echo ""
+}
+
+start_sdnc() {
+
+  if [ $SDNC == "sdnc" ]; then
+    DOCKER_SIM_NWNAME="nonrtric-docker-net"
+    echo "Creating docker network $DOCKER_SIM_NWNAME, if needed"
+    docker network ls| grep $DOCKER_SIM_NWNAME > /dev/null || docker network create $DOCKER_SIM_NWNAME
+
+    echo "start sdnc"
+    curdir=$PWD
+    cd $SIM_GROUP
+    cd sdnc/
+
+    docker-compose up -d a1-controller
+
+    cd $curdir
+	  echo ""
+	fi
+}
+
 prepare_consul_config() {
   echo "prepare consul config"
   curdir=$PWD
@@ -193,6 +230,8 @@ start_simulators() {
 	echo ""
 }
 
+
+
 clean_containers() {
 	echo "Stopping all containers, policy agent app(s) and simulators with name prefix 'policy_agent'"
 	docker stop $(docker ps -q --filter name=/policy-agent) &> /dev/null
@@ -202,6 +241,16 @@ clean_containers() {
 	docker stop $(docker ps -q --filter name=ric-simulator) &> /dev/null
 	echo "Removing all containers, policy agent app and simulators with name prefix 'ric-simulator'"
 	docker rm $(docker ps -a -q --filter name=ric-simulator) &> /dev/null
+	echo "Removing all containers, policy agent app and simulators with name prefix 'dashboard'"
+	docker rm $(docker ps -a -q --filter name=dashboard) &> /dev/null
+	echo "Removing all containers, policy agent app and simulators with name prefix 'a1-controller'"
+	docker rm $(docker ps -a -q --filter name=a1-controller) &> /dev/null
+	echo "Removing all containers, policy agent app and simulators with name prefix 'sdnc_db_container'"
+	docker rm $(docker ps -a -q --filter name=sdnc_db_container) &> /dev/null
+	echo "Removing all containers, policy agent app and simulators with name prefix 'cbs'"
+	docker rm $(docker ps -a -q --filter name=polman_cbs) &> /dev/null
+	echo "Removing all containers, policy agent app and simulators with name prefix 'consul'"
+	docker rm $(docker ps -a -q --filter name=polman_consul) &> /dev/null
 	echo "Removing unused docker networks with substring 'policy agent' in network name"
 	docker network rm $(docker network ls -q --filter name=nonrtric)
 	echo ""
