@@ -230,7 +230,7 @@ public class ApplicationTest {
         this.setRestErrorhandler();
         String url = baseUrl() + "/ric?managedElementId=kista_1";
         ResponseEntity<String> entity = this.restTemplate.getForEntity(url, String.class);
-        assertThat(entity.getStatusCode().equals(HttpStatus.NOT_FOUND));
+        assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
@@ -273,7 +273,7 @@ public class ApplicationTest {
         this.setRestErrorhandler();
         String urlWrongRic = baseUrl() + "/policy?type=type1&instance=instance1&ric=ricXXX&service=service1";
         ResponseEntity<String> entity = this.putForEntity(urlWrongRic, jsonString());
-        assertThat(entity.getStatusCode().equals(HttpStatus.METHOD_NOT_ALLOWED));
+        assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
 
         Policy policy = policies.getPolicy("instance1");
         assertThat(policy.ric().name()).isEqualTo("ric1"); // Not changed
@@ -413,7 +413,7 @@ public class ApplicationTest {
         // Keep alive
         url = baseUrl() + "/services/keepalive?name=name";
         ResponseEntity<String> entity = this.restTemplate.postForEntity(url, null, String.class);
-        assertThat(entity.getStatusCode().equals(HttpStatus.OK));
+        assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         // DELETE
         assertThat(services.size()).isEqualTo(1);

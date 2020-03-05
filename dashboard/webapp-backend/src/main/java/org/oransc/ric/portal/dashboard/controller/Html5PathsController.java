@@ -30,8 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
 
 /**
  * Listens for requests to known Angular routes.
@@ -56,9 +55,7 @@ public class Html5PathsController {
      * @throws IOException
      *         On error
      */
-    @RequestMapping(
-        method = {RequestMethod.GET}, //
-        path = {"/policy"})
+    @GetMapping("/policy")
     public void forwardAngularRoutes(HttpServletRequest request, HttpServletResponse response) throws IOException {
         URL url = new URL(request.getScheme(), request.getServerName(), request.getServerPort(), "/index.html");
         if (logger.isDebugEnabled())

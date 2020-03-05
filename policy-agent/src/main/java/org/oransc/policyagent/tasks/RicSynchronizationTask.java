@@ -28,6 +28,7 @@ import org.oransc.policyagent.clients.A1Client;
 import org.oransc.policyagent.clients.A1ClientFactory;
 import org.oransc.policyagent.clients.AsyncRestClient;
 import org.oransc.policyagent.repository.ImmutablePolicyType;
+import org.oransc.policyagent.repository.Lock;
 import org.oransc.policyagent.repository.Lock.LockType;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.Policy;
@@ -84,7 +85,7 @@ public class RicSynchronizationTask {
         }
 
         ric.getLock().lock(LockType.EXCLUSIVE) // Make sure no NBI updates are running
-            .flatMap(lock -> lock.unlock()) //
+            .flatMap(Lock::unlock) //
             .flatMap(lock -> this.a1ClientFactory.createA1Client(ric)) //
             .flatMapMany(client -> startSynchronization(ric, client)) //
             .subscribe(x -> logger.debug("Synchronize: {}", x), //
@@ -132,11 +133,11 @@ public class RicSynchronizationTask {
         Flux<PolicyType> recoverTypes = this.a1ClientFactory.createA1Client(ric) //
             .flatMapMany(a1Client -> synchronizePolicyTypes(ric, a1Client));
         Flux<?> deletePoliciesInRic = this.a1ClientFactory.createA1Client(ric) //
-            .flatMapMany(a1Client -> a1Client.deleteAllPolicies()) //
+            .flatMapMany(A1Client::deleteAllPolicies) //
             .doOnComplete(() -> deleteAllPoliciesInRepository(ric));
 
         Flux.concat(recoverTypes, deletePoliciesInRic) //
-            .subscribe(x -> logger.debug("Brute recover: " + x), //
+            .subscribe(x -> logger.debug("Brute recover: ", x), //
                 throwable -> onRecoveryError(ric, throwable), //
                 () -> onSynchronizationComplete(ric));
     }

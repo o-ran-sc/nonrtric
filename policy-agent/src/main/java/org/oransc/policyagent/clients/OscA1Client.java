@@ -137,7 +137,8 @@ public class OscA1Client implements A1Client {
             schemaObj.put(TITLE, policyTypeId);
             return Mono.just(schemaObj.toString());
         } catch (Exception e) {
-            logger.error("Unexpected response for policy type: {}, exception: {}", policyTypeResponse, e.toString());
+            String exceptionString = e.toString();
+            logger.error("Unexpected response for policy type: {}, exception: {}", policyTypeResponse, exceptionString);
             return Mono.error(e);
         }
     }
