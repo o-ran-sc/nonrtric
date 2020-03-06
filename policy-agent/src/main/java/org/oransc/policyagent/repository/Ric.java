@@ -20,8 +20,6 @@
 
 package org.oransc.policyagent.repository;
 
-import com.google.common.collect.ImmutableList;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,9 +36,8 @@ import org.oransc.policyagent.configuration.RicConfig;
  */
 public class Ric {
 
-    private final RicConfig ricConfig;
-    private final ImmutableList<String> managedElementIds;
-
+    @Setter
+    private RicConfig ricConfig;
     private RicState state = RicState.UNDEFINED;
     private Map<String, PolicyType> supportedPolicyTypes = new HashMap<>();
     @Getter
@@ -57,7 +54,6 @@ public class Ric {
      */
     public Ric(RicConfig ricConfig) {
         this.ricConfig = ricConfig;
-        this.managedElementIds = ricConfig.managedElementIds();
     }
 
     public String name() {
@@ -82,7 +78,7 @@ public class Ric {
      * @return a vector containing the nodes managed by this Ric.
      */
     public synchronized Collection<String> getManagedElementIds() {
-        return managedElementIds;
+        return ricConfig.managedElementIds();
     }
 
     /**
@@ -92,7 +88,7 @@ public class Ric {
      * @return true if the given node is managed by this Ric.
      */
     public synchronized boolean isManaging(String managedElementId) {
-        return managedElementIds.contains(managedElementId);
+        return ricConfig.managedElementIds().contains(managedElementId);
     }
 
     /**
@@ -138,7 +134,7 @@ public class Ric {
     @Override
     public synchronized String toString() {
         return Ric.class.getSimpleName() + ": " + "name: " + name() + ", state: " + state + ", baseUrl: "
-            + ricConfig.baseUrl() + ", managedNodes: " + managedElementIds;
+            + ricConfig.baseUrl() + ", managedNodes: " + ricConfig.managedElementIds();
     }
 
     /**
