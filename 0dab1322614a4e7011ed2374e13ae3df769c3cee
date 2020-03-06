@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "b85e73b7_d4beab3e",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RefreshConfigTask.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-06T09:04:16Z",
+      "side": 1,
+      "message": "Should this really be logged as an ERROR?",
+      "range": {
+        "startLine": 109,
+        "startChar": 29,
+        "endLine": 109,
+        "endChar": 34
+      },
+      "revId": "0dab1322614a4e7011ed2374e13ae3df769c3cee",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e417066c_7f6b7573",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RefreshConfigTask.java",
         "patchSetId": 2
