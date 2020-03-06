@@ -55,7 +55,7 @@ import org.springframework.web.client.RestTemplate;
 public class PolicyAgentApiImpl implements PolicyAgentApi {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    RestTemplate restTemplate = new RestTemplate();
+    RestTemplate restTemplate;
 
     private static com.google.gson.Gson gson = new GsonBuilder() //
         .serializeNulls() //
@@ -66,8 +66,13 @@ public class PolicyAgentApiImpl implements PolicyAgentApi {
     @Autowired
     public PolicyAgentApiImpl(
         @org.springframework.beans.factory.annotation.Value("${policycontroller.url.prefix}") final String urlPrefix) {
+        this(urlPrefix, new RestTemplate());
         logger.debug("ctor prefix '{}'", urlPrefix);
+    }
+
+    public PolicyAgentApiImpl(String urlPrefix, RestTemplate restTemplate) {
         this.urlPrefix = urlPrefix;
+        this.restTemplate = restTemplate;
     }
 
     private String baseUrl() {
