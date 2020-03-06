@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "770f0712_55c47f03",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RefreshConfigTask.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-06T09:26:51Z",
+      "side": 1,
+      "message": "Maybe change the name from RicConfigUpdate.Type to RicConfigUpdate.UpdateType? I still think this code would be more readable if the RicConfigUpdate.is not there.",
+      "parentUuid": "2b718ce9_c064c8dd",
+      "range": {
+        "startLine": 189,
+        "startChar": 25,
+        "endLine": 189,
+        "endChar": 41
+      },
+      "revId": "df57a5585f2fb579b583258128f3ef60963a7af2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ddadf1a5_84c1ec4e",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RefreshConfigTask.java",
         "patchSetId": 3
