@@ -20,7 +20,7 @@
 
 package org.oransc.policyagent;
 
-import org.oransc.policyagent.tasks.StartupService;
+import org.oransc.policyagent.tasks.RefreshConfigTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -32,7 +32,7 @@ import org.springframework.context.annotation.Bean;
 public class Application {
 
     @Autowired
-    private StartupService startupService;
+    private RefreshConfigTask configRefresh;
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class);
@@ -47,6 +47,6 @@ public class Application {
      */
     @Bean
     public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
-        return args -> startupService.startup();
+        return args -> configRefresh.start();
     }
 }

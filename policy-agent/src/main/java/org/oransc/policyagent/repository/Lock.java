@@ -42,6 +42,7 @@ public class Lock {
     private boolean isExclusive = false;
     private int lockCounter = 0;
     private final List<LockRequest> lockRequestQueue = new LinkedList<>();
+    private static AsynchCallbackExecutor callbackProcessor = new AsynchCallbackExecutor();
 
     private static class AsynchCallbackExecutor implements Runnable {
         private List<LockRequest> lockRequestQueue = new LinkedList<>();
@@ -72,6 +73,7 @@ public class Lock {
             return q;
         }
 
+        @SuppressWarnings("java:S2274")
         private synchronized void waitForNewEntries() {
             try {
                 if (this.lockRequestQueue.isEmpty()) {
@@ -79,13 +81,12 @@ public class Lock {
                 }
             } catch (InterruptedException e) {
                 logger.warn("waitForUnlock interrupted", e);
+                Thread.currentThread().interrupt();
             }
         }
     }
 
-    private static AsynchCallbackExecutor callbackProcessor = new AsynchCallbackExecutor();
-
-    public static enum LockType {
+    public enum LockType {
         EXCLUSIVE, SHARED
     }
 
@@ -116,7 +117,7 @@ public class Lock {
         synchronized (this) {
             if (lockCounter <= 0) {
                 lockCounter = -1; // Might as well stop, to make it easier to find the problem
-                throw new RuntimeException("Number of unlocks must match the number of locks");
+                throw new NullPointerException("Number of unlocks must match the number of locks");
             }
             this.lockCounter--;
             if (lockCounter == 0) {
@@ -148,10 +149,6 @@ public class Lock {
                 }
             }
         }
-
-        /*
-         * for (LockRequest request : granted) { request.callback.success(this); }
-         */
         callbackProcessor.addAll(granted);
     }
 
@@ -171,11 +168,13 @@ public class Lock {
         lockRequestQueue.add(new LockRequest(callback, lockType, this));
     }
 
-    private void waitForUnlock() {
+    @SuppressWarnings("java:S2274")
+    private synchronized void waitForUnlock() {
         try {
             this.wait();
         } catch (InterruptedException e) {
             logger.warn("waitForUnlock interrupted", e);
+            Thread.currentThread().interrupt();
         }
     }
 
