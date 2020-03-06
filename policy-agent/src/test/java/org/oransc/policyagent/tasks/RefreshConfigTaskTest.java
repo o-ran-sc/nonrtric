@@ -27,7 +27,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 
@@ -44,6 +43,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.Vector;
@@ -56,10 +56,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.onap.dcaegen2.services.sdk.rest.services.cbs.client.api.CbsClient;
 import org.onap.dcaegen2.services.sdk.rest.services.cbs.client.model.EnvProperties;
 import org.onap.dcaegen2.services.sdk.rest.services.cbs.client.model.ImmutableEnvProperties;
+import org.oransc.policyagent.clients.A1ClientFactory;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.configuration.ApplicationConfigParser;
 import org.oransc.policyagent.configuration.ImmutableRicConfig;
 import org.oransc.policyagent.configuration.RicConfig;
+import org.oransc.policyagent.repository.Policies;
+import org.oransc.policyagent.repository.PolicyTypes;
+import org.oransc.policyagent.repository.Rics;
+import org.oransc.policyagent.repository.Services;
 import org.oransc.policyagent.utils.LoggingUtils;
 
 import reactor.core.publisher.Flux;
@@ -93,14 +98,27 @@ public class RefreshConfigTaskTest {
             .build();
     }
 
+    private RefreshConfigTask createTestObject(boolean configFileExists) {
+        RefreshConfigTask obj = spy(new RefreshConfigTask(appConfig, new Rics(), new Policies(), new Services(),
+            new PolicyTypes(), new A1ClientFactory(appConfig)));
+        doReturn(configFileExists).when(obj).configFileExists();
+        return obj;
+    }
+
     @Test
     public void whenTheConfigurationFits_thenConfiguredRicsArePutInRepository() throws Exception {
-        refreshTaskUnderTest = spy(new RefreshConfigTask(appConfig));
+        refreshTaskUnderTest = this.createTestObject(true);
         refreshTaskUnderTest.systemEnvironment = new Properties();
         // When
         doReturn(getCorrectJson()).when(refreshTaskUnderTest).createInputStream(any());
         doReturn("fileName").when(appConfig).getLocalConfigurationFilePath();
-        refreshTaskUnderTest.start();
+
+        StepVerifier.create(refreshTaskUnderTest.createRefreshTask()) //
+            .expectSubscription() //
+            .expectNext(this.appConfig) //
+            .expectNext(this.appConfig) //
+            .thenCancel() //
+            .verify();
 
         // Then
         verify(refreshTaskUnderTest, times(1)).loadConfigurationFromFile();
@@ -113,13 +131,18 @@ public class RefreshConfigTaskTest {
 
     @Test
     public void whenFileExistsButJsonIsIncorrect_thenNoRicsArePutInRepository() throws Exception {
-        refreshTaskUnderTest = spy(new RefreshConfigTask(appConfig));
+        refreshTaskUnderTest = this.createTestObject(true);
         refreshTaskUnderTest.systemEnvironment = new Properties();
 
         // When
         doReturn(getIncorrectJson()).when(refreshTaskUnderTest).createInputStream(any());
         doReturn("fileName").when(appConfig).getLocalConfigurationFilePath();
-        refreshTaskUnderTest.loadConfigurationFromFile();
+
+        StepVerifier.create(refreshTaskUnderTest.createRefreshTask()) //
+            .expectSubscription() //
+            .expectNoEvent(Duration.ofMillis(100)) //
+            .thenCancel() //
+            .verify();
 
         // Then
         verify(refreshTaskUnderTest, times(1)).loadConfigurationFromFile();
@@ -127,40 +150,27 @@ public class RefreshConfigTaskTest {
     }
 
     @Test
-    public void whenPeriodicConfigRefreshNoEnvironmentVariables_thenErrorIsLogged() {
-        refreshTaskUnderTest = spy(new RefreshConfigTask(appConfig));
-        refreshTaskUnderTest.systemEnvironment = new Properties();
-
-        final ListAppender<ILoggingEvent> logAppender = LoggingUtils.getLogListAppender(RefreshConfigTask.class);
-        Flux<ApplicationConfig> task = refreshTaskUnderTest.createRefreshTask();
-
-        StepVerifier.create(task).expectSubscription().verifyComplete();
-
-        assertThat(logAppender.list.get(0).getLevel()).isEqualTo(Level.ERROR);
-        assertThat(logAppender.list.toString().contains("$CONSUL_HOST environment has not been defined")).isTrue();
-    }
-
-    @Test
     public void whenPeriodicConfigRefreshNoConsul_thenErrorIsLogged() {
-        refreshTaskUnderTest = spy(new RefreshConfigTask(appConfig));
+        refreshTaskUnderTest = this.createTestObject(false);
         refreshTaskUnderTest.systemEnvironment = new Properties();
 
         EnvProperties props = properties();
         doReturn(Mono.just(props)).when(refreshTaskUnderTest).getEnvironment(any());
 
         doReturn(Mono.just(cbsClient)).when(refreshTaskUnderTest).createCbsClient(props);
-        Flux<JsonObject> err = Flux.error(new IOException());
+        Flux<?> err = Flux.error(new IOException());
         doReturn(err).when(cbsClient).updates(any(), any(), any());
 
         final ListAppender<ILoggingEvent> logAppender = LoggingUtils.getLogListAppender(RefreshConfigTask.class);
-        Flux<ApplicationConfig> task = refreshTaskUnderTest.createRefreshTask();
+        Flux<?> task = refreshTaskUnderTest.createRefreshTask();
 
         StepVerifier //
             .create(task) //
             .expectSubscription() //
-            .verifyComplete();
+            .expectNoEvent(Duration.ofMillis(100)) //
+            .thenCancel() //
+            .verify();
 
-        assertThat(logAppender.list.get(0).getLevel()).isEqualTo(Level.ERROR);
         assertThat(
             logAppender.list.toString().contains("Could not refresh application configuration. java.io.IOException"))
                 .isTrue();
@@ -168,7 +178,7 @@ public class RefreshConfigTaskTest {
 
     @Test
     public void whenPeriodicConfigRefreshSuccess_thenNewConfigIsCreated() throws Exception {
-        refreshTaskUnderTest = spy(new RefreshConfigTask(appConfig));
+        refreshTaskUnderTest = this.createTestObject(false);
         refreshTaskUnderTest.systemEnvironment = new Properties();
 
         EnvProperties props = properties();
@@ -187,8 +197,11 @@ public class RefreshConfigTaskTest {
             .create(task) //
             .expectSubscription() //
             .expectNext(appConfig) //
-            .verifyComplete();
+            .expectNext(appConfig) //
+            .thenCancel() //
+            .verify();
 
+        verify(refreshTaskUnderTest, times(2)).runRicSynchronization(any());
         assertThat(appConfig.getRicConfigs()).isNotNull();
         assertThat(appConfig.getRic(RIC_1_NAME).baseUrl()).isEqualTo(newBaseUrl);
     }
