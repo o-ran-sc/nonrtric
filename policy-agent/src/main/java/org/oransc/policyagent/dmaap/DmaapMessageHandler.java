@@ -22,8 +22,10 @@ package org.oransc.policyagent.dmaap;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import org.onap.dmaap.mr.client.MRBatchingPublisher;
 import org.oransc.policyagent.clients.AsyncRestClient;
@@ -94,8 +96,9 @@ public class DmaapMessageHandler {
     }
 
     private String payload(DmaapRequestMessage message) {
-        if (message.payload().isPresent()) {
-            return gson.toJson(message.payload().get());
+        Optional<JsonObject> payload = message.payload();
+        if (payload.isPresent()) {
+            return gson.toJson(payload.get());
         } else {
             logger.warn("Expected payload in message from DMAAP: {}", message);
             return "";
