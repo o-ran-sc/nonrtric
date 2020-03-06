@@ -120,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "9c6790bf_55658057",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RefreshConfigTask.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-06T10:05:30Z",
+      "side": 1,
+      "message": "There is nothing wrong in using a scope. If scope is used the name in the scope can be short. \nOtherwise some kind of scope must be in the name. \nI do not think \"event \u003d\u003d RicConfigUpdate.Type.REMOVED\" is unreadable.On the contrary it shows that the Type is in the scope of the RicConfigUpdate.",
+      "parentUuid": "770f0712_55c47f03",
+      "range": {
+        "startLine": 189,
+        "startChar": 25,
+        "endLine": 189,
+        "endChar": 41
+      },
+      "revId": "df57a5585f2fb579b583258128f3ef60963a7af2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ddadf1a5_84c1ec4e",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RefreshConfigTask.java",
         "patchSetId": 3
