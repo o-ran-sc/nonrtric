@@ -27,7 +27,7 @@ import org.immutables.value.Value;
 
 @Value.Immutable
 @Gson.TypeAdapters
-public interface SdncOscAdapterInput {
+interface SdncOscAdapterInput {
     public String nearRtRicUrl();
 
     public Optional<String> policyTypeId();

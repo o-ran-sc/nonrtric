@@ -34,6 +34,7 @@ import lombok.Getter;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import reactor.core.publisher.Flux;
 
 @EnableConfigurationProperties
 @ConfigurationProperties("app")
@@ -50,7 +51,6 @@ public class ApplicationConfig {
     @NotEmpty
     private String a1ControllerPassword;
 
-    private Collection<Observer> observers = new ArrayList<>();
     private Map<String, RicConfig> ricConfigs = new HashMap<>();
     @Getter
     private Properties dmaapPublisherConfig;
@@ -105,65 +105,49 @@ public class ApplicationConfig {
         throw new ServiceException("Could not find ric: " + ricName);
     }
 
-    public enum RicConfigUpdate {
-        ADDED, CHANGED, REMOVED
-    }
+    public static class ConfigUpdate {
+        public enum Type {
+            ADDED, CHANGED, REMOVED
+        }
 
-    public interface Observer {
-        void onRicConfigUpdate(RicConfig ric, RicConfigUpdate event);
-    }
+        @Getter
+        private final RicConfig ricConfig;
+        @Getter
+        private final Type type;
 
-    public void addObserver(Observer o) {
-        this.observers.add(o);
-    }
-
-    private class Notification {
-        final RicConfig ric;
-        final RicConfigUpdate event;
-
-        Notification(RicConfig ric, RicConfigUpdate event) {
-            this.ric = ric;
-            this.event = event;
+        ConfigUpdate(RicConfig ric, Type event) {
+            this.ricConfig = ric;
+            this.type = event;
         }
     }
 
-    public void setConfiguration(@NotNull Collection<RicConfig> ricConfigs, Properties dmaapPublisherConfig,
-        Properties dmaapConsumerConfig) {
+    public synchronized Flux<ConfigUpdate> setConfiguration(@NotNull Collection<RicConfig> ricConfigs,
+        Properties dmaapPublisherConfig, Properties dmaapConsumerConfig) {
 
-        Collection<Notification> notifications = new ArrayList<>();
-        synchronized (this) {
-            this.dmaapPublisherConfig = dmaapPublisherConfig;
-            this.dmaapConsumerConfig = dmaapConsumerConfig;
+        Collection<ConfigUpdate> modifications = new ArrayList<>();
+        this.dmaapPublisherConfig = dmaapPublisherConfig;
+        this.dmaapConsumerConfig = dmaapConsumerConfig;
 
-            Map<String, RicConfig> newRicConfigs = new HashMap<>();
-            for (RicConfig newConfig : ricConfigs) {
-                RicConfig oldConfig = this.ricConfigs.get(newConfig.name());
-                if (oldConfig == null) {
-                    newRicConfigs.put(newConfig.name(), newConfig);
-                    notifications.add(new Notification(newConfig, RicConfigUpdate.ADDED));
-                    this.ricConfigs.remove(newConfig.name());
-                } else if (!newConfig.equals(oldConfig)) {
-                    notifications.add(new Notification(newConfig, RicConfigUpdate.CHANGED));
-                    newRicConfigs.put(newConfig.name(), newConfig);
-                    this.ricConfigs.remove(newConfig.name());
-                } else {
-                    newRicConfigs.put(oldConfig.name(), oldConfig);
-                }
-            }
-            for (RicConfig deletedConfig : this.ricConfigs.values()) {
-                notifications.add(new Notification(deletedConfig, RicConfigUpdate.REMOVED));
-            }
-            this.ricConfigs = newRicConfigs;
-        }
-
-        notifyObservers(notifications);
-    }
-
-    private void notifyObservers(Collection<Notification> notifications) {
-        for (Observer observer : this.observers) {
-            for (Notification notif : notifications) {
-                observer.onRicConfigUpdate(notif.ric, notif.event);
+        Map<String, RicConfig> newRicConfigs = new HashMap<>();
+        for (RicConfig newConfig : ricConfigs) {
+            RicConfig oldConfig = this.ricConfigs.get(newConfig.name());
+            if (oldConfig == null) {
+                newRicConfigs.put(newConfig.name(), newConfig);
+                modifications.add(new ConfigUpdate(newConfig, ConfigUpdate.Type.ADDED));
+                this.ricConfigs.remove(newConfig.name());
+            } else if (!newConfig.equals(oldConfig)) {
+                modifications.add(new ConfigUpdate(newConfig, ConfigUpdate.Type.CHANGED));
+                newRicConfigs.put(newConfig.name(), newConfig);
+                this.ricConfigs.remove(newConfig.name());
+            } else {
+                newRicConfigs.put(oldConfig.name(), oldConfig);
             }
         }
+        for (RicConfig deletedConfig : this.ricConfigs.values()) {
+            modifications.add(new ConfigUpdate(deletedConfig, ConfigUpdate.Type.REMOVED));
+        }
+        this.ricConfigs = newRicConfigs;
+
+        return Flux.fromIterable(modifications);
     }
 }
