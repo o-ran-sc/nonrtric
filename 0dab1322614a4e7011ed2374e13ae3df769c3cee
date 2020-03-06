@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "63e5688c_f71a5cad",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RefreshConfigTask.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-06T09:17:25Z",
+      "side": 1,
+      "message": "When this happens, the task of periodic refreshing is terminated. \nThat is very serious problem, it cannot be terminated.\nI will change the text to \"Configuration refresh terminated\" instead.",
+      "parentUuid": "b85e73b7_d4beab3e",
+      "range": {
+        "startLine": 109,
+        "startChar": 29,
+        "endLine": 109,
+        "endChar": 34
+      },
+      "revId": "0dab1322614a4e7011ed2374e13ae3df769c3cee",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e417066c_7f6b7573",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RefreshConfigTask.java",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "0dab1322614a4e7011ed2374e13ae3df769c3cee",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d3a17e8_db8e44df",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RefreshConfigTask.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-06T09:17:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e417066c_7f6b7573",
+      "range": {
+        "startLine": 185,
+        "startChar": 44,
+        "endLine": 185,
+        "endChar": 56
+      },
+      "revId": "0dab1322614a4e7011ed2374e13ae3df769c3cee",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }

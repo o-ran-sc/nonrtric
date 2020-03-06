@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f58087a2_03ebd6bf",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RefreshConfigTask.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-06T09:17:25Z",
+      "side": 1,
+      "message": "I will change x the x notUsed. There are other places where logical names are used even if the value is not used. I see no problem in that.\nBut where the x is used, there is no logic, it is just something Flux.interval emits.",
+      "parentUuid": "28ba35df_10aa0ccd",
+      "range": {
+        "startLine": 140,
+        "startChar": 21,
+        "endLine": 140,
+        "endChar": 34
+      },
+      "revId": "df57a5585f2fb579b583258128f3ef60963a7af2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2322a127_c58012d7",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RefreshConfigTask.java",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2020-03-06T09:04:16Z",
       "side": 1,
       "message": "By adding a static import of RicConfigUpdate.Type this can be remvoed to make the code more readable.",
+      "range": {
+        "startLine": 189,
+        "startChar": 25,
+        "endLine": 189,
+        "endChar": 41
+      },
+      "revId": "df57a5585f2fb579b583258128f3ef60963a7af2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b718ce9_c064c8dd",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RefreshConfigTask.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-06T09:17:25Z",
+      "side": 1,
+      "message": "I though about it but figured that only using \u0027Type\u0027 in the scope was too generic.",
+      "parentUuid": "2322a127_c58012d7",
       "range": {
         "startLine": 189,
         "startChar": 25,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "fea76074_6d138622",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RefreshConfigTask.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-06T09:17:25Z",
+      "side": 1,
+      "message": "I though about it but figured that only using \u0027Type\u0027 in the scope was too generic.",
+      "parentUuid": "ddadf1a5_84c1ec4e",
+      "range": {
+        "startLine": 191,
+        "startChar": 32,
+        "endLine": 191,
+        "endChar": 48
+      },
+      "revId": "df57a5585f2fb579b583258128f3ef60963a7af2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "66891b2e_ae6a3a42",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RefreshConfigTask.java",
         "patchSetId": 3
@@ -82,6 +154,30 @@
       "writtenOn": "2020-03-06T09:04:16Z",
       "side": 1,
       "message": "By adding a static import of RicConfigUpdate.Type this can be remvoed to make the code more readable.",
+      "range": {
+        "startLine": 194,
+        "startChar": 32,
+        "endLine": 194,
+        "endChar": 48
+      },
+      "revId": "df57a5585f2fb579b583258128f3ef60963a7af2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e005fd7d_9e843259",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RefreshConfigTask.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-06T09:17:25Z",
+      "side": 1,
+      "message": "I though about it but figured that only using \u0027Type\u0027 in the scope was too generic.",
+      "parentUuid": "66891b2e_ae6a3a42",
       "range": {
         "startLine": 194,
         "startChar": 32,
