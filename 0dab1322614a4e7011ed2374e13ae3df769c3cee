@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e417066c_7f6b7573",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RefreshConfigTask.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-06T08:07:01Z",
+      "side": 1,
+      "message": "I will change this to RicConfigUpdate",
+      "range": {
+        "startLine": 185,
+        "startChar": 44,
+        "endLine": 185,
+        "endChar": 56
+      },
+      "revId": "0dab1322614a4e7011ed2374e13ae3df769c3cee",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
