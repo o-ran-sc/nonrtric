@@ -544,6 +544,30 @@
       "revId": "2d0a2f4a77c10e0a0a43fe4fe7f960df0559b03e",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b974a00_011b869f",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/ApplicationTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 504,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-06T07:54:33Z",
+      "side": 1,
+      "message": "(this is already submitted, so I almost missed the comment)\nThere are 100 threads running full speed in parallel, so from the agent perspective all possible sequences should occur anyway. But I will try to move it and see if there is any difference.",
+      "parentUuid": "8f6771ab_eb8ef1b0",
+      "range": {
+        "startLine": 502,
+        "startChar": 0,
+        "endLine": 504,
+        "endChar": 17
+      },
+      "revId": "2d0a2f4a77c10e0a0a43fe4fe7f960df0559b03e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
