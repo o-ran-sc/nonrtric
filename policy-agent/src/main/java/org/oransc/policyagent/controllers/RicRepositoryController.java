@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import org.oransc.policyagent.configuration.ApplicationConfig;
+import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Rics;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,13 +49,12 @@ public class RicRepositoryController {
     @Autowired
     private Rics rics;
 
+    @Autowired
+    PolicyTypes types;
+
     private static Gson gson = new GsonBuilder() //
         .serializeNulls() //
         .create(); //
-
-    @Autowired
-    RicRepositoryController(ApplicationConfig appConfig) {
-    }
 
     /**
      * Example: http://localhost:8081/rics?managedElementId=kista_1
@@ -80,17 +79,20 @@ public class RicRepositoryController {
     }
 
     /**
-     * @return a Json array of all RIC data
-     *         Example: http://localhost:8081/ric
+     * @return a Json array of all RIC data Example: http://localhost:8081/ric
      */
     @GetMapping("/rics")
     @ApiOperation(value = "Query NearRT RIC information")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "OK", response = RicInfo.class, responseContainer = "List") //
-        })
+            @ApiResponse(code = 200, message = "OK", response = RicInfo.class, responseContainer = "List"), //
+            @ApiResponse(code = 404, message = "Policy type is not found", response = String.class)})
     public ResponseEntity<String> getRics(
         @RequestParam(name = "policyType", required = false) String supportingPolicyType) {
+
+        if ((supportingPolicyType != null) && (this.types.get(supportingPolicyType) == null)) {
+            return new ResponseEntity<>("Policy type not found", HttpStatus.NOT_FOUND);
+        }
 
         List<RicInfo> result = new ArrayList<>();
         synchronized (rics) {

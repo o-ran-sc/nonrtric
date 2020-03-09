@@ -24,9 +24,11 @@ import java.lang.invoke.MethodHandles;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec;
 import reactor.core.publisher.Mono;
 
 public class AsyncRestClient {
@@ -34,79 +36,84 @@ public class AsyncRestClient {
     private final WebClient client;
     private final String baseUrl;
 
-    public class AsyncRestClientException extends Exception {
-
-        private static final long serialVersionUID = 1L;
-
-        public AsyncRestClientException(String message) {
-            super(message);
-        }
-    }
-
     public AsyncRestClient(String baseUrl) {
         this.client = WebClient.create(baseUrl);
         this.baseUrl = baseUrl;
     }
 
-    public Mono<String> post(String uri, String body) {
+    public Mono<ResponseEntity<String>> postForEntity(String uri, @Nullable String body) {
         logger.debug("POST uri = '{}{}''", baseUrl, uri);
-        return client.post() //
+        Mono<String> bodyProducer = body != null ? Mono.just(body) : Mono.empty();
+        RequestHeadersSpec<?> request = client.post() //
             .uri(uri) //
             .contentType(MediaType.APPLICATION_JSON) //
-            .bodyValue(body) //
-            .retrieve() //
-            .onStatus(HttpStatus::isError,
-                response -> Mono.error(new AsyncRestClientException(response.statusCode().toString()))) //
-            .bodyToMono(String.class) //
-            .defaultIfEmpty("");
+            .body(bodyProducer, String.class);
+        return retrieve(request);
+    }
+
+    public Mono<String> post(String uri, @Nullable String body) {
+        return postForEntity(uri, body) //
+            .flatMap(this::toBody);
     }
 
     public Mono<String> postWithAuthHeader(String uri, String body, String username, String password) {
         logger.debug("POST (auth) uri = '{}{}''", baseUrl, uri);
-        return client.post() //
+        RequestHeadersSpec<?> request = client.post() //
             .uri(uri) //
             .headers(headers -> headers.setBasicAuth(username, password)) //
             .contentType(MediaType.APPLICATION_JSON) //
-            .bodyValue(body) //
-            .retrieve() //
-            .onStatus(HttpStatus::isError,
-                response -> Mono.error(new AsyncRestClientException(response.statusCode().toString()))) //
-            .bodyToMono(String.class) //
-            .defaultIfEmpty("");
+            .bodyValue(body);
+        return retrieve(request) //
+            .flatMap(this::toBody);
+    }
+
+    public Mono<ResponseEntity<String>> putForEntity(String uri, String body) {
+        logger.debug("PUT uri = '{}{}''", baseUrl, uri);
+        RequestHeadersSpec<?> request = client.put() //
+            .uri(uri) //
+            .contentType(MediaType.APPLICATION_JSON) //
+            .bodyValue(body);
+        return retrieve(request);
     }
 
     public Mono<String> put(String uri, String body) {
-        logger.debug("PUT uri = '{}{}''", baseUrl, uri);
-        return client.put() //
-            .uri(uri) //
-            .contentType(MediaType.APPLICATION_JSON) //
-            .bodyValue(body) //
-            .retrieve() //
-            .onStatus(HttpStatus::isError,
-                response -> Mono.error(new AsyncRestClientException(response.statusCode().toString()))) //
-            .bodyToMono(String.class) //
-            .defaultIfEmpty("");
+        return putForEntity(uri, body) //
+            .flatMap(this::toBody);
+    }
+
+    public Mono<ResponseEntity<String>> getForEntity(String uri) {
+        logger.debug("GET uri = '{}{}''", baseUrl, uri);
+        RequestHeadersSpec<?> request = client.get().uri(uri);
+        return retrieve(request);
     }
 
     public Mono<String> get(String uri) {
-        logger.debug("GET uri = '{}{}''", baseUrl, uri);
-        return client.get() //
-            .uri(uri) //
-            .retrieve() //
-            .onStatus(HttpStatus::isError,
-                response -> Mono.error(new AsyncRestClientException(response.statusCode().toString()))) //
-            .bodyToMono(String.class) //
-            .defaultIfEmpty("");
+        return getForEntity(uri) //
+            .flatMap(this::toBody);
+    }
+
+    public Mono<ResponseEntity<String>> deleteForEntity(String uri) {
+        logger.debug("DELETE uri = '{}{}''", baseUrl, uri);
+        RequestHeadersSpec<?> request = client.delete().uri(uri);
+        return retrieve(request);
     }
 
     public Mono<String> delete(String uri) {
-        logger.debug("DELETE uri = '{}{}''", baseUrl, uri);
-        return client.delete() //
-            .uri(uri) //
-            .retrieve() //
-            .onStatus(HttpStatus::isError,
-                response -> Mono.error(new AsyncRestClientException(response.statusCode().toString()))) //
-            .bodyToMono(String.class) //
-            .defaultIfEmpty("");
+        return deleteForEntity(uri) //
+            .flatMap(this::toBody);
     }
+
+    private Mono<ResponseEntity<String>> retrieve(RequestHeadersSpec<?> request) {
+        return request.retrieve() //
+            .toEntity(String.class);
+    }
+
+    Mono<String> toBody(ResponseEntity<String> entity) {
+        if (entity.getBody() == null) {
+            return Mono.just("");
+        } else {
+            return Mono.just(entity.getBody());
+        }
+    }
+
 }

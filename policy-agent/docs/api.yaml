@@ -361,7 +361,9 @@ paths:
         '403':
           description: Forbidden
         '404':
-          description: Not Found
+          description: RIC or type not found
+          schema:
+            type: string
       deprecated: false
   /policy:
     get:
@@ -382,16 +384,12 @@ paths:
           description: Policy found
           schema:
             type: object
-        '204':
-          description: Policy is not found
-          schema:
-            type: string
         '401':
           description: Unauthorized
         '403':
           description: Forbidden
         '404':
-          description: Not Found
+          description: Policy is not found
       deprecated: false
     put:
       tags:
@@ -431,17 +429,29 @@ paths:
           type: string
       responses:
         '200':
-          description: Policy created or updated
+          description: Policy updated
           schema:
             type: string
         '201':
-          description: Created
+          description: Policy created
+          schema:
+            type: string
         '401':
           description: Unauthorized
         '403':
           description: Forbidden
         '404':
-          description: Not Found
+          description: RIC or policy type is not found
+          schema:
+            type: string
+        '405':
+          description: Change is not allowed
+          schema:
+            type: string
+        '423':
+          description: RIC is locked
+          schema:
+            type: string
       deprecated: false
     delete:
       tags:
@@ -469,6 +479,14 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden
+        '404':
+          description: Policy is not found
+          schema:
+            type: string
+        '423':
+          description: RIC is locked
+          schema:
+            type: string
       deprecated: false
   /policy_schema:
     get:
@@ -494,7 +512,9 @@ paths:
         '403':
           description: Forbidden
         '404':
-          description: Not Found
+          description: RIC is not found
+          schema:
+            type: string
       deprecated: false
   /policy_schemas:
     get:
@@ -522,7 +542,9 @@ paths:
         '403':
           description: Forbidden
         '404':
-          description: Not Found
+          description: RIC is not found
+          schema:
+            type: string
       deprecated: false
   /policy_status:
     get:
@@ -543,16 +565,14 @@ paths:
           description: Policy status
           schema:
             type: object
-        '204':
-          description: Policy is not found
-          schema:
-            type: string
         '401':
           description: Unauthorized
         '403':
           description: Forbidden
         '404':
-          description: Not Found
+          description: Policy is not found
+          schema:
+            type: string
       deprecated: false
   /policy_types:
     get:
@@ -580,7 +600,9 @@ paths:
         '403':
           description: Forbidden
         '404':
-          description: Not Found
+          description: RIC is not found
+          schema:
+            type: string
       deprecated: false
   /ric:
     get:
@@ -636,7 +658,9 @@ paths:
         '403':
           description: Forbidden
         '404':
-          description: Not Found
+          description: Policy type is not found
+          schema:
+            type: string
       deprecated: false
   /service:
     put:
@@ -662,6 +686,10 @@ paths:
             type: string
         '201':
           description: Created
+        '400':
+          description: Cannot parse the bode as a service
+          schema:
+            type: string
         '401':
           description: Unauthorized
         '403':
@@ -695,7 +723,9 @@ paths:
         '403':
           description: Forbidden
         '404':
-          description: Not Found
+          description: Service type is not found
+          schema:
+            type: string
       deprecated: false
     delete:
       tags:
@@ -705,9 +735,9 @@ paths:
       produces:
         - '*/*'
       parameters:
-        - name: serviceName
+        - name: name
           in: query
-          description: serviceName
+          description: name
           required: true
           type: string
       responses:
@@ -716,26 +746,32 @@ paths:
           schema:
             type: string
         '204':
-          description: No Content
+          description: OK
+          schema:
+            type: string
         '401':
           description: Unauthorized
         '403':
           description: Forbidden
+        '404':
+          description: Service not found
+          schema:
+            type: string
       deprecated: false
   /services/keepalive:
     post:
       tags:
         - service-controller
-      summary: Keep the poilicies alive for a service
+      summary: Keep the policies alive for a service
       operationId: keepAliveServiceUsingPOST
       consumes:
         - application/json
       produces:
         - '*/*'
       parameters:
-        - name: serviceName
+        - name: name
           in: query
-          description: serviceName
+          description: name
           required: true
           type: string
       responses:
@@ -786,9 +822,9 @@ definitions:
     title: 'Map«string,Link»'
     additionalProperties:
       $ref: '#/definitions/Link'
-  Mono«ResponseEntity«Void»»:
+  Mono«ResponseEntity«object»»:
     type: object
-    title: Mono«ResponseEntity«Void»»
+    title: Mono«ResponseEntity«object»»
   Mono«ResponseEntity«string»»:
     type: object
     title: Mono«ResponseEntity«string»»
@@ -822,14 +858,14 @@ definitions:
         description: O1 identities for managed entities
         items:
           type: string
-      name:
-        type: string
-        description: identity of the ric
       policyTypes:
         type: array
         description: supported policy types
         items:
           type: string
+      ricName:
+        type: string
+        description: identity of the ric
     title: RicInfo
   ServiceRegistrationInfo:
     type: object
