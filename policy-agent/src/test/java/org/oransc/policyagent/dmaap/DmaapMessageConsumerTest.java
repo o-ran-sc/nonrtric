@@ -68,7 +68,7 @@ public class DmaapMessageConsumerTest {
 
     @Test
     public void dmaapNotConfigured_thenDoNothing() {
-        messageConsumerUnderTest = spy(new DmaapMessageConsumer(applicationConfigMock, false));
+        messageConsumerUnderTest = spy(new DmaapMessageConsumer(applicationConfigMock));
 
         doReturn(true).when(messageConsumerUnderTest).sleep(any(Duration.class));
 
@@ -82,7 +82,7 @@ public class DmaapMessageConsumerTest {
 
     @Test
     public void dmaapConfiguredAndNoMessages_thenPollOnce() throws Exception {
-        messageConsumerUnderTest = spy(new DmaapMessageConsumer(applicationConfigMock, false));
+        messageConsumerUnderTest = spy(new DmaapMessageConsumer(applicationConfigMock));
 
         doReturn(true, false).when(messageConsumerUnderTest).sleep(any(Duration.class));
 
@@ -113,7 +113,7 @@ public class DmaapMessageConsumerTest {
 
     @Test
     public void dmaapConfiguredAndErrorGettingMessages_thenLogWarning() throws Exception {
-        messageConsumerUnderTest = spy(new DmaapMessageConsumer(applicationConfigMock, false));
+        messageConsumerUnderTest = spy(new DmaapMessageConsumer(applicationConfigMock));
 
         doReturn(true, false).when(messageConsumerUnderTest).sleep(any(Duration.class));
 
@@ -141,7 +141,7 @@ public class DmaapMessageConsumerTest {
 
     @Test
     public void dmaapConfiguredAndOneMessage_thenPollOnceAndProcessMessage() throws Exception {
-        messageConsumerUnderTest = spy(new DmaapMessageConsumer(applicationConfigMock, false));
+        messageConsumerUnderTest = spy(new DmaapMessageConsumer(applicationConfigMock));
 
         doReturn(true, false).when(messageConsumerUnderTest).sleep(any(Duration.class));
 

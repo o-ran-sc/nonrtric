@@ -71,11 +71,11 @@ public class DmaapMessageHandler {
         }
     }
 
-    private Mono<String> handleAgentCallError(Throwable t, String origianalMessage,
+    private Mono<String> handleAgentCallError(Throwable t, String originalMessage,
         DmaapRequestMessage dmaapRequestMessage) {
         logger.debug("Agent call failed: {}", t.getMessage());
         if (t instanceof ServiceException) {
-            String errorMessage = prepareBadOperationErrorMessage(t, origianalMessage);
+            String errorMessage = prepareBadOperationErrorMessage(t, originalMessage);
             return sendDmaapResponse(errorMessage, dmaapRequestMessage, HttpStatus.NOT_FOUND) //
                 .flatMap(notUsed -> Mono.empty());
         } else {
@@ -84,11 +84,13 @@ public class DmaapMessageHandler {
         }
     }
 
-    private String prepareBadOperationErrorMessage(Throwable t, String origianalMessage) {
-        String badOperation = origianalMessage.substring(origianalMessage.indexOf("operation\":\"") + 12,
-            origianalMessage.indexOf(",\"url\":"));
-        String errorMessage = t.getMessage().replace("null", badOperation);
-        return errorMessage;
+    private String prepareBadOperationErrorMessage(Throwable t, String originalMessage) {
+        String operationParameterStart = "operation\":\"";
+        int indexOfOperationStart =
+            originalMessage.indexOf(operationParameterStart) + operationParameterStart.length();
+        int indexOfOperationEnd = originalMessage.indexOf(",\"", indexOfOperationStart);
+        String badOperation = originalMessage.substring(indexOfOperationStart, indexOfOperationEnd);
+        return t.getMessage().replace("null", badOperation);
     }
 
     private Mono<String> invokePolicyAgent(DmaapRequestMessage dmaapRequestMessage) {
@@ -112,7 +114,9 @@ public class DmaapMessageHandler {
                 result = agentClient.post(uri, payload(dmaapRequestMessage));
                 break;
             default:
-                // Nothing, can never get here.
+                // Can never get here since the operation will be null in the dmaapRequestMessage if the operation
+                // provided from DMaaP is not matching any of the operations defined in the Operation enumeration.
+                result = Mono.just("Unsupported operation");
         }
         return result;
     }
@@ -146,7 +150,7 @@ public class DmaapMessageHandler {
     }
 
     private Mono<String> handleResponseCallError(Throwable t) {
-        logger.debug("Failed to send respons to DMaaP: {}", t.getMessage());
+        logger.debug("Failed to send response to DMaaP: {}", t.getMessage());
         return Mono.empty();
     }
 
