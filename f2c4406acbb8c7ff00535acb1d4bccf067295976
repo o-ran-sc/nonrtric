@@ -22,6 +22,30 @@
       "revId": "f2c4406acbb8c7ff00535acb1d4bccf067295976",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7095d2c9_2c2f7cab",
+        "filename": "dashboard/webapp-backend/src/test/java/org/oransc/ric/portal/dashboard/policyagentapi/PolicyAgentApiImplTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-03-09T08:49:10Z",
+      "side": 1,
+      "message": "As per my understanding, the verification is still done in one place, i.e., the verify call. Here, it just specifies that if you get a call with these parameters, then return this. There is no verification involved here. Hence, there is nothing wrong if you match the parameters for mock calls. I have seen many examples on the web doing the same. So, I don\u0027t think that it is a standard practice.\n\nSecondly, I think it is also simpler to match parameters when calling mock methods with generic parameters, e.g., getForEntity in this case.",
+      "parentUuid": "24d6b658_4ce958bd",
+      "range": {
+        "startLine": 98,
+        "startChar": 43,
+        "endLine": 98,
+        "endChar": 78
+      },
+      "revId": "f2c4406acbb8c7ff00535acb1d4bccf067295976",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
