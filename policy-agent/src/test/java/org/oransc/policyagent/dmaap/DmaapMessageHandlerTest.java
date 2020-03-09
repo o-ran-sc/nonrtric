@@ -251,8 +251,8 @@ public class DmaapMessageHandlerTest {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(dmaapClient).send(captor.capture());
         String actualMessage = captor.getValue();
-        assertThat(actualMessage.contains(HttpStatus.NOT_FOUND + "\",\"message\":\"Not implemented operation:"))
-            .isTrue();
+        assertThat(actualMessage
+            .contains(HttpStatus.BAD_REQUEST + "\",\"message\":\"Not implemented operation: " + badOperation)).isTrue();
 
         verify(dmaapClient).sendBatchWithResponse();
         verifyNoMoreInteractions(dmaapClient);
