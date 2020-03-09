@@ -61,7 +61,7 @@ public class ServiceSupervision {
         createTask().subscribe(this::onPolicyDeleted, null, this::onComplete);
     }
 
-    @SuppressWarnings("squid:S2629")
+    @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
     private void onPolicyDeleted(Policy policy) {
         logger.debug("Policy deleted due to inactivity: {}, service: {}", policy.id(), policy.ownerServiceName());
     }
@@ -95,7 +95,7 @@ public class ServiceSupervision {
                 .map(nothing -> policy));
     }
 
-    @SuppressWarnings("squid:S2629")
+    @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
     private Mono<String> handleDeleteFromRicFailure(Policy policy, Throwable e) {
         logger.warn("Could not delete policy: {} from ric: {}", policy.id(), policy.ric().name(), e);
         return Mono.empty();

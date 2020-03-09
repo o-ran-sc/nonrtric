@@ -22,7 +22,6 @@ package org.oransc.policyagent.dmaap;
 
 import com.google.common.collect.Iterables;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Properties;
@@ -45,7 +44,7 @@ public class DmaapMessageConsumer implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(DmaapMessageConsumer.class);
 
-    private final static Duration TIME_BETWEEN_DMAAP_POLLS = Duration.ofSeconds(10);
+    private static final Duration TIME_BETWEEN_DMAAP_POLLS = Duration.ofSeconds(10);
 
     private final ApplicationConfig applicationConfig;
 
@@ -58,10 +57,6 @@ public class DmaapMessageConsumer implements Runnable {
 
         Thread thread = new Thread(this);
         thread.start();
-    }
-
-    DmaapMessageConsumer(ApplicationConfig applicationConfig, boolean start) {
-        this.applicationConfig = applicationConfig;
     }
 
     private boolean isDmaapConfigured() {
@@ -129,7 +124,7 @@ public class DmaapMessageConsumer implements Runnable {
         }
     }
 
-    MRConsumer getMessageRouterConsumer(Properties dmaapConsumerProperties) throws FileNotFoundException, IOException {
+    MRConsumer getMessageRouterConsumer(Properties dmaapConsumerProperties) throws IOException {
         return MRClientFactory.createConsumer(dmaapConsumerProperties);
     }
 
@@ -141,8 +136,7 @@ public class DmaapMessageConsumer implements Runnable {
         return new AsyncRestClient(agentBaseUrl);
     }
 
-    MRBatchingPublisher getMessageRouterPublisher(Properties dmaapPublisherProperties)
-        throws FileNotFoundException, IOException {
+    MRBatchingPublisher getMessageRouterPublisher(Properties dmaapPublisherProperties) throws IOException {
         return MRClientFactory.createBatchingPublisher(dmaapPublisherProperties);
     }
 }

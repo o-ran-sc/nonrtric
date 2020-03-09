@@ -163,7 +163,7 @@ public class RepositorySupervision {
         return Mono.error(new Exception("Syncronization started"));
     }
 
-    @SuppressWarnings("squid:S2629")
+    @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
     private void onRicChecked(RicData ric) {
         logger.debug("Ric: {} checked", ric.ric.name());
     }
