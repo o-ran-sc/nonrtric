@@ -29,7 +29,7 @@ import java.util.Optional;
 
 import org.onap.dmaap.mr.client.MRBatchingPublisher;
 import org.oransc.policyagent.clients.AsyncRestClient;
-import org.oransc.policyagent.dmaap.DmaapRequestMessage.Operation;
+import org.oransc.policyagent.exceptions.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -62,7 +62,7 @@ public class DmaapMessageHandler {
             DmaapRequestMessage dmaapRequestMessage = gson.fromJson(msg, ImmutableDmaapRequestMessage.class);
 
             return this.invokePolicyAgent(dmaapRequestMessage) //
-                .onErrorResume(t -> handleAgentCallError(t, dmaapRequestMessage)) //
+                .onErrorResume(t -> handleAgentCallError(t, msg, dmaapRequestMessage)) //
                 .flatMap(response -> sendDmaapResponse(response, dmaapRequestMessage, HttpStatus.OK));
 
         } catch (Exception e) {
@@ -71,26 +71,48 @@ public class DmaapMessageHandler {
         }
     }
 
-    private Mono<String> handleAgentCallError(Throwable t, DmaapRequestMessage dmaapRequestMessage) {
+    private Mono<String> handleAgentCallError(Throwable t, String origianalMessage,
+        DmaapRequestMessage dmaapRequestMessage) {
         logger.debug("Agent call failed: {}", t.getMessage());
-        return sendDmaapResponse(t.toString(), dmaapRequestMessage, HttpStatus.NOT_FOUND) //
-            .flatMap(notUsed -> Mono.empty());
+        if (t instanceof ServiceException) {
+            String errorMessage = prepareBadOperationErrorMessage(t, origianalMessage);
+            return sendDmaapResponse(errorMessage, dmaapRequestMessage, HttpStatus.NOT_FOUND) //
+                .flatMap(notUsed -> Mono.empty());
+        } else {
+            return sendDmaapResponse(t.toString(), dmaapRequestMessage, HttpStatus.NOT_FOUND) //
+                .flatMap(notUsed -> Mono.empty());
+        }
+    }
+
+    private String prepareBadOperationErrorMessage(Throwable t, String origianalMessage) {
+        String badOperation = origianalMessage.substring(origianalMessage.indexOf("operation\":\"") + 12,
+            origianalMessage.indexOf(",\"url\":"));
+        String errorMessage = t.getMessage().replace("null", badOperation);
+        return errorMessage;
     }
 
     private Mono<String> invokePolicyAgent(DmaapRequestMessage dmaapRequestMessage) {
         DmaapRequestMessage.Operation operation = dmaapRequestMessage.operation();
+        if (operation == null) {
+            return Mono.error(new ServiceException("Not implemented operation: " + operation));
+        }
         Mono<String> result = null;
         String uri = dmaapRequestMessage.url();
-        if (operation == Operation.DELETE) {
-            result = agentClient.delete(uri);
-        } else if (operation == Operation.GET) {
-            result = agentClient.get(uri);
-        } else if (operation == Operation.PUT) {
-            result = agentClient.put(uri, payload(dmaapRequestMessage));
-        } else if (operation == Operation.POST) {
-            result = agentClient.post(uri, payload(dmaapRequestMessage));
-        } else {
-            return Mono.error(new Exception("Not implemented operation: " + operation));
+        switch (operation) {
+            case DELETE:
+                result = agentClient.delete(uri);
+                break;
+            case GET:
+                result = agentClient.get(uri);
+                break;
+            case PUT:
+                result = agentClient.put(uri, payload(dmaapRequestMessage));
+                break;
+            case POST:
+                result = agentClient.post(uri, payload(dmaapRequestMessage));
+                break;
+            default:
+                // Nothing, can never get here.
         }
         return result;
     }
@@ -124,7 +146,7 @@ public class DmaapMessageHandler {
     }
 
     private Mono<String> handleResponseCallError(Throwable t) {
-        logger.debug("Failed to respond: {}", t.getMessage());
+        logger.debug("Failed to send respons to DMaaP: {}", t.getMessage());
         return Mono.empty();
     }
 
