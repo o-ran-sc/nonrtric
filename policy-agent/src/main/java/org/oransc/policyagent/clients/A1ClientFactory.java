@@ -29,7 +29,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
 
 /**
- * Factory for A1 clients that supports four different protocol versions of the A1 api.
+ * Factory for A1 clients that supports four different protocol versions of the
+ * A1 api.
  */
 public class A1ClientFactory {
 
@@ -46,16 +47,17 @@ public class A1ClientFactory {
      * Creates an A1 client with the correct A1 protocol for the provided Ric.
      *
      * <p>
-     * It detects the protocol version by trial and error, since there is no getVersion method specified in the A1
-     * api yet.
+     * It detects the protocol version by trial and error, since there is no
+     * getVersion method specified in the A1 api yet.
      *
      * <p>
-     * As a side effect it also sets the protocol version in the provided Ric. This means that after the first
-     * successful creation it won't have to try which protocol to use, but can create the client directly.
+     * As a side effect it also sets the protocol version in the provided Ric. This
+     * means that after the first successful creation it won't have to try which
+     * protocol to use, but can create the client directly.
      *
-     * @param ric The Ric to get a client for.
-     * @return a client with the correct protocol, or a ServiceException if none of the protocols are supported by the
-     *         Ric.
+     * @param ric The RIC to get a client for.
+     * @return a client with the correct protocol, or a ServiceException if none of
+     *         the protocols are supported by the Ric.
      */
     public Mono<A1Client> createA1Client(Ric ric) {
         return getProtocolVersion(ric) //

@@ -31,9 +31,9 @@ import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.oransc.policyagent.clients.AsyncRestClient.AsyncRestClientException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -81,8 +81,8 @@ public class AsyncRestClientTest {
         mockWebServer.enqueue(new MockResponse().setResponseCode(ERROR_CODE));
 
         Mono<String> returnedMono = clientUnderTest.get(REQUEST_URL);
-        StepVerifier.create(returnedMono).expectErrorMatches(throwable -> throwable instanceof AsyncRestClientException)
-            .verify();
+        StepVerifier.create(returnedMono)
+            .expectErrorMatches(throwable -> throwable instanceof WebClientResponseException).verify();
     }
 
     @Test
@@ -100,8 +100,8 @@ public class AsyncRestClientTest {
         mockWebServer.enqueue(new MockResponse().setResponseCode(ERROR_CODE));
 
         Mono<String> returnedMono = clientUnderTest.put(REQUEST_URL, TEST_JSON);
-        StepVerifier.create(returnedMono).expectErrorMatches(throwable -> throwable instanceof AsyncRestClientException)
-            .verify();
+        StepVerifier.create(returnedMono)
+            .expectErrorMatches(throwable -> throwable instanceof WebClientResponseException).verify();
     }
 
     @Test
@@ -117,8 +117,8 @@ public class AsyncRestClientTest {
         mockWebServer.enqueue(new MockResponse().setResponseCode(ERROR_CODE));
 
         Mono<String> returnedMono = clientUnderTest.delete(REQUEST_URL);
-        StepVerifier.create(returnedMono).expectErrorMatches(throwable -> throwable instanceof AsyncRestClientException)
-            .verify();
+        StepVerifier.create(returnedMono)
+            .expectErrorMatches(throwable -> throwable instanceof WebClientResponseException).verify();
     }
 
     @Test
@@ -136,8 +136,8 @@ public class AsyncRestClientTest {
         mockWebServer.enqueue(new MockResponse().setResponseCode(ERROR_CODE));
 
         Mono<String> returnedMono = clientUnderTest.post(REQUEST_URL, TEST_JSON);
-        StepVerifier.create(returnedMono).expectErrorMatches(throwable -> throwable instanceof AsyncRestClientException)
-            .verify();
+        StepVerifier.create(returnedMono)
+            .expectErrorMatches(throwable -> throwable instanceof WebClientResponseException).verify();
     }
 
     @Test
@@ -155,7 +155,7 @@ public class AsyncRestClientTest {
         mockWebServer.enqueue(new MockResponse().setResponseCode(ERROR_CODE));
 
         Mono<String> returnedMono = clientUnderTest.postWithAuthHeader(REQUEST_URL, TEST_JSON, USERNAME, PASSWORD);
-        StepVerifier.create(returnedMono).expectErrorMatches(throwable -> throwable instanceof AsyncRestClientException)
-            .verify();
+        StepVerifier.create(returnedMono)
+            .expectErrorMatches(throwable -> throwable instanceof WebClientResponseException).verify();
     }
 }

@@ -55,7 +55,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController
-@Api(value = "Policy Management API")
+@Api(tags = "A1 Policy Management")
 public class PolicyController {
 
     private final Rics rics;
@@ -80,7 +80,8 @@ public class PolicyController {
     @ApiOperation(value = "Returns policy type schema definitions")
     @ApiResponses(
         value = {
-            @ApiResponse(code = 200, message = "Policy schemas", response = Object.class, responseContainer = "List")})
+            @ApiResponse(code = 200, message = "Policy schemas", response = Object.class, responseContainer = "List"), //
+            @ApiResponse(code = 404, message = "RIC is not found", response = String.class)})
     public ResponseEntity<String> getPolicySchemas(@RequestParam(name = "ric", required = false) String ricName) {
         synchronized (this.policyTypes) {
             if (ricName == null) {
@@ -99,7 +100,10 @@ public class PolicyController {
 
     @GetMapping("/policy_schema")
     @ApiOperation(value = "Returns one policy type schema definition")
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Policy schema", response = Object.class)})
+    @ApiResponses(
+        value = { //
+            @ApiResponse(code = 200, message = "Policy schema", response = Object.class),
+            @ApiResponse(code = 404, message = "RIC is not found", response = String.class)})
     public ResponseEntity<String> getPolicySchema(@RequestParam(name = "id", required = true) String id) {
         try {
             PolicyType type = policyTypes.getType(id);
@@ -112,11 +116,13 @@ public class PolicyController {
     @GetMapping("/policy_types")
     @ApiOperation(value = "Query policy type names")
     @ApiResponses(
-        value = {@ApiResponse(
-            code = 200,
-            message = "Policy type names",
-            response = String.class,
-            responseContainer = "List")})
+        value = {
+            @ApiResponse(
+                code = 200,
+                message = "Policy type names",
+                response = String.class,
+                responseContainer = "List"),
+            @ApiResponse(code = 404, message = "RIC is not found", response = String.class)})
     public ResponseEntity<String> getPolicyTypes(@RequestParam(name = "ric", required = false) String ricName) {
         synchronized (this.policyTypes) {
             if (ricName == null) {
@@ -138,7 +144,7 @@ public class PolicyController {
     @ApiResponses(
         value = { //
             @ApiResponse(code = 200, message = "Policy found", response = Object.class), //
-            @ApiResponse(code = 204, message = "Policy is not found")} //
+            @ApiResponse(code = 404, message = "Policy is not found")} //
     )
     public ResponseEntity<String> getPolicy( //
         @RequestParam(name = "instance", required = true) String instance) {
@@ -146,13 +152,17 @@ public class PolicyController {
             Policy p = policies.getPolicy(instance);
             return new ResponseEntity<>(p.json(), HttpStatus.OK);
         } catch (ServiceException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
     @DeleteMapping("/policy")
     @ApiOperation(value = "Delete a policy", response = Object.class)
-    @ApiResponses(value = {@ApiResponse(code = 204, message = "Policy deleted", response = Object.class)})
+    @ApiResponses(
+        value = { //
+            @ApiResponse(code = 204, message = "Policy deleted", response = Object.class),
+            @ApiResponse(code = 404, message = "Policy is not found", response = String.class),
+            @ApiResponse(code = 423, message = "RIC is locked", response = String.class)})
     public Mono<ResponseEntity<Object>> deletePolicy( //
         @RequestParam(name = "instance", required = true) String id) {
         Policy policy = policies.get(id);
@@ -174,7 +184,13 @@ public class PolicyController {
 
     @PutMapping(path = "/policy")
     @ApiOperation(value = "Put a policy", response = String.class)
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Policy created or updated")})
+    @ApiResponses(
+        value = { //
+            @ApiResponse(code = 201, message = "Policy created"), //
+            @ApiResponse(code = 200, message = "Policy updated"), //
+            @ApiResponse(code = 423, message = "RIC is locked", response = String.class), //
+            @ApiResponse(code = 404, message = "RIC or policy type is not found", response = String.class), //
+            @ApiResponse(code = 405, message = "Change is not allowed", response = String.class)})
     public Mono<ResponseEntity<Object>> putPolicy( //
         @RequestParam(name = "type", required = true) String typeName, //
         @RequestParam(name = "instance", required = true) String instanceId, //
@@ -183,7 +199,6 @@ public class PolicyController {
         @RequestBody Object jsonBody) {
 
         String jsonString = gson.toJson(jsonBody);
-
         Ric ric = rics.get(ricName);
         PolicyType type = policyTypes.get(typeName);
         if (ric != null && type != null && ric.getState() == Ric.RicState.IDLE) {
@@ -209,8 +224,8 @@ public class PolicyController {
                 .onErrorResume(t -> Mono.just(new ResponseEntity<>(t.getMessage(), HttpStatus.METHOD_NOT_ALLOWED)));
         }
 
-        return ric == null && type == null ? Mono.just(new ResponseEntity<>(HttpStatus.NOT_FOUND))
-            : Mono.just(new ResponseEntity<>(HttpStatus.CONFLICT)); // Recovering
+        return ric == null || type == null ? Mono.just(new ResponseEntity<>(HttpStatus.NOT_FOUND))
+            : Mono.just(new ResponseEntity<>(HttpStatus.LOCKED)); // Recovering
     }
 
     private Mono<Object> validateModifiedPolicy(Policy policy) {
@@ -228,12 +243,19 @@ public class PolicyController {
     @ApiOperation(value = "Query policies")
     @ApiResponses(
         value = {
-            @ApiResponse(code = 200, message = "Policies", response = PolicyInfo.class, responseContainer = "List")})
+            @ApiResponse(code = 200, message = "Policies", response = PolicyInfo.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "RIC or type not found", response = String.class)})
     public ResponseEntity<String> getPolicies( //
         @RequestParam(name = "type", required = false) String type, //
         @RequestParam(name = "ric", required = false) String ric, //
         @RequestParam(name = "service", required = false) String service) //
     {
+        if ((type != null && this.policyTypes.get(type) == null)) {
+            return new ResponseEntity<>("Policy type not found", HttpStatus.NOT_FOUND);
+        }
+        if ((ric != null && this.rics.get(ric) == null)) {
+            return new ResponseEntity<>("RIC not found", HttpStatus.NOT_FOUND);
+        }
         synchronized (policies) {
             Collection<Policy> result = null;
 
@@ -253,7 +275,7 @@ public class PolicyController {
             try {
                 policiesJson = policiesToJson(result);
             } catch (ServiceException e) {
-                return new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT);
+                return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
             }
             return new ResponseEntity<>(policiesJson, HttpStatus.OK);
         }
@@ -264,7 +286,7 @@ public class PolicyController {
     @ApiResponses(
         value = { //
             @ApiResponse(code = 200, message = "Policy status", response = Object.class), //
-            @ApiResponse(code = 204, message = "Policy is not found", response = String.class)} //
+            @ApiResponse(code = 404, message = "Policy is not found", response = String.class)} //
     )
     public Mono<ResponseEntity<String>> getPolicyStatus( //
         @RequestParam(name = "instance", required = true) String instance) {
@@ -275,7 +297,7 @@ public class PolicyController {
                 .flatMap(client -> client.getPolicyStatus(policy)) //
                 .flatMap(status -> Mono.just(new ResponseEntity<>(status, HttpStatus.OK)));
         } catch (ServiceException e) {
-            return Mono.just(new ResponseEntity<>(e.getMessage(), HttpStatus.NO_CONTENT));
+            return Mono.just(new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND));
         }
     }
 

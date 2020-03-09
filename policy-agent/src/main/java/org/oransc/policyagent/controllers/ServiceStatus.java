@@ -38,10 +38,14 @@ public class ServiceStatus {
     @ApiModelProperty(value = "time since last invocation by the service")
     public final long timeSincePingSeconds;
 
-    ServiceStatus(String name, long keepAliveIntervalSeconds, long timeSincePingSeconds) {
+    @ApiModelProperty(value = "callback for notifying of RIC recovery")
+    public String callbackUrl;
+
+    ServiceStatus(String name, long keepAliveIntervalSeconds, long timeSincePingSeconds, String callbackUrl) {
         this.serviceName = name;
         this.keepAliveIntervalSeconds = keepAliveIntervalSeconds;
         this.timeSincePingSeconds = timeSincePingSeconds;
+        this.callbackUrl = callbackUrl;
     }
 
 }
