@@ -40,8 +40,7 @@ public class StatusController {
             @ApiResponse(code = 200, message = "Service is living", response = String.class) //
         })
     public Mono<ResponseEntity<String>> getStatus() {
-        Mono<ResponseEntity<String>> response = Mono.just(new ResponseEntity<>("hunky dory", HttpStatus.OK));
-        return response;
+        return Mono.just(new ResponseEntity<>("hunky dory", HttpStatus.OK));
     }
 
 }
