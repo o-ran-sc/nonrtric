@@ -53,6 +53,8 @@ import org.oransc.policyagent.repository.ImmutablePolicyType;
 import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.utils.LoggingUtils;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -102,6 +104,11 @@ public class DmaapMessageHandlerTest {
         return gson.toJson(dmaapRequestMessage(operation));
     }
 
+    private Mono<ResponseEntity<String>> okResponse() {
+        ResponseEntity<String> entity = new ResponseEntity<>("OK", HttpStatus.OK);
+        return Mono.just(entity);
+    }
+
     @Test
     public void testMessageParsing() {
         String message = dmaapInputMessage(Operation.DELETE);
@@ -129,7 +136,7 @@ public class DmaapMessageHandlerTest {
 
     @Test
     public void successfulDelete() throws IOException {
-        doReturn(Mono.just("OK")).when(agentClient).delete(anyString());
+        doReturn(okResponse()).when(agentClient).deleteForEntity(anyString());
         doReturn(1).when(dmaapClient).send(anyString());
         doReturn(new MRPublisherResponse()).when(dmaapClient).sendBatchWithResponse();
 
@@ -141,7 +148,7 @@ public class DmaapMessageHandlerTest {
             .expectNext("OK") //
             .verifyComplete(); //
 
-        verify(agentClient).delete(URL);
+        verify(agentClient).deleteForEntity(URL);
         verifyNoMoreInteractions(agentClient);
 
         verify(dmaapClient).send(anyString());
@@ -151,7 +158,7 @@ public class DmaapMessageHandlerTest {
 
     @Test
     public void successfulGet() throws IOException {
-        doReturn(Mono.just("OK")).when(agentClient).get(anyString());
+        doReturn(okResponse()).when(agentClient).getForEntity(anyString());
         doReturn(1).when(dmaapClient).send(anyString());
         doReturn(new MRPublisherResponse()).when(dmaapClient).sendBatchWithResponse();
 
@@ -161,7 +168,7 @@ public class DmaapMessageHandlerTest {
             .expectNext("OK") //
             .verifyComplete(); //
 
-        verify(agentClient).get(URL);
+        verify(agentClient).getForEntity(URL);
         verifyNoMoreInteractions(agentClient);
 
         verify(dmaapClient).send(anyString());
@@ -171,7 +178,7 @@ public class DmaapMessageHandlerTest {
 
     @Test
     public void successfulPut() throws IOException {
-        doReturn(Mono.just("OK")).when(agentClient).put(anyString(), anyString());
+        doReturn(okResponse()).when(agentClient).putForEntity(anyString(), anyString());
         doReturn(1).when(dmaapClient).send(anyString());
         doReturn(new MRPublisherResponse()).when(dmaapClient).sendBatchWithResponse();
 
@@ -181,7 +188,7 @@ public class DmaapMessageHandlerTest {
             .expectNext("OK") //
             .verifyComplete(); //
 
-        verify(agentClient).put(URL, payloadAsString());
+        verify(agentClient).putForEntity(URL, payloadAsString());
         verifyNoMoreInteractions(agentClient);
 
         verify(dmaapClient).send(anyString());
@@ -191,7 +198,7 @@ public class DmaapMessageHandlerTest {
 
     @Test
     public void successfulPost() throws IOException {
-        doReturn(Mono.just("OK")).when(agentClient).post(anyString(), anyString());
+        doReturn(okResponse()).when(agentClient).postForEntity(anyString(), anyString());
         doReturn(1).when(dmaapClient).send(anyString());
         doReturn(new MRPublisherResponse()).when(dmaapClient).sendBatchWithResponse();
 
@@ -201,7 +208,7 @@ public class DmaapMessageHandlerTest {
             .expectNext("OK") //
             .verifyComplete(); //
 
-        verify(agentClient).post(URL, payloadAsString());
+        verify(agentClient).postForEntity(URL, payloadAsString());
         verifyNoMoreInteractions(agentClient);
 
         verify(dmaapClient).send(anyString());
@@ -211,8 +218,8 @@ public class DmaapMessageHandlerTest {
 
     @Test
     public void exceptionWhenCallingPolicyAgent_thenNotFoundResponse() throws IOException {
-        String errorCause = "Refused";
-        doReturn(Mono.error(new Exception(errorCause))).when(agentClient).put(anyString(), any());
+        WebClientResponseException except = new WebClientResponseException(400, "Refused", null, null, null, null);
+        doReturn(Mono.error(except)).when(agentClient).putForEntity(anyString(), any());
         doReturn(1).when(dmaapClient).send(anyString());
         doReturn(new MRPublisherResponse()).when(dmaapClient).sendBatchWithResponse();
 
@@ -221,14 +228,13 @@ public class DmaapMessageHandlerTest {
             .expectSubscription() //
             .verifyComplete(); //
 
-        verify(agentClient).put(anyString(), anyString());
+        verify(agentClient).putForEntity(anyString(), anyString());
         verifyNoMoreInteractions(agentClient);
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(dmaapClient).send(captor.capture());
         String actualMessage = captor.getValue();
-        assertThat(actualMessage.contains(HttpStatus.NOT_FOUND + "\",\"message\":\"java.lang.Exception: " + errorCause))
-            .isTrue();
+        assertThat(actualMessage.contains(HttpStatus.BAD_REQUEST.toString())).isTrue();
 
         verify(dmaapClient).sendBatchWithResponse();
         verifyNoMoreInteractions(dmaapClient);
@@ -245,8 +251,8 @@ public class DmaapMessageHandlerTest {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(dmaapClient).send(captor.capture());
         String actualMessage = captor.getValue();
-        assertThat(actualMessage
-            .contains(HttpStatus.NOT_FOUND + "\",\"message\":\"Not implemented operation: " + badOperation)).isTrue();
+        assertThat(actualMessage.contains(HttpStatus.NOT_FOUND + "\",\"message\":\"Not implemented operation:"))
+            .isTrue();
 
         verify(dmaapClient).sendBatchWithResponse();
         verifyNoMoreInteractions(dmaapClient);

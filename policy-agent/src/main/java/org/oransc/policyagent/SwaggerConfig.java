@@ -36,17 +36,17 @@ import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
- * Swagger configuration class that uses swagger2 documentation type and scans all the controllers
- * under org.oransc.policyagent.controllers package. To access the swagger gui go to
- * http://ip:port/swagger-ui.html
+ * Swagger configuration class that uses swagger2 documentation type and scans
+ * all the controllers under org.oransc.policyagent.controllers package. To
+ * access the swagger gui go to http://ip:port/swagger-ui.html
  *
  */
 @Configuration
 @EnableSwagger2
 public class SwaggerConfig extends WebMvcConfigurationSupport {
 
-    static final String API_TITLE = "Policy server";
-    static final String DESCRIPTION = "This page lists all the rest apis for Policy server.";
+    static final String API_TITLE = "A1 Policy management service";
+    static final String DESCRIPTION = "This page lists all the rest apis for the service.";
     static final String VERSION = "1.0";
     static final String RESOURCES_PATH = "classpath:/META-INF/resources/";
     static final String WEBJARS_PATH = RESOURCES_PATH + "webjars/";
