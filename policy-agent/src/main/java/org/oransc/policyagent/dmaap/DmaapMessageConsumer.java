@@ -22,6 +22,7 @@ package org.oransc.policyagent.dmaap;
 
 import com.google.common.collect.Iterables;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Properties;
@@ -44,8 +45,7 @@ public class DmaapMessageConsumer implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(DmaapMessageConsumer.class);
 
-    @SuppressWarnings("squid:S00116") // To avoid warning about DMAAP abbreviation.
-    final Duration TIME_BETWEEN_DMAAP_POLLS = Duration.ofSeconds(10);
+    private final static Duration TIME_BETWEEN_DMAAP_POLLS = Duration.ofSeconds(10);
 
     private final ApplicationConfig applicationConfig;
 
@@ -58,6 +58,10 @@ public class DmaapMessageConsumer implements Runnable {
 
         Thread thread = new Thread(this);
         thread.start();
+    }
+
+    DmaapMessageConsumer(ApplicationConfig applicationConfig, boolean start) {
+        this.applicationConfig = applicationConfig;
     }
 
     private boolean isDmaapConfigured() {
@@ -78,7 +82,7 @@ public class DmaapMessageConsumer implements Runnable {
                     }
                 }
             } catch (Exception e) {
-                logger.warn("{}: cannot fetch because of ", this, e.getMessage(), e);
+                logger.warn("{}: cannot fetch because of {}", this, e.getMessage());
                 sleep(TIME_BETWEEN_DMAAP_POLLS);
             }
         }
@@ -86,10 +90,15 @@ public class DmaapMessageConsumer implements Runnable {
 
     private Iterable<String> fetchAllMessages() throws ServiceException, IOException {
         Properties dmaapConsumerProperties = this.applicationConfig.getDmaapConsumerConfig();
-        MRConsumer consumer = MRClientFactory.createConsumer(dmaapConsumerProperties);
+        MRConsumer consumer = getMessageRouterConsumer(dmaapConsumerProperties);
         MRConsumerResponse response = consumer.fetchWithReturnConsumerResponse();
         if (response == null || !"200".equals(response.getResponseCode())) {
-            throw new ServiceException("DMaaP NULL response received");
+            String errorMessage = "DMaaP NULL response received";
+            if (response != null) {
+                errorMessage = "Error respons " + response.getResponseCode() + " " + response.getResponseMessage()
+                    + " from DMaaP.";
+            }
+            throw new ServiceException(errorMessage);
         } else {
             logger.debug("DMaaP consumer received {} : {}", response.getResponseCode(), response.getResponseMessage());
             return response.getActualMessages();
@@ -98,19 +107,19 @@ public class DmaapMessageConsumer implements Runnable {
 
     private void processMsg(String msg) throws IOException {
         logger.debug("Message Reveived from DMAAP : {}", msg);
-        createDmaapMessageHandler().handleDmaapMsg(msg);
+        getDmaapMessageHandler().handleDmaapMsg(msg);
     }
 
-    private DmaapMessageHandler createDmaapMessageHandler() throws IOException {
+    private DmaapMessageHandler getDmaapMessageHandler() throws IOException {
         String agentBaseUrl = "http://localhost:" + this.localServerPort;
-        AsyncRestClient agentClient = new AsyncRestClient(agentBaseUrl);
+        AsyncRestClient agentClient = createRestClient(agentBaseUrl);
         Properties dmaapPublisherProperties = applicationConfig.getDmaapPublisherConfig();
-        MRBatchingPublisher producer = MRClientFactory.createBatchingPublisher(dmaapPublisherProperties);
+        MRBatchingPublisher producer = getMessageRouterPublisher(dmaapPublisherProperties);
 
-        return new DmaapMessageHandler(producer, agentClient);
+        return createDmaapMessageHandler(agentClient, producer);
     }
 
-    private boolean sleep(Duration duration) {
+    boolean sleep(Duration duration) {
         try {
             Thread.sleep(duration.toMillis());
             return true;
@@ -118,5 +127,22 @@ public class DmaapMessageConsumer implements Runnable {
             logger.error("Failed to put the thread to sleep", e);
             return false;
         }
+    }
+
+    MRConsumer getMessageRouterConsumer(Properties dmaapConsumerProperties) throws FileNotFoundException, IOException {
+        return MRClientFactory.createConsumer(dmaapConsumerProperties);
+    }
+
+    DmaapMessageHandler createDmaapMessageHandler(AsyncRestClient agentClient, MRBatchingPublisher producer) {
+        return new DmaapMessageHandler(producer, agentClient);
+    }
+
+    AsyncRestClient createRestClient(String agentBaseUrl) {
+        return new AsyncRestClient(agentBaseUrl);
+    }
+
+    MRBatchingPublisher getMessageRouterPublisher(Properties dmaapPublisherProperties)
+        throws FileNotFoundException, IOException {
+        return MRClientFactory.createBatchingPublisher(dmaapPublisherProperties);
     }
 }
