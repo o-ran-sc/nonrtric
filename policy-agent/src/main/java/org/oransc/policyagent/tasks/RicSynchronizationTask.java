@@ -137,7 +137,7 @@ public class RicSynchronizationTask {
             .doOnComplete(() -> deleteAllPoliciesInRepository(ric));
 
         Flux.concat(recoverTypes, deletePoliciesInRic) //
-            .subscribe(x -> logger.debug("Brute recover: ", x), //
+            .subscribe(x -> logger.debug("Brute recover: {}", x), //
                 throwable -> onRecoveryError(ric, throwable), //
                 () -> onSynchronizationComplete(ric));
     }
