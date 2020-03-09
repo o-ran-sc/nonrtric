@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "24d6b658_4ce958bd",
+        "filename": "dashboard/webapp-backend/src/test/java/org/oransc/ric/portal/dashboard/policyagentapi/PolicyAgentApiImplTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-09T07:23:27Z",
+      "side": 1,
+      "message": "Generally when setting up expectations on a mock it is best to not specify the values of the parameters, but instead use anyString() in this case. The reason for this is that the values are verified in the verify call after the code to test has been executed. So there will only be one place that the verification is done. This goes for all tests below also. If there is no matching specific argumetn matcher, like anyString(), for the type in question, use any(NameOfClass.class) so that type safety is maintaned.",
+      "range": {
+        "startLine": 98,
+        "startChar": 43,
+        "endLine": 98,
+        "endChar": 78
+      },
+      "revId": "f2c4406acbb8c7ff00535acb1d4bccf067295976",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
