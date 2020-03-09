@@ -85,10 +85,12 @@ public class DmaapMessageHandler {
     }
 
     private String prepareBadOperationErrorMessage(Throwable t, String origianalMessage) {
-        String badOperation = origianalMessage.substring(origianalMessage.indexOf("operation\":\"") + 12,
-            origianalMessage.indexOf(",\"url\":"));
-        String errorMessage = t.getMessage().replace("null", badOperation);
-        return errorMessage;
+        String operationParameterStart = "operation\":\"";
+        int indexOfOperationStart =
+            origianalMessage.indexOf(operationParameterStart) + operationParameterStart.length();
+        int indexOfOperationEnd = origianalMessage.indexOf(",\"", indexOfOperationStart);
+        String badOperation = origianalMessage.substring(indexOfOperationStart, indexOfOperationEnd);
+        return t.getMessage().replace("null", badOperation);
     }
 
     private Mono<String> invokePolicyAgent(DmaapRequestMessage dmaapRequestMessage) {
@@ -112,7 +114,9 @@ public class DmaapMessageHandler {
                 result = agentClient.post(uri, payload(dmaapRequestMessage));
                 break;
             default:
-                // Nothing, can never get here.
+                // Can never get here since the operation will be null in the dmaapRequestMessage if the operation
+                // provided from DMaaP is not matching any of the operations defined in the Operation enumeration.
+                result = Mono.just("Unsupported operation");
         }
         return result;
     }

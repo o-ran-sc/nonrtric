@@ -144,6 +144,7 @@ public class MockPolicyAgent {
     }
 
     @Test
+    @SuppressWarnings("squid:S2699")
     public void runMock() throws Exception {
         keepServerAlive();
     }
