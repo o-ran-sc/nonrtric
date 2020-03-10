@@ -66,7 +66,7 @@ public class A1ClientFactoryTest {
     A1Client sdncOscA1ClientMock;
 
     @Mock
-    A1Client sdnrOnapA1ClientMock;
+    A1Client sdncOnapA1ClientMock;
 
     private ImmutableRicConfig ricConfig =
         ImmutableRicConfig.builder().name(RIC_NAME).baseUrl("baseUrl").managedElementIds(new Vector<>()).build();
@@ -81,7 +81,7 @@ public class A1ClientFactoryTest {
 
     @Test
     public void createStd_ok() {
-        whenGetProtocolVersionSdnrOnapA1ClientThrowException();
+        whenGetProtocolVersionSdncOnapA1ClientThrowException();
         whenGetProtocolVersionSdncOscA1ClientThrowException();
         whenGetProtocolVersionOscA1ClientThrowException();
         whenGetProtocolVersionStdA1ClientReturnCorrectProtocol();
@@ -96,7 +96,7 @@ public class A1ClientFactoryTest {
 
     @Test
     public void createOsc_ok() {
-        whenGetProtocolVersionSdnrOnapA1ClientThrowException();
+        whenGetProtocolVersionSdncOnapA1ClientThrowException();
         whenGetProtocolVersionSdncOscA1ClientThrowException();
         whenGetProtocolVersionOscA1ClientReturnCorrectProtocol();
 
@@ -110,7 +110,7 @@ public class A1ClientFactoryTest {
 
     @Test
     public void createSdncOsc_ok() {
-        whenGetProtocolVersionSdnrOnapA1ClientThrowException();
+        whenGetProtocolVersionSdncOnapA1ClientThrowException();
         whenGetProtocolVersionSdncOscA1ClientReturnCorrectProtocol();
 
         StepVerifier.create(factoryUnderTest.createA1Client(ric)) //
@@ -122,12 +122,12 @@ public class A1ClientFactoryTest {
     }
 
     @Test
-    public void createSdnrOnap_ok() {
-        whenGetProtocolVersionSdnrOnapA1ClientReturnCorrectProtocol();
+    public void createSdncOnap_ok() {
+        whenGetProtocolVersionSdncOnapA1ClientReturnCorrectProtocol();
 
         StepVerifier.create(factoryUnderTest.createA1Client(ric)) //
             .expectSubscription() //
-            .expectNext(sdnrOnapA1ClientMock) //
+            .expectNext(sdncOnapA1ClientMock) //
             .verifyComplete();
 
         assertEquals(A1ProtocolType.SDNC_ONAP, ric.getProtocolVersion(), "Not correct protocol");
@@ -135,7 +135,7 @@ public class A1ClientFactoryTest {
 
     @Test
     public void createWithNoProtocol_error() {
-        whenGetProtocolVersionSdnrOnapA1ClientThrowException();
+        whenGetProtocolVersionSdncOnapA1ClientThrowException();
         whenGetProtocolVersionSdncOscA1ClientThrowException();
         whenGetProtocolVersionOscA1ClientThrowException();
         whenGetProtocolVersionStdA1ClientThrowException();
@@ -167,20 +167,20 @@ public class A1ClientFactoryTest {
 
         assertEquals(A1ProtocolType.STD_V1, ric.getProtocolVersion(), "Not correct protocol");
 
-        verifyNoMoreInteractions(sdnrOnapA1ClientMock);
+        verifyNoMoreInteractions(sdncOnapA1ClientMock);
         verifyNoMoreInteractions(sdncOscA1ClientMock);
         verifyNoMoreInteractions(oscA1ClientMock);
         verifyNoMoreInteractions(stdA1ClientMock);
     }
 
-    private void whenGetProtocolVersionSdnrOnapA1ClientThrowException() {
-        doReturn(sdnrOnapA1ClientMock).when(factoryUnderTest).createSdnrOnapA1Client(ric);
-        when(sdnrOnapA1ClientMock.getProtocolVersion()).thenReturn(Mono.error(new Exception(EXCEPTION_MESSAGE)));
+    private void whenGetProtocolVersionSdncOnapA1ClientThrowException() {
+        doReturn(sdncOnapA1ClientMock).when(factoryUnderTest).createSdncOnapA1Client(ric);
+        when(sdncOnapA1ClientMock.getProtocolVersion()).thenReturn(Mono.error(new Exception(EXCEPTION_MESSAGE)));
     }
 
-    private void whenGetProtocolVersionSdnrOnapA1ClientReturnCorrectProtocol() {
-        doReturn(sdnrOnapA1ClientMock).when(factoryUnderTest).createSdnrOnapA1Client(any(Ric.class));
-        when(sdnrOnapA1ClientMock.getProtocolVersion()).thenReturn(Mono.just(A1ProtocolType.SDNC_ONAP));
+    private void whenGetProtocolVersionSdncOnapA1ClientReturnCorrectProtocol() {
+        doReturn(sdncOnapA1ClientMock).when(factoryUnderTest).createSdncOnapA1Client(any(Ric.class));
+        when(sdncOnapA1ClientMock.getProtocolVersion()).thenReturn(Mono.just(A1ProtocolType.SDNC_ONAP));
     }
 
     private void whenGetProtocolVersionSdncOscA1ClientThrowException() {
