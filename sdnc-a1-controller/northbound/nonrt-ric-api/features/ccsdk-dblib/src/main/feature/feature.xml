@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<features xmlns="http://karaf.apache.org/xmlns/features/v1.4.0" name="ccsdk-dblib">
+
+    <feature name="ccsdk-dblib" description="ccsdk-sli-core :: dblib :: ccsdk-dblib" version="${project.version}">
+        <details>Root POM to be used in place of odlparent for CCSDK based projects</details>
+        <feature prerequisite="true" dependency="false">wrap</feature>
+        <bundle>mvn:org.onap.ccsdk.sli.core/dblib-provider/${project.version}</bundle>
+        <bundle>mvn:org.mariadb.jdbc/mariadb-java-client/${mariadb.connector.version}</bundle>
+        <bundle>wrap:mvn:org.apache.tomcat/tomcat-jdbc/${tomcat-jdbc.version}/$DynamicImport-Package=org.mariadb.*,org.apache.derby.*&amp;overwrite=merge</bundle>
+        <bundle>wrap:mvn:org.apache.tomcat/tomcat-juli/${tomcat-jdbc.version}/$DynamicImport-Package=org.mariadb.*,org.apache.derby.*&amp;overwrite=merge</bundle>
+        <bundle>mvn:org.onap.ccsdk.sli.core/utils-provider/${project.version}</bundle>
+    </feature>
+</features>
