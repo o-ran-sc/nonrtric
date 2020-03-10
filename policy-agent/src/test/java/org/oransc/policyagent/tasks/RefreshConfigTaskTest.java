@@ -20,12 +20,16 @@
 
 package org.oransc.policyagent.tasks;
 
+import static ch.qos.logback.classic.Level.ERROR;
+import static ch.qos.logback.classic.Level.WARN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
@@ -45,6 +49,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Properties;
 import java.util.Vector;
 
@@ -58,11 +63,16 @@ import org.onap.dcaegen2.services.sdk.rest.services.cbs.client.model.EnvProperti
 import org.onap.dcaegen2.services.sdk.rest.services.cbs.client.model.ImmutableEnvProperties;
 import org.oransc.policyagent.clients.A1ClientFactory;
 import org.oransc.policyagent.configuration.ApplicationConfig;
+import org.oransc.policyagent.configuration.ApplicationConfig.RicConfigUpdate.Type;
 import org.oransc.policyagent.configuration.ApplicationConfigParser;
 import org.oransc.policyagent.configuration.ImmutableRicConfig;
 import org.oransc.policyagent.configuration.RicConfig;
+import org.oransc.policyagent.repository.ImmutablePolicy;
+import org.oransc.policyagent.repository.ImmutablePolicyType;
 import org.oransc.policyagent.repository.Policies;
+import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.PolicyTypes;
+import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Rics;
 import org.oransc.policyagent.repository.Services;
 import org.oransc.policyagent.utils.LoggingUtils;
@@ -73,6 +83,9 @@ import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
 public class RefreshConfigTaskTest {
+
+    private static final boolean CONFIG_FILE_EXISTS = true;
+    private static final boolean CONFIG_FILE_DOES_NOT_EXIST = false;
 
     private RefreshConfigTask refreshTaskUnderTest;
 
@@ -99,15 +112,59 @@ public class RefreshConfigTaskTest {
     }
 
     private RefreshConfigTask createTestObject(boolean configFileExists) {
-        RefreshConfigTask obj = spy(new RefreshConfigTask(appConfig, new Rics(), new Policies(), new Services(),
-            new PolicyTypes(), new A1ClientFactory(appConfig)));
-        doReturn(configFileExists).when(obj).configFileExists();
+        return createTestObject(configFileExists, new Rics(), new Policies(), true);
+    }
+
+    private RefreshConfigTask createTestObject(boolean configFileExists, Rics rics, Policies policies,
+        boolean stubConfigFileExists) {
+        RefreshConfigTask obj = spy(new RefreshConfigTask(appConfig, rics, policies, new Services(), new PolicyTypes(),
+            new A1ClientFactory(appConfig)));
+        if (stubConfigFileExists) {
+            doReturn(configFileExists).when(obj).configFileExists();
+        }
         return obj;
     }
 
     @Test
+    public void startWithStubbedRefresh_thenTerminationLogged() {
+        refreshTaskUnderTest = this.createTestObject(CONFIG_FILE_DOES_NOT_EXIST, null, null, false);
+        doReturn(Flux.empty()).when(refreshTaskUnderTest).createRefreshTask();
+
+        final ListAppender<ILoggingEvent> logAppender = LoggingUtils.getLogListAppender(RefreshConfigTask.class, ERROR);
+
+        refreshTaskUnderTest.start();
+
+        assertThat(logAppender.list.toString().contains("Configuration refresh terminated")).isTrue();
+    }
+
+    @Test
+    public void startWithStubbedRefreshReturnError_thenErrorAndTerminationLogged() {
+        refreshTaskUnderTest = this.createTestObject(CONFIG_FILE_DOES_NOT_EXIST, null, null, false);
+        doReturn(Flux.error(new Exception("Error"))).when(refreshTaskUnderTest).createRefreshTask();
+
+        final ListAppender<ILoggingEvent> logAppender = LoggingUtils.getLogListAppender(RefreshConfigTask.class, ERROR);
+
+        refreshTaskUnderTest.start();
+
+        ILoggingEvent event = logAppender.list.get(0);
+        assertThat(event.getThrowableProxy().getMessage()).isEqualTo("Error");
+        assertThat(event.toString().contains("Configuration refresh terminated due to exception")).isTrue();
+    }
+
+    @Test
+    public void stop_thenTaskIsDisposed() throws Exception {
+        refreshTaskUnderTest = this.createTestObject(CONFIG_FILE_DOES_NOT_EXIST, null, null, false);
+        refreshTaskUnderTest.systemEnvironment = new Properties();
+
+        refreshTaskUnderTest.start();
+        refreshTaskUnderTest.stop();
+
+        assertThat(refreshTaskUnderTest.getRefreshTask().isDisposed()).isTrue();
+    }
+
+    @Test
     public void whenTheConfigurationFits_thenConfiguredRicsArePutInRepository() throws Exception {
-        refreshTaskUnderTest = this.createTestObject(true);
+        refreshTaskUnderTest = this.createTestObject(CONFIG_FILE_EXISTS);
         refreshTaskUnderTest.systemEnvironment = new Properties();
         // When
         doReturn(getCorrectJson()).when(refreshTaskUnderTest).createInputStream(any());
@@ -115,13 +172,15 @@ public class RefreshConfigTaskTest {
 
         StepVerifier.create(refreshTaskUnderTest.createRefreshTask()) //
             .expectSubscription() //
-            .expectNext(this.appConfig) //
-            .expectNext(this.appConfig) //
+            .expectNext(Type.ADDED) //
+            .expectNext(Type.ADDED) //
             .thenCancel() //
             .verify();
 
         // Then
-        verify(refreshTaskUnderTest, times(1)).loadConfigurationFromFile();
+        verify(refreshTaskUnderTest).loadConfigurationFromFile();
+
+        verify(refreshTaskUnderTest, times(2)).runRicSynchronization(any(Ric.class));
 
         Iterable<RicConfig> ricConfigs = appConfig.getRicConfigs();
         RicConfig ricConfig = ricConfigs.iterator().next();
@@ -131,7 +190,7 @@ public class RefreshConfigTaskTest {
 
     @Test
     public void whenFileExistsButJsonIsIncorrect_thenNoRicsArePutInRepository() throws Exception {
-        refreshTaskUnderTest = this.createTestObject(true);
+        refreshTaskUnderTest = this.createTestObject(CONFIG_FILE_EXISTS);
         refreshTaskUnderTest.systemEnvironment = new Properties();
 
         // When
@@ -145,24 +204,23 @@ public class RefreshConfigTaskTest {
             .verify();
 
         // Then
-        verify(refreshTaskUnderTest, times(1)).loadConfigurationFromFile();
+        verify(refreshTaskUnderTest).loadConfigurationFromFile();
         assertThat(appConfig.getRicConfigs().size()).isEqualTo(0);
     }
 
     @Test
     public void whenPeriodicConfigRefreshNoConsul_thenErrorIsLogged() {
-        refreshTaskUnderTest = this.createTestObject(false);
+        refreshTaskUnderTest = this.createTestObject(CONFIG_FILE_DOES_NOT_EXIST);
         refreshTaskUnderTest.systemEnvironment = new Properties();
 
         EnvProperties props = properties();
         doReturn(Mono.just(props)).when(refreshTaskUnderTest).getEnvironment(any());
 
         doReturn(Mono.just(cbsClient)).when(refreshTaskUnderTest).createCbsClient(props);
-        Flux<?> err = Flux.error(new IOException());
-        doReturn(err).when(cbsClient).updates(any(), any(), any());
+        when(cbsClient.updates(any(), any(), any())).thenReturn(Flux.error(new IOException()));
 
-        final ListAppender<ILoggingEvent> logAppender = LoggingUtils.getLogListAppender(RefreshConfigTask.class);
-        Flux<?> task = refreshTaskUnderTest.createRefreshTask();
+        final ListAppender<ILoggingEvent> logAppender = LoggingUtils.getLogListAppender(RefreshConfigTask.class, WARN);
+        Flux<Type> task = refreshTaskUnderTest.createRefreshTask();
 
         StepVerifier //
             .create(task) //
@@ -177,9 +235,21 @@ public class RefreshConfigTaskTest {
     }
 
     @Test
-    public void whenPeriodicConfigRefreshSuccess_thenNewConfigIsCreated() throws Exception {
-        refreshTaskUnderTest = this.createTestObject(false);
+    public void whenPeriodicConfigRefreshSuccess_thenNewConfigIsCreatedAndRepositoryUpdated() throws Exception {
+        Rics rics = new Rics();
+        Policies policies = new Policies();
+        refreshTaskUnderTest = this.createTestObject(CONFIG_FILE_DOES_NOT_EXIST, rics, policies, false);
         refreshTaskUnderTest.systemEnvironment = new Properties();
+
+        RicConfig changedRicConfig = getRicConfig(RIC_1_NAME);
+        rics.put(new Ric(changedRicConfig));
+        RicConfig removedRicConfig = getRicConfig("removed");
+        Ric removedRic = new Ric(removedRicConfig);
+        rics.put(removedRic);
+        appConfig.setConfiguration(Arrays.asList(changedRicConfig, removedRicConfig), null, null);
+
+        Policy policy = getPolicy(removedRic);
+        policies.put(policy);
 
         EnvProperties props = properties();
         doReturn(Mono.just(props)).when(refreshTaskUnderTest).getEnvironment(any());
@@ -188,22 +258,55 @@ public class RefreshConfigTaskTest {
         JsonObject configAsJson = getJsonRootObject();
         String newBaseUrl = "newBaseUrl";
         modifyTheRicConfiguration(configAsJson, newBaseUrl);
-        Flux<JsonObject> json = Flux.just(configAsJson);
-        doReturn(json).when(cbsClient).updates(any(), any(), any());
+        when(cbsClient.updates(any(), any(), any())).thenReturn(Flux.just(configAsJson));
+        doNothing().when(refreshTaskUnderTest).runRicSynchronization(any(Ric.class));
 
-        Flux<ApplicationConfig> task = refreshTaskUnderTest.createRefreshTask();
+        Flux<Type> task = refreshTaskUnderTest.createRefreshTask();
 
         StepVerifier //
             .create(task) //
             .expectSubscription() //
-            .expectNext(appConfig) //
-            .expectNext(appConfig) //
+            .expectNext(Type.CHANGED) //
+            .expectNext(Type.ADDED) //
+            .expectNext(Type.REMOVED) //
             .thenCancel() //
             .verify();
 
-        verify(refreshTaskUnderTest, times(2)).runRicSynchronization(any());
-        assertThat(appConfig.getRicConfigs()).isNotNull();
+        assertThat(appConfig.getRicConfigs().size()).isEqualTo(2);
         assertThat(appConfig.getRic(RIC_1_NAME).baseUrl()).isEqualTo(newBaseUrl);
+        String ric2Name = "ric2";
+        assertThat(appConfig.getRic(ric2Name)).isNotNull();
+
+        assertThat(rics.size()).isEqualTo(2);
+        assertThat(rics.get(RIC_1_NAME).getConfig().baseUrl()).isEqualTo(newBaseUrl);
+        assertThat(rics.get(ric2Name)).isNotNull();
+
+        assertThat(policies.size()).isEqualTo(0);
+    }
+
+    private RicConfig getRicConfig(String name) {
+        RicConfig ricConfig = ImmutableRicConfig.builder() //
+            .name(name) //
+            .baseUrl("url") //
+            .managedElementIds(Collections.emptyList()) //
+            .build();
+        return ricConfig;
+    }
+
+    private Policy getPolicy(Ric ric) {
+        ImmutablePolicyType type = ImmutablePolicyType.builder() //
+            .name("type") //
+            .schema("{}") //
+            .build();
+        Policy policy = ImmutablePolicy.builder() //
+            .id("id") //
+            .type(type) //
+            .lastModified("lastModified") //
+            .ric(ric) //
+            .json("{}") //
+            .ownerServiceName("ownerServiceName") //
+            .build();
+        return policy;
     }
 
     private void modifyTheRicConfiguration(JsonObject configAsJson, String newBaseUrl) {
