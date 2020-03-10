@@ -39,6 +39,9 @@ import java.util.ServiceLoader;
 
 import javax.validation.constraints.NotNull;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+
 import org.onap.dcaegen2.services.sdk.rest.services.cbs.client.api.CbsClient;
 import org.onap.dcaegen2.services.sdk.rest.services.cbs.client.api.CbsClientFactory;
 import org.onap.dcaegen2.services.sdk.rest.services.cbs.client.api.CbsRequests;
@@ -78,6 +81,7 @@ public class RefreshConfigTask {
     public Properties systemEnvironment;
 
     final ApplicationConfig appConfig;
+    @Getter(AccessLevel.PROTECTED)
     private Disposable refreshTask = null;
     private boolean isConsulUsed = false;
 
@@ -112,11 +116,10 @@ public class RefreshConfigTask {
     public void stop() {
         if (refreshTask != null) {
             refreshTask.dispose();
-            refreshTask = null;
         }
     }
 
-    Flux<ApplicationConfig> createRefreshTask() {
+    Flux<RicConfigUpdate.Type> createRefreshTask() {
         Flux<JsonObject> loadFromFile = Flux.interval(Duration.ZERO, FILE_CONFIG_REFRESH_INTERVAL) //
             .filter(notUsed -> configFileExists()) //
             .filter(notUsed -> !this.isConsulUsed) //
@@ -137,7 +140,7 @@ public class RefreshConfigTask {
             .flatMap(this::parseConfiguration) //
             .flatMap(this::updateConfig) //
             .doOnNext(this::handleUpdatedRicConfig) //
-            .flatMap(configUpdate -> Flux.just(this.appConfig)) //
+            .flatMap(configUpdate -> Flux.just(configUpdate.getType())) //
             .doOnTerminate(() -> logger.error("Configuration refresh task is terminated"));
     }
 
@@ -194,7 +197,7 @@ public class RefreshConfigTask {
             } else if (event == RicConfigUpdate.Type.CHANGED) {
                 Ric ric = this.rics.get(ricName);
                 if (ric == null) {
-                    // Should not happend,just for robustness
+                    // Should not happen,just for robustness
                     addRic(updatedInfo.getRicConfig());
                 } else {
                     ric.setRicConfig(updatedInfo.getRicConfig());
