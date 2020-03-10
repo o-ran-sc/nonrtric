@@ -45,6 +45,29 @@
       "revId": "b7ff039503051f892e411ca19ac192d12a2b63a4",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3b0d325_32147e1f",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/MockPolicyAgent.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-03-10T11:34:54Z",
+      "side": 1,
+      "message": "Please add a very short comment what is the suppressed warning.",
+      "range": {
+        "startLine": 147,
+        "startChar": 5,
+        "endLine": 147,
+        "endChar": 21
+      },
+      "revId": "b7ff039503051f892e411ca19ac192d12a2b63a4",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
