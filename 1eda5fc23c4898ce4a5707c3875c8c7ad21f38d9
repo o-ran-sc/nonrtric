@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "20035271_0bfeffa6",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-10T12:59:34Z",
+      "side": 1,
+      "message": "Done in https://gerrit.o-ran-sc.org/r/c/nonrtric/+/2710",
+      "parentUuid": "09ad5f1c_77402479",
+      "range": {
+        "startLine": 74,
+        "startChar": 66,
+        "endLine": 74,
+        "endChar": 75
+      },
+      "revId": "1eda5fc23c4898ce4a5707c3875c8c7ad21f38d9",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "059e56f2_17dbb89d",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageHandler.java",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "adbc9554_ab65de2a",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-10T12:59:34Z",
+      "side": 1,
+      "message": "Done in https://gerrit.o-ran-sc.org/r/c/nonrtric/+/2710",
+      "parentUuid": "059e56f2_17dbb89d",
+      "range": {
+        "startLine": 87,
+        "startChar": 71,
+        "endLine": 87,
+        "endChar": 80
+      },
+      "revId": "1eda5fc23c4898ce4a5707c3875c8c7ad21f38d9",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7601b95d_fefe6dad",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageHandler.java",
         "patchSetId": 1
@@ -68,6 +116,30 @@
       "revId": "1eda5fc23c4898ce4a5707c3875c8c7ad21f38d9",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b8a4e90_4bce42ca",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-10T12:59:34Z",
+      "side": 1,
+      "message": "Done in https://gerrit.o-ran-sc.org/r/c/nonrtric/+/2710",
+      "parentUuid": "7601b95d_fefe6dad",
+      "range": {
+        "startLine": 115,
+        "startChar": 16,
+        "endLine": 115,
+        "endChar": 47
+      },
+      "revId": "1eda5fc23c4898ce4a5707c3875c8c7ad21f38d9",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     },
     {
       "key": {
@@ -114,6 +186,54 @@
       "revId": "1eda5fc23c4898ce4a5707c3875c8c7ad21f38d9",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "292dffe8_913353e8",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-10T12:59:34Z",
+      "side": 1,
+      "message": "Done in https://gerrit.o-ran-sc.org/r/c/nonrtric/+/2710",
+      "parentUuid": "f2755bac_522ad79f",
+      "range": {
+        "startLine": 149,
+        "startChar": 37,
+        "endLine": 149,
+        "endChar": 45
+      },
+      "revId": "1eda5fc23c4898ce4a5707c3875c8c7ad21f38d9",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "264e9129_d1422c01",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-10T12:59:34Z",
+      "side": 1,
+      "message": "Done in https://gerrit.o-ran-sc.org/r/c/nonrtric/+/2710",
+      "parentUuid": "83782853_7b974921",
+      "range": {
+        "startLine": 149,
+        "startChar": 37,
+        "endLine": 149,
+        "endChar": 44
+      },
+      "revId": "1eda5fc23c4898ce4a5707c3875c8c7ad21f38d9",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
