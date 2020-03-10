@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6535f74c_e012fce1",
+        "filename": "dashboard/webapp-backend/src/test/java/org/oransc/ric/portal/dashboard/DashboardUserManagerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-03-10T12:28:36Z",
+      "side": 1,
+      "message": "Actually, this test is not our contribution, and it was added to the ric-dashboard after we had cloned their project. So, I just copied their test to improve the code coverage which is quite low for nonrtric dashboard at this time. I guess we should not put our copyright where we have not contributed even a single line.",
+      "parentUuid": "aa4cec09_b2e848f8",
+      "range": {
+        "startLine": 5,
+        "startChar": 9,
+        "endLine": 5,
+        "endChar": 32
+      },
+      "revId": "4db817ce10240595c9d7860f93918aa6181dd295",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f69e2744_25ba1897",
         "filename": "dashboard/webapp-backend/src/test/java/org/oransc/ric/portal/dashboard/DashboardUserManagerTest.java",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2020-03-10T11:37:29Z",
       "side": 1,
       "message": "Is it possible to remove mentions of ECOMP ?",
+      "range": {
+        "startLine": 40,
+        "startChar": 18,
+        "endLine": 40,
+        "endChar": 28
+      },
+      "revId": "4db817ce10240595c9d7860f93918aa6181dd295",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3fb8042e_65e4c202",
+        "filename": "dashboard/webapp-backend/src/test/java/org/oransc/ric/portal/dashboard/DashboardUserManagerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-03-10T12:28:36Z",
+      "side": 1,
+      "message": "As mentioned earlier, just copied it from ric-dashboard. I guess, eventually we will change the implementation of our dashboard, and then we will change the test also.",
+      "parentUuid": "f69e2744_25ba1897",
       "range": {
         "startLine": 40,
         "startChar": 18,
