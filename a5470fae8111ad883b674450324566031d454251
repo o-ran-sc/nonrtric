@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f2576d65_bc247fbd",
+        "filename": "dashboard/webapp-backend/src/test/java/org/oransc/ric/portal/dashboard/portalapi/PortalAuthManagerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-03-10T11:39:04Z",
+      "side": 1,
+      "message": "copyright nordix",
+      "range": {
+        "startLine": 5,
+        "startChar": 12,
+        "endLine": 5,
+        "endChar": 40
+      },
+      "revId": "a5470fae8111ad883b674450324566031d454251",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
