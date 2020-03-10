@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71245a0d_a46fc157",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 690,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-10T08:17:37Z",
+      "side": 1,
+      "message": "body?",
+      "range": {
+        "startLine": 690,
+        "startChar": 40,
+        "endLine": 690,
+        "endChar": 45
+      },
+      "revId": "a47eaee897cda60e8cca25124aba264b2d3ae2d0",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0ea8364_089f8a91",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/ServiceController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-10T08:17:37Z",
+      "side": 1,
+      "message": "Service is not found",
+      "range": {
+        "startLine": 72,
+        "startChar": 56,
+        "endLine": 72,
+        "endChar": 61
+      },
+      "revId": "a47eaee897cda60e8cca25124aba264b2d3ae2d0",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "afe4773a_9f868698",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/ServiceController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-10T08:17:37Z",
+      "side": 1,
+      "message": "body?",
+      "range": {
+        "startLine": 101,
+        "startChar": 65,
+        "endLine": 101,
+        "endChar": 70
+      },
+      "revId": "a47eaee897cda60e8cca25124aba264b2d3ae2d0",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
