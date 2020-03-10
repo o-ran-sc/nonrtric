@@ -1,0 +1,182 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "232c9ae7_41192f42",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-03-10T11:52:46Z",
+      "side": 1,
+      "message": "or RIC ?",
+      "range": {
+        "startLine": 483,
+        "startChar": 26,
+        "endLine": 483,
+        "endChar": 30
+      },
+      "revId": "3ccb206ea93b006944519786ac7e2e3a2f03208c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc877626_bf4bbc28",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 573,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-03-10T11:52:46Z",
+      "side": 1,
+      "message": "as above?",
+      "range": {
+        "startLine": 573,
+        "startChar": 27,
+        "endLine": 573,
+        "endChar": 32
+      },
+      "revId": "3ccb206ea93b006944519786ac7e2e3a2f03208c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05dceed0_56c1955d",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 794,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-03-10T11:52:46Z",
+      "side": 1,
+      "message": "Is /status just for health check?",
+      "range": {
+        "startLine": 794,
+        "startChar": 11,
+        "endLine": 794,
+        "endChar": 22
+      },
+      "revId": "3ccb206ea93b006944519786ac7e2e3a2f03208c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "179fd0d2_8ec5fc34",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 827,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-03-10T11:52:46Z",
+      "side": 1,
+      "message": "IS it necessary to expose the monos here rather the actual responses?",
+      "range": {
+        "startLine": 825,
+        "startChar": 2,
+        "endLine": 827,
+        "endChar": 39
+      },
+      "revId": "3ccb206ea93b006944519786ac7e2e3a2f03208c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "817af458_01aed86f",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/RicRepositoryController.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-03-10T11:52:46Z",
+      "side": 1,
+      "message": "This javadoc doesn\u0027t tell us anything",
+      "range": {
+        "startLine": 60,
+        "startChar": 5,
+        "endLine": 61,
+        "endChar": 7
+      },
+      "revId": "3ccb206ea93b006944519786ac7e2e3a2f03208c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6c94be5_0af817e4",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/RicRepositoryController.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-03-10T11:52:46Z",
+      "side": 1,
+      "message": "array?",
+      "range": {
+        "startLine": 82,
+        "startChar": 47,
+        "endLine": 82,
+        "endChar": 78
+      },
+      "revId": "3ccb206ea93b006944519786ac7e2e3a2f03208c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4245e7ea_23b362f1",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/StatusController.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-03-10T11:52:46Z",
+      "side": 1,
+      "message": "hunky dory?",
+      "range": {
+        "startLine": 42,
+        "startChar": 48,
+        "endLine": 42,
+        "endChar": 65
+      },
+      "revId": "3ccb206ea93b006944519786ac7e2e3a2f03208c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84fd2c26_d761d018",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-03-10T11:52:46Z",
+      "side": 1,
+      "message": "Please add some javadoc",
+      "revId": "3ccb206ea93b006944519786ac7e2e3a2f03208c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
