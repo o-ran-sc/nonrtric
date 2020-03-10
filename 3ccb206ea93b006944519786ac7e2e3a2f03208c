@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "55866a62_0922e1c2",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-10T12:37:51Z",
+      "side": 1,
+      "message": "It is only policy in this case. \nThe is not given when the policy is deleted.",
+      "parentUuid": "232c9ae7_41192f42",
+      "range": {
+        "startLine": 483,
+        "startChar": 26,
+        "endLine": 483,
+        "endChar": 30
+      },
+      "revId": "3ccb206ea93b006944519786ac7e2e3a2f03208c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dc877626_bf4bbc28",
         "filename": "policy-agent/docs/api.yaml",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2020-03-10T11:52:46Z",
       "side": 1,
       "message": "as above?",
+      "range": {
+        "startLine": 573,
+        "startChar": 27,
+        "endLine": 573,
+        "endChar": 32
+      },
+      "revId": "3ccb206ea93b006944519786ac7e2e3a2f03208c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "822b92da_06177600",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 573,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-10T12:37:51Z",
+      "side": 1,
+      "message": "Same, the primitive is only addressing a policy instance. \nThe RIC only needs to be addressed when the policy is PUT.",
+      "parentUuid": "dc877626_bf4bbc28",
       "range": {
         "startLine": 573,
         "startChar": 27,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "299a9392_2b615b51",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 794,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-10T12:37:51Z",
+      "side": 1,
+      "message": "I think ONAP DCAE monitors the execution (health check) of each onboarded component by calling any REST call. This should just return any data and HttpStatus::OK.\nAt least the DFC needed such a primitive. \n\nBesides this, this controller is pretty pointless and does not do anything.",
+      "parentUuid": "05dceed0_56c1955d",
+      "range": {
+        "startLine": 794,
+        "startChar": 11,
+        "endLine": 794,
+        "endChar": 22
+      },
+      "revId": "3ccb206ea93b006944519786ac7e2e3a2f03208c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "179fd0d2_8ec5fc34",
         "filename": "policy-agent/docs/api.yaml",
         "patchSetId": 2
@@ -82,6 +154,30 @@
       "writtenOn": "2020-03-10T11:52:46Z",
       "side": 1,
       "message": "IS it necessary to expose the monos here rather the actual responses?",
+      "range": {
+        "startLine": 825,
+        "startChar": 2,
+        "endLine": 827,
+        "endChar": 39
+      },
+      "revId": "3ccb206ea93b006944519786ac7e2e3a2f03208c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eab7284c_68f8c4d7",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 827,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-10T12:37:51Z",
+      "side": 1,
+      "message": "Good question. This is generated, and it does not make sense. \nI will check if this can be changed, but in a later commit. \nThere are probably a lot of things in the generation that can be improved, but it is not obvious how to do it.",
+      "parentUuid": "179fd0d2_8ec5fc34",
       "range": {
         "startLine": 825,
         "startChar": 2,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "63046915_d1f825a0",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/RicRepositoryController.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-10T12:37:51Z",
+      "side": 1,
+      "message": "It is an example on how to invoke the primitive. \n\nThe documentation is further down: \n@ApiOperation(value \u003d \"Returns the name of a RIC managing one Mananged Element\")",
+      "parentUuid": "817af458_01aed86f",
+      "range": {
+        "startLine": 60,
+        "startChar": 5,
+        "endLine": 61,
+        "endChar": 7
+      },
+      "revId": "3ccb206ea93b006944519786ac7e2e3a2f03208c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e6c94be5_0af817e4",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/RicRepositoryController.java",
         "patchSetId": 2
@@ -128,6 +248,30 @@
       "writtenOn": "2020-03-10T11:52:46Z",
       "side": 1,
       "message": "array?",
+      "range": {
+        "startLine": 82,
+        "startChar": 47,
+        "endLine": 82,
+        "endChar": 78
+      },
+      "revId": "3ccb206ea93b006944519786ac7e2e3a2f03208c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f16ba286_f1e7d90a",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/RicRepositoryController.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-10T12:37:51Z",
+      "side": 1,
+      "message": "Yes, it is a Json array. The formal definition is futher down:\n\n  @ApiResponse(code \u003d 200, message \u003d \"OK\", response \u003d RicInfo.class, responseContainer \u003d \"List\"), //",
+      "parentUuid": "e6c94be5_0af817e4",
       "range": {
         "startLine": 82,
         "startChar": 47,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "8e47f397_cd89a6c9",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/StatusController.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-10T12:37:51Z",
+      "side": 1,
+      "message": "The actual text is not used for anything.",
+      "parentUuid": "4245e7ea_23b362f1",
+      "range": {
+        "startLine": 42,
+        "startChar": 48,
+        "endLine": 42,
+        "endChar": 65
+      },
+      "revId": "3ccb206ea93b006944519786ac7e2e3a2f03208c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "84fd2c26_d761d018",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageHandler.java",
         "patchSetId": 2
@@ -177,6 +345,24 @@
       "revId": "3ccb206ea93b006944519786ac7e2e3a2f03208c",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc7722a4_ea8b67ba",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-10T12:37:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "84fd2c26_d761d018",
+      "revId": "3ccb206ea93b006944519786ac7e2e3a2f03208c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
