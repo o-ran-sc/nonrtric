@@ -45,7 +45,7 @@ public class SdncOnapA1Client implements A1Client {
     public SdncOnapA1Client(RicConfig ricConfig, String baseUrl, String username, String password) {
         this(ricConfig, username, password, new AsyncRestClient(baseUrl + "/restconf/operations"));
         if (logger.isDebugEnabled()) {
-            logger.debug("SdnrOnapA1Client for ric: {}, a1ControllerBaseUrl: {}", ricConfig.name(), baseUrl);
+            logger.debug("SdncOnapA1Client for ric: {}, a1ControllerBaseUrl: {}", ricConfig.name(), baseUrl);
         }
     }
 
