@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa4cec09_b2e848f8",
+        "filename": "dashboard/webapp-backend/src/test/java/org/oransc/ric/portal/dashboard/DashboardUserManagerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-03-10T11:37:29Z",
+      "side": 1,
+      "message": "THis is not AT\u0026T IPR",
+      "range": {
+        "startLine": 5,
+        "startChar": 9,
+        "endLine": 5,
+        "endChar": 32
+      },
+      "revId": "4db817ce10240595c9d7860f93918aa6181dd295",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f69e2744_25ba1897",
+        "filename": "dashboard/webapp-backend/src/test/java/org/oransc/ric/portal/dashboard/DashboardUserManagerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-03-10T11:37:29Z",
+      "side": 1,
+      "message": "Is it possible to remove mentions of ECOMP ?",
+      "range": {
+        "startLine": 40,
+        "startChar": 18,
+        "endLine": 40,
+        "endChar": 28
+      },
+      "revId": "4db817ce10240595c9d7860f93918aa6181dd295",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
