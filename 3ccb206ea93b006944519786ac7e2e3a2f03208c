@@ -286,6 +286,30 @@
     },
     {
       "key": {
+        "uuid": "85effbbf_8bc71b65",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 827,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-11T13:05:17Z",
+      "side": 1,
+      "message": "I checked, this is only in the model section and is not referred to anywhere.",
+      "parentUuid": "e80ce8ce_b9854157",
+      "range": {
+        "startLine": 825,
+        "startChar": 2,
+        "endLine": 827,
+        "endChar": 39
+      },
+      "revId": "3ccb206ea93b006944519786ac7e2e3a2f03208c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "817af458_01aed86f",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/RicRepositoryController.java",
         "patchSetId": 2
@@ -487,6 +511,30 @@
       "side": 1,
       "message": "Does it sometime return \"Hunky dory\" and sometimes return \"Service is living\", or is it the documentation that is unclear. Just a clarification request. Thanks.",
       "parentUuid": "8e47f397_cd89a6c9",
+      "range": {
+        "startLine": 42,
+        "startChar": 48,
+        "endLine": 42,
+        "endChar": 65
+      },
+      "revId": "3ccb206ea93b006944519786ac7e2e3a2f03208c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ed636e9_c2295c4b",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/StatusController.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-11T13:05:17Z",
+      "side": 1,
+      "message": "This is a description of how to interpret the HttpStatus code 200. \n\"hunky dory\" is what is returned in the body (which is another thing)",
+      "parentUuid": "0baa8662_ff564ff5",
       "range": {
         "startLine": 42,
         "startChar": 48,
