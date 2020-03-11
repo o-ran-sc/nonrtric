@@ -71,10 +71,8 @@ public class LockTest {
         Lock lock = new Lock();
 
         Mono<Lock> seq = lock.lock(LockType.EXCLUSIVE) //
-            .doOnNext(l -> System.out.println("1 " + l)) //
             .flatMap(l -> lock.lock(LockType.EXCLUSIVE)) //
-            .flatMap(l -> lock.unlock()) //
-            .doOnNext(l -> System.out.println("2 " + l)); //
+            .flatMap(l -> lock.unlock());
 
         asynchUnlock(lock);
         StepVerifier.create(seq) //

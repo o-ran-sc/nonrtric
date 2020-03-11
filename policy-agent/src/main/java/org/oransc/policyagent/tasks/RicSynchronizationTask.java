@@ -103,7 +103,7 @@ public class RicSynchronizationTask {
 
     @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
     private void onSynchronizationComplete(Ric ric) {
-        logger.debug("Synchronization completed for: {}", ric.name());
+        logger.info("Synchronization completed for: {}", ric.name());
         ric.setState(RicState.IDLE);
         notifyAllServices("Synchronization completed for:" + ric.name());
     }

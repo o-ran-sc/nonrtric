@@ -52,6 +52,8 @@ import org.oransc.policyagent.dmaap.DmaapRequestMessage.Operation;
 import org.oransc.policyagent.repository.ImmutablePolicyType;
 import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.utils.LoggingUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -60,7 +62,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 public class DmaapMessageHandlerTest {
-
+    private static final Logger logger = LoggerFactory.getLogger(DmaapMessageHandlerTest.class);
     private static final String URL = "url";
 
     private final MRBatchingPublisher dmaapClient = mock(MRBatchingPublisher.class);
@@ -112,13 +114,13 @@ public class DmaapMessageHandlerTest {
     @Test
     public void testMessageParsing() {
         String message = dmaapInputMessage(Operation.DELETE);
-        System.out.println(message);
+        logger.info(message);
         DmaapRequestMessage parsedMessage = gson.fromJson(message, ImmutableDmaapRequestMessage.class);
         assertTrue(parsedMessage != null);
         assertFalse(parsedMessage.payload().isPresent());
 
         message = dmaapInputMessage(Operation.PUT);
-        System.out.println(message);
+        logger.info(message);
         parsedMessage = gson.fromJson(message, ImmutableDmaapRequestMessage.class);
         assertTrue(parsedMessage != null);
         assertTrue(parsedMessage.payload().isPresent());

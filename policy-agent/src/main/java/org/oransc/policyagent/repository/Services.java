@@ -20,6 +20,7 @@
 
 package org.oransc.policyagent.repository;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,7 +51,7 @@ public class Services {
     }
 
     public synchronized Iterable<Service> getAll() {
-        return registeredServices.values();
+        return Collections.unmodifiableCollection(registeredServices.values());
     }
 
     public synchronized void remove(String name) {

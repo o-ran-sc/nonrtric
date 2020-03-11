@@ -186,8 +186,8 @@ public class PolicyController {
     @ApiOperation(value = "Put a policy", response = String.class)
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 201, message = "Policy created"), //
-            @ApiResponse(code = 200, message = "Policy updated"), //
+            @ApiResponse(code = 201, message = "Policy created", response = Object.class), //
+            @ApiResponse(code = 200, message = "Policy updated", response = Object.class), //
             @ApiResponse(code = 423, message = "RIC is locked", response = String.class), //
             @ApiResponse(code = 404, message = "RIC or policy type is not found", response = String.class), //
             @ApiResponse(code = 405, message = "Change is not allowed", response = String.class)})

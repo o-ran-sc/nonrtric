@@ -431,11 +431,11 @@ paths:
         '200':
           description: Policy updated
           schema:
-            type: string
+            type: object
         '201':
           description: Policy created
           schema:
-            type: string
+            type: object
         '401':
           description: Unauthorized
         '403':
@@ -869,6 +869,8 @@ definitions:
     title: RicInfo
   ServiceRegistrationInfo:
     type: object
+    required:
+      - serviceName
     properties:
       callbackUrl:
         type: string
