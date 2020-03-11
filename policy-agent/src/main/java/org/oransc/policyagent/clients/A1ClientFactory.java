@@ -69,14 +69,14 @@ public class A1ClientFactory {
             return Mono.just(createOscA1Client(ric));
         } else if (version == A1ProtocolType.SDNC_OSC) {
             return Mono.just(createSdncOscA1Client(ric));
-        } else { // A1ProtocolType.SDNR_ONAP
-            return Mono.just(createSdnrOnapA1Client(ric));
+        } else { // A1ProtocolType.SDNC_ONAP
+            return Mono.just(createSdncOnapA1Client(ric));
         }
     }
 
     private Mono<A1Client.A1ProtocolType> getProtocolVersion(Ric ric) {
         if (ric.getProtocolVersion() == A1ProtocolType.UNKNOWN) {
-            return fetchVersion(createSdnrOnapA1Client(ric)) //
+            return fetchVersion(createSdncOnapA1Client(ric)) //
                 .onErrorResume(notUsed -> fetchVersion(createSdncOscA1Client(ric))) //
                 .onErrorResume(notUsed -> fetchVersion(createOscA1Client(ric))) //
                 .onErrorResume(notUsed -> fetchVersion(createStdA1ClientImpl(ric))) //
@@ -101,7 +101,7 @@ public class A1ClientFactory {
             appConfig.getA1ControllerUsername(), appConfig.getA1ControllerPassword());
     }
 
-    protected A1Client createSdnrOnapA1Client(Ric ric) {
+    protected A1Client createSdncOnapA1Client(Ric ric) {
         return new SdncOnapA1Client(ric.getConfig(), appConfig.getA1ControllerBaseUrl(),
             appConfig.getA1ControllerUsername(), appConfig.getA1ControllerPassword());
     }
