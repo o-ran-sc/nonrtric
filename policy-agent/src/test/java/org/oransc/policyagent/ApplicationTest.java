@@ -60,8 +60,11 @@ import org.oransc.policyagent.repository.Ric.RicState;
 import org.oransc.policyagent.repository.Rics;
 import org.oransc.policyagent.repository.Services;
 import org.oransc.policyagent.tasks.RepositorySupervision;
+import org.oransc.policyagent.tasks.ServiceSupervision;
 import org.oransc.policyagent.utils.MockA1Client;
 import org.oransc.policyagent.utils.MockA1ClientFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -84,6 +87,8 @@ import reactor.test.StepVerifier;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ApplicationTest {
+    private static final Logger logger = LoggerFactory.getLogger(ApplicationTest.class);
+
     @Autowired
     ApplicationContext context;
 
@@ -122,6 +127,9 @@ public class ApplicationTest {
     @TestConfiguration
     static class TestBeanFactory {
         private final PolicyTypes policyTypes = new PolicyTypes();
+        private final Services services = new Services();
+        private final Policies policies = new Policies();
+        MockA1ClientFactory a1ClientFactory = null;
 
         @Bean
         public ApplicationConfig getApplicationConfig() {
@@ -130,12 +138,31 @@ public class ApplicationTest {
 
         @Bean
         MockA1ClientFactory getA1ClientFactory() {
-            return new MockA1ClientFactory(this.policyTypes);
+            if (a1ClientFactory == null) {
+                this.a1ClientFactory = new MockA1ClientFactory(this.policyTypes);
+            }
+            return this.a1ClientFactory;
         }
 
         @Bean
         public PolicyTypes getPolicyTypes() {
             return this.policyTypes;
+        }
+
+        @Bean
+        Policies getPolicies() {
+            return this.policies;
+        }
+
+        @Bean
+        Services getServices() {
+            return this.services;
+        }
+
+        @Bean
+        public ServiceSupervision getServiceSupervision() {
+            Duration checkInterval = Duration.ofMillis(1);
+            return new ServiceSupervision(this.services, this.policies, this.getA1ClientFactory(), checkInterval);
         }
     }
 
@@ -327,7 +354,7 @@ public class ApplicationTest {
 
         String url = "/policy_schema?id=type1";
         String rsp = restClient().get(url).block();
-        System.out.println(rsp);
+        logger.info(rsp);
         assertThat(rsp).contains("type1");
         assertThat(rsp).contains("title");
 
@@ -361,7 +388,7 @@ public class ApplicationTest {
 
         String url = "/policies";
         String rsp = restClient().get(url).block();
-        System.out.println(rsp);
+        logger.info(rsp);
         List<PolicyInfo> info = parseList(rsp, PolicyInfo.class);
         assertThat(info).size().isEqualTo(1);
         PolicyInfo policyInfo = info.get(0);
@@ -379,14 +406,14 @@ public class ApplicationTest {
 
         String url = "/policies?type=type1";
         String rsp = restClient().get(url).block();
-        System.out.println(rsp);
+        logger.info(rsp);
         assertThat(rsp).contains("id1");
         assertThat(rsp).contains("id2");
         assertThat(rsp.contains("id3")).isFalse();
 
         url = "/policies?type=type1&service=service2";
         rsp = restClient().get(url).block();
-        System.out.println(rsp);
+        logger.info(rsp);
         assertThat(rsp.contains("id1")).isFalse();
         assertThat(rsp).contains("id2");
         assertThat(rsp.contains("id3")).isFalse();
@@ -403,7 +430,7 @@ public class ApplicationTest {
     @Test
     public void testPutAndGetService() throws Exception {
         // PUT
-        putService("name");
+        putService("name", 0);
 
         // GET one service
         String url = "/services?name=name";
@@ -411,14 +438,14 @@ public class ApplicationTest {
         List<ServiceStatus> info = parseList(rsp, ServiceStatus.class);
         assertThat(info.size()).isEqualTo(1);
         ServiceStatus status = info.iterator().next();
-        assertThat(status.keepAliveIntervalSeconds).isEqualTo(1);
+        assertThat(status.keepAliveIntervalSeconds).isEqualTo(0);
         assertThat(status.serviceName).isEqualTo("name");
 
         // GET (all)
         url = "/services";
         rsp = restClient().get(url).block();
         assertThat(rsp.contains("name")).isTrue();
-        System.out.println(rsp);
+        logger.info(rsp);
 
         // Keep alive
         url = "/services/keepalive?name=name";
@@ -435,10 +462,28 @@ public class ApplicationTest {
         testErrorCode(restClient().post("/services/keepalive?name=name", ""), HttpStatus.NOT_FOUND);
 
         // PUT servive with crap payload
-        testErrorCode(restClient().put("/service", "junk"), HttpStatus.BAD_REQUEST);
+        testErrorCode(restClient().put("/service", "crap"), HttpStatus.BAD_REQUEST);
+        testErrorCode(restClient().put("/service", "{}"), HttpStatus.BAD_REQUEST);
 
         // GET non existing servive
         testErrorCode(restClient().get("/services?name=XXX"), HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    public void testServiceSupervision() throws Exception {
+        putService("service1", 1);
+        addPolicyType("type1", "ric1");
+
+        String url = putPolicyUrl("service1", "ric1", "type1", "instance1");
+        final String policyBody = jsonString();
+        restClient().put(url, policyBody).block();
+
+        assertThat(policies.size()).isEqualTo(1);
+        assertThat(services.size()).isEqualTo(1);
+
+        // Timeout after ~1 second
+        await().untilAsserted(() -> assertThat(policies.size()).isEqualTo(0));
+        assertThat(services.size()).isEqualTo(0);
     }
 
     @Test
@@ -471,16 +516,21 @@ public class ApplicationTest {
         return addPolicy(id, typeName, service, "ric");
     }
 
-    private String createServiceJson(String name) {
-        ServiceRegistrationInfo service = new ServiceRegistrationInfo(name, 1, "callbackUrl");
+    private String createServiceJson(String name, long keepAliveIntervalSeconds) {
+        ServiceRegistrationInfo service = new ServiceRegistrationInfo(name, keepAliveIntervalSeconds, "callbackUrl");
 
         String json = gson.toJson(service);
         return json;
     }
 
     private void putService(String name) {
+        putService(name, 0);
+    }
+
+    private void putService(String name, long keepAliveIntervalSeconds) {
         String url = "/service";
-        restClient().put(url, createServiceJson(name)).block();
+        String body = createServiceJson(name, keepAliveIntervalSeconds);
+        restClient().put(url, body).block();
     }
 
     private String baseUrl() {
@@ -543,7 +593,7 @@ public class ApplicationTest {
             t.join();
         }
         assertThat(policies.size()).isEqualTo(0);
-        System.out.println("Concurrency test took " + Duration.between(startTime, Instant.now()));
+        logger.info("Concurrency test took " + Duration.between(startTime, Instant.now()));
     }
 
     private AsyncRestClient restClient() {
