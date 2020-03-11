@@ -36,7 +36,7 @@ public class ServiceStatus {
     public final long keepAliveIntervalSeconds;
 
     @ApiModelProperty(value = "time since last invocation by the service")
-    public final long timeSincePingSeconds;
+    public final long timeSinceLastActivitySeconds;
 
     @ApiModelProperty(value = "callback for notifying of RIC recovery")
     public String callbackUrl;
@@ -44,7 +44,7 @@ public class ServiceStatus {
     ServiceStatus(String name, long keepAliveIntervalSeconds, long timeSincePingSeconds, String callbackUrl) {
         this.serviceName = name;
         this.keepAliveIntervalSeconds = keepAliveIntervalSeconds;
-        this.timeSincePingSeconds = timeSincePingSeconds;
+        this.timeSinceLastActivitySeconds = timeSincePingSeconds;
         this.callbackUrl = callbackUrl;
     }
 
