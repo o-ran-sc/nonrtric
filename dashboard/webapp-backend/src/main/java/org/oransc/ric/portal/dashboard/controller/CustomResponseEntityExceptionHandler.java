@@ -3,6 +3,7 @@
  * O-RAN-SC
  * %%
  * Copyright (C) 2019 AT&T Intellectual Property
+ * Modifications Copyright (C) 2020 Nordix Foundation
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +70,8 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
     @ExceptionHandler({RestClientResponseException.class})
     public final ResponseEntity<ErrorTransport> handleProxyMethodException(Exception ex, WebRequest request) {
         // Capture the full stack trace in the log.
-        log.error("handleProxyMethodException: request {}, exception {}", request.getDescription(false), ex);
+        log.error("handleProxyMethodException: request {}, exception {}", request.getDescription(false),
+            ex.getMessage());
         if (ex instanceof HttpStatusCodeException) {
             HttpStatusCodeException hsce = (HttpStatusCodeException) ex;
             return new ResponseEntity<>(new ErrorTransport(hsce.getRawStatusCode(), hsce.getResponseBodyAsString(),
