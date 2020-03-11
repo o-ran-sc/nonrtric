@@ -36,14 +36,14 @@ public class Service {
         this.name = name;
         this.keepAliveInterval = keepAliveInterval;
         this.callbackUrl = callbackUrl;
-        ping();
+        keepAlive();
     }
 
     public synchronized Duration getKeepAliveInterval() {
         return this.keepAliveInterval;
     }
 
-    public synchronized void ping() {
+    public synchronized void keepAlive() {
         this.lastPing = Instant.now();
     }
 

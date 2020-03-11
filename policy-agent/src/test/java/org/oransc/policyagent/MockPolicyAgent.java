@@ -37,6 +37,8 @@ import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Rics;
 import org.oransc.policyagent.utils.MockA1ClientFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -48,6 +50,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
 public class MockPolicyAgent {
+    private static final Logger logger = LoggerFactory.getLogger(MockPolicyAgent.class);
 
     @Autowired
     Rics rics;
@@ -117,7 +120,7 @@ public class MockPolicyAgent {
                     PolicyType type = ImmutablePolicyType.builder().name(typeName).schema(schema).build();
                     policyTypes.put(type);
                 } catch (Exception e) {
-                    System.out.println("Could not load json schema " + e);
+                    logger.error("Could not load json schema ", e);
                 }
             }
         }
@@ -127,13 +130,13 @@ public class MockPolicyAgent {
     private int port;
 
     private void keepServerAlive() {
-        System.out.println("Keeping server alive!");
+        logger.info("Keeping server alive!");
         try {
             synchronized (this) {
                 this.wait();
             }
         } catch (Exception ex) {
-            System.out.println("Unexpected: " + ex.toString());
+            logger.error("Unexpected: " + ex);
         }
     }
 

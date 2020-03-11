@@ -47,8 +47,8 @@ import reactor.core.publisher.Mono;
  */
 @Component
 @EnableScheduling
-public class RepositorySupervision {
-    private static final Logger logger = LoggerFactory.getLogger(RepositorySupervision.class);
+public class RicSupervision {
+    private static final Logger logger = LoggerFactory.getLogger(RicSupervision.class);
 
     private final Rics rics;
     private final Policies policies;
@@ -57,7 +57,7 @@ public class RepositorySupervision {
     private final Services services;
 
     @Autowired
-    public RepositorySupervision(Rics rics, Policies policies, A1ClientFactory a1ClientFactory, PolicyTypes policyTypes,
+    public RicSupervision(Rics rics, Policies policies, A1ClientFactory a1ClientFactory, PolicyTypes policyTypes,
         Services services) {
         this.rics = rics;
         this.policies = policies;
@@ -72,7 +72,9 @@ public class RepositorySupervision {
     @Scheduled(fixedRate = 1000 * 60)
     public void checkAllRics() {
         logger.debug("Checking Rics starting");
-        createTask().subscribe(this::onRicChecked, null, this::onComplete);
+        createTask().subscribe(ric -> logger.debug("Ric: {} checked", ric.ric.name()), //
+            null, //
+            () -> logger.debug("Checking Rics completed"));
     }
 
     private Flux<RicData> createTask() {
@@ -161,15 +163,6 @@ public class RepositorySupervision {
         RicSynchronizationTask synchronizationTask = createSynchronizationTask();
         synchronizationTask.run(ric.ric);
         return Mono.error(new Exception("Syncronization started"));
-    }
-
-    @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
-    private void onRicChecked(RicData ric) {
-        logger.debug("Ric: {} checked", ric.ric.name());
-    }
-
-    private void onComplete() {
-        logger.debug("Checking Rics completed");
     }
 
     RicSynchronizationTask createSynchronizationTask() {
