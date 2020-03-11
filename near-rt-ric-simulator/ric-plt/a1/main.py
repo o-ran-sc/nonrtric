@@ -88,6 +88,18 @@ def set_status_with_reason(policyId, enforceStatus, enforceReason):
   policy_status[policyId] = ps
   return("Status updated for policy: " + policyId, 200)
 
+#Metrics function
+
+@app.route('/counter/<string:countername>', methods=['GET'])
+def getCounter(countername):
+    if (countername == "num_instances"):
+        return str(len(policy_instances)),200
+    elif (countername == "num_types"):
+        return str(len(policy_types)),200
+    else:
+        return "Counter name: "+countername+" not found.",404
+
+
 port_number = 8085
 if len(sys.argv) >= 2:
   if isinstance(sys.argv[1], int):
