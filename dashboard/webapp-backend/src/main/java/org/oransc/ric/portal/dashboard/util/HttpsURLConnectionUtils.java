@@ -42,7 +42,8 @@ public final class HttpsURLConnectionUtils {
 
     private static final HostnameVerifier jvmHostnameVerifier = HttpsURLConnection.getDefaultHostnameVerifier();
 
-    private static final HostnameVerifier trivialHostnameVerifier = (hostname, sslSession) -> true;
+    private static final HostnameVerifier trivialHostnameVerifier =
+        (hostname, sslSession) -> hostname.equalsIgnoreCase(sslSession.getPeerHost());
 
     private static final TrustManager[] UNQUESTIONING_TRUST_MANAGER = new TrustManager[] {new X509TrustManager() {
         @Override
