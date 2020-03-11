@@ -549,6 +549,24 @@
       "revId": "3ccb206ea93b006944519786ac7e2e3a2f03208c",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a41b382d_d901f708",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-11T12:48:05Z",
+      "side": 1,
+      "message": "The JavaDoc is added in the latest patch set, so it is not visible from this patch set.",
+      "parentUuid": "fe079bd7_91e4c83a",
+      "revId": "3ccb206ea93b006944519786ac7e2e3a2f03208c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
