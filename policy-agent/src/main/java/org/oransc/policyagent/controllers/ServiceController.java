@@ -57,7 +57,6 @@ public class ServiceController {
     private final Policies policies;
 
     private static Gson gson = new GsonBuilder() //
-        .serializeNulls() //
         .create(); //
 
     @Autowired
@@ -97,6 +96,12 @@ public class ServiceController {
             s.getCallbackUrl());
     }
 
+    private void validateRegistrationInfo(ServiceRegistrationInfo registrationInfo) throws ServiceException {
+        if (registrationInfo.serviceName.isEmpty()) {
+            throw new ServiceException("Missing mandatory parameter");
+        }
+    }
+
     @ApiOperation(value = "Register a service")
     @ApiResponses(
         value = { //
@@ -106,6 +111,7 @@ public class ServiceController {
     public ResponseEntity<String> putService(//
         @RequestBody ServiceRegistrationInfo registrationInfo) {
         try {
+            validateRegistrationInfo(registrationInfo);
             this.services.put(toService(registrationInfo));
             return new ResponseEntity<>("OK", HttpStatus.OK);
         } catch (Exception e) {
@@ -141,7 +147,7 @@ public class ServiceController {
     public ResponseEntity<String> keepAliveService(//
         @RequestParam(name = "name", required = true) String serviceName) {
         try {
-            services.getService(serviceName).ping();
+            services.getService(serviceName).keepAlive();
             return new ResponseEntity<>("OK", HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);

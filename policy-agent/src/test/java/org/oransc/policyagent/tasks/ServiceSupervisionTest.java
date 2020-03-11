@@ -101,7 +101,7 @@ public class ServiceSupervisionTest {
 
         await().atMost(Durations.FIVE_SECONDS).with().pollInterval(Durations.ONE_SECOND).until(service::isExpired);
 
-        serviceSupervisionUnderTest.checkAllServices();
+        serviceSupervisionUnderTest.checkAllServices().blockLast();
 
         assertThat(policies.size()).isEqualTo(0);
         assertThat(services.size()).isEqualTo(0);
@@ -125,7 +125,7 @@ public class ServiceSupervisionTest {
 
         final ListAppender<ILoggingEvent> logAppender = LoggingUtils.getLogListAppender(ServiceSupervision.class, WARN);
 
-        serviceSupervisionUnderTest.checkAllServices();
+        serviceSupervisionUnderTest.checkAllServices().blockLast();
 
         assertThat(policies.size()).isEqualTo(0);
         assertThat(services.size()).isEqualTo(0);
@@ -143,7 +143,7 @@ public class ServiceSupervisionTest {
         ServiceSupervision serviceSupervisionUnderTest =
             new ServiceSupervision(services, policies, a1ClientFactoryMock);
 
-        serviceSupervisionUnderTest.checkAllServices();
+        serviceSupervisionUnderTest.checkAllServices().blockLast();
 
         assertThat(policies.size()).isEqualTo(1);
         assertThat(services.size()).isEqualTo(1);
@@ -159,7 +159,7 @@ public class ServiceSupervisionTest {
         ServiceSupervision serviceSupervisionUnderTest =
             new ServiceSupervision(services, policies, a1ClientFactoryMock);
 
-        serviceSupervisionUnderTest.checkAllServices();
+        serviceSupervisionUnderTest.checkAllServices().blockLast();
 
         assertThat(policies.size()).isEqualTo(1);
         assertThat(services.size()).isEqualTo(1);

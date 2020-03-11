@@ -33,7 +33,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.oransc.policyagent.clients.A1ClientFactory;
-import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.repository.ImmutablePolicy;
 import org.oransc.policyagent.repository.Lock.LockType;
@@ -43,6 +42,8 @@ import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Rics;
+import org.oransc.policyagent.repository.Service;
+import org.oransc.policyagent.repository.Services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -58,23 +59,20 @@ import reactor.core.publisher.Mono;
 @Api(tags = "A1 Policy Management")
 public class PolicyController {
 
-    private final Rics rics;
-    private final PolicyTypes policyTypes;
-    private final Policies policies;
-    private final A1ClientFactory a1ClientFactory;
+    @Autowired
+    private Rics rics;
+    @Autowired
+    private PolicyTypes policyTypes;
+    @Autowired
+    private Policies policies;
+    @Autowired
+    private A1ClientFactory a1ClientFactory;
+    @Autowired
+    private Services services;
 
     private static Gson gson = new GsonBuilder() //
         .serializeNulls() //
         .create(); //
-
-    @Autowired
-    PolicyController(ApplicationConfig config, PolicyTypes types, Policies policies, Rics rics,
-        A1ClientFactory a1ClientFactory) {
-        this.policyTypes = types;
-        this.policies = policies;
-        this.rics = rics;
-        this.a1ClientFactory = a1ClientFactory;
-    }
 
     @GetMapping("/policy_schemas")
     @ApiOperation(value = "Returns policy type schema definitions")
@@ -165,8 +163,13 @@ public class PolicyController {
             @ApiResponse(code = 423, message = "RIC is locked", response = String.class)})
     public Mono<ResponseEntity<Object>> deletePolicy( //
         @RequestParam(name = "instance", required = true) String id) {
-        Policy policy = policies.get(id);
-        if (policy != null && policy.ric().getState() == Ric.RicState.IDLE) {
+        Policy policy;
+        try {
+            policy = policies.getPolicy(id);
+            keepServiceAlive(policy.ownerServiceName());
+            if (policy.ric().getState() != Ric.RicState.IDLE) {
+                return Mono.just(new ResponseEntity<>("Busy, recovering", HttpStatus.LOCKED));
+            }
             Ric ric = policy.ric();
             return ric.getLock().lock(LockType.SHARED) // //
                 .flatMap(lock -> a1ClientFactory.createA1Client(policy.ric())) //
@@ -175,9 +178,7 @@ public class PolicyController {
                 .doOnNext(notUsed -> ric.getLock().unlockBlocking()) //
                 .doOnError(notUsed -> ric.getLock().unlockBlocking()) //
                 .flatMap(notUsed -> Mono.just(new ResponseEntity<>(HttpStatus.NO_CONTENT)));
-        } else if (policy != null) {
-            return Mono.just(new ResponseEntity<>("Busy, recovering", HttpStatus.LOCKED));
-        } else {
+        } catch (ServiceException e) {
             return Mono.just(new ResponseEntity<>(HttpStatus.NOT_FOUND));
         }
     }
@@ -186,8 +187,8 @@ public class PolicyController {
     @ApiOperation(value = "Put a policy", response = String.class)
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 201, message = "Policy created"), //
-            @ApiResponse(code = 200, message = "Policy updated"), //
+            @ApiResponse(code = 201, message = "Policy created", response = Object.class), //
+            @ApiResponse(code = 200, message = "Policy updated", response = Object.class), //
             @ApiResponse(code = 423, message = "RIC is locked", response = String.class), //
             @ApiResponse(code = 404, message = "RIC or policy type is not found", response = String.class), //
             @ApiResponse(code = 405, message = "Change is not allowed", response = String.class)})
@@ -201,6 +202,7 @@ public class PolicyController {
         String jsonString = gson.toJson(jsonBody);
         Ric ric = rics.get(ricName);
         PolicyType type = policyTypes.get(typeName);
+        keepServiceAlive(service);
         if (ric != null && type != null && ric.getState() == Ric.RicState.IDLE) {
             Policy policy = ImmutablePolicy.builder() //
                 .id(instanceId) //
@@ -298,6 +300,13 @@ public class PolicyController {
                 .flatMap(status -> Mono.just(new ResponseEntity<>(status, HttpStatus.OK)));
         } catch (ServiceException e) {
             return Mono.just(new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND));
+        }
+    }
+
+    private void keepServiceAlive(String name) {
+        Service s = this.services.get(name);
+        if (s != null) {
+            s.keepAlive();
         }
     }
 
