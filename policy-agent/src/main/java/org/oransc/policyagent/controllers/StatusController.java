@@ -20,6 +20,7 @@
 
 package org.oransc.policyagent.controllers;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController
+@Api(tags = "Health check")
 public class StatusController {
 
     @GetMapping("/status")

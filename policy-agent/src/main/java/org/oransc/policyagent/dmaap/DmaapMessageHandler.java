@@ -17,7 +17,6 @@
  * limitations under the License.
  * ========================LICENSE_END===================================
  */
-
 package org.oransc.policyagent.dmaap;
 
 import com.google.gson.Gson;
@@ -29,19 +28,25 @@ import java.util.Optional;
 
 import org.onap.dmaap.mr.client.MRBatchingPublisher;
 import org.oransc.policyagent.clients.AsyncRestClient;
+import org.oransc.policyagent.dmaap.DmaapRequestMessage.Operation;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
+/**
+ * The class handles incoming requests from DMAAP.
+ * <p>
+ * That means: invoke a REST call towards this services and to send back a
+ * response though DMAAP
+ */
 public class DmaapMessageHandler {
-
     private static final Logger logger = LoggerFactory.getLogger(DmaapMessageHandler.class);
-
     private static Gson gson = new GsonBuilder() //
         .create(); //
-
     private final MRBatchingPublisher dmaapClient;
     private final AsyncRestClient agentClient;
 
@@ -60,61 +65,46 @@ public class DmaapMessageHandler {
     Mono<String> createTask(String msg) {
         try {
             DmaapRequestMessage dmaapRequestMessage = gson.fromJson(msg, ImmutableDmaapRequestMessage.class);
-
             return this.invokePolicyAgent(dmaapRequestMessage) //
-                .onErrorResume(t -> handleAgentCallError(t, msg, dmaapRequestMessage)) //
-                .flatMap(response -> sendDmaapResponse(response, dmaapRequestMessage, HttpStatus.OK));
+                .onErrorResume(t -> handleAgentCallError(t, dmaapRequestMessage)) //
+                .flatMap(
 
+                    response -> sendDmaapResponse(response.getBody(), dmaapRequestMessage, response.getStatusCode()));
         } catch (Exception e) {
             logger.warn("Received unparsable message from DMAAP: {}", msg);
-            return Mono.error(e);
+            return Mono.error(e); // Cannot make any response
         }
     }
 
-    private Mono<String> handleAgentCallError(Throwable t, String origianalMessage,
-        DmaapRequestMessage dmaapRequestMessage) {
+    private Mono<ResponseEntity<String>> handleAgentCallError(Throwable t, DmaapRequestMessage dmaapRequestMessage) {
         logger.debug("Agent call failed: {}", t.getMessage());
-        if (t instanceof ServiceException) {
-            String errorMessage = prepareBadOperationErrorMessage(t, origianalMessage);
-            return sendDmaapResponse(errorMessage, dmaapRequestMessage, HttpStatus.NOT_FOUND) //
-                .flatMap(notUsed -> Mono.empty());
-        } else {
-            return sendDmaapResponse(t.toString(), dmaapRequestMessage, HttpStatus.NOT_FOUND) //
-                .flatMap(notUsed -> Mono.empty());
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        String errorMessage = t.getMessage();
+        if (t instanceof WebClientResponseException) {
+            WebClientResponseException exception = (WebClientResponseException) t;
+            status = exception.getStatusCode();
+            errorMessage = exception.getResponseBodyAsString();
         }
+        return sendDmaapResponse(errorMessage, dmaapRequestMessage, status) //
+            .flatMap(notUsed -> Mono.empty());
     }
 
-    private String prepareBadOperationErrorMessage(Throwable t, String origianalMessage) {
-        String badOperation = origianalMessage.substring(origianalMessage.indexOf("operation\":\"") + 12,
-            origianalMessage.indexOf(",\"url\":"));
-        String errorMessage = t.getMessage().replace("null", badOperation);
-        return errorMessage;
-    }
-
-    private Mono<String> invokePolicyAgent(DmaapRequestMessage dmaapRequestMessage) {
+    private Mono<ResponseEntity<String>> invokePolicyAgent(DmaapRequestMessage dmaapRequestMessage) {
         DmaapRequestMessage.Operation operation = dmaapRequestMessage.operation();
-        if (operation == null) {
+
+        String uri = dmaapRequestMessage.url();
+        if (operation == Operation.DELETE) {
+            return agentClient.deleteForEntity(uri);
+        } else if (operation == Operation.GET) {
+            return agentClient.getForEntity(uri);
+        } else if (operation == Operation.PUT) {
+            return agentClient.putForEntity(uri, payload(dmaapRequestMessage));
+        } else if (operation == Operation.POST) {
+            return agentClient.postForEntity(uri, payload(dmaapRequestMessage));
+        } else {
             return Mono.error(new ServiceException("Not implemented operation: " + operation));
         }
-        Mono<String> result = null;
-        String uri = dmaapRequestMessage.url();
-        switch (operation) {
-            case DELETE:
-                result = agentClient.delete(uri);
-                break;
-            case GET:
-                result = agentClient.get(uri);
-                break;
-            case PUT:
-                result = agentClient.put(uri, payload(dmaapRequestMessage));
-                break;
-            case POST:
-                result = agentClient.post(uri, payload(dmaapRequestMessage));
-                break;
-            default:
-                // Nothing, can never get here.
-        }
-        return result;
+
     }
 
     private String payload(DmaapRequestMessage message) {
@@ -129,7 +119,7 @@ public class DmaapMessageHandler {
 
     private Mono<String> sendDmaapResponse(String response, DmaapRequestMessage dmaapRequestMessage,
         HttpStatus status) {
-        return getDmaapResponseMessage(dmaapRequestMessage, response, status) //
+        return createDmaapResponseMessage(dmaapRequestMessage, response, status) //
             .flatMap(this::sendToDmaap) //
             .onErrorResume(this::handleResponseCallError);
     }
@@ -146,11 +136,11 @@ public class DmaapMessageHandler {
     }
 
     private Mono<String> handleResponseCallError(Throwable t) {
-        logger.debug("Failed to send respons to DMaaP: {}", t.getMessage());
+        logger.debug("Failed to respond: {}", t.getMessage());
         return Mono.empty();
     }
 
-    private Mono<String> getDmaapResponseMessage(DmaapRequestMessage dmaapRequestMessage, String response,
+    private Mono<String> createDmaapResponseMessage(DmaapRequestMessage dmaapRequestMessage, String response,
         HttpStatus status) {
         DmaapResponseMessage dmaapResponseMessage = ImmutableDmaapResponseMessage.builder() //
             .status(status.toString()) //
@@ -162,7 +152,6 @@ public class DmaapMessageHandler {
             .timestamp(dmaapRequestMessage.timestamp()) //
             .build();
         String str = gson.toJson(dmaapResponseMessage);
-
         return Mono.just(str);
 
     }

@@ -22,6 +22,7 @@ package org.oransc.policyagent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -29,7 +30,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -40,6 +40,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.oransc.policyagent.clients.AsyncRestClient;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.configuration.ImmutableRicConfig;
 import org.oransc.policyagent.configuration.RicConfig;
@@ -70,15 +71,15 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatus.Series;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -141,26 +142,6 @@ public class ApplicationTest {
     @LocalServerPort
     private int port;
 
-    private final RestTemplate restTemplate = new RestTemplate();
-
-    public class RestTemplateResponseErrorHandler implements ResponseErrorHandler {
-
-        @Override
-        public boolean hasError(ClientHttpResponse httpResponse) throws IOException {
-            return (httpResponse.getStatusCode().series() == Series.CLIENT_ERROR
-                || httpResponse.getStatusCode().series() == Series.SERVER_ERROR);
-        }
-
-        @Override
-        public void handleError(ClientHttpResponse httpResponse) throws IOException {
-            System.out.println("Error " + httpResponse.toString());
-        }
-    }
-
-    private void setRestErrorhandler() {
-        restTemplate.setErrorHandler(new RestTemplateResponseErrorHandler());
-    }
-
     @BeforeEach
     public void reset() {
         rics.clear();
@@ -182,14 +163,14 @@ public class ApplicationTest {
     @Test
     public void testGetRics() throws Exception {
         addRic("kista_1");
-        String url = baseUrl() + "/rics";
-        String rsp = this.restTemplate.getForObject(url, String.class);
-        System.out.println(rsp);
+        this.addPolicyType("type1", "kista_1");
+        String url = "/rics?policyType=type1";
+        String rsp = restClient().get(url).block();
         assertThat(rsp).contains("kista_1");
 
-        url = baseUrl() + "/rics?policyType=STD_PolicyModelUnconstrained_0.2.0";
-        rsp = this.restTemplate.getForObject(url, String.class);
-        assertThat(rsp).isEqualTo("[]");
+        // Non existing policy type
+        url = "/rics?policyType=XXXX";
+        testErrorCode(restClient().get(url), HttpStatus.NOT_FOUND);
     }
 
     @Test
@@ -219,18 +200,19 @@ public class ApplicationTest {
         String managedElementId = "kista_1";
         addRic(ricName, managedElementId);
 
-        String url = baseUrl() + "/ric?managedElementId=" + managedElementId;
-        String rsp = this.restTemplate.getForObject(url, String.class);
-
+        String url = "/ric?managedElementId=" + managedElementId;
+        String rsp = restClient().get(url).block();
         assertThat(rsp).isEqualTo(ricName);
+
+        // test GET RIC for ManagedElement that does not exist
+        url = "/ric?managedElementId=" + "junk";
+        testErrorCode(restClient().get(url), HttpStatus.NOT_FOUND);
     }
 
-    @Test
-    public void testGetRicForManagedElementThatDoesNotExist() throws Exception {
-        this.setRestErrorhandler();
-        String url = baseUrl() + "/ric?managedElementId=kista_1";
-        ResponseEntity<String> entity = this.restTemplate.getForEntity(url, String.class);
-        assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    private String putPolicyUrl(String serviceName, String ricName, String policyTypeName, String policyInstanceId) {
+        String url = "/policy?type=" + policyTypeName + "&instance=" + policyInstanceId + "&ric=" + ricName
+            + "&service=" + serviceName;
+        return url;
     }
 
     @Test
@@ -243,12 +225,11 @@ public class ApplicationTest {
         putService(serviceName);
         addPolicyType(policyTypeName, ricName);
 
-        String url = baseUrl() + "/policy?type=" + policyTypeName + "&instance=" + policyInstanceId + "&ric=" + ricName
-            + "&service=" + serviceName;
-        final String json = jsonString();
+        String url = putPolicyUrl(serviceName, ricName, policyTypeName, policyInstanceId);
+        final String policyBody = jsonString();
         this.rics.getRic(ricName).setState(Ric.RicState.IDLE);
 
-        this.restTemplate.put(url, createJsonHttpEntity(json));
+        restClient().put(url, policyBody).block();
 
         Policy policy = policies.getPolicy(policyInstanceId);
         assertThat(policy).isNotNull();
@@ -256,10 +237,21 @@ public class ApplicationTest {
         assertThat(policy.ownerServiceName()).isEqualTo(serviceName);
         assertThat(policy.ric().name()).isEqualTo("ric1");
 
-        url = baseUrl() + "/policies";
-        String rsp = this.restTemplate.getForObject(url, String.class);
+        url = "/policies";
+        String rsp = restClient().get(url).block();
         assertThat(rsp.contains(policyInstanceId)).isTrue();
 
+        // Test of error codes
+        url = putPolicyUrl(serviceName, ricName + "XX", policyTypeName, policyInstanceId);
+        testErrorCode(restClient().put(url, policyBody), HttpStatus.NOT_FOUND);
+
+        url = putPolicyUrl(serviceName, ricName, policyTypeName + "XX", policyInstanceId);
+        testErrorCode(restClient().put(url, policyBody), HttpStatus.NOT_FOUND);
+
+        url = putPolicyUrl(serviceName, ricName, policyTypeName, policyInstanceId);
+        this.rics.getRic(ricName).setState(Ric.RicState.SYNCHRONIZING);
+        testErrorCode(restClient().put(url, policyBody), HttpStatus.LOCKED);
+        this.rics.getRic(ricName).setState(Ric.RicState.IDLE);
     }
 
     @Test
@@ -268,41 +260,40 @@ public class ApplicationTest {
         // In this case service is attempted to be changed
         this.addRic("ric1");
         this.addRic("ricXXX");
-
         this.addPolicy("instance1", "type1", "service1", "ric1");
-        this.setRestErrorhandler();
-        String urlWrongRic = baseUrl() + "/policy?type=type1&instance=instance1&ric=ricXXX&service=service1";
-        ResponseEntity<String> entity = this.putForEntity(urlWrongRic, jsonString());
-        assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
 
-        Policy policy = policies.getPolicy("instance1");
-        assertThat(policy.ric().name()).isEqualTo("ric1"); // Not changed
+        // Try change ric1 -> ricXXX
+        String urlWrongRic = putPolicyUrl("service1", "ricXXX", "type1", "instance1");
+        testErrorCode(restClient().put(urlWrongRic, jsonString()), HttpStatus.METHOD_NOT_ALLOWED);
     }
 
     @Test
     public void testGetPolicy() throws Exception {
-        String url = baseUrl() + "/policy?instance=id";
+        String url = "/policy?instance=id";
         Policy policy = addPolicy("id", "typeName", "service1", "ric1");
         {
-            String rsp = this.restTemplate.getForObject(url, String.class);
+            String rsp = restClient().get(url).block();
             assertThat(rsp).isEqualTo(policy.json());
         }
         {
             policies.remove(policy);
-            ResponseEntity<String> rsp = this.restTemplate.getForEntity(url, String.class);
-            assertThat(rsp.getStatusCodeValue()).isEqualTo(HttpStatus.NO_CONTENT.value());
+            testErrorCode(restClient().get(url), HttpStatus.NOT_FOUND);
         }
     }
 
     @Test
     public void testDeletePolicy() throws Exception {
-        String url = baseUrl() + "/policy?instance=id";
         addPolicy("id", "typeName", "service1", "ric1");
         assertThat(policies.size()).isEqualTo(1);
 
-        this.restTemplate.delete(url);
+        String url = "/policy?instance=id";
+        ResponseEntity<String> entity = restClient().deleteForEntity(url).block();
 
+        assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
         assertThat(policies.size()).isEqualTo(0);
+
+        // Delete a non existing policy
+        testErrorCode(restClient().get(url), HttpStatus.NOT_FOUND);
     }
 
     @Test
@@ -310,20 +301,23 @@ public class ApplicationTest {
         addPolicyType("type1", "ric1");
         addPolicyType("type2", "ric2");
 
-        String url = baseUrl() + "/policy_schemas";
-        String rsp = this.restTemplate.getForObject(url, String.class);
-        System.out.println("*** " + rsp);
+        String url = "/policy_schemas";
+        String rsp = this.restClient().get(url).block();
         assertThat(rsp).contains("type1");
         assertThat(rsp).contains("[{\"title\":\"type2\"}");
 
         List<String> info = parseSchemas(rsp);
         assertThat(info.size()).isEqualTo(2);
 
-        url = baseUrl() + "/policy_schemas?ric=ric1";
-        rsp = this.restTemplate.getForObject(url, String.class);
+        url = "/policy_schemas?ric=ric1";
+        rsp = restClient().get(url).block();
         assertThat(rsp).contains("type1");
         info = parseSchemas(rsp);
         assertThat(info.size()).isEqualTo(1);
+
+        // Get schema for non existing RIC
+        url = "/policy_schemas?ric=ric1XXX";
+        testErrorCode(restClient().get(url), HttpStatus.NOT_FOUND);
     }
 
     @Test
@@ -331,11 +325,15 @@ public class ApplicationTest {
         addPolicyType("type1", "ric1");
         addPolicyType("type2", "ric2");
 
-        String url = baseUrl() + "/policy_schema?id=type1";
-        String rsp = this.restTemplate.getForObject(url, String.class);
+        String url = "/policy_schema?id=type1";
+        String rsp = restClient().get(url).block();
         System.out.println(rsp);
         assertThat(rsp).contains("type1");
         assertThat(rsp).contains("title");
+
+        // Get non existing schema
+        url = "/policy_schema?id=type1XX";
+        testErrorCode(restClient().get(url), HttpStatus.NOT_FOUND);
     }
 
     @Test
@@ -343,22 +341,26 @@ public class ApplicationTest {
         addPolicyType("type1", "ric1");
         addPolicyType("type2", "ric2");
 
-        String url = baseUrl() + "/policy_types";
-        String rsp = this.restTemplate.getForObject(url, String.class);
+        String url = "/policy_types";
+        String rsp = restClient().get(url).block();
         assertThat(rsp).isEqualTo("[\"type2\",\"type1\"]");
 
-        url = baseUrl() + "/policy_types?ric=ric1";
-        rsp = this.restTemplate.getForObject(url, String.class);
+        url = "/policy_types?ric=ric1";
+        rsp = restClient().get(url).block();
         assertThat(rsp).isEqualTo("[\"type1\"]");
+
+        // Get policy types for non existing RIC
+        url = "/policy_types?ric=ric1XXX";
+        testErrorCode(restClient().get(url), HttpStatus.NOT_FOUND);
     }
 
     @Test
     public void testGetPolicies() throws Exception {
         reset();
-        String url = baseUrl() + "/policies";
         addPolicy("id1", "type1", "service1");
 
-        String rsp = this.restTemplate.getForObject(url, String.class);
+        String url = "/policies";
+        String rsp = restClient().get(url).block();
         System.out.println(rsp);
         List<PolicyInfo> info = parseList(rsp, PolicyInfo.class);
         assertThat(info).size().isEqualTo(1);
@@ -375,19 +377,27 @@ public class ApplicationTest {
         addPolicy("id2", "type1", "service2");
         addPolicy("id3", "type2", "service1");
 
-        String url = baseUrl() + "/policies?type=type1";
-        String rsp = this.restTemplate.getForObject(url, String.class);
+        String url = "/policies?type=type1";
+        String rsp = restClient().get(url).block();
         System.out.println(rsp);
         assertThat(rsp).contains("id1");
         assertThat(rsp).contains("id2");
         assertThat(rsp.contains("id3")).isFalse();
 
-        url = baseUrl() + "/policies?type=type1&service=service2";
-        rsp = this.restTemplate.getForObject(url, String.class);
+        url = "/policies?type=type1&service=service2";
+        rsp = restClient().get(url).block();
         System.out.println(rsp);
         assertThat(rsp.contains("id1")).isFalse();
         assertThat(rsp).contains("id2");
         assertThat(rsp.contains("id3")).isFalse();
+
+        // Test get policies for non existing type
+        url = "/policies?type=type1XXX";
+        testErrorCode(restClient().get(url), HttpStatus.NOT_FOUND);
+
+        // Test get policies for non existing RIC
+        url = "/policies?ric=XXX";
+        testErrorCode(restClient().get(url), HttpStatus.NOT_FOUND);
     }
 
     @Test
@@ -395,9 +405,9 @@ public class ApplicationTest {
         // PUT
         putService("name");
 
-        // GET
-        String url = baseUrl() + "/services?serviceName=name";
-        String rsp = this.restTemplate.getForObject(url, String.class);
+        // GET one service
+        String url = "/services?name=name";
+        String rsp = restClient().get(url).block();
         List<ServiceStatus> info = parseList(rsp, ServiceStatus.class);
         assertThat(info.size()).isEqualTo(1);
         ServiceStatus status = info.iterator().next();
@@ -405,27 +415,30 @@ public class ApplicationTest {
         assertThat(status.serviceName).isEqualTo("name");
 
         // GET (all)
-        url = baseUrl() + "/services";
-        rsp = this.restTemplate.getForObject(url, String.class);
+        url = "/services";
+        rsp = restClient().get(url).block();
         assertThat(rsp.contains("name")).isTrue();
         System.out.println(rsp);
 
         // Keep alive
-        url = baseUrl() + "/services/keepalive?name=name";
-        ResponseEntity<String> entity = this.restTemplate.postForEntity(url, null, String.class);
+        url = "/services/keepalive?name=name";
+        ResponseEntity<String> entity = restClient().postForEntity(url, null).block();
         assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        // DELETE
+        // DELETE service
         assertThat(services.size()).isEqualTo(1);
-        url = baseUrl() + "/services?name=name";
-        this.restTemplate.delete(url);
+        url = "/services?name=name";
+        restClient().delete(url).block();
         assertThat(services.size()).isEqualTo(0);
 
         // Keep alive, no registerred service
-        url = baseUrl() + "/services/keepalive?name=name";
-        setRestErrorhandler();
-        entity = this.restTemplate.postForEntity(url, null, String.class);
-        assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        testErrorCode(restClient().post("/services/keepalive?name=name", ""), HttpStatus.NOT_FOUND);
+
+        // PUT servive with crap payload
+        testErrorCode(restClient().put("/service", "junk"), HttpStatus.BAD_REQUEST);
+
+        // GET non existing servive
+        testErrorCode(restClient().get("/services?name=XXX"), HttpStatus.NOT_FOUND);
     }
 
     @Test
@@ -433,9 +446,13 @@ public class ApplicationTest {
         addPolicy("id", "typeName", "service1", "ric1");
         assertThat(policies.size()).isEqualTo(1);
 
-        String url = baseUrl() + "/policy_status?instance=id";
-        String rsp = this.restTemplate.getForObject(url, String.class);
+        String url = "/policy_status?instance=id";
+        String rsp = restClient().get(url).block();
         assertThat(rsp.equals("OK")).isTrue();
+
+        // GET non existing policy status
+        url = "/policy_status?instance=XXX";
+        testErrorCode(restClient().get(url), HttpStatus.NOT_FOUND);
     }
 
     private Policy addPolicy(String id, String typeName, String service, String ric) throws ServiceException {
@@ -462,9 +479,8 @@ public class ApplicationTest {
     }
 
     private void putService(String name) {
-        String url = baseUrl() + "/service";
-        HttpEntity<String> entity = createJsonHttpEntity(createServiceJson(name));
-        this.restTemplate.put(url, entity);
+        String url = "/service";
+        restClient().put(url, createServiceJson(name)).block();
     }
 
     private String baseUrl() {
@@ -502,12 +518,12 @@ public class ApplicationTest {
 
         private void putPolicy(String name) {
             String putUrl = baseUrl + "/policy?type=type1&instance=" + name + "&ric=ric1&service=service1";
-            this.restTemplate.put(putUrl, createJsonHttpEntity("{}"));
+            restTemplate.put(putUrl, createJsonHttpEntity("{}"));
         }
 
         private void deletePolicy(String name) {
             String deleteUrl = baseUrl + "/policy?instance=" + name;
-            this.restTemplate.delete(deleteUrl);
+            restTemplate.delete(deleteUrl);
         }
     }
 
@@ -528,6 +544,24 @@ public class ApplicationTest {
         }
         assertThat(policies.size()).isEqualTo(0);
         System.out.println("Concurrency test took " + Duration.between(startTime, Instant.now()));
+    }
+
+    private AsyncRestClient restClient() {
+        return new AsyncRestClient(baseUrl());
+    }
+
+    private void testErrorCode(Mono<?> request, HttpStatus expStatus) {
+        StepVerifier.create(request) //
+            .expectSubscription() //
+            .expectErrorMatches(t -> checkWebClientError(t, expStatus)) //
+            .verify();
+    }
+
+    private boolean checkWebClientError(Throwable t, HttpStatus expStatus) {
+        assertTrue(t instanceof WebClientResponseException);
+        WebClientResponseException e = (WebClientResponseException) t;
+        assertThat(e.getStatusCode()).isEqualTo(expStatus);
+        return true;
     }
 
     private MockA1Client getA1Client(String ricName) throws ServiceException {
@@ -572,10 +606,6 @@ public class ApplicationTest {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         return new HttpEntity<String>(content, headers);
-    }
-
-    private ResponseEntity<String> putForEntity(String url, String jsonBody) {
-        return restTemplate.exchange(url, HttpMethod.PUT, createJsonHttpEntity(jsonBody), String.class);
     }
 
     private static <T> List<T> parseList(String jsonString, Class<T> clazz) {

@@ -40,6 +40,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+/**
+ * The class fetched incoming requests from DMAAP on regular intervals. Each
+ * received request is proceesed by DmaapMessageHandler.
+ */
 @Component
 public class DmaapMessageConsumer implements Runnable {
 

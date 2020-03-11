@@ -62,7 +62,7 @@ public class ApplicationConfigTest {
         RicConfigUpdate update =
             appConfigUnderTest.setConfiguration(Arrays.asList(RIC_CONFIG_1), null, null).blockFirst();
         assertEquals(RicConfigUpdate.Type.ADDED, update.getType());
-        assertTrue(appConfigUnderTest.getRicConfigs().contains(RIC_CONFIG_1), "Ric not added to configuraions.");
+        assertTrue(appConfigUnderTest.getRicConfigs().contains(RIC_CONFIG_1), "Ric not added to configurations.");
 
         assertEquals(RIC_CONFIG_1, appConfigUnderTest.getRic(RIC_CONFIG_1.name()),
             "Not correct Ric retrieved from configurations.");
