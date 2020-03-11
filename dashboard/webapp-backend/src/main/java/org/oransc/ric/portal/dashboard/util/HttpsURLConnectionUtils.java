@@ -44,10 +44,9 @@ public final class HttpsURLConnectionUtils {
     private static final HostnameVerifier trivialHostnameVerifier = (hostname, sslSession) -> true;
 
     private static final TrustManager[] UNQUESTIONING_TRUST_MANAGER = new TrustManager[] {new X509TrustManager() {
-        @SuppressWarnings("squid:S1168") // Must return null to get wanted behaviour.
         @Override
         public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-            return null;
+            return new java.security.cert.X509Certificate[0];
         }
 
         @Override
@@ -64,7 +63,7 @@ public final class HttpsURLConnectionUtils {
     public static void turnOffSslChecking() throws NoSuchAlgorithmException, KeyManagementException {
         HttpsURLConnection.setDefaultHostnameVerifier(trivialHostnameVerifier);
         // Install the all-trusting trust manager
-        SSLContext sc = SSLContext.getInstance("SSL");
+        SSLContext sc = SSLContext.getInstance("TLS");
         sc.init(null, UNQUESTIONING_TRUST_MANAGER, null);
         HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
     }
@@ -72,7 +71,7 @@ public final class HttpsURLConnectionUtils {
     public static void turnOnSslChecking() throws KeyManagementException, NoSuchAlgorithmException {
         HttpsURLConnection.setDefaultHostnameVerifier(jvmHostnameVerifier);
         // Return it to the initial state (discovered by reflection, now hardcoded)
-        SSLContext sc = SSLContext.getInstance("SSL");
+        SSLContext sc = SSLContext.getInstance("TLS");
         sc.init(null, null, null);
         HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
     }

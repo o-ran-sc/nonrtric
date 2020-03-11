@@ -69,7 +69,8 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
     @ExceptionHandler({RestClientResponseException.class})
     public final ResponseEntity<ErrorTransport> handleProxyMethodException(Exception ex, WebRequest request) {
         // Capture the full stack trace in the log.
-        log.error("handleProxyMethodException: request {}, exception {}", request.getDescription(false), ex);
+        log.error("handleProxyMethodException: request {}, exception {}", request.getDescription(false),
+            ex.getMessage());
         if (ex instanceof HttpStatusCodeException) {
             HttpStatusCodeException hsce = (HttpStatusCodeException) ex;
             return new ResponseEntity<>(new ErrorTransport(hsce.getRawStatusCode(), hsce.getResponseBodyAsString(),
