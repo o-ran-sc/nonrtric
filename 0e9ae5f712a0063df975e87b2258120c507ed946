@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "69d2b385_4753b35f",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/PolicyController.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-12T06:36:45Z",
+      "side": 1,
+      "message": "You can only delete policies if the state is IDLE.\nUndefined means probable data inconsistency, which is due to either:\n- the RIC is just added\n- repository synchronization has failed (most likely it is unreachable)",
+      "parentUuid": "eefa5e66_2ab489c6",
+      "range": {
+        "startLine": 170,
+        "startChar": 43,
+        "endLine": 170,
+        "endChar": 60
+      },
+      "revId": "0e9ae5f712a0063df975e87b2258120c507ed946",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a31bbdd6_47786044",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/ServiceController.java",
         "patchSetId": 2
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "25f4fef3_8aa4181a",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/ServiceController.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-12T06:36:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a31bbdd6_47786044",
+      "revId": "0e9ae5f712a0063df975e87b2258120c507ed946",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "41033c37_b5f2c5d8",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/ServiceRegistrationInfo.java",
         "patchSetId": 2
@@ -53,6 +95,30 @@
       "writtenOn": "2020-03-11T14:41:44Z",
       "side": 1,
       "message": "I know this didn\u0027t change in this commit, but ask anyway. Firstly, I see both refresh and keep alive, good to use the same verywhere. Secondly, it is the service that refreshes,isn\u0027t it? So it sounds a bit misleading to say that the policies are refreshed, or is it just me that is too strict?",
+      "range": {
+        "startLine": 41,
+        "startChar": 16,
+        "endLine": 41,
+        "endChar": 47
+      },
+      "revId": "0e9ae5f712a0063df975e87b2258120c507ed946",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61f1a78c_676d330f",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/ServiceRegistrationInfo.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-12T06:36:45Z",
+      "side": 1,
+      "message": "True. I rewrote the whole description. \nI am not even sure if \"keepAlive\" is a good term (same term as used in TCP and SSH,but that might be unknown to most people.)",
+      "parentUuid": "41033c37_b5f2c5d8",
       "range": {
         "startLine": 41,
         "startChar": 16,
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "138a1dc4_80827d04",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/ServiceSupervision.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-12T06:36:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a12e883_5edd3be8",
+      "range": {
+        "startLine": 76,
+        "startChar": 4,
+        "endLine": 76,
+        "endChar": 75
+      },
+      "revId": "0e9ae5f712a0063df975e87b2258120c507ed946",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3ab8a9ab_19af20cc",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/ServiceSupervision.java",
         "patchSetId": 2
@@ -102,6 +192,24 @@
       "revId": "0e9ae5f712a0063df975e87b2258120c507ed946",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9549ea59_908647c9",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/ServiceSupervision.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-12T06:36:45Z",
+      "side": 1,
+      "message": "Done, I do not even know what that means.",
+      "parentUuid": "3ab8a9ab_19af20cc",
+      "revId": "0e9ae5f712a0063df975e87b2258120c507ed946",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
