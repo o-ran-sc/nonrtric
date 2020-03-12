@@ -1,11 +1,11 @@
 {
     "ric": [
         {
-            "name": "ric_ric-simulator_6",
-            "baseUrl": "http://ric_ric-simulator_6:8085/",
+            "name": "ric_ric-simulator_3",
+            "baseUrl": "http://ric_ric-simulator_3:8085/",
             "managedElementIds": [
-                "kista_ric_ric-simulator_6",
-                "stockholm_ric_ric-simulator_6"
+                "kista_ric_ric-simulator_3",
+                "stockholm_ric_ric-simulator_3"
             ]
         },
         {
@@ -17,67 +17,11 @@
             ]
         },
         {
-            "name": "ric_ric-simulator_3",
-            "baseUrl": "http://ric_ric-simulator_3:8085/",
-            "managedElementIds": [
-                "kista_ric_ric-simulator_3",
-                "stockholm_ric_ric-simulator_3"
-            ]
-        },
-        {
-            "name": "ric_ric-simulator_7",
-            "baseUrl": "http://ric_ric-simulator_7:8085/",
-            "managedElementIds": [
-                "kista_ric_ric-simulator_7",
-                "stockholm_ric_ric-simulator_7"
-            ]
-        },
-        {
-            "name": "ric_ric-simulator_8",
-            "baseUrl": "http://ric_ric-simulator_8:8085/",
-            "managedElementIds": [
-                "kista_ric_ric-simulator_8",
-                "stockholm_ric_ric-simulator_8"
-            ]
-        },
-        {
-            "name": "ric_ric-simulator_5",
-            "baseUrl": "http://ric_ric-simulator_5:8085/",
-            "managedElementIds": [
-                "kista_ric_ric-simulator_5",
-                "stockholm_ric_ric-simulator_5"
-            ]
-        },
-        {
             "name": "ric_ric-simulator_1",
             "baseUrl": "http://ric_ric-simulator_1:8085/",
             "managedElementIds": [
                 "kista_ric_ric-simulator_1",
                 "stockholm_ric_ric-simulator_1"
-            ]
-        },
-        {
-            "name": "ric_ric-simulator_9",
-            "baseUrl": "http://ric_ric-simulator_9:8085/",
-            "managedElementIds": [
-                "kista_ric_ric-simulator_9",
-                "stockholm_ric_ric-simulator_9"
-            ]
-        },
-        {
-            "name": "ric_ric-simulator_4",
-            "baseUrl": "http://ric_ric-simulator_4:8085/",
-            "managedElementIds": [
-                "kista_ric_ric-simulator_4",
-                "stockholm_ric_ric-simulator_4"
-            ]
-        },
-        {
-            "name": "ric_ric-simulator_10",
-            "baseUrl": "http://ric_ric-simulator_10:8085/",
-            "managedElementIds": [
-                "kista_ric_ric-simulator_10",
-                "stockholm_ric_ric-simulator_10"
             ]
         }
     ],
@@ -85,7 +29,7 @@
         "dmaap_publisher": {
             "type": "message_router",
             "dmaap_info": {
-                "topic_url": "http://admin:admin@localhost:6845/events/A1-POLICY-AGENT-WRITE"
+                "topic_url": "http://message-router:3905/events/A1-POLICY-AGENT-WRITE"
             }
         }
     },
@@ -93,7 +37,7 @@
         "dmaap_subscriber": {
             "type": "message_router",
             "dmaap_info": {
-                "topic_url": "http://admin:admin@localhost:6845/events/A1-POLICY-AGENT-READ/users/policy-agent"
+                "topic_url": "http://message-router:3905/events/A1-POLICY-AGENT-READ/users/policy-agent"
             }
         }
     }
