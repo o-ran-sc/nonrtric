@@ -15,7 +15,7 @@ logging:
     org.springframework: ERROR
     org.springframework.data: ERROR
     org.springframework.web.reactive.function.client.ExchangeFunctions: ERROR
-    org.oransc.policyagent: WARN
+    org.oransc.policyagent: INFO
   file: /var/log/policy-agent/application.log
 app:
   filepath: /opt/app/policy-agent/config/application_configuration.json

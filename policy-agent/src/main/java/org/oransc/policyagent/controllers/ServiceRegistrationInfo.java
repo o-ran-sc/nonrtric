@@ -20,6 +20,8 @@
 
 package org.oransc.policyagent.controllers;
 
+import com.google.gson.annotations.SerializedName;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -29,16 +31,23 @@ import org.immutables.gson.Gson;
 @ApiModel(value = "ServiceRegistrationInfo")
 public class ServiceRegistrationInfo {
 
-    @ApiModelProperty(value = "identity of the service")
-    public String serviceName;
+    @ApiModelProperty(value = "identity of the service", required = true, allowEmptyValue = false)
+    @SerializedName(value = "serviceName", alternate = {"name"})
+
+    public String serviceName = "";
 
     @ApiModelProperty(
-        value = "keep alive interval for policies owned by the service. 0 means no timeout supervision."
-            + " Polcies that are not refreshed within this time are removed")
-    public long keepAliveIntervalSeconds;
+        value = "keep alive interval for the service. This is a heartbeat supervision of the service, "
+            + "which in regular intevals must invoke a 'keepAlive' REST call. "
+            + "When a service does not invoke this call within the given time, it is considered unavailble. "
+            + "An unavailable service will be automatically deregistered and its policies will be deleted. "
+            + "Value 0 means no timeout supervision.")
+    @SerializedName("keepAliveIntervalSeconds")
+    public long keepAliveIntervalSeconds = 0;
 
-    @ApiModelProperty(value = "callback for notifying of RIC recovery")
-    public String callbackUrl;
+    @ApiModelProperty(value = "callback for notifying of RIC recovery", required = false, allowEmptyValue = true)
+    @SerializedName("callbackUrl")
+    public String callbackUrl = "";
 
     public ServiceRegistrationInfo() {
     }
