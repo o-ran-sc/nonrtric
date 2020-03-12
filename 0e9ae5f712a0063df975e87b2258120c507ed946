@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "fc68c4ba_86a92963",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/PolicyController.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-12T08:03:57Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "69d2b385_4753b35f",
+      "range": {
+        "startLine": 170,
+        "startChar": 43,
+        "endLine": 170,
+        "endChar": 60
+      },
+      "revId": "0e9ae5f712a0063df975e87b2258120c507ed946",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a31bbdd6_47786044",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/ServiceController.java",
         "patchSetId": 2
@@ -207,6 +231,24 @@
       "side": 1,
       "message": "Done, I do not even know what that means.",
       "parentUuid": "3ab8a9ab_19af20cc",
+      "revId": "0e9ae5f712a0063df975e87b2258120c507ed946",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aadc90ea_43ef4987",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/ServiceSupervision.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-12T08:03:57Z",
+      "side": 1,
+      "message": "In the  call to \nlogger.debug(\"Policy deleted due to service inactivity: {}, service: {}\", policy.id(), policy.ownerServiceName()) \nthe method calls to policy.id() and policy.ownerServiceName() are called wether the logging level is debug or not. If these where heavy on resources this could be bad for performance. But since they are just getters to private members, the Sonar warning is not necessary here, hence the suppression.",
+      "parentUuid": "9549ea59_908647c9",
       "revId": "0e9ae5f712a0063df975e87b2258120c507ed946",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": false
