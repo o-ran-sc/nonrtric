@@ -23,13 +23,13 @@ package org.oransc.ric.portal.dashboard.util;
 
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.X509Certificate;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+
+import org.apache.axis2.java.security.TrustAllTrustManager;
 
 /**
  * Disables and enables certificate and host-name checking in
@@ -45,22 +45,7 @@ public final class HttpsURLConnectionUtils {
     private static final HostnameVerifier trivialHostnameVerifier =
         (hostname, sslSession) -> hostname.equalsIgnoreCase(sslSession.getPeerHost());
 
-    private static final TrustManager[] UNQUESTIONING_TRUST_MANAGER = new TrustManager[] {new X509TrustManager() {
-        @Override
-        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-            return new java.security.cert.X509Certificate[0];
-        }
-
-        @Override
-        public void checkClientTrusted(X509Certificate[] certs, String authType) {
-            // Do nothing.
-        }
-
-        @Override
-        public void checkServerTrusted(X509Certificate[] certs, String authType) {
-            // Do nothing.
-        }
-    }};
+    private static final TrustManager[] UNQUESTIONING_TRUST_MANAGER = new TrustManager[] {new TrustAllTrustManager()};
 
     public static void turnOffSslChecking() throws NoSuchAlgorithmException, KeyManagementException {
         HttpsURLConnection.setDefaultHostnameVerifier(trivialHostnameVerifier);
