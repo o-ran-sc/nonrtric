@@ -32,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import lombok.Getter;
+
 import org.oransc.policyagent.clients.A1ClientFactory;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.repository.ImmutablePolicy;
@@ -53,11 +55,23 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 @RestController
 @Api(tags = "A1 Policy Management")
 public class PolicyController {
+
+    public static class RejectionException extends Exception {
+        private static final long serialVersionUID = 1L;
+        @Getter
+        private final HttpStatus status;
+
+        public RejectionException(String message, HttpStatus status) {
+            super(message);
+            this.status = status;
+        }
+    }
 
     @Autowired
     private Rics rics;
@@ -177,7 +191,8 @@ public class PolicyController {
                 .flatMap(client -> client.deletePolicy(policy)) //
                 .doOnNext(notUsed -> ric.getLock().unlockBlocking()) //
                 .doOnError(notUsed -> ric.getLock().unlockBlocking()) //
-                .flatMap(notUsed -> Mono.just(new ResponseEntity<>(HttpStatus.NO_CONTENT)));
+                .flatMap(notUsed -> Mono.just(new ResponseEntity<>(HttpStatus.NO_CONTENT)))
+                .onErrorResume(this::handleException);
         } catch (ServiceException e) {
             return Mono.just(new ResponseEntity<>(HttpStatus.NOT_FOUND));
         }
@@ -190,10 +205,10 @@ public class PolicyController {
             @ApiResponse(code = 201, message = "Policy created", response = Object.class), //
             @ApiResponse(code = 200, message = "Policy updated", response = Object.class), //
             @ApiResponse(code = 423, message = "RIC is locked", response = String.class), //
-            @ApiResponse(code = 404, message = "RIC or policy type is not found", response = String.class), //
-            @ApiResponse(code = 405, message = "Change is not allowed", response = String.class)})
+            @ApiResponse(code = 404, message = "RIC or policy type is not found", response = String.class) //
+        })
     public Mono<ResponseEntity<Object>> putPolicy( //
-        @RequestParam(name = "type", required = true) String typeName, //
+        @RequestParam(name = "type", required = false, defaultValue = "") String typeName, //
         @RequestParam(name = "instance", required = true) String instanceId, //
         @RequestParam(name = "ric", required = true) String ricName, //
         @RequestParam(name = "service", required = true) String service, //
@@ -223,20 +238,39 @@ public class PolicyController {
                 .doOnNext(notUsed -> ric.getLock().unlockBlocking()) //
                 .doOnError(t -> ric.getLock().unlockBlocking()) //
                 .flatMap(notUsed -> Mono.just(new ResponseEntity<>(isCreate ? HttpStatus.CREATED : HttpStatus.OK))) //
-                .onErrorResume(t -> Mono.just(new ResponseEntity<>(t.getMessage(), HttpStatus.METHOD_NOT_ALLOWED)));
+                .onErrorResume(this::handleException);
         }
 
         return ric == null || type == null ? Mono.just(new ResponseEntity<>(HttpStatus.NOT_FOUND))
             : Mono.just(new ResponseEntity<>(HttpStatus.LOCKED)); // Recovering
     }
 
+    @SuppressWarnings({"unchecked"})
+    private <T> Mono<ResponseEntity<T>> createResponseEntity(String message, HttpStatus status) {
+        ResponseEntity<T> re = new ResponseEntity<>((T) message, status);
+        return Mono.just(re);
+    }
+
+    private <T> Mono<ResponseEntity<T>> handleException(Throwable throwable) {
+        if (throwable instanceof WebClientResponseException) {
+            WebClientResponseException e = (WebClientResponseException) throwable;
+            return createResponseEntity(e.getResponseBodyAsString(), e.getStatusCode());
+        } else if (throwable instanceof RejectionException) {
+            RejectionException e = (RejectionException) throwable;
+            return createResponseEntity(e.getMessage(), e.getStatus());
+        } else {
+            return createResponseEntity(throwable.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     private Mono<Object> validateModifiedPolicy(Policy policy) {
         // Check that ric is not updated
         Policy current = this.policies.get(policy.id());
         if (current != null && !current.ric().name().equals(policy.ric().name())) {
-            return Mono.error(new Exception("Policy cannot change RIC, policyId: " + current.id() + //
+            RejectionException e = new RejectionException("Policy cannot change RIC, policyId: " + current.id() + //
                 ", RIC name: " + current.ric().name() + //
-                ", new name: " + policy.ric().name()));
+                ", new name: " + policy.ric().name(), HttpStatus.CONFLICT);
+            return Mono.error(e);
         }
         return Mono.just("OK");
     }
@@ -297,7 +331,8 @@ public class PolicyController {
 
             return a1ClientFactory.createA1Client(policy.ric()) //
                 .flatMap(client -> client.getPolicyStatus(policy)) //
-                .flatMap(status -> Mono.just(new ResponseEntity<>(status, HttpStatus.OK)));
+                .flatMap(status -> Mono.just(new ResponseEntity<>(status, HttpStatus.OK)))
+                .onErrorResume(this::handleException);
         } catch (ServiceException e) {
             return Mono.just(new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND));
         }

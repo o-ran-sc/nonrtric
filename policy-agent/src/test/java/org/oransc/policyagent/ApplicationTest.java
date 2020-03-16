@@ -23,6 +23,8 @@ package org.oransc.policyagent;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -30,6 +32,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -189,11 +192,19 @@ public class ApplicationTest {
 
     @Test
     public void testGetRics() throws Exception {
-        addRic("kista_1");
-        this.addPolicyType("type1", "kista_1");
+        addRic("ric1");
+        this.addPolicyType("type1", "ric1");
         String url = "/rics?policyType=type1";
         String rsp = restClient().get(url).block();
-        assertThat(rsp).contains("kista_1");
+        assertThat(rsp).contains("ric1");
+
+        // nameless type for ORAN A1 1.1
+        addRic("ric2");
+        this.addPolicyType("", "ric2");
+        url = "/rics?policyType=";
+        rsp = restClient().get(url).block();
+        assertThat(rsp).contains("ric2");
+        assertThat(rsp).doesNotContain("ric1");
 
         // Non existing policy type
         url = "/rics?policyType=XXXX";
@@ -237,9 +248,12 @@ public class ApplicationTest {
     }
 
     private String putPolicyUrl(String serviceName, String ricName, String policyTypeName, String policyInstanceId) {
-        String url = "/policy?type=" + policyTypeName + "&instance=" + policyInstanceId + "&ric=" + ricName
-            + "&service=" + serviceName;
-        return url;
+        if (policyTypeName.isEmpty()) {
+            return "/policy?instance=" + policyInstanceId + "&ric=" + ricName + "&service=" + serviceName;
+        } else {
+            return "/policy?instance=" + policyInstanceId + "&ric=" + ricName + "&service=" + serviceName + "&type="
+                + policyTypeName;
+        }
     }
 
     @Test
@@ -282,6 +296,61 @@ public class ApplicationTest {
     }
 
     @Test
+    /**
+     * Test that HttpStatus and body from failing REST call to A1 is passed on to
+     * the caller.
+     *
+     * @throws ServiceException
+     */
+    public void testErrorFromRIC() throws ServiceException {
+        putService("service1");
+        addPolicyType("type1", "ric1");
+
+        String url = putPolicyUrl("service1", "ric1", "type1", "id1");
+        MockA1Client a1Client = a1ClientFactory.getOrCreateA1Client("ric1");
+        HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+        String responseBody = "Refused";
+        byte[] responseBodyBytes = responseBody.getBytes(StandardCharsets.UTF_8);
+
+        WebClientResponseException a1Exception = new WebClientResponseException(httpStatus.value(), "statusText", null,
+            responseBodyBytes, StandardCharsets.UTF_8, null);
+        doReturn(Mono.error(a1Exception)).when(a1Client).putPolicy(any());
+
+        // PUT Policy
+        testErrorCode(restClient().put(url, "{}"), httpStatus, responseBody);
+
+        // DELETE POLICY
+        this.addPolicy("instance1", "type1", "service1", "ric1");
+        doReturn(Mono.error(a1Exception)).when(a1Client).deletePolicy(any());
+        testErrorCode(restClient().delete("/policy?instance=instance1"), httpStatus, responseBody);
+
+        // GET STATUS
+        this.addPolicy("instance1", "type1", "service1", "ric1");
+        doReturn(Mono.error(a1Exception)).when(a1Client).getPolicyStatus(any());
+        testErrorCode(restClient().get("/policy_status?instance=instance1"), httpStatus, responseBody);
+
+        // Check that empty response body is OK
+        a1Exception = new WebClientResponseException(httpStatus.value(), "", null, null, null, null);
+        doReturn(Mono.error(a1Exception)).when(a1Client).getPolicyStatus(any());
+        testErrorCode(restClient().get("/policy_status?instance=instance1"), httpStatus);
+    }
+
+    @Test
+    public void testPutTypelessPolicy() throws Exception {
+        putService("service1");
+        addPolicyType("", "ric1");
+        String url = putPolicyUrl("service1", "ric1", "", "id1");
+        restClient().put(url, jsonString()).block();
+
+        String rsp = restClient().get("/policies").block();
+        List<PolicyInfo> info = parseList(rsp, PolicyInfo.class);
+        assertThat(info).size().isEqualTo(1);
+        PolicyInfo policyInfo = info.get(0);
+        assertThat(policyInfo.id.equals("id1")).isTrue();
+        assertThat(policyInfo.type.equals("")).isTrue();
+    }
+
+    @Test
     public void testRefuseToUpdatePolicy() throws Exception {
         // Test that only the json can be changed for a already created policy
         // In this case service is attempted to be changed
@@ -291,7 +360,7 @@ public class ApplicationTest {
 
         // Try change ric1 -> ricXXX
         String urlWrongRic = putPolicyUrl("service1", "ricXXX", "type1", "instance1");
-        testErrorCode(restClient().put(urlWrongRic, jsonString()), HttpStatus.METHOD_NOT_ALLOWED);
+        testErrorCode(restClient().put(urlWrongRic, jsonString()), HttpStatus.CONFLICT);
     }
 
     @Test
@@ -601,16 +670,21 @@ public class ApplicationTest {
     }
 
     private void testErrorCode(Mono<?> request, HttpStatus expStatus) {
+        testErrorCode(request, expStatus, "");
+    }
+
+    private void testErrorCode(Mono<?> request, HttpStatus expStatus, String responseContains) {
         StepVerifier.create(request) //
             .expectSubscription() //
-            .expectErrorMatches(t -> checkWebClientError(t, expStatus)) //
+            .expectErrorMatches(t -> checkWebClientError(t, expStatus, responseContains)) //
             .verify();
     }
 
-    private boolean checkWebClientError(Throwable t, HttpStatus expStatus) {
+    private boolean checkWebClientError(Throwable t, HttpStatus expStatus, String responseContains) {
         assertTrue(t instanceof WebClientResponseException);
         WebClientResponseException e = (WebClientResponseException) t;
         assertThat(e.getStatusCode()).isEqualTo(expStatus);
+        assertThat(e.getResponseBodyAsString()).contains(responseContains);
         return true;
     }
 

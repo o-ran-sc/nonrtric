@@ -22,6 +22,7 @@ package org.oransc.policyagent.clients;
 
 import org.oransc.policyagent.clients.A1Client.A1ProtocolType;
 import org.oransc.policyagent.configuration.ApplicationConfig;
+import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.repository.Ric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,51 +62,46 @@ public class A1ClientFactory {
      */
     public Mono<A1Client> createA1Client(Ric ric) {
         return getProtocolVersion(ric) //
-            .flatMap(version -> createA1Client(ric, version));
+            .flatMap(version -> createA1ClientMono(ric, version));
     }
 
-    private Mono<A1Client> createA1Client(Ric ric, A1ProtocolType version) {
+    A1Client createClient(Ric ric, A1ProtocolType version) {
         if (version == A1ProtocolType.STD_V1) {
-            return Mono.just(createStdA1ClientImpl(ric));
+            return new StdA1ClientVersion1(ric.getConfig());
+        } else if (version == A1ProtocolType.STD_V1_1) {
+            return new StdA1ClientVersion2(ric.getConfig());
         } else if (version == A1ProtocolType.OSC_V1) {
-            return Mono.just(createOscA1Client(ric));
+            return new OscA1Client(ric.getConfig());
         } else if (version == A1ProtocolType.SDNC_OSC) {
-            return Mono.just(createSdncOscA1Client(ric));
-        } else { // A1ProtocolType.SDNC_ONAP
-            return Mono.just(createSdncOnapA1Client(ric));
+            return new SdncOscA1Client(ric.getConfig(), appConfig.getA1ControllerBaseUrl(),
+                appConfig.getA1ControllerUsername(), appConfig.getA1ControllerPassword());
+        } else if (version == A1ProtocolType.SDNC_ONAP) {
+            return new SdncOnapA1Client(ric.getConfig(), appConfig.getA1ControllerBaseUrl(),
+                appConfig.getA1ControllerUsername(), appConfig.getA1ControllerPassword());
+        } else {
+            logger.error("Unhandled protocol: {}", version);
+            return null;
         }
+    }
+
+    private Mono<A1Client> createA1ClientMono(Ric ric, A1ProtocolType version) {
+        A1Client c = createClient(ric, version);
+        return c != null ? Mono.just(c) : Mono.error(new ServiceException("Unhandled protocol: " + version));
     }
 
     private Mono<A1Client.A1ProtocolType> getProtocolVersion(Ric ric) {
         if (ric.getProtocolVersion() == A1ProtocolType.UNKNOWN) {
-            return fetchVersion(createSdncOnapA1Client(ric)) //
-                .onErrorResume(notUsed -> fetchVersion(createSdncOscA1Client(ric))) //
-                .onErrorResume(notUsed -> fetchVersion(createOscA1Client(ric))) //
-                .onErrorResume(notUsed -> fetchVersion(createStdA1ClientImpl(ric))) //
+            return fetchVersion(createClient(ric, A1ProtocolType.STD_V1)) //
+                .onErrorResume(notUsed -> fetchVersion(createClient(ric, A1ProtocolType.STD_V1_1))) //
+                .onErrorResume(notUsed -> fetchVersion(createClient(ric, A1ProtocolType.OSC_V1))) //
+                .onErrorResume(notUsed -> fetchVersion(createClient(ric, A1ProtocolType.SDNC_OSC))) //
+                .onErrorResume(notUsed -> fetchVersion(createClient(ric, A1ProtocolType.SDNC_ONAP))) //
                 .doOnNext(ric::setProtocolVersion)
                 .doOnNext(version -> logger.debug("Recover ric: {}, protocol version:{}", ric.name(), version)) //
                 .doOnError(notUsed -> logger.warn("Could not get protocol version from RIC: {}", ric.name())); //
         } else {
             return Mono.just(ric.getProtocolVersion());
         }
-    }
-
-    protected A1Client createOscA1Client(Ric ric) {
-        return new OscA1Client(ric.getConfig());
-    }
-
-    protected A1Client createStdA1ClientImpl(Ric ric) {
-        return new StdA1Client(ric.getConfig());
-    }
-
-    protected A1Client createSdncOscA1Client(Ric ric) {
-        return new SdncOscA1Client(ric.getConfig(), appConfig.getA1ControllerBaseUrl(),
-            appConfig.getA1ControllerUsername(), appConfig.getA1ControllerPassword());
-    }
-
-    protected A1Client createSdncOnapA1Client(Ric ric) {
-        return new SdncOnapA1Client(ric.getConfig(), appConfig.getA1ControllerBaseUrl(),
-            appConfig.getA1ControllerUsername(), appConfig.getA1ControllerPassword());
     }
 
     private Mono<A1ProtocolType> fetchVersion(A1Client a1Client) {

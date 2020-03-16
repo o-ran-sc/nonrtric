@@ -59,11 +59,16 @@ public class Lock {
 
         @Override
         public void run() {
-            while (true) {
-                for (LockRequest request : consume()) {
-                    request.callback.success(request.lock);
+            try {
+                while (true) {
+                    for (LockRequest request : consume()) {
+                        request.callback.success(request.lock);
+                    }
+                    waitForNewEntries();
                 }
-                waitForNewEntries();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                logger.error("Interrupted {}", e.getMessage());
             }
         }
 
@@ -74,14 +79,9 @@ public class Lock {
         }
 
         @SuppressWarnings("java:S2274")
-        private synchronized void waitForNewEntries() {
-            try {
-                if (this.lockRequestQueue.isEmpty()) {
-                    this.wait();
-                }
-            } catch (InterruptedException e) {
-                logger.warn("waitForUnlock interrupted", e);
-                Thread.currentThread().interrupt();
+        private synchronized void waitForNewEntries() throws InterruptedException {
+            if (this.lockRequestQueue.isEmpty()) {
+                this.wait();
             }
         }
     }

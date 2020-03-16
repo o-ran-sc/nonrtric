@@ -21,6 +21,7 @@
 package org.oransc.policyagent.utils;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 
 import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
@@ -33,6 +34,7 @@ import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Ric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.core.publisher.Mono;
 
 public class MockA1ClientFactory extends A1ClientFactory {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -45,14 +47,14 @@ public class MockA1ClientFactory extends A1ClientFactory {
     }
 
     @Override
-    protected A1Client createStdA1ClientImpl(Ric ric) {
-        return getOrCreateA1Client(ric.name());
+    public Mono<A1Client> createA1Client(Ric ric) {
+        return Mono.just(getOrCreateA1Client(ric.name()));
     }
 
     public MockA1Client getOrCreateA1Client(String ricName) {
         if (!clients.containsKey(ricName)) {
             logger.debug("Creating client for RIC: {}", ricName);
-            MockA1Client client = new MockA1Client(policyTypes);
+            MockA1Client client = spy(new MockA1Client(policyTypes));
             clients.put(ricName, client);
         }
         return clients.get(ricName);
