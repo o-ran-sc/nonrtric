@@ -126,15 +126,13 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
   private static class Iso8601Util {
 
     private static TimeZone timeZone = TimeZone.getTimeZone("UTC");
-    private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
-    private Iso8601Util() {}
-
-    static {
+    private Iso8601Util() {
       dateFormat.setTimeZone(timeZone);
     }
 
-    private static String now() {
+    private String now() {
       return dateFormat.format(new Date());
     }
   }
@@ -172,6 +170,7 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
 
     } catch (InterruptedException | ExecutionException e) {
       log.error("Create containers failed: ", e);
+      Thread.currentThread().interrupt();
     }
   }
 
