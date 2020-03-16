@@ -47,6 +47,7 @@ import reactor.core.publisher.Mono;
  */
 @Component
 @EnableScheduling
+@SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
 public class RicSupervision {
     private static final Logger logger = LoggerFactory.getLogger(RicSupervision.class);
 
@@ -72,9 +73,11 @@ public class RicSupervision {
     @Scheduled(fixedRate = 1000 * 60)
     public void checkAllRics() {
         logger.debug("Checking Rics starting");
-        createTask().subscribe(ric -> logger.debug("Ric: {} checked", ric.ric.name()), //
+        createTask().subscribe( //
+            ric -> logger.debug("Ric: {} checked", ric.ric.name()), //
             null, //
-            () -> logger.debug("Checking Rics completed"));
+            () -> logger.debug("Checking Rics completed") //
+        );
     }
 
     private Flux<RicData> createTask() {

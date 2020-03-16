@@ -56,14 +56,14 @@ public class StdA1ClientTest {
     private static final String POLICY_JSON_INVALID = "\"policyId\":\"policy1\"}";
     private static final String POLICY_TYPE = "typeName";
 
-    StdA1Client clientUnderTest;
+    StdA1ClientVersion1 clientUnderTest;
 
     @Mock
     AsyncRestClient asyncRestClientMock;
 
     @BeforeEach
     public void init() {
-        clientUnderTest = new StdA1Client(asyncRestClientMock);
+        clientUnderTest = new StdA1ClientVersion1(asyncRestClientMock);
     }
 
     @Test
