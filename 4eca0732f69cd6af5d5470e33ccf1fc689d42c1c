@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6849f662_157450cd",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/StdA1ClientVersion2.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-16T16:09:17Z",
+      "side": 1,
+      "message": "This class handles the 1.1 version of the spec, but is named Version2. Isn\u0027t this a bit confusing? I don\u0027t know if Version1Dot1 is a better name either though.",
+      "range": {
+        "startLine": 29,
+        "startChar": 13,
+        "endLine": 29,
+        "endChar": 33
+      },
+      "revId": "4eca0732f69cd6af5d5470e33ccf1fc689d42c1c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f9224ad6_aff6bc15",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/ApplicationTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-16T16:09:17Z",
+      "side": 1,
+      "message": "If this string was declared as a variable, then if policyTypeName is not empty the type info culd be added. This would make the code easier to maintain, since updates would only be needed in one place instead of two, as it is now when this part is duplicated.",
+      "range": {
+        "startLine": 252,
+        "startChar": 19,
+        "endLine": 252,
+        "endChar": 105
+      },
+      "revId": "4eca0732f69cd6af5d5470e33ccf1fc689d42c1c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "55168167_8c7dfb25",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/ApplicationTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-16T16:09:17Z",
+      "side": 1,
+      "message": "Remove trailing whitespace",
+      "range": {
+        "startLine": 302,
+        "startChar": 6,
+        "endLine": 302,
+        "endChar": 7
+      },
+      "revId": "4eca0732f69cd6af5d5470e33ccf1fc689d42c1c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
