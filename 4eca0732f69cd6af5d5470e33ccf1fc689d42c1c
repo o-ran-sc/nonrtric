@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4daf71c1_b7831245",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/StdA1ClientVersion2.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-16T16:30:41Z",
+      "side": 1,
+      "message": "In next commit, there will be only one version again..\nBut it cannot be 1.1 or 1_1. Not sure if 1Dot1 looks so cool either.  \nBut I think in the long term if there will be a \u0027getVersion\u0027 in the REST API, there can be a loose coupling between the class name and the version it supports.",
+      "parentUuid": "6849f662_157450cd",
+      "range": {
+        "startLine": 29,
+        "startChar": 13,
+        "endLine": 29,
+        "endChar": 33
+      },
+      "revId": "4eca0732f69cd6af5d5470e33ccf1fc689d42c1c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f9224ad6_aff6bc15",
         "filename": "policy-agent/src/test/java/org/oransc/policyagent/ApplicationTest.java",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "13f0aadc_96d67ee5",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/ApplicationTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-16T16:30:41Z",
+      "side": 1,
+      "message": "But this function builds the url string from all these parameters (so all parameters changes the returned value)? \nThis building is only done in one place (here). I do not see how that could be changed so it would be easier to maintain?",
+      "parentUuid": "f9224ad6_aff6bc15",
+      "range": {
+        "startLine": 252,
+        "startChar": 19,
+        "endLine": 252,
+        "endChar": 105
+      },
+      "revId": "4eca0732f69cd6af5d5470e33ccf1fc689d42c1c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "55168167_8c7dfb25",
         "filename": "policy-agent/src/test/java/org/oransc/policyagent/ApplicationTest.java",
         "patchSetId": 1
@@ -59,6 +107,30 @@
       "writtenOn": "2020-03-16T16:09:17Z",
       "side": 1,
       "message": "Remove trailing whitespace",
+      "range": {
+        "startLine": 302,
+        "startChar": 6,
+        "endLine": 302,
+        "endChar": 7
+      },
+      "revId": "4eca0732f69cd6af5d5470e33ccf1fc689d42c1c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05728e80_26bb70fe",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/ApplicationTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-16T16:30:41Z",
+      "side": 1,
+      "message": "Done. It is VS code that formats it like this and our formatter does not change it. \nIt is gone now, but will probably reappear next time I change the file.",
+      "parentUuid": "55168167_8c7dfb25",
       "range": {
         "startLine": 302,
         "startChar": 6,
