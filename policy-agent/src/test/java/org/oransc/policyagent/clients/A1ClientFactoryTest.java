@@ -20,17 +20,12 @@
 
 package org.oransc.policyagent.clients;
 
-import static ch.qos.logback.classic.Level.WARN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
 
 import java.util.Vector;
 
@@ -43,7 +38,6 @@ import org.oransc.policyagent.clients.A1Client.A1ProtocolType;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.configuration.ImmutableRicConfig;
 import org.oransc.policyagent.repository.Ric;
-import org.oransc.policyagent.utils.LoggingUtils;
 
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -57,16 +51,19 @@ public class A1ClientFactoryTest {
     private ApplicationConfig applicationConfigMock;
 
     @Mock
-    A1Client stdA1ClientMock;
+    A1Client clientMock1;
 
     @Mock
-    A1Client oscA1ClientMock;
+    A1Client clientMock2;
 
     @Mock
-    A1Client sdncOscA1ClientMock;
+    A1Client clientMock3;
 
     @Mock
-    A1Client sdncOnapA1ClientMock;
+    A1Client clientMock4;
+
+    @Mock
+    A1Client clientMock5;
 
     private ImmutableRicConfig ricConfig =
         ImmutableRicConfig.builder().name(RIC_NAME).baseUrl("baseUrl").managedElementIds(new Vector<>()).build();
@@ -80,136 +77,66 @@ public class A1ClientFactoryTest {
     }
 
     @Test
-    public void createStd_ok() {
-        whenGetProtocolVersionSdncOnapA1ClientThrowException();
-        whenGetProtocolVersionSdncOscA1ClientThrowException();
-        whenGetProtocolVersionOscA1ClientThrowException();
-        whenGetProtocolVersionStdA1ClientReturnCorrectProtocol();
+    public void getProtocolVersion_ok() {
+        whenGetProtocolVersionThrowException(clientMock1);
+        whenGetProtocolVersionReturn(clientMock2, A1ProtocolType.STD_V1);
+        doReturn(clientMock1, clientMock2).when(factoryUnderTest).createClient(any(), any());
 
-        StepVerifier.create(factoryUnderTest.createA1Client(ric)) //
-            .expectSubscription() //
-            .expectNext(stdA1ClientMock) //
-            .verifyComplete();
+        A1Client client = factoryUnderTest.createA1Client(ric).block();
 
+        assertEquals(clientMock2, client, "Not correct client returned");
         assertEquals(A1ProtocolType.STD_V1, ric.getProtocolVersion(), "Not correct protocol");
     }
 
     @Test
-    public void createOsc_ok() {
-        whenGetProtocolVersionSdncOnapA1ClientThrowException();
-        whenGetProtocolVersionSdncOscA1ClientThrowException();
-        whenGetProtocolVersionOscA1ClientReturnCorrectProtocol();
+    public void getProtocolVersion_ok_Last() {
+        whenGetProtocolVersionThrowException(clientMock1, clientMock2, clientMock3, clientMock4);
+        whenGetProtocolVersionReturn(clientMock5, A1ProtocolType.STD_V1_1);
+        doReturn(clientMock1, clientMock2, clientMock3, clientMock4, clientMock5).when(factoryUnderTest)
+            .createClient(any(), any());
 
-        StepVerifier.create(factoryUnderTest.createA1Client(ric)) //
-            .expectSubscription() //
-            .expectNext(oscA1ClientMock) //
-            .verifyComplete();
+        A1Client client = factoryUnderTest.createA1Client(ric).block();
 
-        assertEquals(A1ProtocolType.OSC_V1, ric.getProtocolVersion(), "Not correct protocol");
+        assertEquals(clientMock5, client, "Not correct client returned");
+        assertEquals(A1ProtocolType.STD_V1_1, ric.getProtocolVersion(), "Not correct protocol");
     }
 
     @Test
-    public void createSdncOsc_ok() {
-        whenGetProtocolVersionSdncOnapA1ClientThrowException();
-        whenGetProtocolVersionSdncOscA1ClientReturnCorrectProtocol();
+    public void getProtocolVersion_error() {
+        whenGetProtocolVersionThrowException(clientMock1, clientMock2, clientMock3, clientMock4, clientMock5);
+        doReturn(clientMock1, clientMock2, clientMock3, clientMock4, clientMock5).when(factoryUnderTest)
+            .createClient(any(), any());
 
         StepVerifier.create(factoryUnderTest.createA1Client(ric)) //
             .expectSubscription() //
-            .expectNext(sdncOscA1ClientMock) //
-            .verifyComplete();
-
-        assertEquals(A1ProtocolType.SDNC_OSC, ric.getProtocolVersion(), "Not correct protocol");
-    }
-
-    @Test
-    public void createSdncOnap_ok() {
-        whenGetProtocolVersionSdncOnapA1ClientReturnCorrectProtocol();
-
-        StepVerifier.create(factoryUnderTest.createA1Client(ric)) //
-            .expectSubscription() //
-            .expectNext(sdncOnapA1ClientMock) //
-            .verifyComplete();
-
-        assertEquals(A1ProtocolType.SDNC_ONAP, ric.getProtocolVersion(), "Not correct protocol");
-    }
-
-    @Test
-    public void createWithNoProtocol_error() {
-        whenGetProtocolVersionSdncOnapA1ClientThrowException();
-        whenGetProtocolVersionSdncOscA1ClientThrowException();
-        whenGetProtocolVersionOscA1ClientThrowException();
-        whenGetProtocolVersionStdA1ClientThrowException();
-
-        final ListAppender<ILoggingEvent> logAppender = LoggingUtils.getLogListAppender(A1ClientFactory.class, WARN);
-        StepVerifier.create(factoryUnderTest.createA1Client(ric)) //
-            .expectSubscription() //
-            .expectErrorMatches(
-                throwable -> throwable instanceof Exception && throwable.getMessage().equals(EXCEPTION_MESSAGE))
+            .expectErrorMatches(throwable -> throwable.getMessage().equals(EXCEPTION_MESSAGE)) //
             .verify();
-
-        assertEquals(WARN, logAppender.list.get(0).getLevel(), "Warning not logged");
-        assertTrue(logAppender.list.toString().contains("Could not get protocol version from RIC: " + RIC_NAME),
-            "Correct message not logged");
 
         assertEquals(A1ProtocolType.UNKNOWN, ric.getProtocolVersion(), "Not correct protocol");
     }
 
+    private A1Client createClient(A1ProtocolType version) {
+        return factoryUnderTest.createClient(ric, version);
+    }
+
     @Test
-    public void createWithProtocolInRic_noTrialAndError() {
-        doReturn(stdA1ClientMock).when(factoryUnderTest).createStdA1ClientImpl(any(Ric.class));
-
-        ric.setProtocolVersion(A1ProtocolType.STD_V1);
-
-        StepVerifier.create(factoryUnderTest.createA1Client(ric)) //
-            .expectSubscription() //
-            .expectNext(stdA1ClientMock) //
-            .verifyComplete();
-
-        assertEquals(A1ProtocolType.STD_V1, ric.getProtocolVersion(), "Not correct protocol");
-
-        verifyNoMoreInteractions(sdncOnapA1ClientMock);
-        verifyNoMoreInteractions(sdncOscA1ClientMock);
-        verifyNoMoreInteractions(oscA1ClientMock);
-        verifyNoMoreInteractions(stdA1ClientMock);
+    public void create_check_types() {
+        assertTrue(createClient(A1ProtocolType.STD_V1) instanceof StdA1ClientVersion1);
+        assertTrue(createClient(A1ProtocolType.STD_V1_1) instanceof StdA1ClientVersion2);
+        assertTrue(createClient(A1ProtocolType.OSC_V1) instanceof OscA1Client);
+        assertTrue(createClient(A1ProtocolType.SDNC_ONAP) instanceof SdncOnapA1Client);
+        assertTrue(createClient(A1ProtocolType.SDNC_OSC) instanceof SdncOscA1Client);
+        assertTrue(createClient(A1ProtocolType.UNKNOWN) == null);
     }
 
-    private void whenGetProtocolVersionSdncOnapA1ClientThrowException() {
-        doReturn(sdncOnapA1ClientMock).when(factoryUnderTest).createSdncOnapA1Client(ric);
-        when(sdncOnapA1ClientMock.getProtocolVersion()).thenReturn(Mono.error(new Exception(EXCEPTION_MESSAGE)));
+    private void whenGetProtocolVersionThrowException(A1Client... clientMocks) {
+        for (A1Client clientMock : clientMocks) {
+            when(clientMock.getProtocolVersion()).thenReturn(Mono.error(new Exception(EXCEPTION_MESSAGE)));
+        }
     }
 
-    private void whenGetProtocolVersionSdncOnapA1ClientReturnCorrectProtocol() {
-        doReturn(sdncOnapA1ClientMock).when(factoryUnderTest).createSdncOnapA1Client(any(Ric.class));
-        when(sdncOnapA1ClientMock.getProtocolVersion()).thenReturn(Mono.just(A1ProtocolType.SDNC_ONAP));
+    private void whenGetProtocolVersionReturn(A1Client clientMock, A1ProtocolType protocol) {
+        when(clientMock.getProtocolVersion()).thenReturn(Mono.just(protocol));
     }
 
-    private void whenGetProtocolVersionSdncOscA1ClientThrowException() {
-        doReturn(sdncOscA1ClientMock).when(factoryUnderTest).createSdncOscA1Client(any(Ric.class));
-        when(sdncOscA1ClientMock.getProtocolVersion()).thenReturn(Mono.error(new Exception(EXCEPTION_MESSAGE)));
-    }
-
-    private void whenGetProtocolVersionSdncOscA1ClientReturnCorrectProtocol() {
-        doReturn(sdncOscA1ClientMock).when(factoryUnderTest).createSdncOscA1Client(any(Ric.class));
-        when(sdncOscA1ClientMock.getProtocolVersion()).thenReturn(Mono.just(A1ProtocolType.SDNC_OSC));
-    }
-
-    private void whenGetProtocolVersionOscA1ClientThrowException() {
-        doReturn(oscA1ClientMock).when(factoryUnderTest).createOscA1Client(any(Ric.class));
-        when(oscA1ClientMock.getProtocolVersion()).thenReturn(Mono.error(new Exception(EXCEPTION_MESSAGE)));
-    }
-
-    private void whenGetProtocolVersionOscA1ClientReturnCorrectProtocol() {
-        doReturn(oscA1ClientMock).when(factoryUnderTest).createOscA1Client(any(Ric.class));
-        when(oscA1ClientMock.getProtocolVersion()).thenReturn(Mono.just(A1ProtocolType.OSC_V1));
-    }
-
-    private void whenGetProtocolVersionStdA1ClientThrowException() {
-        doReturn(stdA1ClientMock).when(factoryUnderTest).createStdA1ClientImpl(any(Ric.class));
-        when(stdA1ClientMock.getProtocolVersion()).thenReturn(Mono.error(new Exception(EXCEPTION_MESSAGE)));
-    }
-
-    private void whenGetProtocolVersionStdA1ClientReturnCorrectProtocol() {
-        doReturn(stdA1ClientMock).when(factoryUnderTest).createStdA1ClientImpl(any(Ric.class));
-        when(stdA1ClientMock.getProtocolVersion()).thenReturn(Mono.just(A1ProtocolType.STD_V1));
-    }
 }

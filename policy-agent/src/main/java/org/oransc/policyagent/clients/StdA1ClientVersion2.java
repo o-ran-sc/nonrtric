@@ -20,37 +20,35 @@
 
 package org.oransc.policyagent.clients;
 
+import java.util.Arrays;
 import java.util.List;
 
-import org.oransc.policyagent.repository.Policy;
-
-import reactor.core.publisher.Flux;
+import org.oransc.policyagent.configuration.RicConfig;
 import reactor.core.publisher.Mono;
 
-public interface A1Client {
+public class StdA1ClientVersion2 extends StdA1ClientVersion1 {
 
-    public enum A1ProtocolType {
-        UNKNOWN, //
-        STD_V1, //
-        STD_V1_1, // version 1.1
-        OSC_V1, //
-        SDNC_OSC, //
-        SDNC_ONAP
+    public StdA1ClientVersion2(RicConfig ricConfig) {
+        super(ricConfig);
     }
 
-    public Mono<A1ProtocolType> getProtocolVersion();
+    public StdA1ClientVersion2(AsyncRestClient restClient) {
+        super(restClient);
+    }
 
-    public Mono<List<String>> getPolicyTypeIdentities();
+    @Override
+    public Mono<List<String>> getPolicyTypeIdentities() {
+        return Mono.just(Arrays.asList(""));
+    }
 
-    public Mono<List<String>> getPolicyIdentities();
+    @Override
+    public Mono<String> getPolicyTypeSchema(String policyTypeId) {
+        return Mono.just("{}");
+    }
 
-    public Mono<String> getPolicyTypeSchema(String policyTypeId);
-
-    public Mono<String> putPolicy(Policy policy);
-
-    public Mono<String> deletePolicy(Policy policy);
-
-    public Flux<String> deleteAllPolicies();
-
-    public Mono<String> getPolicyStatus(Policy policy);
+    @Override
+    public Mono<A1ProtocolType> getProtocolVersion() {
+        return getPolicyIdentities() //
+            .flatMap(x -> Mono.just(A1ProtocolType.STD_V1_1));
+    }
 }
