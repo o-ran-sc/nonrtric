@@ -20,8 +20,6 @@
 
 package org.onap.sdnc.northbound.restadapter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -37,8 +35,6 @@ import org.springframework.web.client.RestTemplate;
  */
 
 public class RestAdapterImpl implements RestAdapter {
-
-  private final Logger log = LoggerFactory.getLogger(RestAdapterImpl.class);
 
   private RestTemplate restTemplate;
 
@@ -60,7 +56,7 @@ public class RestAdapterImpl implements RestAdapter {
   public <T> ResponseEntity<T> put(String uri, String body, Class<T> clazz) {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
-    HttpEntity<String> entity = new HttpEntity<String>(body, headers);
+    HttpEntity<String> entity = new HttpEntity<>(body, headers);
     return invokeHttpRequest(uri, HttpMethod.PUT, clazz, entity);
   }
 

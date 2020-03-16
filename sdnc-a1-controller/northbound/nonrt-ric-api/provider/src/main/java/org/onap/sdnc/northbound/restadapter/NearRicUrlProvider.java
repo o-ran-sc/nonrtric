@@ -31,9 +31,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 public class NearRicUrlProvider {
 
-  public NearRicUrlProvider() {
-  }
-
   /**
    * Retrieve the base url of the Near-RIC
    *

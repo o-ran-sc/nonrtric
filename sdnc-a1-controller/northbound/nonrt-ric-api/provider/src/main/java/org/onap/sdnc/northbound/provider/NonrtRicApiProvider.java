@@ -23,11 +23,7 @@ package org.onap.sdnc.northbound.provider;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -74,6 +70,7 @@ import org.springframework.http.ResponseEntity;
  *
  */
 
+@SuppressWarnings("squid:S1874") // "@Deprecated" code should not be used
 public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
 
   protected static final String APP_NAME = "nonrt-ric-api";
@@ -121,20 +118,6 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
     executor.shutdown();
     rpcRegistration.close();
     log.info("Successfully closed provider for {}", APP_NAME);
-  }
-
-  private static class Iso8601Util {
-
-    private static TimeZone timeZone = TimeZone.getTimeZone("UTC");
-    private DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-
-    private Iso8601Util() {
-      dateFormat.setTimeZone(timeZone);
-    }
-
-    private String now() {
-      return dateFormat.format(new Date());
-    }
   }
 
   public void setDataBroker(DataBroker dataBroker) {
@@ -249,7 +232,7 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
     DeletePolicyOutputBuilder responseBuilder = new DeletePolicyOutputBuilder();
     String uri = nearRicUrlProvider.deletePolicyUrl(String.valueOf(input.getNearRtRicUrl()),
             String.valueOf(input.getPolicyId()));
-    ResponseEntity<Void> response = restAdapter.delete(uri);
+    restAdapter.delete(uri);
     log.info("End of deletePolicy");
     RpcResult<DeletePolicyOutput> rpcResult = RpcResultBuilder
         .<DeletePolicyOutput>status(true).withResult(responseBuilder.build()).build();
