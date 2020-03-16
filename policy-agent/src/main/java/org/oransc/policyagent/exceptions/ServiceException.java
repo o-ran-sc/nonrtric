@@ -29,5 +29,4 @@ public class ServiceException extends Exception {
     public ServiceException(String message, Exception originalException) {
         super(message, originalException);
     }
-
 }

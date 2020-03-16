@@ -29,7 +29,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public class StdA1Client implements A1Client {
+public class StdA1ClientVersion1 implements A1Client {
     private static final String URL_PREFIX = "/A1-P/v1";
 
     private static final String POLICY_TYPES_URI = "/policytypes";
@@ -51,12 +51,12 @@ public class StdA1Client implements A1Client {
 
     private final AsyncRestClient restClient;
 
-    public StdA1Client(RicConfig ricConfig) {
+    public StdA1ClientVersion1(RicConfig ricConfig) {
         String baseUrl = ricConfig.baseUrl() + URL_PREFIX;
         this.restClient = new AsyncRestClient(baseUrl);
     }
 
-    public StdA1Client(AsyncRestClient restClient) {
+    public StdA1ClientVersion1(AsyncRestClient restClient) {
         this.restClient = restClient;
     }
 

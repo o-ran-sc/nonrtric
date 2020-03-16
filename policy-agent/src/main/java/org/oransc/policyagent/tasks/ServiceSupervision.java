@@ -47,6 +47,7 @@ import reactor.core.publisher.Mono;
  */
 @Component
 @EnableScheduling
+@SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
 public class ServiceSupervision {
     private static final Logger logger = LoggerFactory.getLogger(ServiceSupervision.class);
     private final Services services;
@@ -116,7 +117,6 @@ public class ServiceSupervision {
                 .map(nothing -> policy));
     }
 
-    @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
     private Mono<String> handleDeleteFromRicFailure(Policy policy, Throwable e) {
         logger.warn("Could not delete policy: {} from ric: {}", policy.id(), policy.ric().name(), e);
         return Mono.empty();
