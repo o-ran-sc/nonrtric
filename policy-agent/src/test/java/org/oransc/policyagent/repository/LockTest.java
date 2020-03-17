@@ -36,6 +36,7 @@ import reactor.test.StepVerifier;
 @ExtendWith(MockitoExtension.class)
 public class LockTest {
 
+    @SuppressWarnings("squid:S2276") // Remove this use of "Thread.sleep()".
     private void sleep() {
         try {
             Thread.sleep(100);

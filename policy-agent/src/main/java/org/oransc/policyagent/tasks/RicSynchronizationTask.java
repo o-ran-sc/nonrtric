@@ -64,6 +64,7 @@ public class RicSynchronizationTask {
     private final Policies policies;
     private final Services services;
 
+    @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally.
     public RicSynchronizationTask(A1ClientFactory a1ClientFactory, PolicyTypes policyTypes, Policies policies,
         Services services) {
         this.a1ClientFactory = a1ClientFactory;
@@ -72,7 +73,7 @@ public class RicSynchronizationTask {
         this.services = services;
     }
 
-    @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
+    @SuppressWarnings("squid:S2445") // Blocks should be synchronized on "private final" fields
     public void run(Ric ric) {
         logger.debug("Handling ric: {}", ric.getConfig().name());
 
@@ -101,7 +102,6 @@ public class RicSynchronizationTask {
         return Flux.concat(recoverTypes, policiesDeletedInRic, policiesRecreatedInRic);
     }
 
-    @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
     private void onSynchronizationComplete(Ric ric) {
         logger.info("Synchronization completed for: {}", ric.name());
         ric.setState(RicState.IDLE);
@@ -124,7 +124,6 @@ public class RicSynchronizationTask {
         }
     }
 
-    @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
     private void onSynchronizationError(Ric ric, Throwable t) {
         logger.warn("Synchronization failed for ric: {}, reason: {}", ric.name(), t.getMessage());
         // If synchronization fails, try to remove all instances
@@ -142,7 +141,6 @@ public class RicSynchronizationTask {
                 () -> onSynchronizationComplete(ric));
     }
 
-    @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
     private void onRecoveryError(Ric ric, Throwable t) {
         logger.warn("Synchronization failure recovery failed for ric: {}, reason: {}", ric.name(), t.getMessage());
         ric.setState(RicState.UNDEFINED);
