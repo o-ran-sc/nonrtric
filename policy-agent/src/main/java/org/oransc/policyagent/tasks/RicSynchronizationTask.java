@@ -55,6 +55,7 @@ import reactor.core.publisher.Mono;
  * <p>
  * Notify subscribing services
  */
+@SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally.
 public class RicSynchronizationTask {
 
     private static final Logger logger = LoggerFactory.getLogger(RicSynchronizationTask.class);
@@ -64,7 +65,6 @@ public class RicSynchronizationTask {
     private final Policies policies;
     private final Services services;
 
-    @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally.
     public RicSynchronizationTask(A1ClientFactory a1ClientFactory, PolicyTypes policyTypes, Policies policies,
         Services services) {
         this.a1ClientFactory = a1ClientFactory;
