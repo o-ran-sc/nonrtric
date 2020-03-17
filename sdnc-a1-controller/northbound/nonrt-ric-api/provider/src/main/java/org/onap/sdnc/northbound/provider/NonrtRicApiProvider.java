@@ -43,6 +43,9 @@ import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev20012
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyIdentitiesInput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyIdentitiesOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyIdentitiesOutputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyStatusInput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyStatusOutput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyStatusOutputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyTypeIdentitiesInput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyTypeIdentitiesOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyTypeIdentitiesOutputBuilder;
@@ -59,10 +62,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 
 /**
- * Defines a base implementation for your provider. This class overrides the generated interface
- * from the YANG model and implements the request model for the A1 interface. This class identifies
- * the Near-RIC throught the IP passed over the payload and calls the corresponding Near-RIC over
- * Rest API
+ * Defines a base implementation for your provider. This class overrides the
+ * generated interface from the YANG model and implements the request model for
+ * the A1 interface. This class identifies the Near-RIC throught the IP passed
+ * over the payload and calls the corresponding Near-RIC over Rest API
  *
  * <pre>
  *
@@ -88,8 +91,7 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
   private RestAdapter restAdapter;
   private NearRicUrlProvider nearRicUrlProvider;
 
-  public NonrtRicApiProvider(DataBroker dataBroker,
-      NotificationPublishService notificationPublishService,
+  public NonrtRicApiProvider(DataBroker dataBroker, NotificationPublishService notificationPublishService,
       RpcProviderRegistry rpcProviderRegistry) {
     log.info("Creating provider for {}", APP_NAME);
     executor = Executors.newFixedThreadPool(1);
@@ -130,8 +132,7 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
   public void setNotificationService(NotificationPublishService notificationService) {
     this.notificationService = notificationService;
     if (log.isDebugEnabled()) {
-      log.debug("Notification Service set to {}",
-          notificationService == null ? NULL_PARAM : NON_NULL_PARAM);
+      log.debug("Notification Service set to {}", notificationService == null ? NULL_PARAM : NON_NULL_PARAM);
     }
   }
 
@@ -159,7 +160,7 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
 
   @Override
   public ListenableFuture<RpcResult<GetPolicyTypeIdentitiesOutput>> getPolicyTypeIdentities(
-          GetPolicyTypeIdentitiesInput input) {
+      GetPolicyTypeIdentitiesInput input) {
     log.info("Start of getPolicyTypeIdentities");
     GetPolicyTypeIdentitiesOutputBuilder responseBuilder = new GetPolicyTypeIdentitiesOutputBuilder();
     String uri = nearRicUrlProvider.policyTypesUrl(String.valueOf(input.getNearRtRicUrl()));
@@ -185,18 +186,17 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
       responseBuilder.setPolicyIdList(response.getBody());
     }
     log.info("End of getPolicyIdentities");
-    RpcResult<GetPolicyIdentitiesOutput> rpcResult = RpcResultBuilder
-        .<GetPolicyIdentitiesOutput>status(true).withResult(responseBuilder.build()).build();
+    RpcResult<GetPolicyIdentitiesOutput> rpcResult = RpcResultBuilder.<GetPolicyIdentitiesOutput>status(true)
+        .withResult(responseBuilder.build()).build();
     return Futures.immediateFuture(rpcResult);
   }
 
   @Override
   public ListenableFuture<RpcResult<GetPolicyTypeOutput>> getPolicyType(GetPolicyTypeInput input) {
-    log.info("Start of getPolicyType");
-    log.info("Policy Type Id : {} ", input.getPolicyTypeId());
+    log.info("Start of getPolicyType; Policy Type Id : {} ", input.getPolicyTypeId());
     GetPolicyTypeOutputBuilder responseBuilder = new GetPolicyTypeOutputBuilder();
     String uri = nearRicUrlProvider.getPolicyTypeUrl(String.valueOf(input.getNearRtRicUrl()),
-            String.valueOf(input.getPolicyTypeId()));
+        String.valueOf(input.getPolicyTypeId()));
     ResponseEntity<String> response = restAdapter.get(uri, String.class);
     if (response.hasBody()) {
       log.info("Response getPolicyType : {} ", response.getBody());
@@ -213,7 +213,7 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
     log.info("Start of putPolicy");
     PutPolicyOutputBuilder responseBuilder = new PutPolicyOutputBuilder();
     String uri = nearRicUrlProvider.putPolicyUrl(String.valueOf(input.getNearRtRicUrl()),
-            String.valueOf(input.getPolicyId()), String.valueOf(input.getPolicyTypeId()));
+        String.valueOf(input.getPolicyId()), String.valueOf(input.getPolicyTypeId()));
     log.info("PUT Request input.getPolicy() : {} ", input.getPolicy());
     ResponseEntity<String> response = restAdapter.put(uri, input.getPolicy(), String.class);
     if (response.hasBody()) {
@@ -221,8 +221,8 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
       responseBuilder.setReturnedPolicy(response.getBody());
     }
     log.info("End of putPolicy");
-    RpcResult<PutPolicyOutput> rpcResult = RpcResultBuilder
-        .<PutPolicyOutput>status(true).withResult(responseBuilder.build()).build();
+    RpcResult<PutPolicyOutput> rpcResult = RpcResultBuilder.<PutPolicyOutput>status(true)
+        .withResult(responseBuilder.build()).build();
     return Futures.immediateFuture(rpcResult);
   }
 
@@ -231,11 +231,26 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
     log.info("Start of deletePolicy");
     DeletePolicyOutputBuilder responseBuilder = new DeletePolicyOutputBuilder();
     String uri = nearRicUrlProvider.deletePolicyUrl(String.valueOf(input.getNearRtRicUrl()),
-            String.valueOf(input.getPolicyId()));
+        String.valueOf(input.getPolicyId()));
     restAdapter.delete(uri);
     log.info("End of deletePolicy");
-    RpcResult<DeletePolicyOutput> rpcResult = RpcResultBuilder
-        .<DeletePolicyOutput>status(true).withResult(responseBuilder.build()).build();
+    RpcResult<DeletePolicyOutput> rpcResult = RpcResultBuilder.<DeletePolicyOutput>status(true)
+        .withResult(responseBuilder.build()).build();
+    return Futures.immediateFuture(rpcResult);
+  }
+
+  @Override
+  public ListenableFuture<RpcResult<GetPolicyStatusOutput>> getPolicyStatus(GetPolicyStatusInput input) {
+    log.debug("Policy Id : {} ", input.getPolicyId());
+    GetPolicyStatusOutputBuilder responseBuilder = new GetPolicyStatusOutputBuilder();
+    String uri = nearRicUrlProvider.getPolicyStatusUrl(input.getNearRtRicUrl(), input.getPolicyId());
+    ResponseEntity<String> response = restAdapter.get(uri, String.class);
+    if (response.hasBody()) {
+      log.info("Response getPolicyStatus : {} ", response.getBody());
+      responseBuilder.setPolicyStatus(response.getBody());
+    }
+    RpcResult<GetPolicyStatusOutput> rpcResult = RpcResultBuilder.<GetPolicyStatusOutput>status(true)
+        .withResult(responseBuilder.build()).build();
     return Futures.immediateFuture(rpcResult);
   }
 }

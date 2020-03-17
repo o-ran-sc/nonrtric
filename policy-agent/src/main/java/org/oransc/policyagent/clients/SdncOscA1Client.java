@@ -129,7 +129,17 @@ public class SdncOscA1Client implements A1Client {
 
     @Override
     public Mono<String> getPolicyStatus(Policy policy) {
-        return Mono.error(new Exception("Status not implemented in the SDNC controller"));
+        SdncOscAdapterInput inputParams = ImmutableSdncOscAdapterInput.builder() //
+            .nearRtRicUrl(ricConfig.baseUrl()) //
+            .policyId(policy.id()) //
+            .build();
+        String inputJsonString = JsonHelper.createInputJsonString(inputParams);
+        logger.debug("POST getPolicyStatus inputJsonString = {}", inputJsonString);
+
+        return restClient
+            .postWithAuthHeader(URL_PREFIX + "getPolicyStatus", inputJsonString, a1ControllerUsername,
+                a1ControllerPassword) //
+            .flatMap(response -> JsonHelper.getValueFromResponse(response, "policy-status"));
     }
 
     private Flux<String> getPolicyIds() {
@@ -140,7 +150,7 @@ public class SdncOscA1Client implements A1Client {
         logger.debug("POST getPolicyIdentities inputJsonString = {}", inputJsonString);
 
         return restClient
-            .postWithAuthHeader("/A1-ADAPTER-API:getPolicyIdentities", inputJsonString, a1ControllerUsername,
+            .postWithAuthHeader(URL_PREFIX + "getPolicyIdentities", inputJsonString, a1ControllerUsername,
                 a1ControllerPassword) //
             .flatMap(response -> JsonHelper.getValueFromResponse(response, "policy-id-list")) //
             .flatMapMany(JsonHelper::parseJsonArrayOfString);
