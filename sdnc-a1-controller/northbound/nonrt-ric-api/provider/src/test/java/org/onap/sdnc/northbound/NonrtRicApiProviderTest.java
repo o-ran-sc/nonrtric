@@ -42,6 +42,8 @@ import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBro
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyIdentitiesInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyIdentitiesOutput;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyStatusInputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyStatusOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyTypeIdentitiesInputBuilder;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyTypeIdentitiesOutput;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyTypeInputBuilder;
@@ -78,13 +80,11 @@ public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
   private static String policyTypeId = "STD_QoSNudging_0.1.0";
   private static String policyId = "3d2157af-6a8f-4a7c-810f-38c2f824bf12";
 
-
   @Before
   public void setUp() throws Exception {
     nearRicUrlProvider = new NearRicUrlProvider();
     dataBroker = getDataBroker();
-    nonrtRicApiProvider = new NonrtRicApiProvider(dataBroker, mockNotificationPublishService,
-        mockRpcProviderRegistry);
+    nonrtRicApiProvider = new NonrtRicApiProvider(dataBroker, mockNotificationPublishService, mockRpcProviderRegistry);
   }
 
   @Test
@@ -97,8 +97,8 @@ public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
     policyTypeIdentities.add(policyTypeId);
     ResponseEntity<Object> getPolicyTypeIdentitiesResponse = new ResponseEntity<>(policyTypeIdentities, HttpStatus.OK);
     when(restAdapter.get(eq(uri), eq(List.class))).thenReturn(getPolicyTypeIdentitiesResponse);
-    ListenableFuture<RpcResult<GetPolicyTypeIdentitiesOutput>> result =
-        nonrtRicApiProvider.getPolicyTypeIdentities(inputBuilder.build());
+    ListenableFuture<RpcResult<GetPolicyTypeIdentitiesOutput>> result = nonrtRicApiProvider
+        .getPolicyTypeIdentities(inputBuilder.build());
     Assert.assertEquals(policyTypeIdentities, result.get().getResult().getPolicyTypeIdList());
   }
 
@@ -112,8 +112,8 @@ public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
     policyIdentities.add(policyId);
     ResponseEntity<Object> getPolicyIdentitiesResponse = new ResponseEntity<>(policyIdentities, HttpStatus.OK);
     when(restAdapter.get(eq(uri), eq(List.class))).thenReturn(getPolicyIdentitiesResponse);
-    ListenableFuture<RpcResult<GetPolicyIdentitiesOutput>> result =
-        nonrtRicApiProvider.getPolicyIdentities(inputBuilder.build());
+    ListenableFuture<RpcResult<GetPolicyIdentitiesOutput>> result = nonrtRicApiProvider
+        .getPolicyIdentities(inputBuilder.build());
     Assert.assertEquals(policyIdentities, result.get().getResult().getPolicyIdList());
   }
 
@@ -124,12 +124,11 @@ public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
     inputBuilder.setPolicyTypeId(policyTypeId);
     Whitebox.setInternalState(nonrtRicApiProvider, "restAdapter", restAdapter);
     String uri = nearRicUrlProvider.getPolicyTypeUrl(inputBuilder.build().getNearRtRicUrl(),
-            String.valueOf(inputBuilder.build().getPolicyTypeId()));
+        String.valueOf(inputBuilder.build().getPolicyTypeId()));
     String testPolicyType = "{}";
     ResponseEntity<Object> getPolicyTypeResponse = new ResponseEntity<>(testPolicyType, HttpStatus.OK);
     when(restAdapter.get(eq(uri), eq(String.class))).thenReturn(getPolicyTypeResponse);
-    ListenableFuture<RpcResult<GetPolicyTypeOutput>> result =
-        nonrtRicApiProvider.getPolicyType(inputBuilder.build());
+    ListenableFuture<RpcResult<GetPolicyTypeOutput>> result = nonrtRicApiProvider.getPolicyType(inputBuilder.build());
     Assert.assertEquals(testPolicyType, result.get().getResult().getPolicyType());
   }
 
@@ -142,12 +141,27 @@ public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
     inputBuilder.setPolicyTypeId(policyTypeId);
     inputBuilder.setPolicy(testPolicy);
     Whitebox.setInternalState(nonrtRicApiProvider, "restAdapter", restAdapter);
-    String uri = nearRicUrlProvider.putPolicyUrl(inputBuilder.build().getNearRtRicUrl(),
-            inputBuilder.getPolicyId(), inputBuilder.getPolicyTypeId());
+    String uri = nearRicUrlProvider.putPolicyUrl(inputBuilder.build().getNearRtRicUrl(), inputBuilder.getPolicyId(),
+        inputBuilder.getPolicyTypeId());
     ResponseEntity<String> putPolicyResponse = new ResponseEntity<>(testPolicy, HttpStatus.CREATED);
     when(restAdapter.put(eq(uri), eq(testPolicy), eq(String.class))).thenReturn(putPolicyResponse);
-    ListenableFuture<RpcResult<PutPolicyOutput>> result =
-        nonrtRicApiProvider.putPolicy(inputBuilder.build());
+    ListenableFuture<RpcResult<PutPolicyOutput>> result = nonrtRicApiProvider.putPolicy(inputBuilder.build());
     Assert.assertEquals(testPolicy, result.get().getResult().getReturnedPolicy());
   }
+
+  @Test
+  public void testGetPolicyStatus() throws InterruptedException, ExecutionException {
+    GetPolicyStatusInputBuilder inputBuilder = new GetPolicyStatusInputBuilder();
+    inputBuilder.setNearRtRicUrl(nearRtRicUrl);
+    inputBuilder.setPolicyId(policyId);
+    Whitebox.setInternalState(nonrtRicApiProvider, "restAdapter", restAdapter);
+    String uri = nearRicUrlProvider.getPolicyStatusUrl(nearRtRicUrl, policyId);
+    String testPolicyStatus = "STATUS";
+    ResponseEntity<Object> getPolicyStatusResponse = new ResponseEntity<>(testPolicyStatus, HttpStatus.OK);
+    when(restAdapter.get(eq(uri), eq(String.class))).thenReturn(getPolicyStatusResponse);
+    ListenableFuture<RpcResult<GetPolicyStatusOutput>> result = nonrtRicApiProvider
+        .getPolicyStatus(inputBuilder.build());
+    Assert.assertEquals(testPolicyStatus, result.get().getResult().getPolicyStatus());
+  }
+
 }

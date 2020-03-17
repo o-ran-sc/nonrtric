@@ -20,6 +20,7 @@
 
 package org.oransc.policyagent.clients;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -34,6 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.OngoingStubbing;
+import org.oransc.policyagent.repository.Policy;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -235,6 +237,29 @@ public class SdncOscA1ClientTest {
             CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
         verify(asyncRestClientMock).postWithAuthHeader(DELETE_POLICY_URL, inputJsonStringDeletePolicy2,
             CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
+    }
+
+    @Test
+    public void testGetStatus() {
+        SdncOscAdapterInput inputParams = ImmutableSdncOscAdapterInput.builder() //
+            .nearRtRicUrl(RIC_1_URL) //
+            .policyId(POLICY_1_ID) //
+            .build();
+        String inputJsonString = A1ClientHelper.createInputJsonString(inputParams);
+
+        String status = "STATUS";
+        Mono<String> policyStatusResp = A1ClientHelper.createOutputJsonResponse("policy-status", status);
+        whenAsyncPostThenReturn(policyStatusResp);
+
+        Policy policy = A1ClientHelper.createPolicy(RIC_1_URL, POLICY_1_ID, POLICY_JSON_VALID, POLICY_TYPE_1_ID);
+
+        String returnedStatus = clientUnderTest.getPolicyStatus(policy).block();
+
+        assertEquals(status, returnedStatus, "unexpexted status");
+
+        final String expectedUrl = "/A1-ADAPTER-API:getPolicyStatus";
+        verify(asyncRestClientMock).postWithAuthHeader(expectedUrl, inputJsonString, CONTROLLER_USERNAME,
+            CONTROLLER_PASSWORD);
     }
 
     private OngoingStubbing<Mono<String>> whenAsyncPostThenReturn(Mono<String> response) {
