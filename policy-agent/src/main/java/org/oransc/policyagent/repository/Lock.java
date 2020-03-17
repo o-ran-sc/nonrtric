@@ -168,7 +168,7 @@ public class Lock {
         lockRequestQueue.add(new LockRequest(callback, lockType, this));
     }
 
-    @SuppressWarnings("java:S2274")
+    @SuppressWarnings("java:S2274") // Always invoke wait() and await() methods inside a loop
     private synchronized void waitForUnlock() {
         try {
             this.wait();
