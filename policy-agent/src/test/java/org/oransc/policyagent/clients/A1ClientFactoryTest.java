@@ -62,9 +62,6 @@ public class A1ClientFactoryTest {
     @Mock
     A1Client clientMock4;
 
-    @Mock
-    A1Client clientMock5;
-
     private ImmutableRicConfig ricConfig =
         ImmutableRicConfig.builder().name(RIC_NAME).baseUrl("baseUrl").managedElementIds(new Vector<>()).build();
     private Ric ric = new Ric(ricConfig);
@@ -79,33 +76,31 @@ public class A1ClientFactoryTest {
     @Test
     public void getProtocolVersion_ok() {
         whenGetProtocolVersionThrowException(clientMock1);
-        whenGetProtocolVersionReturn(clientMock2, A1ProtocolType.STD_V1);
+        whenGetProtocolVersionReturn(clientMock2, A1ProtocolType.STD_V1_1);
         doReturn(clientMock1, clientMock2).when(factoryUnderTest).createClient(any(), any());
 
         A1Client client = factoryUnderTest.createA1Client(ric).block();
 
         assertEquals(clientMock2, client, "Not correct client returned");
-        assertEquals(A1ProtocolType.STD_V1, ric.getProtocolVersion(), "Not correct protocol");
+        assertEquals(A1ProtocolType.STD_V1_1, ric.getProtocolVersion(), "Not correct protocol");
     }
 
     @Test
     public void getProtocolVersion_ok_Last() {
-        whenGetProtocolVersionThrowException(clientMock1, clientMock2, clientMock3, clientMock4);
-        whenGetProtocolVersionReturn(clientMock5, A1ProtocolType.STD_V1_1);
-        doReturn(clientMock1, clientMock2, clientMock3, clientMock4, clientMock5).when(factoryUnderTest)
-            .createClient(any(), any());
+        whenGetProtocolVersionThrowException(clientMock1, clientMock2, clientMock3);
+        whenGetProtocolVersionReturn(clientMock4, A1ProtocolType.STD_V1_1);
+        doReturn(clientMock1, clientMock2, clientMock3, clientMock4).when(factoryUnderTest).createClient(any(), any());
 
         A1Client client = factoryUnderTest.createA1Client(ric).block();
 
-        assertEquals(clientMock5, client, "Not correct client returned");
+        assertEquals(clientMock4, client, "Not correct client returned");
         assertEquals(A1ProtocolType.STD_V1_1, ric.getProtocolVersion(), "Not correct protocol");
     }
 
     @Test
     public void getProtocolVersion_error() {
-        whenGetProtocolVersionThrowException(clientMock1, clientMock2, clientMock3, clientMock4, clientMock5);
-        doReturn(clientMock1, clientMock2, clientMock3, clientMock4, clientMock5).when(factoryUnderTest)
-            .createClient(any(), any());
+        whenGetProtocolVersionThrowException(clientMock1, clientMock2, clientMock3, clientMock4);
+        doReturn(clientMock1, clientMock2, clientMock3, clientMock4).when(factoryUnderTest).createClient(any(), any());
 
         StepVerifier.create(factoryUnderTest.createA1Client(ric)) //
             .expectSubscription() //
@@ -121,8 +116,7 @@ public class A1ClientFactoryTest {
 
     @Test
     public void create_check_types() {
-        assertTrue(createClient(A1ProtocolType.STD_V1) instanceof StdA1ClientVersion1);
-        assertTrue(createClient(A1ProtocolType.STD_V1_1) instanceof StdA1ClientVersion2);
+        assertTrue(createClient(A1ProtocolType.STD_V1_1) instanceof StdA1ClientVersion1);
         assertTrue(createClient(A1ProtocolType.OSC_V1) instanceof OscA1Client);
         assertTrue(createClient(A1ProtocolType.SDNC_ONAP) instanceof SdncOnapA1Client);
         assertTrue(createClient(A1ProtocolType.SDNC_OSC) instanceof SdncOscA1Client);

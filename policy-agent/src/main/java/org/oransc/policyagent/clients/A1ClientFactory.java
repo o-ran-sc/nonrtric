@@ -66,10 +66,8 @@ public class A1ClientFactory {
     }
 
     A1Client createClient(Ric ric, A1ProtocolType version) {
-        if (version == A1ProtocolType.STD_V1) {
+        if (version == A1ProtocolType.STD_V1_1) {
             return new StdA1ClientVersion1(ric.getConfig());
-        } else if (version == A1ProtocolType.STD_V1_1) {
-            return new StdA1ClientVersion2(ric.getConfig());
         } else if (version == A1ProtocolType.OSC_V1) {
             return new OscA1Client(ric.getConfig());
         } else if (version == A1ProtocolType.SDNC_OSC) {
@@ -91,8 +89,7 @@ public class A1ClientFactory {
 
     private Mono<A1Client.A1ProtocolType> getProtocolVersion(Ric ric) {
         if (ric.getProtocolVersion() == A1ProtocolType.UNKNOWN) {
-            return fetchVersion(createClient(ric, A1ProtocolType.STD_V1)) //
-                .onErrorResume(notUsed -> fetchVersion(createClient(ric, A1ProtocolType.STD_V1_1))) //
+            return fetchVersion(createClient(ric, A1ProtocolType.STD_V1_1)) //
                 .onErrorResume(notUsed -> fetchVersion(createClient(ric, A1ProtocolType.OSC_V1))) //
                 .onErrorResume(notUsed -> fetchVersion(createClient(ric, A1ProtocolType.SDNC_OSC))) //
                 .onErrorResume(notUsed -> fetchVersion(createClient(ric, A1ProtocolType.SDNC_ONAP))) //

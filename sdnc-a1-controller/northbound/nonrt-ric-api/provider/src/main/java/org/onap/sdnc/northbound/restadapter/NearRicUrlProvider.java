@@ -38,8 +38,7 @@ public class NearRicUrlProvider {
    * @return the base url
    */
   public String getBaseUrl(final String nearRtRicUrl) {
-    String baseUrl = nearRtRicUrl + "/A1-P/v1";
-    return UriComponentsBuilder.fromUriString(baseUrl).build().toString();
+    return nearRtRicUrl + "/A1-P/v1";
   }
 
   /**
@@ -49,8 +48,7 @@ public class NearRicUrlProvider {
    * @return the policytypes url
    */
   public String policyTypesUrl(final String nearRtRicUrl) {
-    return UriComponentsBuilder.fromUriString(getBaseUrl(nearRtRicUrl)).pathSegment("policytypes")
-            .build().toString();
+    return UriComponentsBuilder.fromUriString(getBaseUrl(nearRtRicUrl)).pathSegment("policytypes").build().toString();
   }
 
   /**
@@ -60,8 +58,7 @@ public class NearRicUrlProvider {
    * @return the policies url
    */
   public String policiesUrl(final String nearRtRicUrl) {
-    return UriComponentsBuilder.fromUriString(getBaseUrl(nearRtRicUrl)).pathSegment("policies")
-            .build().toString();
+    return getBaseUrl(nearRtRicUrl) + "/policies";
   }
 
   /**
@@ -72,32 +69,34 @@ public class NearRicUrlProvider {
    * @return the policy type url
    */
   public String getPolicyTypeUrl(final String nearRtRicUrl, final String policyTypeId) {
-    return UriComponentsBuilder.fromUriString(policyTypesUrl(nearRtRicUrl)).pathSegment(policyTypeId)
-        .build().toString();
+    return UriComponentsBuilder.fromUriString(policyTypesUrl(nearRtRicUrl)).pathSegment(policyTypeId).build()
+        .toString();
   }
 
   /**
    * Retrieve the url of putPolicy
    *
    * @param nearRtRicUrl the near-rt-ric url
-   * @param policyId Policy Id
+   * @param policyId     Policy Id
    * @param policyTypeId Policy Type Id
    * @return the putPolicy url
    */
   public String putPolicyUrl(final String nearRtRicUrl, final String policyId, final String policyTypeId) {
-    return UriComponentsBuilder.fromUriString(policiesUrl(nearRtRicUrl))
-            .pathSegment(policyId + "?policyTypeId=" + policyTypeId).build().toString();
+    String url = nearRtRicUrl + "/" + policyId;
+    if (!policyTypeId.isEmpty()) {
+      url += "?policyTypeId=" + policyTypeId;
+    }
+    return url;
   }
 
   /**
    * Retrieve the url of deletePolicy
    *
    * @param nearRtRicUrl the near-rt-ric url
-   * @param policyId Policy Id
+   * @param policyId     Policy Id
    * @return the deletePolicy url
    */
   public String deletePolicyUrl(final String nearRtRicUrl, final String policyId) {
-    return UriComponentsBuilder.fromUriString(policiesUrl(nearRtRicUrl)).pathSegment(policyId)
-            .build().toString();
+    return UriComponentsBuilder.fromUriString(policiesUrl(nearRtRicUrl)).pathSegment(policyId).build().toString();
   }
 }

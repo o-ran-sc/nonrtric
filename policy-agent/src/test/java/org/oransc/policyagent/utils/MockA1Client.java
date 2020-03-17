@@ -90,7 +90,7 @@ public class MockA1Client implements A1Client {
 
     @Override
     public Mono<A1ProtocolType> getProtocolVersion() {
-        return Mono.just(A1ProtocolType.STD_V1);
+        return Mono.just(A1ProtocolType.STD_V1_1);
     }
 
     @Override
