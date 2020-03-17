@@ -29,8 +29,24 @@
 	<packaging>pom</packaging>
 
 	<name>sdnc</name>
+
+	<properties>
+		<sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
+	</properties>
+
 	<modules>
 		<module>northbound</module>
 		<module>oam</module>
 	</modules>
+
+	<build>
+		<plugins>
+            		<!-- support sonar in multi-module project -->
+            		<plugin>
+                		<groupId>org.sonarsource.scanner.maven</groupId>
+                		<artifactId>sonar-maven-plugin</artifactId>
+                		<version>${sonar-maven-plugin.version}</version>
+            		</plugin>
+        	</plugins>
+	</build>
 </project>

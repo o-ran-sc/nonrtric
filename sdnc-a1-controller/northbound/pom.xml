@@ -41,6 +41,10 @@
 	<version>1.7.3-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
+	<properties>
+		<sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
+	</properties>
+
 	<name>sdnc-northbound</name>
 	<description>The SDN-C Northbound APIs repo contains code for northbound API adaptors, typically MD-SAL applications</description>
 	<url>https://wiki.onap.org</url>
@@ -84,6 +88,12 @@
 					<skipTests>false</skipTests>
 				</configuration>
 			</plugin>
+			<!-- support sonar in multi-module project -->
+            		<plugin>
+                		<groupId>org.sonarsource.scanner.maven</groupId>
+                		<artifactId>sonar-maven-plugin</artifactId>
+                		<version>${sonar-maven-plugin.version}</version>
+            		</plugin>
 		</plugins>
 	</build>
 

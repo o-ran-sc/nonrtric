@@ -36,10 +36,26 @@
 	<packaging>pom</packaging>
 
 	<name>sdnc-northbound :: nonrt-ric-api</name>
+
+	<properties>
+		<sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
+	</properties>
+
 	<modules>
 		<module>model</module>
 		<module>provider</module>
 		<module>features</module>
 		<module>installer</module>
 	</modules>
+
+	<build>
+		<plugins>
+            		<!-- support sonar in multi-module project -->
+            		<plugin>
+                		<groupId>org.sonarsource.scanner.maven</groupId>
+                		<artifactId>sonar-maven-plugin</artifactId>
+                		<version>${sonar-maven-plugin.version}</version>
+            		</plugin>
+        	</plugins>
+	</build>
 </project>
