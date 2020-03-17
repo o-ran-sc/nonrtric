@@ -117,9 +117,19 @@ fi
 echo ""
 
 echo "Building images for the simulators"
-curdir=$PWD
-cd $SIM_GROUP
-cd ../ric-plt/a1
+if [ -z "$SIM_DIR" ]; then
+		SIM_DIR=$(find . -type d -path "*a1-interface/near-rt-ric-simulator/scripts*" 2>/dev/null -print -quit)
+		if [ ! -d  $SIM_DIR ]; then
+			echo "Trying to set env var SIM_DIR to dir 'a1-interface/near-rt-ric-simulator/scripts' in the sim repo, but failed."
+			echo "It might be that you did not download the repository of the near-rt-ric simulator.In that case, run the command:"
+			echo "git clone 'https://gerrit.o-ran-sc.org/oransc/sim/a1-interface'"
+			echo "Otherwise, please set the SIM_DIR manually in the test_env.sh"
+			exit 1
+		else
+			echo "SIM_DIR auto set to: " $SIM_DIR
+		fi
+fi
+cd $SIM_DIR
 docker build -t ric-simulator:latest . &> /dev/null
 cd $curdir
 
