@@ -23,17 +23,22 @@ module A1-ADAPTER-API {
 
     prefix a1-adapter-api;
 
-    import ietf-inet-types { prefix "inet"; revision-date "2013-07-15"; }
+    import ietf-inet-types {
+        prefix "inet";
+        revision-date "2013-07-15";
+    }
 
-    import ietf-yang-types { prefix yang; }
+    import ietf-yang-types {
+        prefix yang;
+    }
 
     revision "2020-01-22" {
         description
-        "A1 adapter";
+          "A1 adapter";
     }
 
-    //Get an array of integer policy type ids
-    //Each item in the returned array will be regarded as one policy-type-id.
+    // Get an array of integer policy type ids
+    // Each item in the returned array will be regarded as one policy-type-id.
     rpc getPolicyTypeIdentities {
         input {
             leaf near-rt-ric-url {
@@ -48,8 +53,8 @@ module A1-ADAPTER-API {
         }
     }
 
-    //Get an array of integer policy ids
-    //Each item in the returned array will be regarded as one policy-id.
+    // Get an array of integer policy ids
+    // Each item in the returned array will be regarded as one policy-id.
     rpc getPolicyIdentities {
         input {
             leaf near-rt-ric-url {
@@ -64,7 +69,7 @@ module A1-ADAPTER-API {
         }
     }
 
-    //Get a policy type
+    // Get a policy type
     rpc getPolicyType {
         input {
             leaf near-rt-ric-url {
@@ -81,7 +86,7 @@ module A1-ADAPTER-API {
         }
     }
 
-    //Create a policy
+    // Create a policy
     rpc putPolicy {
         input {
             leaf near-rt-ric-url {
@@ -104,13 +109,30 @@ module A1-ADAPTER-API {
         }
     }
 
-    //Delete a policy
+    // Delete a policy
     rpc deletePolicy {
         input {
             leaf near-rt-ric-url {
                 type string;
             }
             leaf policy-id {
+                type string;
+            }
+        }
+    }
+
+    // Get a policy status
+    rpc getPolicyStatus {
+        input {
+            leaf near-rt-ric-url {
+                type string;
+            }
+            leaf policy-id {
+                type string;
+            }
+        }
+        output {
+            leaf policy-status {
                 type string;
             }
         }
