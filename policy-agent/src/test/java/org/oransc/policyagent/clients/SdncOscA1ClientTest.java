@@ -46,16 +46,10 @@ public class SdncOscA1ClientTest {
     private static final String CONTROLLER_USERNAME = "username";
     private static final String CONTROLLER_PASSWORD = "password";
     private static final String RIC_1_URL = "RicUrl";
-    private static final String POLICY_TYPES_IDENTITIES_URL = "/A1-ADAPTER-API:getPolicyTypeIdentities";
     private static final String POLICY_IDENTITIES_URL = "/A1-ADAPTER-API:getPolicyIdentities";
-    private static final String POLICY_TYPES_URL = "/A1-ADAPTER-API:getPolicyType";
     private static final String PUT_POLICY_URL = "/A1-ADAPTER-API:putPolicy";
     private static final String DELETE_POLICY_URL = "/A1-ADAPTER-API:deletePolicy";
-
     private static final String POLICY_TYPE_1_ID = "type1";
-    private static final String POLICY_TYPE_2_ID = "type2";
-    private static final String POLICY_TYPE_SCHEMA_VALID = "{\"type\":\"type1\"}";
-    private static final String POLICY_TYPE_SCHEMA_INVALID = "\"type\":\"type1\"}";
     private static final String POLICY_1_ID = "policy1";
     private static final String POLICY_2_ID = "policy2";
     private static final String POLICY_JSON_VALID = "{\"scope\":{\"ueId\":\"ue1\"}}";
@@ -74,21 +68,9 @@ public class SdncOscA1ClientTest {
 
     @Test
     public void testGetPolicyTypeIdentities() {
-        SdncOscAdapterInput inputParams = ImmutableSdncOscAdapterInput.builder() //
-            .nearRtRicUrl(RIC_1_URL) //
-            .build();
-        String inputJsonString = A1ClientHelper.createInputJsonString(inputParams);
-
-        List<String> policyTypeIds = Arrays.asList(POLICY_TYPE_1_ID, POLICY_TYPE_2_ID);
-        Mono<String> policyTypeIdsResp =
-            A1ClientHelper.createOutputJsonResponse("policy-type-id-list", policyTypeIds.toString());
-        whenAsyncPostThenReturn(policyTypeIdsResp);
-
-        Mono<List<String>> returnedMono = clientUnderTest.getPolicyTypeIdentities();
-
-        verify(asyncRestClientMock).postWithAuthHeader(POLICY_TYPES_IDENTITIES_URL, inputJsonString,
-            CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
-        StepVerifier.create(returnedMono).expectNext(policyTypeIds).expectComplete().verify();
+        List<String> policyTypeIds = clientUnderTest.getPolicyTypeIdentities().block();
+        assertEquals(1, policyTypeIds.size(), "should hardcoded to one");
+        assertEquals("", policyTypeIds.get(0), "should hardcoded to empty");
     }
 
     @Test
@@ -111,40 +93,8 @@ public class SdncOscA1ClientTest {
 
     @Test
     public void testGetValidPolicyType() {
-        SdncOscAdapterInput inputParams = ImmutableSdncOscAdapterInput.builder() //
-            .nearRtRicUrl(RIC_1_URL) //
-            .policyTypeId(POLICY_TYPE_1_ID) //
-            .build();
-        String inputJsonString = A1ClientHelper.createInputJsonString(inputParams);
-
-        String policyType = "{\"policySchema\": " + POLICY_TYPE_SCHEMA_VALID + ", \"statusSchema\": {} }";
-        Mono<String> policyTypeResp = A1ClientHelper.createOutputJsonResponse("policy-type", policyType);
-        whenAsyncPostThenReturn(policyTypeResp);
-
-        Mono<String> returnedMono = clientUnderTest.getPolicyTypeSchema(POLICY_TYPE_1_ID);
-
-        verify(asyncRestClientMock).postWithAuthHeader(POLICY_TYPES_URL, inputJsonString, CONTROLLER_USERNAME,
-            CONTROLLER_PASSWORD);
-        StepVerifier.create(returnedMono).expectNext(POLICY_TYPE_SCHEMA_VALID).expectComplete().verify();
-    }
-
-    @Test
-    public void testGetInvalidPolicyType() {
-        SdncOscAdapterInput inputParams = ImmutableSdncOscAdapterInput.builder() //
-            .nearRtRicUrl(RIC_1_URL) //
-            .policyTypeId(POLICY_TYPE_1_ID) //
-            .build();
-        String inputJsonString = A1ClientHelper.createInputJsonString(inputParams);
-
-        String policyType = "{\"policySchema\": " + POLICY_TYPE_SCHEMA_INVALID + ", \"statusSchema\": {} }";
-        Mono<String> policyTypeResp = A1ClientHelper.createOutputJsonResponse("policy-type", policyType);
-        whenAsyncPostThenReturn(policyTypeResp);
-
-        Mono<String> returnedMono = clientUnderTest.getPolicyTypeSchema(POLICY_TYPE_1_ID);
-
-        verify(asyncRestClientMock).postWithAuthHeader(POLICY_TYPES_URL, inputJsonString, CONTROLLER_USERNAME,
-            CONTROLLER_PASSWORD);
-        StepVerifier.create(returnedMono).expectErrorMatches(throwable -> throwable instanceof JSONException).verify();
+        String policyType = clientUnderTest.getPolicyTypeSchema("").block();
+        assertEquals("{}", policyType, "");
     }
 
     @Test

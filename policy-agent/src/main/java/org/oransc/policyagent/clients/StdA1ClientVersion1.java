@@ -20,6 +20,7 @@
 
 package org.oransc.policyagent.clients;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.oransc.policyagent.configuration.RicConfig;
@@ -30,29 +31,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class StdA1ClientVersion1 implements A1Client {
-    private static final String URL_PREFIX = "/A1-P/v1";
-
-    private static final String POLICY_TYPES_URI = "/policytypes";
-    private static final String POLICY_TYPE_ID = "policyTypeId";
-
-    private static final String POLICIES_URI = "/policies";
-
-    private static final UriComponentsBuilder POLICY_TYPE_SCHEMA_URI =
-        UriComponentsBuilder.fromPath("/policytypes/{policy-type-name}");
-
-    private static final UriComponentsBuilder POLICY_URI =
-        UriComponentsBuilder.fromPath("/policies/{policy-id}").queryParam(POLICY_TYPE_ID, "{policy-type-name}");
-
-    private static final UriComponentsBuilder POLICY_DELETE_URI =
-        UriComponentsBuilder.fromPath("/policies/{policy-id}");
-
-    private static final UriComponentsBuilder POLICY_STATUS_URI =
-        UriComponentsBuilder.fromPath("/policies/{policy-id}/status");
-
     private final AsyncRestClient restClient;
 
     public StdA1ClientVersion1(RicConfig ricConfig) {
-        String baseUrl = ricConfig.baseUrl() + URL_PREFIX;
+        final String urlPrefix = "/A1-P/v1";
+        String baseUrl = ricConfig.baseUrl() + urlPrefix;
         this.restClient = new AsyncRestClient(baseUrl);
     }
 
@@ -68,23 +51,20 @@ public class StdA1ClientVersion1 implements A1Client {
 
     @Override
     public Mono<String> putPolicy(Policy policy) {
-        String uri = POLICY_URI.buildAndExpand(policy.id(), policy.type().name()).toUriString();
+        final UriComponentsBuilder policyUri = UriComponentsBuilder.fromPath("/policies/{policy-id}");
+        final String uri = policyUri.buildAndExpand(policy.id()).toUriString();
         return restClient.put(uri, policy.json()) //
             .flatMap(JsonHelper::validateJson);
     }
 
     @Override
     public Mono<List<String>> getPolicyTypeIdentities() {
-        return restClient.get(POLICY_TYPES_URI) //
-            .flatMapMany(JsonHelper::parseJsonArrayOfString) //
-            .collectList();
+        return Mono.just(Arrays.asList(""));
     }
 
     @Override
     public Mono<String> getPolicyTypeSchema(String policyTypeId) {
-        String uri = POLICY_TYPE_SCHEMA_URI.buildAndExpand(policyTypeId).toUriString();
-        return restClient.get(uri) //
-            .flatMap(JsonHelper::extractPolicySchema);
+        return Mono.just("{}");
     }
 
     @Override
@@ -101,22 +81,25 @@ public class StdA1ClientVersion1 implements A1Client {
     @Override
     public Mono<A1ProtocolType> getProtocolVersion() {
         return getPolicyTypeIdentities() //
-            .flatMap(x -> Mono.just(A1ProtocolType.STD_V1));
+            .flatMap(x -> Mono.just(A1ProtocolType.STD_V1_1));
     }
 
     @Override
     public Mono<String> getPolicyStatus(Policy policy) {
-        String uri = POLICY_STATUS_URI.buildAndExpand(policy.id()).toUriString();
+        final UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/policies/{policy-id}/status");
+        String uri = builder.buildAndExpand(policy.id()).toUriString();
         return restClient.get(uri);
     }
 
     private Flux<String> getPolicyIds() {
-        return restClient.get(POLICIES_URI) //
+        final String uri = "/policies";
+        return restClient.get(uri) //
             .flatMapMany(JsonHelper::parseJsonArrayOfString);
     }
 
     private Mono<String> deletePolicyById(String policyId) {
-        String uri = POLICY_DELETE_URI.buildAndExpand(policyId).toUriString();
+        final UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/policies/{policy-id}");
+        String uri = builder.buildAndExpand(policyId).toUriString();
         return restClient.delete(uri);
     }
 }

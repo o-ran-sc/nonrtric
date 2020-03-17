@@ -38,8 +38,7 @@ public class NearRicUrlProvider {
    * @return the base url
    */
   public String getBaseUrl(final String nearRtRicUrl) {
-    String baseUrl = nearRtRicUrl + "/A1-P/v1";
-    return UriComponentsBuilder.fromUriString(baseUrl).build().toString();
+    return nearRtRicUrl + "/A1-P/v1";
   }
 
   /**
@@ -59,7 +58,7 @@ public class NearRicUrlProvider {
    * @return the policies url
    */
   public String policiesUrl(final String nearRtRicUrl) {
-    return UriComponentsBuilder.fromUriString(getBaseUrl(nearRtRicUrl)).pathSegment("policies").build().toString();
+    return getBaseUrl(nearRtRicUrl) + "/policies";
   }
 
   /**
@@ -83,8 +82,12 @@ public class NearRicUrlProvider {
    * @return the putPolicy url
    */
   public String putPolicyUrl(final String nearRtRicUrl, final String policyId, final String policyTypeId) {
-    return UriComponentsBuilder.fromUriString(policiesUrl(nearRtRicUrl))
-        .pathSegment(policyId + "?policyTypeId=" + policyTypeId).build().toString();
+    UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(policiesUrl(nearRtRicUrl)).pathSegment(policyId);
+
+    if (!policyTypeId.isEmpty()) {
+      builder.queryParam("policyTypeId", policyTypeId);
+    }
+    return builder.build().toString();
   }
 
   /**

@@ -31,7 +31,6 @@ public interface A1Client {
 
     public enum A1ProtocolType {
         UNKNOWN, //
-        STD_V1, //
         STD_V1_1, // version 1.1
         OSC_V1, //
         SDNC_OSC, //
