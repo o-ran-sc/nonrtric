@@ -33,6 +33,52 @@
       "revId": "da54e47d40e8f1e88276d883f9c8ab3f351ff15e",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1936b08_aabbcc01",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/onap/sdnc/northbound/restadapter/NearRicUrlProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-17T16:10:36Z",
+      "side": 1,
+      "message": "Better to use pathSegment(policyId).queryParameter(\"policyTypeId\", policyTypeId) instead",
+      "range": {
+        "startLine": 87,
+        "startChar": 9,
+        "endLine": 87,
+        "endChar": 63
+      },
+      "revId": "da54e47d40e8f1e88276d883f9c8ab3f351ff15e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3913c5dd_cb1e05d9",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/onap/sdnc/northbound/restadapter/NearRicUrlProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-17T16:10:36Z",
+      "side": 1,
+      "message": "Why not use UriComponentsBuilder.fromUriString(policiesUrl(nearRtRicUrl)).pathSegment(ploicyId).pathSegment(\"status\").build().toString() instead?",
+      "range": {
+        "startLine": 102,
+        "startChar": 11,
+        "endLine": 102,
+        "endChar": 65
+      },
+      "revId": "da54e47d40e8f1e88276d883f9c8ab3f351ff15e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
