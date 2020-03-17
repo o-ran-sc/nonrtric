@@ -73,38 +73,6 @@
           <release>${java.version}</release>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>io.fabric8</groupId>
-        <artifactId>docker-maven-plugin</artifactId>
-        <version>${docker-maven-plugin.version}</version>
-        <inherited>false</inherited>
-        <executions>
-          <execution>
-            <id>push-near-rt-ric-simulator-image</id>
-            <goals>
-              <goal>build</goal>
-              <goal>push</goal>
-            </goals>
-            <configuration>
-              <pullRegistry>${env.CONTAINER_PULL_REGISTRY}</pullRegistry>
-              <pushRegistry>${env.CONTAINER_PUSH_REGISTRY}</pushRegistry>
-              <images>
-                <image>
-                  <name>o-ran-sc/near-rt-ric-simulator:${project.version}</name>
-                    <build>
-                      <contextDir>${basedir}/ric-plt/a1</contextDir>
-                      <dockerFile>Dockerfile</dockerFile>
-                      <tags>
-                        <tag>${project.version}</tag>
-                        <tag>latest</tag>
-                      </tags>
-                    </build>
-                  </image>
-                </images>
-              </configuration>
-            </execution>
-         </executions>
-       </plugin>
     </plugins>
   </build>
 </project>
