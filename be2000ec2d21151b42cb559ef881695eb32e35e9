@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e89ac6c_92f07e8a",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/onap/sdnc/northbound/provider/NonrtRicApiProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-03-17T15:48:52Z",
+      "side": 0,
+      "message": "either we should keep it here, or remove start/end from all the methods. I would suggest to keep them but change the log level to debug. Since testing/running the SDNC adapter is not straightforward, these logs seem to be helpful.",
+      "revId": "be2000ec2d21151b42cb559ef881695eb32e35e9",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}

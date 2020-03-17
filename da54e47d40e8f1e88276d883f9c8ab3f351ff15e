@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cb8301dd_7cd07699",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdncOscA1Client.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-03-17T15:48:52Z",
+      "side": 1,
+      "message": "why do we need to call extractPolicySchema here?",
+      "revId": "da54e47d40e8f1e88276d883f9c8ab3f351ff15e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f8552ce6_3b9dd014",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdncOscA1Client.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-03-17T15:48:52Z",
+      "side": 1,
+      "message": "also replace this by URL_PREFIX, I guess it was missed by Henrik in this method",
+      "revId": "da54e47d40e8f1e88276d883f9c8ab3f351ff15e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
