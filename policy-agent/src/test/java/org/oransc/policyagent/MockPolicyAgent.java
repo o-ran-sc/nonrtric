@@ -129,15 +129,13 @@ public class MockPolicyAgent {
     @LocalServerPort
     private int port;
 
-    private void keepServerAlive() {
+    private void keepServerAlive() throws InterruptedException {
         logger.info("Keeping server alive!");
-        try {
-            synchronized (this) {
-                this.wait();
-            }
-        } catch (Exception ex) {
-            logger.error("Unexpected: " + ex);
+
+        synchronized (this) {
+            this.wait();
         }
+
     }
 
     private static String title(String jsonSchema) {
@@ -147,7 +145,8 @@ public class MockPolicyAgent {
     }
 
     @Test
-    @SuppressWarnings("squid:S2699") // Tests should include assertions. This test is only for keeping the server alive,
+    @SuppressWarnings("squid:S2699") // Tests should include assertions. This test is only for keeping the server
+                                     // alive,
                                      // so it will only be confusing to add an assertion.
     public void runMock() throws Exception {
         keepServerAlive();
