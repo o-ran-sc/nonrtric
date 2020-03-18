@@ -212,7 +212,7 @@ public class ApplicationTest {
     }
 
     @Test
-    public void testRecovery() throws Exception {
+    public void testSynchronization() throws Exception {
         addRic("ric").setState(Ric.RicState.UNDEFINED);
         String ricName = "ric";
         Policy policy2 = addPolicy("policyId2", "typeName", "service", ricName);

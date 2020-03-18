@@ -45,7 +45,7 @@ public class ServiceRegistrationInfo {
     @SerializedName("keepAliveIntervalSeconds")
     public long keepAliveIntervalSeconds = 0;
 
-    @ApiModelProperty(value = "callback for notifying of RIC recovery", required = false, allowEmptyValue = true)
+    @ApiModelProperty(value = "callback for notifying of RIC synchronization", required = false, allowEmptyValue = true)
     @SerializedName("callbackUrl")
     public String callbackUrl = "";
 

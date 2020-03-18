@@ -425,7 +425,7 @@ paths:
         - name: type
           in: query
           description: type
-          required: true
+          required: false
           type: string
       responses:
         '200':
@@ -442,10 +442,6 @@ paths:
           description: Forbidden
         '404':
           description: RIC or policy type is not found
-          schema:
-            type: string
-        '405':
-          description: Change is not allowed
           schema:
             type: string
         '423':
@@ -762,7 +758,7 @@ paths:
     post:
       tags:
         - Service registry and supervision
-      summary: Keep the policies alive for a service
+      summary: Heartbeat from a serice
       operationId: keepAliveServiceUsingPOST
       consumes:
         - application/json
@@ -776,7 +772,7 @@ paths:
           type: string
       responses:
         '200':
-          description: Policies timeout supervision refreshed
+          description: 'Service supervision timer refreshed, OK'
           schema:
             type: string
         '201':
@@ -874,11 +870,11 @@ definitions:
     properties:
       callbackUrl:
         type: string
-        description: callback for notifying of RIC recovery
+        description: callback for notifying of RIC synchronization
       keepAliveIntervalSeconds:
         type: integer
         format: int64
-        description: keep alive interval for policies owned by the service. 0 means no timeout supervision. Polcies that are not refreshed within this time are removed
+        description: 'keep alive interval for the service. This is a heartbeat supervision of the service, which in regular intevals must invoke a ''keepAlive'' REST call. When a service does not invoke this call within the given time, it is considered unavailble. An unavailable service will be automatically deregistered and its policies will be deleted. Value 0 means no timeout supervision.'
       serviceName:
         type: string
         description: identity of the service
@@ -888,7 +884,7 @@ definitions:
     properties:
       callbackUrl:
         type: string
-        description: callback for notifying of RIC recovery
+        description: callback for notifying of RIC synchronization
       keepAliveIntervalSeconds:
         type: integer
         format: int64
@@ -896,9 +892,8 @@ definitions:
       serviceName:
         type: string
         description: identity of the service
-      timeSincePingSeconds:
+      timeSinceLastActivitySeconds:
         type: integer
         format: int64
         description: time since last invocation by the service
     title: ServiceStatus
-

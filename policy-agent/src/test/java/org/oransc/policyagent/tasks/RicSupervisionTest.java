@@ -95,7 +95,7 @@ public class RicSupervisionTest {
     private A1ClientFactory a1ClientFactory;
 
     @Mock
-    private RicSynchronizationTask recoveryTaskMock;
+    private RicSynchronizationTask synchronizationTaskMock;
 
     private final PolicyTypes types = new PolicyTypes();
     private Policies policies = new Policies();
@@ -121,7 +121,7 @@ public class RicSupervisionTest {
     }
 
     @Test
-    public void whenRicIdleAndNoChangedPoliciesOrPolicyTypes_thenNoRecovery() {
+    public void whenRicIdleAndNoChangedPoliciesOrPolicyTypes_thenNoSynchronization() {
         RIC_1.setState(RicState.IDLE);
         RIC_1.addSupportedPolicyType(POLICY_TYPE_1);
         rics.put(RIC_1);
@@ -142,24 +142,24 @@ public class RicSupervisionTest {
     }
 
     @Test
-    public void whenRicUndefined_thenRecovery() {
+    public void whenRicUndefined_thenSynchronization() {
         RIC_1.setState(RicState.UNDEFINED);
         rics.put(RIC_1);
 
         RicSupervision supervisorUnderTest = spy(new RicSupervision(rics, policies, a1ClientFactory, types, null));
 
-        doReturn(recoveryTaskMock).when(supervisorUnderTest).createSynchronizationTask();
+        doReturn(synchronizationTaskMock).when(supervisorUnderTest).createSynchronizationTask();
 
         supervisorUnderTest.checkAllRics();
 
         verify(supervisorUnderTest).checkAllRics();
         verify(supervisorUnderTest).createSynchronizationTask();
-        verify(recoveryTaskMock).run(RIC_1);
+        verify(synchronizationTaskMock).run(RIC_1);
         verifyNoMoreInteractions(supervisorUnderTest);
     }
 
     @Test
-    public void whenRicRecovering_thenNoRecovery() {
+    public void whenRicSynchronizing_thenNoSynchronization() {
         RIC_1.setState(RicState.SYNCHRONIZING);
         rics.put(RIC_1);
 
@@ -172,7 +172,7 @@ public class RicSupervisionTest {
     }
 
     @Test
-    public void whenRicIdleAndErrorGettingPolicyIdentities_thenNoRecovery() {
+    public void whenRicIdleAndErrorGettingPolicyIdentities_thenNoSynchronization() {
         RIC_1.setState(RicState.IDLE);
         RIC_1.addSupportedPolicyType(POLICY_TYPE_1);
         rics.put(RIC_1);
@@ -187,7 +187,7 @@ public class RicSupervisionTest {
     }
 
     @Test
-    public void whenRicIdleAndNotSameAmountOfPolicies_thenRecovery() {
+    public void whenRicIdleAndNotSameAmountOfPolicies_thenSynchronization() {
         RIC_1.setState(RicState.IDLE);
         rics.put(RIC_1);
 
@@ -198,18 +198,18 @@ public class RicSupervisionTest {
 
         RicSupervision supervisorUnderTest = spy(new RicSupervision(rics, policies, a1ClientFactory, types, null));
 
-        doReturn(recoveryTaskMock).when(supervisorUnderTest).createSynchronizationTask();
+        doReturn(synchronizationTaskMock).when(supervisorUnderTest).createSynchronizationTask();
 
         supervisorUnderTest.checkAllRics();
 
         verify(supervisorUnderTest).checkAllRics();
         verify(supervisorUnderTest).createSynchronizationTask();
-        verify(recoveryTaskMock).run(RIC_1);
+        verify(synchronizationTaskMock).run(RIC_1);
         verifyNoMoreInteractions(supervisorUnderTest);
     }
 
     @Test
-    public void whenRicIdleAndSameAmountOfPoliciesButNotSamePolicies_thenRecovery() {
+    public void whenRicIdleAndSameAmountOfPoliciesButNotSamePolicies_thenSynchronization() {
         RIC_1.setState(RicState.IDLE);
         rics.put(RIC_1);
 
@@ -220,18 +220,18 @@ public class RicSupervisionTest {
 
         RicSupervision supervisorUnderTest = spy(new RicSupervision(rics, policies, a1ClientFactory, types, null));
 
-        doReturn(recoveryTaskMock).when(supervisorUnderTest).createSynchronizationTask();
+        doReturn(synchronizationTaskMock).when(supervisorUnderTest).createSynchronizationTask();
 
         supervisorUnderTest.checkAllRics();
 
         verify(supervisorUnderTest).checkAllRics();
         verify(supervisorUnderTest).createSynchronizationTask();
-        verify(recoveryTaskMock).run(RIC_1);
+        verify(synchronizationTaskMock).run(RIC_1);
         verifyNoMoreInteractions(supervisorUnderTest);
     }
 
     @Test
-    public void whenRicIdleAndErrorGettingPolicyTypes_thenNoRecovery() {
+    public void whenRicIdleAndErrorGettingPolicyTypes_thenNoSynchronization() {
         RIC_1.setState(RicState.IDLE);
         RIC_1.addSupportedPolicyType(POLICY_TYPE_1);
         rics.put(RIC_1);
@@ -247,7 +247,7 @@ public class RicSupervisionTest {
     }
 
     @Test
-    public void whenRicIdleAndNotSameAmountOfPolicyTypes_thenRecovery() {
+    public void whenRicIdleAndNotSameAmountOfPolicyTypes_thenSynchronization() {
         RIC_1.setState(RicState.IDLE);
         RIC_1.addSupportedPolicyType(POLICY_TYPE_1);
         rics.put(RIC_1);
@@ -259,18 +259,18 @@ public class RicSupervisionTest {
 
         RicSupervision supervisorUnderTest = spy(new RicSupervision(rics, policies, a1ClientFactory, types, null));
 
-        doReturn(recoveryTaskMock).when(supervisorUnderTest).createSynchronizationTask();
+        doReturn(synchronizationTaskMock).when(supervisorUnderTest).createSynchronizationTask();
 
         supervisorUnderTest.checkAllRics();
 
         verify(supervisorUnderTest).checkAllRics();
         verify(supervisorUnderTest).createSynchronizationTask();
-        verify(recoveryTaskMock).run(RIC_1);
+        verify(synchronizationTaskMock).run(RIC_1);
         verifyNoMoreInteractions(supervisorUnderTest);
     }
 
     @Test
-    public void whenRicIdleAndSameAmountOfPolicyTypesButNotSameTypes_thenRecovery() {
+    public void whenRicIdleAndSameAmountOfPolicyTypesButNotSameTypes_thenSynchronization() {
         PolicyType policyType2 = ImmutablePolicyType.builder() //
             .name("policyType2") //
             .schema("") //
@@ -286,13 +286,13 @@ public class RicSupervisionTest {
 
         RicSupervision supervisorUnderTest = spy(new RicSupervision(rics, policies, a1ClientFactory, types, null));
 
-        doReturn(recoveryTaskMock).when(supervisorUnderTest).createSynchronizationTask();
+        doReturn(synchronizationTaskMock).when(supervisorUnderTest).createSynchronizationTask();
 
         supervisorUnderTest.checkAllRics();
 
         verify(supervisorUnderTest).checkAllRics();
         verify(supervisorUnderTest).createSynchronizationTask();
-        verify(recoveryTaskMock).run(RIC_1);
+        verify(synchronizationTaskMock).run(RIC_1);
         verifyNoMoreInteractions(supervisorUnderTest);
     }
 
