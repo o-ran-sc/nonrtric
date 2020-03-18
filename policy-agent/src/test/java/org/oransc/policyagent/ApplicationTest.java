@@ -497,6 +497,24 @@ public class ApplicationTest {
     }
 
     @Test
+    public void testGetPolicyIdsFilter() throws Exception {
+        addPolicy("id1", "type1", "service1", "ric1");
+        addPolicy("id2", "type1", "service2", "ric1");
+        addPolicy("id3", "type2", "service1", "ric1");
+
+        String url = "/policy_ids?type=type1";
+        String rsp = restClient().get(url).block();
+        logger.info(rsp);
+        assertThat(rsp).contains("id1");
+        assertThat(rsp).contains("id2");
+        assertThat(rsp.contains("id3")).isFalse();
+
+        url = "/policy_ids?type=type1&service=service1&ric=ric1";
+        rsp = restClient().get(url).block();
+        assertThat(rsp).isEqualTo("[\"id1\"]");
+    }
+
+    @Test
     public void testPutAndGetService() throws Exception {
         // PUT
         putService("name", 0);
