@@ -34,6 +34,24 @@
       "revId": "be2000ec2d21151b42cb559ef881695eb32e35e9",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19efac21_f9292dec",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/onap/sdnc/northbound/provider/NonrtRicApiProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-03-18T08:03:59Z",
+      "side": 0,
+      "message": "Can we have this instead:\nlog.info(\"Start of getPolicyType; Policy Type Id : {} \", input.getPolicyTypeId());\n\nThat will help to debug which method was called in the controller.\n\nThe same can be done for getPolicyStatus as well.",
+      "parentUuid": "011a7031_06b62232",
+      "revId": "be2000ec2d21151b42cb559ef881695eb32e35e9",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
