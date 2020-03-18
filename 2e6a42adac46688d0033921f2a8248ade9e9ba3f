@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "633c765d_0a13b8e2",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RicSynchronizationTask.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-18T09:41:04Z",
+      "side": 1,
+      "message": "onSynchronizationError ?",
+      "range": {
+        "startLine": 144,
+        "startChar": 17,
+        "endLine": 144,
+        "endChar": 32
+      },
+      "revId": "2e6a42adac46688d0033921f2a8248ade9e9ba3f",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
