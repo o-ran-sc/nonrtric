@@ -95,11 +95,11 @@ public class RicSynchronizationTask {
     }
 
     private Flux<Object> startSynchronization(Ric ric, A1Client a1Client) {
-        Flux<PolicyType> recoverTypes = synchronizePolicyTypes(ric, a1Client);
+        Flux<PolicyType> synchronizedTypes = synchronizePolicyTypes(ric, a1Client);
         Flux<?> policiesDeletedInRic = a1Client.deleteAllPolicies();
         Flux<?> policiesRecreatedInRic = recreateAllPoliciesInRic(ric, a1Client);
 
-        return Flux.concat(recoverTypes, policiesDeletedInRic, policiesRecreatedInRic);
+        return Flux.concat(synchronizedTypes, policiesDeletedInRic, policiesRecreatedInRic);
     }
 
     private void onSynchronizationComplete(Ric ric) {
@@ -129,14 +129,14 @@ public class RicSynchronizationTask {
         // If synchronization fails, try to remove all instances
         deleteAllPoliciesInRepository(ric);
 
-        Flux<PolicyType> recoverTypes = this.a1ClientFactory.createA1Client(ric) //
+        Flux<PolicyType> synchronizedTypes = this.a1ClientFactory.createA1Client(ric) //
             .flatMapMany(a1Client -> synchronizePolicyTypes(ric, a1Client));
         Flux<?> deletePoliciesInRic = this.a1ClientFactory.createA1Client(ric) //
             .flatMapMany(A1Client::deleteAllPolicies) //
             .doOnComplete(() -> deleteAllPoliciesInRepository(ric));
 
-        Flux.concat(recoverTypes, deletePoliciesInRic) //
-            .subscribe(x -> logger.debug("Brute recover: {}", x), //
+        Flux.concat(synchronizedTypes, deletePoliciesInRic) //
+            .subscribe(x -> logger.debug("Brute recovery of failed synchronization: {}", x), //
                 throwable -> onRecoveryError(ric, throwable), //
                 () -> onSynchronizationComplete(ric));
     }

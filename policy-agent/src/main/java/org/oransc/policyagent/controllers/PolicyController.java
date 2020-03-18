@@ -182,7 +182,7 @@ public class PolicyController {
             policy = policies.getPolicy(id);
             keepServiceAlive(policy.ownerServiceName());
             if (policy.ric().getState() != Ric.RicState.IDLE) {
-                return Mono.just(new ResponseEntity<>("Busy, recovering", HttpStatus.LOCKED));
+                return Mono.just(new ResponseEntity<>("Busy, synchronizing", HttpStatus.LOCKED));
             }
             Ric ric = policy.ric();
             return ric.getLock().lock(LockType.SHARED) // //
@@ -242,7 +242,7 @@ public class PolicyController {
         }
 
         return ric == null || type == null ? Mono.just(new ResponseEntity<>(HttpStatus.NOT_FOUND))
-            : Mono.just(new ResponseEntity<>(HttpStatus.LOCKED)); // Recovering
+            : Mono.just(new ResponseEntity<>(HttpStatus.LOCKED)); // Synchronizing
     }
 
     @SuppressWarnings({"unchecked"})
