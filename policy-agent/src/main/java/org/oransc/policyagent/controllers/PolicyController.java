@@ -293,27 +293,30 @@ public class PolicyController {
             return new ResponseEntity<>("RIC not found", HttpStatus.NOT_FOUND);
         }
         synchronized (policies) {
-            Collection<Policy> result = null;
+            String filteredPolicies = policiesToJson(filter(type, ric, service));
+            return new ResponseEntity<>(filteredPolicies, HttpStatus.OK);
+        }
+    }
 
-            if (type != null) {
-                result = policies.getForType(type);
-                result = filter(result, null, ric, service);
-            } else if (service != null) {
-                result = policies.getForService(service);
-                result = filter(result, type, ric, null);
-            } else if (ric != null) {
-                result = filter(policies.getForRic(ric), type, null, service);
-            } else {
-                result = policies.getAll();
-            }
-
-            String policiesJson;
-            try {
-                policiesJson = policiesToJson(result);
-            } catch (ServiceException e) {
-                return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-            return new ResponseEntity<>(policiesJson, HttpStatus.OK);
+    @GetMapping("/policy_ids")
+    @ApiOperation(value = "Query policies, only IDs returned")
+    @ApiResponses(
+        value = {@ApiResponse(code = 200, message = "Policy ids", response = String.class, responseContainer = "List"),
+            @ApiResponse(code = 404, message = "RIC or type not found", response = String.class)})
+    public ResponseEntity<String> getPolicyIds( //
+        @RequestParam(name = "type", required = false) String type, //
+        @RequestParam(name = "ric", required = false) String ric, //
+        @RequestParam(name = "service", required = false) String service) //
+    {
+        if ((type != null && this.policyTypes.get(type) == null)) {
+            return new ResponseEntity<>("Policy type not found", HttpStatus.NOT_FOUND);
+        }
+        if ((ric != null && this.rics.get(ric) == null)) {
+            return new ResponseEntity<>("RIC not found", HttpStatus.NOT_FOUND);
+        }
+        synchronized (policies) {
+            String policyIdsJson = toPolicyIdsJson(filter(type, ric, service));
+            return new ResponseEntity<>(policyIdsJson, HttpStatus.OK);
         }
     }
 
@@ -363,7 +366,26 @@ public class PolicyController {
         return filtered;
     }
 
-    private String policiesToJson(Collection<Policy> policies) throws ServiceException {
+    private Collection<Policy> filter(String type, String ric, String service) {
+        synchronized (policies) {
+            Collection<Policy> result = null;
+
+            if (type != null) {
+                result = policies.getForType(type);
+                result = filter(result, null, ric, service);
+            } else if (service != null) {
+                result = policies.getForService(service);
+                result = filter(result, type, ric, null);
+            } else if (ric != null) {
+                result = filter(policies.getForRic(ric), type, null, service);
+            } else {
+                result = policies.getAll();
+            }
+            return result;
+        }
+    }
+
+    private String policiesToJson(Collection<Policy> policies) {
         List<PolicyInfo> v = new ArrayList<>(policies.size());
         for (Policy p : policies) {
             PolicyInfo policyInfo = new PolicyInfo();
@@ -374,7 +396,7 @@ public class PolicyController {
             policyInfo.service = p.ownerServiceName();
             policyInfo.lastModified = p.lastModified();
             if (!policyInfo.validate()) {
-                throw new ServiceException("BUG, all fields must be set");
+                throw new NullPointerException("BUG, all fields must be set");
             }
             v.add(policyInfo);
         }
@@ -404,6 +426,14 @@ public class PolicyController {
         List<String> v = new ArrayList<>(types.size());
         for (PolicyType t : types) {
             v.add(t.name());
+        }
+        return gson.toJson(v);
+    }
+
+    private String toPolicyIdsJson(Collection<Policy> policies) {
+        List<String> v = new ArrayList<>(policies.size());
+        for (Policy p : policies) {
+            v.add(p.id());
         }
         return gson.toJson(v);
     }
