@@ -16,6 +16,24 @@
       "revId": "be2000ec2d21151b42cb559ef881695eb32e35e9",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "011a7031_06b62232",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/onap/sdnc/northbound/provider/NonrtRicApiProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-18T07:09:25Z",
+      "side": 0,
+      "message": "In this case there was two log after each others (which must be one to much).\nBut I agree that it should not be debug and not info. I do not know if it is possible to start debug logging in the controller.\nWe do not need to change this in this commit (which aims to just add support for GET policy status).",
+      "parentUuid": "8e89ac6c_92f07e8a",
+      "revId": "be2000ec2d21151b42cb559ef881695eb32e35e9",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }

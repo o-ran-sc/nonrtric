@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "0f0f5f43_7f1d8859",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdncOscA1Client.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-18T07:09:25Z",
+      "side": 1,
+      "message": "That is a copy-paste bug, thanks. Will fix.",
+      "parentUuid": "cb8301dd_7cd07699",
+      "revId": "da54e47d40e8f1e88276d883f9c8ab3f351ff15e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f8552ce6_3b9dd014",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdncOscA1Client.java",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "008412f8_7d255802",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/SdncOscA1Client.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-18T07:09:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f8552ce6_3b9dd014",
+      "revId": "da54e47d40e8f1e88276d883f9c8ab3f351ff15e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f1936b08_aabbcc01",
         "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/onap/sdnc/northbound/restadapter/NearRicUrlProvider.java",
         "patchSetId": 1
@@ -47,6 +83,30 @@
       "writtenOn": "2020-03-17T16:10:36Z",
       "side": 1,
       "message": "Better to use pathSegment(policyId).queryParameter(\"policyTypeId\", policyTypeId) instead",
+      "range": {
+        "startLine": 87,
+        "startChar": 9,
+        "endLine": 87,
+        "endChar": 63
+      },
+      "revId": "da54e47d40e8f1e88276d883f9c8ab3f351ff15e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0874b9f9_09206d4a",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/onap/sdnc/northbound/restadapter/NearRicUrlProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-18T07:09:25Z",
+      "side": 1,
+      "message": "I have not changed this code and I feel that it is pretty pointless to polish details in it. \nBut this function is overcomplicated as I see it. \nFirst it build one url string, which is then parsed again etc. \n\nThis: \nreturn UriComponentsBuilder.fromUriString(policiesUrl(nearRtRicUrl))\n        .pathSegment(policyId + \"?policyTypeId\u003d\" + policyTypeId).build().toString();\n\ncan be replaced by:\n\nreturn policiesUrl(nearRtRicUrl)) + \"/\" + policyId + \"?policyTypeId\u003d\" + policyTypeId;\n\nwhich is both simpler, more readable and more efficient.",
+      "parentUuid": "f1936b08_aabbcc01",
       "range": {
         "startLine": 87,
         "startChar": 9,
@@ -79,6 +139,30 @@
       "revId": "da54e47d40e8f1e88276d883f9c8ab3f351ff15e",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a0827c5_012175b8",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/onap/sdnc/northbound/restadapter/NearRicUrlProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-18T07:09:25Z",
+      "side": 1,
+      "message": "Why make it more complicated and less readable than needed?\n\nreturn policiesUrl(nearRtRicUrl) + \"/\" + policyId + \"/status\";\n\nversus \n\nUriComponentsBuilder.fromUriString(policiesUrl(nearRtRicUrl)).pathSegment(ploicyId).pathSegment(\"status\").build().toString()",
+      "parentUuid": "3913c5dd_cb1e05d9",
+      "range": {
+        "startLine": 102,
+        "startChar": 11,
+        "endLine": 102,
+        "endChar": 65
+      },
+      "revId": "da54e47d40e8f1e88276d883f9c8ab3f351ff15e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
