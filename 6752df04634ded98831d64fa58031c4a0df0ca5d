@@ -93,6 +93,30 @@
       "revId": "6752df04634ded98831d64fa58031c4a0df0ca5d",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0680ef26_9f4a2512",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-19T15:45:39Z",
+      "side": 1,
+      "message": "I am sure 😎",
+      "parentUuid": "ac47af62_85cf9c2f",
+      "range": {
+        "startLine": 428,
+        "startChar": 20,
+        "endLine": 428,
+        "endChar": 25
+      },
+      "revId": "6752df04634ded98831d64fa58031c4a0df0ca5d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
