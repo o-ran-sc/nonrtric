@@ -2,7 +2,9 @@ spring:
   profiles:
     active: prod
   main:
-    allow-bean-definition-overriding: true 
+    allow-bean-definition-overriding: true
+  aop:
+    auto: false
 management:
   endpoints:
     web:
