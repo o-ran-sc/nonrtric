@@ -15,16 +15,14 @@
 #  ============LICENSE_END=================================================
 #
 
-#server = true
-#bootstrap = true
-#client_addr = "0.0.0.0"
+FROM python:3.8-slim-buster
 
-service  {
-  # Name for CBS in consul, env var CONFIG_BINDING_SERVICE
-  # should be passed to Policy Agent app with this value
-  Name = "config-binding-service"
-  # Host name where CBS is running
-  Address = "config-binding-service"
-  # Port number where CBS is running
-  Port = 10000
-}
+WORKDIR /usr/src/app
+
+COPY requirements.txt requirements.txt
+
+RUN pip install -r requirements.txt
+
+COPY cr.py cr.py
+
+CMD [ "python3", "-u", "./cr.py" ]

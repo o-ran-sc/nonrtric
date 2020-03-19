@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 #  ============LICENSE_START===============================================
 #  Copyright (C) 2020 Nordix Foundation. All rights reserved.
 #  ========================================================================
@@ -15,16 +17,8 @@
 #  ============LICENSE_END=================================================
 #
 
-#server = true
-#bootstrap = true
-#client_addr = "0.0.0.0"
+#Setup trace on
 
-service  {
-  # Name for CBS in consul, env var CONFIG_BINDING_SERVICE
-  # should be passed to Policy Agent app with this value
-  Name = "config-binding-service"
-  # Host name where CBS is running
-  Address = "config-binding-service"
-  # Port number where CBS is running
-  Port = 10000
-}
+curl http://localhost:8081/actuator/loggers/org.oransc.policyagent.clients.AsyncRestClient -X POST  -H 'Content-Type: application/json' -d '{"configuredLevel":"debug"}'
+
+docker logs -f policy-agent-container

@@ -18,12 +18,12 @@ version: '2.1'
 networks:
   default:
     driver: bridge
-    name: nonrtric-docker-net
+    name: ${DOCKER_SIM_NWNAME}
 
 services:
   db:
-    image: mysql/mysql-server:5.6
-    container_name: sdnc_db_container
+    image: ${SDNC_DB_IMAGE}
+    container_name: ${SDNC_DB_APP_NAME}
     networks:
       - default
     ports:
@@ -38,15 +38,15 @@ services:
         max-file: "5"
 
   a1-controller:
-    image: nexus3.o-ran-sc.org:10002/o-ran-sc/nonrtric-a1-controller:1.7.4
+    image: ${SDNC_A1_CONTROLLER_IMAGE}
     depends_on :
       - db
-    container_name: a1-controller-container
+    container_name: ${SDNC_APP_NAME}
     networks:
       - default
     entrypoint: ["/opt/onap/sdnc/bin/startODL.sh"]
     ports:
-      - "8282:8181"
+      - ${SDNC_EXTERNAL_PORT}:${SDNC_INTERNAL_PORT}
     links:
       - db:dbhost
       - db:sdnctldb01

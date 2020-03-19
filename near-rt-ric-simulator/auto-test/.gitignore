@@ -1,2 +1,10 @@
 logs
 .tmp_*
+.http*
+.p.json
+.tmp.json
+.docker-images-table
+.image-list
+.tmp.curl.json
+.consul*
+.ext.consul*

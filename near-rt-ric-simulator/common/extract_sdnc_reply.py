@@ -15,16 +15,27 @@
 #  ============LICENSE_END=================================================
 #
 
-#server = true
-#bootstrap = true
-#client_addr = "0.0.0.0"
+import os
+import json
+import sys
 
-service  {
-  # Name for CBS in consul, env var CONFIG_BINDING_SERVICE
-  # should be passed to Policy Agent app with this value
-  Name = "config-binding-service"
-  # Host name where CBS is running
-  Address = "config-binding-service"
-  # Port number where CBS is running
-  Port = 10000
-}
+# Extract the response code and optional response message body from and SDNC A1 Controller API reply
+
+try:
+    with open(sys.argv[1]) as json_file:
+        reply = json.load(json_file)
+
+        output=reply['output']
+        status=str(output['http-status'])
+        while(len(status) < 3):
+            status="0"+status
+        resp=status
+        if ( 'body' in output.keys()):
+            body=str(output['body'])
+            bodyJson=json.loads(body)
+            resp=str(json.dumps(bodyJson))+str(status)
+        print(resp)
+
+except Exception as e:
+    print("000")
+sys.exit()

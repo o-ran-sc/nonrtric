@@ -15,16 +15,21 @@
 #  ============LICENSE_END=================================================
 #
 
-#server = true
-#bootstrap = true
-#client_addr = "0.0.0.0"
+import os
+import json
+import sys
 
-service  {
-  # Name for CBS in consul, env var CONFIG_BINDING_SERVICE
-  # should be passed to Policy Agent app with this value
-  Name = "config-binding-service"
-  # Host name where CBS is running
-  Address = "config-binding-service"
-  # Port number where CBS is running
-  Port = 10000
-}
+# Print the length of json array, -1 will be printed in any problem is encountered
+
+try:
+    with open(sys.argv[1]) as json_file:
+        jsonarray = json.load(json_file)
+
+        if isinstance(jsonarray, list):
+            print(len(jsonarray))
+        else:
+            print(-1)
+
+except Exception as e:
+    print(-1)
+sys.exit()
