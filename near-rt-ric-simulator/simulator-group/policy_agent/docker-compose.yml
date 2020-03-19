@@ -1,4 +1,3 @@
-#  ============LICENSE_START===============================================
 #  Copyright (C) 2020 Nordix Foundation. All rights reserved.
 #  ========================================================================
 #  Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,17 +13,23 @@
 #  limitations under the License.
 #  ============LICENSE_END=================================================
 #
+version: '3.0'
+networks:
+  default:
+    external:
+      name: ${DOCKER_SIM_NWNAME}
+services:
+  policy-agent:
+    image: ${POLICY_AGENT_IMAGE}
+    container_name: ${POLICY_AGENT_APP_NAME}
+    networks:
+      - default
+    ports:
+    - ${POLICY_AGENT_EXTERNAL_PORT}:${POLICY_AGENT_INTERNAL_PORT}
+    environment:
+      - CONSUL_HOST=${CONSUL_HOST}
+      - CONSUL_PORT=${CONSUL_INTERNAL_PORT}
+      - CONFIG_BINDING_SERVICE=${CONFIG_BINDING_SERVICE}
+      - HOSTNAME=${POLICY_AGENT_APP_NAME}
 
-#server = true
-#bootstrap = true
-#client_addr = "0.0.0.0"
 
-service  {
-  # Name for CBS in consul, env var CONFIG_BINDING_SERVICE
-  # should be passed to Policy Agent app with this value
-  Name = "config-binding-service"
-  # Host name where CBS is running
-  Address = "config-binding-service"
-  # Port number where CBS is running
-  Port = 10000
-}

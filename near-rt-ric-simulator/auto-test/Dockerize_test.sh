@@ -16,7 +16,7 @@ start_simulators
 
 consul_config_app         "../simulator-group/consul_cbs/config.json"
 
-start_dashboard
+start_control_panel
 
 start_sdnc
 

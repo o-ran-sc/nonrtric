@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OSC_Type2_1.0.0",
+  "description": "Type 2 policy type",
+  "type": "object",
+  "properties": {
+    "scope": {
+      "type": "object",
+      "properties": {
+        "sliceId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "sliceId"
+      ]
+    },
+    "qoeObjectives": {
+      "type": "object",
+      "properties": {
+        "qoeScore": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "qoeScore"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "scope", "qoeObjectives"
+  ]
+}
