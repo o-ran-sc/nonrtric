@@ -105,15 +105,17 @@ public class ServiceController {
     @ApiOperation(value = "Register a service")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "OK", response = String.class),
+            @ApiResponse(code = 200, message = "Service updated", response = String.class),
+            @ApiResponse(code = 201, message = "Service created", response = String.class), //
             @ApiResponse(code = 400, message = "Cannot parse the ServiceRegistrationInfo", response = String.class)})
     @PutMapping("/service")
     public ResponseEntity<String> putService(//
         @RequestBody ServiceRegistrationInfo registrationInfo) {
         try {
             validateRegistrationInfo(registrationInfo);
+            final boolean isCreate = this.services.get(registrationInfo.serviceName) == null;
             this.services.put(toService(registrationInfo));
-            return new ResponseEntity<>("OK", HttpStatus.OK);
+            return new ResponseEntity<>("OK", isCreate ? HttpStatus.CREATED : HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
