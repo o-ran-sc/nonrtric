@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "34200d71_5b5a3602",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-19T07:53:39Z",
+      "side": 1,
+      "message": "The second example was wrong. \n\n/policy?instance\u003dINST\u0026type\u003d\u0026ric\u003dRIC\u0026service\u003dSERVICE",
+      "parentUuid": "bd0ab00d_f75d528d",
+      "range": {
+        "startLine": 428,
+        "startChar": 20,
+        "endLine": 428,
+        "endChar": 25
+      },
+      "revId": "2753ad5396f2a037887503c550648902e66e86a3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b11dc471_bc802f88",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/PolicyController.java",
         "patchSetId": 3
