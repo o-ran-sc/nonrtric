@@ -156,12 +156,12 @@ public class DmaapMessageHandler {
         HttpStatus status) {
         DmaapResponseMessage dmaapResponseMessage = ImmutableDmaapResponseMessage.builder() //
             .status(status.toString()) //
-            .message(response) //
+            .message(response == null ? "" : response) //
             .type("response") //
-            .correlationId(dmaapRequestMessage.correlationId()) //
-            .originatorId(dmaapRequestMessage.originatorId()) //
-            .requestId(dmaapRequestMessage.requestId()) //
-            .timestamp(dmaapRequestMessage.timestamp()) //
+            .correlationId(dmaapRequestMessage.correlationId() == null ? "" : dmaapRequestMessage.correlationId()) //
+            .originatorId(dmaapRequestMessage.originatorId() == null ? "" : dmaapRequestMessage.originatorId()) //
+            .requestId(dmaapRequestMessage.requestId() == null ? "" : dmaapRequestMessage.requestId()) //
+            .timestamp(dmaapRequestMessage.timestamp() == null ? "" : dmaapRequestMessage.timestamp()) //
             .build();
         String str = gson.toJson(dmaapResponseMessage);
         return Mono.just(str);
