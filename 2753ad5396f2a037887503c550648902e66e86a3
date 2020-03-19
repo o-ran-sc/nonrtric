@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "253eaad7_fc092c87",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-19T07:30:05Z",
+      "side": 1,
+      "message": "Yes. I wanted to regenerate the file since there is a new REST primitive.",
+      "parentUuid": "31bc4655_8ed34a22",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 2
+      },
+      "revId": "2753ad5396f2a037887503c550648902e66e86a3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "34127e17_179981b3",
         "filename": "policy-agent/docs/api.yaml",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "bd0ab00d_f75d528d",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-19T07:30:05Z",
+      "side": 1,
+      "message": "I think making it it optional is a slight usability improvement.\nYou can then specify the URL like this (example): \n\n/policy?instance\u003dINST\u0026ric\u003dRIC\u0026service\u003dSERVICE\n\nOtherwise you would have to use this syntax (which now is equivalent):\n/policy?instance\u003dtype\u003d\u0026INST\u0026ric\u003dRIC\u0026service\u003dSERVICE\n\nThe latter syntax looks a bit strange less intuitive. \n\nI see no future problems with future backwards incompatibilities doe to this.",
+      "parentUuid": "34127e17_179981b3",
+      "range": {
+        "startLine": 428,
+        "startChar": 20,
+        "endLine": 428,
+        "endChar": 25
+      },
+      "revId": "2753ad5396f2a037887503c550648902e66e86a3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b11dc471_bc802f88",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/PolicyController.java",
         "patchSetId": 3
@@ -59,6 +107,30 @@
       "writtenOn": "2020-03-18T18:31:12Z",
       "side": 1,
       "message": "see comment above",
+      "range": {
+        "startLine": 211,
+        "startChar": 45,
+        "endLine": 211,
+        "endChar": 52
+      },
+      "revId": "2753ad5396f2a037887503c550648902e66e86a3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bc152a55_a74ddda2",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/PolicyController.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-03-19T07:30:05Z",
+      "side": 1,
+      "message": "see answer above :)",
+      "parentUuid": "b11dc471_bc802f88",
       "range": {
         "startLine": 211,
         "startChar": 45,
