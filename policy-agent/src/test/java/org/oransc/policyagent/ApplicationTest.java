@@ -22,6 +22,7 @@ package org.oransc.policyagent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -86,6 +87,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.annotation.Nullable;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -525,7 +527,8 @@ public class ApplicationTest {
     @Test
     public void testPutAndGetService() throws Exception {
         // PUT
-        putService("name", 0);
+        putService("name", 0, HttpStatus.CREATED);
+        putService("name", 0, HttpStatus.OK);
 
         // GET one service
         String url = "/services?name=name";
@@ -566,7 +569,7 @@ public class ApplicationTest {
 
     @Test
     public void testServiceSupervision() throws Exception {
-        putService("service1", 1);
+        putService("service1", 1, HttpStatus.CREATED);
         addPolicyType("type1", "ric1");
 
         String url = putPolicyUrl("service1", "ric1", "type1", "instance1");
@@ -619,13 +622,16 @@ public class ApplicationTest {
     }
 
     private void putService(String name) {
-        putService(name, 0);
+        putService(name, 0, null);
     }
 
-    private void putService(String name, long keepAliveIntervalSeconds) {
+    private void putService(String name, long keepAliveIntervalSeconds, @Nullable HttpStatus expectedStatus) {
         String url = "/service";
         String body = createServiceJson(name, keepAliveIntervalSeconds);
-        restClient().put(url, body).block();
+        ResponseEntity<String> resp = restClient().putForEntity(url, body).block();
+        if (expectedStatus != null) {
+            assertEquals(expectedStatus, resp.getStatusCode(), "");
+        }
     }
 
     private String baseUrl() {
