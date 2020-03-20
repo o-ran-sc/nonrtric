@@ -910,7 +910,7 @@ definitions:
     properties:
       callbackUrl:
         type: string
-        description: callback for notifying of RIC recovery
+        description: callback for notifying of RIC synchronization
       keepAliveIntervalSeconds:
         type: integer
         format: int64
@@ -924,7 +924,7 @@ definitions:
     properties:
       callbackUrl:
         type: string
-        description: callback for notifying of RIC recovery
+        description: callback for notifying of RIC synchronization
       keepAliveIntervalSeconds:
         type: integer
         format: int64
@@ -937,4 +937,3 @@ definitions:
         format: int64
         description: time since last invocation by the service
     title: ServiceStatus
-

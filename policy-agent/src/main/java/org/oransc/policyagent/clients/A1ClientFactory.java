@@ -94,7 +94,7 @@ public class A1ClientFactory {
                 .onErrorResume(notUsed -> fetchVersion(createClient(ric, A1ProtocolType.SDNC_OSC))) //
                 .onErrorResume(notUsed -> fetchVersion(createClient(ric, A1ProtocolType.SDNC_ONAP))) //
                 .doOnNext(ric::setProtocolVersion)
-                .doOnNext(version -> logger.debug("Recover ric: {}, protocol version:{}", ric.name(), version)) //
+                .doOnNext(version -> logger.debug("Established protocol version:{} for Ric: {}", version, ric.name())) //
                 .doOnError(notUsed -> logger.warn("Could not get protocol version from RIC: {}", ric.name())); //
         } else {
             return Mono.just(ric.getProtocolVersion());
