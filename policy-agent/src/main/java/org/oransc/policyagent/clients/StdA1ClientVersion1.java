@@ -80,7 +80,7 @@ public class StdA1ClientVersion1 implements A1Client {
 
     @Override
     public Mono<A1ProtocolType> getProtocolVersion() {
-        return getPolicyTypeIdentities() //
+        return getPolicyIdentities() //
             .flatMap(x -> Mono.just(A1ProtocolType.STD_V1_1));
     }
 
