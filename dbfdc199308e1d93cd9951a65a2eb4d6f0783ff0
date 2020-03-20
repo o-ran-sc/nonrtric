@@ -22,6 +22,30 @@
       "revId": "dbfdc199308e1d93cd9951a65a2eb4d6f0783ff0",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15b4cc74_1e97f004",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/aspect/LogAspect.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1000112
+      },
+      "writtenOn": "2020-03-20T13:08:50Z",
+      "side": 1,
+      "message": "Thanks! Fixed",
+      "parentUuid": "3f9bf9fe_64e9c377",
+      "range": {
+        "startLine": 5,
+        "startChar": 17,
+        "endLine": 5,
+        "endChar": 22
+      },
+      "revId": "dbfdc199308e1d93cd9951a65a2eb4d6f0783ff0",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
