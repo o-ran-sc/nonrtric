@@ -20,19 +20,17 @@
 
 package org.oransc.policyagent.clients;
 
-import java.util.Optional;
+import org.oransc.policyagent.repository.Policy;
 
-import org.immutables.gson.Gson;
-import org.immutables.value.Value;
+/**
+ * Builder for A1 influenced REST APIs
+ */
+interface A1UriBuilder {
+    String createPutPolicyUri(Policy policy);
 
-@Value.Immutable
-@Gson.TypeAdapters
-interface SdncOscAdapterInput {
-    public String nearRtRicUrl();
+    String createGetPolicyIdsUri();
 
-    public Optional<String> policyTypeId();
+    String createDeleteUri(String policyId);
 
-    public Optional<String> policyId();
-
-    public Optional<String> policy();
+    String createGetPolicyStatusUri(String policyId);
 }
