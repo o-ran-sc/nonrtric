@@ -34,13 +34,12 @@ import org.json.JSONObject;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public class JsonHelper {
+class JsonHelper {
     private static Gson gson = new GsonBuilder() //
         .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DASHES) //
         .create();
 
     private JsonHelper() {
-
     }
 
     public static Flux<String> parseJsonArrayOfString(String inputString) {

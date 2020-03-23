@@ -26,18 +26,21 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.gson.Gson;
+
 import java.util.Arrays;
 import java.util.List;
 
-import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.OngoingStubbing;
+import org.oransc.policyagent.clients.SdncOscA1Client.AdapterRequest;
+import org.oransc.policyagent.clients.SdncOscA1Client.AdapterResponse;
 import org.oransc.policyagent.repository.Policy;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -46,9 +49,9 @@ public class SdncOscA1ClientTest {
     private static final String CONTROLLER_USERNAME = "username";
     private static final String CONTROLLER_PASSWORD = "password";
     private static final String RIC_1_URL = "RicUrl";
-    private static final String POLICY_IDENTITIES_URL = "/A1-ADAPTER-API:getPolicyIdentities";
-    private static final String PUT_POLICY_URL = "/A1-ADAPTER-API:putPolicy";
-    private static final String DELETE_POLICY_URL = "/A1-ADAPTER-API:deletePolicy";
+    private static final String GET_A1_URL = "/A1-ADAPTER-API:getA1";
+    private static final String PUT_A1_URL = "/A1-ADAPTER-API:putA1";
+    private static final String DELETE_A1_URL = "/A1-ADAPTER-API:deleteA1";
     private static final String POLICY_TYPE_1_ID = "type1";
     private static final String POLICY_1_ID = "policy1";
     private static final String POLICY_2_ID = "policy2";
@@ -73,22 +76,35 @@ public class SdncOscA1ClientTest {
         assertEquals("", policyTypeIds.get(0), "should hardcoded to empty");
     }
 
+    private String policiesUrl() {
+        return RIC_1_URL + "/A1-P/v1/policies";
+    }
+
+    private Gson gson() {
+        return SdncOscA1Client.gson;
+    }
+
     @Test
     public void testGetPolicyIdentities() {
-        SdncOscAdapterInput inputParams = ImmutableSdncOscAdapterInput.builder() //
-            .nearRtRicUrl(RIC_1_URL) //
-            .build();
-        String inputJsonString = A1ClientHelper.createInputJsonString(inputParams);
 
         List<String> policyIds = Arrays.asList(POLICY_1_ID, POLICY_2_ID);
-        Mono<String> policyIdsResp = A1ClientHelper.createOutputJsonResponse("policy-id-list", policyIds.toString());
-        whenAsyncPostThenReturn(policyIdsResp);
+        AdapterResponse output = ImmutableAdapterResponse.builder() //
+            .body(gson().toJson(policyIds)) //
+            .httpStatus(200) //
+            .build();
 
-        Mono<List<String>> returnedMono = clientUnderTest.getPolicyIdentities();
+        String policyIdsResp = gson().toJson(output);
+        whenAsyncPostThenReturn(Mono.just(policyIdsResp));
 
-        verify(asyncRestClientMock).postWithAuthHeader(POLICY_IDENTITIES_URL, inputJsonString, CONTROLLER_USERNAME,
-            CONTROLLER_PASSWORD);
-        StepVerifier.create(returnedMono).expectNext(policyIds).expectComplete().verify();
+        List<String> returned = clientUnderTest.getPolicyIdentities().block();
+        assertEquals(2, returned.size(), "");
+
+        AdapterRequest expectedParams = ImmutableAdapterRequest.builder() //
+            .nearRtRicUrl(policiesUrl()) //
+            .build();
+        String expInput = A1ClientHelper.createInputJsonString(expectedParams);
+        verify(asyncRestClientMock).postWithAuthHeader(GET_A1_URL, expInput, CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
+
     }
 
     @Test
@@ -99,117 +115,93 @@ public class SdncOscA1ClientTest {
 
     @Test
     public void testPutPolicyValidResponse() {
-        SdncOscAdapterInput inputParams = ImmutableSdncOscAdapterInput.builder() //
-            .nearRtRicUrl(RIC_1_URL) //
-            .policyTypeId(POLICY_TYPE_1_ID) //
-            .policyId(POLICY_1_ID) //
-            .policy(POLICY_JSON_VALID) //
+        whenPostReturnOkResponse();
+
+        String returned = clientUnderTest
+            .putPolicy(A1ClientHelper.createPolicy(RIC_1_URL, POLICY_1_ID, POLICY_JSON_VALID, POLICY_TYPE_1_ID))
+            .block();
+        assertEquals("OK", returned, "");
+        final String expUrl = policiesUrl() + "/" + POLICY_1_ID;
+        AdapterRequest expectedInputParams = ImmutableAdapterRequest.builder() //
+            .nearRtRicUrl(expUrl) //
+            .body(POLICY_JSON_VALID) //
             .build();
-        String inputJsonString = A1ClientHelper.createInputJsonString(inputParams);
+        String expInput = A1ClientHelper.createInputJsonString(expectedInputParams);
 
-        Mono<String> policyResp = A1ClientHelper.createOutputJsonResponse("returned-policy", POLICY_JSON_VALID);
-        whenAsyncPostThenReturn(policyResp);
-
-        Mono<String> returnedMono = clientUnderTest
-            .putPolicy(A1ClientHelper.createPolicy(RIC_1_URL, POLICY_1_ID, POLICY_JSON_VALID, POLICY_TYPE_1_ID));
-
-        verify(asyncRestClientMock).postWithAuthHeader(PUT_POLICY_URL, inputJsonString, CONTROLLER_USERNAME,
-            CONTROLLER_PASSWORD);
-        StepVerifier.create(returnedMono).expectNext(POLICY_JSON_VALID).expectComplete().verify();
+        verify(asyncRestClientMock).postWithAuthHeader(PUT_A1_URL, expInput, CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
     }
 
     @Test
-    public void testPutPolicyInvalidResponse() {
-        SdncOscAdapterInput inputParams = ImmutableSdncOscAdapterInput.builder() //
-            .nearRtRicUrl(RIC_1_URL) //
-            .policyTypeId(POLICY_TYPE_1_ID) //
-            .policyId(POLICY_1_ID) //
-            .policy(POLICY_JSON_VALID) //
+    public void testPutPolicyRejected() {
+        final String policyJson = "{}";
+        AdapterResponse adapterResponse = ImmutableAdapterResponse.builder() //
+            .body("NOK") //
+            .httpStatus(400) // ERROR
             .build();
-        String inputJsonString = A1ClientHelper.createInputJsonString(inputParams);
 
-        Mono<String> policyResp = A1ClientHelper.createOutputJsonResponse("returned-policy", POLICY_JSON_INVALID);
-        whenAsyncPostThenReturn(policyResp);
+        String resp = gson().toJson(adapterResponse);
+        whenAsyncPostThenReturn(Mono.just(resp));
 
         Mono<String> returnedMono = clientUnderTest
-            .putPolicy(A1ClientHelper.createPolicy(RIC_1_URL, POLICY_1_ID, POLICY_JSON_VALID, POLICY_TYPE_1_ID));
+            .putPolicy(A1ClientHelper.createPolicy(RIC_1_URL, POLICY_1_ID, policyJson, POLICY_TYPE_1_ID));
 
-        verify(asyncRestClientMock).postWithAuthHeader(PUT_POLICY_URL, inputJsonString, CONTROLLER_USERNAME,
+        final String expUrl = policiesUrl() + "/" + POLICY_1_ID;
+        AdapterRequest expRequestParams = ImmutableAdapterRequest.builder() //
+            .nearRtRicUrl(expUrl) //
+            .body(policyJson) //
+            .build();
+        String expRequest = A1ClientHelper.createInputJsonString(expRequestParams);
+        verify(asyncRestClientMock).postWithAuthHeader(PUT_A1_URL, expRequest, CONTROLLER_USERNAME,
             CONTROLLER_PASSWORD);
-        StepVerifier.create(returnedMono).expectErrorMatches(throwable -> throwable instanceof JSONException).verify();
+        StepVerifier.create(returnedMono)
+            .expectErrorMatches(throwable -> throwable instanceof WebClientResponseException).verify();
     }
 
     @Test
     public void testDeletePolicy() {
-        SdncOscAdapterInput inputParams = ImmutableSdncOscAdapterInput.builder() //
-            .nearRtRicUrl(RIC_1_URL) //
-            .policyId(POLICY_1_ID) //
+        whenPostReturnOkResponse();
+
+        String returned = clientUnderTest
+            .putPolicy(A1ClientHelper.createPolicy(RIC_1_URL, POLICY_1_ID, POLICY_JSON_VALID, POLICY_TYPE_1_ID))
+            .block();
+        assertEquals("OK", returned, "");
+        final String expUrl = policiesUrl() + "/" + POLICY_1_ID;
+        AdapterRequest expectedInputParams = ImmutableAdapterRequest.builder() //
+            .nearRtRicUrl(expUrl) //
+            .body(POLICY_JSON_VALID) //
             .build();
-        String inputJsonString = A1ClientHelper.createInputJsonString(inputParams);
+        String expInput = A1ClientHelper.createInputJsonString(expectedInputParams);
 
-        whenAsyncPostThenReturn(Mono.empty());
-
-        Mono<String> returnedMono = clientUnderTest
-            .deletePolicy(A1ClientHelper.createPolicy(RIC_1_URL, POLICY_1_ID, POLICY_JSON_VALID, POLICY_TYPE_1_ID));
-
-        verify(asyncRestClientMock).postWithAuthHeader(DELETE_POLICY_URL, inputJsonString, CONTROLLER_USERNAME,
-            CONTROLLER_PASSWORD);
-        StepVerifier.create(returnedMono).expectComplete().verify();
-    }
-
-    @Test
-    public void testDeleteAllPolicies() {
-        SdncOscAdapterInput inputParams = ImmutableSdncOscAdapterInput.builder() //
-            .nearRtRicUrl(RIC_1_URL) //
-            .build();
-        String inputJsonStringGetIds = A1ClientHelper.createInputJsonString(inputParams);
-        inputParams = ImmutableSdncOscAdapterInput.builder() //
-            .nearRtRicUrl(RIC_1_URL) //
-            .policyId(POLICY_1_ID) //
-            .build();
-        String inputJsonStringDeletePolicy1 = A1ClientHelper.createInputJsonString(inputParams);
-        inputParams = ImmutableSdncOscAdapterInput.builder() //
-            .nearRtRicUrl(RIC_1_URL) //
-            .policyId(POLICY_2_ID) //
-            .build();
-        String inputJsonStringDeletePolicy2 = A1ClientHelper.createInputJsonString(inputParams);
-
-        List<String> policyIds = Arrays.asList(POLICY_1_ID, POLICY_2_ID);
-        Mono<String> policyIdsResp = A1ClientHelper.createOutputJsonResponse("policy-id-list", policyIds.toString());
-        whenAsyncPostThenReturn(policyIdsResp).thenReturn(Mono.empty());
-
-        Flux<String> returnedFlux = clientUnderTest.deleteAllPolicies();
-
-        StepVerifier.create(returnedFlux).expectComplete().verify();
-        verify(asyncRestClientMock).postWithAuthHeader(POLICY_IDENTITIES_URL, inputJsonStringGetIds,
-            CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
-        verify(asyncRestClientMock).postWithAuthHeader(DELETE_POLICY_URL, inputJsonStringDeletePolicy1,
-            CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
-        verify(asyncRestClientMock).postWithAuthHeader(DELETE_POLICY_URL, inputJsonStringDeletePolicy2,
-            CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
+        verify(asyncRestClientMock).postWithAuthHeader(PUT_A1_URL, expInput, CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
     }
 
     @Test
     public void testGetStatus() {
-        SdncOscAdapterInput inputParams = ImmutableSdncOscAdapterInput.builder() //
-            .nearRtRicUrl(RIC_1_URL) //
-            .policyId(POLICY_1_ID) //
-            .build();
-        String inputJsonString = A1ClientHelper.createInputJsonString(inputParams);
-
-        String status = "STATUS";
-        Mono<String> policyStatusResp = A1ClientHelper.createOutputJsonResponse("policy-status", status);
-        whenAsyncPostThenReturn(policyStatusResp);
+        whenPostReturnOkResponse();
 
         Policy policy = A1ClientHelper.createPolicy(RIC_1_URL, POLICY_1_ID, POLICY_JSON_VALID, POLICY_TYPE_1_ID);
 
         String returnedStatus = clientUnderTest.getPolicyStatus(policy).block();
 
-        assertEquals(status, returnedStatus, "unexpexted status");
+        assertEquals("OK", returnedStatus, "unexpeted status");
 
-        final String expectedUrl = "/A1-ADAPTER-API:getPolicyStatus";
-        verify(asyncRestClientMock).postWithAuthHeader(expectedUrl, inputJsonString, CONTROLLER_USERNAME,
-            CONTROLLER_PASSWORD);
+        final String expUrl = policiesUrl() + "/" + POLICY_1_ID + "/status";
+        AdapterRequest expectedInputParams = ImmutableAdapterRequest.builder() //
+            .nearRtRicUrl(expUrl) //
+            .build();
+        String expInput = A1ClientHelper.createInputJsonString(expectedInputParams);
+
+        verify(asyncRestClientMock).postWithAuthHeader(GET_A1_URL, expInput, CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
+    }
+
+    private void whenPostReturnOkResponse() {
+        AdapterResponse adapterResponse = ImmutableAdapterResponse.builder() //
+            .body("OK") //
+            .httpStatus(200) //
+            .build();
+
+        String resp = gson().toJson(adapterResponse);
+        whenAsyncPostThenReturn(Mono.just(resp));
     }
 
     private OngoingStubbing<Mono<String>> whenAsyncPostThenReturn(Mono<String> response) {

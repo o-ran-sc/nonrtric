@@ -37,103 +37,56 @@ module A1-ADAPTER-API {
           "A1 adapter";
     }
 
-    // Get an array of integer policy type ids
-    // Each item in the returned array will be regarded as one policy-type-id.
-    rpc getPolicyTypeIdentities {
+    // putA1
+    rpc putA1 {
         input {
             leaf near-rt-ric-url {
-                type string;
+                type inet:uri;
             }
-        }
-
-        output {
-            leaf-list policy-type-id-list {
-                type string;
-            }
-        }
-    }
-
-    // Get an array of integer policy ids
-    // Each item in the returned array will be regarded as one policy-id.
-    rpc getPolicyIdentities {
-        input {
-            leaf near-rt-ric-url {
-                type string;
-            }
-        }
-
-        output {
-            leaf-list policy-id-list {
-                type string;
-            }
-        }
-    }
-
-    // Get a policy type
-    rpc getPolicyType {
-        input {
-            leaf near-rt-ric-url {
-                type string;
-            }
-            leaf policy-type-id {
+            leaf body {
                 type string;
             }
         }
         output {
-            leaf policy-type {
+            leaf body {
                 type string;
+            }
+            leaf http-status {
+                type int32;
             }
         }
     }
 
-    // Create a policy
-    rpc putPolicy {
+    // Delete A1
+    rpc deleteA1 {
         input {
             leaf near-rt-ric-url {
-                type string;
-            }
-            leaf policy-id {
-                type string;
-            }
-            leaf policy-type-id {
-                type string;
-            }
-            leaf policy {
-                type string;
+                type inet:uri;
             }
         }
         output {
-            leaf returned-policy {
+            leaf body {
                 type string;
+            }
+            leaf http-status {
+                type int32;
             }
         }
     }
 
-    // Delete a policy
-    rpc deletePolicy {
+    // Get A1
+    rpc getA1 {
         input {
             leaf near-rt-ric-url {
-                type string;
-            }
-            leaf policy-id {
-                type string;
-            }
-        }
-    }
-
-    // Get a policy status
-    rpc getPolicyStatus {
-        input {
-            leaf near-rt-ric-url {
-                type string;
-            }
-            leaf policy-id {
-                type string;
+                type inet:uri;
             }
         }
         output {
-            leaf policy-status {
+            leaf body {
                 type string;
+            }
+            leaf http-status {
+                type int32;
             }
         }
     }

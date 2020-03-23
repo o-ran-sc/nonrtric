@@ -23,11 +23,9 @@ package org.onap.sdnc.northbound.provider;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.onap.sdnc.northbound.restadapter.NearRicUrlProvider;
 import org.onap.sdnc.northbound.restadapter.RestAdapter;
 import org.onap.sdnc.northbound.restadapter.RestAdapterImpl;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -37,24 +35,16 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.A1ADAPTERAPIService;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.DeletePolicyInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.DeletePolicyOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.DeletePolicyOutputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyIdentitiesInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyIdentitiesOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyIdentitiesOutputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyStatusInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyStatusOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyStatusOutputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyTypeIdentitiesInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyTypeIdentitiesOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyTypeIdentitiesOutputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyTypeInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyTypeOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetPolicyTypeOutputBuilder;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.PutPolicyInput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.PutPolicyOutput;
-import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.PutPolicyOutputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.DeleteA1Input;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.DeleteA1Output;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.DeleteA1OutputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetA1Input;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetA1Output;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.GetA1OutputBuilder;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.PutA1Input;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.PutA1Output;
+import org.opendaylight.yang.gen.v1.org.onap.sdnc.northbound.a1.adapter.rev200122.PutA1OutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
@@ -89,7 +79,6 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
   protected RpcProviderRegistry rpcRegistry;
   protected BindingAwareBroker.RpcRegistration<?> rpcRegistration;
   private RestAdapter restAdapter;
-  private NearRicUrlProvider nearRicUrlProvider;
 
   public NonrtRicApiProvider(DataBroker dataBroker, NotificationPublishService notificationPublishService,
       RpcProviderRegistry rpcProviderRegistry) {
@@ -106,7 +95,6 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
     log.info("Initializing provider for {}", APP_NAME);
     createContainers();
     restAdapter = new RestAdapterImpl();
-    nearRicUrlProvider = new NearRicUrlProvider();
     log.info("Initialization complete for {}", APP_NAME);
   }
 
@@ -159,98 +147,56 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
   }
 
   @Override
-  public ListenableFuture<RpcResult<GetPolicyTypeIdentitiesOutput>> getPolicyTypeIdentities(
-      GetPolicyTypeIdentitiesInput input) {
-    log.info("Start of getPolicyTypeIdentities");
-    GetPolicyTypeIdentitiesOutputBuilder responseBuilder = new GetPolicyTypeIdentitiesOutputBuilder();
-    String uri = nearRicUrlProvider.policyTypesUrl(String.valueOf(input.getNearRtRicUrl()));
-    ResponseEntity<List<String>> response = restAdapter.get(uri, List.class);
-    if (response.hasBody()) {
-      log.info("Response getPolicyTypeIdentities : {} ", response.getBody());
-      responseBuilder.setPolicyTypeIdList(response.getBody());
-    }
-    log.info("End of getPolicyTypeIdentities");
-    RpcResult<GetPolicyTypeIdentitiesOutput> rpcResult = RpcResultBuilder.<GetPolicyTypeIdentitiesOutput>status(true)
-        .withResult(responseBuilder.build()).build();
-    return Futures.immediateFuture(rpcResult);
-  }
-
-  @Override
-  public ListenableFuture<RpcResult<GetPolicyIdentitiesOutput>> getPolicyIdentities(GetPolicyIdentitiesInput input) {
-    log.info("Start of getPolicyIdentities");
-    GetPolicyIdentitiesOutputBuilder responseBuilder = new GetPolicyIdentitiesOutputBuilder();
-    String uri = nearRicUrlProvider.policiesUrl(String.valueOf(input.getNearRtRicUrl()));
-    ResponseEntity<List<String>> response = restAdapter.get(uri, List.class);
-    if (response.hasBody()) {
-      log.info("Response getPolicyIdentities : {} ", response.getBody());
-      responseBuilder.setPolicyIdList(response.getBody());
-    }
-    log.info("End of getPolicyIdentities");
-    RpcResult<GetPolicyIdentitiesOutput> rpcResult = RpcResultBuilder.<GetPolicyIdentitiesOutput>status(true)
-        .withResult(responseBuilder.build()).build();
-    return Futures.immediateFuture(rpcResult);
-  }
-
-  @Override
-  public ListenableFuture<RpcResult<GetPolicyTypeOutput>> getPolicyType(GetPolicyTypeInput input) {
-    log.info("Start of getPolicyType; Policy Type Id : {} ", input.getPolicyTypeId());
-    GetPolicyTypeOutputBuilder responseBuilder = new GetPolicyTypeOutputBuilder();
-    String uri = nearRicUrlProvider.getPolicyTypeUrl(String.valueOf(input.getNearRtRicUrl()),
-        String.valueOf(input.getPolicyTypeId()));
-    ResponseEntity<String> response = restAdapter.get(uri, String.class);
-    if (response.hasBody()) {
-      log.info("Response getPolicyType : {} ", response.getBody());
-      responseBuilder.setPolicyType(response.getBody());
-    }
-    log.info("End of getPolicyType");
-    RpcResult<GetPolicyTypeOutput> rpcResult = RpcResultBuilder.<GetPolicyTypeOutput>status(true)
-        .withResult(responseBuilder.build()).build();
-    return Futures.immediateFuture(rpcResult);
-  }
-
-  @Override
-  public ListenableFuture<RpcResult<PutPolicyOutput>> putPolicy(PutPolicyInput input) {
+  public ListenableFuture<RpcResult<PutA1Output>> putA1(PutA1Input input) {
     log.info("Start of putPolicy");
-    PutPolicyOutputBuilder responseBuilder = new PutPolicyOutputBuilder();
-    String uri = nearRicUrlProvider.putPolicyUrl(String.valueOf(input.getNearRtRicUrl()),
-        String.valueOf(input.getPolicyId()), String.valueOf(input.getPolicyTypeId()));
-    log.info("PUT Request input.getPolicy() : {} ", input.getPolicy());
-    ResponseEntity<String> response = restAdapter.put(uri, input.getPolicy(), String.class);
+    final Uri uri = input.getNearRtRicUrl();
+
+    log.info("PUT Request input.getA1() : {} ", uri);
+    ResponseEntity<String> response = restAdapter.put(uri.getValue(), input.getBody(), String.class);
+    PutA1OutputBuilder responseBuilder = new PutA1OutputBuilder();
     if (response.hasBody()) {
-      log.info("Response putPolicy : {} ", response.getBody());
-      responseBuilder.setReturnedPolicy(response.getBody());
+      log.info("Response putA1 : {} ", response.getBody());
+      responseBuilder.setBody(response.getBody());
     }
-    log.info("End of putPolicy");
-    RpcResult<PutPolicyOutput> rpcResult = RpcResultBuilder.<PutPolicyOutput>status(true)
+    responseBuilder.setHttpStatus(response.getStatusCodeValue());
+    log.info("End of putA1");
+    RpcResult<PutA1Output> rpcResult = RpcResultBuilder.<PutA1Output>status(true).withResult(responseBuilder.build())
+        .build();
+    return Futures.immediateFuture(rpcResult);
+  }
+
+  @Override
+  public ListenableFuture<RpcResult<DeleteA1Output>> deleteA1(DeleteA1Input input) {
+    log.info("Start of deleteA1");
+    final Uri uri = input.getNearRtRicUrl();
+    ResponseEntity<Object> response = restAdapter.delete(uri.getValue());
+    log.info("End of deleteA1");
+    DeleteA1OutputBuilder responseBuilder = new DeleteA1OutputBuilder();
+    if (response.hasBody()) {
+      log.info("Response putA1 : {} ", response.getBody());
+      responseBuilder.setBody(response.getBody().toString());
+    }
+    responseBuilder.setHttpStatus(response.getStatusCodeValue());
+    RpcResult<DeleteA1Output> rpcResult = RpcResultBuilder.<DeleteA1Output>status(true)
         .withResult(responseBuilder.build()).build();
     return Futures.immediateFuture(rpcResult);
   }
 
   @Override
-  public ListenableFuture<RpcResult<DeletePolicyOutput>> deletePolicy(DeletePolicyInput input) {
-    log.info("Start of deletePolicy");
-    DeletePolicyOutputBuilder responseBuilder = new DeletePolicyOutputBuilder();
-    String uri = nearRicUrlProvider.deletePolicyUrl(String.valueOf(input.getNearRtRicUrl()),
-        String.valueOf(input.getPolicyId()));
-    restAdapter.delete(uri);
-    log.info("End of deletePolicy");
-    RpcResult<DeletePolicyOutput> rpcResult = RpcResultBuilder.<DeletePolicyOutput>status(true)
-        .withResult(responseBuilder.build()).build();
+  public ListenableFuture<RpcResult<GetA1Output>> getA1(GetA1Input input) {
+    log.info("Start of getA1");
+    final Uri uri = input.getNearRtRicUrl();
+    ResponseEntity<String> response = restAdapter.get(uri.getValue(), String.class);
+    log.info("End of getA1");
+    GetA1OutputBuilder responseBuilder = new GetA1OutputBuilder();
+    if (response.hasBody()) {
+      log.info("Response getA1 : {} ", response.getBody());
+      responseBuilder.setBody(response.getBody());
+    }
+    responseBuilder.setHttpStatus(response.getStatusCodeValue());
+    RpcResult<GetA1Output> rpcResult = RpcResultBuilder.<GetA1Output>status(true).withResult(responseBuilder.build())
+        .build();
     return Futures.immediateFuture(rpcResult);
   }
 
-  @Override
-  public ListenableFuture<RpcResult<GetPolicyStatusOutput>> getPolicyStatus(GetPolicyStatusInput input) {
-    log.debug("Policy Id : {} ", input.getPolicyId());
-    GetPolicyStatusOutputBuilder responseBuilder = new GetPolicyStatusOutputBuilder();
-    String uri = nearRicUrlProvider.getPolicyStatusUrl(input.getNearRtRicUrl(), input.getPolicyId());
-    ResponseEntity<String> response = restAdapter.get(uri, String.class);
-    if (response.hasBody()) {
-      log.info("Response getPolicyStatus : {} ", response.getBody());
-      responseBuilder.setPolicyStatus(response.getBody());
-    }
-    RpcResult<GetPolicyStatusOutput> rpcResult = RpcResultBuilder.<GetPolicyStatusOutput>status(true)
-        .withResult(responseBuilder.build()).build();
-    return Futures.immediateFuture(rpcResult);
-  }
 }
