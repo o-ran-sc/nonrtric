@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c654776c_84d3d43d",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/onap/sdnc/northbound/provider/NonrtRicApiProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-24T13:51:52Z",
+      "side": 1,
+      "message": "There are a lot of logging for starting and ending methods in this class. With the new aspect logging these are not needed and could be removed. \nAlso all but the error logging in this class is on \"INFO\" level. Should probably be \"DEBUG\".\nBut maybe this should be done in a separate commit?",
+      "revId": "beb7ba7d7fbccc421d7c2c16b8942bb5da7fc71c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
