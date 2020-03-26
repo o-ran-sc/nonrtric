@@ -53,13 +53,13 @@ As for A-release, the methods are as follows:
 Policy Agent Overview
 =======================
 
-The Policy Agent maintains a transient ropository of the following items to support R-Apps:
+The Policy Agent maintains a transient repository of the following items to support R-Apps:
 
- * All NearRT RICs in the network. This information is configured using the ONAP CDS database (which is using the Cloudify Consul database).
+ * All Near-RT RICs in the network. This information is configured using the ONAP CDS database (which is using the Cloudify Consul database).
  * All Policy types for all NearRT RICs
  * All configured Policy instances in the network
 
-It provides an NBI for the R-Apps (and for the dashboard) for policy management. This is a REST API.
+It provides an NBI for the R-Apps (and for the control panel) for policy management. This is a REST API.
 As an option, policy management can also be done via asynchronous messages through ONAP/Dmaap.
 The NBI provides support for an R-APP to locate the correct NearRT RIC based on identifiers as defined in O1.
 
@@ -69,10 +69,10 @@ The R-Apps can be monitored so that their Policies can be automatically removed 
 
 On its southbound side the agent can connect to a number of different A1 providers:
 
- * Directly to the NonRT RIC:
+ * Directly to the Non-RT RIC:
 
       - OSC API, which is influenced by the A1 standard
-      - The NonRT RIC simulator, which supports the A1 standard with a number of not yet CRs included.
+      - The Non-RT RIC simulator, which supports the A1 standard with a number of not yet CRs included.
  * To an ONAP style controller.
 
 Amber release Policy Agent architecture
@@ -83,26 +83,6 @@ Amber release Policy Agent architecture
 
 NonRT RIC components:
 
- #. Non-RT RIC Dashboard
  #. Policy agent
  #. SDNC A1 Controller
- #. Near-RT RIC Simulator
 
-Dashboard Overview
-===================
-
-The NonRT RIC Dashboard is a graphical user  user interface that enables the user to manage the Policies in the network. The dashboard interacts with the Policy agent via a REST API.
-The dashboard generates its GUI from JSON schemas in a model driven fashion.
-
-The dashboards consists of a back end implemented as a Java Springboot application and a fronted developed using the Angular framework.
-
-Amber release Dashboard architecture
------------------------------------------
-
-The architecture of the dashboardis as shown on the following picture:
-
-.. image:: ./images/architecture.png
-   :scale: 50 %
-
-The dashboard itself is split
-into the backend and the frontend, and can be deployed following the instructions in the README.md file in the repo.
