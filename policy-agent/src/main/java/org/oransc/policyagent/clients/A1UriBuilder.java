@@ -20,17 +20,13 @@
 
 package org.oransc.policyagent.clients;
 
-import org.oransc.policyagent.repository.Policy;
-
 /**
  * Builder for A1 influenced REST APIs
  */
 interface A1UriBuilder {
-    String createPutPolicyUri(Policy policy);
+    String createPutPolicyUri(String type, String policyId);
 
-    String createGetPolicyIdsUri();
+    String createDeleteUri(String type, String policyId);
 
-    String createDeleteUri(String policyId);
-
-    String createGetPolicyStatusUri(String policyId);
+    String createGetPolicyStatusUri(String type, String policyId);
 }

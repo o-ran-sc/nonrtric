@@ -36,9 +36,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.OngoingStubbing;
+import org.oransc.policyagent.clients.A1Client.A1ProtocolType;
 import org.oransc.policyagent.clients.SdncOscA1Client.AdapterRequest;
 import org.oransc.policyagent.clients.SdncOscA1Client.AdapterResponse;
 import org.oransc.policyagent.repository.Policy;
+import org.oransc.policyagent.repository.Ric;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import reactor.core.publisher.Mono;
@@ -65,15 +67,39 @@ public class SdncOscA1ClientTest {
     @BeforeEach
     public void init() {
         asyncRestClientMock = mock(AsyncRestClient.class);
-        clientUnderTest = new SdncOscA1Client(A1ClientHelper.createRic(RIC_1_URL).getConfig(), CONTROLLER_USERNAME,
+        Ric ric = A1ClientHelper.createRic(RIC_1_URL);
+        clientUnderTest = new SdncOscA1Client(A1ProtocolType.SDNC_OSC_STD_V1_1, ric.getConfig(), CONTROLLER_USERNAME,
             CONTROLLER_PASSWORD, asyncRestClientMock);
     }
 
     @Test
-    public void testGetPolicyTypeIdentities() {
+    public void testGetPolicyTypeIdentities_STD() {
         List<String> policyTypeIds = clientUnderTest.getPolicyTypeIdentities().block();
         assertEquals(1, policyTypeIds.size(), "should hardcoded to one");
         assertEquals("", policyTypeIds.get(0), "should hardcoded to empty");
+    }
+
+    @Test
+    public void testGetPolicyTypeIdentities_OSC() {
+        clientUnderTest = new SdncOscA1Client(A1ProtocolType.SDNC_OSC_OSC_V1, //
+            A1ClientHelper.createRic(RIC_1_URL).getConfig(), //
+            CONTROLLER_USERNAME, CONTROLLER_PASSWORD, asyncRestClientMock);
+
+        String response = createResponse(Arrays.asList(POLICY_TYPE_1_ID));
+        whenAsyncPostThenReturn(Mono.just(response));
+
+        List<String> policyTypeIds = clientUnderTest.getPolicyTypeIdentities().block();
+        assertEquals(1, policyTypeIds.size(), "");
+        assertEquals(POLICY_TYPE_1_ID, policyTypeIds.get(0), "");
+
+        String expUrl = RIC_1_URL + "/a1-p/policytypes";
+        AdapterRequest expectedParams = ImmutableAdapterRequest.builder() //
+            .nearRtRicUrl(expUrl) //
+            .build();
+        String expInput = A1ClientHelper.createInputJsonString(expectedParams);
+        verify(asyncRestClientMock).postWithAuthHeader(GET_A1_POLICY_URL, expInput, CONTROLLER_USERNAME,
+            CONTROLLER_PASSWORD);
+
     }
 
     private String policiesUrl() {
@@ -84,16 +110,19 @@ public class SdncOscA1ClientTest {
         return SdncOscA1Client.gson;
     }
 
-    @Test
-    public void testGetPolicyIdentities() {
-
-        List<String> policyIds = Arrays.asList(POLICY_1_ID, POLICY_2_ID);
+    private String createResponse(Object obj) {
         AdapterResponse output = ImmutableAdapterResponse.builder() //
-            .body(gson().toJson(policyIds)) //
+            .body(gson().toJson(obj)) //
             .httpStatus(200) //
             .build();
 
-        String policyIdsResp = gson().toJson(output);
+        return gson().toJson(output);
+    }
+
+    @Test
+    public void testGetPolicyIdentities() {
+
+        String policyIdsResp = createResponse(Arrays.asList(POLICY_1_ID, POLICY_2_ID));
         whenAsyncPostThenReturn(Mono.just(policyIdsResp));
 
         List<String> returned = clientUnderTest.getPolicyIdentities().block();

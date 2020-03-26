@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
 public class SdncOnapA1Client implements A1Client {
     private static final String URL_PREFIX = "/A1-ADAPTER-API:";
 
@@ -44,9 +45,7 @@ public class SdncOnapA1Client implements A1Client {
 
     public SdncOnapA1Client(RicConfig ricConfig, String baseUrl, String username, String password) {
         this(ricConfig, username, password, new AsyncRestClient(baseUrl + "/restconf/operations"));
-        if (logger.isDebugEnabled()) {
-            logger.debug("SdncOnapA1Client for ric: {}, a1ControllerBaseUrl: {}", ricConfig.name(), baseUrl);
-        }
+        logger.debug("SdncOnapA1Client for ric: {}, a1ControllerBaseUrl: {}", ricConfig.name(), baseUrl);
     }
 
     public SdncOnapA1Client(RicConfig ricConfig, String username, String password, AsyncRestClient restClient) {

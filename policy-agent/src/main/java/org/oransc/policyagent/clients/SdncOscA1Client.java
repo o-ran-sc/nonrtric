@@ -63,27 +63,44 @@ public class SdncOscA1Client implements A1Client {
         .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DASHES) //
         .create(); //
 
+    private static final String GET_POLICY_RPC = "getA1Policy";
+    private static final String UNHANDELED_PROTOCOL = "Bug, unhandeled protocoltype: ";
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final String a1ControllerUsername;
     private final String a1ControllerPassword;
     private final AsyncRestClient restClient;
-    private final A1UriBuilder uri;
+    private final RicConfig ricConfig;
+    private final A1ProtocolType protocolType;
 
-    public SdncOscA1Client(RicConfig ricConfig, String controllerBaseUrl, String username, String password) {
-        this(ricConfig, username, password, new AsyncRestClient(controllerBaseUrl + "/restconf/operations"));
+    public SdncOscA1Client(A1ProtocolType protocolType, RicConfig ricConfig, String controllerBaseUrl, String username,
+        String password) {
+        this(protocolType, ricConfig, username, password,
+            new AsyncRestClient(controllerBaseUrl + "/restconf/operations"));
         logger.debug("SdncOscA1Client for ric: {}, a1ControllerBaseUrl: {}", ricConfig.name(), controllerBaseUrl);
     }
 
-    public SdncOscA1Client(RicConfig ricConfig, String username, String password, AsyncRestClient restClient) {
+    public SdncOscA1Client(A1ProtocolType protocolType, RicConfig ricConfig, String username, String password,
+        AsyncRestClient restClient) {
         this.a1ControllerUsername = username;
         this.a1ControllerPassword = password;
         this.restClient = restClient;
-        this.uri = new StdA1UriBuilderVersion1(ricConfig);
+        this.ricConfig = ricConfig;
+        this.protocolType = protocolType;
+
     }
 
     @Override
     public Mono<List<String>> getPolicyTypeIdentities() {
-        return Mono.just(Arrays.asList(""));
+        if (this.protocolType == A1ProtocolType.SDNC_OSC_STD_V1_1) {
+            return Mono.just(Arrays.asList(""));
+        } else if (this.protocolType == A1ProtocolType.SDNC_OSC_OSC_V1) {
+            OscA1Client.UriBuilder uri = new OscA1Client.UriBuilder(ricConfig);
+            final String ricUrl = uri.createPolicyTypesUri();
+            return post(GET_POLICY_RPC, ricUrl, Optional.empty()) //
+                .flatMapMany(JsonHelper::parseJsonArrayOfString) //
+                .collectList();
+        }
+        throw new NullPointerException(UNHANDELED_PROTOCOL + this.protocolType);
     }
 
     @Override
@@ -94,46 +111,93 @@ public class SdncOscA1Client implements A1Client {
 
     @Override
     public Mono<String> getPolicyTypeSchema(String policyTypeId) {
-        return Mono.just("{}");
+        if (this.protocolType == A1ProtocolType.SDNC_OSC_STD_V1_1) {
+            return Mono.just("{}");
+        } else if (this.protocolType == A1ProtocolType.SDNC_OSC_OSC_V1) {
+            OscA1Client.UriBuilder uri = new OscA1Client.UriBuilder(ricConfig);
+            final String ricUrl = uri.createGetSchemaUri(policyTypeId);
+            return post(GET_POLICY_RPC, ricUrl, Optional.empty());
+        }
+        throw new NullPointerException(UNHANDELED_PROTOCOL + this.protocolType);
     }
 
     @Override
     public Mono<String> putPolicy(Policy policy) {
-        final String ricUrl = uri.createPutPolicyUri(policy);
+        final String ricUrl = getUriBuilder().createPutPolicyUri(policy.type().name(), policy.id());
         return post("putA1Policy", ricUrl, Optional.of(policy.json()));
     }
 
     @Override
     public Mono<String> deletePolicy(Policy policy) {
-        return deletePolicyById(policy.id());
+        return deletePolicyById(policy.type().name(), policy.id());
     }
 
     @Override
     public Flux<String> deleteAllPolicies() {
-        return getPolicyIds() //
-            .flatMap(this::deletePolicyById); //
+        if (this.protocolType == A1ProtocolType.SDNC_OSC_STD_V1_1) {
+            return getPolicyIds() //
+                .flatMap(policyId -> deletePolicyById("", policyId)); //
+        } else if (this.protocolType == A1ProtocolType.SDNC_OSC_OSC_V1) {
+            OscA1Client.UriBuilder uriBuilder = new OscA1Client.UriBuilder(ricConfig);
+            return getPolicyTypeIdentities() //
+                .flatMapMany(Flux::fromIterable)
+                .flatMap(type -> post(GET_POLICY_RPC, uriBuilder.createGetPolicyIdsUri(type), Optional.empty())) //
+                .flatMap(JsonHelper::parseJsonArrayOfString);
+        }
+        throw new NullPointerException(UNHANDELED_PROTOCOL + this.protocolType);
     }
 
     @Override
     public Mono<A1ProtocolType> getProtocolVersion() {
-        return getPolicyIdentities() //
-            .flatMap(x -> Mono.just(A1ProtocolType.SDNC_OSC));
+        return tryStdProtocolVersion() //
+            .onErrorResume(t -> tryOscProtocolVersion());
     }
 
     @Override
     public Mono<String> getPolicyStatus(Policy policy) {
-        final String ricUrl = uri.createGetPolicyStatusUri(policy.id());
+        final String ricUrl = getUriBuilder().createGetPolicyStatusUri(policy.type().name(), policy.id());
         return post("getA1PolicyStatus", ricUrl, Optional.empty());
     }
 
-    private Flux<String> getPolicyIds() {
-        final String ricUrl = uri.createGetPolicyIdsUri();
-        return post("getA1Policy", ricUrl, Optional.empty()) //
-            .flatMapMany(JsonHelper::parseJsonArrayOfString);
+    private A1UriBuilder getUriBuilder() {
+        if (protocolType == A1ProtocolType.SDNC_OSC_STD_V1_1) {
+            return new StdA1ClientVersion1.UriBuilder(ricConfig);
+        } else if (this.protocolType == A1ProtocolType.SDNC_OSC_OSC_V1) {
+            return new OscA1Client.UriBuilder(ricConfig);
+        }
+        throw new NullPointerException(UNHANDELED_PROTOCOL + this.protocolType);
     }
 
-    private Mono<String> deletePolicyById(String policyId) {
-        final String ricUrl = uri.createDeleteUri(policyId);
+    private Mono<A1ProtocolType> tryOscProtocolVersion() {
+        OscA1Client.UriBuilder oscApiuriBuilder = new OscA1Client.UriBuilder(ricConfig);
+        return post(GET_POLICY_RPC, oscApiuriBuilder.createHealtcheckUri(), Optional.empty()) //
+            .flatMap(x -> Mono.just(A1ProtocolType.SDNC_OSC_OSC_V1));
+    }
+
+    private Mono<A1ProtocolType> tryStdProtocolVersion() {
+        StdA1ClientVersion1.UriBuilder uriBuilder = new StdA1ClientVersion1.UriBuilder(ricConfig);
+        return post(GET_POLICY_RPC, uriBuilder.createGetPolicyIdsUri(), Optional.empty()) //
+            .flatMap(x -> Mono.just(A1ProtocolType.SDNC_OSC_STD_V1_1));
+    }
+
+    private Flux<String> getPolicyIds() {
+        if (this.protocolType == A1ProtocolType.SDNC_OSC_STD_V1_1) {
+            StdA1ClientVersion1.UriBuilder uri = new StdA1ClientVersion1.UriBuilder(ricConfig);
+            final String ricUrl = uri.createGetPolicyIdsUri();
+            return post(GET_POLICY_RPC, ricUrl, Optional.empty()) //
+                .flatMapMany(JsonHelper::parseJsonArrayOfString);
+        } else if (this.protocolType == A1ProtocolType.SDNC_OSC_OSC_V1) {
+            OscA1Client.UriBuilder uri = new OscA1Client.UriBuilder(ricConfig);
+            return getPolicyTypeIdentities() //
+                .flatMapMany(Flux::fromIterable)
+                .flatMap(type -> post(GET_POLICY_RPC, uri.createGetPolicyIdsUri(type), Optional.empty())) //
+                .flatMap(JsonHelper::parseJsonArrayOfString);
+        }
+        throw new NullPointerException(UNHANDELED_PROTOCOL + this.protocolType);
+    }
+
+    private Mono<String> deletePolicyById(String type, String policyId) {
+        final String ricUrl = getUriBuilder().createDeleteUri(type, policyId);
         return post("deleteA1Policy", ricUrl, Optional.empty());
     }
 

@@ -119,7 +119,8 @@ public class A1ClientFactoryTest {
         assertTrue(createClient(A1ProtocolType.STD_V1_1) instanceof StdA1ClientVersion1);
         assertTrue(createClient(A1ProtocolType.OSC_V1) instanceof OscA1Client);
         assertTrue(createClient(A1ProtocolType.SDNC_ONAP) instanceof SdncOnapA1Client);
-        assertTrue(createClient(A1ProtocolType.SDNC_OSC) instanceof SdncOscA1Client);
+        assertTrue(createClient(A1ProtocolType.SDNC_OSC_STD_V1_1) instanceof SdncOscA1Client);
+        assertTrue(createClient(A1ProtocolType.SDNC_OSC_OSC_V1) instanceof SdncOscA1Client);
         assertTrue(createClient(A1ProtocolType.UNKNOWN) == null);
     }
 
