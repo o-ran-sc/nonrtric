@@ -30,6 +30,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
+/**
+ * This class reads a few environment variables used for locating the Consul
+ * (Config Binding Service).
+ */
 class EnvironmentProcessor {
 
     private static final int DEFAULT_CONSUL_PORT = 8500;

@@ -29,6 +29,9 @@ import org.oransc.policyagent.repository.Policy;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+/**
+ * Client for accessing standard A1 REST API version 1.1
+ */
 public class StdA1ClientVersion1 implements A1Client {
 
     public static class UriBuilder implements A1UriBuilder {
@@ -39,20 +42,32 @@ public class StdA1ClientVersion1 implements A1Client {
             this.ricConfig = ricConfig;
         }
 
+        /**
+         * /A1-P/v1/policies/{policyId}
+         */
         @Override
         public String createPutPolicyUri(String type, String policyId) {
             return policiesBaseUri() + policyId;
         }
 
+        /**
+         * /A1-P/v1/policies
+         */
         public String createGetPolicyIdsUri() {
             return baseUri() + "/policies";
         }
 
+        /**
+         * /A1-P/v1/policies/{policyId}
+         */
         @Override
         public String createDeleteUri(String type, String policyId) {
             return policiesBaseUri() + policyId;
         }
 
+        /**
+         * /A1-P/v1/policies/{policyId}/status
+         */
         public String createGetPolicyStatusUri(String type, String policyId) {
             return policiesBaseUri() + policyId + "/status";
         }
@@ -86,8 +101,7 @@ public class StdA1ClientVersion1 implements A1Client {
 
     @Override
     public Mono<String> putPolicy(Policy policy) {
-        return restClient.put(uri.createPutPolicyUri(policy.type().name(), policy.id()), policy.json()) //
-            .flatMap(JsonHelper::validateJson);
+        return restClient.put(uri.createPutPolicyUri(policy.type().name(), policy.id()), policy.json());
     }
 
     @Override
@@ -124,7 +138,7 @@ public class StdA1ClientVersion1 implements A1Client {
 
     private Flux<String> getPolicyIds() {
         return restClient.get(uri.createGetPolicyIdsUri()) //
-            .flatMapMany(JsonHelper::parseJsonArrayOfString);
+            .flatMapMany(SdncJsonHelper::parseJsonArrayOfString);
     }
 
     private Mono<String> deletePolicyById(String policyId) {

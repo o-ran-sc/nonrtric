@@ -20,7 +20,7 @@
 
 package org.oransc.policyagent.exceptions;
 
-public class EnvironmentLoaderException extends Exception {
+public class EnvironmentLoaderException extends ServiceException {
 
     private static final long serialVersionUID = 1L;
 

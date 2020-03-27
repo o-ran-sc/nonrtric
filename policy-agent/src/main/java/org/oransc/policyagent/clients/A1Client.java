@@ -27,6 +27,10 @@ import org.oransc.policyagent.repository.Policy;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+/**
+ * Common interface for 'A1' Policy access. Implementations of this interface
+ * adapts to the different southbound REST APIs supported.
+ */
 public interface A1Client {
 
     public enum A1ProtocolType {

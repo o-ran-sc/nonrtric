@@ -34,12 +34,12 @@ import org.json.JSONObject;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-class JsonHelper {
+class SdncJsonHelper {
     private static Gson gson = new GsonBuilder() //
         .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DASHES) //
         .create();
 
-    private JsonHelper() {
+    private SdncJsonHelper() {
     }
 
     public static Flux<String> parseJsonArrayOfString(String inputString) {
@@ -83,15 +83,6 @@ class JsonHelper {
             JSONObject schemaObject = jsonObject.getJSONObject("policySchema");
             String schemaString = schemaObject.toString();
             return Mono.just(schemaString);
-        } catch (JSONException ex) { // invalid json
-            return Mono.error(ex);
-        }
-    }
-
-    public static Mono<String> validateJson(String inputString) {
-        try {
-            new JSONObject(inputString);
-            return Mono.just(inputString);
         } catch (JSONException ex) { // invalid json
             return Mono.error(ex);
         }
