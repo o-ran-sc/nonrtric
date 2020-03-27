@@ -72,7 +72,7 @@ public class SdncOnapA1ClientTest {
 
     @Test
     public void testGetPolicyTypeIdentities() {
-        SdncOnapAdapterInput inputParams = ImmutableSdncOnapAdapterInput.builder() //
+        SdncOnapA1Client.SdncOnapAdapterInput inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .build();
         String inputJsonString = A1ClientHelper.createInputJsonString(inputParams);
@@ -90,7 +90,7 @@ public class SdncOnapA1ClientTest {
 
     @Test
     public void testGetPolicyIdentities() {
-        SdncOnapAdapterInput inputParams = ImmutableSdncOnapAdapterInput.builder() //
+        SdncOnapA1Client.SdncOnapAdapterInput inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .build();
         String inputJsonStringGetTypeIds = A1ClientHelper.createInputJsonString(inputParams);
@@ -128,7 +128,7 @@ public class SdncOnapA1ClientTest {
 
     @Test
     public void testGetValidPolicyType() {
-        SdncOnapAdapterInput inputParams = ImmutableSdncOnapAdapterInput.builder() //
+        SdncOnapA1Client.SdncOnapAdapterInput inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .policyTypeId(POLICY_TYPE_1_ID) //
             .build();
@@ -146,7 +146,7 @@ public class SdncOnapA1ClientTest {
 
     @Test
     public void testGetInvalidPolicyType() {
-        SdncOnapAdapterInput inputParams = ImmutableSdncOnapAdapterInput.builder() //
+        SdncOnapA1Client.SdncOnapAdapterInput inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .policyTypeId(POLICY_TYPE_1_ID) //
             .build();
@@ -164,7 +164,7 @@ public class SdncOnapA1ClientTest {
 
     @Test
     public void testPutPolicy() {
-        SdncOnapAdapterInput inputParams = ImmutableSdncOnapAdapterInput.builder() //
+        SdncOnapA1Client.SdncOnapAdapterInput inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .policyTypeId(POLICY_TYPE_1_ID) //
             .policyInstanceId(POLICY_1_ID) //
@@ -184,7 +184,7 @@ public class SdncOnapA1ClientTest {
 
     @Test
     public void testDeletePolicy() {
-        SdncOnapAdapterInput inputParams = ImmutableSdncOnapAdapterInput.builder() //
+        SdncOnapA1Client.SdncOnapAdapterInput inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .policyTypeId(POLICY_TYPE_1_ID) //
             .policyInstanceId(POLICY_1_ID) //
@@ -202,7 +202,7 @@ public class SdncOnapA1ClientTest {
 
     @Test
     public void testDeleteAllPolicies() {
-        SdncOnapAdapterInput inputParams = ImmutableSdncOnapAdapterInput.builder() //
+        SdncOnapA1Client.SdncOnapAdapterInput inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .build();
         String inputJsonStringGetTypeIds = A1ClientHelper.createInputJsonString(inputParams);

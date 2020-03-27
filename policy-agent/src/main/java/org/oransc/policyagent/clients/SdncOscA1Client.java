@@ -40,6 +40,9 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+/**
+ * Client for accessing the A1 adapter in the SDNC controller in OSC.
+ */
 @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
 public class SdncOscA1Client implements A1Client {
 
@@ -72,6 +75,16 @@ public class SdncOscA1Client implements A1Client {
     private final RicConfig ricConfig;
     private final A1ProtocolType protocolType;
 
+    /**
+     * Constructor
+     * 
+     * @param protocolType the southbound protocol of the controller. Supported
+     *        protocols are SDNC_OSC_STD_V1_1 and SDNC_OSC_OSC_V1
+     * @param ricConfig
+     * @param controllerBaseUrl the base URL of the SDNC controller
+     * @param username username to accesss the SDNC controller
+     * @param password password to accesss the SDNC controller
+     */
     public SdncOscA1Client(A1ProtocolType protocolType, RicConfig ricConfig, String controllerBaseUrl, String username,
         String password) {
         this(protocolType, ricConfig, username, password,
@@ -97,7 +110,7 @@ public class SdncOscA1Client implements A1Client {
             OscA1Client.UriBuilder uri = new OscA1Client.UriBuilder(ricConfig);
             final String ricUrl = uri.createPolicyTypesUri();
             return post(GET_POLICY_RPC, ricUrl, Optional.empty()) //
-                .flatMapMany(JsonHelper::parseJsonArrayOfString) //
+                .flatMapMany(SdncJsonHelper::parseJsonArrayOfString) //
                 .collectList();
         }
         throw new NullPointerException(UNHANDELED_PROTOCOL + this.protocolType);
@@ -142,7 +155,7 @@ public class SdncOscA1Client implements A1Client {
             return getPolicyTypeIdentities() //
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(type -> post(GET_POLICY_RPC, uriBuilder.createGetPolicyIdsUri(type), Optional.empty())) //
-                .flatMap(JsonHelper::parseJsonArrayOfString);
+                .flatMap(SdncJsonHelper::parseJsonArrayOfString);
         }
         throw new NullPointerException(UNHANDELED_PROTOCOL + this.protocolType);
     }
@@ -185,13 +198,13 @@ public class SdncOscA1Client implements A1Client {
             StdA1ClientVersion1.UriBuilder uri = new StdA1ClientVersion1.UriBuilder(ricConfig);
             final String ricUrl = uri.createGetPolicyIdsUri();
             return post(GET_POLICY_RPC, ricUrl, Optional.empty()) //
-                .flatMapMany(JsonHelper::parseJsonArrayOfString);
+                .flatMapMany(SdncJsonHelper::parseJsonArrayOfString);
         } else if (this.protocolType == A1ProtocolType.SDNC_OSC_OSC_V1) {
             OscA1Client.UriBuilder uri = new OscA1Client.UriBuilder(ricConfig);
             return getPolicyTypeIdentities() //
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(type -> post(GET_POLICY_RPC, uri.createGetPolicyIdsUri(type), Optional.empty())) //
-                .flatMap(JsonHelper::parseJsonArrayOfString);
+                .flatMap(SdncJsonHelper::parseJsonArrayOfString);
         }
         throw new NullPointerException(UNHANDELED_PROTOCOL + this.protocolType);
     }
@@ -206,7 +219,7 @@ public class SdncOscA1Client implements A1Client {
             .nearRtRicUrl(ricUrl) //
             .body(body) //
             .build();
-        final String inputJsonString = JsonHelper.createInputJsonString(inputParams);
+        final String inputJsonString = SdncJsonHelper.createInputJsonString(inputParams);
 
         return restClient
             .postWithAuthHeader(controllerUrl(rpcName), inputJsonString, a1ControllerUsername, a1ControllerPassword)

@@ -68,6 +68,8 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
             .paths(PathSelectors.any()) //
             .paths(Predicates.not(PathSelectors.regex("/error"))) //
             // this endpoint is not implemented, but was visible for Swagger
+            .paths(Predicates.not(PathSelectors.regex("/actuator.*"))) //
+            // this endpoint is implemented by spring framework, exclude for now
             .build();
     }
 

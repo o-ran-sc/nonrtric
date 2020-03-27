@@ -33,6 +33,8 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 class BeanFactory {
+    private final ApplicationConfig applicationConfig = new ApplicationConfig();
+
     @Bean
     public Policies getPolicies() {
         return new Policies();
@@ -50,7 +52,7 @@ class BeanFactory {
 
     @Bean
     public ApplicationConfig getApplicationConfig() {
-        return new ApplicationConfig();
+        return this.applicationConfig;
     }
 
     @Bean
@@ -60,7 +62,7 @@ class BeanFactory {
 
     @Bean
     A1ClientFactory getA1ClientFactory() {
-        return new A1ClientFactory(getApplicationConfig());
+        return new A1ClientFactory(this.applicationConfig);
     }
 
     @Bean

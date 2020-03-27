@@ -70,7 +70,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Regularly refreshes the configuration from Consul.
+ * Regularly refreshes the configuration from Consul or from a local
+ * configuration file.
  */
 @Component
 public class RefreshConfigTask {
@@ -164,20 +165,19 @@ public class RefreshConfigTask {
         return Mono.empty();
     }
 
-    private Mono<ApplicationConfigParser> parseConfiguration(JsonObject jsonObject) {
+    private Mono<ApplicationConfigParser.ConfigParserResult> parseConfiguration(JsonObject jsonObject) {
         try {
             ApplicationConfigParser parser = new ApplicationConfigParser();
-            parser.parse(jsonObject);
-            return Mono.just(parser);
+            return Mono.just(parser.parse(jsonObject));
         } catch (ServiceException e) {
             logger.error("Could not parse configuration {}", e.toString(), e);
             return Mono.error(e);
         }
     }
 
-    private Flux<RicConfigUpdate> updateConfig(ApplicationConfigParser config) {
-        return this.appConfig.setConfiguration(config.getRicConfigs(), config.getDmaapPublisherConfig(),
-            config.getDmaapConsumerConfig());
+    private Flux<RicConfigUpdate> updateConfig(ApplicationConfigParser.ConfigParserResult config) {
+        return this.appConfig.setConfiguration(config.ricConfigs(), config.dmaapPublisherConfig(),
+            config.dmaapConsumerConfig());
     }
 
     boolean configFileExists() {

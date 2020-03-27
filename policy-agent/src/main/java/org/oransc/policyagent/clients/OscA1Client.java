@@ -32,6 +32,9 @@ import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+/**
+ * Client for accessing OSC A1 REST API
+ */
 @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
 public class OscA1Client implements A1Client {
 
@@ -47,6 +50,9 @@ public class OscA1Client implements A1Client {
             return createPolicyUri(type, policyId);
         }
 
+        /**
+         * /a1-p/policytypes/{policy_type_id}/policies
+         */
         public String createGetPolicyIdsUri(String type) {
             return createPolicyTypeUri(type) + "/policies";
         }
@@ -56,27 +62,45 @@ public class OscA1Client implements A1Client {
             return createPolicyUri(type, policyId);
         }
 
+        /**
+         * ​/a1-p​/policytypes​/{policy_type_id}​/policies​/{policy_instance_id}​/status
+         */
         @Override
         public String createGetPolicyStatusUri(String type, String policyId) {
             return createPolicyUri(type, policyId) + "/status";
         }
 
+        /**
+         * ​/a1-p​/healthcheck
+         */
         public String createHealtcheckUri() {
             return baseUri() + "/healthcheck";
         }
 
+        /**
+         * /a1-p/policytypes/{policy_type_id}
+         */
         public String createGetSchemaUri(String type) {
             return this.createPolicyTypeUri(type);
         }
 
+        /**
+         * ​/a1-p​/policytypes​/{policy_type_id}
+         */
         public String createPolicyTypesUri() {
             return baseUri() + "/policytypes";
         }
 
+        /**
+         * ​/a1-p​/policytypes​/{policy_type_id}​/policies​/{policy_instance_id}
+         */
         private String createPolicyUri(String type, String id) {
             return createPolicyTypeUri(type) + "/policies/" + id;
         }
 
+        /**
+         * /a1-p/policytypes/{policy_type_id}
+         */
         private String createPolicyTypeUri(String type) {
             return createPolicyTypesUri() + "/" + type;
         }
@@ -154,12 +178,12 @@ public class OscA1Client implements A1Client {
 
     private Flux<String> getPolicyTypeIds() {
         return restClient.get(uri.createPolicyTypesUri()) //
-            .flatMapMany(JsonHelper::parseJsonArrayOfString);
+            .flatMapMany(SdncJsonHelper::parseJsonArrayOfString);
     }
 
     private Flux<String> getPolicyIdentitiesByType(String typeId) {
         return restClient.get(uri.createGetPolicyIdsUri(typeId)) //
-            .flatMapMany(JsonHelper::parseJsonArrayOfString);
+            .flatMapMany(SdncJsonHelper::parseJsonArrayOfString);
     }
 
     private Mono<String> getCreateSchema(String policyTypeResponse, String policyTypeId) {

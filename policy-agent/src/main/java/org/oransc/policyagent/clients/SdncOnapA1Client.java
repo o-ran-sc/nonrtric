@@ -23,7 +23,10 @@ package org.oransc.policyagent.clients;
 import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import org.immutables.gson.Gson;
+import org.immutables.value.Value;
 import org.oransc.policyagent.configuration.RicConfig;
 import org.oransc.policyagent.repository.Policy;
 import org.slf4j.Logger;
@@ -32,8 +35,25 @@ import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+/**
+ * Client for accessing the A1 adapter in the SDNC controller in ONAP
+ */
 @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
 public class SdncOnapA1Client implements A1Client {
+    @Value.Immutable
+    @Gson.TypeAdapters
+    interface SdncOnapAdapterInput {
+        public String nearRtRicId();
+
+        public Optional<String> policyTypeId();
+
+        public Optional<String> policyInstanceId();
+
+        public Optional<String> policyInstance();
+
+        public Optional<List<String>> properties();
+    }
+
     private static final String URL_PREFIX = "/A1-ADAPTER-API:";
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -74,14 +94,14 @@ public class SdncOnapA1Client implements A1Client {
             .nearRtRicId(ricConfig.baseUrl()) //
             .policyTypeId(policyTypeId) //
             .build();
-        String inputJsonString = JsonHelper.createInputJsonString(inputParams);
+        String inputJsonString = SdncJsonHelper.createInputJsonString(inputParams);
         logger.debug("POST getPolicyType inputJsonString = {}", inputJsonString);
 
         return restClient
             .postWithAuthHeader(URL_PREFIX + "getPolicyType", inputJsonString, a1ControllerUsername,
                 a1ControllerPassword) //
-            .flatMap(response -> JsonHelper.getValueFromResponse(response, "policy-type")) //
-            .flatMap(JsonHelper::extractPolicySchema);
+            .flatMap(response -> SdncJsonHelper.getValueFromResponse(response, "policy-type")) //
+            .flatMap(SdncJsonHelper::extractPolicySchema);
     }
 
     @Override
@@ -94,7 +114,7 @@ public class SdncOnapA1Client implements A1Client {
             .properties(new ArrayList<String>()) //
             .build();
 
-        String inputJsonString = JsonHelper.createInputJsonString(inputParams);
+        String inputJsonString = SdncJsonHelper.createInputJsonString(inputParams);
         logger.debug("POST putPolicy inputJsonString = {}", inputJsonString);
 
         return restClient.postWithAuthHeader(URL_PREFIX + "createPolicyInstance", inputJsonString, a1ControllerUsername,
@@ -127,14 +147,14 @@ public class SdncOnapA1Client implements A1Client {
         SdncOnapAdapterInput inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(ricConfig.baseUrl()) //
             .build();
-        String inputJsonString = JsonHelper.createInputJsonString(inputParams);
+        String inputJsonString = SdncJsonHelper.createInputJsonString(inputParams);
         logger.debug("POST getPolicyTypeIdentities inputJsonString = {}", inputJsonString);
 
         return restClient
             .postWithAuthHeader("/A1-ADAPTER-API:getPolicyTypes", inputJsonString, a1ControllerUsername,
                 a1ControllerPassword) //
-            .flatMap(response -> JsonHelper.getValueFromResponse(response, "policy-type-id-list")) //
-            .flatMapMany(JsonHelper::parseJsonArrayOfString);
+            .flatMap(response -> SdncJsonHelper.getValueFromResponse(response, "policy-type-id-list")) //
+            .flatMapMany(SdncJsonHelper::parseJsonArrayOfString);
     }
 
     private Flux<String> getPolicyIdentitiesByType(String policyTypeId) {
@@ -142,14 +162,14 @@ public class SdncOnapA1Client implements A1Client {
             .nearRtRicId(ricConfig.baseUrl()) //
             .policyTypeId(policyTypeId) //
             .build();
-        String inputJsonString = JsonHelper.createInputJsonString(inputParams);
+        String inputJsonString = SdncJsonHelper.createInputJsonString(inputParams);
         logger.debug("POST getPolicyIdentities inputJsonString = {}", inputJsonString);
 
         return restClient
             .postWithAuthHeader("/A1-ADAPTER-API:getPolicyInstances", inputJsonString, a1ControllerUsername,
                 a1ControllerPassword) //
-            .flatMap(response -> JsonHelper.getValueFromResponse(response, "policy-instance-id-list")) //
-            .flatMapMany(JsonHelper::parseJsonArrayOfString);
+            .flatMap(response -> SdncJsonHelper.getValueFromResponse(response, "policy-instance-id-list")) //
+            .flatMapMany(SdncJsonHelper::parseJsonArrayOfString);
     }
 
     private Flux<String> deletePoliciesForType(String typeId) {
@@ -163,7 +183,7 @@ public class SdncOnapA1Client implements A1Client {
             .policyTypeId(policyTypeId) //
             .policyInstanceId(policyId) //
             .build();
-        String inputJsonString = JsonHelper.createInputJsonString(inputParams);
+        String inputJsonString = SdncJsonHelper.createInputJsonString(inputParams);
         logger.debug("POST deletePolicy inputJsonString = {}", inputJsonString);
 
         return restClient.postWithAuthHeader("/A1-ADAPTER-API:deletePolicyInstance", inputJsonString,

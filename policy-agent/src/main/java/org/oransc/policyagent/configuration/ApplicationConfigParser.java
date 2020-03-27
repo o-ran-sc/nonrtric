@@ -35,37 +35,52 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
-import lombok.Getter;
-
+import org.immutables.gson.Gson;
+import org.immutables.value.Value;
 import org.onap.dmaap.mr.test.clients.ProtocolTypeConstants;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.springframework.http.MediaType;
 
+/**
+ * Parser for the Json representing of the component configuration.
+ */
 public class ApplicationConfigParser {
 
     private static final String CONFIG = "config";
 
-    @Getter
-    private List<RicConfig> ricConfigs;
-    @Getter
-    private Properties dmaapPublisherConfig = new Properties();
-    @Getter
-    private Properties dmaapConsumerConfig = new Properties();
+    @Value.Immutable
+    @Gson.TypeAdapters
+    public interface ConfigParserResult {
+        List<RicConfig> ricConfigs();
 
-    public void parse(JsonObject root) throws ServiceException {
+        Properties dmaapPublisherConfig();
+
+        Properties dmaapConsumerConfig();
+    }
+
+    public ConfigParserResult parse(JsonObject root) throws ServiceException {
+
+        Properties dmaapPublisherConfig = new Properties();
+        Properties dmaapConsumerConfig = new Properties();
+
         JsonObject agentConfigJson = root.getAsJsonObject(CONFIG);
-        ricConfigs = parseRics(agentConfigJson);
+        List<RicConfig> ricConfigs = parseRics(agentConfigJson);
 
         JsonObject json = agentConfigJson.getAsJsonObject("streams_publishes");
         if (json != null) {
-            this.dmaapPublisherConfig = parseDmaapConfig(json);
+            dmaapPublisherConfig = parseDmaapConfig(json);
         }
 
         json = agentConfigJson.getAsJsonObject("streams_subscribes");
         if (json != null) {
-            this.dmaapConsumerConfig = parseDmaapConfig(json);
+            dmaapConsumerConfig = parseDmaapConfig(json);
         }
 
+        return ImmutableConfigParserResult.builder() //
+            .dmaapConsumerConfig(dmaapConsumerConfig) //
+            .dmaapPublisherConfig(dmaapPublisherConfig) //
+            .ricConfigs(ricConfigs) //
+            .build();
     }
 
     private List<RicConfig> parseRics(JsonObject config) throws ServiceException {

@@ -40,7 +40,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * The class fetched incoming requests from DMAAP on regular intervals. Each
+ * The class fetches incoming requests from DMAAP on regular intervals. Each
  * received request is proceesed by DmaapMessageHandler.
  */
 @Component

@@ -54,9 +54,9 @@ public class ApplicationConfigParserTest {
     public void whenCorrectDmaapConfig() throws Exception {
         JsonObject jsonRootObject = getJsonRootObject();
 
-        parserUnderTest.parse(jsonRootObject);
+        ApplicationConfigParser.ConfigParserResult result = parserUnderTest.parse(jsonRootObject);
 
-        Properties actualPublisherConfig = parserUnderTest.getDmaapPublisherConfig();
+        Properties actualPublisherConfig = result.dmaapPublisherConfig();
         assertAll("publisherConfig",
             () -> assertEquals("localhost:6845/events", actualPublisherConfig.get("ServiceName"), "Wrong ServiceName"),
             () -> assertEquals("A1-POLICY-AGENT-WRITE", actualPublisherConfig.get("topic"), "Wrong topic"),
@@ -70,7 +70,7 @@ public class ApplicationConfigParserTest {
             () -> assertEquals(15000, actualPublisherConfig.get("timeout"), "Wrong timeout"),
             () -> assertEquals(100, actualPublisherConfig.get("limit"), "Wrong limit"));
 
-        Properties actualConsumerConfig = parserUnderTest.getDmaapConsumerConfig();
+        Properties actualConsumerConfig = result.dmaapConsumerConfig();
         assertAll("consumerConfig",
             () -> assertEquals("localhost:6845/events", actualConsumerConfig.get("ServiceName"), "Wrong ServiceName"),
             () -> assertEquals("A1-POLICY-AGENT-READ", actualConsumerConfig.get("topic"), "Wrong topic"),
