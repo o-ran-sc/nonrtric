@@ -51,12 +51,12 @@ public class LogAspect {
     }
 
     @Before("execution(* org.oransc.policyagent..*(..)))")
-    public void entryLog(final JoinPoint joinPoint) throws Throwable {
+    public void entryLog(final JoinPoint joinPoint) {
         logger.trace("Entering method: {}", joinPoint.getSignature().getName());
     }
 
     @After("execution(* org.oransc.policyagent..*(..)))")
-    public void exitLog(final JoinPoint joinPoint) throws Throwable {
+    public void exitLog(final JoinPoint joinPoint) {
         logger.trace("Exiting method: {}", joinPoint.getSignature().getName());
     }
 
