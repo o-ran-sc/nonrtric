@@ -30,9 +30,44 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public class StdA1ClientVersion1 implements A1Client {
-    private final AsyncRestClient restClient;
 
-    private final A1UriBuilder uri;
+    public static class UriBuilder implements A1UriBuilder {
+
+        private final RicConfig ricConfig;
+
+        public UriBuilder(RicConfig ricConfig) {
+            this.ricConfig = ricConfig;
+        }
+
+        @Override
+        public String createPutPolicyUri(String type, String policyId) {
+            return policiesBaseUri() + policyId;
+        }
+
+        public String createGetPolicyIdsUri() {
+            return baseUri() + "/policies";
+        }
+
+        @Override
+        public String createDeleteUri(String type, String policyId) {
+            return policiesBaseUri() + policyId;
+        }
+
+        public String createGetPolicyStatusUri(String type, String policyId) {
+            return policiesBaseUri() + policyId + "/status";
+        }
+
+        private String baseUri() {
+            return ricConfig.baseUrl() + "/A1-P/v1";
+        }
+
+        private String policiesBaseUri() {
+            return createGetPolicyIdsUri() + "/";
+        }
+    }
+
+    private final AsyncRestClient restClient;
+    private final UriBuilder uri;
 
     public StdA1ClientVersion1(RicConfig ricConfig) {
         this(new AsyncRestClient(""), ricConfig);
@@ -40,7 +75,7 @@ public class StdA1ClientVersion1 implements A1Client {
 
     public StdA1ClientVersion1(AsyncRestClient restClient, RicConfig ricConfig) {
         this.restClient = restClient;
-        this.uri = new StdA1UriBuilderVersion1(ricConfig);
+        this.uri = new UriBuilder(ricConfig);
     }
 
     @Override
@@ -51,8 +86,7 @@ public class StdA1ClientVersion1 implements A1Client {
 
     @Override
     public Mono<String> putPolicy(Policy policy) {
-
-        return restClient.put(uri.createPutPolicyUri(policy), policy.json()) //
+        return restClient.put(uri.createPutPolicyUri(policy.type().name(), policy.id()), policy.json()) //
             .flatMap(JsonHelper::validateJson);
     }
 
@@ -85,7 +119,7 @@ public class StdA1ClientVersion1 implements A1Client {
 
     @Override
     public Mono<String> getPolicyStatus(Policy policy) {
-        return restClient.get(uri.createGetPolicyStatusUri(policy.id()));
+        return restClient.get(uri.createGetPolicyStatusUri(policy.type().name(), policy.id()));
     }
 
     private Flux<String> getPolicyIds() {
@@ -94,6 +128,6 @@ public class StdA1ClientVersion1 implements A1Client {
     }
 
     private Mono<String> deletePolicyById(String policyId) {
-        return restClient.delete(uri.createDeleteUri(policyId));
+        return restClient.delete(uri.createDeleteUri("", policyId));
     }
 }
