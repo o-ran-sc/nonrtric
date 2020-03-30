@@ -20,6 +20,7 @@
 
 package org.oransc.policyagent.utils;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Vector;
 
@@ -31,13 +32,16 @@ import org.oransc.policyagent.repository.PolicyTypes;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.MonoSink;
 
 public class MockA1Client implements A1Client {
     Policies policies = new Policies();
     private final PolicyTypes policyTypes;
+    private final Duration asynchDelay;
 
-    public MockA1Client(PolicyTypes policyTypes) {
+    public MockA1Client(PolicyTypes policyTypes, Duration asynchDelay) {
         this.policyTypes = policyTypes;
+        this.asynchDelay = asynchDelay;
     }
 
     @Override
@@ -47,7 +51,7 @@ public class MockA1Client implements A1Client {
             for (PolicyType p : this.policyTypes.getAll()) {
                 result.add(p.name());
             }
-            return Mono.just(result);
+            return mono(result);
         }
     }
 
@@ -59,14 +63,14 @@ public class MockA1Client implements A1Client {
                 result.add(policy.id());
             }
 
-            return Mono.just(result);
+            return mono(result);
         }
     }
 
     @Override
     public Mono<String> getPolicyTypeSchema(String policyTypeId) {
         try {
-            return Mono.just(this.policyTypes.getType(policyTypeId).schema());
+            return mono(this.policyTypes.getType(policyTypeId).schema());
         } catch (Exception e) {
             return Mono.error(e);
         }
@@ -75,13 +79,14 @@ public class MockA1Client implements A1Client {
     @Override
     public Mono<String> putPolicy(Policy p) {
         this.policies.put(p);
-        return Mono.just("OK");
+        return mono("OK");
+
     }
 
     @Override
     public Mono<String> deletePolicy(Policy policy) {
         this.policies.remove(policy);
-        return Mono.just("OK");
+        return mono("OK");
     }
 
     public Policies getPolicies() {
@@ -90,7 +95,7 @@ public class MockA1Client implements A1Client {
 
     @Override
     public Mono<A1ProtocolType> getProtocolVersion() {
-        return Mono.just(A1ProtocolType.STD_V1_1);
+        return mono(A1ProtocolType.STD_V1_1);
     }
 
     @Override
@@ -101,7 +106,32 @@ public class MockA1Client implements A1Client {
 
     @Override
     public Mono<String> getPolicyStatus(Policy policy) {
-        return Mono.just("OK");
+        return mono("OK");
+    }
+
+    private <T> Mono<T> mono(T value) {
+        if (this.asynchDelay.isZero()) {
+            return Mono.just(value);
+        } else {
+            return Mono.create(monoSink -> asynchResponse(monoSink, value));
+        }
+    }
+
+    @SuppressWarnings("squid:S2925") // "Thread.sleep" should not be used in tests.
+    private void sleep() {
+        try {
+            Thread.sleep(this.asynchDelay.toMillis());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private <T> void asynchResponse(MonoSink<T> callback, T str) {
+        Thread thread = new Thread(() -> {
+            sleep(); // Simulate a network delay
+            callback.success(str);
+        });
+        thread.start();
     }
 
 }
