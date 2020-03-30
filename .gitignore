@@ -7,3 +7,5 @@ docs/_build/
 # Eclipse
 .checkstyle
 .sts4-cache
+.project
+.settings
