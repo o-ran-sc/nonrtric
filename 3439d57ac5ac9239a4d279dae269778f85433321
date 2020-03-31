@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "91dab554_ae52d4d8",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/utils/MockA1Client.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-03-31T06:22:50Z",
+      "side": 1,
+      "message": "Please don\u0027t check in commented out code.",
+      "range": {
+        "startLine": 122,
+        "startChar": 16,
+        "endLine": 122,
+        "endChar": 36
+      },
+      "revId": "3439d57ac5ac9239a4d279dae269778f85433321",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
