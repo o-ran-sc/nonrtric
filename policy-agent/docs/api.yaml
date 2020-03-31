@@ -346,7 +346,7 @@ paths:
           type: string
       responses:
         '200':
-          description: RIC is fond
+          description: RIC is found
           schema:
             type: string
         '401':
@@ -354,7 +354,7 @@ paths:
         '403':
           description: Forbidden
         '404':
-          description: RIC is not fond
+          description: RIC is not found
           schema:
             type: string
       deprecated: false
@@ -362,7 +362,7 @@ paths:
     get:
       tags:
         - RIC Repository
-      summary: Query NearRT RIC information
+      summary: Query Near-RT RIC information
       operationId: getRicsUsingGET
       produces:
         - '*/*'
@@ -557,7 +557,7 @@ definitions:
         description: 'timestamp, last modification time'
       ric:
         type: string
-        description: identity the target NearRT RIC
+        description: identity of the target Near-RT RIC
       service:
         type: string
         description: the name of the service owning the policy
