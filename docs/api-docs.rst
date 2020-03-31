@@ -24,6 +24,8 @@ The Policy Agent provides common functionality useful for R-Apps, for instance:
  * A repository of available Near-RT RICs, their policy types and policy instances.
  * An A1 connection to the Near-RT RICs.
 
+See :ref:`policy-agent-api` for how to use the API.
+
 See the README.md file in the nonrtric/policy-agent repo for info about how to use it.
 
 API Functions
