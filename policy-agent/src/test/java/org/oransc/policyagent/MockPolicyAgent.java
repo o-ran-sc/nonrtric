@@ -131,11 +131,9 @@ public class MockPolicyAgent {
 
     private void keepServerAlive() throws InterruptedException {
         logger.info("Keeping server alive!");
-
         synchronized (this) {
             this.wait();
         }
-
     }
 
     private static String title(String jsonSchema) {

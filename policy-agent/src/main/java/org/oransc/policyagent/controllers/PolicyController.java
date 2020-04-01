@@ -95,17 +95,15 @@ public class PolicyController {
             @ApiResponse(code = 200, message = "Policy schemas", response = Object.class, responseContainer = "List"), //
             @ApiResponse(code = 404, message = "RIC is not found", response = String.class)})
     public ResponseEntity<String> getPolicySchemas(@RequestParam(name = "ric", required = false) String ricName) {
-        synchronized (this.policyTypes) {
-            if (ricName == null) {
-                Collection<PolicyType> types = this.policyTypes.getAll();
+        if (ricName == null) {
+            Collection<PolicyType> types = this.policyTypes.getAll();
+            return new ResponseEntity<>(toPolicyTypeSchemasJson(types), HttpStatus.OK);
+        } else {
+            try {
+                Collection<PolicyType> types = rics.getRic(ricName).getSupportedPolicyTypes();
                 return new ResponseEntity<>(toPolicyTypeSchemasJson(types), HttpStatus.OK);
-            } else {
-                try {
-                    Collection<PolicyType> types = rics.getRic(ricName).getSupportedPolicyTypes();
-                    return new ResponseEntity<>(toPolicyTypeSchemasJson(types), HttpStatus.OK);
-                } catch (ServiceException e) {
-                    return new ResponseEntity<>(e.toString(), HttpStatus.NOT_FOUND);
-                }
+            } catch (ServiceException e) {
+                return new ResponseEntity<>(e.toString(), HttpStatus.NOT_FOUND);
             }
         }
     }
@@ -136,17 +134,15 @@ public class PolicyController {
                 responseContainer = "List"),
             @ApiResponse(code = 404, message = "RIC is not found", response = String.class)})
     public ResponseEntity<String> getPolicyTypes(@RequestParam(name = "ric", required = false) String ricName) {
-        synchronized (this.policyTypes) {
-            if (ricName == null) {
-                Collection<PolicyType> types = this.policyTypes.getAll();
+        if (ricName == null) {
+            Collection<PolicyType> types = this.policyTypes.getAll();
+            return new ResponseEntity<>(toPolicyTypeIdsJson(types), HttpStatus.OK);
+        } else {
+            try {
+                Collection<PolicyType> types = rics.getRic(ricName).getSupportedPolicyTypes();
                 return new ResponseEntity<>(toPolicyTypeIdsJson(types), HttpStatus.OK);
-            } else {
-                try {
-                    Collection<PolicyType> types = rics.getRic(ricName).getSupportedPolicyTypes();
-                    return new ResponseEntity<>(toPolicyTypeIdsJson(types), HttpStatus.OK);
-                } catch (ServiceException e) {
-                    return new ResponseEntity<>(e.toString(), HttpStatus.NOT_FOUND);
-                }
+            } catch (ServiceException e) {
+                return new ResponseEntity<>(e.toString(), HttpStatus.NOT_FOUND);
             }
         }
     }
@@ -174,19 +170,16 @@ public class PolicyController {
         value = { //
             @ApiResponse(code = 204, message = "Policy deleted", response = Object.class),
             @ApiResponse(code = 404, message = "Policy is not found", response = String.class),
-            @ApiResponse(code = 423, message = "RIC is locked", response = String.class)})
+            @ApiResponse(code = 423, message = "RIC is not operational", response = String.class)})
     public Mono<ResponseEntity<Object>> deletePolicy( //
         @RequestParam(name = "instance", required = true) String id) {
-        Policy policy;
         try {
-            policy = policies.getPolicy(id);
+            Policy policy = policies.getPolicy(id);
             keepServiceAlive(policy.ownerServiceName());
-            if (policy.ric().getState() != Ric.RicState.IDLE) {
-                return Mono.just(new ResponseEntity<>("Busy, synchronizing", HttpStatus.LOCKED));
-            }
             Ric ric = policy.ric();
-            return ric.getLock().lock(LockType.SHARED) // //
-                .flatMap(lock -> a1ClientFactory.createA1Client(policy.ric())) //
+            return ric.getLock().lock(LockType.SHARED) //
+                .flatMap(notUsed -> assertRicStateIdle(ric)) //
+                .flatMap(notUsed -> a1ClientFactory.createA1Client(policy.ric())) //
                 .doOnNext(notUsed -> policies.remove(policy)) //
                 .flatMap(client -> client.deletePolicy(policy)) //
                 .doOnNext(notUsed -> ric.getLock().unlockBlocking()) //
@@ -204,7 +197,7 @@ public class PolicyController {
         value = { //
             @ApiResponse(code = 201, message = "Policy created", response = Object.class), //
             @ApiResponse(code = 200, message = "Policy updated", response = Object.class), //
-            @ApiResponse(code = 423, message = "RIC is locked", response = String.class), //
+            @ApiResponse(code = 423, message = "RIC is not operational", response = String.class), //
             @ApiResponse(code = 404, message = "RIC or policy type is not found", response = String.class) //
         })
     public Mono<ResponseEntity<Object>> putPolicy( //
@@ -218,31 +211,30 @@ public class PolicyController {
         Ric ric = rics.get(ricName);
         PolicyType type = policyTypes.get(typeName);
         keepServiceAlive(service);
-        if (ric != null && type != null && ric.getState() == Ric.RicState.IDLE) {
-            Policy policy = ImmutablePolicy.builder() //
-                .id(instanceId) //
-                .json(jsonString) //
-                .type(type) //
-                .ric(ric) //
-                .ownerServiceName(service) //
-                .lastModified(getTimeStampUtc()) //
-                .build();
-
-            final boolean isCreate = this.policies.get(policy.id()) == null;
-
-            return ric.getLock().lock(LockType.SHARED) //
-                .flatMap(p -> validateModifiedPolicy(policy)) //
-                .flatMap(notUsed -> a1ClientFactory.createA1Client(ric)) //
-                .flatMap(client -> client.putPolicy(policy)) //
-                .doOnNext(notUsed -> policies.put(policy)) //
-                .doOnNext(notUsed -> ric.getLock().unlockBlocking()) //
-                .doOnError(t -> ric.getLock().unlockBlocking()) //
-                .flatMap(notUsed -> Mono.just(new ResponseEntity<>(isCreate ? HttpStatus.CREATED : HttpStatus.OK))) //
-                .onErrorResume(this::handleException);
+        if (ric == null || type == null) {
+            return Mono.just(new ResponseEntity<>(HttpStatus.NOT_FOUND));
         }
+        Policy policy = ImmutablePolicy.builder() //
+            .id(instanceId) //
+            .json(jsonString) //
+            .type(type) //
+            .ric(ric) //
+            .ownerServiceName(service) //
+            .lastModified(getTimeStampUtc()) //
+            .build();
 
-        return ric == null || type == null ? Mono.just(new ResponseEntity<>(HttpStatus.NOT_FOUND))
-            : Mono.just(new ResponseEntity<>(HttpStatus.LOCKED)); // Synchronizing
+        final boolean isCreate = this.policies.get(policy.id()) == null;
+
+        return ric.getLock().lock(LockType.SHARED) //
+            .flatMap(p -> assertRicStateIdle(ric)) //
+            .flatMap(p -> validateModifiedPolicy(policy)) //
+            .flatMap(notUsed -> a1ClientFactory.createA1Client(ric)) //
+            .flatMap(client -> client.putPolicy(policy)) //
+            .doOnNext(notUsed -> policies.put(policy)) //
+            .doOnNext(notUsed -> ric.getLock().unlockBlocking()) //
+            .doOnError(t -> ric.getLock().unlockBlocking()) //
+            .flatMap(notUsed -> Mono.just(new ResponseEntity<>(isCreate ? HttpStatus.CREATED : HttpStatus.OK))) //
+            .onErrorResume(this::handleException);
     }
 
     @SuppressWarnings({"unchecked"})
@@ -275,6 +267,16 @@ public class PolicyController {
         return Mono.just("OK");
     }
 
+    private Mono<Object> assertRicStateIdle(Ric ric) {
+        if (ric.getState() == Ric.RicState.IDLE) {
+            return Mono.just("OK");
+        } else {
+            RejectionException e = new RejectionException(
+                "Ric is not operational, RIC name: " + ric.name() + ", state: " + ric.getState(), HttpStatus.LOCKED);
+            return Mono.error(e);
+        }
+    }
+
     @GetMapping("/policies")
     @ApiOperation(value = "Query policies")
     @ApiResponses(
@@ -292,10 +294,9 @@ public class PolicyController {
         if ((ric != null && this.rics.get(ric) == null)) {
             return new ResponseEntity<>("RIC not found", HttpStatus.NOT_FOUND);
         }
-        synchronized (policies) {
-            String filteredPolicies = policiesToJson(filter(type, ric, service));
-            return new ResponseEntity<>(filteredPolicies, HttpStatus.OK);
-        }
+
+        String filteredPolicies = policiesToJson(filter(type, ric, service));
+        return new ResponseEntity<>(filteredPolicies, HttpStatus.OK);
     }
 
     @GetMapping("/policy_ids")
@@ -314,10 +315,9 @@ public class PolicyController {
         if ((ric != null && this.rics.get(ric) == null)) {
             return new ResponseEntity<>("RIC not found", HttpStatus.NOT_FOUND);
         }
-        synchronized (policies) {
-            String policyIdsJson = toPolicyIdsJson(filter(type, ric, service));
-            return new ResponseEntity<>(policyIdsJson, HttpStatus.OK);
-        }
+
+        String policyIdsJson = toPolicyIdsJson(filter(type, ric, service));
+        return new ResponseEntity<>(policyIdsJson, HttpStatus.OK);
     }
 
     @GetMapping("/policy_status")
@@ -367,16 +367,14 @@ public class PolicyController {
     }
 
     private Collection<Policy> filter(String type, String ric, String service) {
-        synchronized (policies) {
-            if (type != null) {
-                return filter(policies.getForType(type), null, ric, service);
-            } else if (service != null) {
-                return filter(policies.getForService(service), type, ric, null);
-            } else if (ric != null) {
-                return filter(policies.getForRic(ric), type, null, service);
-            } else {
-                return policies.getAll();
-            }
+        if (type != null) {
+            return filter(policies.getForType(type), null, ric, service);
+        } else if (service != null) {
+            return filter(policies.getForService(service), type, ric, null);
+        } else if (ric != null) {
+            return filter(policies.getForRic(ric), type, null, service);
+        } else {
+            return policies.getAll();
         }
     }
 

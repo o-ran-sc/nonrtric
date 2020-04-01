@@ -105,9 +105,7 @@ public class ServiceSupervision {
     }
 
     private Flux<Policy> getAllPoliciesForService(Service service) {
-        synchronized (policies) {
-            return Flux.fromIterable(policies.getForService(service.getName()));
-        }
+        return Flux.fromIterable(policies.getForService(service.getName()));
     }
 
     private Mono<Policy> deletePolicyInRic(Policy policy) {

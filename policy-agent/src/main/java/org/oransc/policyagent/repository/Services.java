@@ -20,9 +20,9 @@
 
 package org.oransc.policyagent.repository;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.slf4j.Logger;
@@ -51,7 +51,7 @@ public class Services {
     }
 
     public synchronized Iterable<Service> getAll() {
-        return Collections.unmodifiableCollection(registeredServices.values());
+        return new Vector<>(registeredServices.values());
     }
 
     public synchronized void remove(String name) {
