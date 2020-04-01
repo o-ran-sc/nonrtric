@@ -23,6 +23,7 @@ package org.oransc.policyagent.repository;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Vector;
 
 import org.oransc.policyagent.exceptions.ServiceException;
 
@@ -37,7 +38,7 @@ public class Rics {
     }
 
     public synchronized Iterable<Ric> getRics() {
-        return registeredRics.values();
+        return new Vector<>(registeredRics.values());
     }
 
     public synchronized Ric getRic(String name) throws ServiceException {

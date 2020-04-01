@@ -72,4 +72,9 @@ public class MockA1ClientFactory extends A1ClientFactory {
         this.asynchDelay = delay;
     }
 
+    public void reset() {
+        this.asynchDelay = Duration.ofSeconds(0);
+        clients.clear();
+    }
+
 }

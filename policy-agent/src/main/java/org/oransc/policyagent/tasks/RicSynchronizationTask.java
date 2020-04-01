@@ -22,15 +22,10 @@ package org.oransc.policyagent.tasks;
 
 import static org.oransc.policyagent.repository.Ric.RicState;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
-
 import org.oransc.policyagent.clients.A1Client;
 import org.oransc.policyagent.clients.A1ClientFactory;
 import org.oransc.policyagent.clients.AsyncRestClient;
 import org.oransc.policyagent.repository.ImmutablePolicyType;
-import org.oransc.policyagent.repository.Lock;
 import org.oransc.policyagent.repository.Lock.LockType;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.Policy;
@@ -45,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.SignalType;
 
 /**
  * Synchronizes the content of a RIC with the content in the repository. This
@@ -80,32 +76,48 @@ public class RicSynchronizationTask {
     public void run(Ric ric) {
         logger.debug("Handling ric: {}", ric.getConfig().name());
 
-        synchronized (ric) {
-            if (ric.getState() == RicState.SYNCHRONIZING) {
-                logger.debug("Ric: {} is already being synchronized", ric.getConfig().name());
-                return;
-            }
-            ric.setState(RicState.SYNCHRONIZING);
+        if (ric.getState() == RicState.SYNCHRONIZING) {
+            logger.debug("Ric: {} is already being synchronized", ric.getConfig().name());
+            return;
         }
 
-        ric.getLock().lock(LockType.EXCLUSIVE) // Make sure no NBI updates are running
-            .flatMap(Lock::unlock) //
+        ric.getLock().lock(LockType.EXCLUSIVE) //
+            .flatMap(notUsed -> setRicState(ric)) //
             .flatMap(lock -> this.a1ClientFactory.createA1Client(ric)) //
-            .flatMapMany(client -> startSynchronization(ric, client)) //
+            .flatMapMany(client -> runSynchronization(ric, client)) //
+            .onErrorResume(throwable -> deleteAllPolicyInstances(ric, throwable))
             .subscribe(new BaseSubscriber<Object>() {
                 @Override
                 protected void hookOnError(Throwable throwable) {
-                    startDeleteAllPolicyInstances(ric, throwable);
+                    logger.warn("Synchronization failure for ric: {}, reason: {}", ric.name(), throwable.getMessage());
+                    ric.setState(RicState.UNDEFINED);
                 }
 
                 @Override
                 protected void hookOnComplete() {
                     onSynchronizationComplete(ric);
                 }
+
+                @Override
+                protected void hookFinally(SignalType type) {
+                    ric.getLock().unlockBlocking();
+                }
             });
     }
 
-    private Flux<Object> startSynchronization(Ric ric, A1Client a1Client) {
+    @SuppressWarnings("squid:S2445") // Blocks should be synchronized on "private final" fields
+    private Mono<Ric> setRicState(Ric ric) {
+        synchronized (ric) {
+            if (ric.getState() == RicState.SYNCHRONIZING) {
+                logger.debug("Ric: {} is already being synchronized", ric.getConfig().name());
+                return Mono.empty();
+            }
+            ric.setState(RicState.SYNCHRONIZING);
+            return Mono.just(ric);
+        }
+    }
+
+    private Flux<Object> runSynchronization(Ric ric, A1Client a1Client) {
         Flux<PolicyType> synchronizedTypes = synchronizePolicyTypes(ric, a1Client);
         Flux<?> policiesDeletedInRic = a1Client.deleteAllPolicies();
         Flux<Policy> policiesRecreatedInRic = recreateAllPoliciesInRic(ric, a1Client);
@@ -114,30 +126,27 @@ public class RicSynchronizationTask {
     }
 
     private void onSynchronizationComplete(Ric ric) {
-        logger.info("Synchronization completed for: {}", ric.name());
+        logger.debug("Synchronization completed for: {}", ric.name());
         ric.setState(RicState.IDLE);
         notifyAllServices("Synchronization completed for:" + ric.name());
     }
 
     private void notifyAllServices(String body) {
-        synchronized (services) {
-            for (Service service : services.getAll()) {
-                String url = service.getCallbackUrl();
-                if (service.getCallbackUrl().length() > 0) {
-                    createNotificationClient(url) //
-                        .put("", body) //
-                        .subscribe( //
-                            notUsed -> logger.debug("Service {} notified", service.getName()), throwable -> logger
-                                .warn("Service notification failed for service: {}", service.getName(), throwable),
-                            () -> logger.debug("All services notified"));
-                }
+        for (Service service : services.getAll()) {
+            String url = service.getCallbackUrl();
+            if (service.getCallbackUrl().length() > 0) {
+                createNotificationClient(url) //
+                    .put("", body) //
+                    .subscribe( //
+                        notUsed -> logger.debug("Service {} notified", service.getName()), throwable -> logger
+                            .warn("Service notification failed for service: {}", service.getName(), throwable),
+                        () -> logger.debug("All services notified"));
             }
         }
     }
 
-    private void startDeleteAllPolicyInstances(Ric ric, Throwable t) {
-        logger.warn("Synchronization failed for ric: {}, reason: {}", ric.name(), t.getMessage());
-        // If synchronization fails, try to remove all instances
+    private Flux<Object> deleteAllPolicyInstances(Ric ric, Throwable t) {
+        logger.warn("Recreation of policies failed for ric: {}, reason: {}", ric.name(), t.getMessage());
         deleteAllPoliciesInRepository(ric);
 
         Flux<PolicyType> synchronizedTypes = this.a1ClientFactory.createA1Client(ric) //
@@ -146,15 +155,7 @@ public class RicSynchronizationTask {
             .flatMapMany(A1Client::deleteAllPolicies) //
             .doOnComplete(() -> deleteAllPoliciesInRepository(ric));
 
-        Flux.concat(synchronizedTypes, deletePoliciesInRic) //
-            .subscribe(x -> logger.debug("Brute recovery of failed synchronization: {}", x), //
-                throwable -> onDeleteAllPolicyInstancesError(ric, throwable), //
-                () -> onSynchronizationComplete(ric));
-    }
-
-    private void onDeleteAllPolicyInstancesError(Ric ric, Throwable t) {
-        logger.warn("Synchronization failure recovery failed for ric: {}, reason: {}", ric.name(), t.getMessage());
-        ric.setState(RicState.UNDEFINED);
+        return Flux.concat(synchronizedTypes, deletePoliciesInRic);
     }
 
     AsyncRestClient createNotificationClient(final String url) {
@@ -185,11 +186,8 @@ public class RicSynchronizationTask {
     }
 
     private void deleteAllPoliciesInRepository(Ric ric) {
-        synchronized (policies) {
-            List<Policy> ricPolicies = new ArrayList<>(policies.getForRic(ric.name()));
-            for (Policy policy : ricPolicies) {
-                this.policies.remove(policy);
-            }
+        for (Policy policy : policies.getForRic(ric.name())) {
+            this.policies.remove(policy);
         }
     }
 
@@ -200,10 +198,8 @@ public class RicSynchronizationTask {
     }
 
     private Flux<Policy> recreateAllPoliciesInRic(Ric ric, A1Client a1Client) {
-        synchronized (policies) {
-            return Flux.fromIterable(new Vector<>(policies.getForRic(ric.name()))) //
-                .flatMap(policy -> putPolicy(policy, ric, a1Client));
-        }
+        return Flux.fromIterable(policies.getForRic(ric.name())) //
+            .flatMap(policy -> putPolicy(policy, ric, a1Client));
     }
 
 }

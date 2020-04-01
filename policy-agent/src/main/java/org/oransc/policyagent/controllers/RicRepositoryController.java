@@ -95,11 +95,9 @@ public class RicRepositoryController {
         }
 
         List<RicInfo> result = new ArrayList<>();
-        synchronized (rics) {
-            for (Ric ric : rics.getRics()) {
-                if (supportingPolicyType == null || ric.isSupportingType(supportingPolicyType)) {
-                    result.add(new RicInfo(ric.name(), ric.getManagedElementIds(), ric.getSupportedPolicyTypeNames()));
-                }
+        for (Ric ric : rics.getRics()) {
+            if (supportingPolicyType == null || ric.isSupportingType(supportingPolicyType)) {
+                result.add(new RicInfo(ric.name(), ric.getManagedElementIds(), ric.getSupportedPolicyTypeNames()));
             }
         }
 
