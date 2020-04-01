@@ -21,9 +21,9 @@
 package org.oransc.policyagent.repository;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 import org.oransc.policyagent.exceptions.ServiceException;
 
@@ -51,7 +51,7 @@ public class PolicyTypes {
     }
 
     public synchronized Collection<PolicyType> getAll() {
-        return Collections.unmodifiableCollection(types.values());
+        return new Vector<>(types.values());
     }
 
     public synchronized int size() {

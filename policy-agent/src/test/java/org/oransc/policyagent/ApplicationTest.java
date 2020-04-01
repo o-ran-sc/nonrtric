@@ -38,7 +38,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -76,13 +75,9 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import reactor.core.publisher.Mono;
@@ -180,6 +175,7 @@ public class ApplicationTest {
         policies.clear();
         policyTypes.clear();
         services.clear();
+        a1ClientFactory.reset();
     }
 
     @AfterEach
@@ -454,7 +450,6 @@ public class ApplicationTest {
 
     @Test
     public void testGetPolicies() throws Exception {
-        reset();
         addPolicy("id1", "type1", "service1");
 
         String url = "/policies";
@@ -642,51 +637,19 @@ public class ApplicationTest {
         return "{\n  \"servingCellNrcgi\": \"1\"\n }";
     }
 
-    private static class ConcurrencyTestRunnable implements Runnable {
-        private final RestTemplate restTemplate = new RestTemplate();
-        private final String baseUrl;
-        static AtomicInteger nextCount = new AtomicInteger(0);
-        private final int count;
-        private final RicSupervision supervision;
-
-        ConcurrencyTestRunnable(String baseUrl, RicSupervision supervision) {
-            this.baseUrl = baseUrl;
-            this.count = nextCount.incrementAndGet();
-            this.supervision = supervision;
-        }
-
-        @Override
-        public void run() {
-            for (int i = 0; i < 100; ++i) {
-                if (i % 10 == 0) {
-                    this.supervision.checkAllRics();
-                }
-                String name = "policy:" + count + ":" + i;
-                putPolicy(name);
-                deletePolicy(name);
-            }
-        }
-
-        private void putPolicy(String name) {
-            String putUrl = baseUrl + "/policy?type=type1&instance=" + name + "&ric=ric1&service=service1";
-            restTemplate.put(putUrl, createJsonHttpEntity("{}"));
-        }
-
-        private void deletePolicy(String name) {
-            String deleteUrl = baseUrl + "/policy?instance=" + name;
-            restTemplate.delete(deleteUrl);
-        }
-    }
-
     @Test
     public void testConcurrency() throws Exception {
         final Instant startTime = Instant.now();
         List<Thread> threads = new ArrayList<>();
-        addRic("ric1");
-        addPolicyType("type1", "ric1");
+        a1ClientFactory.setResponseDelay(Duration.ofMillis(1));
+        addRic("ric");
+        addPolicyType("type1", "ric");
+        addPolicyType("type2", "ric");
 
         for (int i = 0; i < 100; ++i) {
-            Thread t = new Thread(new ConcurrencyTestRunnable(baseUrl(), this.supervision), "TestThread_" + i);
+            Thread t =
+                new Thread(new ConcurrencyTestRunnable(baseUrl(), supervision, a1ClientFactory, rics, policyTypes),
+                    "TestThread_" + i);
             t.start();
             threads.add(t);
         }
@@ -756,12 +719,6 @@ public class ApplicationTest {
         ric.setState(Ric.RicState.IDLE);
         this.rics.put(ric);
         return ric;
-    }
-
-    private static HttpEntity<String> createJsonHttpEntity(String content) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        return new HttpEntity<String>(content, headers);
     }
 
     private static <T> List<T> parseList(String jsonString, Class<T> clazz) {

@@ -31,7 +31,6 @@ import io.swagger.annotations.ApiResponses;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.repository.Policies;
@@ -79,11 +78,9 @@ public class ServiceController {
         }
 
         Collection<ServiceStatus> servicesStatus = new ArrayList<>();
-        synchronized (this.services) {
-            for (Service s : this.services.getAll()) {
-                if (name == null || name.equals(s.getName())) {
-                    servicesStatus.add(toServiceStatus(s));
-                }
+        for (Service s : this.services.getAll()) {
+            if (name == null || name.equals(s.getName())) {
+                servicesStatus.add(toServiceStatus(s));
             }
         }
 
@@ -165,11 +162,9 @@ public class ServiceController {
     }
 
     private void removePolicies(Service service) {
-        synchronized (this.policies) {
-            List<Policy> policyList = new ArrayList<>(this.policies.getForService(service.getName()));
-            for (Policy policy : policyList) {
-                this.policies.remove(policy);
-            }
+        Collection<Policy> policyList = this.policies.getForService(service.getName());
+        for (Policy policy : policyList) {
+            this.policies.remove(policy);
         }
     }
 

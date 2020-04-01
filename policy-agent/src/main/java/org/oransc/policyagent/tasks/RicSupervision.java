@@ -82,12 +82,11 @@ public class RicSupervision {
     }
 
     private Flux<RicData> createTask() {
-        synchronized (this.rics) {
-            return Flux.fromIterable(rics.getRics()) //
-                .flatMap(this::createRicData) //
-                .flatMap(this::checkOneRic) //
-                .onErrorResume(throwable -> Mono.empty());
-        }
+        return Flux.fromIterable(rics.getRics()) //
+            .flatMap(this::createRicData) //
+            .flatMap(this::checkOneRic) //
+            .onErrorResume(throwable -> Mono.empty());
+
     }
 
     private Mono<RicData> checkOneRic(RicData ricData) {

@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 
 import org.oransc.policyagent.exceptions.ServiceException;
 
@@ -60,7 +61,7 @@ public class Policies {
         if (map == null) {
             return Collections.emptyList();
         }
-        return Collections.unmodifiableCollection(map.values());
+        return new Vector<>(map.values());
     }
 
     public synchronized boolean containsPolicy(String id) {
@@ -80,7 +81,7 @@ public class Policies {
     }
 
     public synchronized Collection<Policy> getAll() {
-        return Collections.unmodifiableCollection(policiesId.values());
+        return new Vector<>(policiesId.values());
     }
 
     public synchronized Collection<Policy> getForService(String service) {

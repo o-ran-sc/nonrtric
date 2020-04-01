@@ -46,25 +46,21 @@ public class MockA1Client implements A1Client {
 
     @Override
     public Mono<List<String>> getPolicyTypeIdentities() {
-        synchronized (this.policyTypes) {
-            List<String> result = new Vector<>();
-            for (PolicyType p : this.policyTypes.getAll()) {
-                result.add(p.name());
-            }
-            return mono(result);
+        List<String> result = new Vector<>();
+        for (PolicyType p : this.policyTypes.getAll()) {
+            result.add(p.name());
         }
+        return mono(result);
     }
 
     @Override
     public Mono<List<String>> getPolicyIdentities() {
-        synchronized (this.policies) {
-            Vector<String> result = new Vector<>();
-            for (Policy policy : policies.getAll()) {
-                result.add(policy.id());
-            }
-
-            return mono(result);
+        Vector<String> result = new Vector<>();
+        for (Policy policy : policies.getAll()) {
+            result.add(policy.id());
         }
+
+        return mono(result);
     }
 
     @Override
