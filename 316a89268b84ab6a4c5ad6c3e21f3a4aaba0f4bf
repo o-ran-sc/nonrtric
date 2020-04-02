@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e535f8b5_eb1c27a2",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/PolicyController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-04-02T05:41:48Z",
+      "side": 1,
+      "message": "I will change the text, since it is not really locked. \nThis will happen when synchronization has failed completely, so something like \n\"not operational\" is better.",
+      "range": {
+        "startLine": 279,
+        "startChar": 16,
+        "endLine": 279,
+        "endChar": 45
+      },
+      "revId": "316a89268b84ab6a4c5ad6c3e21f3a4aaba0f4bf",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
