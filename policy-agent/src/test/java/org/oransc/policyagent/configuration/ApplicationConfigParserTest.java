@@ -39,6 +39,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Test;
@@ -51,7 +52,7 @@ public class ApplicationConfigParserTest {
     ApplicationConfigParser parserUnderTest = new ApplicationConfigParser();
 
     @Test
-    public void whenCorrectDmaapConfig() throws Exception {
+    public void whenCorrectConfig() throws Exception {
         JsonObject jsonRootObject = getJsonRootObject();
 
         ApplicationConfigParser.ConfigParserResult result = parserUnderTest.parse(jsonRootObject);
@@ -85,6 +86,16 @@ public class ApplicationConfigParserTest {
                 "Wrong TransportType"),
             () -> assertEquals(15000, actualConsumerConfig.get("timeout"), "Wrong timeout"),
             () -> assertEquals(100, actualConsumerConfig.get("limit"), "Wrong limit"));
+
+        Map<String, ControllerConfig> controllers = result.controllerConfigs();
+        assertEquals(1, controllers.size(), "size");
+        ImmutableControllerConfig expectedControllerConfig = ImmutableControllerConfig.builder() //
+            .baseUrl("http://localhost:8083/") //
+            .name("controller1") //
+            .userName("user") //
+            .password("password") //
+            .build(); //
+        assertEquals(expectedControllerConfig, controllers.get("controller1"), "controller contents");
     }
 
     private JsonObject getJsonRootObject() throws JsonIOException, JsonSyntaxException, IOException {

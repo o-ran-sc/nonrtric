@@ -25,12 +25,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Properties;
 import java.util.Vector;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.oransc.policyagent.configuration.ApplicationConfig.RicConfigUpdate;
+import org.oransc.policyagent.configuration.ApplicationConfigParser.ConfigParserResult;
 import org.oransc.policyagent.exceptions.ServiceException;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,27 +43,36 @@ public class ApplicationConfigTest {
         .name("ric1") //
         .baseUrl("ric1_url") //
         .managedElementIds(new Vector<>()) //
+        .controllerName("") //
         .build();
+
+    ConfigParserResult configParserResult(RicConfig... rics) {
+        return ImmutableConfigParserResult.builder() //
+            .ricConfigs(Arrays.asList(rics)) //
+            .dmaapConsumerConfig(new Properties()) //
+            .dmaapPublisherConfig(new Properties()) //
+            .controllerConfigs(new HashMap<>()) //
+            .build();
+    }
 
     @Test
     public void gettingNotAddedRicShouldThrowException() {
         ApplicationConfig appConfigUnderTest = new ApplicationConfig();
 
-        appConfigUnderTest.setConfiguration(Arrays.asList(RIC_CONFIG_1), null, null);
+        appConfigUnderTest.setConfiguration(configParserResult(RIC_CONFIG_1));
 
         Exception exception = assertThrows(ServiceException.class, () -> {
             appConfigUnderTest.getRic("name");
         });
 
-        assertEquals("Could not find ric: name", exception.getMessage());
+        assertEquals("Could not find ric configuration: name", exception.getMessage());
     }
 
     @Test
     public void addRicShouldNotifyAllObserversOfRicAdded() throws Exception {
         ApplicationConfig appConfigUnderTest = new ApplicationConfig();
 
-        RicConfigUpdate update =
-            appConfigUnderTest.setConfiguration(Arrays.asList(RIC_CONFIG_1), null, null).blockFirst();
+        RicConfigUpdate update = appConfigUnderTest.setConfiguration(configParserResult(RIC_CONFIG_1)).blockFirst();
         assertEquals(RicConfigUpdate.Type.ADDED, update.getType());
         assertTrue(appConfigUnderTest.getRicConfigs().contains(RIC_CONFIG_1), "Ric not added to configurations.");
 
@@ -72,16 +84,16 @@ public class ApplicationConfigTest {
     public void changedRicShouldNotifyAllObserversOfRicChanged() throws Exception {
         ApplicationConfig appConfigUnderTest = new ApplicationConfig();
 
-        appConfigUnderTest.setConfiguration(Arrays.asList(RIC_CONFIG_1), null, null);
+        appConfigUnderTest.setConfiguration(configParserResult(RIC_CONFIG_1));
 
         ImmutableRicConfig changedRicConfig = ImmutableRicConfig.builder() //
             .name("ric1") //
             .baseUrl("changed_ric1_url") //
             .managedElementIds(new Vector<>()) //
+            .controllerName("") //
             .build();
 
-        RicConfigUpdate update =
-            appConfigUnderTest.setConfiguration(Arrays.asList(changedRicConfig), null, null).blockFirst();
+        RicConfigUpdate update = appConfigUnderTest.setConfiguration(configParserResult(changedRicConfig)).blockFirst();
 
         assertEquals(RicConfigUpdate.Type.CHANGED, update.getType());
         assertEquals(changedRicConfig, appConfigUnderTest.getRic(RIC_CONFIG_1.name()),
@@ -96,12 +108,12 @@ public class ApplicationConfigTest {
             .name("ric2") //
             .baseUrl("ric2_url") //
             .managedElementIds(new Vector<>()) //
+            .controllerName("") //
             .build();
 
-        appConfigUnderTest.setConfiguration(Arrays.asList(RIC_CONFIG_1, ricConfig2), null, null);
+        appConfigUnderTest.setConfiguration(configParserResult(RIC_CONFIG_1, ricConfig2));
 
-        RicConfigUpdate update =
-            appConfigUnderTest.setConfiguration(Arrays.asList(ricConfig2), null, null).blockFirst();
+        RicConfigUpdate update = appConfigUnderTest.setConfiguration(configParserResult(ricConfig2)).blockFirst();
 
         assertEquals(RicConfigUpdate.Type.REMOVED, update.getType());
         assertEquals(1, appConfigUnderTest.getRicConfigs().size(), "Ric not deleted from configurations.");

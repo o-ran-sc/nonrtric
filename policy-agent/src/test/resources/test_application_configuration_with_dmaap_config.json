@@ -1,8 +1,17 @@
 {
    "config":{
+      "controller":[
+         {
+          "name":"controller1",
+          "baseUrl":"http://localhost:8083/",
+          "userName":"user",
+          "password":"password"
+        }
+      ],
       "ric":[
          {
             "name":"ric1",
+            "controller": "controller1",
             "baseUrl":"http://localhost:8083/",
             "managedElementIds":[
                "kista_1",

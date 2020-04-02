@@ -27,6 +27,7 @@ import java.util.Optional;
 
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
+import org.oransc.policyagent.configuration.ControllerConfig;
 import org.oransc.policyagent.configuration.RicConfig;
 import org.oransc.policyagent.repository.Policy;
 import org.slf4j.Logger;
@@ -58,20 +59,19 @@ public class SdncOnapA1Client implements A1Client {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private final String a1ControllerUsername;
-    private final String a1ControllerPassword;
+    private final ControllerConfig controllerConfig;
     private final RicConfig ricConfig;
     private final AsyncRestClient restClient;
 
-    public SdncOnapA1Client(RicConfig ricConfig, String baseUrl, String username, String password) {
-        this(ricConfig, username, password, new AsyncRestClient(baseUrl + "/restconf/operations"));
-        logger.debug("SdncOnapA1Client for ric: {}, a1ControllerBaseUrl: {}", ricConfig.name(), baseUrl);
+    public SdncOnapA1Client(RicConfig ricConfig, ControllerConfig controllerConfig) {
+        this(ricConfig, controllerConfig, new AsyncRestClient(controllerConfig.baseUrl() + "/restconf/operations"));
+        logger.debug("SdncOnapA1Client for ric: {}, a1ControllerBaseUrl: {}", ricConfig.name(),
+            controllerConfig.baseUrl());
     }
 
-    public SdncOnapA1Client(RicConfig ricConfig, String username, String password, AsyncRestClient restClient) {
+    public SdncOnapA1Client(RicConfig ricConfig, ControllerConfig controllerConfig, AsyncRestClient restClient) {
         this.ricConfig = ricConfig;
-        this.a1ControllerUsername = username;
-        this.a1ControllerPassword = password;
+        this.controllerConfig = controllerConfig;
         this.restClient = restClient;
     }
 
@@ -98,8 +98,8 @@ public class SdncOnapA1Client implements A1Client {
         logger.debug("POST getPolicyType inputJsonString = {}", inputJsonString);
 
         return restClient
-            .postWithAuthHeader(URL_PREFIX + "getPolicyType", inputJsonString, a1ControllerUsername,
-                a1ControllerPassword) //
+            .postWithAuthHeader(URL_PREFIX + "getPolicyType", inputJsonString, controllerConfig.userName(),
+                controllerConfig.password()) //
             .flatMap(response -> SdncJsonHelper.getValueFromResponse(response, "policy-type")) //
             .flatMap(SdncJsonHelper::extractPolicySchema);
     }
@@ -117,8 +117,8 @@ public class SdncOnapA1Client implements A1Client {
         String inputJsonString = SdncJsonHelper.createInputJsonString(inputParams);
         logger.debug("POST putPolicy inputJsonString = {}", inputJsonString);
 
-        return restClient.postWithAuthHeader(URL_PREFIX + "createPolicyInstance", inputJsonString, a1ControllerUsername,
-            a1ControllerPassword);
+        return restClient.postWithAuthHeader(URL_PREFIX + "createPolicyInstance", inputJsonString,
+            controllerConfig.userName(), controllerConfig.password());
     }
 
     @Override
@@ -151,8 +151,8 @@ public class SdncOnapA1Client implements A1Client {
         logger.debug("POST getPolicyTypeIdentities inputJsonString = {}", inputJsonString);
 
         return restClient
-            .postWithAuthHeader("/A1-ADAPTER-API:getPolicyTypes", inputJsonString, a1ControllerUsername,
-                a1ControllerPassword) //
+            .postWithAuthHeader(URL_PREFIX + "getPolicyTypes", inputJsonString, controllerConfig.userName(),
+                controllerConfig.password()) //
             .flatMap(response -> SdncJsonHelper.getValueFromResponse(response, "policy-type-id-list")) //
             .flatMapMany(SdncJsonHelper::parseJsonArrayOfString);
     }
@@ -166,8 +166,8 @@ public class SdncOnapA1Client implements A1Client {
         logger.debug("POST getPolicyIdentities inputJsonString = {}", inputJsonString);
 
         return restClient
-            .postWithAuthHeader("/A1-ADAPTER-API:getPolicyInstances", inputJsonString, a1ControllerUsername,
-                a1ControllerPassword) //
+            .postWithAuthHeader(URL_PREFIX + "getPolicyInstances", inputJsonString, controllerConfig.userName(),
+                controllerConfig.password()) //
             .flatMap(response -> SdncJsonHelper.getValueFromResponse(response, "policy-instance-id-list")) //
             .flatMapMany(SdncJsonHelper::parseJsonArrayOfString);
     }
@@ -186,7 +186,7 @@ public class SdncOnapA1Client implements A1Client {
         String inputJsonString = SdncJsonHelper.createInputJsonString(inputParams);
         logger.debug("POST deletePolicy inputJsonString = {}", inputJsonString);
 
-        return restClient.postWithAuthHeader("/A1-ADAPTER-API:deletePolicyInstance", inputJsonString,
-            a1ControllerUsername, a1ControllerPassword);
+        return restClient.postWithAuthHeader(URL_PREFIX + "deletePolicyInstance", inputJsonString,
+            controllerConfig.userName(), controllerConfig.password());
     }
 }

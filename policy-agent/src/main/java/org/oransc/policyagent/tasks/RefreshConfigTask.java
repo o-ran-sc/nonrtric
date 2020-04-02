@@ -176,8 +176,7 @@ public class RefreshConfigTask {
     }
 
     private Flux<RicConfigUpdate> updateConfig(ApplicationConfigParser.ConfigParserResult config) {
-        return this.appConfig.setConfiguration(config.ricConfigs(), config.dmaapPublisherConfig(),
-            config.dmaapConsumerConfig());
+        return this.appConfig.setConfiguration(config);
     }
 
     boolean configFileExists() {

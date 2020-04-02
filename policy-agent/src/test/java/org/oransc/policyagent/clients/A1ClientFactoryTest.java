@@ -36,7 +36,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.oransc.policyagent.clients.A1Client.A1ProtocolType;
 import org.oransc.policyagent.configuration.ApplicationConfig;
+import org.oransc.policyagent.configuration.ControllerConfig;
+import org.oransc.policyagent.configuration.ImmutableControllerConfig;
 import org.oransc.policyagent.configuration.ImmutableRicConfig;
+import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.repository.Ric;
 
 import reactor.core.publisher.Mono;
@@ -62,19 +65,27 @@ public class A1ClientFactoryTest {
     @Mock
     A1Client clientMock4;
 
-    private ImmutableRicConfig ricConfig =
-        ImmutableRicConfig.builder().name(RIC_NAME).baseUrl("baseUrl").managedElementIds(new Vector<>()).build();
-    private Ric ric = new Ric(ricConfig);
-
+    private Ric ric;
     private A1ClientFactory factoryUnderTest;
+
+    private static ImmutableRicConfig ricConfig(String controllerName) {
+        return ImmutableRicConfig.builder() //
+            .name(RIC_NAME) //
+            .baseUrl("baseUrl") //
+            .managedElementIds(new Vector<>()) //
+            .controllerName(controllerName) //
+            .build();
+    }
 
     @BeforeEach
     public void createFactoryUnderTest() {
         factoryUnderTest = spy(new A1ClientFactory(applicationConfigMock));
+        this.ric = new Ric(ricConfig(""));
+
     }
 
     @Test
-    public void getProtocolVersion_ok() {
+    public void getProtocolVersion_ok() throws ServiceException {
         whenGetProtocolVersionThrowException(clientMock1);
         whenGetProtocolVersionReturn(clientMock2, A1ProtocolType.STD_V1_1);
         doReturn(clientMock1, clientMock2).when(factoryUnderTest).createClient(any(), any());
@@ -86,7 +97,7 @@ public class A1ClientFactoryTest {
     }
 
     @Test
-    public void getProtocolVersion_ok_Last() {
+    public void getProtocolVersion_ok_Last() throws ServiceException {
         whenGetProtocolVersionThrowException(clientMock1, clientMock2, clientMock3);
         whenGetProtocolVersionReturn(clientMock4, A1ProtocolType.STD_V1_1);
         doReturn(clientMock1, clientMock2, clientMock3, clientMock4).when(factoryUnderTest).createClient(any(), any());
@@ -98,7 +109,7 @@ public class A1ClientFactoryTest {
     }
 
     @Test
-    public void getProtocolVersion_error() {
+    public void getProtocolVersion_error() throws ServiceException {
         whenGetProtocolVersionThrowException(clientMock1, clientMock2, clientMock3, clientMock4);
         doReturn(clientMock1, clientMock2, clientMock3, clientMock4).when(factoryUnderTest).createClient(any(), any());
 
@@ -110,18 +121,27 @@ public class A1ClientFactoryTest {
         assertEquals(A1ProtocolType.UNKNOWN, ric.getProtocolVersion(), "Not correct protocol");
     }
 
-    private A1Client createClient(A1ProtocolType version) {
+    private A1Client createClient(A1ProtocolType version) throws ServiceException {
         return factoryUnderTest.createClient(ric, version);
     }
 
     @Test
-    public void create_check_types() {
+    public void create_check_types() throws ServiceException {
         assertTrue(createClient(A1ProtocolType.STD_V1_1) instanceof StdA1ClientVersion1);
         assertTrue(createClient(A1ProtocolType.OSC_V1) instanceof OscA1Client);
+    }
+
+    @Test
+    public void create_check_types_controllers() throws ServiceException {
+        this.ric = new Ric(ricConfig("anythingButEmpty"));
+        whenGetGetControllerConfigReturn();
         assertTrue(createClient(A1ProtocolType.SDNC_ONAP) instanceof SdncOnapA1Client);
+
+        whenGetGetControllerConfigReturn();
         assertTrue(createClient(A1ProtocolType.SDNC_OSC_STD_V1_1) instanceof SdncOscA1Client);
+
+        whenGetGetControllerConfigReturn();
         assertTrue(createClient(A1ProtocolType.SDNC_OSC_OSC_V1) instanceof SdncOscA1Client);
-        assertTrue(createClient(A1ProtocolType.UNKNOWN) == null);
     }
 
     private void whenGetProtocolVersionThrowException(A1Client... clientMocks) {
@@ -132,6 +152,16 @@ public class A1ClientFactoryTest {
 
     private void whenGetProtocolVersionReturn(A1Client clientMock, A1ProtocolType protocol) {
         when(clientMock.getProtocolVersion()).thenReturn(Mono.just(protocol));
+    }
+
+    private void whenGetGetControllerConfigReturn() throws ServiceException {
+        ControllerConfig controllerCfg = ImmutableControllerConfig.builder() //
+            .name("name") //
+            .baseUrl("baseUrl") //
+            .password("pass") //
+            .userName("user") //
+            .build();
+        when(applicationConfigMock.getControllerConfig(any())).thenReturn(controllerCfg);
     }
 
 }

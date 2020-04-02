@@ -74,6 +74,7 @@ public class ServiceSupervisionTest {
         .name(RIC_NAME) //
         .baseUrl("baseUrl") //
         .managedElementIds(Collections.emptyList()) //
+        .controllerName("") //
         .build();
     private Ric ric = new Ric(ricConfig);
     private PolicyType policyType = ImmutablePolicyType.builder() //

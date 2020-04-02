@@ -27,8 +27,11 @@ import com.google.gson.JsonObject;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
@@ -47,6 +50,7 @@ import org.springframework.http.MediaType;
 public class ApplicationConfigParser {
 
     private static final String CONFIG = "config";
+    private static final String CONTROLLER = "controller";
 
     @Value.Immutable
     @Gson.TypeAdapters
@@ -56,6 +60,8 @@ public class ApplicationConfigParser {
         Properties dmaapPublisherConfig();
 
         Properties dmaapConsumerConfig();
+
+        Map<String, ControllerConfig> controllerConfigs();
     }
 
     public ConfigParserResult parse(JsonObject root) throws ServiceException {
@@ -65,6 +71,7 @@ public class ApplicationConfigParser {
 
         JsonObject agentConfigJson = root.getAsJsonObject(CONFIG);
         List<RicConfig> ricConfigs = parseRics(agentConfigJson);
+        Map<String, ControllerConfig> controllerConfigs = parseControllerConfigs(agentConfigJson);
 
         JsonObject json = agentConfigJson.getAsJsonObject("streams_publishes");
         if (json != null) {
@@ -76,23 +83,70 @@ public class ApplicationConfigParser {
             dmaapConsumerConfig = parseDmaapConfig(json);
         }
 
+        checkConfigurationConsistency(ricConfigs, controllerConfigs);
+
         return ImmutableConfigParserResult.builder() //
             .dmaapConsumerConfig(dmaapConsumerConfig) //
             .dmaapPublisherConfig(dmaapPublisherConfig) //
             .ricConfigs(ricConfigs) //
+            .controllerConfigs(controllerConfigs) //
             .build();
+    }
+
+    private void checkConfigurationConsistency(List<RicConfig> ricConfigs,
+        Map<String, ControllerConfig> controllerConfigs) throws ServiceException {
+        Set<String> ricUrls = new HashSet<>();
+        Set<String> ricNames = new HashSet<>();
+        for (RicConfig ric : ricConfigs) {
+            if (!ricUrls.add(ric.baseUrl())) {
+                throw new ServiceException("Configuration error, more than one RIC URL: " + ric.baseUrl());
+            }
+            if (!ricNames.add(ric.name())) {
+                throw new ServiceException("Configuration error, more than one RIC with name: " + ric.name());
+            }
+            if (!ric.controllerName().isEmpty() && controllerConfigs.get(ric.controllerName()) == null) {
+                throw new ServiceException(
+                    "Configuration error, controller configuration not found: " + ric.controllerName());
+            }
+
+        }
+
     }
 
     private List<RicConfig> parseRics(JsonObject config) throws ServiceException {
         List<RicConfig> result = new ArrayList<>();
         for (JsonElement ricElem : getAsJsonArray(config, "ric")) {
             JsonObject ricAsJson = ricElem.getAsJsonObject();
+            JsonElement controllerNameElement = ricAsJson.get(CONTROLLER);
             ImmutableRicConfig ricConfig = ImmutableRicConfig.builder() //
                 .name(ricAsJson.get("name").getAsString()) //
                 .baseUrl(ricAsJson.get("baseUrl").getAsString()) //
                 .managedElementIds(parseManagedElementIds(ricAsJson.get("managedElementIds").getAsJsonArray())) //
+                .controllerName(controllerNameElement != null ? controllerNameElement.getAsString() : "") //
                 .build();
             result.add(ricConfig);
+        }
+        return result;
+    }
+
+    Map<String, ControllerConfig> parseControllerConfigs(JsonObject config) throws ServiceException {
+        if (config.get(CONTROLLER) == null) {
+            return new HashMap<>();
+        }
+        Map<String, ControllerConfig> result = new HashMap<>();
+        for (JsonElement element : getAsJsonArray(config, CONTROLLER)) {
+            JsonObject controllerAsJson = element.getAsJsonObject();
+            ImmutableControllerConfig controllerConfig = ImmutableControllerConfig.builder() //
+                .name(controllerAsJson.get("name").getAsString()) //
+                .baseUrl(controllerAsJson.get("baseUrl").getAsString()) //
+                .password(controllerAsJson.get("password").getAsString()) //
+                .userName(controllerAsJson.get("userName").getAsString()) // )
+                .build();
+
+            if (result.put(controllerConfig.name(), controllerConfig) != null) {
+                throw new ServiceException(
+                    "Configuration error, more than one controller with name: " + controllerConfig.name());
+            }
         }
         return result;
     }

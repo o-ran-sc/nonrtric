@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.immutables.value.Value;
+import org.oransc.policyagent.configuration.ControllerConfig;
 import org.oransc.policyagent.configuration.RicConfig;
 import org.oransc.policyagent.repository.Policy;
 import org.slf4j.Logger;
@@ -69,8 +70,7 @@ public class SdncOscA1Client implements A1Client {
     private static final String GET_POLICY_RPC = "getA1Policy";
     private static final String UNHANDELED_PROTOCOL = "Bug, unhandeled protocoltype: ";
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private final String a1ControllerUsername;
-    private final String a1ControllerPassword;
+    private final ControllerConfig controllerConfig;
     private final AsyncRestClient restClient;
     private final RicConfig ricConfig;
     private final A1ProtocolType protocolType;
@@ -85,21 +85,18 @@ public class SdncOscA1Client implements A1Client {
      * @param username username to accesss the SDNC controller
      * @param password password to accesss the SDNC controller
      */
-    public SdncOscA1Client(A1ProtocolType protocolType, RicConfig ricConfig, String controllerBaseUrl, String username,
-        String password) {
-        this(protocolType, ricConfig, username, password,
-            new AsyncRestClient(controllerBaseUrl + "/restconf/operations"));
-        logger.debug("SdncOscA1Client for ric: {}, a1ControllerBaseUrl: {}", ricConfig.name(), controllerBaseUrl);
+    public SdncOscA1Client(A1ProtocolType protocolType, RicConfig ricConfig, ControllerConfig controllerConfig) {
+        this(protocolType, ricConfig, controllerConfig,
+            new AsyncRestClient(controllerConfig.baseUrl() + "/restconf/operations"));
+        logger.debug("SdncOscA1Client for ric: {}, a1Controller: {}", ricConfig.name(), controllerConfig);
     }
 
-    public SdncOscA1Client(A1ProtocolType protocolType, RicConfig ricConfig, String username, String password,
+    public SdncOscA1Client(A1ProtocolType protocolType, RicConfig ricConfig, ControllerConfig controllerConfig,
         AsyncRestClient restClient) {
-        this.a1ControllerUsername = username;
-        this.a1ControllerPassword = password;
         this.restClient = restClient;
         this.ricConfig = ricConfig;
         this.protocolType = protocolType;
-
+        this.controllerConfig = controllerConfig;
     }
 
     @Override
@@ -222,7 +219,8 @@ public class SdncOscA1Client implements A1Client {
         final String inputJsonString = SdncJsonHelper.createInputJsonString(inputParams);
 
         return restClient
-            .postWithAuthHeader(controllerUrl(rpcName), inputJsonString, a1ControllerUsername, a1ControllerPassword)
+            .postWithAuthHeader(controllerUrl(rpcName), inputJsonString, this.controllerConfig.userName(),
+                this.controllerConfig.password()) //
             .flatMap(this::extractResponseBody);
     }
 
