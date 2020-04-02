@@ -67,6 +67,7 @@ public class RicSupervisionTest {
         .name("RIC_1") //
         .baseUrl("baseUrl1") //
         .managedElementIds(new Vector<String>(Arrays.asList("kista_1", "kista_2"))) //
+        .controllerName("controllerName") //
         .build());
 
     private static final String POLICY_1_ID = "policyId1";

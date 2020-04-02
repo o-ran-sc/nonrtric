@@ -20,18 +20,19 @@
 
 package org.oransc.policyagent.configuration;
 
-import com.google.common.collect.ImmutableList;
-
 import org.immutables.value.Value;
 
 @Value.Immutable
-public interface RicConfig {
-    public String name();
+@Value.Style(redactedMask = "####")
 
-    public String controllerName();
+public interface ControllerConfig {
+    public String name();
 
     public String baseUrl();
 
-    public ImmutableList<String> managedElementIds();
+    public String userName();
+
+    @Value.Redacted
+    public String password();
 
 }
