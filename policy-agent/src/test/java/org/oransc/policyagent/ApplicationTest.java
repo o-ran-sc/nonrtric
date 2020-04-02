@@ -751,6 +751,7 @@ public class ApplicationTest {
             .name(ricName) //
             .baseUrl(ricName) //
             .managedElementIds(mes) //
+            .controllerName("") //
             .build();
         Ric ric = new Ric(conf);
         ric.setState(Ric.RicState.IDLE);

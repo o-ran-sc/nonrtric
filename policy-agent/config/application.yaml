@@ -20,10 +20,6 @@ logging:
     org.oransc.policyagent: INFO
   file: /var/log/policy-agent/application.log
 app:
-  filepath: /opt/app/policy-agent/config/application_configuration.json
-  a1ControllerBaseUrl: http://sdnc.onap:8282
-  a1ControllerUsername: admin
-  a1ControllerPassword: Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U
-
+  filepath: /opt/app/policy-agent/config/application_configuration.json  
 server:
    port : 8081

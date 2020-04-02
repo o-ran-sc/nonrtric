@@ -77,6 +77,7 @@ public class RicSynchronizationTaskTest {
         .name(RIC_1_NAME) //
         .baseUrl("baseUrl1") //
         .managedElementIds(Collections.emptyList()) //
+        .controllerName("controllerName") //
         .build());
 
     private static final Policy POLICY_1 = ImmutablePolicy.builder() //
