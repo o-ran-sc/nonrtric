@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3d03c205_35e3f2ec",
+        "filename": "policy-agent/config/application_configuration.json",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000112
+      },
+      "writtenOn": "2020-04-02T13:54:48Z",
+      "side": 1,
+      "message": "Please change it to our default value -  http://a1-sim-1:8085",
+      "revId": "a44395c28a19cdf69f3645986c2ccf45b6da276d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
