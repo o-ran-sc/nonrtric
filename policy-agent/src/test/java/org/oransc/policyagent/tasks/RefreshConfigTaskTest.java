@@ -50,6 +50,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Properties;
 import java.util.Vector;
 
@@ -65,6 +66,8 @@ import org.oransc.policyagent.clients.A1ClientFactory;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.configuration.ApplicationConfig.RicConfigUpdate.Type;
 import org.oransc.policyagent.configuration.ApplicationConfigParser;
+import org.oransc.policyagent.configuration.ApplicationConfigParser.ConfigParserResult;
+import org.oransc.policyagent.configuration.ImmutableConfigParserResult;
 import org.oransc.policyagent.configuration.ImmutableRicConfig;
 import org.oransc.policyagent.configuration.RicConfig;
 import org.oransc.policyagent.repository.ImmutablePolicy;
@@ -100,6 +103,7 @@ public class RefreshConfigTaskTest {
         .name(RIC_1_NAME) //
         .baseUrl("http://localhost:8080/") //
         .managedElementIds(new Vector<String>(Arrays.asList("kista_1", "kista_2"))) //
+        .controllerName("") //
         .build();
 
     private static EnvProperties properties() {
@@ -246,7 +250,7 @@ public class RefreshConfigTaskTest {
         RicConfig removedRicConfig = getRicConfig("removed");
         Ric removedRic = new Ric(removedRicConfig);
         rics.put(removedRic);
-        appConfig.setConfiguration(Arrays.asList(changedRicConfig, removedRicConfig), null, null);
+        appConfig.setConfiguration(configParserResult(changedRicConfig, removedRicConfig));
 
         Policy policy = getPolicy(removedRic);
         policies.put(policy);
@@ -289,6 +293,7 @@ public class RefreshConfigTaskTest {
             .name(name) //
             .baseUrl("url") //
             .managedElementIds(Collections.emptyList()) //
+            .controllerName("controllerName") //
             .build();
         return ricConfig;
     }
@@ -309,9 +314,19 @@ public class RefreshConfigTaskTest {
         return policy;
     }
 
+    ConfigParserResult configParserResult(RicConfig... rics) {
+        return ImmutableConfigParserResult.builder() //
+            .ricConfigs(Arrays.asList(rics)) //
+            .dmaapConsumerConfig(new Properties()) //
+            .dmaapPublisherConfig(new Properties()) //
+            .controlerConfigs(new HashMap<>()) //
+            .build();
+    }
+
     private void modifyTheRicConfiguration(JsonObject configAsJson, String newBaseUrl) {
-        ((JsonObject) configAsJson.getAsJsonObject("config").getAsJsonArray("ric").get(0)).addProperty("baseUrl",
-            newBaseUrl);
+        ((JsonObject) configAsJson.getAsJsonObject("config") //
+            .getAsJsonArray("ric").get(0)) //
+                .addProperty("baseUrl", newBaseUrl);
     }
 
     private JsonObject getJsonRootObject() throws JsonIOException, JsonSyntaxException, IOException {

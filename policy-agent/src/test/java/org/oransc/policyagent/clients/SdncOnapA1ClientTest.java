@@ -35,6 +35,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.OngoingStubbing;
+import org.oransc.policyagent.configuration.ControllerConfig;
+import org.oransc.policyagent.configuration.ImmutableControllerConfig;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -66,8 +68,15 @@ public class SdncOnapA1ClientTest {
     @BeforeEach
     public void init() {
         asyncRestClientMock = mock(AsyncRestClient.class);
-        clientUnderTest = new SdncOnapA1Client(A1ClientHelper.createRic(RIC_1_URL).getConfig(), CONTROLLER_USERNAME,
-            CONTROLLER_PASSWORD, asyncRestClientMock);
+        ControllerConfig controllerCfg = ImmutableControllerConfig.builder() //
+            .name("name") //
+            .baseUrl("baseUrl") //
+            .password(CONTROLLER_PASSWORD) //
+            .userName(CONTROLLER_USERNAME) //
+            .build();
+
+        clientUnderTest =
+            new SdncOnapA1Client(A1ClientHelper.createRic(RIC_1_URL).getConfig(), controllerCfg, asyncRestClientMock);
     }
 
     @Test
