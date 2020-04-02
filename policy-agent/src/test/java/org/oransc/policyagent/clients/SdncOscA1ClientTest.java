@@ -39,6 +39,8 @@ import org.mockito.stubbing.OngoingStubbing;
 import org.oransc.policyagent.clients.A1Client.A1ProtocolType;
 import org.oransc.policyagent.clients.SdncOscA1Client.AdapterRequest;
 import org.oransc.policyagent.clients.SdncOscA1Client.AdapterResponse;
+import org.oransc.policyagent.configuration.ControllerConfig;
+import org.oransc.policyagent.configuration.ImmutableControllerConfig;
 import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.Ric;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -64,12 +66,22 @@ public class SdncOscA1ClientTest {
 
     AsyncRestClient asyncRestClientMock;
 
+    private ControllerConfig controllerConfig() {
+        return ImmutableControllerConfig.builder() //
+            .name("name") //
+            .baseUrl("baseUrl") //
+            .password(CONTROLLER_PASSWORD) //
+            .userName(CONTROLLER_USERNAME) //
+            .build();
+    }
+
     @BeforeEach
     public void init() {
         asyncRestClientMock = mock(AsyncRestClient.class);
         Ric ric = A1ClientHelper.createRic(RIC_1_URL);
-        clientUnderTest = new SdncOscA1Client(A1ProtocolType.SDNC_OSC_STD_V1_1, ric.getConfig(), CONTROLLER_USERNAME,
-            CONTROLLER_PASSWORD, asyncRestClientMock);
+
+        clientUnderTest = new SdncOscA1Client(A1ProtocolType.SDNC_OSC_STD_V1_1, ric.getConfig(), controllerConfig(),
+            asyncRestClientMock);
     }
 
     @Test
@@ -83,7 +95,7 @@ public class SdncOscA1ClientTest {
     public void testGetPolicyTypeIdentities_OSC() {
         clientUnderTest = new SdncOscA1Client(A1ProtocolType.SDNC_OSC_OSC_V1, //
             A1ClientHelper.createRic(RIC_1_URL).getConfig(), //
-            CONTROLLER_USERNAME, CONTROLLER_PASSWORD, asyncRestClientMock);
+            controllerConfig(), asyncRestClientMock);
 
         String response = createResponse(Arrays.asList(POLICY_TYPE_1_ID));
         whenAsyncPostThenReturn(Mono.just(response));

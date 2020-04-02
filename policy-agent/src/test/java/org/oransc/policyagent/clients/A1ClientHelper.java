@@ -63,6 +63,7 @@ public class A1ClientHelper {
         RicConfig cfg = ImmutableRicConfig.builder().name("ric") //
             .baseUrl(url) //
             .managedElementIds(new Vector<String>(Arrays.asList("kista_1", "kista_2"))) //
+            .controllerName("") //
             .build();
         return new Ric(cfg);
     }

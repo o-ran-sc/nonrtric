@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 
 import lombok.Getter;
 
@@ -42,35 +41,16 @@ public class ApplicationConfig {
     @NotEmpty
     private String filepath;
 
-    @NotEmpty
-    private String a1ControllerBaseUrl;
-
-    @NotEmpty
-    private String a1ControllerUsername;
-
-    @NotEmpty
-    private String a1ControllerPassword;
-
     private Map<String, RicConfig> ricConfigs = new HashMap<>();
     @Getter
     private Properties dmaapPublisherConfig;
     @Getter
     private Properties dmaapConsumerConfig;
 
+    private Map<String, ControllerConfig> controllerConfigs = new HashMap<>();
+
     public String getLocalConfigurationFilePath() {
         return this.filepath;
-    }
-
-    public synchronized String getA1ControllerBaseUrl() {
-        return this.a1ControllerBaseUrl;
-    }
-
-    public synchronized String getA1ControllerUsername() {
-        return this.a1ControllerUsername;
-    }
-
-    public synchronized String getA1ControllerPassword() {
-        return this.a1ControllerPassword;
     }
 
     /*
@@ -80,29 +60,24 @@ public class ApplicationConfig {
         this.filepath = filepath;
     }
 
-    public synchronized void setA1ControllerBaseUrl(String a1ControllerBaseUrl) {
-        this.a1ControllerBaseUrl = a1ControllerBaseUrl;
-    }
-
-    public synchronized void setA1ControllerUsername(String a1ControllerUsername) {
-        this.a1ControllerUsername = a1ControllerUsername;
-    }
-
-    public synchronized void setA1ControllerPassword(String a1ControllerPassword) {
-        this.a1ControllerPassword = a1ControllerPassword;
-    }
-
     public synchronized Collection<RicConfig> getRicConfigs() {
         return this.ricConfigs.values();
     }
 
-    public RicConfig getRic(String ricName) throws ServiceException {
-        for (RicConfig ricConfig : getRicConfigs()) {
-            if (ricConfig.name().equals(ricName)) {
-                return ricConfig;
-            }
+    public synchronized ControllerConfig getControllerConfig(String name) throws ServiceException {
+        ControllerConfig controllerConfig = this.controllerConfigs.get(name);
+        if (controllerConfig == null) {
+            throw new ServiceException("Could not find controller config: " + name);
         }
-        throw new ServiceException("Could not find ric: " + ricName);
+        return controllerConfig;
+    }
+
+    public synchronized RicConfig getRic(String ricName) throws ServiceException {
+        RicConfig ricConfig = this.ricConfigs.get(ricName);
+        if (ricConfig == null) {
+            throw new ServiceException("Could not find ric configuration: " + ricName);
+        }
+        return ricConfig;
     }
 
     public static class RicConfigUpdate {
@@ -121,15 +96,16 @@ public class ApplicationConfig {
         }
     }
 
-    public synchronized Flux<RicConfigUpdate> setConfiguration(@NotNull Collection<RicConfig> ricConfigs,
-        Properties dmaapPublisherConfig, Properties dmaapConsumerConfig) {
+    public synchronized Flux<RicConfigUpdate> setConfiguration(
+        ApplicationConfigParser.ConfigParserResult parserResult) {
 
         Collection<RicConfigUpdate> modifications = new ArrayList<>();
-        this.dmaapPublisherConfig = dmaapPublisherConfig;
-        this.dmaapConsumerConfig = dmaapConsumerConfig;
+        this.dmaapPublisherConfig = parserResult.dmaapPublisherConfig();
+        this.dmaapConsumerConfig = parserResult.dmaapConsumerConfig();
+        this.controllerConfigs = parserResult.controllerConfigs();
 
         Map<String, RicConfig> newRicConfigs = new HashMap<>();
-        for (RicConfig newConfig : ricConfigs) {
+        for (RicConfig newConfig : parserResult.ricConfigs()) {
             RicConfig oldConfig = this.ricConfigs.get(newConfig.name());
             if (oldConfig == null) {
                 newRicConfigs.put(newConfig.name(), newConfig);
