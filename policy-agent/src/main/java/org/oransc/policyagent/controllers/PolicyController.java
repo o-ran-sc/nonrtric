@@ -155,9 +155,9 @@ public class PolicyController {
             @ApiResponse(code = 404, message = "Policy is not found")} //
     )
     public ResponseEntity<String> getPolicy( //
-        @RequestParam(name = "instance", required = true) String instance) {
+        @RequestParam(name = "id", required = true) String id) {
         try {
-            Policy p = policies.getPolicy(instance);
+            Policy p = policies.getPolicy(id);
             return new ResponseEntity<>(p.json(), HttpStatus.OK);
         } catch (ServiceException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
@@ -172,7 +172,7 @@ public class PolicyController {
             @ApiResponse(code = 404, message = "Policy is not found", response = String.class),
             @ApiResponse(code = 423, message = "RIC is not operational", response = String.class)})
     public Mono<ResponseEntity<Object>> deletePolicy( //
-        @RequestParam(name = "instance", required = true) String id) {
+        @RequestParam(name = "id", required = true) String id) {
         try {
             Policy policy = policies.getPolicy(id);
             keepServiceAlive(policy.ownerServiceName());
@@ -202,7 +202,7 @@ public class PolicyController {
         })
     public Mono<ResponseEntity<Object>> putPolicy( //
         @RequestParam(name = "type", required = false, defaultValue = "") String typeName, //
-        @RequestParam(name = "instance", required = true) String instanceId, //
+        @RequestParam(name = "id", required = true) String instanceId, //
         @RequestParam(name = "ric", required = true) String ricName, //
         @RequestParam(name = "service", required = true) String service, //
         @RequestBody Object jsonBody) {
@@ -328,9 +328,9 @@ public class PolicyController {
             @ApiResponse(code = 404, message = "Policy is not found", response = String.class)} //
     )
     public Mono<ResponseEntity<String>> getPolicyStatus( //
-        @RequestParam(name = "instance", required = true) String instance) {
+        @RequestParam(name = "id", required = true) String id) {
         try {
-            Policy policy = policies.getPolicy(instance);
+            Policy policy = policies.getPolicy(id);
 
             return a1ClientFactory.createA1Client(policy.ric()) //
                 .flatMap(client -> client.getPolicyStatus(policy)) //

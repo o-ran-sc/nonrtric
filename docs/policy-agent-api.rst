@@ -634,12 +634,12 @@ GET
   Returns a policy configuration.
 
   **URL path:**
-    /policy?instance=<name-of-policy>
+    /policy?id=<policy-id>
 
   **Parameters:**
 
-    instance: (*Required*)
-      The ID/name of the policy instance.
+    id: (*Required*)
+      The ID of the policy instance.
 
   **Responses:**
 
@@ -647,7 +647,7 @@ GET
           JSON object containing policy information. ::
 
             {
-              "id": "string",                  (ID/name of policy)
+              "id": "string",                  (ID of policy)
               "json": "object",                (JSON with policy data speified by the type)
               "ownerServiceName": "string",    (Name of the service that created the policy)
               "ric": "string",                 (Name of the Near |nbh| RT |nbsp| RIC where the policy resides)
@@ -662,7 +662,7 @@ GET
 
     Call: ::
 
-      curl -X GET "http://localhost:8081/policy?instance=Policy 1"
+      curl -X GET "http://localhost:8081/policy?id=Policy 1"
 
     Result:
       200: ::
@@ -696,7 +696,7 @@ GET
 
     Call: ::
 
-      curl -X GET "http://localhost:8081/policy?instance=nonexistent"
+      curl -X GET "http://localhost:8081/policy?id=nonexistent"
 
     Result:
        404: ::
@@ -710,12 +710,12 @@ PUT
   "*Keep Alive Interval*" registered.
 
   **URL path:**
-    /policy?instance=<name-of-policy>&ric=<name-of-ric>&service=<name-of-service>&type=<name-of-policy-type>
+    /policy?id=<policy-id>&ric=<name-of-ric>&service=<name-of-service>&type=<name-of-policy-type>
 
   **Parameters:**
 
-    instance: (*Required*)
-      The ID/name of the policy instance.
+    id: (*Required*)
+      The ID of the policy instance.
 
     ric: (*Required*)
       The name of the Near |nbh| RT |nbsp| RIC where the policy will be created.
@@ -747,7 +747,7 @@ PUT
 
     Call: ::
 
-      curl -X PUT "http://localhost:8081/policy?instance=Policy%201&ric=ric1&service=Service%201&type=STD_PolicyModelUnconstrained_0.2.0"
+      curl -X PUT "http://localhost:8081/policy?id=Policy%201&ric=ric1&service=Service%201&type=STD_PolicyModelUnconstrained_0.2.0"
         -H  "Content-Type: application/json"
         -d "{
               \"scope\": {
@@ -779,12 +779,12 @@ DELETE
   "*Keep Alive Interval*" registered.
 
   **URL path:**
-    /policy?instance=<name-of-policy>
+    /policy?id=<policy-id>
 
   **Parameters:**
 
-    instance: (*Required*)
-      The ID/name of the policy instance.
+    id: (*Required*)
+      The ID of the policy instance.
 
   **Responses:**
 
@@ -798,7 +798,7 @@ DELETE
 
     Call: ::
 
-      curl -X DELETE "http://localhost:8081/policy?instance=Policy 1"
+      curl -X DELETE "http://localhost:8081/policy?id=Policy 1"
 
     Result:
       204
@@ -866,12 +866,12 @@ GET
   Returns the status of a policy.
 
   **URL path:**
-    /policy_status?instance=<name-of-policy>
+    /policy_status?id=<policy-id>
 
   **Parameters:**
 
-    instance: (*Required*)
-      The ID/name of the policy.
+    id: (*Required*)
+      The ID of the policy.
 
   **Responses:**
 
