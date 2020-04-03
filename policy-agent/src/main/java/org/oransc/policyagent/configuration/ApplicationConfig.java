@@ -107,14 +107,13 @@ public class ApplicationConfig {
         Map<String, RicConfig> newRicConfigs = new HashMap<>();
         for (RicConfig newConfig : parserResult.ricConfigs()) {
             RicConfig oldConfig = this.ricConfigs.get(newConfig.name());
+            this.ricConfigs.remove(newConfig.name());
             if (oldConfig == null) {
                 newRicConfigs.put(newConfig.name(), newConfig);
                 modifications.add(new RicConfigUpdate(newConfig, RicConfigUpdate.Type.ADDED));
-                this.ricConfigs.remove(newConfig.name());
             } else if (!newConfig.equals(oldConfig)) {
                 modifications.add(new RicConfigUpdate(newConfig, RicConfigUpdate.Type.CHANGED));
                 newRicConfigs.put(newConfig.name(), newConfig);
-                this.ricConfigs.remove(newConfig.name());
             } else {
                 newRicConfigs.put(oldConfig.name(), oldConfig);
             }

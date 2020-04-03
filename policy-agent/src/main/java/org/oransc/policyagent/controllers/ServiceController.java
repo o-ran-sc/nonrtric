@@ -97,6 +97,9 @@ public class ServiceController {
         if (registrationInfo.serviceName.isEmpty()) {
             throw new ServiceException("Missing mandatory parameter 'serviceName'");
         }
+        if (registrationInfo.keepAliveIntervalSeconds < 0) {
+            throw new ServiceException("Keepalive interval shoul be greater or equal to 0");
+        }
     }
 
     @ApiOperation(value = "Register a service")
@@ -104,7 +107,7 @@ public class ServiceController {
         value = { //
             @ApiResponse(code = 200, message = "Service updated", response = String.class),
             @ApiResponse(code = 201, message = "Service created", response = String.class), //
-            @ApiResponse(code = 400, message = "Cannot parse the ServiceRegistrationInfo", response = String.class)})
+            @ApiResponse(code = 400, message = "The ServiceRegistrationInfo is not accepted", response = String.class)})
     @PutMapping("/service")
     public ResponseEntity<String> putService(//
         @RequestBody ServiceRegistrationInfo registrationInfo) {
