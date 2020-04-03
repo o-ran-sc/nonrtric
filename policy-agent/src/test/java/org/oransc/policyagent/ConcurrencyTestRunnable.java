@@ -115,12 +115,12 @@ class ConcurrencyTestRunnable implements Runnable {
     }
 
     private void putPolicy(String name) {
-        String putUrl = baseUrl + "/policy?type=type1&instance=" + name + "&ric=ric&service=service1";
+        String putUrl = baseUrl + "/policy?type=type1&id=" + name + "&ric=ric&service=service1";
         restTemplate.put(putUrl, createJsonHttpEntity("{}"));
     }
 
     private void deletePolicy(String name) {
-        String deleteUrl = baseUrl + "/policy?instance=" + name;
+        String deleteUrl = baseUrl + "/policy?id=" + name;
         restTemplate.delete(deleteUrl);
     }
 
