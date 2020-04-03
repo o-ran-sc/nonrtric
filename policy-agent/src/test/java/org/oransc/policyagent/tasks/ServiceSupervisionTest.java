@@ -132,8 +132,9 @@ public class ServiceSupervisionTest {
         assertThat(services.size()).isEqualTo(0);
 
         ILoggingEvent loggingEvent = logAppender.list.get(0);
-        assertThat(loggingEvent.getThrowableProxy().getMessage()).isEqualTo(originalErrorMessage);
-        String expectedLogMessage = "Could not delete policy: " + POLICY_ID + " from ric: " + RIC_NAME;
+        assertThat(loggingEvent.getLevel()).isEqualTo(WARN);
+        String expectedLogMessage =
+            "Could not delete policy: " + POLICY_ID + " from ric: " + RIC_NAME + ". Cause: " + originalErrorMessage;
         assertThat(loggingEvent.toString().contains(expectedLogMessage)).isTrue();
     }
 
