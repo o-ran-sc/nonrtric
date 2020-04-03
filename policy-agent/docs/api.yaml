@@ -64,9 +64,9 @@ paths:
       produces:
         - '*/*'
       parameters:
-        - name: instance
+        - name: id
           in: query
-          description: instance
+          description: id
           required: true
           type: string
       responses:
@@ -91,9 +91,9 @@ paths:
       produces:
         - '*/*'
       parameters:
-        - name: instance
+        - name: id
           in: query
-          description: instance
+          description: id
           required: true
           type: string
         - in: body
@@ -147,9 +147,9 @@ paths:
       produces:
         - '*/*'
       parameters:
-        - name: instance
+        - name: id
           in: query
-          description: instance
+          description: id
           required: true
           type: string
       responses:
@@ -281,9 +281,9 @@ paths:
       produces:
         - '*/*'
       parameters:
-        - name: instance
+        - name: id
           in: query
-          description: instance
+          description: id
           required: true
           type: string
       responses:
