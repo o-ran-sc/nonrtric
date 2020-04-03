@@ -298,7 +298,7 @@ public class RicSynchronizationTaskTest {
         synchronizerUnderTest.run(RIC_1);
 
         ILoggingEvent loggingEvent = logAppender.list.get(0);
-        assertThat(loggingEvent.getThrowableProxy().getMessage()).isEqualTo(originalErrorMessage);
+        assertThat(loggingEvent.getLevel()).isEqualTo(WARN);
         verifyCorrectLogMessage(0, logAppender, "Service notification failed for service: " + SERVICE_1_NAME);
     }
 

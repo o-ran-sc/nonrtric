@@ -40,7 +40,6 @@ import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,7 +51,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.Vector;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -76,7 +74,6 @@ import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Rics;
 import org.oransc.policyagent.repository.Services;
 import org.oransc.policyagent.utils.LoggingUtils;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -147,7 +144,7 @@ public class RefreshConfigTaskTest {
         refreshTaskUnderTest.start();
 
         ILoggingEvent event = logAppender.list.get(0);
-        assertThat(event.getThrowableProxy().getMessage()).isEqualTo("Error");
+        assertThat(event.getLevel()).isEqualTo(ERROR);
         assertThat(event.toString().contains("Configuration refresh terminated due to exception")).isTrue();
     }
 

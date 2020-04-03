@@ -58,7 +58,7 @@ public class DmaapMessageHandler {
     public void handleDmaapMsg(String msg) {
         this.createTask(msg) //
             .subscribe(message -> logger.debug("handleDmaapMsg: {}", message), //
-                throwable -> logger.warn("handleDmaapMsg failure ", throwable), //
+                throwable -> logger.warn("handleDmaapMsg failure {}", throwable.getMessage()), //
                 () -> logger.debug("handleDmaapMsg complete"));
     }
 

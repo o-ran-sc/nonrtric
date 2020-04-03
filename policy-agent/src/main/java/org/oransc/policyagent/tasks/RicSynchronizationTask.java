@@ -137,8 +137,9 @@ public class RicSynchronizationTask {
                 createNotificationClient(url) //
                     .put("", body) //
                     .subscribe( //
-                        notUsed -> logger.debug("Service {} notified", service.getName()), throwable -> logger
-                            .warn("Service notification failed for service: {}", service.getName(), throwable),
+                        notUsed -> logger.debug("Service {} notified", service.getName()),
+                        throwable -> logger.warn("Service notification failed for service: {}. Cause: {}",
+                            service.getName(), throwable.getMessage()),
                         () -> logger.debug("All services notified"));
             }
         }

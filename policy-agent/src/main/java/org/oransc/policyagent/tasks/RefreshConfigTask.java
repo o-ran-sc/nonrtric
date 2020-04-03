@@ -109,8 +109,9 @@ public class RefreshConfigTask {
         logger.debug("Starting refreshConfigTask");
         stop();
         refreshTask = createRefreshTask() //
-            .subscribe(notUsed -> logger.debug("Refreshed configuration data"),
-                throwable -> logger.error("Configuration refresh terminated due to exception", throwable),
+            .subscribe(
+                notUsed -> logger.debug("Refreshed configuration data"), throwable -> logger
+                    .error("Configuration refresh terminated due to exception {}", throwable.getMessage()),
                 () -> logger.error("Configuration refresh terminated"));
     }
 
