@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3738b51d_bcdb22f6",
+        "filename": "docs/policy-agent-api.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 881,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-04-03T07:22:38Z",
+      "side": 1,
+      "message": "|nbsp|",
+      "range": {
+        "startLine": 881,
+        "startChar": 26,
+        "endLine": 881,
+        "endChar": 27
+      },
+      "revId": "a6df811342781493c5ffce351241915aebff24b8",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
