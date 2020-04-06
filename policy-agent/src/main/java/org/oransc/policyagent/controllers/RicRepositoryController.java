@@ -67,14 +67,14 @@ public class RicRepositoryController {
             @ApiResponse(code = 404, message = "RIC is not fond", response = String.class) //
         })
     public ResponseEntity<String> getRic(
-        @RequestParam(name = "managedElementId", required = false, defaultValue = "") String managedElementId) {
+        @RequestParam(name = "managedElementId", required = true) String managedElementId) {
 
         Optional<Ric> ric = this.rics.lookupRicForManagedElement(managedElementId);
 
         if (ric.isPresent()) {
             return new ResponseEntity<>(ric.get().name(), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>("", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("No RIC found", HttpStatus.NOT_FOUND);
         }
     }
 

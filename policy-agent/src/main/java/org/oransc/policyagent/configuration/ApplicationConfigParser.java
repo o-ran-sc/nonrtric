@@ -215,7 +215,6 @@ public class ApplicationConfigParser {
         } catch (MalformedURLException e) {
             throw new ServiceException("Could not parse the URL", e);
         }
-
     }
 
     private static @NotNull String getAsString(JsonObject obj, String memberName) throws ServiceException {
