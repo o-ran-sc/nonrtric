@@ -20,16 +20,24 @@
 
 package org.oransc.policyagent.clients;
 
+import io.netty.channel.ChannelOption;
+import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.handler.timeout.WriteTimeoutHandler;
+
 import java.lang.invoke.MethodHandles;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.lang.Nullable;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec;
+
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
+import reactor.netty.tcp.TcpClient;
 
 /**
  * Generic reactive REST client.
@@ -40,7 +48,21 @@ public class AsyncRestClient {
     private final String baseUrl;
 
     public AsyncRestClient(String baseUrl) {
-        this.client = WebClient.create(baseUrl);
+
+        TcpClient tcpClient = TcpClient.create() //
+            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10_000) //
+            .doOnConnected(connection -> {
+                connection.addHandler(new ReadTimeoutHandler(10));
+                connection.addHandler(new WriteTimeoutHandler(30));
+            });
+        HttpClient httpClient = HttpClient.from(tcpClient);
+        ReactorClientHttpConnector connector = new ReactorClientHttpConnector(httpClient);
+
+        this.client = WebClient.builder() //
+            .clientConnector(connector) //
+            .baseUrl(baseUrl) //
+            .build();
+
         this.baseUrl = baseUrl;
     }
 
