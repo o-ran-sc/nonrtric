@@ -16,6 +16,24 @@
       "revId": "e0fab9aec406c7d9d6e34c5a94cbe7341a99ceb7",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8ecf4c2e_400bed5f",
+        "filename": "docs/policy-agent-api.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-04-06T15:38:24Z",
+      "side": 1,
+      "message": "Function is still called agent in the repo etc - so OK for now. \nNote text below calls the function \"A1 policy Management Service\" in the document. \nLets discuss renaming the component overall ....",
+      "parentUuid": "ceb9aa14_999f7fbb",
+      "revId": "e0fab9aec406c7d9d6e34c5a94cbe7341a99ceb7",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
