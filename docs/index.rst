@@ -12,6 +12,7 @@ Non-RT RIC
    :caption: Contents:
 
    ./api-docs.rst
+   ./policy-agent-api.rst
    ./developer-guide.rst
    ./installation-guide.rst
    ./overview.rst

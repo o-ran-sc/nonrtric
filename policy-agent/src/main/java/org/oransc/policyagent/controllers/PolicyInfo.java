@@ -35,7 +35,7 @@ public class PolicyInfo {
     @ApiModelProperty(value = "name of the policy type")
     public String type;
 
-    @ApiModelProperty(value = "identity the target NearRT RIC")
+    @ApiModelProperty(value = "identity of the target Near-RT RIC")
     public String ric;
 
     @ApiModelProperty(value = "the configuration of the policy")
