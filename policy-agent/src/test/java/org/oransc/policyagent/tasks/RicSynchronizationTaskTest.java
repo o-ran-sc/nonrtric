@@ -265,7 +265,7 @@ public class RicSynchronizationTaskTest {
         synchronizerUnderTest.run(RIC_1);
 
         verifyCorrectLogMessage(0, logAppender,
-            "Recreation of policies failed for ric: " + RIC_1_NAME + ", reason: " + originalErrorMessage);
+            "Synchronization failure for ric: " + RIC_1_NAME + ", reason: " + originalErrorMessage);
 
         verify(a1ClientMock, times(2)).deleteAllPolicies();
         verifyNoMoreInteractions(a1ClientMock);

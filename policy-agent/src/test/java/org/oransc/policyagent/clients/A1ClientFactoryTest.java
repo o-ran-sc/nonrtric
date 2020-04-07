@@ -115,10 +115,10 @@ public class A1ClientFactoryTest {
 
         StepVerifier.create(factoryUnderTest.createA1Client(ric)) //
             .expectSubscription() //
-            .expectErrorMatches(throwable -> throwable.getMessage().equals(EXCEPTION_MESSAGE)) //
+            .expectError() //
             .verify();
 
-        assertEquals(A1ProtocolType.UNKNOWN, ric.getProtocolVersion(), "Not correct protocol");
+        assertEquals(A1ProtocolType.UNKNOWN, ric.getProtocolVersion(), "Protocol negotiation failed for " + ric.name());
     }
 
     private A1Client createClient(A1ProtocolType version) throws ServiceException {

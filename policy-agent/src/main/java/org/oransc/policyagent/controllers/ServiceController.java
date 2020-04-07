@@ -42,7 +42,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -145,7 +144,7 @@ public class ServiceController {
         value = { //
             @ApiResponse(code = 200, message = "Service supervision timer refreshed, OK"),
             @ApiResponse(code = 404, message = "The service is not found, needs re-registration")})
-    @PostMapping("/services/keepalive")
+    @PutMapping("/services/keepalive")
     public ResponseEntity<String> keepAliveService(//
         @RequestParam(name = "name", required = true) String serviceName) {
         try {

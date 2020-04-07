@@ -146,7 +146,7 @@ public class RicSynchronizationTask {
     }
 
     private Flux<Object> deleteAllPolicyInstances(Ric ric, Throwable t) {
-        logger.warn("Recreation of policies failed for ric: {}, reason: {}", ric.name(), t.getMessage());
+        logger.debug("Recreation of policies failed for ric: {}, reason: {}", ric.name(), t.getMessage());
         deleteAllPoliciesInRepository(ric);
 
         Flux<PolicyType> synchronizedTypes = this.a1ClientFactory.createA1Client(ric) //

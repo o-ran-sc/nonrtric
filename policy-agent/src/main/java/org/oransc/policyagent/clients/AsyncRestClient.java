@@ -101,6 +101,13 @@ public class AsyncRestClient {
         return retrieve(request);
     }
 
+    public Mono<ResponseEntity<String>> putForEntity(String uri) {
+        logger.debug("PUT uri = '{}{}''", baseUrl, uri);
+        RequestHeadersSpec<?> request = client.put() //
+            .uri(uri);
+        return retrieve(request);
+    }
+
     public Mono<String> put(String uri, String body) {
         return putForEntity(uri, body) //
             .flatMap(this::toBody);

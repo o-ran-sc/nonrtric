@@ -20,6 +20,7 @@
 
 package org.oransc.policyagent.utils;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;
 import java.util.Vector;
@@ -29,6 +30,8 @@ import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.PolicyTypes;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -112,6 +115,13 @@ public class MockA1Client implements A1Client {
         } else {
             return Mono.create(monoSink -> asynchResponse(monoSink, value));
         }
+    }
+
+    Mono<String> monoError(String responseBody, HttpStatus status) {
+        byte[] responseBodyBytes = responseBody.getBytes(StandardCharsets.UTF_8);
+        WebClientResponseException a1Exception = new WebClientResponseException(status.value(),
+            status.getReasonPhrase(), null, responseBodyBytes, StandardCharsets.UTF_8, null);
+        return Mono.error(a1Exception);
     }
 
     @SuppressWarnings("squid:S2925") // "Thread.sleep" should not be used in tests.

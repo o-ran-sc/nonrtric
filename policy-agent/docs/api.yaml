@@ -135,7 +135,7 @@ paths:
           schema:
             type: string
         '423':
-          description: RIC is locked
+          description: RIC is not operational
           schema:
             type: string
       deprecated: false
@@ -170,7 +170,7 @@ paths:
           schema:
             type: string
         '423':
-          description: RIC is locked
+          description: RIC is not operational
           schema:
             type: string
       deprecated: false
@@ -342,7 +342,7 @@ paths:
         - name: managedElementId
           in: query
           description: managedElementId
-          required: false
+          required: true
           type: string
       responses:
         '200':
@@ -415,7 +415,7 @@ paths:
           schema:
             type: string
         '400':
-          description: Cannot parse the ServiceRegistrationInfo
+          description: The ServiceRegistrationInfo is not accepted
           schema:
             type: string
         '401':
@@ -487,11 +487,11 @@ paths:
             type: string
       deprecated: false
   /services/keepalive:
-    post:
+    put:
       tags:
         - Service registry and supervision
       summary: Heartbeat from a serice
-      operationId: keepAliveServiceUsingPOST
+      operationId: keepAliveServiceUsingPUT
       consumes:
         - application/json
       produces:

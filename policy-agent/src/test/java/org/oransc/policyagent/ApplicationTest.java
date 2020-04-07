@@ -542,7 +542,7 @@ public class ApplicationTest {
 
         // Keep alive
         url = "/services/keepalive?name=name";
-        ResponseEntity<String> entity = restClient().postForEntity(url, null).block();
+        ResponseEntity<String> entity = restClient().putForEntity(url).block();
         assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         // DELETE service
@@ -552,7 +552,7 @@ public class ApplicationTest {
         assertThat(services.size()).isEqualTo(0);
 
         // Keep alive, no registerred service
-        testErrorCode(restClient().post("/services/keepalive?name=name", ""), HttpStatus.NOT_FOUND);
+        testErrorCode(restClient().put("/services/keepalive?name=name", ""), HttpStatus.NOT_FOUND);
 
         // PUT servive with bad payload
         testErrorCode(restClient().put("/service", "crap"), HttpStatus.BAD_REQUEST);
