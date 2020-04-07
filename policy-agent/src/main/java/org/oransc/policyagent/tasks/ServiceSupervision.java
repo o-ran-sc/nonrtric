@@ -116,7 +116,8 @@ public class ServiceSupervision {
     }
 
     private Mono<String> handleDeleteFromRicFailure(Policy policy, Throwable e) {
-        logger.warn("Could not delete policy: {} from ric: {}", policy.id(), policy.ric().name(), e);
+        logger.warn("Could not delete policy: {} from ric: {}. Cause: {}", policy.id(), policy.ric().name(),
+            e.getMessage());
         return Mono.empty();
     }
 }
