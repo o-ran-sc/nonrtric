@@ -247,9 +247,9 @@ public class ApplicationTest {
 
     private String putPolicyUrl(String serviceName, String ricName, String policyTypeName, String policyInstanceId) {
         if (policyTypeName.isEmpty()) {
-            return "/policy?instance=" + policyInstanceId + "&ric=" + ricName + "&service=" + serviceName;
+            return "/policy?id=" + policyInstanceId + "&ric=" + ricName + "&service=" + serviceName;
         } else {
-            return "/policy?instance=" + policyInstanceId + "&ric=" + ricName + "&service=" + serviceName + "&type="
+            return "/policy?id=" + policyInstanceId + "&ric=" + ricName + "&service=" + serviceName + "&type="
                 + policyTypeName;
         }
     }
@@ -320,17 +320,17 @@ public class ApplicationTest {
         // DELETE POLICY
         this.addPolicy("instance1", "type1", "service1", "ric1");
         doReturn(Mono.error(a1Exception)).when(a1Client).deletePolicy(any());
-        testErrorCode(restClient().delete("/policy?instance=instance1"), httpStatus, responseBody);
+        testErrorCode(restClient().delete("/policy?id=instance1"), httpStatus, responseBody);
 
         // GET STATUS
         this.addPolicy("instance1", "type1", "service1", "ric1");
         doReturn(Mono.error(a1Exception)).when(a1Client).getPolicyStatus(any());
-        testErrorCode(restClient().get("/policy_status?instance=instance1"), httpStatus, responseBody);
+        testErrorCode(restClient().get("/policy_status?id=instance1"), httpStatus, responseBody);
 
         // Check that empty response body is OK
         a1Exception = new WebClientResponseException(httpStatus.value(), "", null, null, null, null);
         doReturn(Mono.error(a1Exception)).when(a1Client).getPolicyStatus(any());
-        testErrorCode(restClient().get("/policy_status?instance=instance1"), httpStatus);
+        testErrorCode(restClient().get("/policy_status?id=instance1"), httpStatus);
     }
 
     @Test
@@ -363,7 +363,7 @@ public class ApplicationTest {
 
     @Test
     public void testGetPolicy() throws Exception {
-        String url = "/policy?instance=id";
+        String url = "/policy?id=id";
         Policy policy = addPolicy("id", "typeName", "service1", "ric1");
         {
             String rsp = restClient().get(url).block();
@@ -380,7 +380,7 @@ public class ApplicationTest {
         addPolicy("id", "typeName", "service1", "ric1");
         assertThat(policies.size()).isEqualTo(1);
 
-        String url = "/policy?instance=id";
+        String url = "/policy?id=id";
         ResponseEntity<String> entity = restClient().deleteForEntity(url).block();
 
         assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
@@ -585,12 +585,12 @@ public class ApplicationTest {
         addPolicy("id", "typeName", "service1", "ric1");
         assertThat(policies.size()).isEqualTo(1);
 
-        String url = "/policy_status?instance=id";
+        String url = "/policy_status?id=id";
         String rsp = restClient().get(url).block();
         assertThat(rsp.equals("OK")).isTrue();
 
         // GET non existing policy status
-        url = "/policy_status?instance=XXX";
+        url = "/policy_status?id=XXX";
         testErrorCode(restClient().get(url), HttpStatus.NOT_FOUND);
     }
 
