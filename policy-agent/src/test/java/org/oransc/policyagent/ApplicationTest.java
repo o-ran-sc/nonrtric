@@ -554,9 +554,10 @@ public class ApplicationTest {
         // Keep alive, no registerred service
         testErrorCode(restClient().post("/services/keepalive?name=name", ""), HttpStatus.NOT_FOUND);
 
-        // PUT servive with crap payload
+        // PUT servive with bad payload
         testErrorCode(restClient().put("/service", "crap"), HttpStatus.BAD_REQUEST);
         testErrorCode(restClient().put("/service", "{}"), HttpStatus.BAD_REQUEST);
+        testErrorCode(restClient().put("/service", createServiceJson("name", -123)), HttpStatus.BAD_REQUEST);
 
         // GET non existing servive
         testErrorCode(restClient().get("/services?name=XXX"), HttpStatus.NOT_FOUND);

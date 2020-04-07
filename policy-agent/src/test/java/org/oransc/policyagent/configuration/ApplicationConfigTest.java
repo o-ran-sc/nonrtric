@@ -21,6 +21,7 @@
 package org.oransc.policyagent.configuration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -78,6 +79,11 @@ public class ApplicationConfigTest {
 
         assertEquals(RIC_CONFIG_1, appConfigUnderTest.getRic(RIC_CONFIG_1.name()),
             "Not correct Ric retrieved from configurations.");
+
+        update = appConfigUnderTest.setConfiguration(configParserResult(RIC_CONFIG_1)).blockFirst();
+        assertNull(update, "Nothing should be updated");
+        assertTrue(appConfigUnderTest.getRicConfigs().contains(RIC_CONFIG_1), "Ric should remain.");
+
     }
 
     @Test
