@@ -1,6 +1,6 @@
 .. This work is licensed under a Creative Commons Attribution 4.0 International License.
 .. http://creativecommons.org/licenses/by/4.0
-
+.. Copyright (C) 2020 Nordix
 
 ========
 API-Docs
@@ -36,6 +36,8 @@ SDNC A1 Controller
 ==================
 
 An ONAP SDNC Controller for the A1 interface.
+
+See :ref:`sdnc-a1-controller-api` for how to use the API.
 
 See the README.md file in the nonrtric/sdnc-a1-controller repo for info about how to use it.
 
