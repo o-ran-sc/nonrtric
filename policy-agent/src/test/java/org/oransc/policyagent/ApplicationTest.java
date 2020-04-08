@@ -558,6 +558,8 @@ public class ApplicationTest {
         testErrorCode(restClient().put("/service", "crap"), HttpStatus.BAD_REQUEST);
         testErrorCode(restClient().put("/service", "{}"), HttpStatus.BAD_REQUEST);
         testErrorCode(restClient().put("/service", createServiceJson("name", -123)), HttpStatus.BAD_REQUEST);
+        testErrorCode(restClient().put("/service", createServiceJson("name", 0, "missing.portandprotocol.com")),
+            HttpStatus.BAD_REQUEST);
 
         // GET non existing servive
         testErrorCode(restClient().get("/services?name=XXX"), HttpStatus.NOT_FOUND);
@@ -611,7 +613,11 @@ public class ApplicationTest {
     }
 
     private String createServiceJson(String name, long keepAliveIntervalSeconds) {
-        ServiceRegistrationInfo service = new ServiceRegistrationInfo(name, keepAliveIntervalSeconds, "callbackUrl");
+        return createServiceJson(name, keepAliveIntervalSeconds, "https://examples.javacodegeeks.com/core-java/");
+    }
+
+    private String createServiceJson(String name, long keepAliveIntervalSeconds, String url) {
+        ServiceRegistrationInfo service = new ServiceRegistrationInfo(name, keepAliveIntervalSeconds, url);
 
         String json = gson.toJson(service);
         return json;

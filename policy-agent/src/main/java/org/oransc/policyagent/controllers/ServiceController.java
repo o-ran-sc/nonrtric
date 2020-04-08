@@ -28,6 +28,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -92,12 +94,16 @@ public class ServiceController {
             s.getCallbackUrl());
     }
 
-    private void validateRegistrationInfo(ServiceRegistrationInfo registrationInfo) throws ServiceException {
+    private void validateRegistrationInfo(ServiceRegistrationInfo registrationInfo)
+        throws ServiceException, MalformedURLException {
         if (registrationInfo.serviceName.isEmpty()) {
             throw new ServiceException("Missing mandatory parameter 'serviceName'");
         }
         if (registrationInfo.keepAliveIntervalSeconds < 0) {
             throw new ServiceException("Keepalive interval shoul be greater or equal to 0");
+        }
+        if (!registrationInfo.callbackUrl.isEmpty()) {
+            new URL(registrationInfo.callbackUrl);
         }
     }
 
