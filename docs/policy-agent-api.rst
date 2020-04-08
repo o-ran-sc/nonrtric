@@ -115,7 +115,7 @@ PUT
           Service created.
 
     400:
-          Something went wrong with the service registration.
+          The ServiceRegistrationInfo is not accepted.
 
   **Examples:**
 
@@ -243,8 +243,8 @@ DELETE
 /services/keepalive
 ~~~~~~~~~~~~~~~~~~~
 
-POST
-++++
+PUT
++++
 
   Heart beat from a service.
 
@@ -268,7 +268,7 @@ POST
 
     Call: ::
 
-      curl -X POST "http://localhost:8081/services/keepalive?name=existing"
+      curl -X PUT "http://localhost:8081/services/keepalive?name=existing"
 
     Result:
       200: ::
@@ -277,7 +277,7 @@ POST
 
     Call: ::
 
-      curl -X POST "http://localhost:8081/services/keepalive?name=nonexistent"
+      curl -X PUT "http://localhost:8081/services/keepalive?name=nonexistent"
 
     Result:
        404: ::
@@ -741,7 +741,7 @@ PUT
           Near |nbh| RT |nbsp| RIC or policy type is not found.
 
     423:
-          Near |nbh| RT |nbsp| RIC is locked.
+          Near |nbh| RT |nbsp| RIC is not operational.
 
   **Examples:**
 
@@ -793,6 +793,9 @@ DELETE
 
     404:
           Policy is not found.
+
+    423:
+          Near |nbh| RT |nbsp| RIC is not operational.
 
   **Examples:**
 
@@ -904,7 +907,7 @@ GET
 
   **Parameters:**
 
-    managedElementId: (*Optional*)
+    managedElementId: (*Required*)
       The ID of the Managed Element.
 
   **Responses:**
