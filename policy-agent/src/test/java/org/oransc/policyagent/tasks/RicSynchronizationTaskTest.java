@@ -108,7 +108,7 @@ public class RicSynchronizationTaskTest {
         policyTypes = new PolicyTypes();
         policies = new Policies();
         services = new Services();
-        RIC_1.setState(RicState.UNDEFINED);
+        RIC_1.setState(RicState.UNAVAILABLE);
         RIC_1.clearSupportedPolicyTypes();
     }
 
@@ -135,7 +135,7 @@ public class RicSynchronizationTaskTest {
 
     @Test
     public void ricIdlePolicyTypeInRepo_thenSynchronizationWithReuseOfTypeFromRepoAndCorrectServiceNotified() {
-        RIC_1.setState(RicState.IDLE);
+        RIC_1.setState(RicState.AVAILABLE);
 
         policyTypes.put(POLICY_TYPE_1);
 
@@ -166,12 +166,12 @@ public class RicSynchronizationTaskTest {
 
         assertThat(policyTypes.size()).isEqualTo(1);
         assertThat(policies.size()).isEqualTo(0);
-        assertThat(RIC_1.getState()).isEqualTo(RicState.IDLE);
+        assertThat(RIC_1.getState()).isEqualTo(RicState.AVAILABLE);
     }
 
     @Test
     public void ricIdlePolicyTypeNotInRepo_thenSynchronizationWithTypeFromRic() throws Exception {
-        RIC_1.setState(RicState.IDLE);
+        RIC_1.setState(RicState.AVAILABLE);
 
         setUpCreationOfA1Client();
         simulateRicWithOnePolicyType();
@@ -189,12 +189,12 @@ public class RicSynchronizationTaskTest {
         assertThat(policyTypes.size()).isEqualTo(1);
         assertThat(policyTypes.getType(POLICY_TYPE_1_NAME).schema()).isEqualTo(typeSchema);
         assertThat(policies.size()).isEqualTo(0);
-        assertThat(RIC_1.getState()).isEqualTo(RicState.IDLE);
+        assertThat(RIC_1.getState()).isEqualTo(RicState.AVAILABLE);
     }
 
     @Test
     public void ricIdleAndHavePolicies_thenSynchronizationWithRecreationOfPolicies() {
-        RIC_1.setState(RicState.IDLE);
+        RIC_1.setState(RicState.AVAILABLE);
 
         policies.put(POLICY_1);
 
@@ -215,12 +215,12 @@ public class RicSynchronizationTaskTest {
 
         assertThat(policyTypes.size()).isEqualTo(0);
         assertThat(policies.size()).isEqualTo(1);
-        assertThat(RIC_1.getState()).isEqualTo(RicState.IDLE);
+        assertThat(RIC_1.getState()).isEqualTo(RicState.AVAILABLE);
     }
 
     @Test
     public void ricIdleAndErrorDeletingPoliciesFirstTime_thenSynchronizationWithDeletionOfPolicies() {
-        RIC_1.setState(RicState.IDLE);
+        RIC_1.setState(RicState.AVAILABLE);
 
         policies.put(POLICY_1);
 
@@ -241,12 +241,12 @@ public class RicSynchronizationTaskTest {
 
         assertThat(policyTypes.size()).isEqualTo(0);
         assertThat(policies.size()).isEqualTo(0);
-        assertThat(RIC_1.getState()).isEqualTo(RicState.IDLE);
+        assertThat(RIC_1.getState()).isEqualTo(RicState.AVAILABLE);
     }
 
     @Test
     public void ricIdleAndErrorDeletingPoliciesAllTheTime_thenSynchronizationWithFailedRecovery() {
-        RIC_1.setState(RicState.IDLE);
+        RIC_1.setState(RicState.AVAILABLE);
 
         policies.put(POLICY_1);
 
@@ -272,12 +272,12 @@ public class RicSynchronizationTaskTest {
 
         assertThat(policyTypes.size()).isEqualTo(0);
         assertThat(policies.size()).isEqualTo(0);
-        assertThat(RIC_1.getState()).isEqualTo(RicState.UNDEFINED);
+        assertThat(RIC_1.getState()).isEqualTo(RicState.UNAVAILABLE);
     }
 
     @Test
     public void ricIdlePolicyTypeInRepo_thenSynchronizationWithErrorOnServiceNotificationErrorLogged() {
-        RIC_1.setState(RicState.IDLE);
+        RIC_1.setState(RicState.AVAILABLE);
 
         policyTypes.put(POLICY_TYPE_1);
 

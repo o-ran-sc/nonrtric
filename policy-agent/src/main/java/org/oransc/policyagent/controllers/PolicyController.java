@@ -268,7 +268,7 @@ public class PolicyController {
     }
 
     private Mono<Object> assertRicStateIdle(Ric ric) {
-        if (ric.getState() == Ric.RicState.IDLE) {
+        if (ric.getState() == Ric.RicState.AVAILABLE) {
             return Mono.just("OK");
         } else {
             RejectionException e = new RejectionException(

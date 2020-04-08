@@ -89,7 +89,7 @@ public class RicSynchronizationTask {
                 @Override
                 protected void hookOnError(Throwable throwable) {
                     logger.warn("Synchronization failure for ric: {}, reason: {}", ric.name(), throwable.getMessage());
-                    ric.setState(RicState.UNDEFINED);
+                    ric.setState(RicState.UNAVAILABLE);
                 }
 
                 @Override
@@ -126,7 +126,7 @@ public class RicSynchronizationTask {
 
     private void onSynchronizationComplete(Ric ric) {
         logger.debug("Synchronization completed for: {}", ric.name());
-        ric.setState(RicState.IDLE);
+        ric.setState(RicState.AVAILABLE);
         notifyAllServices("Synchronization completed for:" + ric.name());
     }
 

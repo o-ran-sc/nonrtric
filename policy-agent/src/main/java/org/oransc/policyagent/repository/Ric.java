@@ -38,7 +38,7 @@ public class Ric {
 
     @Setter
     private RicConfig ricConfig;
-    private RicState state = RicState.UNDEFINED;
+    private RicState state = RicState.UNAVAILABLE;
     private Map<String, PolicyType> supportedPolicyTypes = new HashMap<>();
     @Getter
     @Setter
@@ -144,11 +144,11 @@ public class Ric {
         /**
          * The agent view of the Ric may be inconsistent.
          */
-        UNDEFINED,
+        UNAVAILABLE,
         /**
          * The normal state. Policies can be configured.
          */
-        IDLE,
+        AVAILABLE,
         /**
          * The agent is synchronizing the view of the Ric.
          */

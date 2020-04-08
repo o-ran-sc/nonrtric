@@ -39,9 +39,13 @@ class RicInfo {
     @ApiModelProperty(value = "supported policy types")
     public final Collection<String> policyTypes;
 
-    RicInfo(String name, Collection<String> managedElementIds, Collection<String> policyTypes) {
+    @ApiModelProperty(value = "state info")
+    public final String state;
+
+    RicInfo(String name, Collection<String> managedElementIds, Collection<String> policyTypes, String state) {
         this.ricName = name;
         this.managedElementIds = managedElementIds;
         this.policyTypes = policyTypes;
+        this.state = state;
     }
 }
