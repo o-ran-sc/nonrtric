@@ -23,6 +23,8 @@ package org.oransc.policyagent.clients;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,9 +63,10 @@ class SdncJsonHelper {
     }
 
     public static <T> String createInputJsonString(T params) {
-        JSONObject inputJson = new JSONObject();
-        inputJson.put("input", gson.toJson(params));
-        return inputJson.toString();
+        JsonElement paramsJson = gson.toJsonTree(params);
+        JsonObject jsonObj = new JsonObject();
+        jsonObj.add("input", paramsJson);
+        return gson.toJson(jsonObj);
     }
 
     public static Mono<String> getValueFromResponse(String response, String key) {
