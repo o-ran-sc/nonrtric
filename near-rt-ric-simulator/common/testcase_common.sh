@@ -8,7 +8,7 @@ echo "Numbers of ric simulator started" $2
 # This is a script that contains all the functions needed for auto test
 # Arg: local | remote (1, 2, 3, 4....)
 
-STARTED_POLICY_AGENT="" #Policy agent app names added to this var to keep track of started container in the script
+STARTED_POLICY_AGENT="" #Policy Agent app names added to this var to keep track of started container in the script
 START_ARG=$1
 IMAGE_TAG="1.0.0-SNAPSHOT"
 IMAGE_TAG_REMOTE="latest"
@@ -85,8 +85,8 @@ fi
 echo ""
 
 if [ $1 !=  "manual-container" ] && [ $1 !=  "manual-app" ]; then
-	#echo -e "Policy agent image tag set to: \033[1m" $IMAGE_TAG"\033[0m"
-	echo "Configured image for policy agent app(s) (${1}): "$POLICY_AGENT_IMAGE
+	#echo -e "Policy Agent image tag set to: \033[1m" $IMAGE_TAG"\033[0m"
+	echo "Configured image for Policy Agent app(s) (${1}): "$POLICY_AGENT_IMAGE
 	tmp_im=$(docker images ${POLICY_AGENT_IMAGE} | grep -v REPOSITORY)
 
 	if [ $1 == "local" ]; then
@@ -94,12 +94,12 @@ if [ $1 !=  "manual-container" ] && [ $1 !=  "manual-app" ]; then
 			echo "Local image (non nexus) "$POLICY_AGENT_IMAGE" does not exist in local registry, need to be built"
 			exit 1
 		else
-			echo -e "Policy agent local image: \033[1m"$tmp_im"\033[0m"
-			echo "If the policy agent image seem outdated, rebuild the image and run the test again."
+			echo -e "Policy Agent local image: \033[1m"$tmp_im"\033[0m"
+			echo "If the Policy Agent image seem outdated, rebuild the image and run the test again."
 		fi
 	elif [ $1 == "remote" ]; then
 	    if [ -z "$tmp_im" ]; then
-			echo "Pulling policy agent image from nexus: "$POLICY_AGENT_IMAGE
+			echo "Pulling Policy Agent image from nexus: "$POLICY_AGENT_IMAGE
 			docker pull $POLICY_AGENT_IMAGE	 > /dev/null
 			tmp_im=$(docker images ${POLICY_AGENT_IMAGE} | grep -v REPOSITORY)
 			if [ -z "$tmp_im" ]; then
@@ -109,7 +109,7 @@ if [ $1 !=  "manual-container" ] && [ $1 !=  "manual-app" ]; then
 			echo -e "Policy Agent image: \033[1m"$tmp_im"\033[0m"
 		else
 			echo -e "Policy Agent image: \033[1m"$tmp_im"\033[0m"
-			echo "!! If the Policy agent image seem outdated, consider removing it from your docker registry and run the test again."
+			echo "!! If the Policy Agent image seem outdated, consider removing it from your docker registry and run the test again."
 		fi
 	fi
 fi
@@ -121,7 +121,7 @@ if [ -z "$SIM_DIR" ]; then
 		SIM_DIR=$(find . -type d -path "*a1-interface/near-rt-ric-simulator/scripts*" 2>/dev/null -print -quit)
 		if [ ! -d  $SIM_DIR ]; then
 			echo "Trying to set env var SIM_DIR to dir 'a1-interface/near-rt-ric-simulator/scripts' in the sim repo, but failed."
-			echo "It might be that you did not download the repository of the near-rt-ric simulator.In that case, run the command:"
+			echo "It might be that you did not download the repository of the Near-rt-ric simulator.In that case, run the command:"
 			echo "git clone 'https://gerrit.o-ran-sc.org/oransc/sim/a1-interface'"
 			echo "Otherwise, please set the SIM_DIR manually in the test_env.sh"
 			exit 1
@@ -182,7 +182,7 @@ start_dashboard() {
   echo "Creating docker network $DOCKER_SIM_NWNAME, if needed"
   docker network ls| grep $DOCKER_SIM_NWNAME > /dev/null || docker network create $DOCKER_SIM_NWNAME
 
-  echo "start dashboard"
+  echo "start Control Panel"
   curdir=$PWD
   cd $SIM_GROUP
   cd dashboard/
@@ -243,25 +243,25 @@ start_simulators() {
 
 
 clean_containers() {
-	echo "Stopping all containers, policy agent app(s) and simulators with name prefix 'policy_agent'"
+	echo "Stopping all containers, Policy Agent app(s) and simulators with name prefix 'policy-agent'"
 	docker stop $(docker ps -q --filter name=/policy-agent) &> /dev/null
-	echo "Removing all containers, policy agent app and simulators with name prefix 'policy_agent'"
+	echo "Removing all containers, Policy Agent app and simulators with name prefix 'policy-agent'"
 	docker rm $(docker ps -a -q --filter name=/policy-agent) &> /dev/null
-	echo "Stopping all containers, policy agent app(s) and simulators with name prefix 'ric-simulator'"
+	echo "Stopping all containers, Policy Agent app(s) and simulators with name prefix 'ric-simulator'"
 	docker stop $(docker ps -q --filter name=ric-simulator) &> /dev/null
-	echo "Removing all containers, policy agent app and simulators with name prefix 'ric-simulator'"
+	echo "Removing all containers, Policy Agent app and simulators with name prefix 'ric-simulator'"
 	docker rm $(docker ps -a -q --filter name=ric-simulator) &> /dev/null
-	echo "Removing all containers, policy agent app and simulators with name prefix 'dashboard'"
+	echo "Removing all containers, Policy Agent app and simulators with name prefix 'dashboard'"
 	docker rm $(docker ps -a -q --filter name=dashboard) &> /dev/null
-	echo "Removing all containers, policy agent app and simulators with name prefix 'a1-controller'"
+	echo "Removing all containers, Policy Agent app and simulators with name prefix 'a1-controller'"
 	docker rm $(docker ps -a -q --filter name=a1-controller) &> /dev/null
-	echo "Removing all containers, policy agent app and simulators with name prefix 'sdnc_db_container'"
+	echo "Removing all containers, Policy Agent app and simulators with name prefix 'sdnc_db_container'"
 	docker rm $(docker ps -a -q --filter name=sdnc_db_container) &> /dev/null
-	echo "Removing all containers, policy agent app and simulators with name prefix 'cbs'"
+	echo "Removing all containers, Policy Agent app and simulators with name prefix 'cbs'"
 	docker rm $(docker ps -a -q --filter name=polman_cbs) &> /dev/null
-	echo "Removing all containers, policy agent app and simulators with name prefix 'consul'"
+	echo "Removing all containers, Policy Agent app and simulators with name prefix 'consul'"
 	docker rm $(docker ps -a -q --filter name=polman_consul) &> /dev/null
-	echo "Removing unused docker networks with substring 'policy agent' in network name"
+	echo "Removing unused docker networks with substring 'nonrtric' in network name"
 	docker network rm $(docker network ls -q --filter name=nonrtric)
 	echo ""
 }
@@ -284,7 +284,7 @@ __start_policy_agent_image() {
 
 	docker network ls| grep $DOCKER_SIM_NWNAME > /dev/null || docker network create $DOCKER_SIM_NWNAME
 
-	echo "Starting policy agent: " $appname " with ports mapped to " $localport " in docker network "$DOCKER_SIM_NWNAME
+	echo "Starting Policy Agent: " $appname " with ports mapped to " $localport " in docker network "$DOCKER_SIM_NWNAME
 	docker run -d -p $localport":8081" --network=$DOCKER_SIM_NWNAME -e CONSUL_HOST=$CONSUL_HOST -e CONSUL_PORT=$CONSUL_PORT -e CONFIG_BINDING_SERVICE=$CONFIG_BINDING_SERVICE -e HOSTNAME=$appname --name $appname $POLICY_AGENT_IMAGE
 	#docker run -d -p 8081:8081 --network=nonrtric-docker-net -e CONSUL_HOST=CONSUL_HOST=$CONSUL_HOST -e CONSUL_PORT=$CONSUL_PORT -e CONFIG_BINDING_SERVICE=$CONFIG_BINDING_SERVICE -e HOSTNAME=policy-agent
 	sleep 3
@@ -330,7 +330,7 @@ check_policy_agent_logs() {
 
 		appname=$PA_APP_BASE
 		tmp=$(docker ps | grep $appname)
-		if ! [ -z "$tmp" ]; then  #Only check logs for running policy agent apps
+		if ! [ -z "$tmp" ]; then  #Only check logs for running Policy Agent apps
 			__check_policy_agent_log $appname
 		fi
 
@@ -365,7 +365,7 @@ store_logs() {
     	__print_err "need one arg, <file-prefix>"
 		exit 1
 	fi
-	echo "Storing all container logs and policy agent app log using prefix: "$1
+	echo "Storing all container logs and Policy Agent app log using prefix: "$1
 
 	docker logs polman_consul > $TESTLOGS/$ATC/$1_consul.log 2>&1
 	docker logs polman_cbs > $TESTLOGS/$ATC/$1_cbs.log 2>&1

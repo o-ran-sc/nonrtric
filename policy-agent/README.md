@@ -1,6 +1,6 @@
-# O-RAN-SC NonRT RIC Dashboard Web Application
+# O-RAN-SC Non-RT RIC Policy Agent
 
-The O-RAN NonRT RIC PolicyAgent provides a REST API for management of policices.
+The O-RAN Non-RT RIC PolicyAgent provides a REST API for management of policices.
 It provides support for:
  -Supervision of clients (R-APPs) to eliminate stray policies in case of failure
  -Consistency monitoring of the SMO view of policies and the actual situation in the RICs

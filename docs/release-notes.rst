@@ -13,35 +13,6 @@ This document provides the release notes for the release of the different parts 
    :local:
 
 
-Version history Dashboard
-=========================
-
-+--------------------+--------------------+--------------------+--------------------+
-| **Date**           | **Ver.**           | **Author**         | **Comment**        |
-|                    |                    |                    |                    |
-+--------------------+--------------------+--------------------+--------------------+
-| 2019-11-12         | 0.1.0              | Maxime Bonneau     | First draft        |
-|                    |                    |                    |                    |
-+--------------------+--------------------+--------------------+--------------------+
-|                    | 0.1.1              |                    |                    |
-|                    |                    |                    |                    |
-+--------------------+--------------------+--------------------+--------------------+
-|                    | 1.0                |                    |                    |
-|                    |                    |                    |                    |
-+--------------------+--------------------+--------------------+--------------------+
-| 2020-02-03         | 1.1                | Henrik Andersson   | Amber Maintenance  |
-|                    |                    |                    | Release            |
-+--------------------+--------------------+--------------------+--------------------+
-
-Summary
--------
-
-For Amber release, there is only a dashboard available. Non-RT RIC does not support R-apps yet.
-
-The Non-RT RIC is not yet fully compliant with the A1 specifications for this release. Find out which methods are available `here`_.
-
-.. _here: a1_policy_procedure
-
 Version history Policy Agent
 ============================
 

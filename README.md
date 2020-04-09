@@ -1,10 +1,10 @@
 # O-RAN-SC Non-RealTime RIC
 
-The O-RAN SC Non-RealTime RIC provides support non-real-time intelligent radio resource management, higher layer procedure optimization, policy optimization in RAN, and providing guidance, parameters, policies and AI/ML models to support the operation of RIC near-RT to achieve higher-level non-real-time objectives.
+The O-RAN SC Non-RT RIC provides support for non-real-time intelligent radio resource management, higher layer procedure optimization, policy optimization in RAN, and providing guidance, parameters, policies and AI/ML models to support the operation of the Near-RT RIC to achieve higher-level non-real-time objectives.
 
 Please see the documentation in the docs/ folder
 
-For more information about the NONRTRIC project please see the [project website](https://wiki.o-ran-sc.org/display/RICNR "O-RAN-SC NONRTRIC project")
+For more information about the Non-RT RIC project please see the [project website](https://wiki.o-ran-sc.org/display/RICNR "O-RAN-SC Non-RT RIC project")
 
 ## License
 

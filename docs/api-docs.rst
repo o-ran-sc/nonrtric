@@ -42,9 +42,9 @@ See the README.md file in the nonrtric/sdnc-a1-controller repo for info about ho
 Complementary tools
 ===================
 
-There are two additional tools that can be used together with the Non-RT RIC, namely the control panel and the Near-RT RIC simulator.
+There are two additional tools that can be used together with the Non-RT RIC, namely the Control Panel and the Near-RT RIC simulator.
 
-The Non-RT RIC Control panel provides a user interface that allows the user to interact with the Non-RT RIC.
+The Non-RT RIC Control Panel provides a user interface that allows the user to interact with the Non-RT RIC.
 It can be downloaded using: git clone "https://gerrit.o-ran-sc.org/r/portal/nonrtric-controlpanel"
 
 The Near-RT RIC simulator does what its name suggests, and can be downloaded here: git clone "https://gerrit.o-ran-sc.org/r/sim/a1-interface"
