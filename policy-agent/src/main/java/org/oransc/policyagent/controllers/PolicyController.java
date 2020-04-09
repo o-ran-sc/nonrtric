@@ -226,13 +226,14 @@ public class PolicyController {
         final boolean isCreate = this.policies.get(policy.id()) == null;
 
         return ric.getLock().lock(LockType.SHARED) //
-            .flatMap(p -> assertRicStateIdle(ric)) //
-            .flatMap(p -> validateModifiedPolicy(policy)) //
+            .flatMap(notUsed -> assertRicStateIdle(ric)) //
+            .flatMap(notUsed -> checkSupportedType(ric, type)) //
+            .flatMap(notUsed -> validateModifiedPolicy(policy)) //
             .flatMap(notUsed -> a1ClientFactory.createA1Client(ric)) //
             .flatMap(client -> client.putPolicy(policy)) //
             .doOnNext(notUsed -> policies.put(policy)) //
             .doOnNext(notUsed -> ric.getLock().unlockBlocking()) //
-            .doOnError(t -> ric.getLock().unlockBlocking()) //
+            .doOnError(trowable -> ric.getLock().unlockBlocking()) //
             .flatMap(notUsed -> Mono.just(new ResponseEntity<>(isCreate ? HttpStatus.CREATED : HttpStatus.OK))) //
             .onErrorResume(this::handleException);
     }
@@ -262,6 +263,15 @@ public class PolicyController {
             RejectionException e = new RejectionException("Policy cannot change RIC, policyId: " + current.id() + //
                 ", RIC name: " + current.ric().name() + //
                 ", new name: " + policy.ric().name(), HttpStatus.CONFLICT);
+            return Mono.error(e);
+        }
+        return Mono.just("OK");
+    }
+
+    private Mono<Object> checkSupportedType(Ric ric, PolicyType type) {
+        if (!ric.isSupportingType(type.name())) {
+            RejectionException e = new RejectionException(
+                "Type: " + type.name() + " not supported by RIC: " + ric.name(), HttpStatus.NOT_FOUND);
             return Mono.error(e);
         }
         return Mono.just("OK");

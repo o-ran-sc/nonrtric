@@ -355,6 +355,7 @@ public class ApplicationTest {
         this.addRic("ric1");
         this.addRic("ricXXX");
         this.addPolicy("instance1", "type1", "service1", "ric1");
+        this.addPolicy("instance2", "type1", "service1", "ricXXX");
 
         // Try change ric1 -> ricXXX
         String urlWrongRic = putPolicyUrl("service1", "ricXXX", "type1", "instance1");
