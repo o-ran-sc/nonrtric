@@ -184,7 +184,7 @@ public class ApplicationTest {
             ric.getLock().lockBlocking(LockType.EXCLUSIVE);
             ric.getLock().unlockBlocking();
             assertThat(ric.getLock().getLockCounter()).isEqualTo(0);
-            assertThat(ric.getState()).isEqualTo(Ric.RicState.IDLE);
+            assertThat(ric.getState()).isEqualTo(Ric.RicState.AVAILABLE);
         }
     }
 
@@ -211,7 +211,7 @@ public class ApplicationTest {
 
     @Test
     public void testSynchronization() throws Exception {
-        addRic("ric").setState(Ric.RicState.UNDEFINED);
+        addRic("ric").setState(Ric.RicState.UNAVAILABLE);
         String ricName = "ric";
         Policy policy2 = addPolicy("policyId2", "typeName", "service", ricName);
 
@@ -222,7 +222,7 @@ public class ApplicationTest {
         Policy policy = addPolicy(policyId, "typeName", "service", ricName); // This should be created in the RIC
         supervision.checkAllRics(); // The created policy should be put in the RIC
         await().untilAsserted(() -> RicState.SYNCHRONIZING.equals(rics.getRic(ricName).getState()));
-        await().untilAsserted(() -> RicState.IDLE.equals(rics.getRic(ricName).getState()));
+        await().untilAsserted(() -> RicState.AVAILABLE.equals(rics.getRic(ricName).getState()));
 
         Policies ricPolicies = getA1Client(ricName).getPolicies();
         assertThat(ricPolicies.size()).isEqualTo(1);
@@ -266,7 +266,7 @@ public class ApplicationTest {
 
         String url = putPolicyUrl(serviceName, ricName, policyTypeName, policyInstanceId);
         final String policyBody = jsonString();
-        this.rics.getRic(ricName).setState(Ric.RicState.IDLE);
+        this.rics.getRic(ricName).setState(Ric.RicState.AVAILABLE);
 
         restClient().put(url, policyBody).block();
 
@@ -290,7 +290,7 @@ public class ApplicationTest {
         url = putPolicyUrl(serviceName, ricName, policyTypeName, policyInstanceId);
         this.rics.getRic(ricName).setState(Ric.RicState.SYNCHRONIZING);
         testErrorCode(restClient().put(url, policyBody), HttpStatus.LOCKED);
-        this.rics.getRic(ricName).setState(Ric.RicState.IDLE);
+        this.rics.getRic(ricName).setState(Ric.RicState.AVAILABLE);
     }
 
     @Test
@@ -718,7 +718,7 @@ public class ApplicationTest {
             .controllerName("") //
             .build();
         Ric ric = new Ric(conf);
-        ric.setState(Ric.RicState.IDLE);
+        ric.setState(Ric.RicState.AVAILABLE);
         this.rics.put(ric);
         return ric;
     }

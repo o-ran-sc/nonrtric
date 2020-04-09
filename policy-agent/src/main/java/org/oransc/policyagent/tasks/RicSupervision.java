@@ -115,7 +115,7 @@ public class RicSupervision {
     }
 
     private Mono<RicData> checkRicState(RicData ric) {
-        if (ric.ric.getState() == RicState.UNDEFINED) {
+        if (ric.ric.getState() == RicState.UNAVAILABLE) {
             return startSynchronization(ric) //
                 .onErrorResume(t -> Mono.empty());
         } else if (ric.ric.getState() == RicState.SYNCHRONIZING) {

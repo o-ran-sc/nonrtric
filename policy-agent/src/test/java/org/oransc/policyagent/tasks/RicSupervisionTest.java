@@ -108,7 +108,7 @@ public class RicSupervisionTest {
         types.clear();
         policies.clear();
         rics.clear();
-        RIC_1.setState(RicState.UNDEFINED);
+        RIC_1.setState(RicState.UNAVAILABLE);
         RIC_1.clearSupportedPolicyTypes();
     }
 
@@ -123,7 +123,7 @@ public class RicSupervisionTest {
 
     @Test
     public void whenRicIdleAndNoChangedPoliciesOrPolicyTypes_thenNoSynchronization() {
-        RIC_1.setState(RicState.IDLE);
+        RIC_1.setState(RicState.AVAILABLE);
         RIC_1.addSupportedPolicyType(POLICY_TYPE_1);
         rics.put(RIC_1);
 
@@ -144,7 +144,7 @@ public class RicSupervisionTest {
 
     @Test
     public void whenRicUndefined_thenSynchronization() {
-        RIC_1.setState(RicState.UNDEFINED);
+        RIC_1.setState(RicState.UNAVAILABLE);
         rics.put(RIC_1);
 
         RicSupervision supervisorUnderTest = spy(new RicSupervision(rics, policies, a1ClientFactory, types, null));
@@ -174,7 +174,7 @@ public class RicSupervisionTest {
 
     @Test
     public void whenRicIdleAndErrorGettingPolicyIdentities_thenNoSynchronization() {
-        RIC_1.setState(RicState.IDLE);
+        RIC_1.setState(RicState.AVAILABLE);
         RIC_1.addSupportedPolicyType(POLICY_TYPE_1);
         rics.put(RIC_1);
 
@@ -189,7 +189,7 @@ public class RicSupervisionTest {
 
     @Test
     public void whenRicIdleAndNotSameAmountOfPolicies_thenSynchronization() {
-        RIC_1.setState(RicState.IDLE);
+        RIC_1.setState(RicState.AVAILABLE);
         rics.put(RIC_1);
 
         policies.put(POLICY_1);
@@ -211,7 +211,7 @@ public class RicSupervisionTest {
 
     @Test
     public void whenRicIdleAndSameAmountOfPoliciesButNotSamePolicies_thenSynchronization() {
-        RIC_1.setState(RicState.IDLE);
+        RIC_1.setState(RicState.AVAILABLE);
         rics.put(RIC_1);
 
         policies.put(POLICY_1);
@@ -233,7 +233,7 @@ public class RicSupervisionTest {
 
     @Test
     public void whenRicIdleAndErrorGettingPolicyTypes_thenNoSynchronization() {
-        RIC_1.setState(RicState.IDLE);
+        RIC_1.setState(RicState.AVAILABLE);
         RIC_1.addSupportedPolicyType(POLICY_TYPE_1);
         rics.put(RIC_1);
 
@@ -249,7 +249,7 @@ public class RicSupervisionTest {
 
     @Test
     public void whenRicIdleAndNotSameAmountOfPolicyTypes_thenSynchronization() {
-        RIC_1.setState(RicState.IDLE);
+        RIC_1.setState(RicState.AVAILABLE);
         RIC_1.addSupportedPolicyType(POLICY_TYPE_1);
         rics.put(RIC_1);
 
@@ -277,7 +277,7 @@ public class RicSupervisionTest {
             .schema("") //
             .build();
 
-        RIC_1.setState(RicState.IDLE);
+        RIC_1.setState(RicState.AVAILABLE);
         RIC_1.addSupportedPolicyType(POLICY_TYPE_1);
         RIC_1.addSupportedPolicyType(policyType2);
         rics.put(RIC_1);
