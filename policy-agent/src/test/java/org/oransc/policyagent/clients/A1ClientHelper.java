@@ -20,7 +20,6 @@
 
 package org.oransc.policyagent.clients;
 
-
 import java.util.Arrays;
 import java.util.Vector;
 
