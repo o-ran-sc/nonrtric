@@ -581,6 +581,9 @@ definitions:
       ricName:
         type: string
         description: identity of the ric
+      state:
+        type: string
+        description: state info
     title: RicInfo
   ServiceRegistrationInfo:
     type: object

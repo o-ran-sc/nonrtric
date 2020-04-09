@@ -965,7 +965,8 @@ GET
                 "policyTypes": [
                   "string"
                 ],
-                "ricName": "string"
+                "ricName": "string",
+                "state": "string"
               }
             ]
 
@@ -992,7 +993,8 @@ GET
               "Example_QoETarget_1.0.0",
               "ERIC_QoSNudging_0.2.0"
             ],
-            "ricName": "Ric 1"
+            "ricName": "Ric 1",
+            "state": "AVAILABLE"
           },
             .
             .
@@ -1004,7 +1006,8 @@ GET
             "policyTypes": [
               "STD_PolicyModelUnconstrained_0.2.0"
             ],
-            "ricName": "Ric X"
+            "ricName": "Ric X",
+            "state": "UNAVAILABLE"
           }
         ]
 
