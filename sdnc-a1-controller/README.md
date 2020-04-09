@@ -4,7 +4,7 @@ SDNC provides Northbound Interface for A1 operation to do policy management on X
 
 Please see the documentation in the docs/ folder
 
-For more information about the NONRTRIC project please see the [project website](https://wiki.o-ran-sc.org/display/RICNR "O-RAN-SC NONRTRIC project")
+For more information about the Non-RT RIC project please see the [project website](https://wiki.o-ran-sc.org/display/RICNR "O-RAN-SC Non-RT RIC project")
 
 ## License
 

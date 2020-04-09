@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-TC_ONELINE_DESCR="Auto test for policy agent refreshing configurations from consul/cbs"
+TC_ONELINE_DESCR="Auto test for Policy Agent refreshing configurations from consul/cbs"
 
 . ../common/testcase_common.sh $1
 

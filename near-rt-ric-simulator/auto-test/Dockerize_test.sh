@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-TC_ONELINE_DESCR="dockerirze the test, setup docker container for policy agent, cbs, consul, near realtime ric simulator"
+TC_ONELINE_DESCR="dockerirze the test, setup docker container for Policy Agent, cbs, consul, Near-RT RIC simulator"
 
 . ../common/testcase_common.sh $1 $2 $3
 

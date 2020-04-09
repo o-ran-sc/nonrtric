@@ -20,8 +20,8 @@ There are functional requirements emitted by O-RAN WG2 for the Non-RT RIC, which
 
 The non-functional requirements are the following ones:
 
-#. Non-RT RIC shall not update the same policy or configuration parameter for a given near-RT RIC or RAN function more often than once per second.
-#. Non-RT RIC shall be able to update policies in several near-RT RICs.
+#. Non-RT RIC shall not update the same policy or configuration parameter for a given Near-RT RIC or RAN function more often than once per second.
+#. Non-RT RIC shall be able to update policies in several Near-RT RICs.
 
 Moreover, there are functional requirements regarding the A1 interface:
 
@@ -56,12 +56,12 @@ Policy Agent Overview
 The Policy Agent maintains a transient repository of the following items to support R-Apps:
 
  * All Near-RT RICs in the network. This information is configured using the ONAP CDS database (which is using the Cloudify Consul database).
- * All Policy types for all NearRT RICs
+ * All Policy types for all Near-RT RICs
  * All configured Policy instances in the network
 
-It provides an NBI for the R-Apps (and for the control panel) for policy management. This is a REST API.
+It provides an NBI for the R-Apps (and for the Control Panel) for policy management. This is a REST API.
 As an option, policy management can also be done via asynchronous messages through ONAP/Dmaap.
-The NBI provides support for an R-APP to locate the correct NearRT RIC based on identifiers as defined in O1.
+The NBI provides support for an R-APP to locate the correct Near-RT RIC based on identifiers as defined in O1.
 
 The agent monitors all Near-RT RICs and recovers from data inconsistencies, which may happen when (for instance) an Near-RT RIC restarts.
 
@@ -81,7 +81,7 @@ Amber release Policy Agent architecture
 .. image:: ./images/NonRtRicComponents.png
    :scale: 50 %
 
-NonRT RIC components:
+Non-RT RIC components:
 
  #. Policy Agent
  #. SDNC A1 Controller

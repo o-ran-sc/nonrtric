@@ -32,7 +32,7 @@ import org.oransc.policyagent.clients.A1Client.A1ProtocolType;
 import org.oransc.policyagent.configuration.RicConfig;
 
 /**
- * Represents the dynamic information about a NearRealtime-RIC.
+ * Represents the dynamic information about a Near-RT-RIC.
  */
 public class Ric {
 

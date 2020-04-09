@@ -13,8 +13,8 @@ This document provides the release notes for the release of the different parts 
    :local:
 
 
-Version history Dashboard
-=========================
+Version history Control Panel
+=============================
 
 +--------------------+--------------------+--------------------+--------------------+
 | **Date**           | **Ver.**           | **Author**         | **Comment**        |
@@ -36,7 +36,7 @@ Version history Dashboard
 Summary
 -------
 
-For Amber release, there is only a dashboard available. Non-RT RIC does not support R-apps yet.
+For Amber release, there is only a Control Panel available. Non-RT RIC does not support R-apps yet.
 
 The Non-RT RIC is not yet fully compliant with the A1 specifications for this release. Find out which methods are available `here`_.
 

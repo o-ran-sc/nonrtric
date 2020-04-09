@@ -61,8 +61,8 @@ import org.springframework.http.ResponseEntity;
 /**
  * Defines a base implementation for your provider. This class overrides the
  * generated interface from the YANG model and implements the request model for
- * the A1 interface. This class identifies the Near-RIC throught the IP passed
- * over the payload and calls the corresponding Near-RIC over Rest API
+ * the A1 interface. This class identifies the Near-RT RIC throught the IP passed
+ * over the payload and calls the corresponding Near-RT RIC over Rest API
  *
  * <pre>
  *
