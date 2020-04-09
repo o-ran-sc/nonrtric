@@ -84,7 +84,7 @@ public class SdncOnapA1ClientTest {
         SdncOnapA1Client.SdncOnapAdapterInput inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .build();
-        String inputJsonString = A1ClientHelper.createInputJsonString(inputParams);
+        String inputJsonString = SdncJsonHelper.createInputJsonString(inputParams);
 
         List<String> policyTypeIds = Arrays.asList(POLICY_TYPE_1_ID, POLICY_TYPE_2_ID);
         Mono<String> policyTypeIdsResp =
@@ -102,17 +102,17 @@ public class SdncOnapA1ClientTest {
         SdncOnapA1Client.SdncOnapAdapterInput inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .build();
-        String inputJsonStringGetTypeIds = A1ClientHelper.createInputJsonString(inputParams);
+        String inputJsonStringGetTypeIds = SdncJsonHelper.createInputJsonString(inputParams);
         inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .policyTypeId(POLICY_TYPE_1_ID) //
             .build();
-        String inputJsonStringGetPolicyIdsType1 = A1ClientHelper.createInputJsonString(inputParams);
+        String inputJsonStringGetPolicyIdsType1 = SdncJsonHelper.createInputJsonString(inputParams);
         inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .policyTypeId(POLICY_TYPE_2_ID) //
             .build();
-        String inputJsonStringGetPolicyIdsType2 = A1ClientHelper.createInputJsonString(inputParams);
+        String inputJsonStringGetPolicyIdsType2 = SdncJsonHelper.createInputJsonString(inputParams);
 
         List<String> policyTypeIds = Arrays.asList(POLICY_TYPE_1_ID, POLICY_TYPE_2_ID);
         Mono<String> policyTypeIdsResp =
@@ -141,7 +141,7 @@ public class SdncOnapA1ClientTest {
             .nearRtRicId(RIC_1_URL) //
             .policyTypeId(POLICY_TYPE_1_ID) //
             .build();
-        String inputJsonString = A1ClientHelper.createInputJsonString(inputParams);
+        String inputJsonString = SdncJsonHelper.createInputJsonString(inputParams);
 
         String policyType = "{\"policySchema\": " + POLICY_TYPE_SCHEMA_VALID + ", \"statusSchema\": {} }";
         Mono<String> policyTypeResp = A1ClientHelper.createOutputJsonResponse("policy-type", policyType);
@@ -159,7 +159,7 @@ public class SdncOnapA1ClientTest {
             .nearRtRicId(RIC_1_URL) //
             .policyTypeId(POLICY_TYPE_1_ID) //
             .build();
-        String inputJsonString = A1ClientHelper.createInputJsonString(inputParams);
+        String inputJsonString = SdncJsonHelper.createInputJsonString(inputParams);
 
         String policyType = "{\"policySchema\": " + POLICY_TYPE_SCHEMA_INVALID + ", \"statusSchema\": {} }";
         Mono<String> policyTypeResp = A1ClientHelper.createOutputJsonResponse("policy-type", policyType);
@@ -180,7 +180,7 @@ public class SdncOnapA1ClientTest {
             .policyInstance(POLICY_JSON_VALID) //
             .properties(new ArrayList<String>()) //
             .build();
-        String inputJsonString = A1ClientHelper.createInputJsonString(inputParams);
+        String inputJsonString = SdncJsonHelper.createInputJsonString(inputParams);
 
         whenAsyncPostThenReturn(Mono.empty());
 
@@ -198,7 +198,7 @@ public class SdncOnapA1ClientTest {
             .policyTypeId(POLICY_TYPE_1_ID) //
             .policyInstanceId(POLICY_1_ID) //
             .build();
-        String inputJsonString = A1ClientHelper.createInputJsonString(inputParams);
+        String inputJsonString = SdncJsonHelper.createInputJsonString(inputParams);
 
         whenAsyncPostThenReturn(Mono.empty());
 
@@ -214,29 +214,29 @@ public class SdncOnapA1ClientTest {
         SdncOnapA1Client.SdncOnapAdapterInput inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .build();
-        String inputJsonStringGetTypeIds = A1ClientHelper.createInputJsonString(inputParams);
+        String inputJsonStringGetTypeIds = SdncJsonHelper.createInputJsonString(inputParams);
         inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .policyTypeId(POLICY_TYPE_1_ID) //
             .build();
-        String inputJsonStringGetPolicyIdsType1 = A1ClientHelper.createInputJsonString(inputParams);
+        String inputJsonStringGetPolicyIdsType1 = SdncJsonHelper.createInputJsonString(inputParams);
         inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .policyTypeId(POLICY_TYPE_2_ID) //
             .build();
-        String inputJsonStringGetPolicyIdsType2 = A1ClientHelper.createInputJsonString(inputParams);
+        String inputJsonStringGetPolicyIdsType2 = SdncJsonHelper.createInputJsonString(inputParams);
         inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .policyTypeId(POLICY_TYPE_1_ID) //
             .policyInstanceId(POLICY_1_ID) //
             .build();
-        String inputJsonStringDeletePolicy1 = A1ClientHelper.createInputJsonString(inputParams);
+        String inputJsonStringDeletePolicy1 = SdncJsonHelper.createInputJsonString(inputParams);
         inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .policyTypeId(POLICY_TYPE_2_ID) //
             .policyInstanceId(POLICY_2_ID) //
             .build();
-        String inputJsonStringDeletePolicy2 = A1ClientHelper.createInputJsonString(inputParams);
+        String inputJsonStringDeletePolicy2 = SdncJsonHelper.createInputJsonString(inputParams);
 
         List<String> policyTypeIds = Arrays.asList(POLICY_TYPE_1_ID, POLICY_TYPE_2_ID);
         Mono<String> policyTypeIdsResp =
