@@ -43,6 +43,7 @@ class SdncJsonHelper {
     private static Gson gson = new GsonBuilder() //
         .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DASHES) //
         .create();
+    private static final String OUTPUT = "output";
 
     private SdncJsonHelper() {
     }
@@ -69,18 +70,32 @@ class SdncJsonHelper {
         return gson.toJson(jsonObj);
     }
 
-    public static Mono<String> getValueFromResponse(String response, String key) {
+    public static <T> String createOutputJsonString(T params) {
+        JsonElement paramsJson = gson.toJsonTree(params);
+        JsonObject jsonObj = new JsonObject();
+        jsonObj.add(OUTPUT, paramsJson);
+        return gson.toJson(jsonObj);
+    }
+
+    public static Mono<JSONObject> getOutput(String response) {
         try {
             JSONObject outputJson = new JSONObject(response);
-            JSONObject responseParams = outputJson.getJSONObject("output");
-            if (!responseParams.has(key)) {
-                return Mono.just("");
-            }
-            String value = responseParams.get(key).toString();
-            return Mono.just(value);
+            JSONObject responseParams = outputJson.getJSONObject(OUTPUT);
+            return Mono.just(responseParams);
         } catch (JSONException ex) { // invalid json
             return Mono.error(ex);
         }
+    }
+
+    public static Mono<String> getValueFromResponse(String response, String key) {
+        return getOutput(response) //
+            .flatMap(responseParams -> {
+                if (!responseParams.has(key)) {
+                    return Mono.just("");
+                }
+                String value = responseParams.get(key).toString();
+                return Mono.just(value);
+            });
     }
 
     public static Mono<String> extractPolicySchema(String inputString) {
