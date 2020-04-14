@@ -69,6 +69,13 @@ class SdncJsonHelper {
         return gson.toJson(jsonObj);
     }
 
+    public static <T> String createOutputJsonString(T params) {
+        JsonElement paramsJson = gson.toJsonTree(params);
+        JsonObject jsonObj = new JsonObject();
+        jsonObj.add("output", paramsJson);
+        return gson.toJson(jsonObj);
+    }
+
     public static Mono<String> getValueFromResponse(String response, String key) {
         try {
             JSONObject outputJson = new JSONObject(response);

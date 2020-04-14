@@ -127,14 +127,14 @@ public class RefreshConfigTask {
             .filter(notUsed -> !this.isConsulUsed) //
             .flatMap(notUsed -> loadConfigurationFromFile()) //
             .onErrorResume(this::ignoreError) //
-            .doOnNext(json -> logger.debug("loadFromFile")) //
+            .doOnNext(json -> logger.debug("loadFromFile succeeded")) //
             .doOnTerminate(() -> logger.error("loadFromFile Terminate"));
 
         Flux<JsonObject> loadFromConsul = getEnvironment(systemEnvironment) //
             .flatMap(this::createCbsClient) //
             .flatMapMany(this::periodicConfigurationUpdates) //
             .onErrorResume(this::ignoreError) //
-            .doOnNext(json -> logger.debug("loadFromConsul")) //
+            .doOnNext(json -> logger.debug("loadFromConsul succeeded")) //
             .doOnNext(json -> this.isConsulUsed = true) //
             .doOnTerminate(() -> logger.error("loadFromConsul Terminate"));
 
