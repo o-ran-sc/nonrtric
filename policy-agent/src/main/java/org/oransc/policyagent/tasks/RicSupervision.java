@@ -75,9 +75,9 @@ public class RicSupervision {
     public void checkAllRics() {
         logger.debug("Checking Rics starting");
         createTask().subscribe( //
-            ric -> logger.debug("Ric: {} checked", ric.ric.name()), //
             null, //
-            () -> logger.debug("Checking Rics completed") //
+            null, //
+            () -> logger.debug("Checking all RICs completed") //
         );
     }
 
@@ -95,7 +95,9 @@ public class RicSupervision {
             .flatMap(x -> checkRicPolicies(ricData)) //
             .flatMap(x -> ricData.ric.getLock().unlock()) //
             .doOnError(throwable -> ricData.ric.getLock().unlockBlocking()) //
-            .flatMap(x -> checkRicPolicyTypes(ricData)); //
+            .flatMap(x -> checkRicPolicyTypes(ricData)) //
+            .doOnNext(x -> logger.debug("Ric: {} checked OK", ricData.ric.name())) //
+            .doOnError(t -> logger.debug("Ric: {} check Failed, exception: {}", ricData.ric.name(), t.getMessage()));
     }
 
     private static class RicData {
