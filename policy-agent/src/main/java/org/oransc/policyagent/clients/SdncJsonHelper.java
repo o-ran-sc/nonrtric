@@ -26,12 +26,15 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -39,10 +42,13 @@ import reactor.core.publisher.Mono;
 /**
  * Common json functionality used by the SDNC clients
  */
+@SuppressWarnings("java:S1192") // Same text in several traces
 class SdncJsonHelper {
     private static Gson gson = new GsonBuilder() //
         .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_DASHES) //
         .create();
+    private static final String OUTPUT = "output";
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private SdncJsonHelper() {
     }
@@ -58,6 +64,7 @@ class SdncJsonHelper {
             }
             return Flux.fromIterable(arrayList);
         } catch (JSONException ex) { // invalid json
+            logger.debug("Invalid json {}", ex.getMessage());
             return Flux.error(ex);
         }
     }
@@ -69,18 +76,33 @@ class SdncJsonHelper {
         return gson.toJson(jsonObj);
     }
 
-    public static Mono<String> getValueFromResponse(String response, String key) {
+    public static <T> String createOutputJsonString(T params) {
+        JsonElement paramsJson = gson.toJsonTree(params);
+        JsonObject jsonObj = new JsonObject();
+        jsonObj.add(OUTPUT, paramsJson);
+        return gson.toJson(jsonObj);
+    }
+
+    public static Mono<JSONObject> getOutput(String response) {
         try {
             JSONObject outputJson = new JSONObject(response);
-            JSONObject responseParams = outputJson.getJSONObject("output");
-            if (!responseParams.has(key)) {
-                return Mono.just("");
-            }
-            String value = responseParams.get(key).toString();
-            return Mono.just(value);
+            JSONObject responseParams = outputJson.getJSONObject(OUTPUT);
+            return Mono.just(responseParams);
         } catch (JSONException ex) { // invalid json
+            logger.debug("Invalid json {}", ex.getMessage());
             return Mono.error(ex);
         }
+    }
+
+    public static Mono<String> getValueFromResponse(String response, String key) {
+        return getOutput(response) //
+            .flatMap(responseParams -> {
+                if (!responseParams.has(key)) {
+                    return Mono.just("");
+                }
+                String value = responseParams.get(key).toString();
+                return Mono.just(value);
+            });
     }
 
     public static Mono<String> extractPolicySchema(String inputString) {
@@ -90,6 +112,7 @@ class SdncJsonHelper {
             String schemaString = schemaObject.toString();
             return Mono.just(schemaString);
         } catch (JSONException ex) { // invalid json
+            logger.debug("Invalid json {}", ex.getMessage());
             return Mono.error(ex);
         }
     }

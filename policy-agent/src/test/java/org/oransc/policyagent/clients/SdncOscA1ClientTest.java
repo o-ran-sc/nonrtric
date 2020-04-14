@@ -30,6 +30,7 @@ import com.google.gson.Gson;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,8 +38,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.OngoingStubbing;
 import org.oransc.policyagent.clients.A1Client.A1ProtocolType;
-import org.oransc.policyagent.clients.SdncOscA1Client.AdapterRequest;
-import org.oransc.policyagent.clients.SdncOscA1Client.AdapterResponse;
+import org.oransc.policyagent.clients.SdncOscA1Client.AdapterOutput;
 import org.oransc.policyagent.configuration.ControllerConfig;
 import org.oransc.policyagent.configuration.ImmutableControllerConfig;
 import org.oransc.policyagent.repository.Policy;
@@ -105,7 +105,7 @@ public class SdncOscA1ClientTest {
         assertEquals(POLICY_TYPE_1_ID, policyTypeIds.get(0), "");
 
         String expUrl = RIC_1_URL + "/a1-p/policytypes";
-        AdapterRequest expectedParams = ImmutableAdapterRequest.builder() //
+        ImmutableAdapterRequest expectedParams = ImmutableAdapterRequest.builder() //
             .nearRtRicUrl(expUrl) //
             .build();
         String expInput = SdncJsonHelper.createInputJsonString(expectedParams);
@@ -122,13 +122,12 @@ public class SdncOscA1ClientTest {
         return SdncOscA1Client.gson;
     }
 
-    private String createResponse(Object obj) {
-        AdapterResponse output = ImmutableAdapterResponse.builder() //
-            .body(gson().toJson(obj)) //
+    private String createResponse(Object body) {
+        AdapterOutput output = ImmutableAdapterOutput.builder() //
+            .body(gson().toJson(body)) //
             .httpStatus(200) //
             .build();
-
-        return gson().toJson(output);
+        return SdncJsonHelper.createOutputJsonString(output);
     }
 
     @Test
@@ -140,7 +139,7 @@ public class SdncOscA1ClientTest {
         List<String> returned = clientUnderTest.getPolicyIdentities().block();
         assertEquals(2, returned.size(), "");
 
-        AdapterRequest expectedParams = ImmutableAdapterRequest.builder() //
+        ImmutableAdapterRequest expectedParams = ImmutableAdapterRequest.builder() //
             .nearRtRicUrl(policiesUrl()) //
             .build();
         String expInput = SdncJsonHelper.createInputJsonString(expectedParams);
@@ -164,7 +163,7 @@ public class SdncOscA1ClientTest {
             .block();
         assertEquals("OK", returned, "");
         final String expUrl = policiesUrl() + "/" + POLICY_1_ID;
-        AdapterRequest expectedInputParams = ImmutableAdapterRequest.builder() //
+        ImmutableAdapterRequest expectedInputParams = ImmutableAdapterRequest.builder() //
             .nearRtRicUrl(expUrl) //
             .body(POLICY_JSON_VALID) //
             .build();
@@ -176,19 +175,19 @@ public class SdncOscA1ClientTest {
     @Test
     public void testPutPolicyRejected() {
         final String policyJson = "{}";
-        AdapterResponse adapterResponse = ImmutableAdapterResponse.builder() //
+        AdapterOutput adapterOutput = ImmutableAdapterOutput.builder() //
             .body("NOK") //
             .httpStatus(400) // ERROR
             .build();
 
-        String resp = gson().toJson(adapterResponse);
+        String resp = SdncJsonHelper.createOutputJsonString(adapterOutput);
         whenAsyncPostThenReturn(Mono.just(resp));
 
         Mono<String> returnedMono = clientUnderTest
             .putPolicy(A1ClientHelper.createPolicy(RIC_1_URL, POLICY_1_ID, policyJson, POLICY_TYPE_1_ID));
 
         final String expUrl = policiesUrl() + "/" + POLICY_1_ID;
-        AdapterRequest expRequestParams = ImmutableAdapterRequest.builder() //
+        ImmutableAdapterRequest expRequestParams = ImmutableAdapterRequest.builder() //
             .nearRtRicUrl(expUrl) //
             .body(policyJson) //
             .build();
@@ -208,7 +207,7 @@ public class SdncOscA1ClientTest {
             .block();
         assertEquals("OK", returned, "");
         final String expUrl = policiesUrl() + "/" + POLICY_1_ID;
-        AdapterRequest expectedInputParams = ImmutableAdapterRequest.builder() //
+        ImmutableAdapterRequest expectedInputParams = ImmutableAdapterRequest.builder() //
             .nearRtRicUrl(expUrl) //
             .build();
         String expInput = SdncJsonHelper.createInputJsonString(expectedInputParams);
@@ -228,7 +227,7 @@ public class SdncOscA1ClientTest {
         assertEquals("OK", returnedStatus, "unexpected status");
 
         final String expUrl = policiesUrl() + "/" + POLICY_1_ID + "/status";
-        AdapterRequest expectedInputParams = ImmutableAdapterRequest.builder() //
+        ImmutableAdapterRequest expectedInputParams = ImmutableAdapterRequest.builder() //
             .nearRtRicUrl(expUrl) //
             .build();
         String expInput = SdncJsonHelper.createInputJsonString(expectedInputParams);
@@ -242,15 +241,29 @@ public class SdncOscA1ClientTest {
         whenPostReturnOkResponse();
         A1ProtocolType returnedVersion = clientUnderTest.getProtocolVersion().block();
         assertEquals(A1ProtocolType.SDNC_OSC_STD_V1_1, returnedVersion, "");
+
+        whenPostReturnOkResponseNoBody();
+        returnedVersion = clientUnderTest.getProtocolVersion().block();
+        assertEquals(A1ProtocolType.SDNC_OSC_STD_V1_1, returnedVersion, "");
     }
 
     private void whenPostReturnOkResponse() {
-        AdapterResponse adapterResponse = ImmutableAdapterResponse.builder() //
+        AdapterOutput adapterOutput = ImmutableAdapterOutput.builder() //
             .body("OK") //
             .httpStatus(200) //
             .build();
 
-        String resp = gson().toJson(adapterResponse);
+        String resp = SdncJsonHelper.createOutputJsonString(adapterOutput);
+        whenAsyncPostThenReturn(Mono.just(resp));
+    }
+
+    private void whenPostReturnOkResponseNoBody() {
+        AdapterOutput adapterOutput = ImmutableAdapterOutput.builder() //
+            .httpStatus(200) //
+            .body(Optional.empty()) //
+            .build();
+
+        String resp = SdncJsonHelper.createOutputJsonString(adapterOutput);
         whenAsyncPostThenReturn(Mono.just(resp));
     }
 
