@@ -34,6 +34,7 @@ import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.lang.Nullable;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
@@ -137,10 +138,21 @@ public class AsyncRestClient {
 
     private Mono<ResponseEntity<String>> retrieve(RequestHeadersSpec<?> request) {
         return request.retrieve() //
-            .toEntity(String.class);
+            .toEntity(String.class) //
+            .doOnError(this::onHttpError);
     }
 
-    Mono<String> toBody(ResponseEntity<String> entity) {
+    private void onHttpError(Throwable t) {
+        if (t instanceof WebClientResponseException) {
+            WebClientResponseException exception = (WebClientResponseException) t;
+            logger.debug("HTTP error status = '{}', body '{}'", exception.getStatusCode(),
+                exception.getResponseBodyAsString());
+        } else {
+            logger.debug("HTTP error: {}", t.getMessage());
+        }
+    }
+
+    private Mono<String> toBody(ResponseEntity<String> entity) {
         if (entity.getBody() == null) {
             return Mono.just("");
         } else {

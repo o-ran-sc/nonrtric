@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.immutables.value.Value;
+import org.json.JSONObject;
 import org.oransc.policyagent.configuration.ControllerConfig;
 import org.oransc.policyagent.configuration.RicConfig;
 import org.oransc.policyagent.repository.Policy;
@@ -40,6 +41,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.annotation.Nullable;
 
 /**
  * Client for accessing the A1 adapter in the SDNC controller in OSC.
@@ -57,7 +59,8 @@ public class SdncOscA1Client implements A1Client {
 
     @Value.Immutable
     @org.immutables.gson.Gson.TypeAdapters
-    public interface AdapterResponse {
+    public interface AdapterOutput {
+        @Nullable
         public String body();
 
         public int httpStatus();
@@ -217,6 +220,7 @@ public class SdncOscA1Client implements A1Client {
             .body(body) //
             .build();
         final String inputJsonString = SdncJsonHelper.createInputJsonString(inputParams);
+        logger.debug("POST inputJsonString = {}", inputJsonString);
 
         return restClient
             .postWithAuthHeader(controllerUrl(rpcName), inputJsonString, this.controllerConfig.userName(),
@@ -224,17 +228,24 @@ public class SdncOscA1Client implements A1Client {
             .flatMap(this::extractResponseBody);
     }
 
-    private Mono<String> extractResponseBody(String response) {
-        AdapterResponse output = gson.fromJson(response, ImmutableAdapterResponse.class);
-        String body = output.body();
+    private Mono<String> extractResponse(JSONObject responseOutput) {
+        AdapterOutput output = gson.fromJson(responseOutput.toString(), ImmutableAdapterOutput.class);
+        String body = output.body() == null ? "" : output.body();
         if (HttpStatus.valueOf(output.httpStatus()).is2xxSuccessful()) {
             return Mono.just(body);
-        }
-        byte[] responseBodyBytes = body.getBytes(StandardCharsets.UTF_8);
-        WebClientResponseException e = new WebClientResponseException(output.httpStatus(), "statusText", null,
-            responseBodyBytes, StandardCharsets.UTF_8, null);
+        } else {
+            logger.debug("Error response: {} {}", output.httpStatus(), body);
+            byte[] responseBodyBytes = body.getBytes(StandardCharsets.UTF_8);
+            WebClientResponseException e = new WebClientResponseException(output.httpStatus(), "statusText", null,
+                responseBodyBytes, StandardCharsets.UTF_8, null);
 
-        return Mono.error(e);
+            return Mono.error(e);
+        }
+    }
+
+    private Mono<String> extractResponseBody(String responseStr) {
+        return SdncJsonHelper.getOutput(responseStr) //
+            .flatMap(this::extractResponse);
     }
 
     private String controllerUrl(String rpcName) {
