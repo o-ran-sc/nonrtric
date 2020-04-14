@@ -48,6 +48,54 @@
     },
     {
       "key": {
+        "uuid": "baaa7460_1192ee1e",
+        "filename": "README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-04-14T09:38:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1ac0b3ca_bd69aae2",
+      "range": {
+        "startLine": 3,
+        "startChar": 46,
+        "endLine": 3,
+        "endChar": 47
+      },
+      "revId": "23fbde88f0926f4b2c4a01e5663f95a790a79624",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8dce62dc_ff285129",
+        "filename": "README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-04-14T09:38:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a80b5c4_8136c90a",
+      "range": {
+        "startLine": 3,
+        "startChar": 17,
+        "endLine": 3,
+        "endChar": 26
+      },
+      "revId": "23fbde88f0926f4b2c4a01e5663f95a790a79624",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a05463c3_68225a13",
         "filename": "docs/release-notes.rst",
         "patchSetId": 1
@@ -68,6 +116,30 @@
       "revId": "23fbde88f0926f4b2c4a01e5663f95a790a79624",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21ae45ca_1516f301",
+        "filename": "docs/release-notes.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-04-14T09:38:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a05463c3_68225a13",
+      "range": {
+        "startLine": 16,
+        "startChar": 1,
+        "endLine": 43,
+        "endChar": 29
+      },
+      "revId": "23fbde88f0926f4b2c4a01e5663f95a790a79624",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     },
     {
       "key": {
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "3a70f22d_207de405",
+        "filename": "near-rt-ric-simulator/auto-test/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-04-14T09:38:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d952b3b0_9be42bd3",
+      "range": {
+        "startLine": 14,
+        "startChar": 2,
+        "endLine": 14,
+        "endChar": 7
+      },
+      "revId": "23fbde88f0926f4b2c4a01e5663f95a790a79624",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "564f2090_0c7db5a6",
         "filename": "policy-agent/README.md",
         "patchSetId": 1
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "dff43860_d17a3929",
+        "filename": "policy-agent/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-04-14T09:38:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "564f2090_0c7db5a6",
+      "range": {
+        "startLine": 1,
+        "startChar": 22,
+        "endLine": 1,
+        "endChar": 51
+      },
+      "revId": "23fbde88f0926f4b2c4a01e5663f95a790a79624",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0761fc04_d219cdb9",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/repository/Ric.java",
         "patchSetId": 1
@@ -137,6 +257,30 @@
       "revId": "23fbde88f0926f4b2c4a01e5663f95a790a79624",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "52d01dba_485b3e7f",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/repository/Ric.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-04-14T09:38:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0761fc04_d219cdb9",
+      "range": {
+        "startLine": 35,
+        "startChar": 53,
+        "endLine": 35,
+        "endChar": 54
+      },
+      "revId": "23fbde88f0926f4b2c4a01e5663f95a790a79624",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
