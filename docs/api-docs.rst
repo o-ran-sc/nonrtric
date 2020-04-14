@@ -45,6 +45,13 @@ Complementary tools
 There are two additional tools that can be used together with the Non-RT RIC, namely the Control Panel and the Near-RT RIC simulator.
 
 The Non-RT RIC Control Panel provides a user interface that allows the user to interact with the Non-RT RIC.
-It can be downloaded using: git clone "https://gerrit.o-ran-sc.org/r/portal/nonrtric-controlpanel"
+Documentation for the Control Panel can be found here:
+:doc:`Non-RT RIC Control Panel <nonrtric-controlpanel:index>`.
+It can be downloaded from here: ::
 
-The Near-RT RIC simulator does what its name suggests, and can be downloaded here: git clone "https://gerrit.o-ran-sc.org/r/sim/a1-interface"
+  git clone "https://gerrit.o-ran-sc.org/r/portal/nonrtric-controlpanel".
+
+The Near-RT RIC simulator simulates an A1 protocol termination endpoint. Documentation for the simulator can be found
+here: :doc:`A1 Interface Simulator <sim-a1-interface:index>`. It can be downloaded from here: ::
+
+  git clone "https://gerrit.o-ran-sc.org/r/sim/a1-interface"
