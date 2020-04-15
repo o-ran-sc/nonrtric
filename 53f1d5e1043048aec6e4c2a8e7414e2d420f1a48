@@ -1,0 +1,343 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aab0db5d_c0e52992",
+        "filename": "near-rt-ric-simulator/auto-test/FTC_SDNC.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-04-15T09:30:56Z",
+      "side": 1,
+      "message": "Should this really be here? Usually don\u0027t submit commented out code.",
+      "range": {
+        "startLine": 27,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 47
+      },
+      "revId": "53f1d5e1043048aec6e4c2a8e7414e2d420f1a48",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f396517d_2df235d6",
+        "filename": "near-rt-ric-simulator/common/testcase_common.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-04-15T09:30:56Z",
+      "side": 1,
+      "message": "Could this file maybe be broken up into more smaller files? Maybe some methods can be grouped and broken out? This file is so big it is difficult to overview and maintain.",
+      "revId": "53f1d5e1043048aec6e4c2a8e7414e2d420f1a48",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c96388b_f690036f",
+        "filename": "near-rt-ric-simulator/cr/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-04-15T09:30:56Z",
+      "side": 1,
+      "message": "fed",
+      "range": {
+        "startLine": 5,
+        "startChar": 37,
+        "endLine": 5,
+        "endChar": 42
+      },
+      "revId": "53f1d5e1043048aec6e4c2a8e7414e2d420f1a48",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ee5adc4_abd854bd",
+        "filename": "near-rt-ric-simulator/cr/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-04-15T09:30:56Z",
+      "side": 1,
+      "message": "operations",
+      "range": {
+        "startLine": 11,
+        "startChar": 19,
+        "endLine": 11,
+        "endChar": 29
+      },
+      "revId": "53f1d5e1043048aec6e4c2a8e7414e2d420f1a48",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69466b71_3469f3d4",
+        "filename": "near-rt-ric-simulator/cr/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-04-15T09:30:56Z",
+      "side": 1,
+      "message": "message",
+      "range": {
+        "startLine": 14,
+        "startChar": 27,
+        "endLine": 14,
+        "endChar": 36
+      },
+      "revId": "53f1d5e1043048aec6e4c2a8e7414e2d420f1a48",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a567934_6351a962",
+        "filename": "near-rt-ric-simulator/cr/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-04-15T09:30:56Z",
+      "side": 1,
+      "message": "monitor the",
+      "range": {
+        "startLine": 24,
+        "startChar": 51,
+        "endLine": 24,
+        "endChar": 59
+      },
+      "revId": "53f1d5e1043048aec6e4c2a8e7414e2d420f1a48",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d51f5b95_83376539",
+        "filename": "near-rt-ric-simulator/cr/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-04-15T09:30:56Z",
+      "side": 1,
+      "message": "all",
+      "range": {
+        "startLine": 38,
+        "startChar": 403,
+        "endLine": 38,
+        "endChar": 408
+      },
+      "revId": "53f1d5e1043048aec6e4c2a8e7414e2d420f1a48",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4dc8bf59_529cc764",
+        "filename": "near-rt-ric-simulator/cr/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-04-15T09:30:56Z",
+      "side": 1,
+      "message": "be",
+      "range": {
+        "startLine": 38,
+        "startChar": 338,
+        "endLine": 38,
+        "endChar": 339
+      },
+      "revId": "53f1d5e1043048aec6e4c2a8e7414e2d420f1a48",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fabe6d12_03f8f5dc",
+        "filename": "near-rt-ric-simulator/cr/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-04-15T09:30:56Z",
+      "side": 1,
+      "message": "urls",
+      "range": {
+        "startLine": 44,
+        "startChar": 85,
+        "endLine": 44,
+        "endChar": 89
+      },
+      "revId": "53f1d5e1043048aec6e4c2a8e7414e2d420f1a48",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ba903b74_4149ae39",
+        "filename": "near-rt-ric-simulator/mrstub/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-04-15T09:30:56Z",
+      "side": 1,
+      "message": "fed",
+      "range": {
+        "startLine": 5,
+        "startChar": 37,
+        "endLine": 5,
+        "endChar": 42
+      },
+      "revId": "53f1d5e1043048aec6e4c2a8e7414e2d420f1a48",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07ce5bab_0ae07957",
+        "filename": "near-rt-ric-simulator/mrstub/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-04-15T09:30:56Z",
+      "side": 1,
+      "message": "operations",
+      "range": {
+        "startLine": 11,
+        "startChar": 19,
+        "endLine": 11,
+        "endChar": 29
+      },
+      "revId": "53f1d5e1043048aec6e4c2a8e7414e2d420f1a48",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8cf3db3_f396bae0",
+        "filename": "near-rt-ric-simulator/mrstub/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-04-15T09:30:56Z",
+      "side": 1,
+      "message": "message",
+      "range": {
+        "startLine": 14,
+        "startChar": 27,
+        "endLine": 14,
+        "endChar": 36
+      },
+      "revId": "53f1d5e1043048aec6e4c2a8e7414e2d420f1a48",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45ea9c38_5bc0ace4",
+        "filename": "near-rt-ric-simulator/mrstub/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-04-15T09:30:56Z",
+      "side": 1,
+      "message": "monitor the",
+      "range": {
+        "startLine": 24,
+        "startChar": 51,
+        "endLine": 24,
+        "endChar": 59
+      },
+      "revId": "53f1d5e1043048aec6e4c2a8e7414e2d420f1a48",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4e2d983_f643b05f",
+        "filename": "near-rt-ric-simulator/mrstub/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-04-15T09:30:56Z",
+      "side": 1,
+      "message": "number",
+      "range": {
+        "startLine": 30,
+        "startChar": 47,
+        "endLine": 30,
+        "endChar": 53
+      },
+      "revId": "53f1d5e1043048aec6e4c2a8e7414e2d420f1a48",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "826f32e8_93ba34ca",
+        "filename": "near-rt-ric-simulator/mrstub/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-04-15T09:30:56Z",
+      "side": 1,
+      "message": "urls",
+      "range": {
+        "startLine": 47,
+        "startChar": 85,
+        "endLine": 47,
+        "endChar": 89
+      },
+      "revId": "53f1d5e1043048aec6e4c2a8e7414e2d420f1a48",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
