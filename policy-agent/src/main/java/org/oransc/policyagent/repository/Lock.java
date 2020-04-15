@@ -117,7 +117,7 @@ public class Lock {
         synchronized (this) {
             if (lockCounter <= 0) {
                 lockCounter = -1; // Might as well stop, to make it easier to find the problem
-                throw new NullPointerException("Number of unlocks must match the number of locks");
+                logger.error("Number of unlocks must match the number of locks");
             }
             this.lockCounter--;
             if (lockCounter == 0) {

@@ -28,6 +28,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -46,6 +47,8 @@ import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Rics;
 import org.oransc.policyagent.repository.Service;
 import org.oransc.policyagent.repository.Services;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -84,6 +87,7 @@ public class PolicyController {
     @Autowired
     private Services services;
 
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private static Gson gson = new GsonBuilder() //
         .serializeNulls() //
         .create(); //
@@ -399,7 +403,7 @@ public class PolicyController {
             policyInfo.service = p.ownerServiceName();
             policyInfo.lastModified = p.lastModified();
             if (!policyInfo.validate()) {
-                throw new NullPointerException("BUG, all fields must be set");
+                logger.error("BUG, all fields must be set");
             }
             v.add(policyInfo);
         }

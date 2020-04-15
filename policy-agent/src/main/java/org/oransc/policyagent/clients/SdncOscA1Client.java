@@ -69,7 +69,6 @@ public class SdncOscA1Client implements A1Client {
         .create(); //
 
     private static final String GET_POLICY_RPC = "getA1Policy";
-    private static final String UNHANDELED_PROTOCOL = "Bug, unhandeled protocoltype: ";
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final ControllerConfig controllerConfig;
     private final AsyncRestClient restClient;
@@ -110,8 +109,14 @@ public class SdncOscA1Client implements A1Client {
             return post(GET_POLICY_RPC, ricUrl, Optional.empty()) //
                 .flatMapMany(SdncJsonHelper::parseJsonArrayOfString) //
                 .collectList();
+        } else {
+            return Mono.error(createIllegalProtocolException());
         }
-        throw new NullPointerException(UNHANDELED_PROTOCOL + this.protocolType);
+
+    }
+
+    private Exception createIllegalProtocolException() {
+        return new NullPointerException("Bug, unhandeled protocoltype: " + this.protocolType);
     }
 
     @Override
@@ -128,14 +133,18 @@ public class SdncOscA1Client implements A1Client {
             OscA1Client.UriBuilder uri = new OscA1Client.UriBuilder(ricConfig);
             final String ricUrl = uri.createGetSchemaUri(policyTypeId);
             return post(GET_POLICY_RPC, ricUrl, Optional.empty());
+        } else {
+            return Mono.error(createIllegalProtocolException());
         }
-        throw new NullPointerException(UNHANDELED_PROTOCOL + this.protocolType);
     }
 
     @Override
     public Mono<String> putPolicy(Policy policy) {
-        final String ricUrl = getUriBuilder().createPutPolicyUri(policy.type().name(), policy.id());
-        return post("putA1Policy", ricUrl, Optional.of(policy.json()));
+        return getUriBuilder() //
+            .flatMap(builder -> {
+                String ricUrl = builder.createPutPolicyUri(policy.type().name(), policy.id());
+                return post("putA1Policy", ricUrl, Optional.of(policy.json()));
+            });
     }
 
     @Override
@@ -154,8 +163,9 @@ public class SdncOscA1Client implements A1Client {
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(type -> post(GET_POLICY_RPC, uriBuilder.createGetPolicyIdsUri(type), Optional.empty())) //
                 .flatMap(SdncJsonHelper::parseJsonArrayOfString);
+        } else {
+            return Flux.error(createIllegalProtocolException());
         }
-        throw new NullPointerException(UNHANDELED_PROTOCOL + this.protocolType);
     }
 
     @Override
@@ -166,17 +176,21 @@ public class SdncOscA1Client implements A1Client {
 
     @Override
     public Mono<String> getPolicyStatus(Policy policy) {
-        final String ricUrl = getUriBuilder().createGetPolicyStatusUri(policy.type().name(), policy.id());
-        return post("getA1PolicyStatus", ricUrl, Optional.empty());
+        return getUriBuilder() //
+            .flatMap(builder -> {
+                String ricUrl = builder.createGetPolicyStatusUri(policy.type().name(), policy.id());
+                return post("getA1PolicyStatus", ricUrl, Optional.empty());
+            });
     }
 
-    private A1UriBuilder getUriBuilder() {
+    private Mono<A1UriBuilder> getUriBuilder() {
         if (protocolType == A1ProtocolType.SDNC_OSC_STD_V1_1) {
-            return new StdA1ClientVersion1.UriBuilder(ricConfig);
+            return Mono.just(new StdA1ClientVersion1.UriBuilder(ricConfig));
         } else if (this.protocolType == A1ProtocolType.SDNC_OSC_OSC_V1) {
-            return new OscA1Client.UriBuilder(ricConfig);
+            return Mono.just(new OscA1Client.UriBuilder(ricConfig));
+        } else {
+            return Mono.error(createIllegalProtocolException());
         }
-        throw new NullPointerException(UNHANDELED_PROTOCOL + this.protocolType);
     }
 
     private Mono<A1ProtocolType> tryOscProtocolVersion() {
@@ -203,13 +217,17 @@ public class SdncOscA1Client implements A1Client {
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(type -> post(GET_POLICY_RPC, uri.createGetPolicyIdsUri(type), Optional.empty())) //
                 .flatMap(SdncJsonHelper::parseJsonArrayOfString);
+        } else {
+            return Flux.error(createIllegalProtocolException());
         }
-        throw new NullPointerException(UNHANDELED_PROTOCOL + this.protocolType);
     }
 
     private Mono<String> deletePolicyById(String type, String policyId) {
-        final String ricUrl = getUriBuilder().createDeleteUri(type, policyId);
-        return post("deleteA1Policy", ricUrl, Optional.empty());
+        return getUriBuilder() //
+            .flatMap(builder -> {
+                String ricUrl = builder.createDeleteUri(type, policyId);
+                return post("deleteA1Policy", ricUrl, Optional.empty());
+            });
     }
 
     private Mono<String> post(String rpcName, String ricUrl, Optional<String> body) {

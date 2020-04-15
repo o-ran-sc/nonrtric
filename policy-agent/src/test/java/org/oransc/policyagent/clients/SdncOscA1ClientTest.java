@@ -39,6 +39,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.OngoingStubbing;
 import org.oransc.policyagent.clients.A1Client.A1ProtocolType;
 import org.oransc.policyagent.clients.SdncOscA1Client.AdapterOutput;
+import org.oransc.policyagent.clients.SdncOscA1Client.AdapterRequest;
 import org.oransc.policyagent.configuration.ControllerConfig;
 import org.oransc.policyagent.configuration.ImmutableControllerConfig;
 import org.oransc.policyagent.repository.Policy;
@@ -163,7 +164,7 @@ public class SdncOscA1ClientTest {
             .block();
         assertEquals("OK", returned, "");
         final String expUrl = policiesUrl() + "/" + POLICY_1_ID;
-        ImmutableAdapterRequest expectedInputParams = ImmutableAdapterRequest.builder() //
+        AdapterRequest expectedInputParams = ImmutableAdapterRequest.builder() //
             .nearRtRicUrl(expUrl) //
             .body(POLICY_JSON_VALID) //
             .build();
@@ -185,9 +186,13 @@ public class SdncOscA1ClientTest {
 
         Mono<String> returnedMono = clientUnderTest
             .putPolicy(A1ClientHelper.createPolicy(RIC_1_URL, POLICY_1_ID, policyJson, POLICY_TYPE_1_ID));
+        StepVerifier.create(returnedMono) //
+            .expectSubscription() //
+            .expectErrorMatches(t -> t instanceof WebClientResponseException) //
+            .verify();
 
         final String expUrl = policiesUrl() + "/" + POLICY_1_ID;
-        ImmutableAdapterRequest expRequestParams = ImmutableAdapterRequest.builder() //
+        AdapterRequest expRequestParams = ImmutableAdapterRequest.builder() //
             .nearRtRicUrl(expUrl) //
             .body(policyJson) //
             .build();
@@ -207,7 +212,7 @@ public class SdncOscA1ClientTest {
             .block();
         assertEquals("OK", returned, "");
         final String expUrl = policiesUrl() + "/" + POLICY_1_ID;
-        ImmutableAdapterRequest expectedInputParams = ImmutableAdapterRequest.builder() //
+        AdapterRequest expectedInputParams = ImmutableAdapterRequest.builder() //
             .nearRtRicUrl(expUrl) //
             .build();
         String expInput = SdncJsonHelper.createInputJsonString(expectedInputParams);
@@ -227,7 +232,7 @@ public class SdncOscA1ClientTest {
         assertEquals("OK", returnedStatus, "unexpected status");
 
         final String expUrl = policiesUrl() + "/" + POLICY_1_ID + "/status";
-        ImmutableAdapterRequest expectedInputParams = ImmutableAdapterRequest.builder() //
+        AdapterRequest expectedInputParams = ImmutableAdapterRequest.builder() //
             .nearRtRicUrl(expUrl) //
             .build();
         String expInput = SdncJsonHelper.createInputJsonString(expectedInputParams);
