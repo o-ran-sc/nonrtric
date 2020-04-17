@@ -203,6 +203,12 @@ public class ApplicationTest {
         rsp = restClient().get(url).block();
         assertThat(rsp).contains("ric2");
         assertThat(rsp).doesNotContain("ric1");
+        assertThat(rsp).contains("AVAILABLE");
+
+        // All RICs
+        rsp = restClient().get("/rics").block();
+        assertThat(rsp).contains("ric2");
+        assertThat(rsp).contains("ric1");
 
         // Non existing policy type
         url = "/rics?policyType=XXXX";
@@ -211,8 +217,8 @@ public class ApplicationTest {
 
     @Test
     public void testSynchronization() throws Exception {
-        addRic("ric").setState(Ric.RicState.UNAVAILABLE);
-        String ricName = "ric";
+        final String ricName = "ric";
+        addRic(ricName).setState(Ric.RicState.AVAILABLE);
         Policy policy2 = addPolicy("policyId2", "typeName", "service", ricName);
 
         getA1Client(ricName).putPolicy(policy2); // put it in the RIC

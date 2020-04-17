@@ -20,6 +20,7 @@
 
 package org.oransc.policyagent.repository;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -37,7 +38,7 @@ public class Rics {
         registeredRics.put(ric.name(), ric);
     }
 
-    public synchronized Iterable<Ric> getRics() {
+    public synchronized Collection<Ric> getRics() {
         return new Vector<>(registeredRics.values());
     }
 

@@ -77,4 +77,8 @@ public class MockA1ClientFactory extends A1ClientFactory {
         clients.clear();
     }
 
+    public PolicyTypes getPolicyTypes() {
+        return this.policyTypes;
+    }
+
 }
