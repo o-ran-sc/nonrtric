@@ -203,6 +203,12 @@ public class ApplicationTest {
         rsp = restClient().get(url).block();
         assertThat(rsp).contains("ric2");
         assertThat(rsp).doesNotContain("ric1");
+        assertThat(rsp).contains("AVAILABLE");
+
+        // All RICs
+        rsp = restClient().get("/rics").block();
+        assertThat(rsp).contains("ric2");
+        assertThat(rsp).contains("ric1");
 
         // Non existing policy type
         url = "/rics?policyType=XXXX";
@@ -211,23 +217,38 @@ public class ApplicationTest {
 
     @Test
     public void testSynchronization() throws Exception {
-        addRic("ric").setState(Ric.RicState.UNAVAILABLE);
-        String ricName = "ric";
-        Policy policy2 = addPolicy("policyId2", "typeName", "service", ricName);
+        // Two polictypes will be put in the NearRT RICs
+        PolicyTypes nearRtRicPolicyTypes = new PolicyTypes();
+        nearRtRicPolicyTypes.put(createPolicyType("typeName"));
+        nearRtRicPolicyTypes.put(createPolicyType("typeName2"));
+        this.a1ClientFactory.setPolicyTypes(nearRtRicPolicyTypes);
 
-        getA1Client(ricName).putPolicy(policy2); // put it in the RIC
+        // One type and one instance added to the agent storage
+        final String ric1Name = "ric1";
+        Ric ric1 = addRic(ric1Name);
+        Policy policy2 = addPolicy("policyId2", "typeName", "service", ric1Name);
+        Ric ric2 = addRic("ric2");
+
+        getA1Client(ric1Name).putPolicy(policy2); // put it in the RIC
         policies.remove(policy2); // Remove it from the repo -> should be deleted in the RIC
 
         String policyId = "policyId";
-        Policy policy = addPolicy(policyId, "typeName", "service", ricName); // This should be created in the RIC
+        Policy policy = addPolicy(policyId, "typeName", "service", ric1Name); // This should be created in the RIC
         supervision.checkAllRics(); // The created policy should be put in the RIC
-        await().untilAsserted(() -> RicState.SYNCHRONIZING.equals(rics.getRic(ricName).getState()));
-        await().untilAsserted(() -> RicState.AVAILABLE.equals(rics.getRic(ricName).getState()));
 
-        Policies ricPolicies = getA1Client(ricName).getPolicies();
+        // Wait until synch is completed
+        await().untilAsserted(() -> RicState.SYNCHRONIZING.equals(rics.getRic(ric1Name).getState()));
+        await().untilAsserted(() -> RicState.AVAILABLE.equals(rics.getRic(ric1Name).getState()));
+        await().untilAsserted(() -> RicState.AVAILABLE.equals(rics.getRic("ric2").getState()));
+
+        Policies ricPolicies = getA1Client(ric1Name).getPolicies();
         assertThat(ricPolicies.size()).isEqualTo(1);
         Policy ricPolicy = ricPolicies.get(policyId);
         assertThat(ricPolicy.json()).isEqualTo(policy.json());
+
+        // Both types should be in the agent storage after the synch
+        assertThat(ric1.getSupportedPolicyTypes().size()).isEqualTo(2);
+        assertThat(ric2.getSupportedPolicyTypes().size()).isEqualTo(2);
     }
 
     @Test
@@ -695,12 +716,15 @@ public class ApplicationTest {
         return a1ClientFactory.getOrCreateA1Client(ricName);
     }
 
-    private PolicyType addPolicyType(String policyTypeName, String ricName) {
-        PolicyType type = ImmutablePolicyType.builder() //
+    private PolicyType createPolicyType(String policyTypeName) {
+        return ImmutablePolicyType.builder() //
             .name(policyTypeName) //
             .schema("{\"title\":\"" + policyTypeName + "\"}") //
             .build();
+    }
 
+    private PolicyType addPolicyType(String policyTypeName, String ricName) {
+        PolicyType type = createPolicyType(policyTypeName);
         policyTypes.put(type);
         addRic(ricName).addSupportedPolicyType(type);
         return type;
