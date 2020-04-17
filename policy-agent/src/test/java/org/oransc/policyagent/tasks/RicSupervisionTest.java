@@ -104,7 +104,6 @@ public class RicSupervisionTest {
 
     @BeforeEach
     public void init() {
-        doReturn(Mono.just(a1ClientMock)).when(a1ClientFactory).createA1Client(any(Ric.class));
         types.clear();
         policies.clear();
         rics.clear();
@@ -123,6 +122,7 @@ public class RicSupervisionTest {
 
     @Test
     public void whenRicIdleAndNoChangedPoliciesOrPolicyTypes_thenNoSynchronization() {
+        doReturn(Mono.just(a1ClientMock)).when(a1ClientFactory).createA1Client(any(Ric.class));
         RIC_1.setState(RicState.AVAILABLE);
         RIC_1.addSupportedPolicyType(POLICY_TYPE_1);
         rics.put(RIC_1);
@@ -174,6 +174,7 @@ public class RicSupervisionTest {
 
     @Test
     public void whenRicIdleAndErrorGettingPolicyIdentities_thenNoSynchronization() {
+        doReturn(Mono.just(a1ClientMock)).when(a1ClientFactory).createA1Client(any(Ric.class));
         RIC_1.setState(RicState.AVAILABLE);
         RIC_1.addSupportedPolicyType(POLICY_TYPE_1);
         rics.put(RIC_1);
@@ -185,10 +186,12 @@ public class RicSupervisionTest {
 
         verify(supervisorUnderTest).checkAllRics();
         verifyNoMoreInteractions(supervisorUnderTest);
+        assertThat(RIC_1.getState()).isEqualTo(RicState.UNAVAILABLE);
     }
 
     @Test
     public void whenRicIdleAndNotSameAmountOfPolicies_thenSynchronization() {
+        doReturn(Mono.just(a1ClientMock)).when(a1ClientFactory).createA1Client(any(Ric.class));
         RIC_1.setState(RicState.AVAILABLE);
         rics.put(RIC_1);
 
@@ -211,6 +214,7 @@ public class RicSupervisionTest {
 
     @Test
     public void whenRicIdleAndSameAmountOfPoliciesButNotSamePolicies_thenSynchronization() {
+        doReturn(Mono.just(a1ClientMock)).when(a1ClientFactory).createA1Client(any(Ric.class));
         RIC_1.setState(RicState.AVAILABLE);
         rics.put(RIC_1);
 
@@ -233,6 +237,7 @@ public class RicSupervisionTest {
 
     @Test
     public void whenRicIdleAndErrorGettingPolicyTypes_thenNoSynchronization() {
+        doReturn(Mono.just(a1ClientMock)).when(a1ClientFactory).createA1Client(any(Ric.class));
         RIC_1.setState(RicState.AVAILABLE);
         RIC_1.addSupportedPolicyType(POLICY_TYPE_1);
         rics.put(RIC_1);
@@ -249,6 +254,7 @@ public class RicSupervisionTest {
 
     @Test
     public void whenRicIdleAndNotSameAmountOfPolicyTypes_thenSynchronization() {
+        doReturn(Mono.just(a1ClientMock)).when(a1ClientFactory).createA1Client(any(Ric.class));
         RIC_1.setState(RicState.AVAILABLE);
         RIC_1.addSupportedPolicyType(POLICY_TYPE_1);
         rics.put(RIC_1);
@@ -272,6 +278,7 @@ public class RicSupervisionTest {
 
     @Test
     public void whenRicIdleAndSameAmountOfPolicyTypesButNotSameTypes_thenSynchronization() {
+        doReturn(Mono.just(a1ClientMock)).when(a1ClientFactory).createA1Client(any(Ric.class));
         PolicyType policyType2 = ImmutablePolicyType.builder() //
             .name("policyType2") //
             .schema("") //
