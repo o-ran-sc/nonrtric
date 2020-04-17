@@ -659,7 +659,7 @@ public class ApplicationTest {
     }
 
     private String baseUrl() {
-        return "http://localhost:" + port;
+        return "https://localhost:" + port;
     }
 
     private String jsonString() {

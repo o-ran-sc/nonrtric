@@ -123,6 +123,7 @@ public class MockPolicyAgent {
                     logger.error("Could not load json schema ", e);
                 }
             }
+            policyTypes.put(ImmutablePolicyType.builder().name("").schema("{}").build());
         }
     }
 
