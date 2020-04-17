@@ -203,6 +203,12 @@ public class ApplicationTest {
         rsp = restClient().get(url).block();
         assertThat(rsp).contains("ric2");
         assertThat(rsp).doesNotContain("ric1");
+        assertThat(rsp).contains("AVAILABLE");
+
+        // All RICs
+        rsp = restClient().get("/rics").block();
+        assertThat(rsp).contains("ric2");
+        assertThat(rsp).contains("ric1");
 
         // Non existing policy type
         url = "/rics?policyType=XXXX";
