@@ -24,6 +24,7 @@ import java.util.Collection;
 
 import org.oransc.policyagent.clients.A1Client;
 import org.oransc.policyagent.clients.A1ClientFactory;
+import org.oransc.policyagent.exceptions.ServiceException;
 import org.oransc.policyagent.repository.Lock.LockType;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.PolicyTypes;
@@ -58,6 +59,14 @@ public class RicSupervision {
     private final A1ClientFactory a1ClientFactory;
     private final Services services;
 
+    private static class SynchStartedException extends ServiceException {
+        private static final long serialVersionUID = 1L;
+
+        public SynchStartedException(String message) {
+            super(message);
+        }
+    }
+
     @Autowired
     public RicSupervision(Rics rics, Policies policies, A1ClientFactory a1ClientFactory, PolicyTypes policyTypes,
         Services services) {
@@ -88,12 +97,45 @@ public class RicSupervision {
     private Mono<RicData> checkOneRic(RicData ricData) {
         return checkRicState(ricData) //
             .flatMap(x -> ricData.ric.getLock().lock(LockType.EXCLUSIVE)) //
+            .flatMap(notUsed -> setRicState(ricData)) //
             .flatMap(x -> checkRicPolicies(ricData)) //
-            .flatMap(x -> ricData.ric.getLock().unlock()) //
-            .doOnError(throwable -> ricData.ric.getLock().unlockBlocking()) //
             .flatMap(x -> checkRicPolicyTypes(ricData)) //
-            .doOnNext(x -> logger.debug("Ric: {} checked OK", ricData.ric.name())) //
-            .doOnError(t -> logger.debug("Ric: {} check Failed, exception: {}", ricData.ric.name(), t.getMessage()));
+            .doOnNext(x -> onRicCheckedOk(ricData)) //
+            .doOnError(t -> onRicCheckedError(t, ricData)) //
+            .doFinally(r -> onRicCheckedFinally(ricData));
+    }
+
+    private void onRicCheckedError(Throwable t, RicData ricData) {
+        logger.debug("Ric: {} check stopped, exception: {}", ricData.ric.name(), t.getMessage());
+        if (t instanceof SynchStartedException) {
+            // this is just a temporary state,
+            ricData.ric.setState(RicState.AVAILABLE);
+        } else {
+            ricData.ric.setState(RicState.UNAVAILABLE);
+        }
+        ricData.ric.getLock().unlockBlocking();
+    }
+
+    private void onRicCheckedOk(RicData ricData) {
+        logger.debug("Ric: {} checked OK", ricData.ric.name());
+        ricData.ric.setState(RicState.AVAILABLE);
+        ricData.ric.getLock().unlockBlocking();
+    }
+
+    private void onRicCheckedFinally(RicData ricData) {
+        logger.debug("Ric: {} checke finalized", ricData.ric.name());
+    }
+
+    @SuppressWarnings("squid:S2445") // Blocks should be synchronized on "private final" fields
+    private Mono<RicData> setRicState(RicData ric) {
+        synchronized (ric) {
+            if (ric.ric.getState() == RicState.CONSISTENCY_CHECK) {
+                logger.debug("Ric: {} is already being checked", ric.ric.getConfig().name());
+                return Mono.empty();
+            }
+            ric.ric.setState(RicState.CONSISTENCY_CHECK);
+            return Mono.just(ric);
+        }
     }
 
     private static class RicData {
@@ -116,7 +158,7 @@ public class RicSupervision {
         if (ric.ric.getState() == RicState.UNAVAILABLE) {
             return startSynchronization(ric) //
                 .onErrorResume(t -> Mono.empty());
-        } else if (ric.ric.getState() == RicState.SYNCHRONIZING) {
+        } else if (ric.ric.getState() == RicState.SYNCHRONIZING || ric.ric.getState() == RicState.CONSISTENCY_CHECK) {
             return Mono.empty();
         } else {
             return Mono.just(ric);
@@ -163,7 +205,7 @@ public class RicSupervision {
     private Mono<RicData> startSynchronization(RicData ric) {
         RicSynchronizationTask synchronizationTask = createSynchronizationTask();
         synchronizationTask.run(ric.ric);
-        return Mono.error(new Exception("Syncronization started"));
+        return Mono.error(new SynchStartedException("Syncronization started"));
     }
 
     RicSynchronizationTask createSynchronizationTask() {

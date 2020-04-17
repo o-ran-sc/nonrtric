@@ -130,7 +130,8 @@ public class Lock {
 
     @Override
     public String toString() {
-        return "Lock cnt: " + this.lockCounter + " exclusive: " + this.isExclusive;
+        return "Lock cnt: " + this.lockCounter + " exclusive: " + this.isExclusive + " queued: "
+            + this.lockRequestQueue.size();
     }
 
     /** returns the current number of granted locks */
