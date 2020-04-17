@@ -19,7 +19,14 @@ logging:
     org.springframework.web.reactive.function.client.ExchangeFunctions: ERROR
     org.oransc.policyagent: INFO
   file: /var/log/policy-agent/application.log
-app:
-  filepath: /opt/app/policy-agent/config/application_configuration.json  
 server:
-   port : 8081
+   port : 8433
+   ssl:
+      key-store-type: PKCS12
+      key-store-password: policy_agent
+      key-store: classpath:keystore.jks
+      key-password: policy_agent
+app:
+  filepath: /opt/app/policy-agent/config/application_configuration.json
+
+

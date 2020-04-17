@@ -22,12 +22,15 @@ package org.oransc.policyagent;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.apache.catalina.connector.Connector;
 import org.oransc.policyagent.clients.A1ClientFactory;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Rics;
 import org.oransc.policyagent.repository.Services;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -68,6 +71,21 @@ class BeanFactory {
     @Bean
     public ObjectMapper mapper() {
         return new ObjectMapper();
+    }
+
+    @Bean
+    public ServletWebServerFactory servletContainer() {
+        TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory();
+        tomcat.addAdditionalTomcatConnectors(getHttpConnector());
+        return tomcat;
+    }
+
+    private static Connector getHttpConnector() {
+        Connector connector = new Connector(TomcatServletWebServerFactory.DEFAULT_PROTOCOL);
+        connector.setScheme("http");
+        connector.setPort(8081);
+        connector.setSecure(false);
+        return connector;
     }
 
 }

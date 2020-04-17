@@ -25,7 +25,7 @@ WORKDIR /opt/app/policy-agent
 RUN mkdir -p /var/log/policy-agent
 RUN mkdir -p /opt/app/policy-agent/etc/cert/
 
-EXPOSE 8081
+EXPOSE 8081 8433
 
 ADD /config/* /opt/app/policy-agent/config/
 ADD target/${JAR} /opt/app/policy-agent/policy-agent.jar

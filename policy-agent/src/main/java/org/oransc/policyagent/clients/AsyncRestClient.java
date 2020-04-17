@@ -21,10 +21,15 @@
 package org.oransc.policyagent.clients;
 
 import io.netty.channel.ChannelOption;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslContextBuilder;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
 
 import java.lang.invoke.MethodHandles;
+
+import javax.net.ssl.SSLException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,36 +50,24 @@ import reactor.netty.tcp.TcpClient;
  */
 public class AsyncRestClient {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private final WebClient client;
+    private WebClient webClient = null;
     private final String baseUrl;
 
     public AsyncRestClient(String baseUrl) {
-
-        TcpClient tcpClient = TcpClient.create() //
-            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10_000) //
-            .doOnConnected(connection -> {
-                connection.addHandler(new ReadTimeoutHandler(10));
-                connection.addHandler(new WriteTimeoutHandler(30));
-            });
-        HttpClient httpClient = HttpClient.from(tcpClient);
-        ReactorClientHttpConnector connector = new ReactorClientHttpConnector(httpClient);
-
-        this.client = WebClient.builder() //
-            .clientConnector(connector) //
-            .baseUrl(baseUrl) //
-            .build();
-
         this.baseUrl = baseUrl;
     }
 
     public Mono<ResponseEntity<String>> postForEntity(String uri, @Nullable String body) {
         logger.debug("POST uri = '{}{}''", baseUrl, uri);
         Mono<String> bodyProducer = body != null ? Mono.just(body) : Mono.empty();
-        RequestHeadersSpec<?> request = client.post() //
-            .uri(uri) //
-            .contentType(MediaType.APPLICATION_JSON) //
-            .body(bodyProducer, String.class);
-        return retrieve(request);
+        return getWebClient() //
+            .flatMap(client -> {
+                RequestHeadersSpec<?> request = client.post() //
+                    .uri(uri) //
+                    .contentType(MediaType.APPLICATION_JSON) //
+                    .body(bodyProducer, String.class);
+                return retrieve(request);
+            });
     }
 
     public Mono<String> post(String uri, @Nullable String body) {
@@ -84,29 +77,38 @@ public class AsyncRestClient {
 
     public Mono<String> postWithAuthHeader(String uri, String body, String username, String password) {
         logger.debug("POST (auth) uri = '{}{}''", baseUrl, uri);
-        RequestHeadersSpec<?> request = client.post() //
-            .uri(uri) //
-            .headers(headers -> headers.setBasicAuth(username, password)) //
-            .contentType(MediaType.APPLICATION_JSON) //
-            .bodyValue(body);
-        return retrieve(request) //
-            .flatMap(this::toBody);
+        return getWebClient() //
+            .flatMap(client -> {
+                RequestHeadersSpec<?> request = client.post() //
+                    .uri(uri) //
+                    .headers(headers -> headers.setBasicAuth(username, password)) //
+                    .contentType(MediaType.APPLICATION_JSON) //
+                    .bodyValue(body);
+                return retrieve(request) //
+                    .flatMap(this::toBody);
+            });
     }
 
     public Mono<ResponseEntity<String>> putForEntity(String uri, String body) {
         logger.debug("PUT uri = '{}{}''", baseUrl, uri);
-        RequestHeadersSpec<?> request = client.put() //
-            .uri(uri) //
-            .contentType(MediaType.APPLICATION_JSON) //
-            .bodyValue(body);
-        return retrieve(request);
+        return getWebClient() //
+            .flatMap(client -> {
+                RequestHeadersSpec<?> request = client.put() //
+                    .uri(uri) //
+                    .contentType(MediaType.APPLICATION_JSON) //
+                    .bodyValue(body);
+                return retrieve(request);
+            });
     }
 
     public Mono<ResponseEntity<String>> putForEntity(String uri) {
         logger.debug("PUT uri = '{}{}''", baseUrl, uri);
-        RequestHeadersSpec<?> request = client.put() //
-            .uri(uri);
-        return retrieve(request);
+        return getWebClient() //
+            .flatMap(client -> {
+                RequestHeadersSpec<?> request = client.put() //
+                    .uri(uri);
+                return retrieve(request);
+            });
     }
 
     public Mono<String> put(String uri, String body) {
@@ -116,8 +118,11 @@ public class AsyncRestClient {
 
     public Mono<ResponseEntity<String>> getForEntity(String uri) {
         logger.debug("GET uri = '{}{}''", baseUrl, uri);
-        RequestHeadersSpec<?> request = client.get().uri(uri);
-        return retrieve(request);
+        return getWebClient() //
+            .flatMap(client -> {
+                RequestHeadersSpec<?> request = client.get().uri(uri);
+                return retrieve(request);
+            });
     }
 
     public Mono<String> get(String uri) {
@@ -127,8 +132,11 @@ public class AsyncRestClient {
 
     public Mono<ResponseEntity<String>> deleteForEntity(String uri) {
         logger.debug("DELETE uri = '{}{}''", baseUrl, uri);
-        RequestHeadersSpec<?> request = client.delete().uri(uri);
-        return retrieve(request);
+        return getWebClient() //
+            .flatMap(client -> {
+                RequestHeadersSpec<?> request = client.delete().uri(uri);
+                return retrieve(request);
+            });
     }
 
     public Mono<String> delete(String uri) {
@@ -158,6 +166,42 @@ public class AsyncRestClient {
         } else {
             return Mono.just(entity.getBody());
         }
+    }
+
+    private static SslContext createSslContext() throws SSLException {
+        return SslContextBuilder.forClient() //
+            .trustManager(InsecureTrustManagerFactory.INSTANCE) //
+            .build();
+    }
+
+    private static WebClient createWebClient(String baseUrl, SslContext sslContext) {
+        TcpClient tcpClient = TcpClient.create() //
+            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10_000) //
+            .secure(c -> c.sslContext(sslContext)) //
+            .doOnConnected(connection -> {
+                connection.addHandler(new ReadTimeoutHandler(10));
+                connection.addHandler(new WriteTimeoutHandler(30));
+            });
+        HttpClient httpClient = HttpClient.from(tcpClient);
+        ReactorClientHttpConnector connector = new ReactorClientHttpConnector(httpClient);
+
+        return WebClient.builder() //
+            .clientConnector(connector) //
+            .baseUrl(baseUrl) //
+            .build();
+    }
+
+    private Mono<WebClient> getWebClient() {
+        if (this.webClient == null) {
+            try {
+                SslContext sslContext = createSslContext();
+                this.webClient = createWebClient(this.baseUrl, sslContext);
+            } catch (SSLException e) {
+                logger.error("Could not create WebClient {}", e.getMessage());
+                return Mono.error(e);
+            }
+        }
+        return Mono.just(this.webClient);
     }
 
 }
