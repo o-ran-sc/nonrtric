@@ -29,8 +29,6 @@ ENV SDNC_STORE_DIR /opt/onap/sdnc/data/stores
 ENV SSL_CERTS_DIR /etc/ssl/certs
 ENV JAVA_SECURITY_DIR $SSL_CERTS_DIR/java
 ENV SDNC_NORTHBOUND_REPO mvn:org.onap.sdnc.northbound/sdnc-northbound-all/${sdnc.northbound.version}/xml/features
-ENV SDNR_NORTHBOUND_REPO mvn:org.onap.ccsdk.features.sdnr.northbound/sdnr-northbound-all/${ccsdk.features.version}/xml/features
-ENV SDNR_WT_REPO mvn:org.onap.ccsdk.features.sdnr.wt/sdnr-wt-feature-aggregator/${ccsdk.features.version}/xml/features
 ENV SDNC_KEYSTORE ${sdnc.keystore}
 ENV SDNC_KEYPASS ${sdnc.keypass}
 ENV SDNC_SECUREPORT ${sdnc.secureport}
@@ -41,8 +39,8 @@ COPY --from=stage0 --chown=odl:odl /opt /opt
 
 # Add SDNC repositories to boot repositories
 RUN cp $ODL_HOME/etc/org.apache.karaf.features.cfg $ODL_HOME/etc/org.apache.karaf.features.cfg.orig
-RUN sed -i -e "\|featuresRepositories|s|$|,${SDNC_NORTHBOUND_REPO}, ${SDNR_NORTHBOUND_REPO}, ${SDNR_WT_REPO}|"  $ODL_HOME/etc/org.apache.karaf.features.cfg
-RUN sed -i -e "\|featuresBoot[^a-zA-Z]|s|$|,sdnc-northbound-all, sdnr-northbound-all|"  $ODL_HOME/etc/org.apache.karaf.features.cfg
+RUN sed -i -e "\|featuresRepositories|s|$|,${SDNC_NORTHBOUND_REPO}|"  $ODL_HOME/etc/org.apache.karaf.features.cfg
+RUN sed -i -e "\|featuresBoot[^a-zA-Z]|s|$|,sdnc-northbound-all|"  $ODL_HOME/etc/org.apache.karaf.features.cfg
 RUN sed -i "s/odl-restconf-all/odl-restconf-all,odl-netconf-topology/g"  $ODL_HOME/etc/org.apache.karaf.features.cfg
 
 # Install ssl and java certificates
