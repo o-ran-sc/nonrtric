@@ -20,14 +20,6 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-	<repositories>
-    		<repository>
-      			<id>onap-releases</id>
-          		<name>onap-releases</name>
-          		<url>https://nexus.onap.org/content/repositories/releases/</url>
-    		</repository>
-  	</repositories>
-
     <parent>
         <groupId>org.onap.ccsdk.parent</groupId>
         <artifactId>odlparent-lite</artifactId>
@@ -42,16 +34,6 @@
 
     <name>sdnc-oam :: installation</name>
     <description>Installs SDN-C on local file system</description>
-
-    <properties>
-        <application.name>installation</application.name>
-
-        <maven.build.timestamp.format>yyyyMMdd'T'HHmmss'Z'</maven.build.timestamp.format>
-        <build.number>${maven.build.timestamp}</build.number>
-        <ccsdk.distribution.version>0.6.3</ccsdk.distribution.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    </properties>
 
     <modules>
         <module>sdnc</module>

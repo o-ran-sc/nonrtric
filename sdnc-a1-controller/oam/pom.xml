@@ -21,14 +21,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<repositories>
-    		<repository>
-      			<id>onap-releases</id>
-          		<name>onap-releases</name>
-          		<url>https://nexus.onap.org/content/repositories/releases/</url>
-    		</repository>
-  	</repositories>
-
 	<parent>
 		<groupId>org.onap.ccsdk.parent</groupId>
 		<artifactId>odlparent-lite</artifactId>
@@ -86,40 +78,6 @@
 	</build>
 
 	<profiles>
-		<profile>
-			<id>blackduck</id>
-			<activation>
-				<property>
-					<name>blackduck-scan</name>
-				</property>
-			</activation>
-			<build>
-					<plugins>
-						<plugin>
-							<groupId>com.blackducksoftware.integration</groupId>
-							<artifactId>hub-maven-plugin</artifactId>
-							<version>1.4.0</version>
-							<inherited>false</inherited>
-							<configuration>
-								<hubProjectName>${project.name}</hubProjectName>
-								<outputDirectory>${project.basedir}</outputDirectory>
-							</configuration>
-							<executions>
-								<execution>
-									<id>create-bdio-file</id>
-									<phase>package</phase>
-									<goals>
-										<goal>createHubOutput</goal>
-									</goals>
-								</execution>
-							</executions>
-						</plugin>
-					</plugins>
-
-
-			</build>
-
-		</profile>
 	        <profile>
 		  <id>docker</id>
 		  <activation>
@@ -129,7 +87,6 @@
 			<module>installation</module>
 		  </modules>
 	        </profile>
-
 	</profiles>
 	<dependencies>
 		<dependency>
