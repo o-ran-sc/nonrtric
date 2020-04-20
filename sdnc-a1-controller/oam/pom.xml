@@ -47,10 +47,6 @@
 		<name>AT&amp;T</name>
 	</organization>
 
-	<modules>
-		<module>platform-logic</module>
-	</modules>
-
 	<scm>
                 <connection>scm:git:ssh://git@${onap.git.host}/sdnc-oam.git</connection>
                 <developerConnection>scm:git:ssh://${onap.git.host}:${onap.git.port}/${onap.git.project}/sdnc-oam.git</developerConnection>
