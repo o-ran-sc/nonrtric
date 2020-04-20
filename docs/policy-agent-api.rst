@@ -60,11 +60,6 @@ The Policy Agent NBI has four distinct parts, described in the sections below:
 * Near-RT RIC Repository
 * Health Check
 
-.. contents:: Operations
-   :depth: 4
-   :local:
-
-
 Service Management
 ==================
 
@@ -89,58 +84,53 @@ Service Management Operations
 PUT
 +++
 
-  Register a service.
+Register a service.
 
-  **URL path:**
-    /service
+**URL path:**
+  /service
 
-  **Parameters:**
+**Parameters:**
+  None.
 
-    None.
+**Body:**  (*Required*)
+    A JSON object (ServiceRegistrationInfo): ::
 
-  **Body:**  (*Required*)
-      A JSON object (ServiceRegistrationInfo): ::
+      {
+        "callbackUrl": "string",         (An empty string means the service will never get any callbacks.)
+        "keepAliveIntervalSeconds": 0,   (0 means the service will always be considered alive.)
+        "serviceName": "string"          (Required, must be unique.)
+      }
 
-        {
-          "callbackUrl": "string",         (An empty string means the service will never get any callbacks.)
-          "keepAliveIntervalSeconds": 0,   (0 means the service will always be considered alive.)
-          "serviceName": "string"          (Required, must be unique.)
-        }
+**Responses:**
+  200:
+        Service updated.
+  201:
+        Service created.
+  400:
+        The ServiceRegistrationInfo is not accepted.
 
-  **Responses:**
+**Examples:**
+  **Call**: ::
 
-    200:
-          Service updated.
+    curl -X PUT "http://localhost:8081/service" -H "Content-Type: application/json" -d '{
+        "callbackUrl": "URL",
+        "keepAliveIntervalSeconds": 0,
+        "serviceName": "existing"
+      }'
 
-    201:
-          Service created.
+  Result:
+    201: ::
 
-    400:
-          The ServiceRegistrationInfo is not accepted.
+       OK
 
-  **Examples:**
+  **Call**: ::
 
-    Call: ::
+     curl -X PUT "http://localhost:8081/service" -H  "Content-Type: application/json" -d "{}"
 
-      curl -X PUT "http://localhost:8081/service" -H "Content-Type: application/json" -d "{
-          \"callbackUrl\": \"URL\",
-          \"keepAliveIntervalSeconds\": 0,
-          \"serviceName\": \"existing\"
-        }"
+  Result:
+     400: ::
 
-    Result:
-      201: ::
-
-         OK
-
-    Call: ::
-
-       curl -X PUT "http://localhost:8081/service" -H  "Content-Type: application/json" -d "{}"
-
-    Result:
-       400: ::
-
-         Missing mandatory parameter 'serviceName'
+       Missing mandatory parameter 'serviceName'
 
 /services
 ~~~~~~~~~
@@ -148,98 +138,90 @@ PUT
 GET
 +++
 
-  Query service information.
+Query service information.
 
-  **URL path:**
-    /services?name=<service-name>
+**URL path:**
+  /services?name=<service-name>
 
-  **Parameters:**
+**Parameters:**
+  name: (*Optional*)
+    The name of the service.
 
-    name: (*Optional*)
-      The name of the service.
+**Responses:**
+  200:
+        Array of JSON objects (ServiceStatus). ::
 
-  **Responses:**
+         {
+             "callbackUrl": "string",             (Callback URL)
+             "keepAliveIntervalSeconds": 0,       (Policy keep alive interval)
+             "serviceName": "string",             (Identity of the service)
+             "timeSinceLastActivitySeconds": 0    (Time since last invocation by the service)
+         }
+  404:
+        Service is not found.
 
-    200:
-          Array of JSON objects (ServiceStatus). ::
+**Examples:**
+  **Call**: ::
 
-           {
-               "callbackUrl": "string",             (Callback URL)
-               "keepAliveIntervalSeconds": 0,       (Policy keep alive interval)
-               "serviceName": "string",             (Identity of the service)
-               "timeSinceLastActivitySeconds": 0    (Time since last invocation by the service)
-           }
+    curl -X GET "http://localhost:8081/services?name=existing"
 
-    404:
-          Service is not found.
+  Result:
+    200: ::
 
-  **Examples:**
+       [
+         {
+           "serviceName":"existing",
+           "keepAliveIntervalSeconds":0,
+           "timeSinceLastActivitySeconds":7224,
+           "callbackUrl":"URL"
+         }
+      ]
 
-    Call: ::
+  **Call**: ::
 
-      curl -X GET "http://localhost:8081/services?name=existing"
+    curl -X GET "http://localhost:8081/services?name=nonexistent"
 
-    Result:
-      200: ::
+  Result:
+     404: ::
 
-         [
-           {
-             "serviceName":"existing",
-             "keepAliveIntervalSeconds":0,
-             "timeSinceLastActivitySeconds":7224,
-             "callbackUrl":"URL"
-           }
-        ]
-
-    Call: ::
-
-      curl -X GET "http://localhost:8081/services?name=nonexistent"
-
-    Result:
-       404: ::
-
-         Service not found
+       Service not found
 
 DELETE
 ++++++
 
-  Delete a service.
+Delete a service.
 
-  **URL path:**
-    /services?name=<service-name>
+**URL path:**
+  /services?name=<service-name>
 
-  **Parameters:**
+**Parameters:**
+  name: (*Required*)
+    The name of the service.
 
-    name: (*Required*)
-      The name of the service.
+**Responses:**
+  204:
+        OK
+  404:
+        Service not found.
 
-  **Responses:**
+**Examples:**
+  **Call**: ::
 
-    204:
-          OK
+    curl -X DELETE "http://localhost:8081/services?name=existing"
 
-    404:
-          Service not found.
+  Result:
+    204: ::
 
-  **Examples:**
+       OK
 
-    Call: ::
+  **Call**: ::
 
-      curl -X DELETE "http://localhost:8081/services?name=existing"
+    curl -X DELETE "http://localhost:8081/services?name=nonexistent"
 
-    Result:
-      204: ::
+  Result:
+     404: ::
 
-         OK
-
-    Call: ::
-
-      curl -X DELETE "http://localhost:8081/services?name=nonexistent"
-
-    Result:
-       404: ::
-
-         Could not find service: nonexistent
+       Could not find service: nonexistent
 
 /services/keepalive
 ~~~~~~~~~~~~~~~~~~~
@@ -247,43 +229,39 @@ DELETE
 PUT
 +++
 
-  Heart beat from a service.
+Heart beat from a service.
 
-  **URL path:**
-    /services/keepalive?name=<service-name>
+**URL path:**
+  /services/keepalive?name=<service-name>
 
-  **Parameters:**
+**Parameters:**
+  name: (*Required*)
+    The name of the service.
 
-    name: (*Required*)
-      The name of the service.
+**Responses:**
+  200:
+        OK
+  404:
+        Service is not found.
 
-  **Responses:**
+**Examples:**
+  **Call**: ::
 
-    200:
-          OK
+    curl -X PUT "http://localhost:8081/services/keepalive?name=existing"
 
-    404:
-          Service is not found.
+  Result:
+    200: ::
 
-  **Examples:**
+       OK
 
-    Call: ::
+  **Call**: ::
 
-      curl -X PUT "http://localhost:8081/services/keepalive?name=existing"
+    curl -X PUT "http://localhost:8081/services/keepalive?name=nonexistent"
 
-    Result:
-      200: ::
+  Result:
+     404: ::
 
-         OK
-
-    Call: ::
-
-      curl -X PUT "http://localhost:8081/services/keepalive?name=nonexistent"
-
-    Result:
-       404: ::
-
-         Could not find service: nonexistent
+       Could not find service: nonexistent
 
 .. _policy-management:
 
@@ -318,47 +296,44 @@ A policy type defines a name and a JSON schema that constrains the content of a 
 GET
 +++
 
-  Query policy type names.
+Query policy type names.
 
-  **URL path:**
-    /policy_types?ric=<name-of-ric>
+**URL path:**
+  /policy_types?ric=<name-of-ric>
 
-  **Parameters:**
+**Parameters:**
+  ric: (*Optional*)
+    The name of the Near |nbh| RT |nbsp| RIC to get types for.
 
-    ric: (*Optional*)
-      The name of the Near |nbh| RT |nbsp| RIC to get types for.
+**Responses:**
 
-  **Responses:**
+  200:
+        Array of policy type names.
+  404:
+        Near |nbh| RT |nbsp| RIC is not found.
 
-    200:
-          Array of policy type names.
+**Examples:**
+  **Call**: ::
 
-    404:
-          Near |nbh| RT |nbsp| RIC is not found.
+    curl -X GET "http://localhost:8081/policy_types"
 
-  **Examples:**
+  Result:
+    200: ::
 
-    Call: ::
+       [
+         "STD_PolicyModelUnconstrained_0.2.0",
+         "Example_QoETarget_1.0.0",
+         "ERIC_QoSNudging_0.2.0"
+      ]
 
-      curl -X GET "http://localhost:8081/policy_types"
+  **Call**: ::
 
-    Result:
-      200: ::
+    curl -X GET "http://localhost:8081/policy_types?ric=nonexistent"
 
-         [
-           "STD_PolicyModelUnconstrained_0.2.0",
-           "Example_QoETarget_1.0.0",
-           "ERIC_QoSNudging_0.2.0"
-        ]
+  Result:
+     404: ::
 
-    Call: ::
-
-      curl -X GET "http://localhost:8081/policy_types?ric=nonexistent"
-
-    Result:
-       404: ::
-
-         org.oransc.policyagent.exceptions.ServiceException: Could not find ric: nonexistent
+       org.oransc.policyagent.exceptions.ServiceException: Could not find ric: nonexistent
 
 /policy_schema
 ~~~~~~~~~~~~~~
@@ -366,87 +341,83 @@ GET
 GET
 +++
 
-  Returns one policy type schema definition.
+Returns one policy type schema definition.
 
-  **URL path:**
-    /policy_schema?id=<name-of-type>
+**URL path:**
+  /policy_schema?id=<name-of-type>
 
-   **Parameters:**
+**Parameters:**
+  id: (*Required*)
+    The ID of the policy type to get the definition for.
 
-    id: (*Required*)
-      The ID of the policy type to get the definition for.
+**Responses:**
+  200:
+        Policy schema as JSON schema.
+  404:
+        Policy type is not found.
 
-  **Responses:**
+**Examples:**
+  **Call**: ::
 
-    200:
-          Policy schema as JSON schema.
+    curl -X GET "http://localhost:8081/policy_schema?id=STD_PolicyModelUnconstrained_0.2.0"
 
-    404:
-          Policy type is not found.
+  Result:
+    200: ::
 
-  **Examples:**
-
-    Call: ::
-
-      curl -X GET "http://localhost:8081/policy_schema?id=STD_PolicyModelUnconstrained_0.2.0"
-
-    Result:
-      200: ::
-
-        {
-          "$schema": "http://json-schema.org/draft-07/schema#",
-          "title": "STD_PolicyModelUnconstrained_0.2.0",
-          "description": "Standard model of a policy with unconstrained scope id combinations",
-          "type": "object",
-          "properties": {
-           "scope": {
-              "type": "object",
-              "properties": {
-                "ueId": {"type": "string"},
-                "groupId": {"type": "string"}
-              },
-              "minProperties": 1,
-              "additionalProperties": false
+      {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "STD_PolicyModelUnconstrained_0.2.0",
+        "description": "Standard model of a policy with unconstrained scope id combinations",
+        "type": "object",
+        "properties": {
+         "scope": {
+            "type": "object",
+            "properties": {
+              "ueId": {"type": "string"},
+              "groupId": {"type": "string"}
             },
-            "qosObjectives": {
-              "type": "object",
-              "properties": {
-                "gfbr": {"type": "number"},
-                "mfbr": {"type": "number"}
-              },
-              "additionalProperties": false
-            },
-            "resources": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "cellIdList": {
-                    "type": "array",
-                    "minItems": 1,
-                    "uniqueItems": true,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                "additionalProperties": false,
-                "required": ["cellIdList"]
-              }
-            }
+            "minProperties": 1,
+            "additionalProperties": false
           },
-          "minProperties": 1,
-          "additionalProperties": false,
-          "required": ["scope"]
-        }
+          "qosObjectives": {
+            "type": "object",
+            "properties": {
+              "gfbr": {"type": "number"},
+              "mfbr": {"type": "number"}
+            },
+            "additionalProperties": false
+          },
+          "resources": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "cellIdList": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {
+                    "type": "string"
+                  }
+                },
+              "additionalProperties": false,
+              "required": ["cellIdList"]
+            }
+          }
+        },
+        "minProperties": 1,
+        "additionalProperties": false,
+        "required": ["scope"]
+      }
 
-    Call: ::
+  **Call**: ::
 
-      curl -X GET "http://localhost:8081/policy_schema?id=nonexistent"
+    curl -X GET "http://localhost:8081/policy_schema?id=nonexistent"
 
-    Result:
-       404: ::
+  Result:
+     404: ::
 
-         org.oransc.policyagent.exceptions.ServiceException: Could not find type: nonexistent
+       org.oransc.policyagent.exceptions.ServiceException: Could not find type: nonexistent
 
 /policy_schemas
 ~~~~~~~~~~~~~~~
@@ -454,72 +425,69 @@ GET
 GET
 +++
 
-  Returns policy type schema definitions.
+Returns policy type schema definitions.
 
-  **URL path:**
-    /policy_schemas?ric=<name-of-ric>
+**URL path:**
+  /policy_schemas?ric=<name-of-ric>
 
-   **Parameters:**
+**Parameters:**
+  ric: (*Optional*)
+    The name of the Near |nbh| RT |nbsp| RIC to get the definitions for.
 
-    ric: (*Optional*)
-      The name of the Near |nbh| RT |nbsp| RIC to get the definitions for.
+**Responses:**
+  200:
+        An array of policy schemas as JSON schemas.
+  404:
+        Near |nbh| RT |nbsp| RIC is not found.
 
-  **Responses:**
+**Examples:**
+  **Call**: ::
 
-    200:
-          An array of policy schemas as JSON schemas.
+    curl -X GET "http://localhost:8081/policy_schemas"
 
-    404:
-          Near |nbh| RT |nbsp| RIC is not found.
+  Result:
+    200: ::
 
-  **Examples:**
+      [{
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "STD_PolicyModelUnconstrained_0.2.0",
+        "description": "Standard model of a policy with unconstrained scope id combinations",
+        "type": "object",
+        "properties": {
+         "scope": {
+            "type": "object",
+            .
+            .
+            .
+        "additionalProperties": false,
+        "required": ["scope"]
+      },
+       .
+       .
+       .
+      {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "Example_QoETarget_1.0.0",
+        "description": "Example QoE Target policy type",
+        "type": "object",
+        "properties": {
+         "scope": {
+            "type": "object",
+            .
+            .
+            .
+        "additionalProperties": false,
+        "required": ["scope"]
+      }]
 
-    Call: ::
+  **Call**: ::
+  
+    curl -X GET "http://localhost:8081/policy_schemas?ric=nonexistent"
 
-      curl -X GET "http://localhost:8081/policy_schemas"
+  Result:
+     404: ::
 
-    Result:
-      200: ::
-
-        [{
-          "$schema": "http://json-schema.org/draft-07/schema#",
-          "title": "STD_PolicyModelUnconstrained_0.2.0",
-          "description": "Standard model of a policy with unconstrained scope id combinations",
-          "type": "object",
-          "properties": {
-           "scope": {
-              "type": "object",
-              .
-              .
-              .
-          "additionalProperties": false,
-          "required": ["scope"]
-        },
-         .
-         .
-         .
-        {
-          "$schema": "http://json-schema.org/draft-07/schema#",
-          "title": "Example_QoETarget_1.0.0",
-          "description": "Example QoE Target policy type",
-          "type": "object",
-          "properties": {
-           "scope": {
-              "type": "object",
-              .
-              .
-              .
-          "additionalProperties": false,
-          "required": ["scope"]
-        }]
-
-    Call:
-      curl -X GET "http://localhost:8081/policy_schemas?ric=nonexistent"
-
-    Result:
-       404: ::
-
-         org.oransc.policyagent.exceptions.ServiceException: Could not find ric: nonexistent
+       org.oransc.policyagent.exceptions.ServiceException: Could not find ric: nonexistent
 
 Policy
 ------
@@ -542,89 +510,83 @@ policy it has created. There are only two exceptions, see below:
 GET
 +++
 
-  Query policies.
+Query policies.
 
-  **URL path:**
-    /policies?ric=<name-of-ric>&service=<name-of-service>&type=<name-of-type>
+**URL path:**
+  /policies?ric=<name-of-ric>&service=<name-of-service>&type=<name-of-type>
 
-  **Parameters:**
+**Parameters:**
+  ric: (*Optional*)
+    The name of the Near |nbh| RT |nbsp| RIC to get policies for.
+  service: (*Optional*)
+    The name of the service to get policies for.
+  type: (*Optional*)
+    The name of the policy type to get policies for.
 
-    ric: (*Optional*)
-      The name of the Near |nbh| RT |nbsp| RIC to get policies for.
+**Responses:**
+  200:
+        Array of JSON objects (PolicyInfo). ::
 
-    service: (*Optional*)
-      The name of the service to get policies for.
+          {
+            "id": "string",              (Identity of the policy)
+            "json": "object",            (The configuration of the policy)
+            "lastModified": "string",    (Timestamp, last modification time)
+            "ric": "string",             (Identity of the target Near |nbh| RT |nbsp| RIC)
+            "service": "string",         (The name of the service owning the policy)
+            "type": "string"             (Name of the policy type)
+          }
+  404:
+        Near |nbh| RT |nbsp| RIC or policy type not found.
 
-    type: (*Optional*)
-      The name of the policy type to get policies for.
+**Examples:**
+  **Call**: ::
 
-  **Responses:**
+    curl -X GET "http://localhost:8081/policies?ric=existing"
 
-    200:
-          Array of JSON objects (PolicyInfo). ::
+  Result:
+    200: ::
 
-            {
-              "id": "string",              (Identity of the policy)
-              "json": "object",            (The configuration of the policy)
-              "lastModified": "string",    (Timestamp, last modification time)
-              "ric": "string",             (Identity of the target Near |nbh| RT |nbsp| RIC)
-              "service": "string",         (The name of the service owning the policy)
-              "type": "string"             (Name of the policy type)
-            }
-
-    404:
-          Near |nbh| RT |nbsp| RIC or policy type not found.
-
-  **Examples:**
-
-    Call: ::
-
-      curl -X GET "http://localhost:8081/policies?ric=existing"
-
-    Result:
-      200: ::
-
-         [
-           {
-             "id": "Policy 1",
-             "json": {
-               "scope": {
-                 "ueId": "UE 1",
-                 "groupId": "Group 1"
-               },
-               "qosObjectives": {
-                 "gfbr": 1,
-                 "mfbr": 2
-               },
-               "cellId": "Cell 1"
+       [
+         {
+           "id": "Policy 1",
+           "json": {
+             "scope": {
+               "ueId": "UE 1",
+               "groupId": "Group 1"
              },
-             "lastModified": "Wed, 01 Apr 2020 07:45:45 GMT",
-             "ric": "existing",
-             "service": "Service 1",
-             "type": "STD_PolicyModelUnconstrained_0.2.0"
+             "qosObjectives": {
+               "gfbr": 1,
+               "mfbr": 2
+             },
+             "cellId": "Cell 1"
            },
-           {
-             "id": "Policy 2",
-             "json": {
-                 .
-                 .
-                 .
-             },
-             "lastModified": "Wed, 01 Apr 2020 07:45:45 GMT",
-             "ric": "existing",
-             "service": "Service 2",
-             "type": "Example_QoETarget_1.0.0"
-           }
-        ]
+           "lastModified": "Wed, 01 Apr 2020 07:45:45 GMT",
+           "ric": "existing",
+           "service": "Service 1",
+           "type": "STD_PolicyModelUnconstrained_0.2.0"
+         },
+         {
+           "id": "Policy 2",
+           "json": {
+               .
+               .
+               .
+           },
+           "lastModified": "Wed, 01 Apr 2020 07:45:45 GMT",
+           "ric": "existing",
+           "service": "Service 2",
+           "type": "Example_QoETarget_1.0.0"
+         }
+      ]
 
-    Call: ::
+  **Call**: ::
 
-      curl -X GET "http://localhost:8081/policies?type=nonexistent"
+    curl -X GET "http://localhost:8081/policies?type=nonexistent"
 
-    Result:
-       404: ::
+  Result:
+     404: ::
 
-         Policy type not found
+       Policy type not found
 
 /policy
 ~~~~~~~
@@ -632,180 +594,162 @@ GET
 GET
 +++
 
-  Returns a policy configuration.
+Returns a policy configuration.
 
-  **URL path:**
-    /policy?id=<policy-id>
+**URL path:**
+  /policy?id=<policy-id>
 
-  **Parameters:**
+**Parameters:**
+  id: (*Required*)
+    The ID of the policy instance.
 
-    id: (*Required*)
-      The ID of the policy instance.
+**Responses:**
+  200:
+        JSON object containing policy information. ::
 
-  **Responses:**
+          {
+            "id": "string",                  (ID of policy)
+            "json": "object",                (JSON with policy data speified by the type)
+            "ownerServiceName": "string",    (Name of the service that created the policy)
+            "ric": "string",                 (Name of the Near |nbh| RT |nbsp| RIC where the policy resides)
+            "type": "string",                (Name of the policy type of the policy)
+            "lastModified"                   (Timestamp, last modification time)
+          }
+  404:
+        Policy is not found.
 
-    200:
-          JSON object containing policy information. ::
+**Examples:**
+  **Call**: ::
 
-            {
-              "id": "string",                  (ID of policy)
-              "json": "object",                (JSON with policy data speified by the type)
-              "ownerServiceName": "string",    (Name of the service that created the policy)
-              "ric": "string",                 (Name of the Near |nbh| RT |nbsp| RIC where the policy resides)
-              "type": "string",                (Name of the policy type of the policy)
-              "lastModified"                   (Timestamp, last modification time)
-            }
+    curl -X GET "http://localhost:8081/policy?id=Policy 1"
 
-    404:
-          Policy is not found.
+  Result:
+    200: ::
 
-  **Examples:**
-
-    Call: ::
-
-      curl -X GET "http://localhost:8081/policy?id=Policy 1"
-
-    Result:
-      200: ::
-
-         {
-           "id": "Policy 1",
-           "json", {
-             "scope": {
-               "ueId": "UE1 ",
-               "cellId": "Cell 1"
-             },
-             "qosObjectives": {
-               "gfbr": 319.5,
-               "mfbr": 782.75,
-               "priorityLevel": 268.5,
-               "pdb": 44.0
-             },
-             "qoeObjectives": {
-               "qoeScore": 329.0,
-               "initialBuffering": 27.75,
-               "reBuffFreq": 539.0,
-               "stallRatio": 343.0
-             },
-             "resources": []
+       {
+         "id": "Policy 1",
+         "json", {
+           "scope": {
+             "ueId": "UE1 ",
+             "cellId": "Cell 1"
            },
-           "ownerServiceName": "Service 1",
-           "ric": "ric1",
-           "type": "STD_PolicyModelUnconstrained_0.2.0",
-           "lastModified": "Wed, 01 Apr 2020 07:45:45 GMT"
-         }
+           "qosObjectives": {
+             "gfbr": 319.5,
+             "mfbr": 782.75,
+             "priorityLevel": 268.5,
+             "pdb": 44.0
+           },
+           "qoeObjectives": {
+             "qoeScore": 329.0,
+             "initialBuffering": 27.75,
+             "reBuffFreq": 539.0,
+             "stallRatio": 343.0
+           },
+           "resources": []
+         },
+         "ownerServiceName": "Service 1",
+         "ric": "ric1",
+         "type": "STD_PolicyModelUnconstrained_0.2.0",
+         "lastModified": "Wed, 01 Apr 2020 07:45:45 GMT"
+       }
 
-    Call: ::
+  **Call**: ::
 
-      curl -X GET "http://localhost:8081/policy?id=nonexistent"
+    curl -X GET "http://localhost:8081/policy?id=nonexistent"
 
-    Result:
-       404: ::
+  Result:
+     404: ::
 
-         Policy is not found
+       Policy is not found
 
 PUT
 +++
 
-  Create/Update a policy. **Note!** Calls to this method will also trigger "*Keep Alive*" for a service which has a
-  "*Keep Alive Interval*" registered.
+Create/Update a policy. **Note!** Calls to this method will also trigger "*Keep Alive*" for a service which has a
+"*Keep Alive Interval*" registered.
 
-  **URL path:**
-    /policy?id=<policy-id>&ric=<name-of-ric>&service=<name-of-service>&type=<name-of-policy-type>
+**URL path:**
+  /policy?id=<policy-id>&ric=<name-of-ric>&service=<name-of-service>&type=<name-of-policy-type>
 
-  **Parameters:**
+**Parameters:**
+  id: (*Required*)
+    The ID of the policy instance.
+  ric: (*Required*)
+    The name of the Near |nbh| RT |nbsp| RIC where the policy will be created.
+  service: (*Required*)
+    The name of the service creating the policy.
+  type: (*Optional*)
+    The name of the policy type.
 
-    id: (*Required*)
-      The ID of the policy instance.
+**Body:** (*Required*)
+    A JSON object containing the data specified by the type.
 
-    ric: (*Required*)
-      The name of the Near |nbh| RT |nbsp| RIC where the policy will be created.
+**Responses:**
+  200:
+        Policy updated.
+  201:
+        Policy created.
+  404:
+        Near |nbh| RT |nbsp| RIC or policy type is not found.
+  423:
+        Near |nbh| RT |nbsp| RIC is not operational.
 
-    service: (*Required*)
-      The name of the service creating the policy.
+**Examples:**
+  **Call**: ::
 
-    type: (*Optional*)
-      The name of the policy type.
+    curl -X PUT "http://localhost:8081/policy?id=Policy%201&ric=ric1&service=Service%201&type=STD_PolicyModelUnconstrained_0.2.0"
+      -H  "Content-Type: application/json"
+      -d '{
+            "scope": {
+              "ueId": "UE 1",
+              "cellId": "Cell 1"
+            },
+            "qosObjectives": {
+              "gfbr": 319.5,
+              "mfbr": 782.75,
+              "priorityLevel": 268.5,
+              "pdb": 44.0
+            },
+            "qoeObjectives": {
+              "qoeScore": 329.0,
+              "initialBuffering": 27.75,
+              "reBuffFreq": 539.0,
+              "stallRatio": 343.0
+            },
+            "resources": []
+          }'
 
-  **Body:** (*Required*)
-      A JSON object containing the data specified by the type.
-
-  **Responses:**
-
-    200:
-          Policy updated.
-
-    201:
-          Policy created.
-
-    404:
-          Near |nbh| RT |nbsp| RIC or policy type is not found.
-
-    423:
-          Near |nbh| RT |nbsp| RIC is not operational.
-
-  **Examples:**
-
-    Call: ::
-
-      curl -X PUT "http://localhost:8081/policy?id=Policy%201&ric=ric1&service=Service%201&type=STD_PolicyModelUnconstrained_0.2.0"
-        -H  "Content-Type: application/json"
-        -d "{
-              \"scope\": {
-                \"ueId\": \"UE 1\",
-                \"cellId\": \"Cell 1\"
-              },
-              \"qosObjectives\": {
-                \"gfbr\": 319.5,
-                \"mfbr\": 782.75,
-                \"priorityLevel\": 268.5,
-                \"pdb\": 44.0
-              },
-              \"qoeObjectives\": {
-                \"qoeScore\": 329.0,
-                \"initialBuffering\": 27.75,
-                \"reBuffFreq\": 539.0,
-                \"stallRatio\": 343.0
-              },
-              \"resources\": []
-            }"
-
-    Result:
-      200
+  Result:
+    200
 
 DELETE
 ++++++
 
-  Deletes a policy. **Note!** Calls to this method will also trigger "*Keep Alive*" for a service which has a
-  "*Keep Alive Interval*" registered.
+Deletes a policy. **Note!** Calls to this method will also trigger "*Keep Alive*" for a service which has a
+"*Keep Alive Interval*" registered.
 
-  **URL path:**
-    /policy?id=<policy-id>
+**URL path:**
+  /policy?id=<policy-id>
 
-  **Parameters:**
+**Parameters:**
+  id: (*Required*)
+    The ID of the policy instance.
 
-    id: (*Required*)
-      The ID of the policy instance.
+**Responses:**
+  204:
+        Policy deleted.
+  404:
+        Policy is not found.
+  423:
+        Near |nbh| RT |nbsp| RIC is not operational.
 
-  **Responses:**
+**Examples:**
+  **Call**: ::
 
-    204:
-          Policy deleted.
+    curl -X DELETE "http://localhost:8081/policy?id=Policy 1"
 
-    404:
-          Policy is not found.
-
-    423:
-          Near |nbh| RT |nbsp| RIC is not operational.
-
-  **Examples:**
-
-    Call: ::
-
-      curl -X DELETE "http://localhost:8081/policy?id=Policy 1"
-
-    Result:
-      204
+  Result:
+    204
 
 /policy_ids
 ~~~~~~~~~~~
@@ -813,53 +757,47 @@ DELETE
 GET
 +++
 
-  Query policy type IDs.
+Query policy type IDs.
 
-  **URL path:**
-    /policy_ids?ric=<name-of-ric>&service=<name-of-service>&type=<name-of-policy-type>
+**URL path:**
+  /policy_ids?ric=<name-of-ric>&service=<name-of-service>&type=<name-of-policy-type>
 
-  **Parameters:**
+**Parameters:**
+  ric: (*Optional*)
+    The name of the Near |nbh| RT |nbsp| RIC to get policies for.
+  service: (*Optional*)
+    The name of the service to get policies for.
+  type: (*Optional*)
+    The name of the policy type to get policies for.
 
-    ric: (*Optional*)
-      The name of the Near |nbh| RT |nbsp| RIC to get policies for.
+**Responses:**
+  200:
+        Array of policy type names.
+  404:
+        RIC or policy type not found.
 
-    service: (*Optional*)
-      The name of the service to get policies for.
+**Examples:**
+  **Call**: ::
 
-    type: (*Optional*)
-      The name of the policy type to get policies for.
+    curl -X GET "http://localhost:8081/policy_ids"
 
-  **Responses:**
+  Result:
+    200: ::
 
-    200:
-          Array of policy type names.
+       [
+         "Policy 1",
+         "Policy 2",
+         "Policy 3"
+      ]
 
-    404:
-          RIC or policy type not found.
+  **Call**: ::
 
-  **Examples:**
+    curl -X GET "http://localhost:8081/policy_ids?ric=nonexistent"
 
-    Call: ::
+  Result:
+     404: ::
 
-      curl -X GET "http://localhost:8081/policy_ids"
-
-    Result:
-      200: ::
-
-         [
-           "Policy 1",
-           "Policy 2",
-           "Policy 3"
-        ]
-
-    Call: ::
-
-      curl -X GET "http://localhost:8081/policy_ids?ric=nonexistent"
-
-    Result:
-       404: ::
-
-         Ric not found
+       Ric not found
 
 /policy_status
 ~~~~~~~~~~~~~~
@@ -867,23 +805,20 @@ GET
 GET
 +++
 
-  Returns the status of a policy.
+Returns the status of a policy.
 
-  **URL path:**
-    /policy_status?id=<policy-id>
+**URL path:**
+  /policy_status?id=<policy-id>
 
-  **Parameters:**
+**Parameters:**
+  id: (*Required*)
+    The ID of the policy.
 
-    id: (*Required*)
-      The ID of the policy.
-
-  **Responses:**
-
-    200:
-          JSON object with policy status.
-
-    404:
-          Policy not found.
+**Responses:**
+  200:
+        JSON object with policy status.
+  404:
+        Policy not found.
 
 Near-RT RIC Repository
 ======================
@@ -901,41 +836,37 @@ Near-RT RIC
 GET
 +++
 
-  Returns the name of a Near |nbh| RT |nbsp| RIC managing a specific Mananged Element.
+Returns the name of a Near |nbh| RT |nbsp| RIC managing a specific Mananged Element.
 
-   **URL path:**
-    /ric?managedElementId=<id-of-managed-element>
+ **URL path:**
+  /ric?managedElementId=<id-of-managed-element>
 
-  **Parameters:**
+**Parameters:**
+  managedElementId: (*Required*)
+    The ID of the Managed Element.
 
-    managedElementId: (*Required*)
-      The ID of the Managed Element.
+**Responses:**
+  200:
+        Name of the Near |nbh| RT |nbsp| RIC managing the Managed Element.
+  404:
+        No Near |nbh| RT |nbsp| RIC manages the given Managed Element.
 
-  **Responses:**
+**Examples:**
+  **Call**: ::
 
-    200:
-          Name of the Near |nbh| RT |nbsp| RIC managing the Managed Element.
+    curl -X GET "http://localhost:8081/ric?managedElementId=Node 1"
 
-    404:
-          No Near |nbh| RT |nbsp| RIC manages the given Managed Element.
+  Result:
+    200: ::
 
-  **Examples:**
+      Ric 1
 
-    Call: ::
+  **Call**: ::
 
-      curl -X GET "http://localhost:8081/ric?managedElementId=Node 1"
+    curl -X GET "http://localhost:8081/ric?managedElementId=notmanaged"
 
-    Result:
-      200: ::
-
-        Ric 1
-
-    Call: ::
-
-      curl -X GET "http://localhost:8081/ric?managedElementId=notmanaged"
-
-    Result:
-       404
+  Result:
+     404
 
 /rics
 ~~~~~
@@ -943,83 +874,79 @@ GET
 GET
 +++
 
-  Query Near |nbh| RT |nbsp| RIC information.
+Query Near |nbh| RT |nbsp| RIC information.
 
-   **URL path:**
-    /rics?policyType=<name-of-policy-type>
+ **URL path:**
+  /rics?policyType=<name-of-policy-type>
 
-  **Parameters:**
+**Parameters:**
+  policyType: (*Optional*)
+    The name of the policy type.
 
-    policyType: (*Optional*)
-      The name of the policy type.
+**Responses:**
+  200:
+        Array of JSON objects containing Near |nbh| RT |nbsp| RIC information. ::
 
-  **Responses:**
+          [
+            {
+              "managedElementIds": [
+                "string"
+              ],
+              "policyTypes": [
+                "string"
+              ],
+              "ricName": "string",
+              "state": "string"
+            }
+          ]
+  404:
+        Policy type is not found.
 
-    200:
-          Array of JSON objects containing Near |nbh| RT |nbsp| RIC information. ::
+**Examples:**
+  **Call**: ::
 
-            [
-              {
-                "managedElementIds": [
-                  "string"
-                ],
-                "policyTypes": [
-                  "string"
-                ],
-                "ricName": "string",
-                "state": "string"
-              }
-            ]
+    curl -X GET "http://localhost:8081/rics?policyType=STD_PolicyModelUnconstrained_0.2.0"
 
-    404:
-          Policy type is not found.
+  Result:
+    200: ::
 
-  **Examples:**
+      [
+        {
+          "managedElementIds": [
+            "ME 1",
+            "ME 2"
+          ],
+          "policyTypes": [
+            "STD_PolicyModelUnconstrained_0.2.0",
+            "Example_QoETarget_1.0.0",
+            "ERIC_QoSNudging_0.2.0"
+          ],
+          "ricName": "Ric 1",
+          "state": "AVAILABLE"
+        },
+          .
+          .
+          .
+        {
+          "managedElementIds": [
+            "ME 3"
+          ],
+          "policyTypes": [
+            "STD_PolicyModelUnconstrained_0.2.0"
+          ],
+          "ricName": "Ric X",
+          "state": "UNAVAILABLE"
+        }
+      ]
 
-    Call: ::
+  **Call**: ::
 
-      curl -X GET "http://localhost:8081/rics?policyType=STD_PolicyModelUnconstrained_0.2.0"
+    curl -X GET "http://localhost:8081/rics?policyType=nonexistent"
 
-    Result:
-      200: ::
+  Result:
+     404: ::
 
-        [
-          {
-            "managedElementIds": [
-              "ME 1",
-              "ME 2"
-            ],
-            "policyTypes": [
-              "STD_PolicyModelUnconstrained_0.2.0",
-              "Example_QoETarget_1.0.0",
-              "ERIC_QoSNudging_0.2.0"
-            ],
-            "ricName": "Ric 1",
-            "state": "AVAILABLE"
-          },
-            .
-            .
-            .
-          {
-            "managedElementIds": [
-              "ME 3"
-            ],
-            "policyTypes": [
-              "STD_PolicyModelUnconstrained_0.2.0"
-            ],
-            "ricName": "Ric X",
-            "state": "UNAVAILABLE"
-          }
-        ]
-
-    Call: ::
-
-      curl -X GET "http://localhost:8081/rics?policyType=nonexistent"
-
-    Result:
-       404: ::
-
-        Policy type not found
+      Policy type not found
 
 Health Check
 ============
@@ -1035,28 +962,25 @@ Health Check
 GET
 +++
 
-  Returns the status of the Policy Agent.
+Returns the status of the Policy Agent.
 
-   **URL path:**
-    /status
+ **URL path:**
+  /status
 
-  **Parameters:**
+**Parameters:**
+  None.
 
-    None.
+**Responses:**
+  200:
+        Service is living.
 
-  **Responses:**
+**Examples:**
+  **Call**: ::
 
-    200:
-          Service is living.
+    curl -X GET "http://localhost:8081/status"
 
-  **Examples:**
-
-    Call: ::
-
-      curl -X GET "http://localhost:8081/status"
-
-    Result:
-      200
+  Result:
+    200
 
 ****************
 A1 through DMaaP

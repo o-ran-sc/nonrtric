@@ -26,107 +26,103 @@ Get Policy Type
 POST
 ++++
 
-  Gets a policy type.
+Gets a policy type.
 
-   **URL path:**
-    /restconf/operations/A1-ADAPTER-API:getA1PolicyType
+**URL path:**
+  /restconf/operations/A1-ADAPTER-API:getA1PolicyType
 
-  **Parameters:**
+**Parameters:**
+  None.
 
-    None.
+**Body:** (*Required*)
+    A JSON. ::
 
-  **Body:** (*Required*)
-
-      A JSON. ::
-
-        {
-          "input": {
-            "near-rt-ric-url": "<url-to-near-rt-ric-to-get-type>"
-          }
+      {
+        "input": {
+          "near-rt-ric-url": "<url-to-near-rt-ric-to-get-type>"
         }
+      }
 
-  **Responses:**
+**Responses:**
+  200:
+    A JSON where the body tag contains the JSON object of the policy type. ::
 
-    200:
-      A JSON where the body tag contains the JSON object of the policy type. ::
-
-        {
-          "output": {
-            "http-status": "integer",
-            "body": "{
-              <policy-type>
-            }"
-          }
+      {
+        "output": {
+          "http-status": "integer",
+          "body": "{
+            <policy-type>
+          }"
         }
+      }
 
-  **Examples:**
+**Examples:**
+  **Call**: ::
 
-    Call: ::
+    curl -X POST "http://localhost:8282/restconf/operations/A1-ADAPTER-API:getA1PolicyType"
+    -H "Content-Type: application/json" -d '{
+      "input": {
+        "near-rt-ric-url": "http://nearRtRic-sim1:8085/a1-p/policytypes/11"
+      }
+    }'
 
-      curl -X POST "http://localhost:8282/restconf/operations/A1-ADAPTER-API:getA1PolicyType"
-      -H "Content-Type: application/json" -d "{
-        \"input\": {
-          \"near-rt-ric-url\": \"http://nearRtRic-sim1:8085/a1-p/policytypes/11\"
-        }
-      }"
+  Result:
+    200 ::
 
-    Result:
-      200 ::
-
-        {
-          "output": {
-            "http-status": 200,
-            "body": "{
-              "$schema": "http://json-schema.org/draft-07/schema#",
-              "title": "Example_QoETarget_1.0.0",
-              "description": "Example QoE Target policy type",
-              "type": "object",
-              "properties": {
-                "scope": {
-                  "type": "object",
-                  "properties": {
-                    "ueId": {
-                      "type": "string"
-                    },
-                    "sliceId": {
-                      "type": "string"
-                    },
-                    "qosId": {
-                      "type": "string"
-                    },
-                    "cellId": {
-                      "type": "string"
-                    }
+      {
+        "output": {
+          "http-status": 200,
+          "body": "{
+            \"$schema\": \"http://json-schema.org/draft-07/schema#\",
+            \"title\": \"Example_QoETarget_1.0.0\",
+            \"description\": \"Example QoE Target policy type\",
+            \"type\": \"object\",
+            \"properties\": {
+              \"scope\": {
+                \"type\": \"object\",
+                \"properties\": {
+                  \"ueId\": {
+                    \"type\": \"string\"
                   },
-                  "additionalProperties": false,
-                  "required": [
-                    "ueId",
-                    "sliceId"
-                  ]
+                  \"sliceId\": {
+                    \"type\": \"string\"
+                  },
+                  \"qosId\": {
+                    \"type\": \"string\"
+                  },
+                  \"cellId\": {
+                    \"type\": \"string\"
+                  }
                 },
-                "statement": {
-                  "type": "object",
-                  "properties": {
-                    "qoeScore": {
-                      "type": "number"
-                    },
-                    "initialBuffering": {
-                      "type": "number"
-                    },
-                    "reBuffFreq": {
-                      "type": "number"
-                    },
-                    "stallRatio": {
-                      "type": "number"
-                    }
+                \"additionalProperties\": false,
+                \"required\": [
+                  \"ueId\",
+                  \"sliceId\"
+                ]
+              },
+              \"statement\": {
+                \"type\": \"object\",
+                \"properties\": {
+                  \"qoeScore\": {
+                    \"type\": \"number\"
                   },
-                  "minProperties": 1,
-                  "additionalProperties": false
-                }
+                  \"initialBuffering\": {
+                    \"type\": \"number\"
+                  },
+                  \"reBuffFreq\": {
+                    \"type\": \"number\"
+                  },
+                  \"stallRatio\": {
+                    \"type\": \"number\"
+                  }
+                },
+                \"minProperties\": 1,
+                \"additionalProperties\": false
               }
             }
-          }
-        }"
+          }"
+        }
+      }
 
 Put Policy
 ~~~~~~~~~~
@@ -134,62 +130,58 @@ Put Policy
 POST
 ++++
 
-  Creates or updates a policy instance.
+Creates or updates a policy instance.
 
-   **URL path:**
-    /restconf/operations/A1-ADAPTER-API:putA1Policy
+**URL path:**
+  /restconf/operations/A1-ADAPTER-API:putA1Policy
 
-  **Parameters:**
+**Parameters:**
+  None.
 
-    None.
+**Body:** (*Required*)
+    A JSON where the body tag contains the JSON object of the policy. ::
 
-  **Body:** (*Required*)
-
-      A JSON where the body tag contains the JSON object of the policy. ::
-
-        {
-          "input": {
-            "near-rt-ric-url": "<url-to-near-rt-ric-to-put-policy>",
-            "body": "object"
-          }
+      {
+        "input": {
+          "near-rt-ric-url": "<url-to-near-rt-ric-to-put-policy>",
+          "body": "object"
         }
+      }
 
-  **Responses:**
+**Responses:**
+  200:
+    A JSON with the response. ::
 
-    200:
-      A JSON with the response. ::
-
-        {
-          "output": {
-            "http-status": "integer"
-          }
+      {
+        "output": {
+          "http-status": "integer"
         }
+      }
 
-  **Examples:**
+**Examples:**
+  **Call**: ::
 
-    Call: ::
+    curl -X POST "http://localhost:8282/restconf/operations/A1-ADAPTER-API:getA1PolicyType"
+    -H "Content-Type: application/json" -d '{
+      "input": {
+        "near-rt-ric-url": "http://nearRtRic-sim1:8085/a1-p/policytypes/11/policies/3d2157af-6a8f-4a7c-810f-38c2f824bf12",
+        "body": "{
+          "blocking_rate":20,
+          "enforce":true,
+          "trigger_threshold":10,
+          "window_length":10
+        }"
+      }
+    }'
 
-      curl -X POST "http://localhost:8282/restconf/operations/A1-ADAPTER-API:getA1PolicyType"
-      -H "Content-Type: application/json" -d "{
-        \"input\": {
-          \"near-rt-ric-url\": \"http://nearRtRic-sim1:8085/a1-p/policytypes/11/policies/3d2157af-6a8f-4a7c-810f-38c2f824bf12\",
-          \"body\": \"{
-            \"blocking_rate\":20,
-            \"enforce\":true,
-            \"trigger_threshold\":10,
-            \"window_length\":10
-          }\"
+  Result:
+    200 ::
+
+      {
+        "output": {
+          "http-status": 200
         }
-      }"
-
-    Result:
-      200 ::
-
-        {
-          "output": {
-            "http-status": 200
-          }
-        }
+      }
 
 Get Policy
 ~~~~~~~~~~
@@ -197,64 +189,60 @@ Get Policy
 POST
 ++++
 
-  Gets a policy instance.
+Gets a policy instance.
 
-   **URL path:**
-    /restconf/operations/A1-ADAPTER-API:getA1Policy
+**URL path:**
+  /restconf/operations/A1-ADAPTER-API:getA1Policy
 
-  **Parameters:**
+**Parameters:**
+  None.
 
-    None.
+**Body:** (*Required*)
+    A JSON. ::
 
-  **Body:** (*Required*)
-
-      A JSON. ::
-
-        {
-          "input": {
-            "near-rt-ric-url": "<url-to-near-rt-ric-to-get-policy>"
-          }
+      {
+        "input": {
+          "near-rt-ric-url": "<url-to-near-rt-ric-to-get-policy>"
         }
+      }
 
-  **Responses:**
+**Responses:**
+  200:
+    A JSON where the body tag contains the JSON object of the policy. ::
 
-    200:
-      A JSON where the body tag contains the JSON object of the policy. ::
-
-        {
-          "output": {
-            "http-status": "integer",
-            "body": "{
-              <policy>
-            }"
-          }
+      {
+        "output": {
+          "http-status": "integer",
+          "body": "{
+            <policy>
+          }"
         }
+      }
 
-  **Examples:**
+**Examples:**
+  **Call**: ::
 
-    Call: ::
+    curl -X POST "http://localhost:8282/restconf/operations/A1-ADAPTER-API:getA1Policy"
+    -H "Content-Type: application/json" -d '{
+      "input": {
+        "near-rt-ric-url": "http://nearRtRic-sim1:8085/a1-p/policytypes/11/policies/3d2157af-6a8f-4a7c-810f-38c2f824bf12"
+      }
+    }'
 
-      curl -X POST "http://localhost:8282/restconf/operations/A1-ADAPTER-API:getA1Policy"
-      -H "Content-Type: application/json" -d "{
-        \"input\": {
-          \"near-rt-ric-url\": \"http://nearRtRic-sim1:8085/a1-p/policytypes/11/policies/3d2157af-6a8f-4a7c-810f-38c2f824bf12\"
+  Result:
+    200 ::
+
+      {
+        "output": {
+          "http-status": 200,
+          "body": "{
+            \"blocking_rate\": 20,
+            \"enforce\": true,
+            \"trigger_threshold\": 10,
+            \"window_length\": 10
+          }"
         }
-      }"
-
-    Result:
-      200 ::
-
-        {
-          "output": {
-            "http-status": 200,
-            "body": "{
-              \"blocking_rate\": 20,
-              \"enforce\": true,
-              \"trigger_threshold\": 10,
-              \"window_length\": 10
-            }"
-          }
-        }
+      }
 
 Delete Policy
 ~~~~~~~~~~~~~
@@ -262,55 +250,51 @@ Delete Policy
 POST
 ++++
 
-  Deletes a policy instance.
+Deletes a policy instance.
 
-   **URL path:**
-    /restconf/operations/A1-ADAPTER-API:deleteA1Policy
+**URL path:**
+  /restconf/operations/A1-ADAPTER-API:deleteA1Policy
 
-  **Parameters:**
+**Parameters:**
+  None.
 
-    None.
+**Body:** (*Required*)
+    A JSON. ::
 
-  **Body:** (*Required*)
-
-      A JSON. ::
-
-        {
-          "input": {
-            "near-rt-ric-url": "<url-to-near-rt-ric-to-delete-policy>"
-          }
+      {
+        "input": {
+          "near-rt-ric-url": "<url-to-near-rt-ric-to-delete-policy>"
         }
+      }
 
-  **Responses:**
+**Responses:**
+  200:
+    A JSON with the response. ::
 
-    200:
-      A JSON with the response. ::
-
-        {
-          "output": {
-            "http-status": "integer"
-          }
+      {
+        "output": {
+          "http-status": "integer"
         }
+      }
 
-  **Examples:**
+**Examples:**
+  **Call**: ::
 
-    Call: ::
+    curl -X POST "http://localhost:8282/restconf/operations/A1-ADAPTER-API:deleteA1Policy"
+    -H "Content-Type: application/json" -d '{
+      "input": {
+        "near-rt-ric-url": "http://nearRtRic-sim1:8085/a1-p/policytypes/11/policies/3d2157af-6a8f-4a7c-810f-38c2f824bf12"
+      }
+    }'
 
-      curl -X POST "http://localhost:8282/restconf/operations/A1-ADAPTER-API:deleteA1Policy"
-      -H "Content-Type: application/json" -d "{
-        \"input\": {
-          \"near-rt-ric-url\": \"http://nearRtRic-sim1:8085/a1-p/policytypes/11/policies/3d2157af-6a8f-4a7c-810f-38c2f824bf12\"
+  Result:
+    200 ::
+
+      {
+        "output": {
+          "http-status": 202
         }
-      }"
-
-    Result:
-      200 ::
-
-        {
-          "output": {
-            "http-status": 202
-          }
-        }
+      }
 
 Get Policy Status
 ~~~~~~~~~~~~~~~~~
@@ -318,60 +302,56 @@ Get Policy Status
 POST
 ++++
 
-  Get the status of a policy instance.
+Get the status of a policy instance.
 
-   **URL path:**
-    /restconf/operations/A1-ADAPTER-API:getA1PolicyStatus
+**URL path:**
+  /restconf/operations/A1-ADAPTER-API:getA1PolicyStatus
 
-  **Parameters:**
+**Parameters:**
+  None.
 
-    None.
+**Body:** (*Required*)
+    A JSON. ::
 
-  **Body:** (*Required*)
-
-      A JSON. ::
-
-        {
-          "input": {
-            "near-rt-ric-url": "<url-to-near-rt-ric-to-get-policy-status>"
-          }
+      {
+        "input": {
+          "near-rt-ric-url": "<url-to-near-rt-ric-to-get-policy-status>"
         }
+      }
 
-  **Responses:**
+**Responses:**
+  200:
+    A JSON where the body tag contains the JSON object with the policy status according to the API version used. ::
 
-    200:
-      A JSON where the body tag contains the JSON object with the policy status according to the API version used. ::
-
-        {
-          "output": {
-            "http-status": "integer",
-            "body": "{
-              <policy-status-object>
-            }"
-          }
+      {
+        "output": {
+          "http-status": "integer",
+          "body": "{
+            <policy-status-object>
+          }"
         }
+      }
 
-  **Examples:**
+**Examples:**
+  **Call**: ::
 
-    Call: ::
+    curl -X POST "http://localhost:8282/restconf/operations/A1-ADAPTER-API:getA1PolicyStatus"
+    -H "Content-Type: application/json" -d '{
+      "input": {
+        "near-rt-ric-url": "http://nearRtRic-sim1:8085/a1-p/policytypes/11/policies/3d2157af-6a8f-4a7c-810f-38c2f824bf12/status"
+      }
+    }'
 
-      curl -X POST "http://localhost:8282/restconf/operations/A1-ADAPTER-API:getA1PolicyStatus"
-      -H "Content-Type: application/json" -d "{
-        \"input\": {
-          \"near-rt-ric-url\": \"http://nearRtRic-sim1:8085/a1-p/policytypes/11/policies/3d2157af-6a8f-4a7c-810f-38c2f824bf12/status\"
+  Result:
+    200 ::
+
+      {
+        "output": {
+          "http-status": 200,
+          "body": "{
+            \"instance_status\": \"IN EFFECT\",
+            \"has_been_deleted\": \"true\",
+            \"created_at\": \"Wed, 01 Apr 2020 07:45:45 GMT\"
+          }"
         }
-      }"
-
-    Result:
-      200 ::
-
-        {
-          "output": {
-            "http-status": 200,
-            "body": "{
-              "instance_status": "IN EFFECT",
-              "has_been_deleted": "true",
-              "created_at": "Wed, 01 Apr 2020 07:45:45 GMT"
-            }"
-          }
-        }
+      }
