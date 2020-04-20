@@ -16,6 +16,24 @@
       "revId": "77196be1f7c31f3e6dddaf9abacf8336d93ad4df",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "353e168c_4564e70b",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/tasks/RicSupervisionTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-04-20T07:29:19Z",
+      "side": 1,
+      "message": "Done, I updated the ApplicationTest synch test which test that the whole sequence works (including the synch).",
+      "parentUuid": "f4c6573a_2909a2b3",
+      "revId": "77196be1f7c31f3e6dddaf9abacf8336d93ad4df",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
