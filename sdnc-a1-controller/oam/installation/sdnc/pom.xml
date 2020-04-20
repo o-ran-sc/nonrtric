@@ -26,6 +26,11 @@
           		<name>onap-releases</name>
           		<url>https://nexus.onap.org/content/repositories/releases/</url>
     		</repository>
+		<repository>
+      			<id>onap-snapshots</id>
+          		<name>onap-snapshots</name>
+          		<url>https://nexus.onap.org/content/repositories/snapshots/</url>
+    		</repository>
   	</repositories>
 
     <parent>
@@ -76,27 +81,12 @@
             <classifier>repo</classifier>
             <type>zip</type>
         </dependency>
-        <dependency>
-            <groupId>org.onap.ccsdk.features.sdnr.northbound</groupId>
-            <artifactId>oofpcipoc-installer</artifactId>
-            <version>${ccsdk.features.version}</version>
-            <classifier>repo</classifier>
+	<dependency>
+	    <groupId>${project.groupId}</groupId>
+            <artifactId>platform-logic-installer</artifactId>
+            <version>${project.version}</version>
             <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.onap.ccsdk.features.sdnr.northbound</groupId>
-            <artifactId>sdnr-northbound-features-installer</artifactId>
-            <version>${ccsdk.features.version}</version>
-            <classifier>repo</classifier>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.onap.ccsdk.features.sdnr.wt</groupId>
-            <artifactId>sdnr-wt-feature-aggregator-installer</artifactId>
-            <version>${ccsdk.features.version}</version>
-            <classifier>repo</classifier>
-            <type>zip</type>
-        </dependency>
+	</dependency>
     </dependencies>
 
     <build>
@@ -335,6 +325,14 @@
                         </configuration>
                     </execution>
                 </executions>
+		<dependencies>
+                    <dependency>
+                        <groupId>org.onap.sdnc.oam</groupId>
+                        <artifactId>platform-logic-installer</artifactId>
+                        <version>1.6.2</version>
+                        <type>pom</type>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <artifactId>exec-maven-plugin</artifactId>
