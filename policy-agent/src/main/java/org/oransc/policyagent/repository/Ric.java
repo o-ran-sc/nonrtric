@@ -152,6 +152,11 @@ public class Ric {
         /**
          * The agent is synchronizing the view of the Ric.
          */
-        SYNCHRONIZING
+        SYNCHRONIZING,
+
+        /**
+         * A consistency check between the agent and the Ric is done
+         */
+        CONSISTENCY_CHECK
     }
 }
