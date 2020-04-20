@@ -15,16 +15,34 @@
 #  ============LICENSE_END=================================================
 #
 
-#server = true
-#bootstrap = true
-#client_addr = "0.0.0.0"
+version: '3'
 
-service  {
-  # Name for CBS in consul, env var CONFIG_BINDING_SERVICE
-  # should be passed to Policy Agent app with this value
-  Name = "config-binding-service"
-  # Host name where CBS is running
-  Address = "config-binding-service"
-  # Port number where CBS is running
-  Port = 10000
-}
+networks:
+  default:
+    external:
+      name: ${DOCKER_SIM_NWNAME}
+
+services:
+
+  consul-server:
+    networks:
+      - default
+    container_name: ${CONSUL_APP_NAME}
+    image: ${CONSUL_IMAGE}
+    ports:
+      - ${CONSUL_EXTERNAL_PORT}:${CONSUL_INTERNAL_PORT}
+    volumes:
+      - ./consul/:/consul/config
+
+  config-binding-service:
+    networks:
+      - default
+    container_name: ${CBS_APP_NAME}
+    image: ${CBS_IMAGE}
+    ports:
+      - ${CBS_EXTERNAL_PORT}:${CBS_INTERNAL_PORT}
+    environment:
+      - CONSUL_HOST=${CONSUL_HOST}
+    depends_on:
+      - ${CONSUL_HOST}
+

@@ -14,17 +14,19 @@
 #  limitations under the License.
 #  ============LICENSE_END=================================================
 #
+version: '3.0'
+networks:
+  default:
+    external:
+      name: nonrtric-docker-net
+services:
+  control-panel:
+    image: ${CONTROL_PANEL_IMAGE}
+    container_name: ${CONTROL_PANEL_APP_NAME}
+    networks:
+      - default
+    ports:
+    - ${CONTROL_PANEL_EXTERNAL_PORT}:${CONTROL_PANEL_INTERNAL_PORT}
 
-#server = true
-#bootstrap = true
-#client_addr = "0.0.0.0"
 
-service  {
-  # Name for CBS in consul, env var CONFIG_BINDING_SERVICE
-  # should be passed to Policy Agent app with this value
-  Name = "config-binding-service"
-  # Host name where CBS is running
-  Address = "config-binding-service"
-  # Port number where CBS is running
-  Port = 10000
-}
+
