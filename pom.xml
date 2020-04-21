@@ -35,7 +35,7 @@
     <modules>
         <module>policy-agent</module>
         <module>sdnc-a1-controller</module>
-        <module>near-rt-ric-simulator</module>
+        <module>test</module>
     </modules>
     <build>
         <plugins>
