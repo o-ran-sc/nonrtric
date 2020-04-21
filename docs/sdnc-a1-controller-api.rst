@@ -59,7 +59,7 @@ Gets a policy type.
 **Examples:**
   **Call**: ::
 
-    curl -X POST "http://localhost:8282/restconf/operations/A1-ADAPTER-API:getA1PolicyType"
+    curl -X POST "http://admin:Kp8bJ4U@localhost:8282/restconf/operations/A1-ADAPTER-API:getA1PolicyType"
     -H "Content-Type: application/json" -d '{
       "input": {
         "near-rt-ric-url": "http://nearRtRic-sim1:8085/a1-p/policytypes/11"
@@ -144,7 +144,7 @@ Creates or updates a policy instance.
       {
         "input": {
           "near-rt-ric-url": "<url-to-near-rt-ric-to-put-policy>",
-          "body": "object"
+          "body": "<policy-as-json-string>"
         }
       }
 
@@ -159,17 +159,40 @@ Creates or updates a policy instance.
       }
 
 **Examples:**
+
+Create a policy in a Near |nbh| RT |nbsp| RIC that is using the OSC 2.1.0 version.
+ 
   **Call**: ::
 
-    curl -X POST "http://localhost:8282/restconf/operations/A1-ADAPTER-API:getA1PolicyType"
+    curl -X POST "http://admin:Kp8bJ4U@localhost:8282/restconf/operations/A1-ADAPTER-API:putA1Policy"
     -H "Content-Type: application/json" -d '{
       "input": {
-        "near-rt-ric-url": "http://nearRtRic-sim1:8085/a1-p/policytypes/11/policies/3d2157af-6a8f-4a7c-810f-38c2f824bf12",
+        "near-rt-ric-url": "http://nearRtRic-sim1:8085/a1-p/policytypes/11/policies/5000",
         "body": "{
           "blocking_rate":20,
           "enforce":true,
           "trigger_threshold":10,
           "window_length":10
+        }"
+      }
+    }'
+
+Create a policy in a Near |nbh| RT |nbsp| RIC that is using the STD 1.1.3 version.
+ 
+  **Call**: ::
+
+    curl -X POST http://admin:Kp8bJ4U@localhost:8282/restconf/operations/A1-ADAPTER-API:putA1Policy 
+    -H Content-Type:application/json -d '{
+      "input": {
+        "near-rt-ric-url": "http://ricsim_g2_1:8085/A1-P/v1/policies/5000",
+        "body": "{
+          "scope": {
+            "ueId": "ue5000",
+            "qosId": "qos5000"
+          },
+          "qosObjective": {
+            "priorityLevel": 5000
+          }
         }"
       }
     }'
@@ -214,18 +237,70 @@ Gets a policy instance.
         "output": {
           "http-status": "integer",
           "body": "{
-            <policy>
+            <result>
           }"
         }
       }
 
 **Examples:**
+
+Get **all** policy IDs from a Near |nbh| RT |nbsp| RIC that is using the OSC 2.1.0 version.
+
   **Call**: ::
 
-    curl -X POST "http://localhost:8282/restconf/operations/A1-ADAPTER-API:getA1Policy"
+    curl -X POST http://admin:Kp8bJ4U@localhost:8282/restconf/operations/A1-ADAPTER-API:getA1Policy
+    -H Content-Type:application/json -d '{
+      "input": {
+        "near-rt-ric-url":"http://ricsim_g1_1:8085/a1-p/policytypes/1/policies"
+      }
+    }'
+
+Get **all** policy IDs from a Near |nbh| RT |nbsp| RIC that is using the STD 1.1.3 version. 
+
+  **Call**: ::
+
+    curl -X POST http://admin:Kp8bJ4U@localhost:8282/restconf/operations/A1-ADAPTER-API:getA1Policy
+    -H Content-Type:application/json -d '{
+      "input": {
+        "near-rt-ric-url":"http://ricsim_g2_1:8085/A1-P/v1/policies"
+      }
+    }'
+
+  Result:
+    200 ::
+
+      {
+        "output": {
+          "http-status":200,
+          "body":"[
+            \"5000\",
+              .
+              .
+              .
+            \"6000\"
+          ]"
+        }
+      }
+
+Get **a specific** policy from a Near |nbh| RT |nbsp| RIC that is using the OSC 2.1.0 version.
+
+  **Call**: ::
+
+    curl -X POST "http://admin:Kp8bJ4U@localhost:8282/restconf/operations/A1-ADAPTER-API:getA1Policy"
     -H "Content-Type: application/json" -d '{
       "input": {
-        "near-rt-ric-url": "http://nearRtRic-sim1:8085/a1-p/policytypes/11/policies/3d2157af-6a8f-4a7c-810f-38c2f824bf12"
+        "near-rt-ric-url": "http://nearRtRic-sim1:8085/a1-p/policytypes/11/policies/5000"
+      }
+    }'
+
+Get **a specific** policy from a Near |nbh| RT |nbsp| RIC that is using the STD 1.1.3 version.
+
+  **Call**: ::
+
+    curl -X POST http://admin:Kp8bJ4U@localhost:8282/restconf/operations/A1-ADAPTER-API:getA1PolicyType 
+    -H Content-Type:application/json -d '{
+      "input": {
+        "near-rt-ric-url":"http://ricsim_g2_1:8085/A1-P/v1/policies/5000"
       }
     }'
 
@@ -278,12 +353,26 @@ Deletes a policy instance.
       }
 
 **Examples:**
+
+Delete a policy from a Near |nbh| RT |nbsp| RIC that is using the OSC 2.1.0 version.
+
   **Call**: ::
 
     curl -X POST "http://localhost:8282/restconf/operations/A1-ADAPTER-API:deleteA1Policy"
     -H "Content-Type: application/json" -d '{
       "input": {
-        "near-rt-ric-url": "http://nearRtRic-sim1:8085/a1-p/policytypes/11/policies/3d2157af-6a8f-4a7c-810f-38c2f824bf12"
+        "near-rt-ric-url": "http://nearRtRic-sim1:8085/a1-p/policytypes/11/policies/5000"
+      }
+    }'
+
+Delete a policy from a Near |nbh| RT |nbsp| RIC that is using the STD 1.1.3 version.
+
+  **Call**: ::
+
+    curl -X POST "http://localhost:8282/restconf/operations/A1-ADAPTER-API:deleteA1Policy"
+    -H "Content-Type: application/json" -d '{
+      "input": {
+        "near-rt-ric-url": "http://ricsim_g2_1:8085/A1-P/v1/policies/5000"
       }
     }'
 
@@ -333,12 +422,15 @@ Get the status of a policy instance.
       }
 
 **Examples:**
+
+Get the policy status for a specific policy from a Near |nbh| RT |nbsp| RIC that is using the OSC 2.1.0 version.
+
   **Call**: ::
 
-    curl -X POST "http://localhost:8282/restconf/operations/A1-ADAPTER-API:getA1PolicyStatus"
+    curl -X POST "http://admin:Kp8bJ4U@localhost:8282/restconf/operations/A1-ADAPTER-API:getA1PolicyStatus"
     -H "Content-Type: application/json" -d '{
       "input": {
-        "near-rt-ric-url": "http://nearRtRic-sim1:8085/a1-p/policytypes/11/policies/3d2157af-6a8f-4a7c-810f-38c2f824bf12/status"
+        "near-rt-ric-url": "http://nearRtRic-sim1:8085/a1-p/policytypes/11/policies/5000/status"
       }
     }'
 
@@ -352,6 +444,29 @@ Get the status of a policy instance.
             \"instance_status\": \"IN EFFECT\",
             \"has_been_deleted\": \"true\",
             \"created_at\": \"Wed, 01 Apr 2020 07:45:45 GMT\"
+          }"
+        }
+      }
+
+Get the policy status for a specific policy from a Near |nbh| RT |nbsp| RIC that is using the STD 1.1.3 version.
+
+  **Call**: ::
+
+    curl -X POST "http://admin:Kp8bJ4U@localhost:8282/restconf/operations/A1-ADAPTER-API:getA1PolicyStatus"
+    -H "Content-Type: application/json" -d '{
+      "input": {
+        "near-rt-ric-url": "http://ricsim_g2_1:8085/A1-P/v1/policies/5000/status"
+      }
+    }'
+
+  Result:
+    200 ::
+
+      {
+        "output": {
+          "http-status": 200,
+          "body": "{
+            \"enforceStatus\": \"UNDEFINED\"
           }"
         }
       }
