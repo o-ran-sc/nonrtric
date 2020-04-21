@@ -16,6 +16,24 @@
       "revId": "3d42927a1b8ec31a12b050258bfb3afb8b387c23",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bac8da2e_5878c091",
+        "filename": "test/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000211
+      },
+      "writtenOn": "2020-04-21T11:17:53Z",
+      "side": 1,
+      "message": "I think it is not needed. And it needs not to be a springboot project because no java code lies in this repo any more.",
+      "parentUuid": "0dd15121_8ca77a48",
+      "revId": "3d42927a1b8ec31a12b050258bfb3afb8b387c23",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
