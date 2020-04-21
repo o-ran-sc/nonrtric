@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "274587d6_0f574cdd",
+        "filename": "test/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-04-21T11:00:59Z",
+      "side": 1,
+      "message": "Is this pom file really needed? Is there anything here left that is built by maven?\n\nIf not needed, this file and the corresponding module in the parent pom should be removed.\n\nIf this is still needed, then the \"artifactId\" should be changed from \"nearric-simulator\" to something better.\n\nDoes this still need to ba a SpringBoot project?",
+      "revId": "08289cafcd79168e38104985d3eff4d8819cc1d5",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
