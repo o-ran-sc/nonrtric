@@ -481,7 +481,7 @@ Returns policy type schema definitions.
       }]
 
   **Call**: ::
-  
+
     curl -X GET "http://localhost:8081/policy_schemas?ric=nonexistent"
 
   Result:
