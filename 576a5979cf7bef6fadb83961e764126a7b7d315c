@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "7d3d2111_a5bf4f85",
+        "filename": "docs/sdnc-a1-controller-api.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-04-22T10:10:29Z",
+      "side": 1,
+      "message": "Oops ... this may be a bigger issue across lots of files ... I think this should be \"Copyright (C) 2020 Nordix Foundation.\" ... need to check this, but it may be a bigger issue than this review so not a blocker.",
+      "range": {
+        "startLine": 3,
+        "startChar": 3,
+        "endLine": 3,
+        "endChar": 28
+      },
+      "revId": "576a5979cf7bef6fadb83961e764126a7b7d315c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bef78f73_fa024846",
+        "filename": "docs/sdnc-a1-controller-api.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-04-22T10:10:29Z",
+      "side": 1,
+      "message": "In some places policy type \"11\" seems to be \"Example_QoETarget_1.0.0\" but in other places it is QoS or Windowlength policy type.\nCan you replace the \"11\"s with something like \"TestQoSPolicyType_1.0.0\" or  \"SampleWindowPolicy_1.0.1\"  or something that makes a little more sense. Whatever you think yourself. \n\nThanks.",
+      "range": {
+        "startLine": 176,
+        "startChar": 72,
+        "endLine": 176,
+        "endChar": 74
+      },
+      "revId": "576a5979cf7bef6fadb83961e764126a7b7d315c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "75870b99_7885285e",
         "filename": "docs/sdnc-a1-controller-api.rst",
         "patchSetId": 3
@@ -18,6 +64,29 @@
         "startChar": 2,
         "endLine": 206,
         "endChar": 9
+      },
+      "revId": "576a5979cf7bef6fadb83961e764126a7b7d315c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24cc8b7c_4e6abac7",
+        "filename": "docs/sdnc-a1-controller-api.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-04-22T10:10:29Z",
+      "side": 1,
+      "message": "maybe \"myPolicyType\" or something",
+      "range": {
+        "startLine": 260,
+        "startChar": 68,
+        "endLine": 260,
+        "endChar": 69
       },
       "revId": "576a5979cf7bef6fadb83961e764126a7b7d315c",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
