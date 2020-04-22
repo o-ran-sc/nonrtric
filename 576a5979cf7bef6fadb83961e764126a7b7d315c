@@ -25,6 +25,29 @@
     },
     {
       "key": {
+        "uuid": "84ca97cd_0fa7f90f",
+        "filename": "docs/sdnc-a1-controller-api.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-04-22T10:35:59Z",
+      "side": 1,
+      "message": "See comment below about policy type IDs ... might need to go back to 11 !",
+      "range": {
+        "startLine": 71,
+        "startChar": 72,
+        "endLine": 71,
+        "endChar": 91
+      },
+      "revId": "576a5979cf7bef6fadb83961e764126a7b7d315c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bef78f73_fa024846",
         "filename": "docs/sdnc-a1-controller-api.rst",
         "patchSetId": 3
@@ -36,6 +59,30 @@
       "writtenOn": "2020-04-22T10:10:29Z",
       "side": 1,
       "message": "In some places policy type \"11\" seems to be \"Example_QoETarget_1.0.0\" but in other places it is QoS or Windowlength policy type.\nCan you replace the \"11\"s with something like \"TestQoSPolicyType_1.0.0\" or  \"SampleWindowPolicy_1.0.1\"  or something that makes a little more sense. Whatever you think yourself. \n\nThanks.",
+      "range": {
+        "startLine": 176,
+        "startChar": 72,
+        "endLine": 176,
+        "endChar": 74
+      },
+      "revId": "576a5979cf7bef6fadb83961e764126a7b7d315c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97335580_7bb358ad",
+        "filename": "docs/sdnc-a1-controller-api.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-04-22T10:35:59Z",
+      "side": 1,
+      "message": "Doh ... PolicyType IDs are supposed to be integers! from https://gerrit.o-ran-sc.org/r/gitweb?p\u003dsim/a1-interface.git;a\u003dblob;f\u003dnear-rt-ric-simulator/api/OSC_2.1.0/openapi.yaml \n\nStill need to check the consistency of \"11\" but perhaps they need to stay as integers",
+      "parentUuid": "bef78f73_fa024846",
       "range": {
         "startLine": 176,
         "startChar": 72,
