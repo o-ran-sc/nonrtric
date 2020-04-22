@@ -126,7 +126,7 @@ __do_curl_to_agent() {
             file=" --data-binary "$payload
         fi
 		#urlencode the request url since it will be carried by send-request url
-		requestUrl=$(python -c "import urllib, sys; print urllib.quote(sys.argv[1])"  "$2")
+		requestUrl=$(python -c "from __future__ import print_function; import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))"  "$2")
         url=" "${ADAPTER}"/send-request?url="${requestUrl}"&operation="${oper}
         curlString="curl -X POST${timeout}${httpcode}${content}${url}${file}"
         echo " CMD: "$curlString >> $HTTPLOG
