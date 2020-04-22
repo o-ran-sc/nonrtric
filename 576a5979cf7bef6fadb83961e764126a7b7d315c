@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75870b99_7885285e",
+        "filename": "docs/sdnc-a1-controller-api.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-04-22T09:23:12Z",
+      "side": 1,
+      "message": "Maybe it\u0027s not so obvious that it is the result for a call from both apis.",
+      "range": {
+        "startLine": 206,
+        "startChar": 2,
+        "endLine": 206,
+        "endChar": 9
+      },
+      "revId": "576a5979cf7bef6fadb83961e764126a7b7d315c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
