@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6aad82dd_920cee43",
+        "filename": "sdnc-a1-controller/northbound/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-04-23T15:44:20Z",
+      "side": 1,
+      "message": "I think we need to rename at some stage ... e.g. sdnc-a1-northbound etc. \nWill look at this seperately, but keep an eye open for where similar changes may be helpful. \n\nThanks.",
+      "range": {
+        "startLine": 48,
+        "startChar": 3,
+        "endLine": 48,
+        "endChar": 29
+      },
+      "revId": "7cd728be699c77d53cb296ee186a1ef0151c9975",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
