@@ -20,14 +20,6 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-	<repositories>
-    		<repository>
-      			<id>onap-releases</id>
-          		<name>onap-releases</name>
-          		<url>https://nexus.onap.org/content/repositories/releases/</url>
-    		</repository>
-  	</repositories>
-
     <parent>
         <groupId>org.onap.ccsdk.parent</groupId>
         <artifactId>odlparent-lite</artifactId>
@@ -44,21 +36,16 @@
     <description>Creates SDN Controller Docker container</description>
 
     <properties>
-        <image.name>onap/sdnc-aaf-image</image.name>
         <standalone.image.name>o-ran-sc/nonrtric-a1-controller</standalone.image.name>
 	<standalone.image.version>1.7.4-SNAPSHOT</standalone.image.version>
         <sdnc.project.version>${project.version}</sdnc.project.version>
         <sdnc.build.timestamp>${maven.build.timestamp}</sdnc.build.timestamp>
         <sdnc.northbound.version>1.7.3-SNAPSHOT</sdnc.northbound.version>
         <ccsdk.docker.version>0.6.3</ccsdk.docker.version>
-        <ccsdk.features.version>0.6.3</ccsdk.features.version>
         <sdnc.keystore>org.onap.sdnc.p12</sdnc.keystore>
         <sdnc.keypass><![CDATA[ff^G9D]yf&r}Ktum@BJ0YB?N]]></sdnc.keypass>
         <sdnc.secureport>8443</sdnc.secureport>
-        <docker.buildArg.https_proxy>${https_proxy}</docker.buildArg.https_proxy>
         <docker.push.phase>deploy</docker.push.phase>
-        <docker.verbose>true</docker.verbose>
-        <maven.build.timestamp.format>yyyyMMdd'T'HHmmss'Z'</maven.build.timestamp.format>
     </properties>
 
     <dependencies>
@@ -76,32 +63,10 @@
             <classifier>repo</classifier>
             <type>zip</type>
         </dependency>
-        <dependency>
-            <groupId>org.onap.ccsdk.features.sdnr.northbound</groupId>
-            <artifactId>oofpcipoc-installer</artifactId>
-            <version>${ccsdk.features.version}</version>
-            <classifier>repo</classifier>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.onap.ccsdk.features.sdnr.northbound</groupId>
-            <artifactId>sdnr-northbound-features-installer</artifactId>
-            <version>${ccsdk.features.version}</version>
-            <classifier>repo</classifier>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.onap.ccsdk.features.sdnr.wt</groupId>
-            <artifactId>sdnr-wt-feature-aggregator-installer</artifactId>
-            <version>${ccsdk.features.version}</version>
-            <classifier>repo</classifier>
-            <type>zip</type>
-        </dependency>
     </dependencies>
 
     <build>
         <plugins>
-
 
             <plugin>
                 <groupId>org.codehaus.groovy.maven</groupId>
