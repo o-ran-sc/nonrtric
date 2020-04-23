@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebd8cc3c_14fabd75",
+        "filename": "policy-agent/config/application.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-04-23T16:24:23Z",
+      "side": 1,
+      "message": "pity to have clear text password here like that :-(",
+      "range": {
+        "startLine": 28,
+        "startChar": 18,
+        "endLine": 28,
+        "endChar": 32
+      },
+      "revId": "4ebf74691af13ecb46bb13b7ccd7241d637de676",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
