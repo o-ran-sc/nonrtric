@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "98a0b9a2_4c60611a",
+        "filename": "docs/policy-agent-api.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 1245,
+      "author": {
+        "id": 1000214
+      },
+      "writtenOn": "2020-04-23T07:57:52Z",
+      "side": 1,
+      "message": "I don\u0027t know if it should also be Examples since it\u0027s a different structure compared to the other chapters?",
+      "range": {
+        "startLine": 1245,
+        "startChar": 0,
+        "endLine": 1245,
+        "endChar": 7
+      },
+      "revId": "d64e33d4e0d1f519b295c8f1e09a3fcb414fdfbb",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
