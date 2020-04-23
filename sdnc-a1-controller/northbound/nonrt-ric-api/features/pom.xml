@@ -38,7 +38,5 @@
     <modules>
         <module>sdnc-nonrt-ric-api</module>
         <module>features-nonrt-ric-api</module>
-	<module>ccsdk-sli</module>
-	<module>ccsdk-dblib</module>
     </modules>
 </project>
