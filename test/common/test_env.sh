@@ -47,9 +47,20 @@ SDNC_A1_CONTROLLER_REMOTE_IMAGE="nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-a1-
 SDNC_A1_CONTROLLER_REMOTE_IMAGE_TAG="1.7.4"
 
 
-#SDNC DN remote image and tag
+#SDNC DB remote image and tag
 SDNC_DB_REMOTE_IMAGE="mysql/mysql-server"
 SDNC_DB_REMOTE_IMAGE_TAG="5.6"
+#No local image for DB, remote image always used
+
+
+# SDNC ONAP A1 Adapte remote image and tag
+SDNC_ONAP_A1_ADAPTER_REMOTE_IMAGE="nexus3.onap.org:10003/onap/sdnc-image"
+SDNC_ONAP_A1_ADAPTER_REMOTE_IMAGE_TAG="1.8-STAGING-latest"
+#No local image for the A1 adapter, remote image always used
+
+#ONAP A1 Adatper remote image and tag
+SDNC_ONAP_DB_REMOTE_IMAGE="mysql/mysql-server"
+SDNC_ONAP_DB_REMOTE_IMAGE_TAG="5.6"
 #No local image for DB, remote image always used
 
 
@@ -59,6 +70,9 @@ RIC_SIM_LOCAL_IMAGE_TAG="latest"
 # Near RT RIC Simulator remote image and tag
 RIC_SIM_REMOTE_IMAGE="nexus3.o-ran-sc.org:10004/o-ran-sc/a1-simulator"
 RIC_SIM_REMOTE_IMAGE_TAG="1.0.1"
+
+RIC_SIM_REMOTE_IMAGE="a1test"
+RIC_SIM_REMOTE_IMAGE_TAG="latest"
 
 
 #Consul remote image and tag
@@ -89,11 +103,17 @@ export DOCKER_SIM_NWNAME="nonrtric-docker-net"                  # Name of docker
 
 export POLICY_AGENT_EXTERNAL_PORT=8081                          # Policy Agent container external port (host -> container)
 export POLICY_AGENT_INTERNAL_PORT=8081                          # Policy Agent container internal port (container -> container)
+export POLICY_AGENT_EXTERNAL_SECURE_PORT=8433                   # Policy Agent container external secure port (host -> container)
+export POLICY_AGENT_INTERNAL_SECURE_PORT=8433                   # Policy Agent container internal secure port (container -> container)
+
 export POLICY_AGENT_APP_NAME="policy-agent"                     # Name for Policy Agent container
 POLICY_AGENT_LOGPATH="/var/log/policy-agent/application.log"    # Path the application log in the Policy Agent container
+export POLICY_AGENT_APP_NAME_ALIAS="policy-agent-container"     # Alias name, name used by the control panel
 
 export MR_EXTERNAL_PORT=3905                                    # MR stub container external port (host -> container)
 export MR_INTERNAL_PORT=3905                                    # MR stub container internal port (container -> container)
+export MR_EXTERNAL_SECURE_PORT=3906                             # MR stub container external secure port (host -> container)
+export MR_INTERNAL_SECURE_PORT=3906                             # MR stub container internal secure port (container -> container)
 export MR_APP_NAME="message-router"                             # Name for the MR
 
 export CR_EXTERNAL_PORT=8090                                    # Callback receiver container external port (host -> container)
@@ -114,7 +134,9 @@ export RIC_SIM_BASE="g"                                         # Base name of t
                                                                 # Note, a prefix is added to each container name by the .env file in the 'ric' dir
 RIC_SIM_PREFIX="ricsim"                                         # Prefix added to ric container name, added in the .env file in the 'ric' dir
 export RIC_SIM_INTERNAL_PORT=8085                               # RIC Simulator container internal port (container -> container).
-                                                                # (externl ports allocated by docker)
+                                                                # (external ports allocated by docker)
+export RIC_SIM_INTERNAL_SECURE_PORT=8185                        # RIC Simulator container internal secure port (container -> container).
+                                                                # (external ports allocated by docker)
 
 export SDNC_APP_NAME="a1-controller"                            # Name of the SNDC A1 Controller container
 export SDNC_EXTERNAL_PORT=8282                                  # SNDC A1 Controller container external port (host -> container)
@@ -123,13 +145,25 @@ export SDNC_DB_APP_NAME="sdnc-db"                               # Name of the SD
 SDNC_USER="admin"                                               # SDNC username
 SDNC_PWD="Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U"          # SNDC PWD
 SDNC_API_URL="/restconf/operations/A1-ADAPTER-API:"             # Base url path for SNDC API
+SDNC_KARAF_LOG="/opt/opendaylight/data/log/karaf.log"           # Path to karaf log
+
+export SDNC_ONAP_APP_NAME="a1-adapter"                          # Name of the ONAP A1 Adapter container
+export SDNC_ONAP_EXTERNAL_PORT=8282                             # ONAP A1 Adapter container external port (host -> container)
+export SDNC_ONAP_INTERNAL_PORT=8181                             # ONAP A1 Adapter container internal port (container -> container)
+export SDNC_ONAP_DB_APP_NAME="sdnc-onap-db"                     # Name of the ONAP A1 Adapter DB container
+SDNC_ONAP_USER="admin"                                          # ONAP A1 Adapter username
+SDNC_ONAP_PWD="Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U"     # ONAP A1 Adapter PWD
+SDNC_ONAP_API_URL="/restconf/operations/A1-ADAPTER-API:"        # Base url path for ONAP A1 Adapter API
+SDNC_ONAP_PROPERTIES_FILE="/opt/onap/ccsdk/data/properties/a1-adapter-api-dg.properties"
+SDNC_ONAP_KARAF_LOG="/opt/opendaylight/data/log/karaf.log"      # Path to karaf log
 
 export CONTROL_PANEL_APP_NAME="control-panel"                   # Name of the Control Panel container
 export CONTROL_PANEL_EXTERNAL_PORT=8080                         # Control Panel container external port (host -> container)
 export CONTROL_PANEL_INTERNAL_PORT=8080                         # Control Panel container external port (host -> container)
 CONTROL_PANEL_LOGPATH="/logs/nonrtric-controlpanel.log"         # Path the application log in the Control Panel container
 
-RESTBASE="http://localhost:"$POLICY_AGENT_EXTERNAL_PORT         # Base url to the R-APP interface
+RESTBASE="http://localhost:"$POLICY_AGENT_EXTERNAL_PORT         # Base url to the Agent NB REST interface
+RESTBASE_SECURE="https://localhost:"$POLICY_AGENT_EXTERNAL_SECURE_PORT # Base url to the secure Agent NB REST interface
 DMAAPBASE="http://localhost:"$MR_EXTERNAL_PORT                  # Base url to the Dmaap adapter
 ADAPTER=$RESTBASE                                               # Adapter holds the address the agent R-APP interface (REST OR DMAAP)
                                                                 # The values of this var is swiched between the two base url when needed

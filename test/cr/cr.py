@@ -31,7 +31,7 @@ app = Flask(__name__)
 msg_callbacks={}
 
 # Server info
-HOST_IP = "0.0.0.0"
+HOST_IP = "::"
 HOST_PORT = 8090
 
 # Metrics vars

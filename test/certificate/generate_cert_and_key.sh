@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #  ============LICENSE_START===============================================
 #  Copyright (C) 2020 Nordix Foundation. All rights reserved.
 #  ========================================================================
@@ -15,19 +17,5 @@
 #  ============LICENSE_END=================================================
 #
 
-version: '3.0'
-networks:
-  default:
-    external:
-      name: ${DOCKER_SIM_NWNAME}
-services:
-  message-router:
-    networks:
-      - default
-    container_name: ${MR_APP_NAME}
-    image: ${MRSTUB_IMAGE}
-    ports:
-      - ${MR_EXTERNAL_PORT}:${MR_INTERNAL_PORT}
-      - ${MR_EXTERNAL_SECURE_PORT}:${MR_INTERNAL_SECURE_PORT}
-    volumes:
-      - ${MR_CERT_MOUNT_DIR}:/usr/src/app/cert:ro
+# This will generate a self-signed certificate with password 'test'
+openssl req -x509 -passout pass:"test" -newkey rsa:2048 -keyout key.crt -out cert.crt -days 9999

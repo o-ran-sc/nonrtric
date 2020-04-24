@@ -23,9 +23,12 @@ services:
     image: ${POLICY_AGENT_IMAGE}
     container_name: ${POLICY_AGENT_APP_NAME}
     networks:
-      - default
+      default:
+        aliases:
+          - ${POLICY_AGENT_APP_NAME_ALIAS}
     ports:
     - ${POLICY_AGENT_EXTERNAL_PORT}:${POLICY_AGENT_INTERNAL_PORT}
+    - ${POLICY_AGENT_EXTERNAL_SECURE_PORT}:${POLICY_AGENT_INTERNAL_SECURE_PORT}
     environment:
       - CONSUL_HOST=${CONSUL_HOST}
       - CONSUL_PORT=${CONSUL_INTERNAL_PORT}

@@ -4,6 +4,32 @@ The mrstub is intended for function tests to simulate a message router.
 The mrstub exposes the read and write urls, used by the agent, as configured in consul.
 In addition, request messages can be fed to the mrstub and the response messages can be read by polling.
 
+# Ports and certificates
+
+The MR normally opens the port 3905 for http. If a certificate and a key are provided the simulator will also open port 3906 for https.
+The certificate and key shall be placed in the same dir and the dir shall be mounted to /usr/src/app/cert in the container.
+
+| Port     | Protocol |
+| -------- | ----- |
+| 3905     | http  |
+| 3906     | https |
+
+The dir cert contains a self-signed cert. Use the script generate_cert_and_key.sh to generate a new certificate and key. The password of the certificate must be set 'test'.
+The same urls are availables on both the http port 3905 and the https port 3906. If using curl and https, the flag -k shall be given to make curl ignore checking the certificate.
+
+### Message Router interface ###
+
+Messages from the MR can be read using this url using http(s) GET:<br>
+```events/A1-POLICY-AGENT-READ/users/policy-agent?timeout=<timeout>&limit=<limit>```<br>
+Both 'timeout' and 'limit' are optional.
+|Parameter|Description|
+|---------|--------------------|
+|limit|Optional parameter to limit the maximum number of messages to return. A value 0 < limit < 4096. If limit is not given, the limit is set to 4096.|
+|timeout|Optional parameter to control the max length of the poll. A value in milliseconds 0 < timeout < 60000. If timeout is not given, the timeout is 10 seconds. If not messages are available when the poll starts, the poll will end as soon as there is at least one message available|
+
+Messages to the MR can be written using this url http(s) POST/PUT:<br>
+```/events/A1-POLICY-AGENT-WRITE```<br>
+One or more messages can be written in the same operation.
 
 ### Control interface ###
 
@@ -35,13 +61,16 @@ There are a number of counters that can be read to monitor the message processin
 >Build image<br>
 ```docker build -t mrstub .```
 
->Start the image<br>
+>Start the image on http only<br>
 ```docker run -it -p 3905:3905 mrstub```
 
-The script ```mrstub-build-start.sh``` do the above two steps in one go. This starts the stub container in stand-alone mode for basic test.<br>If the mrstub should be executed manually with the agent, replace docker run with this command to connect to the docker network with the correct service name (--name shall be the same as configured in consul for the read and write streams).
+>Start the image on http and https<br>
+```docker run -it -p 3905:3905 -p 3906:3906 -v "/PATH_TO_CERT/cert:/usr/src/app/cert" mrstub```
+
+The script ```mrstub-build-start.sh``` do the build and docker run in one go. This starts the stub container in stand-alone mode for basic test.<br>If the mrstub should be executed manually with the agent, replace docker run with this command to connect to the docker network with the correct service name (--name shall be the same as configured in consul for the read and write streams).
 ```docker run -it -p 3905:3905 --network nonrtric-docker-net --name message-router mrstub```
 
 
 ### Basic test ###
 
-Basic test is made with the script ```basic_test.sh``` which tests all the available urls with a subset of the possible operations. Use the script ```mrstub-build-start.sh``` to start the mrstub in a container first.
+Basic test is made with the script ```basic_test.sh nonsecure|secure``` which tests all the available urls with a subset of the possible operations. Choose nonsecure for http and secure for https. Use the script ```mrstub-build-start.sh``` to start the mrstub in a container first.

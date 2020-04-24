@@ -53,7 +53,7 @@ start_control_panel
 
 start_policy_agent
 
-use_agent_rest
+use_agent_rest_http
 
 api_get_status 200
 

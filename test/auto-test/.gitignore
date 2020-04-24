@@ -8,3 +8,4 @@ logs
 .tmp.curl.json
 .consul*
 .ext.consul*
+.dockererr

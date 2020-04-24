@@ -25,9 +25,11 @@
 # All calls made to 'localhost:'<port>.
 # Expects env PORT set to intended port number
 # Expects env RESULT to contain the target response body.
+# Optional env HTTPX shall contain protocol 'http' or 'https'. If not set, 'http' is used. For 'https' all cert errors are ignored
 #   RESULT="*" means that returned payload is not checked, may container any text
-#   RESULT="<text>" menans that the returned payload has to match the <text> exactly
+#   RESULT="<text>" means that the returned payload has to match the <text> exactly
 #   RESULT="json:<returned-payload>" means that the returned json payload is compared with the expected result (order of json keys and index is irrelevant)
+#   RESULT="json-array-size:<integer-size>" means that the returned json payload shall contain the number of element given by the <integer-size>
 # Env BODY contains the response body after the call
 # Any error will stop script execution
 # How to use in a test script:  source this file into your bash test script to the make the function available.
@@ -39,7 +41,19 @@ do_curl() {
         echo "Exting test script....."
         exit 1
     fi
-    curlstr="curl -X "$1" -sw %{http_code} localhost:$PORT$2 -H accept:*/*"
+
+    if [ -z $HTTPX ]; then
+        if [ "$HTTPX" != "http" ] && [ "$HTTPX" != "https" ]; then
+            echo "Env var HTTPX shall be set to 'http' or 'https'"
+            echo "Exting test script....."
+            exit 1
+        fi
+        PROT="http"
+    else
+        PROT=$HTTPX
+    fi
+
+    curlstr="curl -X "$1" -skw %{http_code} ${PROT}://localhost:$PORT$2 -H accept:*/*"
     if [ $# -gt 3 ]; then
         curlstr=$curlstr" -H Content-Type:application/json --data-binary @"$4
     fi
@@ -67,6 +81,19 @@ do_curl() {
                 echo "  Body as expected"
             else
                 echo "  Expected json body: "$result
+                echo "Exiting....."
+                exit 1
+            fi
+        elif [[ "$RESULT" == "json-array-size:"* ]]; then
+            count=${RESULT:16:${#RESULT}}
+            #Find dir of the common dir
+            DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+            echo $body > .tmp.json
+            res=$(python ${DIR}/count_json_elements.py .tmp.json)
+            if [ $res -eq $count ]; then
+                echo "  Body (array size) as expected"
+            else
+                echo "  Expected json array size: "$count
                 echo "Exiting....."
                 exit 1
             fi

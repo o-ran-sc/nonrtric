@@ -17,7 +17,7 @@
 #  ============LICENSE_END=================================================
 #
 
-TC_ONELINE_DESCR="Resync 10000 policies using OSC interface over REST"
+TC_ONELINE_DESCR="Resync 10000 policies using OSC interface over REST+SNDC"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
@@ -38,9 +38,11 @@ start_mr
 
 start_cr
 
+start_sdnc
+
 start_consul_cbs
 
-prepare_consul_config      NOSDNC  ".consul_config.json"
+prepare_consul_config      SDNC  ".consul_config.json"
 consul_config_app                  ".consul_config.json"
 
 start_control_panel

@@ -58,7 +58,7 @@ sim_equal() {
 	if [ $# -eq 3 ] || [ $# -eq 4 ]; then
 		app=$1
 		port=$(__find_sim_port $app)
-		__var_test $app "$LOCALHOST$port/counter/" $2 "=" $3 $4
+		__var_test $app "$RIC_SIM_LOCALHOST$port/counter/" $2 "=" $3 $4
 		return 0
 	else
 		((RES_CONF_FAIL++))
@@ -79,7 +79,7 @@ sim_print() {
 	fi
 	app=$1
 	port=$(__find_sim_port $app)
-	echo -e $BOLD"INFO(${BASH_LINENO[0]}): $app, $2 = $(__do_curl $LOCALHOST$port/counter/$2)"$EBOLD
+	echo -e $BOLD"INFO(${BASH_LINENO[0]}): $app, $2 = $(__do_curl $RIC_SIM_LOCALHOST$port/counter/$2)"$EBOLD
 }
 
 # Simulator API: Put a policy type in a ric
@@ -95,7 +95,7 @@ sim_put_policy_type() {
 	app=$2
 	res=$(__find_sim_port $app)
 
-    curlString="curl -X PUT -sw %{http_code} $LOCALHOST"$res"/policytype?id="$3" -H Content-Type:application/json --data-binary @"$4
+    curlString="curl -X PUT -skw %{http_code} $RIC_SIM_LOCALHOST"$res"/policytype?id="$3" -H Content-Type:application/json --data-binary @"$4
 
 	__execute_curl_to_sim $1 "$curlString" $4
 	return $?
@@ -114,7 +114,7 @@ sim_delete_policy_type() {
 	app=$2
 	res=$(__find_sim_port $app)
 
-    curlString="curl -X DELETE -sw %{http_code} $LOCALHOST"$res"/policytype?id="$3
+    curlString="curl -X DELETE -skw %{http_code} $RIC_SIM_LOCALHOST"$res"/policytype?id="$3
 
     __execute_curl_to_sim $1 "$curlString"
 	return $?
@@ -133,7 +133,7 @@ sim_post_delete_instances() {
 	app=$2
 	res=$(__find_sim_port $app)
 
-    curlString="curl -X POST -sw %{http_code} $LOCALHOST"$res"/deleteinstances"
+    curlString="curl -X POST -skw %{http_code} $RIC_SIM_LOCALHOST"$res"/deleteinstances"
 
     __execute_curl_to_sim $1 "$curlString"
 	return $?
@@ -152,7 +152,7 @@ sim_post_delete_all() {
 	app=$2
 	res=$(__find_sim_port $app)
 
-    curlString="curl -X POST -sw %{http_code} $LOCALHOST"$res"/deleteall"
+    curlString="curl -X POST -skw %{http_code} $RIC_SIM_LOCALHOST"$res"/deleteall"
 
     __execute_curl_to_sim $1 "$curlString"
 	return $?
@@ -171,7 +171,7 @@ sim_post_forcedresponse() {
 	app=$2
 	res=$(__find_sim_port $app)
 
-    curlString="curl -X POST -sw %{http_code} $LOCALHOST"$res"/forceresponse"
+    curlString="curl -X POST -skw %{http_code} $RIC_SIM_LOCALHOST"$res"/forceresponse"
 	if [ $# -eq 3 ]; then
 		curlString=$curlString"?code="$3
 	fi
@@ -193,7 +193,7 @@ sim_post_forcedelay() {
 	app=$2
 	res=$(__find_sim_port $app)
 
-    curlString="curl -X POST -sw %{http_code} $LOCALHOST$res/delay"
+    curlString="curl -X POST -skw %{http_code} $RIC_SIM_LOCALHOST$res/delay"
 	if [ $# -eq 3 ]; then
 		curlString=$curlString"?delay="$3
 	fi
