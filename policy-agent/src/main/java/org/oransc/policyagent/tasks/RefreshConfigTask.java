@@ -24,7 +24,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapterFactory;
 
 import java.io.BufferedInputStream;
@@ -109,9 +108,8 @@ public class RefreshConfigTask {
         logger.debug("Starting refreshConfigTask");
         stop();
         refreshTask = createRefreshTask() //
-            .subscribe(
-                notUsed -> logger.debug("Refreshed configuration data"), throwable -> logger
-                    .error("Configuration refresh terminated due to exception {}", throwable.getMessage()),
+            .subscribe(notUsed -> logger.debug("Refreshed configuration data"),
+                throwable -> logger.error("Configuration refresh terminated due to exception {}", throwable.toString()),
                 () -> logger.error("Configuration refresh terminated"));
     }
 
@@ -128,7 +126,7 @@ public class RefreshConfigTask {
             .flatMap(notUsed -> loadConfigurationFromFile()) //
             .onErrorResume(this::ignoreError) //
             .doOnNext(json -> logger.debug("loadFromFile succeeded")) //
-            .doOnTerminate(() -> logger.error("loadFromFile Terminate"));
+            .doOnTerminate(() -> logger.info("loadFromFile Terminate"));
 
         Flux<JsonObject> loadFromConsul = getEnvironment(systemEnvironment) //
             .flatMap(this::createCbsClient) //
@@ -136,14 +134,18 @@ public class RefreshConfigTask {
             .onErrorResume(this::ignoreError) //
             .doOnNext(json -> logger.debug("loadFromConsul succeeded")) //
             .doOnNext(json -> this.isConsulUsed = true) //
-            .doOnTerminate(() -> logger.error("loadFromConsul Terminated"));
+            .doOnTerminate(() -> logger.info("loadFromConsul Terminated"));
 
         return Flux.merge(loadFromFile, loadFromConsul) //
             .flatMap(this::parseConfiguration) //
             .flatMap(this::updateConfig) //
             .doOnNext(this::handleUpdatedRicConfig) //
             .flatMap(configUpdate -> Flux.just(configUpdate.getType())) //
-            .doOnTerminate(() -> logger.error("Configuration refresh task is terminated"));
+            .doOnTerminate(() -> handleTerminate("Configuration refresh task is terminated"));
+    }
+
+    private void handleTerminate(String info) {
+        logger.error(info);
     }
 
     Mono<EnvProperties> getEnvironment(Properties systemEnvironment) {
@@ -171,8 +173,9 @@ public class RefreshConfigTask {
             ApplicationConfigParser parser = new ApplicationConfigParser();
             return Mono.just(parser.parse(jsonObject));
         } catch (ServiceException e) {
-            logger.error("Could not parse configuration {}", e.toString(), e);
-            return Mono.error(e);
+            String str = e.toString();
+            logger.error("Could not parse configuration {}", str);
+            return Mono.empty();
         }
     }
 
@@ -232,8 +235,8 @@ public class RefreshConfigTask {
             appParser.parse(rootObject);
             logger.debug("Local configuration file loaded: {}", filepath);
             return Flux.just(rootObject);
-        } catch (JsonSyntaxException | ServiceException | IOException e) {
-            logger.debug("Local configuration file not loaded: {}", filepath, e);
+        } catch (Exception e) {
+            logger.error("Local configuration file not loaded: {}, {}", filepath, e.getMessage());
             return Flux.empty();
         }
     }
