@@ -89,6 +89,9 @@ export DOCKER_SIM_NWNAME="nonrtric-docker-net"                  # Name of docker
 
 export POLICY_AGENT_EXTERNAL_PORT=8081                          # Policy Agent container external port (host -> container)
 export POLICY_AGENT_INTERNAL_PORT=8081                          # Policy Agent container internal port (container -> container)
+export POLICY_AGENT_EXTERNAL_SECURE_PORT=8433                   # Policy Agent container external secure port (host -> container)
+export POLICY_AGENT_INTERNAL_SECURE_PORT=8433                   # Policy Agent container internal secure port (container -> container)
+
 export POLICY_AGENT_APP_NAME="policy-agent"                     # Name for Policy Agent container
 POLICY_AGENT_LOGPATH="/var/log/policy-agent/application.log"    # Path the application log in the Policy Agent container
 
@@ -114,7 +117,9 @@ export RIC_SIM_BASE="g"                                         # Base name of t
                                                                 # Note, a prefix is added to each container name by the .env file in the 'ric' dir
 RIC_SIM_PREFIX="ricsim"                                         # Prefix added to ric container name, added in the .env file in the 'ric' dir
 export RIC_SIM_INTERNAL_PORT=8085                               # RIC Simulator container internal port (container -> container).
-                                                                # (externl ports allocated by docker)
+                                                                # (external ports allocated by docker)
+export RIC_SIM_INTERNAL_SECURE_PORT=8185                        # RIC Simulator container internal secure port (container -> container).
+                                                                # (external ports allocated by docker)
 
 export SDNC_APP_NAME="a1-controller"                            # Name of the SNDC A1 Controller container
 export SDNC_EXTERNAL_PORT=8282                                  # SNDC A1 Controller container external port (host -> container)

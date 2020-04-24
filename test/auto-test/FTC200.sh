@@ -48,8 +48,6 @@ consul_config_app                  ".consul_config.json"
 
 start_control_panel
 
-#start_sdnc
-
 start_policy_agent
 
 use_agent_rest

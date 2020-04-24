@@ -21,7 +21,7 @@ TC_ONELINE_DESCR="Basic use case, register rapp, create/update policy, delete po
 
 . ../common/testcase_common.sh $@
 . ../common/agent_api_functions.sh
-
+. ../common/ricsimulator_api_functions.sh
 
 #### TEST BEGIN ####
 
@@ -47,9 +47,9 @@ consul_config_app                  ".consul_config.json"
 
 start_control_panel
 
-#start_sdnc
-
 start_policy_agent
+
+set_agent_debug
 
 use_agent_rest
 
@@ -67,7 +67,7 @@ api_equal json:policy_types 2 60
 # Create policies
 use_agent_rest
 
-api_put_service 201 "rapp1" 3600 "$CR_PATH/callbacks/1"
+api_put_service 201 "rapp1" 3600 "$CR_PATH/1"
 
 api_put_policy 201 "rapp1" ricsim_g1_1 1 2000 testdata/OSC/pi1_template.json 1
 

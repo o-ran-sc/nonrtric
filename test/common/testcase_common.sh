@@ -20,6 +20,7 @@
 # This is a script that contains all the functions needed for auto test
 # Arg: local|remote|remote-remove [auto-clean]
 
+
 #Formatting for 'echo' cmd
 BOLD="\033[1m"
 EBOLD="\033[0m"
@@ -29,6 +30,18 @@ GREEN="\033[32m\033[1m"
 EGREEN="\033[0m"
 YELLOW="\033[33m\033[1m"
 EYELLOW="\033[0m"
+
+
+tmp=$(which python3)
+if [ $? -ne 0 ] || [ -z tmp ]; then
+	echo -e $RED"python3 is required to run the test environment, pls install"$ERED
+	exit 1
+fi
+tmp=$(which docker)
+if [ $? -ne 0 ] || [ -z tmp ]; then
+	echo -e $RED"docker is required to run the test environment, pls install"$ERED
+	exit 1
+fi
 
 # Just resetting any previous echo formatting...
 echo -ne $EBOLD$ERED$EGREEN
@@ -752,7 +765,7 @@ consul_config_app() {
 		targetJson=$(< $1)
 		targetJson="{\"config\":"$targetJson"}"
 		echo "TARGET JSON: $targetJson" >> $HTTPLOG
-		res=$(python ../common/compare_json.py "$targetJson" "$body")
+		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 		if [ $res -ne 0 ]; then
 			echo -e $RED" FAIL - policy json config read from consul/cbs is not equal to the intended json config...." $ERED
 			((RES_CONF_FAIL++))
@@ -1190,7 +1203,7 @@ __var_test() {
 				result="$(__do_curl $2$path)"
 				retcode=$?
 				echo "$result" > .tmp.curl.json
-				result=$(python ../common/count_json_elements.py ".tmp.curl.json")
+				result=$(python3 ../common/count_json_elements.py ".tmp.curl.json")
 			fi
 			duration=$((SECONDS-start))
 			echo -ne " Result=${result} after ${duration} seconds\033[0K\r"
@@ -1253,7 +1266,7 @@ __var_test() {
 			result="$(__do_curl $2$path)"
 			retcode=$?
 			echo "$result" > .tmp.curl.json
-			result=$(python ../common/count_json_elements.py ".tmp.curl.json")
+			result=$(python3 ../common/count_json_elements.py ".tmp.curl.json")
 		fi
 		if [ $retcode -ne 0 ]; then
 			((RES_FAIL++))
