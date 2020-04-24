@@ -119,9 +119,9 @@ public class ApplicationConfigParser {
             JsonObject ricAsJson = ricElem.getAsJsonObject();
             JsonElement controllerNameElement = ricAsJson.get(CONTROLLER);
             ImmutableRicConfig ricConfig = ImmutableRicConfig.builder() //
-                .name(ricAsJson.get("name").getAsString()) //
-                .baseUrl(ricAsJson.get("baseUrl").getAsString()) //
-                .managedElementIds(parseManagedElementIds(ricAsJson.get("managedElementIds").getAsJsonArray())) //
+                .name(get(ricAsJson, "name").getAsString()) //
+                .baseUrl(get(ricAsJson, "baseUrl").getAsString()) //
+                .managedElementIds(parseManagedElementIds(get(ricAsJson, "managedElementIds").getAsJsonArray())) //
                 .controllerName(controllerNameElement != null ? controllerNameElement.getAsString() : "") //
                 .build();
             result.add(ricConfig);
@@ -137,10 +137,10 @@ public class ApplicationConfigParser {
         for (JsonElement element : getAsJsonArray(config, CONTROLLER)) {
             JsonObject controllerAsJson = element.getAsJsonObject();
             ImmutableControllerConfig controllerConfig = ImmutableControllerConfig.builder() //
-                .name(controllerAsJson.get("name").getAsString()) //
-                .baseUrl(controllerAsJson.get("baseUrl").getAsString()) //
-                .password(controllerAsJson.get("password").getAsString()) //
-                .userName(controllerAsJson.get("userName").getAsString()) // )
+                .name(get(controllerAsJson, "name").getAsString()) //
+                .baseUrl(get(controllerAsJson, "baseUrl").getAsString()) //
+                .password(get(controllerAsJson, "password").getAsString()) //
+                .userName(get(controllerAsJson, "userName").getAsString()) // )
                 .build();
 
             if (result.put(controllerConfig.name(), controllerConfig) != null) {
@@ -164,7 +164,7 @@ public class ApplicationConfigParser {
     private static JsonElement get(JsonObject obj, String memberName) throws ServiceException {
         JsonElement elem = obj.get(memberName);
         if (elem == null) {
-            throw new ServiceException("Could not find member: " + memberName + " in: " + obj);
+            throw new ServiceException("Could not find member: '" + memberName + "' in: " + obj);
         }
         return elem;
     }
