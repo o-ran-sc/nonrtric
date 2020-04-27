@@ -21,7 +21,7 @@
  *
  */
 
-package org.onap.sdnc.oam
+package org.o_ran_sc.nonrtric.sdnc_a1.oam
 
 
 def versionArray;

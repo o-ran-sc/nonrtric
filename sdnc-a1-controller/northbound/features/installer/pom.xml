@@ -9,24 +9,24 @@
 		<relativePath/>
 	</parent>
 
-	<groupId>org.onap.sdnc.northbound</groupId>
-	<artifactId>sdnc-northbound-features-installer</artifactId>
+	<groupId>org.o-ran-sc.nonrtric.sdnc-a1.northbound</groupId>
+	<artifactId>sdnc-a1-northbound-features-installer</artifactId>
 	<version>1.7.3-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<name>sdnc-northbound :: features :: ${project.artifactId}</name>
+	<name>sdnc-a1-northbound :: features :: ${project.artifactId}</name>
 
 	<properties>
-		<application.name>sdnc-northbound-all</application.name>
+		<application.name>sdnc-a1-northbound-all</application.name>
 		<features.boot>${application.name}</features.boot>
-		<features.repositories>mvn:org.onap.sdnc.northbound/${features.boot}/${project.version}/xml/features</features.repositories>
+		<features.repositories>mvn:org.o-ran-sc.nonrtric.sdnc-a1.northbound/${features.boot}/${project.version}/xml/features</features.repositories>
 		<include.transitive.dependencies>false</include.transitive.dependencies>
 	</properties>
 
 	<dependencies>
 
 		<dependency>
-			<groupId>org.onap.sdnc.northbound</groupId>
+			<groupId>org.o-ran-sc.nonrtric.sdnc-a1.northbound</groupId>
 			<artifactId>${application.name}</artifactId>
 			<version>${project.version}</version>
 			<type>xml</type>
@@ -98,7 +98,7 @@
 							<useRepositoryLayout>true</useRepositoryLayout>
 							<addParentPoms>false</addParentPoms>
 							<copyPom>false</copyPom>
-                             <includeGroupIds>org.onap.sdnc.northbound</includeGroupIds>
+                             <includeGroupIds>org.o-ran-sc.nonrtric.sdnc-a1.northbound</includeGroupIds>
 							<scope>provided</scope>
 						</configuration>
 					</execution>

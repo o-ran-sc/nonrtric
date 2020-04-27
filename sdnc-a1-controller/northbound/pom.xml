@@ -36,8 +36,8 @@
 		<relativePath/>
 	</parent>
 
-	<groupId>org.onap.sdnc.northbound</groupId>
-	<artifactId>sdnc-northbound</artifactId>
+	<groupId>org.o-ran-sc.nonrtric.sdnc-a1.northbound</groupId>
+	<artifactId>sdnc-a1-northbound</artifactId>
 	<version>1.7.3-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
@@ -45,7 +45,7 @@
 		<sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
 	</properties>
 
-	<name>sdnc-northbound</name>
+	<name>sdnc-a1-northbound</name>
 	<description>The SDN-C Northbound APIs repo contains code for northbound API adaptors, typically MD-SAL applications</description>
 	<url>https://wiki.onap.org</url>
 	<organization>
@@ -56,27 +56,6 @@
 		<module>features</module>
 		<module>nonrt-ric-api</module>
 	</modules>
-
-	<scm>
-		<connection>scm:git:ssh://git@${onap.git.host}/sdnc-northbound.git</connection>
-
-		<developerConnection>scm:git:ssh://${onap.git.host}:${onap.git.port}/${onap.git.project}/sdnc-northbound.git</developerConnection>
-		<url>${onap.git.protocol}://${onap.git.host}/projects/${onap.git.project}/repos/sdnc-northbound/browse</url>
-	</scm>
-	<issueManagement>
-		<system>JIRA</system>
-		<url>https://jira.onap.org/</url>
-	</issueManagement>
-	<ciManagement>
-		<system>Jenkins</system>
-		<url>https://jenkins.onap.org/</url>
-	</ciManagement>
-	<distributionManagement>
-		<site>
-			<id>sdnc-javadoc</id>
-			<url>dav:https://${onap.nexus.host}:${onap.nexus.port}/repository/sdn-c-javadoc/${project.artifactId}/${project.version}</url>
-		</site>
-	</distributionManagement>
 
 	<build>
 		<plugins>

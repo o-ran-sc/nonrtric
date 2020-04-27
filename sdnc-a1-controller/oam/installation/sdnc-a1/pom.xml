@@ -28,11 +28,11 @@
 
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
-    <groupId>org.onap.sdnc.oam</groupId>
-    <artifactId>installation-sdnc</artifactId>
+    <groupId>org.o-ran-sc.nonrtric.sdnc-a1.oam</groupId>
+    <artifactId>installation-sdnc-a1</artifactId>
     <version>1.7.3-SNAPSHOT</version>
 
-    <name>sdnc-oam :: installation :: ${project.artifactId}</name>
+    <name>sdnc-a1-oam :: installation :: ${project.artifactId}</name>
     <description>Creates SDN Controller Docker container</description>
 
     <properties>
@@ -50,15 +50,15 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.onap.sdnc.northbound</groupId>
+            <groupId>org.o-ran-sc.nonrtric.sdnc-a1.northbound</groupId>
             <artifactId>nonrt-ric-api-installer</artifactId>
             <version>${sdnc.northbound.version}</version>
             <classifier>repo</classifier>
             <type>zip</type>
         </dependency>
         <dependency>
-            <groupId>org.onap.sdnc.northbound</groupId>
-            <artifactId>sdnc-northbound-features-installer</artifactId>
+            <groupId>org.o-ran-sc.nonrtric.sdnc-a1.northbound</groupId>
+            <artifactId>sdnc-a1-northbound-features-installer</artifactId>
             <version>${sdnc.northbound.version}</version>
             <classifier>repo</classifier>
             <type>zip</type>

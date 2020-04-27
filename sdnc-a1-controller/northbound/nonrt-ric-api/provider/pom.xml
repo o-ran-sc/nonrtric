@@ -38,12 +38,12 @@
         <relativePath/>
     </parent>
 
-    <groupId>org.onap.sdnc.northbound</groupId>
+    <groupId>org.o-ran-sc.nonrtric.sdnc-a1.northbound</groupId>
     <artifactId>nonrt-ric-api-provider</artifactId>
     <version>1.7.3-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>sdnc-northbound :: nonrt-ric-api :: ${project.artifactId}</name>
+    <name>sdnc-a1-northbound :: nonrt-ric-api :: ${project.artifactId}</name>
 
     <build>
         <plugins>
@@ -93,7 +93,7 @@
 	</dependencyManagement>
     <dependencies>
         <dependency>
-            <groupId>org.onap.sdnc.northbound</groupId>
+            <groupId>org.o-ran-sc.nonrtric.sdnc-a1.northbound</groupId>
             <artifactId>nonrt-ric-api-model</artifactId>
             <version>${project.version}</version>
         </dependency>

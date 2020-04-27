@@ -17,12 +17,12 @@
 		<relativePath/>
 	</parent>
 
-	<groupId>org.onap.sdnc.northbound</groupId>
-	<artifactId>sdnc-northbound-all</artifactId>
+	<groupId>org.o-ran-sc.nonrtric.sdnc-a1.northbound</groupId>
+	<artifactId>sdnc-a1-northbound-all</artifactId>
 	<version>1.7.3-SNAPSHOT</version>
 	<packaging>feature</packaging>
 
-	<name>sdnc-northbound :: features :: ${project.artifactId}</name>
+	<name>sdnc-a1-northbound :: features :: ${project.artifactId}</name>
 	<dependencyManagement>
 	    <dependencies>
 	    	<dependency>
