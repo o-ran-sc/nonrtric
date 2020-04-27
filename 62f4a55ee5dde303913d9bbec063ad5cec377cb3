@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8944bda0_1bdf50ff",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RefreshConfigTask.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 1000211
+      },
+      "writtenOn": "2020-04-27T15:14:07Z",
+      "side": 1,
+      "message": "what is the reason that the update cannot be used?\n\nI can see inside cbs client that the updates call a get method:\n\n    default Flux\u003cJsonObject\u003e updates(CbsRequest request, Duration initialDelay, Duration period) {\n        return this.get(request, initialDelay, period).distinctUntilChanged();\n    }",
+      "range": {
+        "startLine": 159,
+        "startChar": 25,
+        "endLine": 159,
+        "endChar": 28
+      },
+      "revId": "62f4a55ee5dde303913d9bbec063ad5cec377cb3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
