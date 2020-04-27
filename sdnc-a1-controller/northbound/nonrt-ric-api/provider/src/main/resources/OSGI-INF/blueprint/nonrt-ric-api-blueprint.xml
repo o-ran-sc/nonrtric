@@ -34,7 +34,7 @@
                interface="org.opendaylight.controller.sal.binding.api.RpcProviderRegistry"
                odl:type="default" />
 
-    <bean id="provider" class="org.onap.sdnc.northbound.provider.NonrtRicApiProvider">
+    <bean id="provider" class="org.o_ran_sc.nonrtric.sdnc_a1.northbound.provider.NonrtRicApiProvider">
         <argument ref="dataBroker" />
         <argument ref="notificationService" />
         <argument ref="rpcRegistry" />

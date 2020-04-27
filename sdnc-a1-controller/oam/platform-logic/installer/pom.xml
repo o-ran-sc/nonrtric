@@ -28,12 +28,12 @@
 		<relativePath/>
 	</parent>
 
-	<groupId>org.onap.sdnc.oam</groupId>
+	<groupId>org.o-ran-sc.nonrtric.sdnc-a1.oam</groupId>
 	<artifactId>platform-logic-installer</artifactId>
 	<version>1.7.3-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<name>sdnc-oam :: platform-logic :: ${project.artifactId}</name>
+	<name>sdnc-a1-oam :: platform-logic :: ${project.artifactId}</name>
 	<description>Contains platform-level service logic installer</description>
 
 	<build>

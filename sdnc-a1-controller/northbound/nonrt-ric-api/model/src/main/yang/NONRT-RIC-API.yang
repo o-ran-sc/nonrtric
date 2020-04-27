@@ -19,7 +19,7 @@
 //
 module A1-ADAPTER-API {
 
-    namespace "org:onap:sdnc:northbound:a1-adapter";
+    namespace "org:o_ran_sc:nonrtric:sdnc_a1:northbound:a1-adapter";
 
     prefix a1-adapter-api;
 

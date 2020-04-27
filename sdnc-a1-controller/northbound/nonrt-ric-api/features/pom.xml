@@ -28,12 +28,12 @@
         <relativePath/>
     </parent>
 
-    <groupId>org.onap.sdnc.northbound</groupId>
+    <groupId>org.o-ran-sc.nonrtric.sdnc-a1.northbound</groupId>
     <artifactId>nonrt-ric-api-features</artifactId>
     <version>1.7.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>sdnc-northbound :: nonrt-ric-api :: ${project.artifactId}</name>
+    <name>sdnc-a1-northbound :: nonrt-ric-api :: ${project.artifactId}</name>
 
     <modules>
         <module>sdnc-nonrt-ric-api</module>

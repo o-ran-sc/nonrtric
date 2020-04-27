@@ -27,12 +27,12 @@
 		<version>1.4.3</version>
 	</parent>
 
-	<groupId>org.onap.sdnc.oam</groupId>
-	<artifactId>sdnc-oam</artifactId>
+	<groupId>org.o-ran-sc.nonrtric.sdnc-a1.oam</groupId>
+	<artifactId>sdnc-a1-oam</artifactId>
 	<version>1.7.3-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<name>sdnc-oam</name>
+	<name>sdnc-a1-oam</name>
 	<description>The SDN-C OAM component contains the components needed to operate, administer and maintain the SDN-C platform.</description>
 	<url>https://wiki.onap.org</url>
 	<organization>
@@ -42,27 +42,6 @@
 	<modules>
 		<module>platform-logic</module>
 	</modules>
-
-	<scm>
-                <connection>scm:git:ssh://git@${onap.git.host}/sdnc-oam.git</connection>
-                <developerConnection>scm:git:ssh://${onap.git.host}:${onap.git.port}/${onap.git.project}/sdnc-oam.git</developerConnection>
-                <url>${onap.git.protocol}://${onap.git.host}/projects/${onap.git.project}/repos/sdnc-oam/browse</url>
-    		<tag>HEAD</tag>
- 	</scm>
-	<issueManagement>
-		<system>JIRA</system>
-		<url>https://jira.onap.org/</url>
-	</issueManagement>
-	<ciManagement>
-		<system>Jenkins</system>
-		<url>https://jenkins.onap.org/</url>
-	</ciManagement>
-	<distributionManagement>
-        <site>
-          <id>sdnc-javadoc</id>
-          <url>dav:https://${onap.nexus.host}:${onap.nexus.port}/repository/sdn-c-javadoc/${project.artifactId}/${project.version}</url>
-        </site>
-    </distributionManagement>
 
 	<build>
 		<plugins>

@@ -9,16 +9,16 @@
 		<relativePath/>
 	</parent>
 
-	<groupId>org.onap.sdnc.northbound</groupId>
+	<groupId>org.o-ran-sc.nonrtric.sdnc-a1.northbound</groupId>
 	<artifactId>sdnc-northbound-feature-aggregator</artifactId>
 	<version>1.7.3-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<name>sdnc-northbound :: features</name>
+	<name>sdnc-a1-northbound :: features</name>
 
 	<modules>
-        <module>sdnc-northbound-all</module>
-        <module>features-sdnc-northbound</module>
+        <module>sdnc-a1-northbound-all</module>
+        <module>features-sdnc-a1-northbound</module>
         <module>installer</module>
     </modules>
 </project>

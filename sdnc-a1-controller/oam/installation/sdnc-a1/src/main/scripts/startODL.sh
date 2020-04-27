@@ -51,9 +51,9 @@ fi
 
 if [ ! -f ${INSTALLED_DIR}/.installed ]
 then
-	echo "Installing SDN-C database"
+	echo "Installing SDNC-A1 database"
 	${SDNC_HOME}/bin/installSdncDb.sh
-	echo "Installing SDN-C keyStore"
+	echo "Installing SDNC-A1 keyStore"
 	${SDNC_HOME}/bin/addSdncKeyStore.sh
 
 	if [ -x ${SDNC_HOME}/svclogic/bin/install.sh ]

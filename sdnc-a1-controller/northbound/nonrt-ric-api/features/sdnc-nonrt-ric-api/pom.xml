@@ -21,14 +21,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <repositories>
-	<repository>
-      	    <id>opendaylight-release</id>
-            <name>opendaylight-release</name>
-            <url>https://nexus.opendaylight.org/content/repositories/opendaylight.release/</url>
-    	</repository>
-    </repositories>
-
     <parent>
         <groupId>org.onap.ccsdk.parent</groupId>
         <artifactId>single-feature-parent</artifactId>
@@ -36,12 +28,12 @@
         <relativePath/>
     </parent>
 
-    <groupId>org.onap.sdnc.northbound</groupId>
+    <groupId>org.o-ran-sc.nonrtric.sdnc-a1.northbound</groupId>
     <artifactId>sdnc-nonrt-ric-api</artifactId>
     <version>1.7.3-SNAPSHOT</version>
     <packaging>feature</packaging>
 
-    <name>sdnc-northbound :: nonrt-ric-api :: ${project.artifactId}</name>
+    <name>sdnc-a1-northbound :: nonrt-ric-api :: ${project.artifactId}</name>
 
     <dependencies>
         <dependency>
