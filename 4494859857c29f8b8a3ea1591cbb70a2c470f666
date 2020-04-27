@@ -22,6 +22,30 @@
       "revId": "4494859857c29f8b8a3ea1591cbb70a2c470f666",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0f49e5b5_a773dfc7",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RefreshConfigTask.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-04-27T10:50:25Z",
+      "side": 1,
+      "message": "How? \nIt is only one logging and one return...",
+      "parentUuid": "fc39212d_048aa457",
+      "range": {
+        "startLine": 164,
+        "startChar": 0,
+        "endLine": 165,
+        "endChar": 79
+      },
+      "revId": "4494859857c29f8b8a3ea1591cbb70a2c470f666",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
