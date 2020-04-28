@@ -69,6 +69,19 @@ class SdncJsonHelper {
         }
     }
 
+    public static Mono<String> getCreateSchema(String policyTypeResponse, String policyTypeId) {
+        try {
+            JSONObject obj = new JSONObject(policyTypeResponse);
+            JSONObject schemaObj = obj.getJSONObject("create_schema");
+            schemaObj.put("title", policyTypeId);
+            return Mono.just(schemaObj.toString());
+        } catch (Exception e) {
+            String exceptionString = e.toString();
+            logger.error("Unexpected response for policy type: {}, exception: {}", policyTypeResponse, exceptionString);
+            return Mono.error(e);
+        }
+    }
+
     public static <T> String createInputJsonString(T params) {
         JsonElement paramsJson = gson.toJsonTree(params);
         JsonObject jsonObj = new JsonObject();

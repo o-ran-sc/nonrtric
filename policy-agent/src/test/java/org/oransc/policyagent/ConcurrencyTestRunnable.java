@@ -22,6 +22,7 @@ package org.oransc.policyagent;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.oransc.policyagent.clients.AsyncRestClient;
 import org.oransc.policyagent.repository.ImmutablePolicy;
 import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.PolicyType;
@@ -33,10 +34,6 @@ import org.oransc.policyagent.utils.MockA1Client;
 import org.oransc.policyagent.utils.MockA1ClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.web.client.RestTemplate;
 
 /**
  * Invoke operations over the NBI and start synchronizations in a separate
@@ -44,8 +41,7 @@ import org.springframework.web.client.RestTemplate;
  */
 class ConcurrencyTestRunnable implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(ConcurrencyTestRunnable.class);
-    private final RestTemplate restTemplate = new RestTemplate();
-    private final String baseUrl;
+    private final AsyncRestClient webClient;
     static AtomicInteger nextCount = new AtomicInteger(0);
     private final int count;
     private final RicSupervision supervision;
@@ -55,12 +51,12 @@ class ConcurrencyTestRunnable implements Runnable {
 
     ConcurrencyTestRunnable(String baseUrl, RicSupervision supervision, MockA1ClientFactory a1ClientFactory, Rics rics,
         PolicyTypes types) {
-        this.baseUrl = baseUrl;
         this.count = nextCount.incrementAndGet();
         this.supervision = supervision;
         this.a1ClientFactory = a1ClientFactory;
         this.rics = rics;
         this.types = types;
+        this.webClient = new AsyncRestClient(baseUrl);
     }
 
     @Override
@@ -105,29 +101,22 @@ class ConcurrencyTestRunnable implements Runnable {
     }
 
     private void listPolicies() {
-        String uri = baseUrl + "/policies";
-        restTemplate.getForObject(uri, String.class);
+        String uri = "/policies";
+        webClient.getForEntity(uri).block();
     }
 
     private void listTypes() {
-        String uri = baseUrl + "/policy_types";
-        restTemplate.getForObject(uri, String.class);
+        String uri = "/policy_types";
+        webClient.getForEntity(uri).block();
     }
 
     private void putPolicy(String name) {
-        String putUrl = baseUrl + "/policy?type=type1&id=" + name + "&ric=ric&service=service1";
-        restTemplate.put(putUrl, createJsonHttpEntity("{}"));
+        String putUrl = "/policy?type=type1&id=" + name + "&ric=ric&service=service1";
+        webClient.putForEntity(putUrl, "{}").block();
     }
 
     private void deletePolicy(String name) {
-        String deleteUrl = baseUrl + "/policy?id=" + name;
-        restTemplate.delete(deleteUrl);
+        String deleteUrl = "/policy?id=" + name;
+        webClient.delete(deleteUrl).block();
     }
-
-    private static HttpEntity<String> createJsonHttpEntity(String content) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        return new HttpEntity<String>(content, headers);
-    }
-
 }

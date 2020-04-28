@@ -23,7 +23,6 @@ package org.oransc.policyagent.clients;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 
-import org.json.JSONObject;
 import org.oransc.policyagent.configuration.RicConfig;
 import org.oransc.policyagent.repository.Policy;
 import org.slf4j.Logger;
@@ -143,7 +142,7 @@ public class OscA1Client implements A1Client {
     public Mono<String> getPolicyTypeSchema(String policyTypeId) {
         String schemaUri = uri.createGetSchemaUri(policyTypeId);
         return restClient.get(schemaUri) //
-            .flatMap(response -> getCreateSchema(response, policyTypeId));
+            .flatMap(response -> SdncJsonHelper.getCreateSchema(response, policyTypeId));
     }
 
     @Override
@@ -184,19 +183,6 @@ public class OscA1Client implements A1Client {
     private Flux<String> getPolicyIdentitiesByType(String typeId) {
         return restClient.get(uri.createGetPolicyIdsUri(typeId)) //
             .flatMapMany(SdncJsonHelper::parseJsonArrayOfString);
-    }
-
-    private Mono<String> getCreateSchema(String policyTypeResponse, String policyTypeId) {
-        try {
-            JSONObject obj = new JSONObject(policyTypeResponse);
-            JSONObject schemaObj = obj.getJSONObject("create_schema");
-            schemaObj.put(TITLE, policyTypeId);
-            return Mono.just(schemaObj.toString());
-        } catch (Exception e) {
-            String exceptionString = e.toString();
-            logger.error("Unexpected response for policy type: {}, exception: {}", policyTypeResponse, exceptionString);
-            return Mono.error(e);
-        }
     }
 
     private Mono<String> deletePolicyById(String typeId, String policyId) {

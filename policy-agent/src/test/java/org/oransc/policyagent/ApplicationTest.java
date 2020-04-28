@@ -72,7 +72,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
@@ -164,6 +166,12 @@ public class ApplicationTest {
             Duration checkInterval = Duration.ofMillis(1);
             return new ServiceSupervision(this.services, this.policies, this.getA1ClientFactory(), checkInterval);
         }
+
+        @Bean
+        public ServletWebServerFactory servletContainer() {
+            return new TomcatServletWebServerFactory();
+        }
+
     }
 
     @LocalServerPort
@@ -670,7 +678,7 @@ public class ApplicationTest {
         return "{\"servingCellNrcgi\":\"1\"}";
     }
 
-    // @Test TODO temporary disabled
+    @Test
     public void testConcurrency() throws Exception {
         final Instant startTime = Instant.now();
         List<Thread> threads = new ArrayList<>();
