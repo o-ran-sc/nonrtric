@@ -18,7 +18,7 @@
  * ============LICENSE_END=========================================================
  */
 
-package org.onap.sdnc.northbound.restadapter;
+package org.o_ran_sc.nonrtric.sdnc_a1.northbound.restadapter;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

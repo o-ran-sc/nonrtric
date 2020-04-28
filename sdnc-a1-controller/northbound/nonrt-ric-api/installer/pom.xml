@@ -28,24 +28,24 @@
 		<relativePath/>
 	</parent>
 
-	<groupId>org.onap.sdnc.northbound</groupId>
+	<groupId>org.o-ran-sc.nonrtric.sdnc-a1.northbound</groupId>
 	<artifactId>nonrt-ric-api-installer</artifactId>
 	<version>1.7.3-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<name>sdnc-northbound :: nonrt-ric-api :: ${project.artifactId}</name>
+	<name>sdnc-a1-northbound :: nonrt-ric-api :: ${project.artifactId}</name>
 
 	<properties>
 		<application.name>sdnc-nonrt-ric-api</application.name>
 		<features.boot>${application.name}</features.boot>
-		<features.repositories>mvn:org.onap.sdnc.northbound/${application.name}/${project.version}/xml/features</features.repositories>
+		<features.repositories>mvn:org.o-ran-sc.nonrtric.sdnc-a1.northbound/${application.name}/${project.version}/xml/features</features.repositories>
 		<include.transitive.dependencies>false</include.transitive.dependencies>
 	</properties>
 
 	<dependencies>
 
 		<dependency>
-			<groupId>org.onap.sdnc.northbound</groupId>
+			<groupId>org.o-ran-sc.nonrtric.sdnc-a1.northbound</groupId>
 			<artifactId>${application.name}</artifactId>
 			<version>${project.version}</version>
 			<type>xml</type>
@@ -59,7 +59,7 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.onap.sdnc.northbound</groupId>
+			<groupId>org.o-ran-sc.nonrtric.sdnc-a1.northbound</groupId>
 			<artifactId>nonrt-ric-api-provider</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -123,7 +123,7 @@
 							<useRepositoryLayout>true</useRepositoryLayout>
 							<addParentPoms>false</addParentPoms>
 							<copyPom>false</copyPom>
-							<includeGroupIds>org.onap.sdnc.northbound</includeGroupIds>
+							<includeGroupIds>org.o-ran-sc.nonrtric.sdnc-a1.northbound</includeGroupIds>
 							<scope>provided</scope>
 						</configuration>
 					</execution>

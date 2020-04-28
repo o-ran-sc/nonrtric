@@ -23,12 +23,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.onap.sdnc</groupId>
-	<artifactId>sdnc</artifactId>
+	<groupId>org.o-ran-sc.nonrtric.sdnc-a1</groupId>
+	<artifactId>sdnc-a1</artifactId>
 	<version>1.7.4-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<name>sdnc</name>
+	<name>sdnc-a1</name>
 
 	<properties>
 		<sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
