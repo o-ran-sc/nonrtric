@@ -10,9 +10,9 @@
 .. |nbh| unicode:: 0x2011
    :trim:
 
-##################
-SDNC A1 Controller
-##################
+######################
+SDNC A1 Controller API
+######################
 
 The A1 of a Near |nbh| RT |nbsp| RIC can be used through the SDNC A1 Controller.
 
