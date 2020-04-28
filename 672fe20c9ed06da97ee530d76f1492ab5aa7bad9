@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9b5ea95e_c1e92fec",
+        "filename": "sdnc-a1-controller/oam/installation/sdnc-a1/src/main/resources/sdnctl.dump",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-04-28T06:37:01Z",
+      "side": 0,
+      "message": "Is this really a file that need to be under source control?",
+      "revId": "672fe20c9ed06da97ee530d76f1492ab5aa7bad9",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
