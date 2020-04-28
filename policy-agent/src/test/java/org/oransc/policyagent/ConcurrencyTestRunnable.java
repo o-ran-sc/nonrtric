@@ -80,7 +80,7 @@ class ConcurrencyTestRunnable implements Runnable {
                 deletePolicy(name + "-");
             }
         } catch (Exception e) {
-            logger.error("Concurrency exception " + e.toString());
+            logger.error("Concurrency test exception " + e.toString());
         }
     }
 

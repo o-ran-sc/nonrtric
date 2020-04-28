@@ -221,7 +221,7 @@ public class RefreshConfigTaskTest {
         doReturn(Mono.just(props)).when(refreshTaskUnderTest).getEnvironment(any());
 
         doReturn(Mono.just(cbsClient)).when(refreshTaskUnderTest).createCbsClient(props);
-        when(cbsClient.updates(any(), any(), any())).thenReturn(Flux.error(new IOException()));
+        when(cbsClient.get(any())).thenReturn(Mono.error(new IOException()));
 
         final ListAppender<ILoggingEvent> logAppender = LoggingUtils.getLogListAppender(RefreshConfigTask.class, WARN);
         Flux<Type> task = refreshTaskUnderTest.createRefreshTask();
@@ -229,7 +229,7 @@ public class RefreshConfigTaskTest {
         StepVerifier //
             .create(task) //
             .expectSubscription() //
-            .expectNoEvent(Duration.ofMillis(100)) //
+            .expectNoEvent(Duration.ofMillis(1000)) //
             .thenCancel() //
             .verify();
 
@@ -262,7 +262,7 @@ public class RefreshConfigTaskTest {
         JsonObject configAsJson = getJsonRootObject();
         String newBaseUrl = "newBaseUrl";
         modifyTheRicConfiguration(configAsJson, newBaseUrl);
-        when(cbsClient.updates(any(), any(), any())).thenReturn(Flux.just(configAsJson));
+        when(cbsClient.get(any())).thenReturn(Mono.just(configAsJson));
         doNothing().when(refreshTaskUnderTest).runRicSynchronization(any(Ric.class));
 
         Flux<Type> task = refreshTaskUnderTest.createRefreshTask();

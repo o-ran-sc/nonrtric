@@ -86,13 +86,20 @@ public class A1ClientFactory {
     private ControllerConfig getControllerConfig(Ric ric) throws ServiceException {
         String controllerName = ric.getConfig().controllerName();
         if (controllerName.isEmpty()) {
+            ric.setProtocolVersion(A1ProtocolType.UNKNOWN);
             throw new ServiceException("No controller configured for RIC: " + ric.name());
         }
-        return this.appConfig.getControllerConfig(controllerName);
+        try {
+            return this.appConfig.getControllerConfig(controllerName);
+        } catch (ServiceException e) {
+            ric.setProtocolVersion(A1ProtocolType.UNKNOWN);
+            throw e;
+        }
     }
 
     private void assertNoControllerConfig(Ric ric, A1ProtocolType version) throws ServiceException {
         if (!ric.getConfig().controllerName().isEmpty()) {
+            ric.setProtocolVersion(A1ProtocolType.UNKNOWN);
             throw new ServiceException(
                 "Controller config should be empty, ric: " + ric.name() + " when using protocol version: " + version);
         }
