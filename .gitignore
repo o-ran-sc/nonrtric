@@ -9,3 +9,4 @@ docs/_build/
 .sts4-cache
 .project
 .settings
+.pydevproject
