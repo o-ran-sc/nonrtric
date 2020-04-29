@@ -133,7 +133,7 @@ public class SdncOscA1Client implements A1Client {
             OscA1Client.UriBuilder uri = new OscA1Client.UriBuilder(ricConfig);
             final String ricUrl = uri.createGetSchemaUri(policyTypeId);
             return post(GET_POLICY_RPC, ricUrl, Optional.empty()) //
-                .flatMap(response -> SdncJsonHelper.getCreateSchema(response, policyTypeId));
+                .flatMap(response -> OscA1Client.extractCreateSchema(response, policyTypeId));
         } else {
             return Mono.error(createIllegalProtocolException());
         }
