@@ -28,6 +28,7 @@ import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
 
 import java.lang.invoke.MethodHandles;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.net.ssl.SSLException;
 
@@ -52,13 +53,16 @@ public class AsyncRestClient {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private WebClient webClient = null;
     private final String baseUrl;
+    private static final AtomicInteger sequenceNumber = new AtomicInteger();
 
     public AsyncRestClient(String baseUrl) {
         this.baseUrl = baseUrl;
     }
 
     public Mono<ResponseEntity<String>> postForEntity(String uri, @Nullable String body) {
-        logger.debug("POST uri = '{}{}''", baseUrl, uri);
+        Object traceTag = createTraceTag();
+        logger.debug("{} POST uri = '{}{}''", traceTag, baseUrl, uri);
+        logger.trace("{} POST body: {}", traceTag, body);
         Mono<String> bodyProducer = body != null ? Mono.just(body) : Mono.empty();
         return getWebClient() //
             .flatMap(client -> {
@@ -66,7 +70,7 @@ public class AsyncRestClient {
                     .uri(uri) //
                     .contentType(MediaType.APPLICATION_JSON) //
                     .body(bodyProducer, String.class);
-                return retrieve(request);
+                return retrieve(traceTag, request);
             });
     }
 
@@ -76,7 +80,9 @@ public class AsyncRestClient {
     }
 
     public Mono<String> postWithAuthHeader(String uri, String body, String username, String password) {
-        logger.debug("POST (auth) uri = '{}{}''", baseUrl, uri);
+        Object traceTag = createTraceTag();
+        logger.debug("{} POST (auth) uri = '{}{}''", traceTag, baseUrl, uri);
+        logger.trace("{} POST body: {}", traceTag, body);
         return getWebClient() //
             .flatMap(client -> {
                 RequestHeadersSpec<?> request = client.post() //
@@ -84,30 +90,34 @@ public class AsyncRestClient {
                     .headers(headers -> headers.setBasicAuth(username, password)) //
                     .contentType(MediaType.APPLICATION_JSON) //
                     .bodyValue(body);
-                return retrieve(request) //
+                return retrieve(traceTag, request) //
                     .flatMap(this::toBody);
             });
     }
 
     public Mono<ResponseEntity<String>> putForEntity(String uri, String body) {
-        logger.debug("PUT uri = '{}{}''", baseUrl, uri);
+        Object traceTag = createTraceTag();
+        logger.debug("{} PUT uri = '{}{}''", traceTag, baseUrl, uri);
+        logger.trace("{} PUT body: {}", traceTag, body);
         return getWebClient() //
             .flatMap(client -> {
                 RequestHeadersSpec<?> request = client.put() //
                     .uri(uri) //
                     .contentType(MediaType.APPLICATION_JSON) //
                     .bodyValue(body);
-                return retrieve(request);
+                return retrieve(traceTag, request);
             });
     }
 
     public Mono<ResponseEntity<String>> putForEntity(String uri) {
-        logger.debug("PUT uri = '{}{}''", baseUrl, uri);
+        Object traceTag = createTraceTag();
+        logger.debug("{} PUT uri = '{}{}''", traceTag, baseUrl, uri);
+        logger.trace("{} PUT body: <empty>", traceTag);
         return getWebClient() //
             .flatMap(client -> {
                 RequestHeadersSpec<?> request = client.put() //
                     .uri(uri);
-                return retrieve(request);
+                return retrieve(traceTag, request);
             });
     }
 
@@ -117,11 +127,12 @@ public class AsyncRestClient {
     }
 
     public Mono<ResponseEntity<String>> getForEntity(String uri) {
-        logger.debug("GET uri = '{}{}''", baseUrl, uri);
+        Object traceTag = createTraceTag();
+        logger.debug("{} GET uri = '{}{}''", traceTag, baseUrl, uri);
         return getWebClient() //
             .flatMap(client -> {
                 RequestHeadersSpec<?> request = client.get().uri(uri);
-                return retrieve(request);
+                return retrieve(traceTag, request);
             });
     }
 
@@ -131,11 +142,12 @@ public class AsyncRestClient {
     }
 
     public Mono<ResponseEntity<String>> deleteForEntity(String uri) {
-        logger.debug("DELETE uri = '{}{}''", baseUrl, uri);
+        Object traceTag = createTraceTag();
+        logger.debug("{} DELETE uri = '{}{}''", traceTag, baseUrl, uri);
         return getWebClient() //
             .flatMap(client -> {
                 RequestHeadersSpec<?> request = client.delete().uri(uri);
-                return retrieve(request);
+                return retrieve(traceTag, request);
             });
     }
 
@@ -144,19 +156,24 @@ public class AsyncRestClient {
             .flatMap(this::toBody);
     }
 
-    private Mono<ResponseEntity<String>> retrieve(RequestHeadersSpec<?> request) {
+    private Mono<ResponseEntity<String>> retrieve(Object traceTag, RequestHeadersSpec<?> request) {
         return request.retrieve() //
             .toEntity(String.class) //
-            .doOnError(this::onHttpError);
+            .doOnNext(entity -> logger.trace("{} Received: {}", traceTag, entity.getBody()))
+            .doOnError(throwable -> onHttpError(traceTag, throwable));
     }
 
-    private void onHttpError(Throwable t) {
+    private static Object createTraceTag() {
+        return sequenceNumber.incrementAndGet();
+    }
+
+    private void onHttpError(Object traceTag, Throwable t) {
         if (t instanceof WebClientResponseException) {
             WebClientResponseException exception = (WebClientResponseException) t;
-            logger.debug("HTTP error status = '{}', body '{}'", exception.getStatusCode(),
+            logger.debug("{} HTTP error status = '{}', body '{}'", traceTag, exception.getStatusCode(),
                 exception.getResponseBodyAsString());
         } else {
-            logger.debug("HTTP error: {}", t.getMessage());
+            logger.debug("{} HTTP error: {}", traceTag, t.getMessage());
         }
     }
 
@@ -179,7 +196,7 @@ public class AsyncRestClient {
             .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10_000) //
             .secure(c -> c.sslContext(sslContext)) //
             .doOnConnected(connection -> {
-                connection.addHandler(new ReadTimeoutHandler(10));
+                connection.addHandler(new ReadTimeoutHandler(30));
                 connection.addHandler(new WriteTimeoutHandler(30));
             });
         HttpClient httpClient = HttpClient.from(tcpClient);
