@@ -110,7 +110,7 @@ public class DmaapMessageConsumer implements Runnable {
     }
 
     private DmaapMessageHandler getDmaapMessageHandler() throws IOException {
-        String agentBaseUrl = "http://localhost:" + this.localServerPort;
+        String agentBaseUrl = "https://localhost:" + this.localServerPort;
         AsyncRestClient agentClient = createRestClient(agentBaseUrl);
         Properties dmaapPublisherProperties = applicationConfig.getDmaapPublisherConfig();
         MRBatchingPublisher producer = getMessageRouterPublisher(dmaapPublisherProperties);

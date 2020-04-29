@@ -170,7 +170,7 @@ public class DmaapMessageConsumerTest {
 
         messageConsumerUnderTest.run();
 
-        verify(messageConsumerUnderTest).createRestClient("http://localhost:0");
+        verify(messageConsumerUnderTest).createRestClient("https://localhost:0");
         verify(messageConsumerUnderTest).getMessageRouterPublisher(properties);
 
         verify(messageHandlerMock).handleDmaapMsg("message");
