@@ -18,6 +18,7 @@ logging:
     org.springframework.data: ERROR
     org.springframework.web.reactive.function.client.ExchangeFunctions: ERROR
     org.oransc.policyagent: INFO
+    org.oransc.policyagent.clients.AsyncRestClient: INFO
   file: /var/log/policy-agent/application.log
 server:
    port : 8433

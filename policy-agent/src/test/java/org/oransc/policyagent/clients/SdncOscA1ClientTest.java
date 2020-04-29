@@ -27,7 +27,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -112,7 +117,30 @@ public class SdncOscA1ClientTest {
         String expInput = SdncJsonHelper.createInputJsonString(expectedParams);
         verify(asyncRestClientMock).postWithAuthHeader(GET_A1_POLICY_URL, expInput, CONTROLLER_USERNAME,
             CONTROLLER_PASSWORD);
+    }
 
+    private String loadFile(String fileName) throws IOException {
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        URL url = loader.getResource(fileName);
+        File file = new File(url.getFile());
+        return new String(Files.readAllBytes(file.toPath()));
+    }
+
+    @Test
+    public void testGetTypeSchema_OSC() throws IOException {
+        clientUnderTest = new SdncOscA1Client(A1ProtocolType.SDNC_OSC_OSC_V1, //
+            A1ClientHelper.createRic(RIC_1_URL).getConfig(), //
+            controllerConfig(), asyncRestClientMock);
+
+        String ricResponse = loadFile("policy_types/test_osc_get_schema_response.json");
+        JsonElement elem = gson().fromJson(ricResponse, JsonElement.class);
+        String responseFromController = createResponse(elem);
+        whenAsyncPostThenReturn(Mono.just(responseFromController));
+
+        String response = clientUnderTest.getPolicyTypeSchema("policyTypeId").block();
+        JsonElement respJson = gson().fromJson(response, JsonElement.class);
+        assertEquals("policyTypeId", respJson.getAsJsonObject().get("title").getAsString(),
+            "title should be updated to contain policyType ID");
     }
 
     private String policiesUrl() {
