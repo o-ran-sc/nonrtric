@@ -121,7 +121,6 @@ public class RefreshConfigTask {
 
     Flux<RicConfigUpdate.Type> createRefreshTask() {
         Flux<JsonObject> loadFromFile = Flux.interval(Duration.ZERO, FILE_CONFIG_REFRESH_INTERVAL) //
-            .filter(notUsed -> configFileExists()) //
             .filter(notUsed -> !this.isConsulUsed) //
             .flatMap(notUsed -> loadConfigurationFromFile()) //
             .onErrorResume(this::ignoreErrorFlux) //
@@ -132,6 +131,7 @@ public class RefreshConfigTask {
             .flatMap(i -> getEnvironment(systemEnvironment)) //
             .flatMap(this::createCbsClient) //
             .flatMap(this::getFromCbs) //
+            .onErrorResume(this::ignoreErrorMono) //
             .doOnNext(json -> logger.debug("loadFromConsul succeeded")) //
             .doOnNext(json -> this.isConsulUsed = true) //
             .doOnTerminate(() -> logger.error("loadFromConsul Terminated"));
@@ -156,8 +156,12 @@ public class RefreshConfigTask {
 
     private Mono<JsonObject> getFromCbs(CbsClient cbsClient) {
         final CbsRequest getConfigRequest = CbsRequests.getAll(RequestDiagnosticContext.create());
-        return cbsClient.get(getConfigRequest) //
-            .onErrorResume(this::ignoreErrorMono);
+        try {
+            return cbsClient.get(getConfigRequest) //
+                .onErrorResume(this::ignoreErrorMono);
+        } catch (Exception e) {
+            return ignoreErrorMono(e);
+        }
     }
 
     private <R> Flux<R> ignoreErrorFlux(Throwable throwable) {
@@ -176,7 +180,7 @@ public class RefreshConfigTask {
         try {
             ApplicationConfigParser parser = new ApplicationConfigParser();
             return Mono.just(parser.parse(jsonObject));
-        } catch (ServiceException e) {
+        } catch (Exception e) {
             String str = e.toString();
             logger.error("Could not parse configuration {}", str);
             return Mono.empty();
@@ -187,8 +191,7 @@ public class RefreshConfigTask {
         return this.appConfig.setConfiguration(config);
     }
 
-    boolean configFileExists() {
-        String filepath = appConfig.getLocalConfigurationFilePath();
+    boolean fileExists(String filepath) {
         return (filepath != null && (new File(filepath).exists()));
     }
 
@@ -230,6 +233,10 @@ public class RefreshConfigTask {
      */
     Flux<JsonObject> loadConfigurationFromFile() {
         String filepath = appConfig.getLocalConfigurationFilePath();
+        if (!fileExists(filepath)) {
+            return Flux.empty();
+        }
+
         GsonBuilder gsonBuilder = new GsonBuilder();
         ServiceLoader.load(TypeAdapterFactory.class).forEach(gsonBuilder::registerTypeAdapterFactory);
 
@@ -239,7 +246,7 @@ public class RefreshConfigTask {
             appParser.parse(rootObject);
             logger.debug("Local configuration file loaded: {}", filepath);
             return Flux.just(rootObject);
-        } catch (Exception e) {
+        } catch (IOException | ServiceException e) {
             logger.error("Local configuration file not loaded: {}, {}", filepath, e.getMessage());
             return Flux.empty();
         }
