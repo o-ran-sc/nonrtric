@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4ccd08e9_08e3c21a",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/AsyncRestClient.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-04-30T12:06:02Z",
+      "side": 1,
+      "message": "Suggest adding a new logger: \nprivate static final Logger logger2 \u003d LoggerFactory.getLogger(\"org.oransc.logger-a1messages\");\n(Or soemthing similar)",
+      "range": {
+        "startLine": 53,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 1
+      },
+      "revId": "5e03b7b4d19603e7a6df4cff598ff358fba6e3c2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4da468c0_2efbfda2",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/AsyncRestClient.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-04-30T12:06:02Z",
+      "side": 1,
+      "message": "Suggest - In addition to the trace above: \n\nif(logger2.isInfoEnabled(){\n   logger2.info(\"{} POST uri \u003d \u0027{}{}\u0027\u0027\", traceTag, baseUrl, uri);\n   logger2.info(\"{} POST body: {}\", traceTag, body);\n}\n\nThen this logger can be individually enabled/disabled in the log settings\n\nThis logger would then ONLY print the URIs and messages - so this logger only could be redirected to a difference file/console/etc than all other log messages.\n\nIf a logger with the same name (e.g. \"org.oransc.logger-a1messages\" above) is created in the other components (dashboard, controller, sim etc) - then we would be able to capture JUST the entire end-to-end messages - no other logs.",
+      "range": {
+        "startLine": 66,
+        "startChar": 1,
+        "endLine": 66,
+        "endChar": 2
+      },
+      "revId": "5e03b7b4d19603e7a6df4cff598ff358fba6e3c2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c7aee718_6c7fab88",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/AsyncRestClient.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-04-30T12:06:02Z",
+      "side": 1,
+      "message": "same as above .... \nand below",
+      "range": {
+        "startLine": 85,
+        "startChar": 8,
+        "endLine": 86,
+        "endChar": 16
+      },
+      "revId": "5e03b7b4d19603e7a6df4cff598ff358fba6e3c2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
