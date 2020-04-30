@@ -42,9 +42,6 @@
         <sdnc.build.timestamp>${maven.build.timestamp}</sdnc.build.timestamp>
         <sdnc.northbound.version>1.7.3-SNAPSHOT</sdnc.northbound.version>
         <ccsdk.docker.version>0.6.3</ccsdk.docker.version>
-        <sdnc.keystore>org.onap.sdnc.p12</sdnc.keystore>
-        <sdnc.keypass><![CDATA[ff^G9D]yf&r}Ktum@BJ0YB?N]]></sdnc.keypass>
-        <sdnc.secureport>8443</sdnc.secureport>
         <docker.push.phase>deploy</docker.push.phase>
     </properties>
 
@@ -194,7 +191,7 @@
                                     <directory>src/main/resources</directory>
                                     <includes>
                                         <include>idmlight.db.mv.db</include>
-                                        <include>truststoreONAPall.jks</include>
+                                        <include>keystore.jks</include>
                                         <include>aaa-app-config.xml</include>
                                     </includes>
                                     <filtering>false</filtering>
@@ -236,27 +233,6 @@
                                         <include>*.properties</include>
                                         <include>*.props</include>
                                         <include>*.csv</include>
-                                    </includes>
-                                    <filtering>false</filtering>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>copy-keystores</id>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals><!-- here the phase you need -->
-                        <phase>validate</phase>
-                        <configuration>
-                            <outputDirectory>${basedir}/target/docker-stage/opt/onap/sdnc/data/stores</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>../src/main/stores</directory>
-                                    <includes>
-                                        <include>*.jks</include>
-                                        <include>*.keyfile</include>
-                                        <include>*.p12</include>
                                     </includes>
                                     <filtering>false</filtering>
                                 </resource>

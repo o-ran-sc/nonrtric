@@ -53,8 +53,6 @@ if [ ! -f ${INSTALLED_DIR}/.installed ]
 then
 	echo "Installing SDNC-A1 database"
 	${SDNC_HOME}/bin/installSdncDb.sh
-	echo "Installing SDNC-A1 keyStore"
-	${SDNC_HOME}/bin/addSdncKeyStore.sh
 
 	if [ -x ${SDNC_HOME}/svclogic/bin/install.sh ]
 	then
@@ -63,8 +61,6 @@ then
 	fi
 fi
 
-cp /opt/opendaylight/current/certs/* /tmp
-
-nohup python ${SDNC_BIN}/installCerts.py &
+nohup python ${SDNC_BIN}/healthcheck.py &
 
 exec ${ODL_HOME}/bin/karaf server

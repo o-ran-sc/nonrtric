@@ -47,6 +47,7 @@ services:
     entrypoint: ["/opt/onap/sdnc/bin/startODL.sh"]
     ports:
       - "8282:8181"
+      - "8383:8443"
     links:
       - db:dbhost
       - db:sdnctldb01
