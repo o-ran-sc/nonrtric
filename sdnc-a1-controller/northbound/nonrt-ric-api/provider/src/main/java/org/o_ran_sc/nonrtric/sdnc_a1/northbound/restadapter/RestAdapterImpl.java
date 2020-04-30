@@ -20,11 +20,33 @@
 
 package org.o_ran_sc.nonrtric.sdnc_a1.northbound.restadapter;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.util.Properties;
+import org.apache.http.client.HttpClient;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContexts;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -36,10 +58,44 @@ import org.springframework.web.client.RestTemplate;
 
 public class RestAdapterImpl implements RestAdapter {
 
-  private RestTemplate restTemplate;
+  private static final String PROPERTIES_FILE = "nonrt-ric-api-provider.properties";
+  private final Logger log = LoggerFactory.getLogger(RestAdapterImpl.class);
+
+  private RestTemplate restTemplateHttp;
+  private RestTemplate restTemplateHttps;
 
   public RestAdapterImpl() {
-    restTemplate = new RestTemplate();
+      restTemplateHttp = new RestTemplate();
+      try {
+          restTemplateHttps = createRestTemplateForHttps();
+      } catch (IOException | UnrecoverableKeyException | KeyManagementException | CertificateException
+              | NoSuchAlgorithmException | KeyStoreException ex) {
+        log.error("Caught exception when trying to create restTemplateHttps: {}", ex.getMessage());
+      }
+  }
+
+  private RestTemplate createRestTemplateForHttps() throws IOException, UnrecoverableKeyException, CertificateException,
+              NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
+      InputStream inputStream = RestAdapterImpl.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE);
+      if (inputStream == null) {
+          throw new FileNotFoundException("properties file not found in classpath");
+      } else {
+          Properties properties = new Properties();
+          properties.load(inputStream);
+          final String keystorePassword = properties.getProperty("key-store-password");
+          SSLConnectionSocketFactory scsf = new SSLConnectionSocketFactory(
+                  SSLContexts.custom()
+                             .loadKeyMaterial(ResourceUtils.getFile(properties.getProperty("key-store")),
+                                     keystorePassword.toCharArray(), keystorePassword.toCharArray())
+                             .loadTrustMaterial(null, new TrustSelfSignedStrategy())
+                             .build(),
+                  NoopHostnameVerifier.INSTANCE);
+          HttpClient client = HttpClients.custom().setSSLSocketFactory(scsf).build();
+          HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+          requestFactory.setHttpClient(client);
+          inputStream.close();
+          return new RestTemplate(requestFactory);
+      }
   }
 
   private HttpEntity<?> getHttpEntity(final Object object) {
@@ -69,6 +125,19 @@ public class RestAdapterImpl implements RestAdapter {
   @SuppressWarnings("unchecked")
   private <T> ResponseEntity<T> invokeHttpRequest(String uri, HttpMethod httpMethod, Class<?> clazz,
       HttpEntity<?> entity) {
-    return (ResponseEntity<T>) restTemplate.exchange(uri, httpMethod, entity, clazz);
+    try {
+        URL url = new URL(uri);
+        if (url.getProtocol().equals("https")) {
+            return (ResponseEntity<T>) restTemplateHttps.exchange(uri, httpMethod, entity, clazz);
+        } else if (url.getProtocol().equals("http")) {
+            return (ResponseEntity<T>) restTemplateHttp.exchange(uri, httpMethod, entity, clazz);
+        } else {
+            log.error("Invalid protocol in URL");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    } catch (MalformedURLException ex) {
+        log.error("URL is not valid, exception: {}", ex.getMessage());
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
   }
 }

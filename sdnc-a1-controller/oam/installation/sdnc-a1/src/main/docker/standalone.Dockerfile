@@ -25,13 +25,11 @@ MAINTAINER O-RAN-SC NONRTRIC Team
 ENV JAVA_HOME /usr/lib/jvm/java-1.8-openjdk
 ENV ODL_HOME /opt/opendaylight
 ENV SDNC_CONFIG_DIR /opt/onap/sdnc/data/properties
-ENV SDNC_STORE_DIR /opt/onap/sdnc/data/stores
-ENV SSL_CERTS_DIR /etc/ssl/certs
-ENV JAVA_SECURITY_DIR $SSL_CERTS_DIR/java
+ENV JAVA_SECURITY_DIR /etc/ssl/certs/java
 ENV SDNC_NORTHBOUND_REPO mvn:org.o-ran-sc.nonrtric.sdnc-a1.northbound/sdnc-a1-northbound-all/${sdnc.northbound.version}/xml/features
-ENV SDNC_KEYSTORE ${sdnc.keystore}
-ENV SDNC_KEYPASS ${sdnc.keypass}
-ENV SDNC_SECUREPORT ${sdnc.secureport}
+ENV SDNC_KEYSTORE keystore.jks
+ENV SDNC_KEYPASS sdnc-a1-controller
+ENV SDNC_SECUREPORT 8443
 
 USER root
 
@@ -43,15 +41,13 @@ RUN sed -i -e "\|featuresRepositories|s|$|,${SDNC_NORTHBOUND_REPO}|"  $ODL_HOME/
 RUN sed -i -e "\|featuresBoot[^a-zA-Z]|s|$|,sdnc-a1-northbound-all|"  $ODL_HOME/etc/org.apache.karaf.features.cfg
 RUN sed -i "s/odl-restconf-all/odl-restconf-all,odl-netconf-topology/g"  $ODL_HOME/etc/org.apache.karaf.features.cfg
 
-# Install ssl and java certificates
-COPY truststoreONAPall.jks $JAVA_SECURITY_DIR
-COPY truststoreONAPall.jks $SDNC_STORE_DIR
-RUN keytool -importkeystore -srckeystore $JAVA_SECURITY_DIR/truststoreONAPall.jks -srcstorepass changeit -destkeystore $JAVA_SECURITY_DIR/cacerts  -deststorepass changeit
+# Install java certificate
+COPY $SDNC_KEYSTORE $JAVA_SECURITY_DIR
 
 # Secure with TLS
 RUN echo org.osgi.service.http.secure.enabled=true >> $ODL_HOME/etc/custom.properties
 RUN echo org.osgi.service.http.secure.port=$SDNC_SECUREPORT >> $ODL_HOME/etc/custom.properties
-RUN echo org.ops4j.pax.web.ssl.keystore=$SDNC_STORE_DIR/$SDNC_KEYSTORE >> $ODL_HOME/etc/custom.properties
+RUN echo org.ops4j.pax.web.ssl.keystore=$JAVA_SECURITY_DIR/$SDNC_KEYSTORE >> $ODL_HOME/etc/custom.properties
 RUN echo org.ops4j.pax.web.ssl.password=$SDNC_KEYPASS >> $ODL_HOME/etc/custom.properties
 RUN echo org.ops4j.pax.web.ssl.keypassword=$SDNC_KEYPASS >> $ODL_HOME/etc/custom.properties
 
@@ -60,4 +56,4 @@ RUN chown -R odl:odl /opt
 USER odl
 
 ENTRYPOINT /opt/onap/sdnc/bin/startODL.sh
-EXPOSE 8181
+EXPOSE 8181 $SDNC_SECUREPORT
