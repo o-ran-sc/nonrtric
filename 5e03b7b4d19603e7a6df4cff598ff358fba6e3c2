@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "bfecaebb_35d8a9ac",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/AsyncRestClient.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-05-01T10:32:33Z",
+      "side": 1,
+      "message": "Yes - and you often just want to know what messages were sent where.",
+      "parentUuid": "826c2e4f_5883e97e",
+      "range": {
+        "startLine": 53,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 1
+      },
+      "revId": "5e03b7b4d19603e7a6df4cff598ff358fba6e3c2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4da468c0_2efbfda2",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/AsyncRestClient.java",
         "patchSetId": 3
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "The logger for this class there can individually be enabled and disabled too. \nThe logger for this class prints URIs on DEBUG level and bodies etc.on TRACE level.",
       "parentUuid": "4da468c0_2efbfda2",
+      "range": {
+        "startLine": 66,
+        "startChar": 1,
+        "endLine": 66,
+        "endChar": 2
+      },
+      "revId": "5e03b7b4d19603e7a6df4cff598ff358fba6e3c2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e462e63_49f87972",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/AsyncRestClient.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-05-01T10:32:33Z",
+      "side": 1,
+      "message": "Yes i am very aware of that. \nI am requesting a separate logger - that would JUST have the messages and would NOT have all of the other trace/debug information logged to it.\nIf you don\u0027t want to do this in this review then it can be merged and I will raise a separate ticket for all components.",
+      "parentUuid": "64e994a8_08817200",
       "range": {
         "startLine": 66,
         "startChar": 1,
