@@ -205,8 +205,8 @@ public class ApplicationConfigParser {
             dmaapProps.put("group", path.consumerGroup);
             dmaapProps.put("id", path.consumerId);
             dmaapProps.put("TransportType", ProtocolTypeConstants.HTTPNOAUTH.toString());
-            dmaapProps.put("timeout", 15000);
-            dmaapProps.put("limit", 100);
+            dmaapProps.put("timeout", "15000");
+            dmaapProps.put("limit", "100");
             dmaapProps.put("maxBatchSize", "10");
             dmaapProps.put("maxAgeMs", "10000");
             dmaapProps.put("compress", true);

@@ -68,8 +68,8 @@ public class ApplicationConfigParserTest {
             () -> assertEquals("admin", actualPublisherConfig.get("password"), "Wrong password"),
             () -> assertEquals(ProtocolTypeConstants.HTTPNOAUTH.toString(), actualPublisherConfig.get("TransportType"),
                 "Wrong TransportType"),
-            () -> assertEquals(15000, actualPublisherConfig.get("timeout"), "Wrong timeout"),
-            () -> assertEquals(100, actualPublisherConfig.get("limit"), "Wrong limit"));
+            () -> assertEquals("15000", actualPublisherConfig.get("timeout"), "Wrong timeout"),
+            () -> assertEquals("100", actualPublisherConfig.get("limit"), "Wrong limit"));
 
         Properties actualConsumerConfig = result.dmaapConsumerConfig();
         assertAll("consumerConfig",
@@ -84,8 +84,8 @@ public class ApplicationConfigParserTest {
             () -> assertEquals("policy-agent", actualConsumerConfig.get("id"), "Wrong id"),
             () -> assertEquals(ProtocolTypeConstants.HTTPNOAUTH.toString(), actualConsumerConfig.get("TransportType"),
                 "Wrong TransportType"),
-            () -> assertEquals(15000, actualConsumerConfig.get("timeout"), "Wrong timeout"),
-            () -> assertEquals(100, actualConsumerConfig.get("limit"), "Wrong limit"));
+            () -> assertEquals("15000", actualConsumerConfig.get("timeout"), "Wrong timeout"),
+            () -> assertEquals("100", actualConsumerConfig.get("limit"), "Wrong limit"));
 
         Map<String, ControllerConfig> controllers = result.controllerConfigs();
         assertEquals(1, controllers.size(), "size");

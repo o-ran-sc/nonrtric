@@ -58,7 +58,7 @@
         <formatter-maven-plugin.version>2.8.1</formatter-maven-plugin.version>
         <spotless-maven-plugin.version>1.18.0</spotless-maven-plugin.version>
         <docker-maven-plugin>0.30.0</docker-maven-plugin>
-        <version.dmaap>1.1.9</version.dmaap>
+        <version.dmaap>1.1.11</version.dmaap>
         <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
         <sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
