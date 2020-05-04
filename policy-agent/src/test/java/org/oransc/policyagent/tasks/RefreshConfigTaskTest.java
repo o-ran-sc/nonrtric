@@ -124,7 +124,7 @@ public class RefreshConfigTaskTest {
         RefreshConfigTask obj = spy(new RefreshConfigTask(appConfig, rics, policies, new Services(), new PolicyTypes(),
             new A1ClientFactory(appConfig)));
         if (stubConfigFileExists) {
-            doReturn(configFileExists).when(obj).configFileExists();
+            doReturn(configFileExists).when(obj).fileExists(any());
         }
         return obj;
     }

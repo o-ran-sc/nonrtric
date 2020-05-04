@@ -23,6 +23,7 @@ package org.oransc.policyagent.clients;
 import java.lang.invoke.MethodHandles;
 import java.util.List;
 
+import org.json.JSONObject;
 import org.oransc.policyagent.configuration.RicConfig;
 import org.oransc.policyagent.repository.Policy;
 import org.slf4j.Logger;
@@ -125,6 +126,19 @@ public class OscA1Client implements A1Client {
         uri = new UriBuilder(ricConfig);
     }
 
+    public static Mono<String> extractCreateSchema(String policyTypeResponse, String policyTypeId) {
+        try {
+            JSONObject obj = new JSONObject(policyTypeResponse);
+            JSONObject schemaObj = obj.getJSONObject("create_schema");
+            schemaObj.put(TITLE, policyTypeId);
+            return Mono.just(schemaObj.toString());
+        } catch (Exception e) {
+            String exceptionString = e.toString();
+            logger.error("Unexpected response for policy type: {}, exception: {}", policyTypeResponse, exceptionString);
+            return Mono.error(e);
+        }
+    }
+
     @Override
     public Mono<List<String>> getPolicyTypeIdentities() {
         return getPolicyTypeIds() //
@@ -142,7 +156,7 @@ public class OscA1Client implements A1Client {
     public Mono<String> getPolicyTypeSchema(String policyTypeId) {
         String schemaUri = uri.createGetSchemaUri(policyTypeId);
         return restClient.get(schemaUri) //
-            .flatMap(response -> SdncJsonHelper.getCreateSchema(response, policyTypeId));
+            .flatMap(response -> extractCreateSchema(response, policyTypeId));
     }
 
     @Override
