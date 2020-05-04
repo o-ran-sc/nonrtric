@@ -1,9 +1,8 @@
-This source repository contains the code for the SDN-A1 Controller northbound interface adaptors.
-To compile this code:
+This source repository contains the code for the SDNC-A1 Controller northbound interface.
 
-1. Make sure your local Maven settings file ($HOME/.m2/settings.xml) contains references to the OpenECOMP repositories and OpenDaylight repositories.  See example-settings.xml for an example.
+It contains an OSGI bundle named "nonrt-ric-api" that provides the interface for A1 operations.
 
-2. To compile, run "mvn clean install".
+To compile, run "mvn clean install".
 
 ## License
 

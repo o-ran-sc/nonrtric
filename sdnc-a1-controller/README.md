@@ -1,6 +1,12 @@
 # O-RAN-SC Non-RealTime RIC - A1 Controller
 
-SDNC provides Northbound Interface for A1 operation to do policy management on XAPPS's in Near-RealTime RIC's.
+SDNC-A1 controller provides a Northbound Interface for A1 operations to do policy management in Near-RealTime RICs.
+
+It is a very lightweight version of ONAP SDNC.
+
+Many features/components of SDNC that are not needed for A1 operations have been removed from both northbound and oam directories.
+
+This makes it very fast to start the controller and also puts less load on the CPU.
 
 Please see the documentation in the docs/ folder
 

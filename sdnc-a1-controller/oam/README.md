@@ -1,4 +1,12 @@
-This source repository contains the code for SDN-A1 Controller operations, administration and maintenance utilities. To compile, run "mvn clean install".
+This source repository contains the code for SDNC-A1 Controller operations, administration and maintenance utilities.
+
+It adds the features from northbound directory and creates the docker image for SDNC-A1 controller.
+
+It also contains the keystore, the script to start OpenDaylight, and the healthcheck script.
+
+The docker-compose file is also included in this directory.
+
+To compile, run "mvn clean install".
 
 ## License
 
