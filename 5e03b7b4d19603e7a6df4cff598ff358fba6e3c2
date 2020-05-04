@@ -144,6 +144,30 @@
     },
     {
       "key": {
+        "uuid": "97ba413f_f068f5e7",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/AsyncRestClient.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-05-04T07:26:15Z",
+      "side": 1,
+      "message": "Please write a ticket then. \nThis logger (the logger fot this class) already contains JUST this information (REST call information) and does NOT contain anything else. It can already be enabled separately. \n\nIf you write a ticket, please describe which problem you you want to solve, because that is unclear to me. Please also consider how the idea of having several different log files would integrate to the spring boot framework and Kibana (which is used in ONAP).",
+      "parentUuid": "9e462e63_49f87972",
+      "range": {
+        "startLine": 66,
+        "startChar": 1,
+        "endLine": 66,
+        "endChar": 2
+      },
+      "revId": "5e03b7b4d19603e7a6df4cff598ff358fba6e3c2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c7aee718_6c7fab88",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/AsyncRestClient.java",
         "patchSetId": 3
