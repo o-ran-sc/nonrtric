@@ -54,7 +54,7 @@ start_control_panel
 
 start_policy_agent
 
-use_agent_rest
+use_agent_rest_http
 
 set_agent_debug
 

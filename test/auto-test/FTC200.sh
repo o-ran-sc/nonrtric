@@ -48,11 +48,9 @@ consul_config_app                  ".consul_config.json"
 
 start_control_panel
 
-#start_sdnc
-
 start_policy_agent
 
-use_agent_rest
+use_agent_rest_http
 
 #Verify no callbacks or dmaap messages has been sent
 cr_equal received_callbacks 0

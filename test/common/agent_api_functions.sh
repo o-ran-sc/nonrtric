@@ -79,10 +79,10 @@ __do_curl_to_agent() {
         return 1
     fi
 
-    if [ $ADAPTER == $RESTBASE ]; then
+    if [ $ADAPTER == $RESTBASE ] || [ $ADAPTER == $RESTBASE_SECURE ]; then
         url=" "${ADAPTER}${2}
         oper=" -X "$oper
-        curlString="curl"${oper}${timeout}${httpcode}${accept}${content}${url}${file}
+        curlString="curl -k "${oper}${timeout}${httpcode}${accept}${content}${url}${file}
         echo " CMD: "$curlString >> $HTTPLOG
 		if [ $# -eq 3 ]; then
 			echo " FILE: $(<$3)" >> $HTTPLOG
@@ -126,7 +126,7 @@ __do_curl_to_agent() {
             file=" --data-binary "$payload
         fi
 		#urlencode the request url since it will be carried by send-request url
-		requestUrl=$(python -c "from __future__ import print_function; import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))"  "$2")
+		requestUrl=$(python3 -c "from __future__ import print_function; import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))"  "$2")
         url=" "${ADAPTER}"/send-request?url="${requestUrl}"&operation="${oper}
         curlString="curl -X POST${timeout}${httpcode}${content}${url}${file}"
         echo " CMD: "$curlString >> $HTTPLOG
@@ -286,7 +286,7 @@ api_get_policies() {
 
 		targetJson=$targetJson"]"
 		echo "TARGET JSON: $targetJson" >> $HTTPLOG
-		res=$(python ../common/compare_json.py "$targetJson" "$body" "id")
+		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 		if [ $res -ne 0 ]; then
 			echo -e $RED" FAIL, returned body not correct"$ERED
@@ -331,7 +331,7 @@ api_get_policy() {
 		sed 's/XXX/'${2}'/g' $3 > $file
 		targetJson=$(< $file)
 		echo "TARGET JSON: $targetJson" >> $HTTPLOG
-		res=$(python ../common/compare_json.py "$targetJson" "$body")
+		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 		if [ $res -ne 0 ]; then
 			echo -e $RED" FAIL, returned body not correct"$ERED
 			((RES_FAIL++))
@@ -381,7 +381,7 @@ api_put_policy() {
 		sed 's/XXX/'${pid}'/g' $6 > $file
     	res="$(__do_curl_to_agent PUT $query $file)"
     	status=${res:${#res}-3}
-		echo -ne " Creating "$count"("$max")\033[0K\r"
+		echo -ne " Creating "$count"("$max")${SAMELINE}"
 
 		if [ $status -ne $1 ]; then
 			let pid=$pid+1
@@ -393,7 +393,7 @@ api_put_policy() {
 
 		let pid=$pid+1
 		let count=$count+1
-		echo -ne " Created  "$count"("$max")\033[0K\r"
+		echo -ne " Created  "$count"("$max")${SAMELINE}"
 	done
 	echo ""
 
@@ -429,7 +429,7 @@ api_delete_policy() {
 		query="/policy?id="$pid
 		res="$(__do_curl_to_agent DELETE $query)"
 		status=${res:${#res}-3}
-		echo -ne " Deleting "$count"("$max")\033[0K\r"
+		echo -ne " Deleting "$count"("$max")${SAMELINE}"
 
 		if [ $status -ne $1 ]; then
 			echo " Deleted "$count"?("$max")"
@@ -439,7 +439,7 @@ api_delete_policy() {
 		fi
 		let pid=$pid+1
 		let count=$count+1
-		echo -ne " Deleted  "$count"("$max")\033[0K\r"
+		echo -ne " Deleted  "$count"("$max")${SAMELINE}"
 	done
 	echo ""
 
@@ -507,7 +507,7 @@ api_get_policy_ids() {
 
 		targetJson=$targetJson"]"
 		echo "TARGET JSON: $targetJson" >> $HTTPLOG
-		res=$(python ../common/compare_json.py "$targetJson" "$body")
+		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 		if [ $res -ne 0 ]; then
 			echo -e $RED" FAIL, returned body not correct"$ERED
@@ -550,7 +550,7 @@ api_get_policy_schema() {
 
 		targetJson=$(< $3)
 		echo "TARGET JSON: $targetJson" >> $HTTPLOG
-		res=$(python ../common/compare_json.py "$targetJson" "$body")
+		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 		if [ $res -ne 0 ]; then
 			echo -e $RED" FAIL, returned body not correct"$ERED
@@ -602,13 +602,13 @@ api_get_policy_schemas() {
 			if [ $file == "NOFILE" ]; then
 				targetJson=$targetJson"{}"
 			else
-				targetJson=$targetJson$(< $3)
+				targetJson=$targetJson$(< $file)
 			fi
 		done
 
 		targetJson=$targetJson"]"
 		echo "TARGET JSON: $targetJson" >> $HTTPLOG
-		res=$(python ../common/compare_json.py "$targetJson" "$body")
+		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 		if [ $res -ne 0 ]; then
 			echo -e $RED" FAIL, returned body not correct"$ERED
@@ -666,7 +666,7 @@ api_get_policy_status() {
 
 	echo "TARGET JSON: $targetJson" >> $HTTPLOG
 	body=${res:0:${#res}-3}
-	res=$(python ../common/compare_json.py "$targetJson" "$body")
+	res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 	if [ $res -ne 0 ]; then
 		echo -e $RED" FAIL, returned body not correct"$ERED
@@ -725,7 +725,7 @@ api_get_policy_types() {
 
 		targetJson=$targetJson"]"
 		echo "TARGET JSON: $targetJson" >> $HTTPLOG
-		res=$(python ../common/compare_json.py "$targetJson" "$body")
+		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 		if [ $res -ne 0 ]; then
 			echo -e $RED" FAIL, returned body not correct"$ERED
@@ -841,7 +841,7 @@ api_get_rics() {
 
 	if [ $# -gt 2 ]; then
 		body=${res:0:${#res}-3}
-		res=$(python ../common/create_rics_json.py ".tmp_rics.json" "$3" )
+		res=$(python3 ../common/create_rics_json.py ".tmp_rics.json" "$3" )
 		if [ $res -ne 0 ]; then
 			echo -e $RED" FAIL, could not create target ric info json"$ERED
 			((RES_FAIL++))
@@ -850,7 +850,7 @@ api_get_rics() {
 
 		targetJson=$(<.tmp_rics.json)
     	echo "TARGET JSON: $targetJson" >> $HTTPLOG
-		res=$(python ../common/compare_json.py "$targetJson" "$body")
+		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 		if [ $res -ne 0 ]; then
 			echo -e $RED" FAIL, returned body not correct"$ERED
 			((RES_FAIL++))
@@ -960,7 +960,7 @@ api_get_services() {
 		done
 		targetJson=$targetJson"]"
 		echo "TARGET JSON: $targetJson" >> $HTTPLOG
-		res=$(python ../common/compare_json.py "$targetJson" "$body" "serviceName")
+		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 		if [ $res -ne 0 ]; then
 			echo -e $RED" FAIL, returned body not correct"$ERED
 			((RES_FAIL++))
@@ -1007,7 +1007,7 @@ api_get_service_ids() {
 
 	targetJson=$targetJson"]"
 	echo "TARGET JSON: $targetJson" >> $HTTPLOG
-	res=$(python ../common/compare_json.py "$targetJson" "$body" "serviceName")
+	res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 	if [ $res -ne 0 ]; then
 		echo -e $RED" FAIL, returned body not correct"$ERED

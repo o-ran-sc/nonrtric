@@ -1,1 +1,4 @@
+.tmp.json
+.dockererr
 .env
+fakedir

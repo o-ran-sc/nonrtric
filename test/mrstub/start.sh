@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #  ============LICENSE_START===============================================
 #  Copyright (C) 2020 Nordix Foundation. All rights reserved.
 #  ========================================================================
@@ -15,19 +17,5 @@
 #  ============LICENSE_END=================================================
 #
 
-version: '3.0'
-networks:
-  default:
-    external:
-      name: ${DOCKER_SIM_NWNAME}
-services:
-  message-router:
-    networks:
-      - default
-    container_name: ${MR_APP_NAME}
-    image: ${MRSTUB_IMAGE}
-    ports:
-      - ${MR_EXTERNAL_PORT}:${MR_INTERNAL_PORT}
-      - ${MR_EXTERNAL_SECURE_PORT}:${MR_INTERNAL_SECURE_PORT}
-    volumes:
-      - ${MR_CERT_MOUNT_DIR}:/usr/src/app/cert:ro
+nodejs frontend.js &
+python3 -u ./mr.py

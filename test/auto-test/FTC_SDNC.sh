@@ -21,6 +21,8 @@ TC_ONELINE_DESCR="Create 1 policy with SDNC and 1 policy without SDNC over agent
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
+. ../common/ricsimulator_api_functions.sh
+. ../common/controller_api_functions.sh
 
 #### TEST BEGIN ####
 
@@ -54,7 +56,7 @@ for TEST in $VARIANTS ; do
 
     set_agent_debug
 
-    use_agent_rest
+    use_agent_rest_http
 
     echo "Using: "$TEST
 

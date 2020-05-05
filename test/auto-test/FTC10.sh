@@ -21,7 +21,7 @@ TC_ONELINE_DESCR="Basic use case, register rapp, create/update policy, delete po
 
 . ../common/testcase_common.sh $@
 . ../common/agent_api_functions.sh
-
+. ../common/ricsimulator_api_functions.sh
 
 #### TEST BEGIN ####
 
@@ -47,11 +47,11 @@ consul_config_app                  ".consul_config.json"
 
 start_control_panel
 
-#start_sdnc
-
 start_policy_agent
 
-use_agent_rest
+set_agent_debug
+
+use_agent_rest_http
 
 api_get_status 200
 
@@ -65,9 +65,9 @@ api_equal json:policy_types 2 60
 
 
 # Create policies
-use_agent_rest
+use_agent_rest_http
 
-api_put_service 201 "rapp1" 3600 "$CR_PATH/callbacks/1"
+api_put_service 201 "rapp1" 3600 "$CR_PATH/1"
 
 api_put_policy 201 "rapp1" ricsim_g1_1 1 2000 testdata/OSC/pi1_template.json 1
 
@@ -81,7 +81,7 @@ api_put_policy 201 "rapp1" ricsim_g1_1 1 3000 testdata/OSC/pi1_template.json 1
 sim_equal ricsim_g1_1 num_instances 2
 
 
-use_agent_rest
+use_agent_rest_http
 
 api_put_policy 201 "rapp1" ricsim_g2_1 NOTYPE 2100 testdata/STD/pi1_template.json 1
 
@@ -96,7 +96,7 @@ sim_equal ricsim_g2_1 num_instances 2
 
 
 #Update policies
-use_agent_rest
+use_agent_rest_http
 
 api_put_service 200 "rapp1" 3600 "$CR_PATH/callbacks/1"
 
@@ -112,7 +112,7 @@ api_put_policy 200 "rapp1" ricsim_g1_1 1 3000 testdata/OSC/pi1_template.json 1
 sim_equal ricsim_g1_1 num_instances 2
 
 
-use_agent_rest
+use_agent_rest_http
 
 
 api_put_policy 200 "rapp1" ricsim_g2_1 NOTYPE 2100 testdata/STD/pi1_template.json 1
@@ -136,18 +136,18 @@ api_get_policy 200 3100 testdata/STD/pi1_template.json
 
 use_agent_dmaap
 api_delete_policy 204 2000
-use_agent_rest
+use_agent_rest_http
 api_delete_policy 204 3000
 use_agent_dmaap
 api_delete_policy 204 2100
-use_agent_rest
+use_agent_rest_http
 api_delete_policy 204 3100
 
 sim_equal ricsim_g1_1 num_instances 0
 sim_equal ricsim_g2_1 num_instances 0
 
 # Check policy removal
-use_agent_rest
+use_agent_rest_http
 api_get_policy 404 2000
 api_get_policy 404 3000
 api_get_policy 404 2100

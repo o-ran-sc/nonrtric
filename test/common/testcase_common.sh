@@ -20,6 +20,7 @@
 # This is a script that contains all the functions needed for auto test
 # Arg: local|remote|remote-remove [auto-clean]
 
+
 #Formatting for 'echo' cmd
 BOLD="\033[1m"
 EBOLD="\033[0m"
@@ -29,6 +30,18 @@ GREEN="\033[32m\033[1m"
 EGREEN="\033[0m"
 YELLOW="\033[33m\033[1m"
 EYELLOW="\033[0m"
+SAMELINE="\033[0K\r"
+
+tmp=$(which python3)
+if [ $? -ne 0 ] || [ -z tmp ]; then
+	echo -e $RED"python3 is required to run the test environment, pls install"$ERED
+	exit 1
+fi
+tmp=$(which docker)
+if [ $? -ne 0 ] || [ -z tmp ]; then
+	echo -e $RED"docker is required to run the test environment, pls install"$ERED
+	exit 1
+fi
 
 # Just resetting any previous echo formatting...
 echo -ne $EBOLD$ERED$EGREEN
@@ -45,6 +58,12 @@ G3_A1_VERSION=""
 G1_COUNT=0
 G2_COUNT=0
 G3_COUNT=0
+
+# Var to switch between http and https. Extra curl flag needed for https
+export RIC_SIM_HTTPX="http"
+export RIC_SIM_LOCALHOST=$RIC_SIM_HTTPX"://localhost:"
+export RIC_SIM_PORT=$RIC_SIM_INTERNAL_PORT
+export RIC_SIM_CERT_MOUNT_DIR="./fakedir"  #Fake dir so that the sim container does not find any cert
 
 #Localhost constant
 LOCALHOST="http://localhost:"
@@ -209,6 +228,8 @@ __check_image_var " Callback Receiver" $1 "CR_IMAGE" "CR_LOCAL_IMAGE" "CR_LOCAL_
 __check_image_var " Consul" $1 "CONSUL_IMAGE" "CONSUL_REMOTE_IMAGE" "CONSUL_REMOTE_IMAGE_TAG"
 __check_image_var " CBS" $1 "CBS_IMAGE" "CBS_REMOTE_IMAGE" "CBS_REMOTE_IMAGE_TAG"
 __check_image_var " SDNC DB" $1 "SDNC_DB_IMAGE" "SDNC_DB_REMOTE_IMAGE" "SDNC_DB_REMOTE_IMAGE_TAG"
+__check_image_var " SDNC ONAP A1 Adapter" $1 "SDNC_ONAP_A1_ADAPTER_IMAGE" "SDNC_ONAP_A1_ADAPTER_REMOTE_IMAGE" "SDNC_ONAP_A1_ADAPTER_REMOTE_IMAGE_TAG"
+__check_image_var " SDNC ONAP DB" $1 "SDNC_ONAP_DB_IMAGE" "SDNC_ONAP_DB_REMOTE_IMAGE" "SDNC_ONAP_DB_REMOTE_IMAGE_TAG"
 
 #Errors in image setting - exit
 if [ $IMAGE_ERR -ne 0 ]; then
@@ -263,37 +284,40 @@ __check_and_pull_image() {
 		fi
 	elif [ $1 == "remote" ] || [ $1 == "remote-remove" ]; then
 		if [ $1 == "remote-remove" ]; then
-			echo -ne "  Attempt to stop and remove container(s), if running - \033[0K\r"
+			echo -ne "  Attempt to stop and remove container(s), if running - ${SAMELINE}"
 			tmp="$(docker ps -aq --filter name=${3})"
 			if [ $? -eq 0 ] && [ ! -z "$tmp" ]; then
-				docker stop $tmp &> /dev/null
+				docker stop $tmp &> .dockererr
 				if [ $? -ne 0 ]; then
 					((IMAGE_ERR++))
 					echo ""
 					echo -e $RED"  Container(s) could not be stopped - try manual stopping the container(s)"$ERED
+					cat .dockererr
 					return 1
 				fi
 			fi
-			echo -ne "  Attempt to stop and remove container(s), if running - "$GREEN"stopped"$EGREEN"\033[0K\r"
+			echo -ne "  Attempt to stop and remove container(s), if running - "$GREEN"stopped"$EGREEN"${SAMELINE}"
 			tmp="$(docker ps -aq --filter name=${3})" &> /dev/null
 			if [ $? -eq 0 ] && [ ! -z "$tmp" ]; then
-				docker rm $tmp &> /dev/null
+				docker rm $tmp &> .dockererr
 				if [ $? -ne 0 ]; then
 					((IMAGE_ERR++))
 					echo ""
 					echo -e $RED"  Container(s) could not be removed - try manual removal of the container(s)"$ERED
+					cat .dockererr
 					return 1
 				fi
 			fi
 			echo -e "  Attempt to stop and remove container(s), if running - "$GREEN"stopped removed"$EGREEN
-			echo -ne "  Removing image - \033[0K\r"
+			echo -ne "  Removing image - ${SAMELINE}"
 			tmp="$(docker images -q ${4})" &> /dev/null
 			if [ $? -eq 0 ] && [ ! -z "$tmp" ]; then
-				docker rmi $4 &> /dev/null
+				docker rmi $4 &> .dockererr
 				if [ $? -ne 0 ]; then
 					((IMAGE_ERR++))
 					echo ""
 					echo -e $RED"  Image could not be removed - try manual removal of the image"$ERED
+					cat .dockererr
 					return 1
 				fi
 				echo -e "  Removing image - "$GREEN"removed"$EGREEN
@@ -303,13 +327,14 @@ __check_and_pull_image() {
 			tmp_im=""
 		fi
 		if [ -z "$tmp_im" ]; then
-			echo -ne "  Pulling image\033[0K\r"
-			docker pull $4	 > /dev/null
+			echo -ne "  Pulling image${SAMELINE}"
+			docker pull $4	&> .dockererr
 			tmp_im=$(docker images ${4} | grep -v REPOSITORY)
 			if [ -z "$tmp_im" ]; then
 				echo ""
 				echo -e "  Pulling image -$RED could not be pulled"$ERED
 				((IMAGE_ERR++))
+				cat .dockererr
 				return 1
 			fi
 			echo -e "  Pulling image -$GREEN Pulled $EGREEN"
@@ -331,6 +356,8 @@ app="Near-RT RIC Simulator";    __check_and_pull_image $1 "$app" $RIC_SIM_PREFIX
 app="Consul";                   __check_and_pull_image $1 "$app" $CONSUL_APP_NAME $CONSUL_IMAGE
 app="CBS";                      __check_and_pull_image $1 "$app" $CBS_APP_NAME $CBS_IMAGE
 app="SDNC DB";                  __check_and_pull_image $1 "$app" $SDNC_APP_NAME $SDNC_DB_IMAGE
+app="SDNC ONAP A1 Adapter";     __check_and_pull_image $1 "$app" $SDNC_ONAP_APP_NAME $SDNC_ONAP_A1_ADAPTER_IMAGE
+app="SDNC ONAP DB";             __check_and_pull_image $1 "$app" $SDNC_ONAP_APP_NAME $SDNC_ONAP_DB_IMAGE
 
 # MR stub image not checked, will be built by this script - only local image
 # CR stub image not checked, will be built by this script - only local image
@@ -354,23 +381,25 @@ curdir=$PWD
 cd $curdir
 cd ../mrstub
 echo " Building mrstub image: mrstub:latest"
-docker build -t mrstub . &> /dev/null
+docker build -t mrstub . &> .dockererr
 if [ $? -eq 0 ]; then
 	echo -e  $GREEN" Build Ok"$EGREEN
 else
 	echo -e $RED" Build Failed"$ERED
 	((RES_CONF_FAIL++))
+	cat .dockererr
 fi
 cd $curdir
 
 cd ../cr
 echo " Building Callback Receiver image: callback-receiver:latest"
-docker build -t callback-receiver . &> /dev/null
+docker build -t callback-receiver . &> .dockererr
 if [ $? -eq 0 ]; then
 	echo -e  $GREEN" Build Ok"$EGREEN
 else
 	echo -e $RED" Build Failed"$ERED
 	((RES_CONF_FAIL++))
+	cat .dockererr
 fi
 cd $curdir
 
@@ -391,6 +420,8 @@ echo -e " Callback Receiver\t$(docker images --format $format_string $CR_IMAGE)"
 echo -e " Consul\t$(docker images --format $format_string $CONSUL_IMAGE)" >>   $docker_tmp_file
 echo -e " CBS\t$(docker images --format $format_string $CBS_IMAGE)" >>   $docker_tmp_file
 echo -e " SDNC DB\t$(docker images --format $format_string $SDNC_DB_IMAGE)" >>   $docker_tmp_file
+echo -e " SDNC ONAP A1 Adapter\t$(docker images --format $format_string $SDNC_ONAP_A1_ADAPTER_IMAGE)" >>   $docker_tmp_file
+echo -e " SDNC ONAP DB\t$(docker images --format $format_string $SDNC_ONAP_DB_IMAGE)" >>   $docker_tmp_file
 
 column -t -s $'\t' $docker_tmp_file
 
@@ -503,6 +534,8 @@ clean_containers() {
 					  "Control Panel          " $CONTROL_PANEL_APP_NAME\
 					  "SDNC A1 Controller     " $SDNC_APP_NAME\
 					  "SDNC DB                " $SDNC_DB_APP_NAME\
+					  "SDNC ONAP A1 Adapter   " $SDNC_ONAP_APP_NAME\
+					  "SDNC DB                " $SDNC_ONAP_DB_APP_NAME\
 					  "CBS                    " $CBS_APP_NAME\
 					  "Consul                 " $CONSUL_APP_NAME)
 
@@ -519,9 +552,9 @@ clean_containers() {
 		for((w=${#CONTR}; w<$nw; w=w+1)); do
 			CONTR="$CONTR "
 		done
-		echo -ne " $APP: $CONTR - ${GREEN}stopping${EGREEN}\033[0K\r"
+		echo -ne " $APP: $CONTR - ${GREEN}stopping${EGREEN}${SAMELINE}"
 		docker stop $(docker ps -qa --filter name=${CONTR}) &> /dev/null
-		echo -ne " $APP: $CONTR - ${GREEN}stopped${EGREEN}\033[0K\r"
+		echo -ne " $APP: $CONTR - ${GREEN}stopped${EGREEN}${SAMELINE}"
 		docker rm $(docker ps -qa --filter name=${CONTR}) &> /dev/null
 		echo -e  " $APP: $CONTR - ${GREEN}stopped removed${EGREEN}"
 	done
@@ -555,11 +588,11 @@ sleep_wait() {
 	start=$SECONDS
 	duration=$((SECONDS-start))
 	while [ $duration -lt $1 ]; do
-		echo -ne "  Slept for ${duration} seconds\033[0K\r"
+		echo -ne "  Slept for ${duration} seconds${SAMELINE}"
 		sleep 1
 		duration=$((SECONDS-start))
 	done
-	echo -ne "  Slept for ${duration} seconds\033[0K\r"
+	echo -ne "  Slept for ${duration} seconds${SAMELINE}"
 	echo ""
 }
 
@@ -590,12 +623,12 @@ __find_sim_port() {
 # Function to create the docker network for the test
 # Not to be called from the test script itself.
 __create_docker_network() {
-	tmp=$(docker network ls -q --filter name=$DOCKER_SIM_NWNAME)
+	tmp=$(docker network ls --format={{.Name}} --filter name=$DOCKER_SIM_NWNAME)
 	if [ $? -ne 0 ]; then
 		echo -e $RED" Could not check if docker network $DOCKER_SIM_NWNAME exists"$ERED
 		return 1
 	fi
-	if [ -z tmp ]; then
+	if [ "$tmp" != $DOCKER_SIM_NWNAME ]; then
 		echo -e "Creating docker network:$BOLD $DOCKER_SIM_NWNAME $EBOLD"
 		docker network create $DOCKER_SIM_NWNAME
 		if [ $? -ne 0 ]; then
@@ -608,29 +641,35 @@ __create_docker_network() {
 }
 
 # Check if container is started by calling url on localhost using a port, expects response code 2XX
-# args: <container-name> <port> <url>
+# args: <container-name> <port> <url> https|https
 # Not to be called from the test script itself.
 __check_container_start() {
-	if [ $# -ne 3 ]; then
+	paramError=0
+	if [ $# -ne 4 ]; then
+		paramError=1
+	elif [ $4 != "http" ] && [ $4 != "https" ]; then
+		paramError=1
+	fi
+	if [ $paramError -ne 0 ]; then
 		((RES_CONF_FAIL++))
-		__print_err "need 3 args, <container-name> <port> <url>" $@
+		__print_err "need 3 args, <container-name> <port> <url> https|https" $@
 		return 1
 	fi
-	echo -ne " Container $BOLD$1$EBOLD starting\033[0K\r"
+	echo -ne " Container $BOLD$1$EBOLD starting${SAMELINE}"
 	appname=$1
 	localport=$2
 	url=$3
-	pa_started=false
+	app_started=0
 	for i in {1..10}; do
-		if [ $(docker inspect --format '{{ .State.Running }}' $appname) ]; then
+		if [ "$(docker inspect --format '{{ .State.Running }}' $appname)" == "true" ]; then
 				echo -e " Container $BOLD$1$EBOLD$GREEN running$EGREEN on$BOLD image $(docker inspect --format '{{ .Config.Image }}' ${appname}) $EBOLD"
-				pa_started=true
+				app_started=1
 		   		break
 		 	else
 		   		sleep $i
 	 	fi
 	done
-	if ! [ $pa_started  ]; then
+	if [ $app_started -eq 0 ]; then
 		((RES_CONF_FAIL++))
 		echo ""
 		echo -e $RED" Container $BOLD${appname}$EBOLD could not be started"$ERED
@@ -638,31 +677,35 @@ __check_container_start() {
 	fi
 	if [ $localport -eq 0 ]; then
 		while [ $localport -eq 0 ]; do
-			echo -ne " Waiting for container ${appname} to publish its ports...\033[0K\r"
+			echo -ne " Waiting for container ${appname} to publish its ports...${SAMELINE}"
 			localport=$(__find_sim_port $appname)
 			sleep 1
-			echo -ne " Waiting for container ${appname} to publish its ports...retrying....\033[0K\r"
+			echo -ne " Waiting for container ${appname} to publish its ports...retrying....${SAMELINE}"
 		done
 		echo -ne " Waiting for container ${appname} to publish its ports...retrying....$GREEN OK $EGREEN"
 		echo ""
 	fi
 
 	pa_st=false
-	echo -ne " Waiting for container ${appname} service status...\033[0K\r"
+	echo -ne " Waiting for container ${appname} service status...${SAMELINE}"
 	for i in {1..20}; do
-		result="$(__do_curl $LOCALHOST${localport}${url})"
+		if [ $4 == "https" ]; then
+			result="$(__do_curl "-k https://localhost:"${localport}${url})"
+		else
+			result="$(__do_curl $LOCALHOST${localport}${url})"
+		fi
 		if [ $? -eq 0 ]; then
 			if [ ${#result} -gt 15 ]; then
 				#If response is too long, truncate
 				result="...response text too long, omitted"
 			fi
-			echo -ne " Waiting for container $BOLD${appname}$EBOLD service status, result: $result\033[0K\r"
+			echo -ne " Waiting for container $BOLD${appname}$EBOLD service status, result: $result${SAMELINE}"
 	   		echo -ne " Container $BOLD${appname}$EBOLD$GREEN is alive$EGREEN, responds to service status:$GREEN $result $EGREEN"
 	   		pa_st=true
 	   		break
 	 	else
 			#echo " Retrying in $i seconds"
-			echo -ne " Waiting for container ${appname} service status...retrying in $i seconds\033[0K\r"
+			echo -ne " Waiting for container ${appname} service status...retrying in $i seconds${SAMELINE}"
 	   		sleep $i
 	 	fi
 	done
@@ -683,9 +726,9 @@ __check_container_start() {
 __start_container() {
 
 	variableArgCount=$(($#-2))
-	if [ $# -lt 5 ] && [ [ $(($variableArgCount%3)) -ne 0 ]; then
+	if [ $# -lt 6 ] && [ [ $(($variableArgCount%4)) -ne 0 ]; then
 		((RES_CONF_FAIL++))
-    	__print_err "need 5 or more args,  <docker-compose-dir> NODOCKERARGS|<docker-compose-arg> <app-name> <port-number> <alive-url> [<app-name> <port-number> <alive-url>]*" $@
+    	__print_err "need 6 or more args,  <docker-compose-dir> NODOCKERARGS|<docker-compose-arg> <app-name> <port-number> <alive-url> http|https [<app-name> <port-number> <alive-url> http|https ]*" $@
 		exit 1
 	fi
 
@@ -696,9 +739,17 @@ __start_container() {
 	cd $1
 
 	if [ "$2" == "NODOCKERARGS" ]; then
-		docker-compose up -d &> /dev/null
+		docker-compose up -d &> .dockererr
+		if [ $? -ne 0 ]; then
+			echo -e $RED"Problem to launch container(s) with docker-compose"$ERED
+			cat .dockererr
+		fi
 	else
-		docker-compose up -d $2 &> /dev/null
+		docker-compose up -d $2 &> .dockererr
+		if [ $? -ne 0 ]; then
+			echo -e $RED"Problem to launch container(s) with docker-compose"$ERED
+			cat .dockererr
+		fi
 	fi
 
 	shift; shift;
@@ -707,9 +758,10 @@ __start_container() {
 		app=$1; shift;
 		port=$1; shift;
 		url=$1; shift;
-		let cntr=cntr+3
+		httpx=$1; shift;
+		let cntr=cntr+4
 
-		__check_container_start "$app" "$port" "$url"
+		__check_container_start "$app" "$port" "$url" $httpx
 	done
 
 	cd $curdir
@@ -752,7 +804,7 @@ consul_config_app() {
 		targetJson=$(< $1)
 		targetJson="{\"config\":"$targetJson"}"
 		echo "TARGET JSON: $targetJson" >> $HTTPLOG
-		res=$(python ../common/compare_json.py "$targetJson" "$body")
+		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 		if [ $res -ne 0 ]; then
 			echo -e $RED" FAIL - policy json config read from consul/cbs is not equal to the intended json config...." $ERED
 			((RES_CONF_FAIL++))
@@ -767,7 +819,7 @@ consul_config_app() {
 }
 
 # Function to perpare the consul configuration according to the current simulator configuration
-# args: SDNC|NOSDNC <output-file>
+# args: SDNC|SDNC_ONAP|NOSDNC <output-file>
 # (Function for test scripts)
 prepare_consul_config() {
   	echo -e $BOLD"Prepare Consul config"$EBOLD
@@ -776,17 +828,19 @@ prepare_consul_config() {
 
 	if [ $# != 2 ];  then
 		((RES_CONF_FAIL++))
-    	__print_err "need two args,  SDNC|NOSDNC <output-file>" $@
+    	__print_err "need two args,  SDNC|SDNC_ONAP|NOSDNC <output-file>" $@
 		exit 1
 	fi
 
 	if [ $1 == "SDNC" ]; then
 		echo -e " Config$BOLD including SDNC$EBOLD configuration"
+	elif [ $1 == "SDNC_ONAP" ]; then
+		echo -e " Config$BOLD including SDNC ONAP$EBOLD configuration"
 	elif [ $1 == "NOSDNC" ];  then
-		echo -e " Config$BOLD excluding SDNC$EBOLD configuration"
+		echo -e " Config$BOLD excluding SDNC or SDNC ONAP$EBOLD configuration"
 	else
 		((RES_CONF_FAIL++))
-    	__print_err "need two args,  SDNC|NOSDNC <output-file>" $@
+    	__print_err "need two args,  SDNC|SDNC_ONAP|NOSDNC <output-file>" $@
 		exit 1
 	fi
 
@@ -798,6 +852,16 @@ prepare_consul_config() {
 		config_json=$config_json"\n                       \"baseUrl\": \"http://$SDNC_APP_NAME:$SDNC_INTERNAL_PORT\","
 		config_json=$config_json"\n                       \"userName\": \"$SDNC_USER\","
 		config_json=$config_json"\n                       \"password\": \"$SDNC_PWD\""
+		config_json=$config_json"\n                     }"
+		config_json=$config_json"\n   ],"
+	fi
+	if [ $1 == "SDNC_ONAP" ]; then
+		config_json=$config_json"\n   \"controller\": ["
+		config_json=$config_json"\n                     {"
+		config_json=$config_json"\n                       \"name\": \"$SDNC_ONAP_APP_NAME\","
+		config_json=$config_json"\n                       \"baseUrl\": \"http://$SDNC_ONAP_APP_NAME:$SDNC_ONAP_INTERNAL_PORT\","
+		config_json=$config_json"\n                       \"userName\": \"$SDNC_ONAP_USER\","
+		config_json=$config_json"\n                       \"password\": \"$SDNC_ONAP_PWD\""
 		config_json=$config_json"\n                     }"
 		config_json=$config_json"\n   ],"
 	fi
@@ -837,9 +901,11 @@ prepare_consul_config() {
 		fi
 		config_json=$config_json"\n          {"
 		config_json=$config_json"\n            \"name\": \"$ric\","
-		config_json=$config_json"\n            \"baseUrl\": \"http://$ric:$RIC_SIM_INTERNAL_PORT\","
+		config_json=$config_json"\n            \"baseUrl\": \"$RIC_SIM_HTTPX://$ric:$RIC_SIM_PORT\","
 		if [ $1 == "SDNC" ]; then
 			config_json=$config_json"\n            \"controller\": \"$SDNC_APP_NAME\","
+		elif [ $1 == "SDNC_ONAP" ]; then
+			config_json=$config_json"\n            \"controller\": \"$SDNC_ONAP_APP_NAME\","
 		fi
 		config_json=$config_json"\n            \"managedElementIds\": ["
 		config_json=$config_json"\n              \"me1_$ric\","
@@ -866,13 +932,31 @@ start_consul_cbs() {
 
 	echo -e $BOLD"Starting Consul and CBS"$EBOLD
 
-	__start_container consul_cbs NODOCKERARGS  "$CONSUL_APP_NAME" "$CONSUL_EXTERNAL_PORT" "/ui/dc1/kv" \
-	                                             "$CBS_APP_NAME" "$CBS_EXTERNAL_PORT" "/healthcheck"
+	__start_container consul_cbs NODOCKERARGS  "$CONSUL_APP_NAME" "$CONSUL_EXTERNAL_PORT" "/ui/dc1/kv" "http" \
+	                                             "$CBS_APP_NAME" "$CBS_EXTERNAL_PORT" "/healthcheck" "http"
 }
 
 ###########################
 ### RIC Simulator functions
 ###########################
+
+use_simulator_http() {
+	echo -e "Using unsecure $BOLD http $EBOLD towards the simulators"
+	export RIC_SIM_HTTPX="http"
+	export RIC_SIM_LOCALHOST=$RIC_SIM_HTTPX"://localhost:"
+	export RIC_SIM_PORT=$RIC_SIM_INTERNAL_PORT
+	export RIC_SIM_CERT_MOUNT_DIR="./fakedir"  #Fake dir so that the sim container does not find any cert
+	echo ""
+}
+
+use_simulator_https() {
+	echo -e "Using secure $BOLD https $EBOLD towards the simulators"
+	export RIC_SIM_HTTPX="https"
+	export RIC_SIM_LOCALHOST=$RIC_SIM_HTTPX"://localhost:"
+	export RIC_SIM_PORT=$RIC_SIM_INTERNAL_SECURE_PORT
+	export RIC_SIM_CERT_MOUNT_DIR="./cert"
+	echo ""
+}
 
 # Start one group (ricsim_g1, ricsim_g2 or ricsim_g3) with a number of RIC Simulators using a given A interface
 # args:  ricsim_g1|ricsim_g2|ricsim_g3 <count> <interface-id>
@@ -916,10 +1000,9 @@ start_ric_simulators() {
 	while [ $cntr -le $2 ]; do
 		app=$1"_"$cntr
 		port=0
-		app_data="$app_data $app $port /"
+		app_data="$app_data $app $port / "$RIC_SIM_HTTPX
 		let cntr=cntr+1
 	done
-
 	__start_container ric "$docker_args" $app_data
 
 }
@@ -935,7 +1018,7 @@ start_control_panel() {
 
 	echo -e $BOLD"Starting Control Panel"$EBOLD
 
-	__start_container control_panel NODOCKERARGS $CONTROL_PANEL_APP_NAME $CONTROL_PANEL_EXTERNAL_PORT "/"
+	__start_container control_panel NODOCKERARGS $CONTROL_PANEL_APP_NAME $CONTROL_PANEL_EXTERNAL_PORT "/" "http"
 
 }
 
@@ -950,8 +1033,56 @@ start_sdnc() {
 
 	echo -e $BOLD"Starting SDNC A1 Controller"$EBOLD
 
-	__start_container sdnc NODOCKERARGS $SDNC_APP_NAME $SDNC_EXTERNAL_PORT "/apidoc/explorer"
+	__start_container sdnc NODOCKERARGS $SDNC_APP_NAME $SDNC_EXTERNAL_PORT "/apidoc/explorer" "http"
 
+}
+
+#######################
+### SDNC ONAP functions
+#######################
+
+# Start the SDNC ONAP A1 Adapter
+# args: -
+# (Function for test scripts)
+start_sdnc_onap() {
+
+	echo -e $BOLD"Starting SDNC ONAP A1 Adapter"$EBOLD
+
+	__start_container sdnc_onap NODOCKERARGS $SDNC_ONAP_APP_NAME $SDNC_ONAP_EXTERNAL_PORT "/apidoc/explorer" "http"
+
+}
+
+# Configure the SDNC ONAP A1 Adapter
+# args: -
+# (Function for test scripts)
+config_sdnc_onap() {
+
+	echo -e $BOLD"Configuring SDNC ONAP A1 Adapter"$EBOLD
+
+	LOCALFILE=".sdnc_onap.prop"
+	REMOTEFILE="/tmp/.sdnc_onap.prop"
+
+	docker cp $SDNC_ONAP_APP_NAME:$SDNC_ONAP_PROPERTIES_FILE $LOCALFILE
+	if [ $? -ne 0 ]; then
+		echo -e $RED"Could not copy $SDNC_ONAP_PROPERTIES_FILE from $SDNC_ONAP_APP_NAME container"$ERED
+		exit 1
+	fi
+
+	#Config of the prop file shall be inserted here
+
+	#Copy file to /tmp and then to final destination, a trick to get correct permission of the file.
+
+	docker cp $LOCALFILE $SDNC_ONAP_APP_NAME:$REMOTEFILE
+	if [ $? -ne 0 ]; then
+		echo -e $RED"Could not copy local $LOCALFILE to $REMOTEFILE in $SDNC_ONAP_APP_NAME container"$ERED
+		exit 1
+	fi
+
+	docker exec -it $SDNC_ONAP_APP_NAME cp $REMOTEFILE $SDNC_ONAP_PROPERTIES_FILE
+	if [ $? -ne 0 ]; then
+		echo -e $RED"Could not copy $REMOTEFILE to $SDNC_ONAP_PROPERTIES_FILE in $SDNC_ONAP_APP_NAME container"$ERED
+		exit 1
+	fi
 }
 
 #####################
@@ -964,8 +1095,8 @@ start_sdnc() {
 start_mr() {
 
 	echo -e $BOLD"Starting Message Router 'mrstub'"$EBOLD
-
-	__start_container mr NODOCKERARGS $MR_APP_NAME $MR_EXTERNAL_PORT "/"
+	export MR_CERT_MOUNT_DIR="./cert"
+	__start_container mr NODOCKERARGS $MR_APP_NAME $MR_EXTERNAL_PORT "/" "http"
 
 }
 
@@ -980,7 +1111,7 @@ start_cr() {
 
 	echo -e $BOLD"Starting Callback Receiver"$EBOLD
 
-	__start_container cr NODOCKERARGS $CR_APP_NAME $CR_EXTERNAL_PORT "/"
+	__start_container cr NODOCKERARGS $CR_APP_NAME $CR_EXTERNAL_PORT "/" "http"
 
 }
 
@@ -995,16 +1126,25 @@ start_policy_agent() {
 
 	echo -e $BOLD"Starting Policy Agent"$EBOLD
 
-	__start_container policy_agent NODOCKERARGS $POLICY_AGENT_APP_NAME $POLICY_AGENT_EXTERNAL_PORT "/status"
+	__start_container policy_agent NODOCKERARGS $POLICY_AGENT_APP_NAME $POLICY_AGENT_EXTERNAL_PORT "/status" "http"
 
 }
 
 # All calls to the agent will be directed to the agent REST interface from now on
 # args: -
 # (Function for test scripts)
-use_agent_rest() {
-	echo -e $BOLD"Using agent REST interface"$EBOLD
+use_agent_rest_http() {
+	echo -e $BOLD"Using agent REST interface with http"$EBOLD
 	export ADAPTER=$RESTBASE
+	echo ""
+}
+
+# All calls to the agent will be directed to the agent REST interface from now on
+# args: -
+# (Function for test scripts)
+use_agent_rest_https() {
+	echo -e $BOLD"Using agent REST interface with https"$EBOLD
+	export ADAPTER=$RESTBASE_SECURE
 	echo ""
 }
 
@@ -1112,7 +1252,9 @@ store_logs() {
 	docker logs $CR_APP_NAME > $TESTLOGS/$ATC/$1_cr.log 2>&1
 	cp .httplog_${ATC}.txt $TESTLOGS/$ATC/$1_httplog_${ATC}.txt 2>&1
 
-	docker exec -it $SDNC_APP_NAME cat /opt/opendaylight/data/log/karaf.log > $TESTLOGS/$ATC/$1_karaf.log 2>&1
+	docker exec -it $SDNC_APP_NAME cat $SDNC_KARAF_LOG> $TESTLOGS/$ATC/$1_SDNC_karaf.log 2>&1
+
+	docker exec -it $SDNC_ONAP_APP_NAME cat $SDNC_ONAP_KARAF_LOG > $TESTLOGS/$ATC/$1_SDNC_ONAP_karaf.log 2>&1
 
 	rics=$(docker ps -f "name=$RIC_SIM_PREFIX" --format "{{.Names}}")
 	for ric in $rics; do
@@ -1190,10 +1332,10 @@ __var_test() {
 				result="$(__do_curl $2$path)"
 				retcode=$?
 				echo "$result" > .tmp.curl.json
-				result=$(python ../common/count_json_elements.py ".tmp.curl.json")
+				result=$(python3 ../common/count_json_elements.py ".tmp.curl.json")
 			fi
 			duration=$((SECONDS-start))
-			echo -ne " Result=${result} after ${duration} seconds\033[0K\r"
+			echo -ne " Result=${result} after ${duration} seconds${SAMELINE}"
 			let ctr=ctr+1
 			if [ $retcode -ne 0 ]; then
 				if [ $duration -gt $6 ]; then
@@ -1204,25 +1346,25 @@ __var_test() {
 				fi
 			elif [ $4 = "=" ] && [ "$result" -eq $5 ]; then
 				((RES_PASS++))
-				echo -e " Result=${result} after ${duration} seconds\033[0K\r"
+				echo -e " Result=${result} after ${duration} seconds${SAMELINE}"
 				echo -e $GREEN" PASS${EGREEN} - Result=${result} after ${duration} seconds"
 				#echo -e "----  \033[32m\033[1mPASS\033[0m - Test criteria met in ${duration} seconds ----"
 				return
 			elif [ $4 = ">" ] && [ "$result" -gt $5 ]; then
 				((RES_PASS++))
-				echo -e " Result=${result} after ${duration} seconds\033[0K\r"
+				echo -e " Result=${result} after ${duration} seconds${SAMELINE}"
 				echo -e $GREEN" PASS${EGREEN} - Result=${result} after ${duration} seconds"
 				#echo -e "----  \033[32m\033[1mPASS\033[0m - Test criteria met in ${duration} seconds, result = ${result}  ----"
 				return
 			elif [ $4 = "<" ] && [ "$result" -lt $5 ]; then
 				((RES_PASS++))
-				echo -e " Result=${result} after ${duration} seconds\033[0K\r"
+				echo -e " Result=${result} after ${duration} seconds${SAMELINE}"
 				echo -e $GREEN" PASS${EGREEN} - Result=${result} after ${duration} seconds"
 				#echo -e "----  \033[32m\033[1mPASS\033[0m - Test criteria met in ${duration} seconds, result = ${result}  ----"
 				return
 			elif [ $4 = "contain_str" ] && [[ $result =~ $5 ]]; then
 				((RES_PASS++))
-				echo -e " Result=${result} after ${duration} seconds\033[0K\r"
+				echo -e " Result=${result} after ${duration} seconds${SAMELINE}"
 				echo -e $GREEN" PASS${EGREEN} - Result=${result} after ${duration} seconds"
 				#echo -e "----  \033[32m\033[1mPASS\033[0m - Test criteria met in ${duration} seconds, result = ${result}  ----"
 				return
@@ -1253,7 +1395,7 @@ __var_test() {
 			result="$(__do_curl $2$path)"
 			retcode=$?
 			echo "$result" > .tmp.curl.json
-			result=$(python ../common/count_json_elements.py ".tmp.curl.json")
+			result=$(python3 ../common/count_json_elements.py ".tmp.curl.json")
 		fi
 		if [ $retcode -ne 0 ]; then
 			((RES_FAIL++))
@@ -1331,7 +1473,7 @@ mr_equal() {
 # (Function for test scripts)
 mr_greater() {
 	if [ $# -eq 2 ] || [ $# -eq 3 ]; then
-		__var_test "MR" "$LOCALHOST$MR_EXTERNAL_PORT/counter/" $1 "=" $2 $3
+		__var_test "MR" "$LOCALHOST$MR_EXTERNAL_PORT/counter/" $1 ">" $2 $3
 	else
 		((RES_CONF_FAIL++))
 		__print_err "Wrong args to mr_greater, needs two or three args: <sim-param> <target-value> [ timeout ]" $@

@@ -28,12 +28,12 @@ import traceback
 app = Flask(__name__)
 
 # list of messages to/from Dmaap
-msg_requests={}
+msg_requests=[]
 msg_responses={}
 
 # Server info
-HOST_IP = "0.0.0.0"
-HOST_PORT = 3905
+HOST_IP = "127.0.0.1"
+HOST_PORT = 2222
 
 # Metrics vars
 cntr_msg_requests_submitted=0
@@ -106,7 +106,7 @@ def sendrequest():
         msg=create_message(oper, correlation_id, payload, url)
         print(msg)
         print(APP_WRITE_URL+" MSG(correlationid = "+correlation_id+"): " + json.dumps(json.loads(msg), indent=2))
-        msg_requests[correlation_id]=msg
+        msg_requests.append(msg)
         cntr_msg_requests_submitted += 1
         return Response(correlation_id, status=200, mimetype=MIME_TEXT)
     except Exception as e:
@@ -151,15 +151,26 @@ def receiveresponse():
 def events_read():
     global msg_requests
     global cntr_msg_requests_fetched
+
+    limit=request.args.get('limit')
+    if (limit is None):
+        limit=4096
+    else:
+        limit=int(limit)
+    if (limit<0):
+        limit=0
+    if (limit>4096):
+        limit=4096
+    print("Limting number of returned messages to: "+str(limit))
     try:
         msgs=''
-        for item in msg_requests:
+        cntr=0
+        while(cntr<limit and len(msg_requests)>0):
             if (len(msgs)>1):
                 msgs=msgs+','
-            msgs=msgs+msg_requests[item]
+            msgs=msgs+msg_requests.pop(0)
             cntr_msg_requests_fetched += 1
-
-        msg_requests={}
+            cntr=cntr+1
         msgs='['+msgs+']'
         print(AGENT_READ_URL+" MSGs: "+json.dumps(json.loads(msgs), indent=2))
         return Response(msgs, status=200, mimetype=MIME_JSON)
@@ -255,7 +266,7 @@ def reset():
     cntr_msg_requests_fetched=0
     cntr_msg_responses_submitted=0
     cntr_msg_responses_fetched=0
-    msg_requests={}
+    msg_requests=[]
     msg_responses={}
     return Response('OK', status=200, mimetype=MIME_TEXT)
 

@@ -17,22 +17,23 @@
 #  ============LICENSE_END=================================================
 #
 
-TC_ONELINE_DESCR="Resync 10000 policies using OSC interface over REST"
+
+TC_ONELINE_DESCR="Resync of RIC via changes in the consul config"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
+. ../common/controller_api_functions.sh
 
 #### TEST BEGIN ####
 
-#Local vars in test script
-##########################
-# Path to callback receiver
-CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
 
+# Clean container and start all needed containers #
 clean_containers
 
-start_ric_simulators ricsim_g1 4 OSC_2.1.0
+# Start one RIC of each type
+start_ric_simulators ricsim_g1 1  OSC_2.1.0
+start_ric_simulators ricsim_g2 1  STD_1.1.3
 
 start_mr
 
@@ -41,50 +42,46 @@ start_cr
 start_consul_cbs
 
 prepare_consul_config      NOSDNC  ".consul_config.json"
+
 consul_config_app                  ".consul_config.json"
 
 start_control_panel
 
-
 start_policy_agent
 
-use_agent_rest_http
+api_equal json:rics 2 120
 
-api_get_status 200
 
-sim_print ricsim_g1_1 interface
+# Add an OSC RIC and check
+start_ric_simulators ricsim_g2 2  STD_1.1.3
 
-sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
+prepare_consul_config      NOSDNC  ".consul_config.json"
 
-api_equal json:policy_types 1 120  #Wait for the agent to refresh types from the simulator
+consul_config_app                  ".consul_config.json"
 
-api_put_service 201 "rapp1" 3600 "$CR_PATH/callbacks/1"
-
-api_put_policy 201 "rapp1" ricsim_g1_1 1 2000 testdata/OSC/pi1_template.json 10000
-
-sim_equal ricsim_g1_1 num_instances 10000
-
-sim_post_delete_instances 200 ricsim_g1_1
-
-sim_equal ricsim_g1_1 num_instances 0
-
-sim_equal ricsim_g1_1 num_instances 10000 300
-
-api_delete_policy 204 2435
-
-api_delete_policy 204 8693
-
-sim_post_delete_instances 200 ricsim_g1_1
-
-sim_post_delete_instances 200 ricsim_g1_1
-
-sim_equal ricsim_g1_1 num_instances 9998 300
-
+api_equal json:rics 3 120
 
 check_policy_agent_logs
+check_control_panel_logs
 
-#### TEST COMPLETE ####
+# Remove one OSC RIC and check
+start_ric_simulators ricsim_g2 1  STD_1.1.3
+
+prepare_consul_config      NOSDNC  ".consul_config.json"
+
+consul_config_app                  ".consul_config.json"
+
+api_equal json:rics 2 120
+
+check_policy_agent_logs
+check_control_panel_logs
 
 store_logs          END
 
+
+#### TEST COMPLETE ####
+
+
 print_result
+
+auto_clean_containers

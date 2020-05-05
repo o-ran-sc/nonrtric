@@ -62,7 +62,7 @@ __do_curl_to_controller() {
     fi
     body=${res:0:${#res}-3}
     echo "$body" > .sdnc-reply.json
-    res=$(python ../common/extract_sdnc_reply.py .sdnc-reply.json)
+    res=$(python3 ../common/extract_sdnc_reply.py .sdnc-reply.json)
     echo "  EXTRACED BODY+CODE: "$res >> $HTTPLOG
     echo "$res"
     return 0
@@ -122,7 +122,7 @@ controller_api_get_A1_policy_ids() {
 
 	echo " TARGET JSON: $targetJson" >> $HTTPLOG
 
-	res=$(python ../common/compare_json.py "$targetJson" "$body")
+	res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 	if [ $res -ne 0 ]; then
 		echo -e $RED" FAIL, returned body not correct"$ERED
@@ -178,7 +178,7 @@ controller_api_get_A1_policy_type() {
 
 		targetJson=$(< $5)
 		echo " TARGET JSON: $targetJson" >> $HTTPLOG
-		res=$(python ../common/compare_json.py "$targetJson" "$body")
+		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 		if [ $res -ne 0 ]; then
 			echo -e $RED" FAIL, returned body not correct"$ERED
@@ -337,7 +337,7 @@ controller_api_get_A1_policy_status() {
 
 		body=${res:0:${#res}-3}
 		echo " TARGET JSON: $targetJson" >> $HTTPLOG
-		res=$(python ../common/compare_json.py "$targetJson" "$body")
+		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 		if [ $res -ne 0 ]; then
 			echo -e $RED" FAIL, returned body not correct"$ERED
