@@ -20,6 +20,7 @@
 
 package org.oransc.policyagent;
 
+import org.oransc.policyagent.dmaap.DmaapMessageConsumer;
 import org.oransc.policyagent.tasks.RefreshConfigTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -34,19 +35,34 @@ public class Application {
     @Autowired
     private RefreshConfigTask configRefresh;
 
+    @Autowired
+    private DmaapMessageConsumer dmaapMessageConsumer;
+
     public static void main(String[] args) {
         SpringApplication.run(Application.class);
     }
 
     /**
-     * Starts the service and reads the configuration.
+     * Starts the configuration refresh task and reads the configuration.
      *
      * @param ctx the application context.
      *
-     * @return the command line runner performing tasks at startup.
+     * @return the command line runner for the configuration refresh task.
      */
     @Bean
-    public CommandLineRunner commandLineRunner(ApplicationContext ctx) {
+    public CommandLineRunner configRefreshRunner(ApplicationContext ctx) {
         return args -> configRefresh.start();
+    }
+
+    /**
+     * Starts the DMaaP message consumer service.
+     *
+     * @param ctx the application context.
+     *
+     * @return the command line runner for the DMaaP message consumer service.
+     */
+    @Bean
+    public CommandLineRunner dmaapMessageConsumerRunner(ApplicationContext ctx) {
+        return args -> dmaapMessageConsumer.start();
     }
 }
