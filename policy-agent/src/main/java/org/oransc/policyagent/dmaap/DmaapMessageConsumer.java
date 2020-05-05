@@ -33,6 +33,7 @@ import org.onap.dmaap.mr.client.response.MRConsumerResponse;
 import org.oransc.policyagent.clients.AsyncRestClient;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.exceptions.ServiceException;
+import org.oransc.policyagent.tasks.RefreshConfigTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,15 +41,19 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * The class fetches incoming requests from DMAAP on regular intervals. Each
- * received request is proceesed by DmaapMessageHandler.
+ * The class fetches incoming requests from DMAAP. It uses the timeout parameter that lets the MessageRouter keep the
+ * connection with the Kafka open until requests are sent in.
+ *
+ * Note! If there is no DMaaP configuration in the application configuration, then this service will not start.
+ *
+ * Each received request is processed by {@link DmaapMessageHandler}.
  */
 @Component
-public class DmaapMessageConsumer implements Runnable {
+public class DmaapMessageConsumer {
+
+    protected static final Duration TIME_BETWEEN_DMAAP_RETRIES = Duration.ofSeconds(10);
 
     private static final Logger logger = LoggerFactory.getLogger(DmaapMessageConsumer.class);
-
-    private static final Duration TIME_BETWEEN_DMAAP_POLLS = Duration.ofSeconds(10);
 
     private final ApplicationConfig applicationConfig;
 
@@ -58,20 +63,26 @@ public class DmaapMessageConsumer implements Runnable {
     @Autowired
     public DmaapMessageConsumer(ApplicationConfig applicationConfig) {
         this.applicationConfig = applicationConfig;
+    }
 
-        Thread thread = new Thread(this);
+    public Thread start() {
+        Thread thread = new Thread(() -> this.checkConfigLoop());
         thread.start();
+        return thread;
     }
 
-    private boolean isDmaapConfigured() {
-        Properties consumerCfg = applicationConfig.getDmaapConsumerConfig();
-        Properties producerCfg = applicationConfig.getDmaapPublisherConfig();
-        return (consumerCfg != null && consumerCfg.size() > 0 && producerCfg != null && producerCfg.size() > 0);
+    private void checkConfigLoop() {
+        while (!isStopped()) {
+            if (isDmaapConfigured()) {
+                messageHandlingLoop();
+            } else {
+                sleep(RefreshConfigTask.CONFIG_REFRESH_INTERVAL);
+            }
+        }
     }
 
-    @Override
-    public void run() {
-        while (sleep(TIME_BETWEEN_DMAAP_POLLS) && isDmaapConfigured()) {
+    private void messageHandlingLoop() {
+        while (!isStopped() && isDmaapConfigured()) {
             try {
                 Iterable<String> dmaapMsgs = fetchAllMessages();
                 if (dmaapMsgs != null && Iterables.size(dmaapMsgs) > 0) {
@@ -81,13 +92,23 @@ public class DmaapMessageConsumer implements Runnable {
                     }
                 }
             } catch (Exception e) {
-                logger.warn("{}: cannot fetch because of {}", this, e.getMessage());
-                sleep(TIME_BETWEEN_DMAAP_POLLS);
+                logger.warn("Cannot fetch because of {}", e.getMessage());
+                sleep(TIME_BETWEEN_DMAAP_RETRIES);
             }
         }
     }
 
-    private Iterable<String> fetchAllMessages() throws ServiceException, IOException {
+    protected boolean isStopped() {
+        return false;
+    }
+
+    protected boolean isDmaapConfigured() {
+        Properties consumerCfg = applicationConfig.getDmaapConsumerConfig();
+        Properties producerCfg = applicationConfig.getDmaapPublisherConfig();
+        return (consumerCfg != null && consumerCfg.size() > 0 && producerCfg != null && producerCfg.size() > 0);
+    }
+
+    protected Iterable<String> fetchAllMessages() throws ServiceException, IOException {
         Properties dmaapConsumerProperties = this.applicationConfig.getDmaapConsumerConfig();
         MRConsumer consumer = getMessageRouterConsumer(dmaapConsumerProperties);
         MRConsumerResponse response = consumer.fetchWithReturnConsumerResponse();
@@ -118,29 +139,27 @@ public class DmaapMessageConsumer implements Runnable {
         return createDmaapMessageHandler(agentClient, producer);
     }
 
-    boolean sleep(Duration duration) {
+    protected void sleep(Duration duration) {
         try {
             Thread.sleep(duration.toMillis());
-            return true;
         } catch (Exception e) {
             logger.error("Failed to put the thread to sleep", e);
-            return false;
         }
     }
 
-    MRConsumer getMessageRouterConsumer(Properties dmaapConsumerProperties) throws IOException {
+    protected MRConsumer getMessageRouterConsumer(Properties dmaapConsumerProperties) throws IOException {
         return MRClientFactory.createConsumer(dmaapConsumerProperties);
     }
 
-    DmaapMessageHandler createDmaapMessageHandler(AsyncRestClient agentClient, MRBatchingPublisher producer) {
+    protected DmaapMessageHandler createDmaapMessageHandler(AsyncRestClient agentClient, MRBatchingPublisher producer) {
         return new DmaapMessageHandler(producer, agentClient);
     }
 
-    AsyncRestClient createRestClient(String agentBaseUrl) {
+    protected AsyncRestClient createRestClient(String agentBaseUrl) {
         return new AsyncRestClient(agentBaseUrl);
     }
 
-    MRBatchingPublisher getMessageRouterPublisher(Properties dmaapPublisherProperties) throws IOException {
+    protected MRBatchingPublisher getMessageRouterPublisher(Properties dmaapPublisherProperties) throws IOException {
         return MRClientFactory.createBatchingPublisher(dmaapPublisherProperties);
     }
 }
