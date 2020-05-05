@@ -196,8 +196,8 @@ public class AsyncRestClient {
             .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10_000) //
             .secure(c -> c.sslContext(sslContext)) //
             .doOnConnected(connection -> {
-                connection.addHandler(new ReadTimeoutHandler(30));
-                connection.addHandler(new WriteTimeoutHandler(30));
+                connection.addHandlerLast(new ReadTimeoutHandler(30));
+                connection.addHandlerLast(new WriteTimeoutHandler(30));
             });
         HttpClient httpClient = HttpClient.from(tcpClient);
         ReactorClientHttpConnector connector = new ReactorClientHttpConnector(httpClient);
