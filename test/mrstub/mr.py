@@ -212,9 +212,9 @@ def events_write():
             print(AGENT_WRITE_URL+ " msg+status (correlationid="+id+") :" + str(msg_str))
     except Exception as e:
         print(AGENT_WRITE_URL+"-"+CAUGHT_EXCEPTION+" "+str(e) + " "+traceback.format_exc())
-        return Response(SERVER_ERROR+" "+str(e), status=500, mimetype=MIME_TEXT)
+        return Response('{"message": "' + SERVER_ERROR + ' ' + str(e) + '","status":"500"}', status=200, mimetype=MIME_JSON)
 
-    return Response('OK', status=200, mimetype=MIME_TEXT)
+    return Response('{}', status=200, mimetype=MIME_JSON)
 
 
 ### Functions for metrics read out ###

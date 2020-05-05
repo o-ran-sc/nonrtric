@@ -80,6 +80,11 @@ public class RefreshConfigTask {
     @Value("#{systemEnvironment}")
     public Properties systemEnvironment;
 
+    /**
+     * The time between refreshes of the configuration.
+     */
+    public static final Duration CONFIG_REFRESH_INTERVAL = Duration.ofMinutes(1);
+
     final ApplicationConfig appConfig;
     @Getter(AccessLevel.PROTECTED)
     private Disposable refreshTask = null;
@@ -90,8 +95,6 @@ public class RefreshConfigTask {
     private final Policies policies;
     private final Services services;
     private final PolicyTypes policyTypes;
-    private static final Duration FILE_CONFIG_REFRESH_INTERVAL = Duration.ofMinutes(1);
-    private static final Duration CONSUL_CONFIG_REFRESH_INTERVAL = Duration.ofMinutes(1);
 
     @Autowired
     public RefreshConfigTask(ApplicationConfig appConfig, Rics rics, Policies policies, Services services,
@@ -120,14 +123,14 @@ public class RefreshConfigTask {
     }
 
     Flux<RicConfigUpdate.Type> createRefreshTask() {
-        Flux<JsonObject> loadFromFile = Flux.interval(Duration.ZERO, FILE_CONFIG_REFRESH_INTERVAL) //
+        Flux<JsonObject> loadFromFile = Flux.interval(Duration.ZERO, CONFIG_REFRESH_INTERVAL) //
             .filter(notUsed -> !this.isConsulUsed) //
             .flatMap(notUsed -> loadConfigurationFromFile()) //
             .onErrorResume(this::ignoreErrorFlux) //
             .doOnNext(json -> logger.debug("loadFromFile succeeded")) //
             .doOnTerminate(() -> logger.error("loadFromFile Terminate"));
 
-        Flux<JsonObject> loadFromConsul = Flux.interval(Duration.ZERO, CONSUL_CONFIG_REFRESH_INTERVAL) //
+        Flux<JsonObject> loadFromConsul = Flux.interval(Duration.ZERO, CONFIG_REFRESH_INTERVAL) //
             .flatMap(i -> getEnvironment(systemEnvironment)) //
             .flatMap(this::createCbsClient) //
             .flatMap(this::getFromCbs) //
