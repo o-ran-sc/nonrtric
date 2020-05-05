@@ -20,18 +20,19 @@
 
 package org.oransc.policyagent.dmaap;
 
+import static ch.qos.logback.classic.Level.WARN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 
@@ -41,6 +42,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -66,98 +68,91 @@ public class DmaapMessageConsumerTest {
 
     private DmaapMessageConsumer messageConsumerUnderTest;
 
+    @AfterEach
+    public void resetLogging() {
+        LoggingUtils.getLogListAppender(DmaapMessageConsumer.class);
+    }
+
     @Test
-    public void dmaapNotConfigured_thenDoNothing() {
+    public void dmaapNotConfigured_thenDoNothing() throws Exception {
         messageConsumerUnderTest = spy(new DmaapMessageConsumer(applicationConfigMock));
 
-        doReturn(true).when(messageConsumerUnderTest).sleep(any(Duration.class));
+        doNothing().when(messageConsumerUnderTest).sleep(any(Duration.class));
 
-        messageConsumerUnderTest.run();
+        messageConsumerUnderTest.start().join();
 
-        verify(messageConsumerUnderTest).sleep(TIME_BETWEEN_DMAAP_POLLS);
-        verify(applicationConfigMock).getDmaapConsumerConfig();
-        verify(applicationConfigMock).getDmaapPublisherConfig();
-        verifyNoMoreInteractions(applicationConfigMock);
+        verify(messageConsumerUnderTest, never()).getMessageRouterConsumer(any());
     }
 
     @Test
     public void dmaapConfiguredAndNoMessages_thenPollOnce() throws Exception {
+        setUpMrConfig();
+
         messageConsumerUnderTest = spy(new DmaapMessageConsumer(applicationConfigMock));
-
-        doReturn(true, false).when(messageConsumerUnderTest).sleep(any(Duration.class));
-
-        Properties properties = new Properties();
-        properties.put("key", "value");
-        when(applicationConfigMock.getDmaapConsumerConfig()).thenReturn(properties);
-        when(applicationConfigMock.getDmaapPublisherConfig()).thenReturn(properties);
 
         MRConsumerResponse response = new MRConsumerResponse();
         response.setResponseCode(Integer.toString(HttpStatus.OK.value()));
         response.setActualMessages(Collections.emptyList());
 
+        doNothing().when(messageConsumerUnderTest).sleep(any(Duration.class));
+        doReturn(false, true).when(messageConsumerUnderTest).isStopped();
         doReturn(messageRouterConsumerMock).when(messageConsumerUnderTest)
             .getMessageRouterConsumer(any(Properties.class));
-        doReturn(response).when(messageRouterConsumerMock).fetchWithReturnConsumerResponse();
+        when(messageRouterConsumerMock.fetchWithReturnConsumerResponse()).thenReturn(response);
 
-        messageConsumerUnderTest.run();
-
-        verify(messageConsumerUnderTest, times(2)).sleep(TIME_BETWEEN_DMAAP_POLLS);
-
-        verify(applicationConfigMock, times(2)).getDmaapConsumerConfig();
-        verify(applicationConfigMock).getDmaapPublisherConfig();
-        verifyNoMoreInteractions(applicationConfigMock);
+        messageConsumerUnderTest.start().join();
 
         verify(messageRouterConsumerMock).fetchWithReturnConsumerResponse();
         verifyNoMoreInteractions(messageRouterConsumerMock);
     }
 
     @Test
-    public void dmaapConfiguredAndErrorGettingMessages_thenLogWarning() throws Exception {
+    public void dmaapConfiguredAndErrorGettingMessages_thenLogWarningAndSleep() throws Exception {
+        setUpMrConfig();
+
         messageConsumerUnderTest = spy(new DmaapMessageConsumer(applicationConfigMock));
 
-        doReturn(true, false).when(messageConsumerUnderTest).sleep(any(Duration.class));
-
-        Properties properties = new Properties();
-        properties.put("key", "value");
-        when(applicationConfigMock.getDmaapConsumerConfig()).thenReturn(properties);
-        when(applicationConfigMock.getDmaapPublisherConfig()).thenReturn(properties);
-
-        MRConsumerResponse response = new MRConsumerResponse();
-        response.setResponseCode(Integer.toString(HttpStatus.BAD_REQUEST.value()));
-        response.setResponseMessage("Error");
+        doNothing().when(messageConsumerUnderTest).sleep(any(Duration.class));
+        doReturn(false, true).when(messageConsumerUnderTest).isStopped();
         doReturn(messageRouterConsumerMock).when(messageConsumerUnderTest)
             .getMessageRouterConsumer(any(Properties.class));
-        doReturn(response).when(messageRouterConsumerMock).fetchWithReturnConsumerResponse();
 
-        final ListAppender<ILoggingEvent> logAppender = LoggingUtils.getLogListAppender(DmaapMessageConsumer.class);
+        MRConsumerResponse response = new MRConsumerResponse();
+        int responseCode = HttpStatus.BAD_REQUEST.value();
+        response.setResponseCode(Integer.toString(responseCode));
+        String responseMessage = "Error";
+        response.setResponseMessage(responseMessage);
+        when(messageRouterConsumerMock.fetchWithReturnConsumerResponse()).thenReturn(response);
 
-        messageConsumerUnderTest.run();
+        final ListAppender<ILoggingEvent> logAppender =
+            LoggingUtils.getLogListAppender(DmaapMessageConsumer.class, WARN);
 
-        assertThat(logAppender.list.get(0).getLevel()).isEqualTo(Level.WARN);
-        assertThat(
-            logAppender.list.toString().contains(": cannot fetch because of Error respons 400 Error from DMaaP."))
+        messageConsumerUnderTest.start().join();
+
+        assertThat(logAppender.list.toString()
+            .contains("Cannot fetch because of Error respons " + responseCode + " " + responseMessage + " from DMaaP."))
                 .isTrue();
+
+        verify(messageConsumerUnderTest).sleep(Duration.ofSeconds(10));
     }
 
     @Test
     public void dmaapConfiguredAndOneMessage_thenPollOnceAndProcessMessage() throws Exception {
+        Properties properties = setUpMrConfig();
+
         messageConsumerUnderTest = spy(new DmaapMessageConsumer(applicationConfigMock));
 
-        doReturn(true, false).when(messageConsumerUnderTest).sleep(any(Duration.class));
-
-        Properties properties = new Properties();
-        properties.put("key", "value");
-        when(applicationConfigMock.getDmaapConsumerConfig()).thenReturn(properties);
-        when(applicationConfigMock.getDmaapPublisherConfig()).thenReturn(properties);
+        doNothing().when(messageConsumerUnderTest).sleep(any(Duration.class));
+        doReturn(false, true).when(messageConsumerUnderTest).isStopped();
+        doReturn(messageRouterConsumerMock).when(messageConsumerUnderTest)
+            .getMessageRouterConsumer(any(Properties.class));
 
         MRConsumerResponse response = new MRConsumerResponse();
         response.setResponseCode(Integer.toString(HttpStatus.OK.value()));
-        List<String> messages = Arrays.asList("message");
+        String responseMessage = "message";
+        List<String> messages = Arrays.asList(responseMessage);
         response.setActualMessages(messages);
-
-        doReturn(messageRouterConsumerMock).when(messageConsumerUnderTest)
-            .getMessageRouterConsumer(any(Properties.class));
-        doReturn(response).when(messageRouterConsumerMock).fetchWithReturnConsumerResponse();
+        when(messageRouterConsumerMock.fetchWithReturnConsumerResponse()).thenReturn(response);
 
         doReturn(messageHandlerMock).when(messageConsumerUnderTest)
             .createDmaapMessageHandler(any(AsyncRestClient.class), any(MRBatchingPublisher.class));
@@ -168,12 +163,20 @@ public class DmaapMessageConsumerTest {
         MRBatchingPublisher publisherMock = mock(MRBatchingPublisher.class);
         doReturn(publisherMock).when(messageConsumerUnderTest).getMessageRouterPublisher(any(Properties.class));
 
-        messageConsumerUnderTest.run();
+        messageConsumerUnderTest.start().join();
 
         verify(messageConsumerUnderTest).createRestClient("https://localhost:0");
         verify(messageConsumerUnderTest).getMessageRouterPublisher(properties);
 
-        verify(messageHandlerMock).handleDmaapMsg("message");
+        verify(messageHandlerMock).handleDmaapMsg(responseMessage);
         verifyNoMoreInteractions(messageHandlerMock);
+    }
+
+    private Properties setUpMrConfig() {
+        Properties properties = new Properties();
+        properties.put("key", "value");
+        when(applicationConfigMock.getDmaapConsumerConfig()).thenReturn(properties);
+        when(applicationConfigMock.getDmaapPublisherConfig()).thenReturn(properties);
+        return properties;
     }
 }
