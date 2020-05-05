@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "09398bf0_bee55c9a",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/MockPolicyAgent.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-05-05T12:02:03Z",
+      "side": 1,
+      "message": "There are many cases when this doesn\u0027t work - depending on the execution and deployment environment.\nHave a look at https://gerrit.onap.org/r/gitweb?p\u003dpolicy/common.git;a\u003dtree;f\u003dutils/src/main/java/org/onap/policy/common/utils/resources; for some utility functions that took many iterations to get working in most environments.",
+      "range": {
+        "startLine": 136,
+        "startChar": 9,
+        "endLine": 140,
+        "endChar": 5
+      },
+      "revId": "51f130319f0262d8ac489600fc790ada7cd48306",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
