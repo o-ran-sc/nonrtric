@@ -193,7 +193,7 @@ public class AsyncRestClient {
 
     private static WebClient createWebClient(String baseUrl, SslContext sslContext) {
         TcpClient tcpClient = TcpClient.create() //
-            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10_000) //
+            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000) //
             .secure(c -> c.sslContext(sslContext)) //
             .doOnConnected(connection -> {
                 connection.addHandler(new ReadTimeoutHandler(30));

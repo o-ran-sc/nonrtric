@@ -31,10 +31,13 @@ import java.nio.file.Files;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.oransc.policyagent.configuration.ApplicationConfig;
+import org.oransc.policyagent.repository.ImmutablePolicy;
 import org.oransc.policyagent.repository.ImmutablePolicyType;
 import org.oransc.policyagent.repository.Policies;
+import org.oransc.policyagent.repository.Policy;
 import org.oransc.policyagent.repository.PolicyType;
 import org.oransc.policyagent.repository.PolicyTypes;
+import org.oransc.policyagent.repository.Ric;
 import org.oransc.policyagent.repository.Rics;
 import org.oransc.policyagent.utils.MockA1ClientFactory;
 import org.slf4j.Logger;
@@ -54,6 +57,12 @@ public class MockPolicyAgent {
 
     @Autowired
     Rics rics;
+
+    @Autowired
+    Policies policies;
+
+    @Autowired
+    PolicyTypes policyTypes;
 
     static class MockApplicationConfig extends ApplicationConfig {
         @Override
@@ -101,10 +110,7 @@ public class MockPolicyAgent {
         }
 
         private static File[] getResourceFolderFiles(String folder) {
-            ClassLoader loader = Thread.currentThread().getContextClassLoader();
-            URL url = loader.getResource(folder);
-            String path = url.getPath();
-            return new File(path).listFiles();
+            return getFile(folder).listFiles();
         }
 
         private static String readFile(File file) throws IOException {
@@ -127,11 +133,19 @@ public class MockPolicyAgent {
         }
     }
 
+    private static File getFile(String path) {
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        URL url = loader.getResource(path);
+        return new File(url.getPath());
+    }
+
     @LocalServerPort
     private int port;
 
-    private void keepServerAlive() throws InterruptedException {
+    private void keepServerAlive() throws InterruptedException, IOException {
         logger.info("Keeping server alive!");
+        Thread.sleep(1000);
+        loadInstances();
         synchronized (this) {
             this.wait();
         }
@@ -141,6 +155,23 @@ public class MockPolicyAgent {
         JsonObject parsedSchema = (JsonObject) JsonParser.parseString(jsonSchema);
         String title = parsedSchema.get("title").getAsString();
         return title;
+    }
+
+    private void loadInstances() throws IOException {
+        PolicyType unnamedPolicyType = policyTypes.get("");
+        Ric ric = rics.get("ric1");
+        File jsonFile = getFile("test_application_configuration.json");
+        String json = new String(Files.readAllBytes(jsonFile.toPath()));
+
+        Policy policy = ImmutablePolicy.builder() //
+            .id("typelessPolicy") //
+            .json(json) //
+            .ownerServiceName("MockPolicyAgent") //
+            .ric(ric) //
+            .type(unnamedPolicyType) //
+            .lastModified("now") //
+            .build();
+        this.policies.put(policy);
     }
 
     @Test
