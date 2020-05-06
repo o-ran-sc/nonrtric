@@ -24,7 +24,7 @@
 	<parent>
         <groupId>org.onap.ccsdk.parent</groupId>
         <artifactId>odlparent-lite</artifactId>
-        <version>1.4.3</version>
+        <version>1.5.1</version>
         <relativePath/>
     </parent>
 
@@ -55,7 +55,7 @@
 								<artifactItem>
 									<groupId>org.onap.ccsdk.distribution</groupId>
 									<artifactId>platform-logic-installer</artifactId>
-									<version>${ccsdk.distribution.version}</version>
+									<version>0.7.1</version>
 									<type>zip</type>
 									<overWrite>true</overWrite>
 									<outputDirectory>../target</outputDirectory>
