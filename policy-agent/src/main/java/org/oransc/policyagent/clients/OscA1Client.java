@@ -37,6 +37,7 @@ import reactor.core.publisher.Mono;
  */
 @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
 public class OscA1Client implements A1Client {
+    static final int CONCURRENCY_RIC = 1;
 
     public static class UriBuilder implements A1UriBuilder {
         private final RicConfig ricConfig;
@@ -179,7 +180,7 @@ public class OscA1Client implements A1Client {
     @Override
     public Flux<String> deleteAllPolicies() {
         return getPolicyTypeIds() //
-            .flatMap(this::deletePoliciesForType);
+            .flatMap(this::deletePoliciesForType, CONCURRENCY_RIC);
     }
 
     @Override
@@ -206,6 +207,6 @@ public class OscA1Client implements A1Client {
 
     private Flux<String> deletePoliciesForType(String typeId) {
         return getPolicyIdentitiesByType(typeId) //
-            .flatMap(policyId -> deletePolicyById(typeId, policyId));
+            .flatMap(policyId -> deletePolicyById(typeId, policyId), CONCURRENCY_RIC);
     }
 }

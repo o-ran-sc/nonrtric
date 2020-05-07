@@ -58,6 +58,7 @@ import reactor.core.publisher.SignalType;
 public class RicSynchronizationTask {
 
     private static final Logger logger = LoggerFactory.getLogger(RicSynchronizationTask.class);
+    static final int CONCURRENCY_RIC = 1;
 
     private final A1ClientFactory a1ClientFactory;
     private final PolicyTypes policyTypes;
@@ -167,7 +168,7 @@ public class RicSynchronizationTask {
             .doOnNext(x -> ric.clearSupportedPolicyTypes()) //
             .flatMapMany(Flux::fromIterable) //
             .doOnNext(typeId -> logger.debug("For ric: {}, handling type: {}", ric.getConfig().name(), typeId)) //
-            .flatMap(policyTypeId -> getPolicyType(policyTypeId, a1Client)) //
+            .flatMap(policyTypeId -> getPolicyType(policyTypeId, a1Client), CONCURRENCY_RIC) //
             .doOnNext(ric::addSupportedPolicyType); //
     }
 
@@ -199,7 +200,7 @@ public class RicSynchronizationTask {
 
     private Flux<Policy> recreateAllPoliciesInRic(Ric ric, A1Client a1Client) {
         return Flux.fromIterable(policies.getForRic(ric.name())) //
-            .flatMap(policy -> putPolicy(policy, ric, a1Client));
+            .flatMap(policy -> putPolicy(policy, ric, a1Client), CONCURRENCY_RIC);
     }
 
 }
