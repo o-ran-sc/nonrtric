@@ -22,6 +22,30 @@
       "revId": "bb9ce96fef24c66e1fa654df6e337bb03d6add7e",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b161c692_e6165a21",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/o_ran_sc/nonrtric/sdnc_a1/northbound/provider/NonrtRicApiProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-05-07T14:42:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3d920833_ac01d4ed",
+      "range": {
+        "startLine": 198,
+        "startChar": 7,
+        "endLine": 198,
+        "endChar": 62
+      },
+      "revId": "bb9ce96fef24c66e1fa654df6e337bb03d6add7e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
