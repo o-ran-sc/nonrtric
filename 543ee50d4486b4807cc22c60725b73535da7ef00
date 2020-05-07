@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7e49af32_e5baf18b",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/o_ran_sc/nonrtric/sdnc_a1/northbound/provider/NonrtRicApiProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-05-07T13:04:35Z",
+      "side": 1,
+      "message": "The controller starts with a log level of \"info\" by default. So, putting \"debug\" here does not print anything in Karaf logs. Until now, I could not figure out where in the controller the log level is set to \"info\". All other built-in bundles in SDNC use \"info\" as well. I will update to \"debug\" if I find the log level setting in the controller.",
+      "parentUuid": "7ac1cf25_1982aaab",
+      "range": {
+        "startLine": 159,
+        "startChar": 8,
+        "endLine": 159,
+        "endChar": 12
+      },
+      "revId": "543ee50d4486b4807cc22c60725b73535da7ef00",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b84aba0c_244f08c3",
         "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/o_ran_sc/nonrtric/sdnc_a1/northbound/provider/NonrtRicApiProvider.java",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "d41c0185_98013b01",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/o_ran_sc/nonrtric/sdnc_a1/northbound/provider/NonrtRicApiProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-05-07T13:04:35Z",
+      "side": 1,
+      "message": "The problem is that responseBuilder is of different type in each of these three methods. I tried to use generics:\n\nprivate \u003cT\u003e void setResponseBuilderParams(T responseBuilder, ResponseEntity\u003cString\u003e response, String methodName) {\n      if (response.hasBody()) {\n          log.info(\"Response {} : {} \", methodName, response.getBody());\n          responseBuilder.setBody(response.getBody());\n      }\n      responseBuilder.setHttpStatus(response.getStatusCodeValue());\n  }\n\nBut this gives an error \"The method setBody(String) is undefined for the type T\". I am not sure if there is some other way to handle this.",
+      "parentUuid": "b84aba0c_244f08c3",
+      "range": {
+        "startLine": 166,
+        "startChar": 0,
+        "endLine": 170,
+        "endChar": 69
+      },
+      "revId": "543ee50d4486b4807cc22c60725b73535da7ef00",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "07f4e77a_055aae41",
         "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/o_ran_sc/nonrtric/sdnc_a1/northbound/provider/NonrtRicApiProvider.java",
         "patchSetId": 2
@@ -59,6 +107,30 @@
       "writtenOn": "2020-05-07T12:20:30Z",
       "side": 1,
       "message": "Exactly this code is repeated three times. Suggest that it is put in a separate method and called from all three places.",
+      "range": {
+        "startLine": 172,
+        "startChar": 0,
+        "endLine": 174,
+        "endChar": 0
+      },
+      "revId": "543ee50d4486b4807cc22c60725b73535da7ef00",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f6ef922_3744e67e",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/o_ran_sc/nonrtric/sdnc_a1/northbound/provider/NonrtRicApiProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-05-07T13:04:35Z",
+      "side": 1,
+      "message": "see other reply.",
+      "parentUuid": "07f4e77a_055aae41",
       "range": {
         "startLine": 172,
         "startChar": 0,
