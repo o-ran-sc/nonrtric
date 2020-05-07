@@ -69,10 +69,10 @@ public class A1ClientFactory {
     A1Client createClient(Ric ric, A1ProtocolType version) throws ServiceException {
         if (version == A1ProtocolType.STD_V1_1) {
             assertNoControllerConfig(ric, version);
-            return new StdA1ClientVersion1(ric.getConfig());
+            return new StdA1ClientVersion1(ric.getConfig(), this.appConfig.getWebClientConfig());
         } else if (version == A1ProtocolType.OSC_V1) {
             assertNoControllerConfig(ric, version);
-            return new OscA1Client(ric.getConfig());
+            return new OscA1Client(ric.getConfig(), this.appConfig.getWebClientConfig());
         } else if (version == A1ProtocolType.SDNC_OSC_STD_V1_1 || version == A1ProtocolType.SDNC_OSC_OSC_V1) {
             return new SdncOscA1Client(version, ric.getConfig(), getControllerConfig(ric));
         } else if (version == A1ProtocolType.SDNC_ONAP) {

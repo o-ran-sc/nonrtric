@@ -64,8 +64,8 @@ public class DmaapMessageConsumer {
     private DmaapMessageHandler dmaapMessageHandler = null;
     private MRConsumer messageRouterConsumer = null;
 
-    @Value("${server.port}")
-    private int localServerPort;
+    @Value("${server.http-port}")
+    private int localServerHttpPort;
 
     @Autowired
     public DmaapMessageConsumer(ApplicationConfig applicationConfig) {
@@ -139,7 +139,7 @@ public class DmaapMessageConsumer {
 
     protected DmaapMessageHandler getDmaapMessageHandler() throws IOException {
         if (this.dmaapMessageHandler == null) {
-            String agentBaseUrl = "https://localhost:" + this.localServerPort;
+            String agentBaseUrl = "http://localhost:" + this.localServerHttpPort;
             AsyncRestClient agentClient = new AsyncRestClient(agentBaseUrl);
             Properties dmaapPublisherProperties = applicationConfig.getDmaapPublisherConfig();
             MRBatchingPublisher producer = MRClientFactory.createBatchingPublisher(dmaapPublisherProperties);
