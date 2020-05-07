@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ac1cf25_1982aaab",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/o_ran_sc/nonrtric/sdnc_a1/northbound/provider/NonrtRicApiProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-05-07T12:20:30Z",
+      "side": 1,
+      "message": "General question, should we really use \"info\" level for these logs? I think we normally use \"debug\"? I know it was there before, but always good to improve code little by little.",
+      "range": {
+        "startLine": 159,
+        "startChar": 8,
+        "endLine": 159,
+        "endChar": 12
+      },
+      "revId": "543ee50d4486b4807cc22c60725b73535da7ef00",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b84aba0c_244f08c3",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/o_ran_sc/nonrtric/sdnc_a1/northbound/provider/NonrtRicApiProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-05-07T12:20:30Z",
+      "side": 1,
+      "message": "Almost exactly this code is repeated three times. Suggest that it is put in a separate method and called from all three places. The method can take the name of the operation as a parameter to put into the log string. \nI know it was there before, but always good to improve code little by little.",
+      "range": {
+        "startLine": 166,
+        "startChar": 0,
+        "endLine": 170,
+        "endChar": 69
+      },
+      "revId": "543ee50d4486b4807cc22c60725b73535da7ef00",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07f4e77a_055aae41",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/o_ran_sc/nonrtric/sdnc_a1/northbound/provider/NonrtRicApiProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-05-07T12:20:30Z",
+      "side": 1,
+      "message": "Exactly this code is repeated three times. Suggest that it is put in a separate method and called from all three places.",
+      "range": {
+        "startLine": 172,
+        "startChar": 0,
+        "endLine": 174,
+        "endChar": 0
+      },
+      "revId": "543ee50d4486b4807cc22c60725b73535da7ef00",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
