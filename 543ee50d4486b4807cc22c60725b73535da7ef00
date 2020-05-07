@@ -140,6 +140,29 @@
       "revId": "543ee50d4486b4807cc22c60725b73535da7ef00",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13c7ffa6_48c46035",
+        "filename": "sdnc-a1-controller/northbound/nonrt-ric-api/provider/src/main/java/org/o_ran_sc/nonrtric/sdnc_a1/northbound/provider/NonrtRicApiProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-05-07T14:13:46Z",
+      "side": 1,
+      "message": "If there is a body in the error response from the NearRT RIC, that should also be included in the response out. \nIf guess that the RestClientResponseException also contains the response body.\nNote that a getBody() call can return null. \nSame comment for the other ones.",
+      "range": {
+        "startLine": 195,
+        "startChar": 3,
+        "endLine": 198,
+        "endChar": 5
+      },
+      "revId": "543ee50d4486b4807cc22c60725b73535da7ef00",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
