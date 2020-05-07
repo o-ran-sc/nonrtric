@@ -27,17 +27,29 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
-import javax.net.ssl.SSLException;
-
+import org.oransc.policyagent.configuration.ImmutableWebClientConfig;
+import org.oransc.policyagent.configuration.WebClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.lang.Nullable;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -54,9 +66,16 @@ public class AsyncRestClient {
     private WebClient webClient = null;
     private final String baseUrl;
     private static final AtomicInteger sequenceNumber = new AtomicInteger();
+    private final WebClientConfig config;
 
     public AsyncRestClient(String baseUrl) {
+        this(baseUrl,
+            ImmutableWebClientConfig.builder().isTrustStoreUsed(false).trustStore("").trustStorePassword("").build());
+    }
+
+    public AsyncRestClient(String baseUrl, WebClientConfig config) {
         this.baseUrl = baseUrl;
+        this.config = config;
     }
 
     public Mono<ResponseEntity<String>> postForEntity(String uri, @Nullable String body) {
@@ -185,13 +204,53 @@ public class AsyncRestClient {
         }
     }
 
-    private static SslContext createSslContext() throws SSLException {
+    private boolean isCertificateEntry(KeyStore trustStore, String alias) {
+        try {
+            return trustStore.isCertificateEntry(alias);
+        } catch (KeyStoreException e1) {
+            logger.error("Error reading truststore {}", e1);
+            return false;
+        }
+    }
+
+    private Certificate getCertificate(KeyStore trustStore, String alias) {
+        try {
+            return trustStore.getCertificate(alias);
+        } catch (KeyStoreException e2) {
+            logger.error("Error reading truststore {}", e2);
+            return null;
+        }
+    }
+
+    SslContext createSslContextSecure(String trustStorePath, String trustStorePass)
+        throws NoSuchAlgorithmException, CertificateException, IOException, KeyStoreException {
+
+        final KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        trustStore.load(new FileInputStream(ResourceUtils.getFile(trustStorePath)), trustStorePass.toCharArray());
+
+        List<Certificate> certificateList = Collections.list(trustStore.aliases()).stream() //
+            .filter(alias -> isCertificateEntry(trustStore, alias)) //
+            .map(alias -> getCertificate(trustStore, alias)) //
+            .collect(Collectors.toList());
+        final X509Certificate[] certificates = certificateList.toArray(new X509Certificate[certificateList.size()]);
+
         return SslContextBuilder.forClient() //
-            .trustManager(InsecureTrustManagerFactory.INSTANCE) //
+            .trustManager(certificates) //
             .build();
     }
 
-    private static WebClient createWebClient(String baseUrl, SslContext sslContext) {
+    private SslContext createSslContext()
+        throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException {
+        if (this.config.isTrustStoreUsed()) {
+            return createSslContextSecure(this.config.trustStore(), this.config.trustStorePassword());
+        } else {
+            return SslContextBuilder.forClient() //
+                .trustManager(InsecureTrustManagerFactory.INSTANCE) //
+                .build();
+        }
+    }
+
+    private WebClient createWebClient(String baseUrl, SslContext sslContext) {
         TcpClient tcpClient = TcpClient.create() //
             .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10_000) //
             .secure(c -> c.sslContext(sslContext)) //
@@ -213,7 +272,7 @@ public class AsyncRestClient {
             try {
                 SslContext sslContext = createSslContext();
                 this.webClient = createWebClient(this.baseUrl, sslContext);
-            } catch (SSLException e) {
+            } catch (Exception e) {
                 logger.error("Could not create WebClient {}", e.getMessage());
                 return Mono.error(e);
             }

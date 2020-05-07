@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.json.JSONObject;
 import org.oransc.policyagent.configuration.RicConfig;
+import org.oransc.policyagent.configuration.WebClientConfig;
 import org.oransc.policyagent.repository.Policy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,8 +117,8 @@ public class OscA1Client implements A1Client {
     private final AsyncRestClient restClient;
     private final UriBuilder uri;
 
-    public OscA1Client(RicConfig ricConfig) {
-        this(ricConfig, new AsyncRestClient(""));
+    public OscA1Client(RicConfig ricConfig, WebClientConfig config) {
+        this(ricConfig, new AsyncRestClient("", config));
     }
 
     public OscA1Client(RicConfig ricConfig, AsyncRestClient restClient) {

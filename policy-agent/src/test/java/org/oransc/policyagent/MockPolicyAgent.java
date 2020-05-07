@@ -67,6 +67,9 @@ public class MockPolicyAgent {
     @Autowired
     PolicyTypes policyTypes;
 
+    @Autowired
+    ApplicationConfig applicationConfig;
+
     static class MockApplicationConfig extends ApplicationConfig {
         @Override
         public String getLocalConfigurationFilePath() {
@@ -195,7 +198,8 @@ public class MockPolicyAgent {
     }
 
     @Test
-    @SuppressWarnings("squid:S2699") // Tests should include assertions. This test is only for keeping the server alive,
+    @SuppressWarnings("squid:S2699") // Tests should include assertions. This test is only for keeping the server
+                                     // alive,
                                      // so it will only be confusing to add an assertion.
     public void runMock() throws Exception {
         keepServerAlive();

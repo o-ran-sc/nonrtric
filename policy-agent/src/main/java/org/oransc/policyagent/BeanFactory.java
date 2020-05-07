@@ -29,6 +29,7 @@ import org.oransc.policyagent.repository.Policies;
 import org.oransc.policyagent.repository.PolicyTypes;
 import org.oransc.policyagent.repository.Rics;
 import org.oransc.policyagent.repository.Services;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
@@ -37,6 +38,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 class BeanFactory {
     private final ApplicationConfig applicationConfig = new ApplicationConfig();
+
+    @Value("${server.http-port}")
+    private int httpPort = 0;
 
     @Bean
     public Policies getPolicies() {
@@ -76,14 +80,16 @@ class BeanFactory {
     @Bean
     public ServletWebServerFactory servletContainer() {
         TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory();
-        tomcat.addAdditionalTomcatConnectors(getHttpConnector());
+        if (httpPort > 0) {
+            tomcat.addAdditionalTomcatConnectors(getHttpConnector(httpPort));
+        }
         return tomcat;
     }
 
-    private static Connector getHttpConnector() {
+    private static Connector getHttpConnector(int httpPort) {
         Connector connector = new Connector(TomcatServletWebServerFactory.DEFAULT_PROTOCOL);
         connector.setScheme("http");
-        connector.setPort(8081);
+        connector.setPort(httpPort);
         connector.setSecure(false);
         return connector;
     }
