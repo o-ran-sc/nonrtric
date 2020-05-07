@@ -31,15 +31,27 @@ import javax.validation.constraints.NotEmpty;
 import lombok.Getter;
 
 import org.oransc.policyagent.exceptions.ServiceException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import reactor.core.publisher.Flux;
 
 @EnableConfigurationProperties
-@ConfigurationProperties("app")
+@ConfigurationProperties()
 public class ApplicationConfig {
     @NotEmpty
-    private String filepath;
+    @Getter
+    @Value("${app.filepath}")
+    private String localConfigurationFilePath;
+
+    @Value("${app.webclient.trust-store-used}")
+    private boolean sslTrustStoreUsed = false;
+
+    @Value("${app.webclient.trust-store-password}")
+    private String sslTrustStorePassword = "";
+
+    @Value("${app.webclient.trust-store}")
+    private String sslTrustStore = "";
 
     private Map<String, RicConfig> ricConfigs = new HashMap<>();
     @Getter
@@ -49,19 +61,16 @@ public class ApplicationConfig {
 
     private Map<String, ControllerConfig> controllerConfigs = new HashMap<>();
 
-    public String getLocalConfigurationFilePath() {
-        return this.filepath;
-    }
-
-    /*
-     * Do not remove, used by framework!
-     */
-    public synchronized void setFilepath(String filepath) {
-        this.filepath = filepath;
-    }
-
     public synchronized Collection<RicConfig> getRicConfigs() {
         return this.ricConfigs.values();
+    }
+
+    public WebClientConfig getWebClientConfig() {
+        return ImmutableWebClientConfig.builder() //
+            .isTrustStoreUsed(this.sslTrustStoreUsed) //
+            .trustStore(this.sslTrustStore) //
+            .trustStorePassword(this.sslTrustStorePassword) //
+            .build();
     }
 
     public synchronized ControllerConfig getControllerConfig(String name) throws ServiceException {

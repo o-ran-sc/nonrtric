@@ -21,12 +21,17 @@ logging:
   file: /var/log/policy-agent/application.log
 server:
    port : 8433
+   http-port: 8081
    ssl:
-      key-store-type: PKCS12
+      key-store-type: JKS
       key-store-password: policy_agent
       key-store: classpath:keystore.jks
       key-password: policy_agent
+      key-alias: policy_agent
 app:
   filepath: /opt/app/policy-agent/config/application_configuration.json
-
+  webclient:
+    trust-store-used: false
+    trust-store-password: policy_agent
+    trust-store: classpath:keystore.jks
 

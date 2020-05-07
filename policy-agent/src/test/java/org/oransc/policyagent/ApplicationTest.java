@@ -110,6 +110,9 @@ public class ApplicationTest {
     RicSupervision supervision;
 
     @Autowired
+    ApplicationConfig applicationConfig;
+
+    @Autowired
     Services services;
 
     private static Gson gson = new GsonBuilder() //
@@ -723,7 +726,7 @@ public class ApplicationTest {
     }
 
     private AsyncRestClient restClient() {
-        return new AsyncRestClient(baseUrl());
+        return new AsyncRestClient(baseUrl(), this.applicationConfig.getWebClientConfig());
     }
 
     private void testErrorCode(Mono<?> request, HttpStatus expStatus) {

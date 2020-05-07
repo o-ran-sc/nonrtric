@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.oransc.policyagent.configuration.RicConfig;
+import org.oransc.policyagent.configuration.WebClientConfig;
 import org.oransc.policyagent.repository.Policy;
 
 import reactor.core.publisher.Flux;
@@ -84,8 +85,8 @@ public class StdA1ClientVersion1 implements A1Client {
     private final AsyncRestClient restClient;
     private final UriBuilder uri;
 
-    public StdA1ClientVersion1(RicConfig ricConfig) {
-        this(new AsyncRestClient(""), ricConfig);
+    public StdA1ClientVersion1(RicConfig ricConfig, WebClientConfig webClientConfig) {
+        this(new AsyncRestClient("", webClientConfig), ricConfig);
     }
 
     public StdA1ClientVersion1(AsyncRestClient restClient, RicConfig ricConfig) {
