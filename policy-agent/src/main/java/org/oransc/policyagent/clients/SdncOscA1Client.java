@@ -48,6 +48,8 @@ import reactor.core.publisher.Mono;
 @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
 public class SdncOscA1Client implements A1Client {
 
+    static final int CONCURRENCY_RIC = 1; // How may paralell requests that is sent to one NearRT RIC
+
     @Value.Immutable
     @org.immutables.gson.Gson.TypeAdapters
     public interface AdapterRequest {
@@ -157,16 +159,25 @@ public class SdncOscA1Client implements A1Client {
     public Flux<String> deleteAllPolicies() {
         if (this.protocolType == A1ProtocolType.SDNC_OSC_STD_V1_1) {
             return getPolicyIds() //
-                .flatMap(policyId -> deletePolicyById("", policyId)); //
+                .flatMap(policyId -> deletePolicyById("", policyId), CONCURRENCY_RIC); //
         } else if (this.protocolType == A1ProtocolType.SDNC_OSC_OSC_V1) {
             OscA1Client.UriBuilder uriBuilder = new OscA1Client.UriBuilder(ricConfig);
             return getPolicyTypeIdentities() //
-                .flatMapMany(Flux::fromIterable)
-                .flatMap(type -> post(GET_POLICY_RPC, uriBuilder.createGetPolicyIdsUri(type), Optional.empty())) //
-                .flatMap(SdncJsonHelper::parseJsonArrayOfString);
+                .flatMapMany(Flux::fromIterable) //
+                .flatMap(type -> oscDeleteInstancesForType(uriBuilder, type), CONCURRENCY_RIC);
         } else {
             return Flux.error(createIllegalProtocolException());
         }
+    }
+
+    private Flux<String> oscGetInstancesForType(OscA1Client.UriBuilder uriBuilder, String type) {
+        return post(GET_POLICY_RPC, uriBuilder.createGetPolicyIdsUri(type), Optional.empty()) //
+            .flatMapMany(SdncJsonHelper::parseJsonArrayOfString);
+    }
+
+    private Flux<String> oscDeleteInstancesForType(OscA1Client.UriBuilder uriBuilder, String type) {
+        return oscGetInstancesForType(uriBuilder, type) //
+            .flatMap(instance -> deletePolicyById(type, instance), CONCURRENCY_RIC);
     }
 
     @Override

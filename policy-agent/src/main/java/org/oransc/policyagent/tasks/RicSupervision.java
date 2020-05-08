@@ -67,6 +67,20 @@ public class RicSupervision {
         }
     }
 
+    private static class RicData {
+        RicData(Ric ric, A1Client a1Client) {
+            this.ric = ric;
+            this.a1Client = a1Client;
+        }
+
+        A1Client getClient() {
+            return a1Client;
+        }
+
+        final Ric ric;
+        private final A1Client a1Client;
+    }
+
     @Autowired
     public RicSupervision(Rics rics, Policies policies, A1ClientFactory a1ClientFactory, PolicyTypes policyTypes,
         Services services) {
@@ -90,7 +104,6 @@ public class RicSupervision {
         return Flux.fromIterable(rics.getRics()) //
             .flatMap(this::createRicData) //
             .flatMap(this::checkOneRic);
-
     }
 
     private Mono<RicData> checkOneRic(RicData ricData) {
@@ -133,20 +146,6 @@ public class RicSupervision {
         }
     }
 
-    private static class RicData {
-        RicData(Ric ric, A1Client a1Client) {
-            this.ric = ric;
-            this.a1Client = a1Client;
-        }
-
-        A1Client getClient() {
-            return a1Client;
-        }
-
-        final Ric ric;
-        private final A1Client a1Client;
-    }
-
     private Mono<RicData> createRicData(Ric ric) {
         return Mono.just(ric) //
             .flatMap(aRic -> this.a1ClientFactory.createA1Client(ric)) //
@@ -185,7 +184,6 @@ public class RicSupervision {
     }
 
     private Mono<RicData> checkRicPolicyTypes(RicData ric) {
-
         return ric.getClient().getPolicyTypeIdentities() //
             .flatMap(ricTypes -> validateTypes(ricTypes, ric));
     }
