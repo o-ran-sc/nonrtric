@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2275a9b0_905c374a",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageConsumer.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-05-08T13:49:52Z",
+      "side": 1,
+      "message": "So if Dmaap is \u0027unconfigured\u0027 we leave the loop and if it is configured again nothing will happen.\nI think it is OK, but a bit strange. An alternative would be to do it like this instead (and that the will execute messageHandlingLoop (which to me would make sense). \n\n while (!isStopped() \u0026\u0026 checkConfigLoop()) {\n\nThen \u0027checkConfigLoop\u0027 should  perhaps be something like \u0027waitForDmaapConfiguration\u0027",
+      "range": {
+        "startLine": 87,
+        "startChar": 31,
+        "endLine": 87,
+        "endChar": 50
+      },
+      "revId": "118e3a21e95bd82e8eedc03ccf152fcb5ab32e9d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
