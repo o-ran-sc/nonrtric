@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "91f78223_90b8b5e9",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageConsumer.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-05-08T07:43:13Z",
+      "side": 1,
+      "message": "I think 1 second is far to short time to be sure that the application has succeeded to load from the consul. The consul may be unavailable just when this component is started. So the time must include at least the time for the system to start/restart the consul. Also the connection (network) to to the host running the consul may be temporary unavailable. \nActually, this design with a sleep is not very good.",
+      "range": {
+        "startLine": 72,
+        "startChar": 7,
+        "endLine": 72,
+        "endChar": 77
+      },
+      "revId": "c7045e18225b431958fed907c8d38dd79f431717",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d233f866_367fadc0",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageConsumer.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-05-08T07:43:13Z",
+      "side": 1,
+      "message": "Putting the sleep here will delay the whole bootstrapping of the whole componen, so it must instead be put in the messageHandlingLoop to only delay the start of the polling.",
+      "revId": "c7045e18225b431958fed907c8d38dd79f431717",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
