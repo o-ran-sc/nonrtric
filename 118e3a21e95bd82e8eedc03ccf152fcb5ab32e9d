@@ -22,6 +22,30 @@
       "revId": "118e3a21e95bd82e8eedc03ccf152fcb5ab32e9d",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d993c0d_d44fb2dd",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageConsumer.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-05-08T13:55:46Z",
+      "side": 1,
+      "message": "When we leave this loop if the configuration is removed, we will resume the loop that checks the configuration again. So if the configuration is added again, we will start polling again.",
+      "parentUuid": "2275a9b0_905c374a",
+      "range": {
+        "startLine": 87,
+        "startChar": 31,
+        "endLine": 87,
+        "endChar": 50
+      },
+      "revId": "118e3a21e95bd82e8eedc03ccf152fcb5ab32e9d",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
