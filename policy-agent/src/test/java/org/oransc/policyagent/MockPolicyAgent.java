@@ -20,6 +20,8 @@
 
 package org.oransc.policyagent;
 
+import static org.awaitility.Awaitility.await;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -27,7 +29,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.awaitility.Durations;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.oransc.policyagent.configuration.ApplicationConfig;
@@ -144,10 +148,18 @@ public class MockPolicyAgent {
 
     private void keepServerAlive() throws InterruptedException, IOException {
         logger.info("Keeping server alive!");
-        Thread.sleep(1000);
+        waitForConfiguration();
         loadInstances();
         synchronized (this) {
             this.wait();
+        }
+    }
+
+    private void waitForConfiguration() {
+        try {
+            await().atMost(Durations.ONE_SECOND).untilTrue((new AtomicBoolean()));
+        } catch (Exception e) {
+            logger.info("Waited for timeout {}", e.toString());
         }
     }
 
@@ -175,8 +187,7 @@ public class MockPolicyAgent {
     }
 
     @Test
-    @SuppressWarnings("squid:S2699") // Tests should include assertions. This test is only for keeping the server
-                                     // alive,
+    @SuppressWarnings("squid:S2699") // Tests should include assertions. This test is only for keeping the server alive,
                                      // so it will only be confusing to add an assertion.
     public void runMock() throws Exception {
         keepServerAlive();
