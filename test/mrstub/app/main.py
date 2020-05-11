@@ -31,10 +31,6 @@ app = Flask(__name__)
 msg_requests=[]
 msg_responses={}
 
-# Server info
-HOST_IP = "127.0.0.1"
-HOST_PORT = 2222
-
 # Metrics vars
 cntr_msg_requests_submitted=0
 cntr_msg_requests_fetched=0
@@ -269,8 +265,3 @@ def reset():
     msg_requests=[]
     msg_responses={}
     return Response('OK', status=200, mimetype=MIME_TEXT)
-
-### Main function ###
-
-if __name__ == "__main__":
-    app.run(port=HOST_PORT, host=HOST_IP)

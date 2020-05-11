@@ -20,5 +20,4 @@
 #Builds the mrstub container and starts it in interactive mode
 
 docker build -t mrstub .
-
 docker run -it -p 3905:3905 -p 3906:3906 -v "$PWD/cert:/usr/src/app/cert" mrstub
