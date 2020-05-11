@@ -159,7 +159,6 @@ public class DmaapMessageConsumerTest {
 
     @Test
     public void dmaapConfiguredAndOneMessage_thenPollOnceAndProcessMessage() throws Exception {
-        Properties properties = setUpMrConfig();
 
         messageConsumerUnderTest = spy(new DmaapMessageConsumer(applicationConfigMock));
 
@@ -186,6 +185,7 @@ public class DmaapMessageConsumerTest {
         messageConsumerUnderTest.start().join();
 
         verify(messageConsumerUnderTest).createRestClient("https://localhost:0");
+        Properties properties = setUpMrConfig();
         verify(messageConsumerUnderTest).getMessageRouterPublisher(properties);
 
         verify(messageHandlerMock).handleDmaapMsg(responseMessage);

@@ -102,12 +102,10 @@ public class SdncOnapA1ClientTest {
         SdncOnapA1Client.SdncOnapAdapterInput inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .build();
-        String inputJsonStringGetTypeIds = SdncJsonHelper.createInputJsonString(inputParams);
         inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .policyTypeId(POLICY_TYPE_1_ID) //
             .build();
-        String inputJsonStringGetPolicyIdsType1 = SdncJsonHelper.createInputJsonString(inputParams);
         inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .policyTypeId(POLICY_TYPE_2_ID) //
@@ -127,8 +125,10 @@ public class SdncOnapA1ClientTest {
 
         Mono<List<String>> returnedMono = clientUnderTest.getPolicyIdentities();
         StepVerifier.create(returnedMono).expectNext(Arrays.asList(POLICY_1_ID, POLICY_2_ID)).expectComplete().verify();
+        String inputJsonStringGetTypeIds = SdncJsonHelper.createInputJsonString(inputParams);
         verify(asyncRestClientMock).postWithAuthHeader(POLICYTYPES_IDENTITIES_URL, inputJsonStringGetTypeIds,
             CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
+        String inputJsonStringGetPolicyIdsType1 = SdncJsonHelper.createInputJsonString(inputParams);
         verify(asyncRestClientMock).postWithAuthHeader(POLICIES_IDENTITIES_URL, inputJsonStringGetPolicyIdsType1,
             CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
         verify(asyncRestClientMock).postWithAuthHeader(POLICIES_IDENTITIES_URL, inputJsonStringGetPolicyIdsType2,
@@ -214,29 +214,24 @@ public class SdncOnapA1ClientTest {
         SdncOnapA1Client.SdncOnapAdapterInput inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .build();
-        String inputJsonStringGetTypeIds = SdncJsonHelper.createInputJsonString(inputParams);
         inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .policyTypeId(POLICY_TYPE_1_ID) //
             .build();
-        String inputJsonStringGetPolicyIdsType1 = SdncJsonHelper.createInputJsonString(inputParams);
         inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .policyTypeId(POLICY_TYPE_2_ID) //
             .build();
-        String inputJsonStringGetPolicyIdsType2 = SdncJsonHelper.createInputJsonString(inputParams);
         inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .policyTypeId(POLICY_TYPE_1_ID) //
             .policyInstanceId(POLICY_1_ID) //
             .build();
-        String inputJsonStringDeletePolicy1 = SdncJsonHelper.createInputJsonString(inputParams);
         inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .policyTypeId(POLICY_TYPE_2_ID) //
             .policyInstanceId(POLICY_2_ID) //
             .build();
-        String inputJsonStringDeletePolicy2 = SdncJsonHelper.createInputJsonString(inputParams);
 
         List<String> policyTypeIds = Arrays.asList(POLICY_TYPE_1_ID, POLICY_TYPE_2_ID);
         Mono<String> policyTypeIdsResp =
@@ -252,14 +247,19 @@ public class SdncOnapA1ClientTest {
 
         Flux<String> returnedFlux = clientUnderTest.deleteAllPolicies();
         StepVerifier.create(returnedFlux).expectComplete().verify();
+        String inputJsonStringGetTypeIds = SdncJsonHelper.createInputJsonString(inputParams);
         verify(asyncRestClientMock).postWithAuthHeader(POLICYTYPES_IDENTITIES_URL, inputJsonStringGetTypeIds,
             CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
+        String inputJsonStringGetPolicyIdsType1 = SdncJsonHelper.createInputJsonString(inputParams);
         verify(asyncRestClientMock).postWithAuthHeader(POLICIES_IDENTITIES_URL, inputJsonStringGetPolicyIdsType1,
             CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
+        String inputJsonStringDeletePolicy1 = SdncJsonHelper.createInputJsonString(inputParams);
         verify(asyncRestClientMock).postWithAuthHeader(DELETE_POLICY_URL, inputJsonStringDeletePolicy1,
             CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
+        String inputJsonStringGetPolicyIdsType2 = SdncJsonHelper.createInputJsonString(inputParams);
         verify(asyncRestClientMock).postWithAuthHeader(POLICIES_IDENTITIES_URL, inputJsonStringGetPolicyIdsType2,
             CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
+        String inputJsonStringDeletePolicy2 = SdncJsonHelper.createInputJsonString(inputParams);
         verify(asyncRestClientMock).postWithAuthHeader(DELETE_POLICY_URL, inputJsonStringDeletePolicy2,
             CONTROLLER_USERNAME, CONTROLLER_PASSWORD);
     }

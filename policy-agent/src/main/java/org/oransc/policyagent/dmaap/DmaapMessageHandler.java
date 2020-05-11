@@ -17,6 +17,7 @@
  * limitations under the License.
  * ========================LICENSE_END===================================
  */
+
 package org.oransc.policyagent.dmaap;
 
 import com.google.gson.Gson;

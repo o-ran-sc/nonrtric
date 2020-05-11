@@ -40,13 +40,13 @@ public class LogAspect {
 
     @Around("execution(* org.oransc.policyagent..*(..)))")
     public void executimeTime(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
-        MethodSignature methodSignature = (MethodSignature) proceedingJoinPoint.getSignature();
-        String className = methodSignature.getDeclaringType().getSimpleName();
-        String methodName = methodSignature.getName();
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         proceedingJoinPoint.proceed();
         stopWatch.stop();
+        MethodSignature methodSignature = (MethodSignature) proceedingJoinPoint.getSignature();
+        String className = methodSignature.getDeclaringType().getSimpleName();
+        String methodName = methodSignature.getName();
         logger.trace("Execution time of {}.{}: {} ms", className, methodName, stopWatch.getTotalTimeMillis());
     }
 
