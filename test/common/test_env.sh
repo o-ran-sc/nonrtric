@@ -111,9 +111,9 @@ POLICY_AGENT_LOGPATH="/var/log/policy-agent/application.log"    # Path the appli
 export POLICY_AGENT_APP_NAME_ALIAS="policy-agent-container"     # Alias name, name used by the control panel
 
 export MR_EXTERNAL_PORT=3905                                    # MR stub container external port (host -> container)
-export MR_INTERNAL_PORT=3905                                    # MR stub container internal port (container -> container)
+export MR_INTERNAL_PORT=80                                      # MR stub container internal port (container -> container)
 export MR_EXTERNAL_SECURE_PORT=3906                             # MR stub container external secure port (host -> container)
-export MR_INTERNAL_SECURE_PORT=3906                             # MR stub container internal secure port (container -> container)
+export MR_INTERNAL_SECURE_PORT=443                              # MR stub container internal secure port (container -> container)
 export MR_APP_NAME="message-router"                             # Name for the MR
 
 export CR_EXTERNAL_PORT=8090                                    # Callback receiver container external port (host -> container)
