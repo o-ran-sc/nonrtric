@@ -56,10 +56,12 @@ public class DmaapMessageHandler {
     }
 
     public void handleDmaapMsg(String msg) {
-        this.createTask(msg) //
-            .subscribe(message -> logger.debug("handleDmaapMsg: {}", message), //
-                throwable -> logger.warn("handleDmaapMsg failure {}", throwable.getMessage()), //
-                () -> logger.debug("handleDmaapMsg complete"));
+        try {
+            String result = this.createTask(msg).block();
+            logger.debug("handleDmaapMsg: {}", result);
+        } catch (Exception throwable) {
+            logger.warn("handleDmaapMsg failure {}", throwable.getMessage());
+        }
     }
 
     Mono<String> createTask(String msg) {
