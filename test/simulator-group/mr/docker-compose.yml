@@ -29,5 +29,3 @@ services:
     ports:
       - ${MR_EXTERNAL_PORT}:${MR_INTERNAL_PORT}
       - ${MR_EXTERNAL_SECURE_PORT}:${MR_INTERNAL_SECURE_PORT}
-    volumes:
-      - ${MR_CERT_MOUNT_DIR}:/usr/src/app/cert:ro
