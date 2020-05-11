@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 #  ============LICENSE_START===============================================
 #  Copyright (C) 2020 Nordix Foundation. All rights reserved.
@@ -30,55 +30,137 @@ TC_ONELINE_DESCR="Resync 10000 policies using OSC interface over REST"
 # Path to callback receiver
 CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
 
-clean_containers
+# Tested variants of REST/DMAAP/SDNC config
+TESTED_VARIANTS="REST   DMAAP   REST+SDNC   DMAAP+SDNC DMAAP_BATCH DMAAP_BATCH+SDNC"
+#Test agent and simulator protocol versions (others are http only)
+TESTED_PROTOCOLS="HTTP HTTPS"
+for __httpx in $TESTED_PROTOCOLS ; do
+    for interface in $TESTED_VARIANTS ; do
 
-start_ric_simulators ricsim_g1 4 OSC_2.1.0
-
-start_mr
-
-start_cr
-
-start_consul_cbs
-
-prepare_consul_config      NOSDNC  ".consul_config.json"
-consul_config_app                  ".consul_config.json"
-
-start_control_panel
+        echo "#####################################################################"
+        echo "#####################################################################"
+        echo "### Testing agent: "$interface" and "$__httpx
+        echo "#####################################################################"
+        echo "#####################################################################"
 
 
-start_policy_agent
+        # Clean container and start all needed containers #
+        clean_containers
 
-use_agent_rest_http
+        if [ $__httpx == "HTTPS" ]; then
+            echo "Using secure ports towards simulators"
+            use_simulator_https
+        else
+            echo "Using non-secure ports towards simulators"
+            use_simulator_http
+        fi
 
-api_get_status 200
+        start_ric_simulators ricsim_g1 4 OSC_2.1.0
 
-sim_print ricsim_g1_1 interface
+        start_ric_simulators ricsim_g2 4 STD_1.1.3
 
-sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
+        start_mr
 
-api_equal json:policy_types 1 120  #Wait for the agent to refresh types from the simulator
+        start_cr
 
-api_put_service 201 "rapp1" 3600 "$CR_PATH/callbacks/1"
+        start_consul_cbs
 
-api_put_policy 201 "rapp1" ricsim_g1_1 1 2000 testdata/OSC/pi1_template.json 10000
+        if [[ $interface = *"SDNC"* ]]; then
+            start_sdnc
+            prepare_consul_config      SDNC  ".consul_config.json"
+        else
+            prepare_consul_config      NOSDNC  ".consul_config.json"
+        fi
 
-sim_equal ricsim_g1_1 num_instances 10000
+        consul_config_app                  ".consul_config.json"
 
-sim_post_delete_instances 200 ricsim_g1_1
+        start_control_panel
 
-sim_equal ricsim_g1_1 num_instances 0
+        start_policy_agent
 
-sim_equal ricsim_g1_1 num_instances 10000 300
+        set_agent_debug
 
-api_delete_policy 204 2435
+        if [[ $interface == *"DMAAP"* ]]; then
+            use_agent_dmaap
+        else
+            if [ $__httpx == "HTTPS" ]; then
+                echo "Using secure ports towards the agent"
+                use_agent_rest_https
+            else
+                echo "Using non-secure ports towards the agent"
+                use_agent_rest_http
+            fi
+        fi
 
-api_delete_policy 204 8693
+        api_get_status 200
 
-sim_post_delete_instances 200 ricsim_g1_1
+        sim_print ricsim_g1_1 interface
 
-sim_post_delete_instances 200 ricsim_g1_1
+        sim_print ricsim_g2_1 interface
 
-sim_equal ricsim_g1_1 num_instances 9998 300
+        sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
+
+        api_equal json:policy_types 2 120  #Wait for the agent to refresh types from the simulator
+
+        api_put_service 201 "rapp1" 3600 "$CR_PATH/callbacks/1"
+
+        START_ID=2000
+        NUM_POLICIES=10000
+
+        if [[ $interface == *"BATCH"* ]]; then
+            api_put_policy_batch 201 "rapp1" ricsim_g1_1 1 $START_ID testdata/OSC/pi1_template.json $NUM_POLICIES
+        else
+            api_put_policy 201 "rapp1" ricsim_g1_1 1 $START_ID testdata/OSC/pi1_template.json $NUM_POLICIES
+        fi
+
+        sim_equal ricsim_g1_1 num_instances 10000
+
+        sim_post_delete_instances 200 ricsim_g1_1
+
+        sim_equal ricsim_g1_1 num_instances 0
+
+        sim_equal ricsim_g1_1 num_instances 10000 300
+
+        START_ID=$(($START_ID+$NUM_POLICIES))
+
+        if [[ $interface == *"BATCH"* ]]; then
+            api_put_policy_batch 201 "rapp1" ricsim_g2_1 NOTYPE $START_ID testdata/STD/pi1_template.json $NUM_POLICIES
+        else
+            api_put_policy 201 "rapp1" ricsim_g2_1 NOTYPE $START_ID testdata/STD/pi1_template.json $NUM_POLICIES
+        fi
+        sim_equal ricsim_g2_1 num_instances 10000
+
+        sim_post_delete_instances 200 ricsim_g2_1
+
+        sim_equal ricsim_g2_1 num_instances 0
+
+        sim_equal ricsim_g2_1 num_instances 10000 300
+
+        api_delete_policy 204 2435
+
+        api_delete_policy 204 8693
+
+        sim_post_delete_instances 200 ricsim_g1_1
+
+        sim_equal ricsim_g1_1 num_instances 9998 300
+
+        api_delete_policy 204 12435
+
+        api_delete_policy 204 18693
+
+        api_delete_policy 204 18697
+
+        sim_post_delete_instances 200 ricsim_g2_1
+
+        sim_equal ricsim_g1_1 num_instances 9998 300
+
+        sim_equal ricsim_g2_1 num_instances 9997 300
+
+        api_equal json:policies 19995
+
+    done
+
+done
 
 
 check_policy_agent_logs
@@ -88,3 +170,5 @@ check_policy_agent_logs
 store_logs          END
 
 print_result
+
+auto_clean_containers

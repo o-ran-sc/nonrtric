@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 #  ============LICENSE_START===============================================
 #  Copyright (C) 2020 Nordix Foundation. All rights reserved.
@@ -90,3 +90,5 @@ check_policy_agent_logs
 store_logs          END
 
 print_result
+
+auto_clean_containers

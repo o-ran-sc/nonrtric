@@ -71,9 +71,6 @@ RIC_SIM_LOCAL_IMAGE_TAG="latest"
 RIC_SIM_REMOTE_IMAGE="nexus3.o-ran-sc.org:10004/o-ran-sc/a1-simulator"
 RIC_SIM_REMOTE_IMAGE_TAG="1.0.1"
 
-RIC_SIM_REMOTE_IMAGE="a1test"
-RIC_SIM_REMOTE_IMAGE_TAG="latest"
-
 
 #Consul remote image and tag
 CONSUL_REMOTE_IMAGE="consul"
@@ -115,6 +112,8 @@ export MR_INTERNAL_PORT=3905                                    # MR stub contai
 export MR_EXTERNAL_SECURE_PORT=3906                             # MR stub container external secure port (host -> container)
 export MR_INTERNAL_SECURE_PORT=3906                             # MR stub container internal secure port (container -> container)
 export MR_APP_NAME="message-router"                             # Name for the MR
+export MR_READ_URL="/events/A1-POLICY-AGENT-READ/users/policy-agent" # Path to read messages from MR
+export MR_WRITE_URL="/events/A1-POLICY-AGENT-WRITE"             # Path write messages to MR
 
 export CR_EXTERNAL_PORT=8090                                    # Callback receiver container external port (host -> container)
 export CR_INTERNAL_PORT=8090                                    # Callback receiver container internal port (container -> container)
@@ -141,19 +140,25 @@ export RIC_SIM_INTERNAL_SECURE_PORT=8185                        # RIC Simulator 
 export SDNC_APP_NAME="a1-controller"                            # Name of the SNDC A1 Controller container
 export SDNC_EXTERNAL_PORT=8282                                  # SNDC A1 Controller container external port (host -> container)
 export SDNC_INTERNAL_PORT=8181                                  # SNDC A1 Controller container internal port (container -> container)
+export SDNC_EXTERNAL_SECURE_PORT=8443                           # SNDC A1 Controller container external securee port (host -> container)
+export SDNC_INTERNAL_SECURE_PORT=8443                           # SNDC A1 Controller container internal secure port (container -> container)
 export SDNC_DB_APP_NAME="sdnc-db"                               # Name of the SDNC DB container
 SDNC_USER="admin"                                               # SDNC username
 SDNC_PWD="Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U"          # SNDC PWD
 SDNC_API_URL="/restconf/operations/A1-ADAPTER-API:"             # Base url path for SNDC API
+SDNC_ALIVE_URL="/apidoc/explorer/"                              # Base url path for SNDC API docs (for alive check)
 SDNC_KARAF_LOG="/opt/opendaylight/data/log/karaf.log"           # Path to karaf log
 
 export SDNC_ONAP_APP_NAME="a1-adapter"                          # Name of the ONAP A1 Adapter container
 export SDNC_ONAP_EXTERNAL_PORT=8282                             # ONAP A1 Adapter container external port (host -> container)
 export SDNC_ONAP_INTERNAL_PORT=8181                             # ONAP A1 Adapter container internal port (container -> container)
+export SDNC_ONAP_EXTERNAL_SECURE_PORT=8443                      # SNDC A1 Adapter container external securee port (host -> container)
+export SDNC_ONAP_INTERNAL_SECURE_PORT=8343                      # SNDC A1 Adapter container internal secure port (container -> container)
 export SDNC_ONAP_DB_APP_NAME="sdnc-onap-db"                     # Name of the ONAP A1 Adapter DB container
 SDNC_ONAP_USER="admin"                                          # ONAP A1 Adapter username
 SDNC_ONAP_PWD="Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U"     # ONAP A1 Adapter PWD
 SDNC_ONAP_API_URL="/restconf/operations/A1-ADAPTER-API:"        # Base url path for ONAP A1 Adapter API
+SDNC_ONAP_ALIVE_URL="/apidoc/explorer/"                         # Base url path for ONAP A1 Adapter API docs (for alive check)
 SDNC_ONAP_PROPERTIES_FILE="/opt/onap/ccsdk/data/properties/a1-adapter-api-dg.properties"
 SDNC_ONAP_KARAF_LOG="/opt/opendaylight/data/log/karaf.log"      # Path to karaf log
 

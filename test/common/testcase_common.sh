@@ -44,7 +44,7 @@ if [ $? -ne 0 ] || [ -z tmp ]; then
 fi
 
 # Just resetting any previous echo formatting...
-echo -ne $EBOLD$ERED$EGREEN
+echo -ne $EBOLD
 
 # source test environment variables
 . ../common/test_env.sh
@@ -59,17 +59,28 @@ G1_COUNT=0
 G2_COUNT=0
 G3_COUNT=0
 
-# Var to switch between http and https. Extra curl flag needed for https
+# Vars to switch between http and https. Extra curl flag needed for https
 export RIC_SIM_HTTPX="http"
 export RIC_SIM_LOCALHOST=$RIC_SIM_HTTPX"://localhost:"
 export RIC_SIM_PORT=$RIC_SIM_INTERNAL_PORT
 export RIC_SIM_CERT_MOUNT_DIR="./fakedir"  #Fake dir so that the sim container does not find any cert
+
+export MR_HTTPX="http"
+export MR_PORT=$MR_INTERNAL_PORT
+export MR_LOCAL_PORT=$MR_EXTERNAL_PORT #When agent is running outside the docker net
+
+export SDNC_HTTPX="http"
+export SDNC_PORT=$SDNC_INTERNAL_PORT
+export SDNC_LOCAL_PORT=$SDNC_EXTERNAL_PORT #When agent is running outside the docker net
 
 #Localhost constant
 LOCALHOST="http://localhost:"
 
 # Make curl retries for http response codes set in this env var, space separated list of codes
 AGENT_RETRY_CODES=""
+
+# Var to contol if the agent runs in a container (normal = 0) or as application on the local machine ( = 1)
+AGENT_STAND_ALONE=0
 
 # Var to hold 'auto' in case containers shall be stopped when test case ends
 AUTO_CLEAN=""
@@ -118,9 +129,19 @@ RES_TEST=0
 RES_PASS=0
 RES_FAIL=0
 RES_CONF_FAIL=0
+RES_DEVIATION=0
+
+#File to keep deviation messages
+DEVIATION_FILE=".tmp_deviations"
+rm $DEVIATION_FILE &> /dev/null
 
 #Var for measuring execution time
 TCTEST_START=$SECONDS
+
+#File to save timer measurement results
+TIMER_MEASUREMENTS=".timer_measurement.txt"
+echo -e "Activity \t Duration" > $TIMER_MEASUREMENTS
+
 
 echo "-------------------------------------------------------------------------------------------------"
 echo "-----------------------------------      Test case: "$ATC
@@ -356,8 +377,10 @@ app="Near-RT RIC Simulator";    __check_and_pull_image $1 "$app" $RIC_SIM_PREFIX
 app="Consul";                   __check_and_pull_image $1 "$app" $CONSUL_APP_NAME $CONSUL_IMAGE
 app="CBS";                      __check_and_pull_image $1 "$app" $CBS_APP_NAME $CBS_IMAGE
 app="SDNC DB";                  __check_and_pull_image $1 "$app" $SDNC_APP_NAME $SDNC_DB_IMAGE
-app="SDNC ONAP A1 Adapter";     __check_and_pull_image $1 "$app" $SDNC_ONAP_APP_NAME $SDNC_ONAP_A1_ADAPTER_IMAGE
-app="SDNC ONAP DB";             __check_and_pull_image $1 "$app" $SDNC_ONAP_APP_NAME $SDNC_ONAP_DB_IMAGE
+
+echo -e $YELLOW"SDNC ONAP image is skipped"$EYELLOW
+#app="SDNC ONAP A1 Adapter";     __check_and_pull_image $1 "$app" $SDNC_ONAP_APP_NAME $SDNC_ONAP_A1_ADAPTER_IMAGE
+#app="SDNC ONAP DB";             __check_and_pull_image $1 "$app" $SDNC_ONAP_APP_NAME $SDNC_ONAP_DB_IMAGE
 
 # MR stub image not checked, will be built by this script - only local image
 # CR stub image not checked, will be built by this script - only local image
@@ -505,11 +528,25 @@ print_result() {
 		fi
 	fi
 
+	if [ $RES_DEVIATION -gt 0 ]; then
+		echo "Test case deviations"
+		echo "===================================="
+		cat $DEVIATION_FILE
+	fi
+	echo ""
+	echo "Timer measurement in the test script"
+	echo "===================================="
+	column -t -s $'\t' $TIMER_MEASUREMENTS
+	echo ""
+
 	echo "++++ Number of tests:          "$RES_TEST
 	echo "++++ Number of passed tests:   "$RES_PASS
 	echo "++++ Number of failed tests:   "$RES_FAIL
 	echo ""
 	echo "++++ Number of failed configs: "$RES_CONF_FAIL
+	echo ""
+	echo "++++ Number of test case deviations: "$RES_DEVIATION
+	echo ""
 	echo "-------------------------------------     Test case complete    ---------------------------------"
 	echo "-------------------------------------------------------------------------------------------------"
 	echo ""
@@ -519,6 +556,73 @@ print_result() {
 ###### Functions for start, configuring, stoping, cleaning etc ######
 #####################################################################
 
+# Start timer for time measurement
+# args - (any args will be printed though)
+start_timer() {
+	echo -e $BOLD"INFO(${BASH_LINENO[0]}): "${FUNCNAME[0]}"," $@ $EBOLD
+	TC_TIMER=$SECONDS
+	echo " Timer started"
+}
+
+# Print the value of the time (in seconds)
+# args - <timer message to print>  -  timer value and message will be printed both on screen
+#                                     and in the timer measurement report
+print_timer() {
+	echo -e $BOLD"INFO(${BASH_LINENO[0]}): "${FUNCNAME[0]}"," $@ $EBOLD
+	if [ $# -lt 1 ]; then
+		((RES_CONF_FAIL++))
+    	__print_err "need 1 or more args,  <timer message to print>" $@
+		exit 1
+	fi
+	duration=$(($SECONDS-$TC_TIMER))
+	if [ $duration -eq 0 ]; then
+		duration="<1 second"
+	else
+		duration=$duration" seconds"
+	fi
+	echo " Timer duration :" $duration
+
+	echo -e "${@:1} \t $duration" >> $TIMER_MEASUREMENTS
+}
+
+# Print the value of the time (in seconds) and reset the timer
+# args - <timer message to print>  -  timer value and message will be printed both on screen
+#                                     and in the timer measurement report
+print_and_reset_timer() {
+	echo -e $BOLD"INFO(${BASH_LINENO[0]}): "${FUNCNAME[0]}"," $@ $EBOLD
+	if [ $# -lt 1 ]; then
+		((RES_CONF_FAIL++))
+    	__print_err "need 1 or more args,  <timer message to print>" $@
+		exit 1
+	fi
+	duration=$(($SECONDS-$TC_TIMER))" seconds"
+	if [ $duration -eq 0 ]; then
+		duration="<1 second"
+	else
+		duration=$duration" seconds"
+	fi
+	echo " Timer duration :" $duration
+	TC_TIMER=$SECONDS
+	echo " Timer reset"
+
+	echo -e "${@:1} \t $duration" >> $TIMER_MEASUREMENTS
+
+}
+# Print info about a deviations from intended tests
+# Each deviation counted is also printed in the testreport
+# args <deviation message to print>
+deviation() {
+	echo -e $BOLD"DEVIATION(${BASH_LINENO[0]}): "${FUNCNAME[0]} $EBOLD
+	if [ $# -lt 1 ]; then
+		((RES_CONF_FAIL++))
+		__print_err "need 1 or more args,  <deviation message to print>" $@
+		exit 1
+	fi
+	((RES_DEVIATION++))
+	echo -e $BOLD$YELLOW" Test case deviation: ${@:1}"$EYELLOW$EBOLD
+	echo "Line: ${BASH_LINENO[0]} - ${@:1}" >> $DEVIATION_FILE
+	echo ""
+}
 
 # Stop and remove all containers
 # args: -
@@ -612,6 +716,8 @@ __print_err() {
 __find_sim_port() {
     name=$1" " #Space appended to prevent matching 10 if 1 is desired....
     cmdstr="docker ps --filter name=${name} --format \"{{.Names}} {{.Ports}}\" | grep '${name}' | sed s/0.0.0.0:// | cut -f 2 -d ' ' | cut -f 1 -d '-'"
+	cmdstr="docker ps --filter name=${name} --format \"{{.Names}} {{.Ports}}\" | grep '${name}' | cut -f 3 -d ',' | sed s/0.0.0.0:// | cut -f 2 -d ' ' | cut -f 1 -d '-'"
+
 	res=$(eval $cmdstr)
 	if [[ "$res" =~ ^[0-9]+$ ]]; then
 		echo $res
@@ -659,31 +765,33 @@ __check_container_start() {
 	appname=$1
 	localport=$2
 	url=$3
-	app_started=0
-	for i in {1..10}; do
-		if [ "$(docker inspect --format '{{ .State.Running }}' $appname)" == "true" ]; then
-				echo -e " Container $BOLD$1$EBOLD$GREEN running$EGREEN on$BOLD image $(docker inspect --format '{{ .Config.Image }}' ${appname}) $EBOLD"
-				app_started=1
-		   		break
-		 	else
-		   		sleep $i
-	 	fi
-	done
-	if [ $app_started -eq 0 ]; then
-		((RES_CONF_FAIL++))
-		echo ""
-		echo -e $RED" Container $BOLD${appname}$EBOLD could not be started"$ERED
-		return 1
-	fi
-	if [ $localport -eq 0 ]; then
-		while [ $localport -eq 0 ]; do
-			echo -ne " Waiting for container ${appname} to publish its ports...${SAMELINE}"
-			localport=$(__find_sim_port $appname)
-			sleep 1
-			echo -ne " Waiting for container ${appname} to publish its ports...retrying....${SAMELINE}"
+	if [[ $appname != "STANDALONE_"* ]]	; then
+		app_started=0
+		for i in {1..10}; do
+			if [ "$(docker inspect --format '{{ .State.Running }}' $appname)" == "true" ]; then
+					echo -e " Container $BOLD$1$EBOLD$GREEN running$EGREEN on$BOLD image $(docker inspect --format '{{ .Config.Image }}' ${appname}) $EBOLD"
+					app_started=1
+					break
+				else
+					sleep $i
+			fi
 		done
-		echo -ne " Waiting for container ${appname} to publish its ports...retrying....$GREEN OK $EGREEN"
-		echo ""
+		if [ $app_started -eq 0 ]; then
+			((RES_CONF_FAIL++))
+			echo ""
+			echo -e $RED" Container $BOLD${appname}$EBOLD could not be started"$ERED
+			return 1
+		fi
+		if [ $localport -eq 0 ]; then
+			while [ $localport -eq 0 ]; do
+				echo -ne " Waiting for container ${appname} to publish its ports...${SAMELINE}"
+				localport=$(__find_sim_port $appname)
+				sleep 1
+				echo -ne " Waiting for container ${appname} to publish its ports...retrying....${SAMELINE}"
+			done
+			echo -ne " Waiting for container ${appname} to publish its ports...retrying....$GREEN OK $EGREEN"
+			echo ""
+		fi
 	fi
 
 	pa_st=false
@@ -744,6 +852,8 @@ __start_container() {
 			echo -e $RED"Problem to launch container(s) with docker-compose"$ERED
 			cat .dockererr
 		fi
+	elif [ "$2" == "STANDALONE" ]; then
+		echo "Skipping docker-compose"
 	else
 		docker-compose up -d $2 &> .dockererr
 		if [ $? -ne 0 ]; then
@@ -751,11 +861,14 @@ __start_container() {
 			cat .dockererr
 		fi
 	fi
-
+	app_prefix=""
+	if [ "$2" == "STANDALONE" ]; then
+		app_prefix="STANDALONE_"
+	fi
 	shift; shift;
 	cntr=0
 	while [ $cntr -lt $variableArgCount ]; do
-		app=$1; shift;
+		app=$app_prefix$1; shift;
 		port=$1; shift;
 		url=$1; shift;
 		httpx=$1; shift;
@@ -795,6 +908,7 @@ consul_config_app() {
 		return 1
 	fi
 	body="$(__do_curl $LOCALHOST$CBS_EXTERNAL_PORT/service_component_all/$POLICY_AGENT_APP_NAME)"
+	echo $body > ".output"$1
 
 	if [ $? -ne 0 ]; then
 		echo -e $RED" FAIL - json config could not be loaded from consul/cbs, contents cannot be checked." $ERED
@@ -849,7 +963,11 @@ prepare_consul_config() {
 		config_json=$config_json"\n   \"controller\": ["
 		config_json=$config_json"\n                     {"
 		config_json=$config_json"\n                       \"name\": \"$SDNC_APP_NAME\","
-		config_json=$config_json"\n                       \"baseUrl\": \"http://$SDNC_APP_NAME:$SDNC_INTERNAL_PORT\","
+		if [ $AGENT_STAND_ALONE -eq 0 ]; then
+			config_json=$config_json"\n                       \"baseUrl\": \"$SDNC_HTTPX://$SDNC_APP_NAME:$SDNC_PORT\","
+		else
+			config_json=$config_json"\n                       \"baseUrl\": \"$SDNC_HTTPX://localhost:$SDNC_LOCAL_PORT\","
+		fi
 		config_json=$config_json"\n                       \"userName\": \"$SDNC_USER\","
 		config_json=$config_json"\n                       \"password\": \"$SDNC_PWD\""
 		config_json=$config_json"\n                     }"
@@ -859,7 +977,11 @@ prepare_consul_config() {
 		config_json=$config_json"\n   \"controller\": ["
 		config_json=$config_json"\n                     {"
 		config_json=$config_json"\n                       \"name\": \"$SDNC_ONAP_APP_NAME\","
-		config_json=$config_json"\n                       \"baseUrl\": \"http://$SDNC_ONAP_APP_NAME:$SDNC_ONAP_INTERNAL_PORT\","
+		if [ $AGENT_STAND_ALONE -eq 0 ]; then
+			config_json=$config_json"\n                       \"baseUrl\": \"http://$SDNC_ONAP_APP_NAME:$SDNC_ONAP_INTERNAL_PORT\","
+		else
+			config_json=$config_json"\n                       \"baseUrl\": \"http://localhost:$SDNC_ONAP_EXTERNAL_PORT\","
+		fi
 		config_json=$config_json"\n                       \"userName\": \"$SDNC_ONAP_USER\","
 		config_json=$config_json"\n                       \"password\": \"$SDNC_ONAP_PWD\""
 		config_json=$config_json"\n                     }"
@@ -871,7 +993,11 @@ prepare_consul_config() {
 	config_json=$config_json"\n                            \"dmaap_publisher\": {"
 	config_json=$config_json"\n                              \"type\": \"$MR_APP_NAME\","
 	config_json=$config_json"\n                              \"dmaap_info\": {"
-	config_json=$config_json"\n                                \"topic_url\": \"http://$MR_APP_NAME:$MR_INTERNAL_PORT/events/A1-POLICY-AGENT-WRITE\""
+	if [ $AGENT_STAND_ALONE -eq 0 ]; then
+		config_json=$config_json"\n                                \"topic_url\": \"$MR_HTTPX://$MR_APP_NAME:$MR_PORT$MR_WRITE_URL\""
+	else
+		config_json=$config_json"\n                                \"topic_url\": \"$MR_HTTPX://localhost:$MR_LOCAL_PORT$MR_WRITE_URL\""
+	fi
 	config_json=$config_json"\n                              }"
 	config_json=$config_json"\n                            }"
 	config_json=$config_json"\n   },"
@@ -879,7 +1005,11 @@ prepare_consul_config() {
 	config_json=$config_json"\n                             \"dmaap_subscriber\": {"
 	config_json=$config_json"\n                               \"type\": \"$MR_APP_NAME\","
 	config_json=$config_json"\n                               \"dmaap_info\": {"
-	config_json=$config_json"\n                                   \"topic_url\": \"http://$MR_APP_NAME:$MR_INTERNAL_PORT/events/A1-POLICY-AGENT-READ/users/policy-agent\""
+	if [ $AGENT_STAND_ALONE -eq 0 ]; then
+		config_json=$config_json"\n                                   \"topic_url\": \"$MR_HTTPX://$MR_APP_NAME:$MR_PORT$MR_READ_URL\""
+	else
+		config_json=$config_json"\n                                   \"topic_url\": \"$MR_HTTPX://localhost:$MR_LOCAL_PORT$MR_READ_URL\""
+	fi
 	config_json=$config_json"\n                                 }"
 	config_json=$config_json"\n                               }"
 	config_json=$config_json"\n   },"
@@ -901,7 +1031,11 @@ prepare_consul_config() {
 		fi
 		config_json=$config_json"\n          {"
 		config_json=$config_json"\n            \"name\": \"$ric\","
-		config_json=$config_json"\n            \"baseUrl\": \"$RIC_SIM_HTTPX://$ric:$RIC_SIM_PORT\","
+		if [ $AGENT_STAND_ALONE -eq 0 ]; then
+			config_json=$config_json"\n            \"baseUrl\": \"$RIC_SIM_HTTPX://$ric:$RIC_SIM_PORT\","
+		else
+			config_json=$config_json"\n            \"baseUrl\": \"$RIC_SIM_HTTPX://localhost:$(__find_sim_port $ric)\","
+		fi
 		if [ $1 == "SDNC" ]; then
 			config_json=$config_json"\n            \"controller\": \"$SDNC_APP_NAME\","
 		elif [ $1 == "SDNC_ONAP" ]; then
@@ -1033,8 +1167,24 @@ start_sdnc() {
 
 	echo -e $BOLD"Starting SDNC A1 Controller"$EBOLD
 
-	__start_container sdnc NODOCKERARGS $SDNC_APP_NAME $SDNC_EXTERNAL_PORT "/apidoc/explorer" "http"
+	__start_container sdnc NODOCKERARGS $SDNC_APP_NAME $SDNC_EXTERNAL_PORT $SDNC_ALIVE_URL "http"
 
+}
+
+use_sdnc_http() {
+	echo -e $BOLD"Using http between agent and SDNC"$EBOLD
+	export SDNC_HTTPX="http"
+	export SDNC_PORT=$SDNC_INTERNAL_PORT
+	export SDNC_LOCAL_PORT=$SDNC_EXTERNAL_PORT
+	echo ""
+}
+
+use_sdnc_https() {
+	echo -e $BOLD"Using https between agent and SDNC"$EBOLD
+	export SDNC_HTTPX="https"
+	export SDNC_PORT=$SDNC_INTERNAL_SECURE_PORT
+	export SDNC_LOCAL_PORT=$SDNC_EXTERNAL_SECURE_PORT
+	echo ""
 }
 
 #######################
@@ -1048,7 +1198,7 @@ start_sdnc_onap() {
 
 	echo -e $BOLD"Starting SDNC ONAP A1 Adapter"$EBOLD
 
-	__start_container sdnc_onap NODOCKERARGS $SDNC_ONAP_APP_NAME $SDNC_ONAP_EXTERNAL_PORT "/apidoc/explorer" "http"
+	__start_container sdnc_onap NODOCKERARGS $SDNC_ONAP_APP_NAME $SDNC_ONAP_EXTERNAL_PORT $SDNC_ONAP_ALIVE_URL "http"
 
 }
 
@@ -1067,6 +1217,7 @@ config_sdnc_onap() {
 		echo -e $RED"Could not copy $SDNC_ONAP_PROPERTIES_FILE from $SDNC_ONAP_APP_NAME container"$ERED
 		exit 1
 	fi
+
 
 	#Config of the prop file shall be inserted here
 
@@ -1097,8 +1248,24 @@ start_mr() {
 	echo -e $BOLD"Starting Message Router 'mrstub'"$EBOLD
 	export MR_CERT_MOUNT_DIR="./cert"
 	__start_container mr NODOCKERARGS $MR_APP_NAME $MR_EXTERNAL_PORT "/" "http"
-
 }
+
+use_mr_http() {
+	echo -e $BOLD"Using http between agent and MR"$EBOLD
+	export MR_HTTPX="http"
+	export MR_PORT=$MR_INTERNAL_PORT
+	export MR_LOCAL_PORT=$MR_EXTERNAL_PORT
+	echo ""
+}
+
+use_mr_https() {
+	echo -e $BOLD"Using https between agent and MR"$EBOLD
+	export MR_HTTPX="https"
+	export MR_PORT=$MR_INTERNAL_SECURE_PORT
+	export MR_LOCAL_PORT=$MR_EXTERNAL_SECURE_PORT
+	echo ""
+}
+
 
 ################
 ### CR functions
@@ -1119,14 +1286,30 @@ start_cr() {
 ### Policy Agents functions
 ###########################
 
-# Start the policy agwent
+# Use an agent on the local machine instead of container
+use_agent_stand_alone() {
+	AGENT_STAND_ALONE=1
+}
+
+# Start the policy agent
 # args: -
 # (Function for test scripts)
 start_policy_agent() {
 
 	echo -e $BOLD"Starting Policy Agent"$EBOLD
 
-	__start_container policy_agent NODOCKERARGS $POLICY_AGENT_APP_NAME $POLICY_AGENT_EXTERNAL_PORT "/status" "http"
+	if [ $AGENT_STAND_ALONE -eq 0 ]; then
+		__start_container policy_agent NODOCKERARGS $POLICY_AGENT_APP_NAME $POLICY_AGENT_EXTERNAL_PORT "/status" "http"
+	else
+		echo -e $RED"The consul config produced by this test script (filename '<fullpath-to-autotest-dir>.output<file-name>"$ERED
+		echo -e $RED"where the file name is the file in the consul_config_app command in this script) must be pointed out by the agent "$ERED
+		echo -e $RED"application.yaml"$ERED
+		echo -e $RED"The application jar may need to be built beforefor continuing"$ERED
+		echo -e $RED"The agent shall now be running on port $POLICY_AGENT_EXTERNAL_PORT for http"$ERED
+
+		read -p "<press any key to continue>"
+		__start_container policy_agent "STANDALONE" $POLICY_AGENT_APP_NAME $POLICY_AGENT_EXTERNAL_PORT "/status" "http"
+	fi
 
 }
 
@@ -1146,17 +1329,19 @@ use_agent_rest_https() {
 	echo -e $BOLD"Using agent REST interface with https"$EBOLD
 	export ADAPTER=$RESTBASE_SECURE
 	echo ""
+	return 0
 }
 
 # All calls to the agent will be directed to the agent dmaap interface from now on
 # args: -
 # (Function for test scripts)
 use_agent_dmaap() {
-	echo -e $BOLD"Using agent DMAAP interface"$EBOLD
+	echo -e $BOLD"Agent using DMAAP interface"$EBOLD
 	export ADAPTER=$DMAAPBASE
 	echo ""
-
+	return 0
 }
+
 
 # Turn on debug level tracing in the agent
 # args: -
@@ -1168,8 +1353,8 @@ set_agent_debug() {
 		__print_err "could not set debug mode" $@
 		return 1
 	fi
-	return 0
 	echo ""
+	return 0
 }
 
 # Perform curl retries when making direct call to the agent for the specified http response codes
@@ -1179,6 +1364,7 @@ use_agent_retries() {
 	echo -e $BOLD"Do curl retries to the agent REST inteface for these response codes:$@"$EBOLD
 	AGENT_RETRY_CODES=$@
 	echo ""
+	return
 }
 
 #################
@@ -1242,7 +1428,7 @@ store_logs() {
     	__print_err "need one arg, <file-prefix>" $@
 		exit 1
 	fi
-	echo -e $BOLD"Storing all container logs, Policy Agent app log and consul config using prefix: "$1
+	echo -e $BOLD"Storing all container logs, Policy Agent app log and consul config using prefix: "$1$EBOLD
 
 	docker logs $CONSUL_APP_NAME > $TESTLOGS/$ATC/$1_consul.log 2>&1
 	docker logs $CBS_APP_NAME > $TESTLOGS/$ATC/$1_cbs.log 2>&1
@@ -1318,7 +1504,7 @@ __var_test() {
 		fi
 
 		#echo -e "---- ${1} sim test criteria: \033[1m ${3} \033[0m ${4} ${5} within ${6} seconds ----"
-		echo -e $BOLD"TEST(${BASH_LINENO[1]}): ${1}, ${3} ${4} ${5} within ${6} seconds"
+		echo -e $BOLD"TEST(${BASH_LINENO[1]}): ${1}, ${3} ${4} ${5} within ${6} seconds"$EBOLD
 		((RES_TEST++))
 		start=$SECONDS
 		ctr=0
@@ -1496,5 +1682,3 @@ mr_print() {
 	fi
 	echo -e $BOLD"INFO(${BASH_LINENO[0]}): mrstub, $1 = $(__do_curl $LOCALHOST$MR_EXTERNAL_PORT/counter/$1)"$EBOLD
 }
-
-

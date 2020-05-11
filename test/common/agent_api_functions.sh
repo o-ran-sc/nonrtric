@@ -23,8 +23,11 @@
 
 # Generic function to query the agent via the REST or DMAAP interface.
 # Used by all other agent api test functions
+# If operation prefix is '_BATCH' the the send and get response is split in two sequences,
+# one for sending the requests and one for receiving the response
+# but only when using the DMAAP interface
 # REST or DMAAP is controlled of the base url of $ADAPTER
-# arg: GET|PUT|POST|DELETE <url> [<file>]
+# arg: (GET|PUT|POST|DELETE|GET_BATCH|PUT_BATCH|POST_BATCH|DELETE_BATCH <url> [<file>]) | (RESPONSE <correlation-id>)
 # (Not for test scripts)
 __do_curl_to_agent() {
     echo "(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
@@ -39,30 +42,41 @@ __do_curl_to_agent() {
 		httpcode=" -sw %{http_code}"
 		accept=''
 		content=''
-
+		batch=0
+		if [[ $1 == *"_BATCH" ]]; then
+			batch=1
+		fi
 		if [ $# -gt 2 ]; then
 			content=" -H Content-Type:application/json"
 		fi
-		if [ $1 == "GET" ]; then
+		if [ $1 == "GET" ] || [ $1 == "GET_BATCH" ]; then
 			oper="GET"
-			if [ $# -ne 2 ];then
+			if [ $# -ne 2 ]; then
 				paramError=1
 			fi
-		elif [ $1 == "PUT" ]; then
+		elif [ $1 == "PUT" ] || [ $1 == "PUT_BATCH" ]; then
 			oper="PUT"
 			if [ $# -eq 3 ]; then
 				file=" --data-binary @$3"
 			fi
 			accept=" -H accept:application/json"
-		elif [ $1 == "POST" ]; then
+		elif [ $1 == "POST" ] || [ $1 == "POST_BATCH" ]; then
 			oper="POST"
 			accept=" -H accept:*/*"
-			if [ $# -ne 2 ];then
+			if [ $# -ne 2 ]; then
 				paramError=1
 			fi
-		elif [ $1 == "DELETE" ]; then
+		elif [ $1 == "DELETE" ] || [ $1 == "DELETE_BATCH" ]; then
 			oper="DELETE"
-			if [ $# -ne 2 ];then
+			if [ $# -ne 2 ]; then
+				paramError=1
+			fi
+		elif [ $1 == "RESPONSE" ]; then
+			oper="RESPONSE"
+			if [ $# -ne 2 ]; then
+				paramError=1
+			fi
+			if ! [ $ADAPTER == $DMAAPBASE ]; then
 				paramError=1
 			fi
 		else
@@ -73,7 +87,7 @@ __do_curl_to_agent() {
     if [ $paramError -eq 1 ]; then
 		((RES_CONF_FAIL++))
         echo "-Incorrect number of parameters to __do_curl_agent " $@ >> $HTTPLOG
-        echo "-Expected: GET|PUT|POST|DELETE <url> [<file>]" >> $HTTPLOG
+        echo "-Expected: (GET|PUT|POST|DELETE|GET_BATCH|PUT_BATCH|POST_BATCH|DELETE_BATCH <url> [<file>]) | (RESPONSE <correlation-id>) [<file>]" >> $HTTPLOG
         echo "-Returning response 000" >> $HTTPLOG
         echo "-000"
         return 1
@@ -119,70 +133,81 @@ __do_curl_to_agent() {
         echo $res
         return 0
     else
-        requestUrl=$2
-        if [ $1 == "PUT" ] && [ $# -eq 3 ]; then
-            payload="$(cat $3 | tr -d '\n' | tr -d ' ' )"
-            echo "payload: "$payload >> $HTTPLOG
-            file=" --data-binary "$payload
-        fi
-		#urlencode the request url since it will be carried by send-request url
-		requestUrl=$(python3 -c "from __future__ import print_function; import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))"  "$2")
-        url=" "${ADAPTER}"/send-request?url="${requestUrl}"&operation="${oper}
-        curlString="curl -X POST${timeout}${httpcode}${content}${url}${file}"
-        echo " CMD: "$curlString >> $HTTPLOG
-        res=$($curlString)
-        retcode=$?
-        if [ $retcode -ne 0 ]; then
-            echo " RETCODE: "$retcode >> $HTTPLOG
-            echo "000"
-            return 1
-        fi
-        echo " RESP: "$res >> $HTTPLOG
-        status=${res:${#res}-3}
-        if [ $status -ne 200 ]; then
-            echo "000"
-            return 1
-        fi
-        cid=${res:0:${#res}-3}
-        url=" "${ADAPTER}"/receive-response?correlationid="${cid}
-        curlString="curl -X GET"${timeout}${httpcode}${url}
-        echo " CMD: "$curlString >> $HTTPLOG
-        res=$($curlString)
-        retcode=$?
-        if [ $retcode -ne 0 ]; then
-            echo " RETCODE: "$retcode >> $HTTPLOG
-            echo "000"
-            return 1
-        fi
-        echo " RESP: "$res >> $HTTPLOG
-        status=${res:${#res}-3}
-		TS=$SECONDS
-		# wait of the reply from the agent...
-        while [ $status -eq 204 ]; do
-			if [ $(($SECONDS - $TS)) -gt 90 ]; then
-                echo " RETCODE: (timeout after 90s)" >> $HTTPLOG
-                echo "000"
-                return 1
+		if [ $oper != "RESPONSE" ]; then
+			requestUrl=$2
+			if [ $1 == "PUT" ] && [ $# -eq 3 ]; then
+				payload="$(cat $3 | tr -d '\n' | tr -d ' ' )"
+				echo "payload: "$payload >> $HTTPLOG
+				file=" --data-binary "$payload
 			fi
-            sleep 1
-            echo " CMD: "$curlString >> $HTTPLOG
-            res=$($curlString)
-            if [ $retcode -ne 0 ]; then
-                echo " RETCODE: "$retcode >> $HTTPLOG
-                echo "000"
-                return 1
-            fi
-            echo " RESP: "$res >> $HTTPLOG
-            status=${res:${#res}-3}
-        done
-        if [ $status -eq 200 ]; then
-            body=${res:0:${#res}-3}
-            echo $body
-            return 0
-        fi
-        echo "Status not 200, returning response 000" >> $HTTPLOG
-        echo "0000"
-        return 1
+			#urlencode the request url since it will be carried by send-request url
+			requestUrl=$(python3 -c "from __future__ import print_function; import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))"  "$2")
+			url=" "${ADAPTER}"/send-request?url="${requestUrl}"&operation="${oper}
+			curlString="curl -X POST${timeout}${httpcode}${content}${url}${file}"
+			echo " CMD: "$curlString >> $HTTPLOG
+			res=$($curlString)
+			retcode=$?
+			if [ $retcode -ne 0 ]; then
+				echo " RETCODE: "$retcode >> $HTTPLOG
+				echo "000"
+				return 1
+			fi
+			echo " RESP: "$res >> $HTTPLOG
+			status=${res:${#res}-3}
+			if [ $status -ne 200 ]; then
+				echo "000"
+				return 1
+			fi
+			cid=${res:0:${#res}-3}
+			if [[ $batch -eq 1 ]]; then
+				echo $cid"200"
+				return 0
+			fi
+		fi
+		if [ $oper == "RESPONSE" ] || [ $batch -eq 0 ]; then
+			if [ $oper == "RESPONSE" ]; then
+				cid=$2
+			fi
+			url=" "${ADAPTER}"/receive-response?correlationid="${cid}
+			curlString="curl -X GET"${timeout}${httpcode}${url}
+			echo " CMD: "$curlString >> $HTTPLOG
+			res=$($curlString)
+			retcode=$?
+			if [ $retcode -ne 0 ]; then
+				echo " RETCODE: "$retcode >> $HTTPLOG
+				echo "000"
+				return 1
+			fi
+			echo " RESP: "$res >> $HTTPLOG
+			status=${res:${#res}-3}
+			TS=$SECONDS
+			# wait of the reply from the agent...
+			while [ $status -eq 204 ]; do
+				if [ $(($SECONDS - $TS)) -gt 90 ]; then
+					echo " RETCODE: (timeout after 90s)" >> $HTTPLOG
+					echo "000"
+					return 1
+				fi
+				sleep 0.01
+				echo " CMD: "$curlString >> $HTTPLOG
+				res=$($curlString)
+				if [ $retcode -ne 0 ]; then
+					echo " RETCODE: "$retcode >> $HTTPLOG
+					echo "000"
+					return 1
+				fi
+				echo " RESP: "$res >> $HTTPLOG
+				status=${res:${#res}-3}
+			done
+			if [ $status -eq 200 ]; then
+				body=${res:0:${#res}-3}
+				echo $body
+				return 0
+			fi
+			echo "Status not 200, returning response 000" >> $HTTPLOG
+			echo "0000"
+			return 1
+		fi
     fi
 }
 
@@ -402,6 +427,86 @@ api_put_policy() {
 	return 0
 }
 
+# API Test function: PUT /policy to run in batch
+# args: <response-code> <service-name> <ric-id> <policytype-id> <policy-id> <template-file> [<count>]
+# (Function for test scripts)
+api_put_policy_batch() {
+	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
+    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
+	((RES_TEST++))
+
+    if [ $# -lt 6 ] || [ $# -gt 7 ]; then
+        __print_err "<response-code> <service-name> <ric-id> <policytype-id> <policy-id> <template-file> [<count>]" $@
+        return 1
+    fi
+
+	ric=$3
+	count=0
+	max=1
+
+	if [ $# -eq 7 ]; then
+		max=$7
+	fi
+
+	pid=$5
+	file=$6
+	ARR=""
+	while [ $count -lt $max ]; do
+		query="/policy?id=$pid&ric=$ric&service=$2"
+
+		if [ $4 == "NOTYPE" ]; then
+			query="/policy?id=$pid&ric=$ric&service=$2"
+		else
+			query="/policy?id=$pid&ric=$ric&service=$2&type=$4"
+		fi
+
+		file=".p.json"
+		sed 's/XXX/'${pid}'/g' $6 > $file
+    	res="$(__do_curl_to_agent PUT_BATCH $query $file)"
+    	status=${res:${#res}-3}
+		echo -ne " Requested(batch) "$count"("$max")${SAMELINE}"
+
+		if [ $status -ne 200 ]; then
+			let pid=$pid+1
+			echo " Requested(batch) "$count"?("$max")"
+			echo -e $RED" FAIL. Exepected status 200 (in request), got "$status $ERED
+			((RES_FAIL++))
+			return 1
+		fi
+		cid=${res:0:${#res}-3}
+		ARR=$ARR" "$cid
+		let pid=$pid+1
+		let count=$count+1
+		echo -ne " Requested(batch)  "$count"("$max")${SAMELINE}"
+	done
+
+	echo ""
+	count=0
+	for cid in $ARR; do
+
+    	res="$(__do_curl_to_agent RESPONSE $cid)"
+    	status=${res:${#res}-3}
+		echo -ne " Created(batch) "$count"("$max")${SAMELINE}"
+
+		if [ $status -ne $1 ]; then
+			let pid=$pid+1
+			echo " Created(batch) "$count"?("$max")"
+			echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
+			((RES_FAIL++))
+			return 1
+		fi
+
+		let count=$count+1
+		echo -ne " Created(batch)  "$count"("$max")${SAMELINE}"
+	done
+
+	echo ""
+
+	((RES_PASS++))
+	echo -e $GREEN" PASS"$EGREEN
+	return 0
+}
+
 
 # API Test function: DELETE /policy
 # args: <response-code> <policy-id> [count]
@@ -442,6 +547,74 @@ api_delete_policy() {
 		echo -ne " Deleted  "$count"("$max")${SAMELINE}"
 	done
 	echo ""
+
+	((RES_PASS++))
+	echo -e $GREEN" PASS"$EGREEN
+	return 0
+}
+
+# API Test function: DELETE /policy to run in batch
+# args: <response-code> <policy-id> [count]
+# (Function for test scripts)
+api_delete_policy_batch() {
+	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
+    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
+	((RES_TEST++))
+
+    if [ $# -lt 2 ] || [ $# -gt 3 ]; then
+        __print_err "<response-code> <policy-id> [count]" $@
+        return 1
+    fi
+
+	count=0
+	max=1
+
+	if [ $# -eq 3 ]; then
+		max=$3
+	fi
+
+	pid=$2
+	ARR=""
+	while [ $count -lt $max ]; do
+		query="/policy?id="$pid
+		res="$(__do_curl_to_agent DELETE_BATCH $query)"
+		status=${res:${#res}-3}
+		echo -ne " Requested(batch) "$count"("$max")${SAMELINE}"
+
+		if [ $status -ne 200 ]; then
+			let pid=$pid+1
+			echo " Requested(batch) "$count"?("$max")"
+			echo -e $RED" FAIL. Exepected status 200 (in request), got "$status $ERED
+			((RES_FAIL++))
+			return 1
+		fi
+		cid=${res:0:${#res}-3}
+		ARR=$ARR" "$cid
+		let pid=$pid+1
+		let count=$count+1
+		echo -ne " Requested(batch)  "$count"("$max")${SAMELINE}"
+	done
+
+	echo ""
+
+	count=0
+	for cid in $ARR; do
+
+    	res="$(__do_curl_to_agent RESPONSE $cid)"
+    	status=${res:${#res}-3}
+		echo -ne " Deleted(batch) "$count"("$max")${SAMELINE}"
+
+		if [ $status -ne $1 ]; then
+			let pid=$pid+1
+			echo " Deleted(batch) "$count"?("$max")"
+			echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
+			((RES_FAIL++))
+			return 1
+		fi
+
+		let count=$count+1
+		echo -ne " Deleted(batch)  "$count"("$max")${SAMELINE}"
+	done
 
 	((RES_PASS++))
 	echo -e $GREEN" PASS"$EGREEN
@@ -905,7 +1078,6 @@ api_get_services() {
 	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
     echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
 	((RES_TEST++))
-
 	#Number of accepted parameters: 1, 2, 4, 7, 10, 13,...
 	paramError=1
 	if [ $# -eq 1 ]; then

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 #  ============LICENSE_START===============================================
 #  Copyright (C) 2020 Nordix Foundation. All rights reserved.
@@ -17,28 +17,23 @@
 #  ============LICENSE_END=================================================
 #
 
-TC_ONELINE_DESCR="Repeatedly create and delete 10000 policies in each RICs for 24h. Via agent REST"
+
+TC_ONELINE_DESCR="Resync of RIC via changes in the consul config"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
+. ../common/controller_api_functions.sh
 
 #### TEST BEGIN ####
 
-#Local vars in test script
-##########################
-# Path to callback receiver
-CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
-# Number of RICs per interface type (OSC and STD)
-NUM_RICS=4
-# Number of policy instances per RIC
-NUM_INSTANCES=10000
 
+# Clean container and start all needed containers #
 clean_containers
 
-start_ric_simulators ricsim_g1 4 OSC_2.1.0
-
-start_ric_simulators ricsim_g2 4 STD_1.1.3
+# Start one RIC of each type
+start_ric_simulators ricsim_g1 1  OSC_2.1.0
+start_ric_simulators ricsim_g2 1  STD_1.1.3
 
 start_mr
 
@@ -47,126 +42,46 @@ start_cr
 start_consul_cbs
 
 prepare_consul_config      NOSDNC  ".consul_config.json"
+
 consul_config_app                  ".consul_config.json"
 
 start_control_panel
 
 start_policy_agent
 
-use_agent_rest_http
-
-api_get_status 200
-
-echo "Print the interface for group 1 simulators, shall be OSC"
-for ((i=1; i<=$NUM_RICS; i++))
-do
-   sim_print ricsim_g1_$i interface
-done
-
-echo "Print the interface for group 2 simulators, shall be STD"
-for ((i=1; i<=$NUM_RICS; i++))
-do
-   sim_print ricsim_g2_$i interface
-done
-
-echo "Load policy type in group 1 simulators"
-for ((i=1; i<=$NUM_RICS; i++))
-do
-   sim_put_policy_type 201 ricsim_g1_$i 1 testdata/OSC/sim_1.json
-done
-
-echo "Check the number of instances in  group 1 simulators, shall be 0"
-for ((i=1; i<=$NUM_RICS; i++))
-do
-   sim_equal ricsim_g1_$i num_instances 0
-done
-
-echo "Check the number of instances in  group 2 simulators, shall be 0"
-for ((i=1; i<=$NUM_RICS; i++))
-do
-   sim_equal ricsim_g2_$i num_instances 0
-done
-
-echo "Wait for the agent to refresh types from the simulator"
-api_equal json:policy_types 2 120
-
-echo "Check the number of types in the agent for each ric is 1"
-for ((i=1; i<=$NUM_RICS; i++))
-do
-   api_equal json:policy_types?ric=ricsim_g1_$i 1 120
-done
-
-echo "Register a service"
-api_put_service 201 "rapp1" 0 "$CR_PATH/1"
-
-TEST_DURATION=$((24*3600))
-TEST_START=$SECONDS
-
-while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
-
-    echo ""
-    echo "#########################################################################################################"
-    echo -e $BOLD"INFO: Test executed for: "$(($SECONDS-$TEST_START)) "seconds. Target is: "$TEST_DURATION" seconds (24h)."$EBOLD
-    echo "#########################################################################################################"
-    echo ""
+api_equal json:rics 2 120
 
 
-    echo "Create 10000 instances in each OSC RIC"
-    INSTANCE_ID=200000
-    INSTANCES=0
-    for ((i=1; i<=$NUM_RICS; i++))
-    do
-        api_put_policy 201 "rapp1" ricsim_g1_$i 1 $INSTANCE_ID testdata/OSC/pi1_template.json $NUM_INSTANCES
-        sim_equal ricsim_g1_$i num_instances $NUM_INSTANCES
-        INSTANCE_ID=$(($INSTANCE_ID+$NUM_INSTANCES))
-        INSTANCES=$(($INSTANCES+$NUM_INSTANCES))
-    done
+# Add an OSC RIC and check
+start_ric_simulators ricsim_g2 2  STD_1.1.3
 
-    api_equal json:policy_ids $INSTANCES
+prepare_consul_config      NOSDNC  ".consul_config.json"
 
-    echo "Create 10000 instances in each OSC RIC"
-    for ((i=1; i<=$NUM_RICS; i++))
-    do
-        api_put_policy 201 "rapp1" ricsim_g2_$i NOTYPE $INSTANCE_ID testdata/STD/pi1_template.json $NUM_INSTANCES
-        sim_equal ricsim_g2_$i num_instances $NUM_INSTANCES
-        INSTANCE_ID=$(($INSTANCE_ID+$NUM_INSTANCES))
-        INSTANCES=$(($INSTANCES+$NUM_INSTANCES))
-    done
+consul_config_app                  ".consul_config.json"
 
-    api_equal json:policy_ids $INSTANCES
-
-
-    echo "Delete all instances in each OSC RIC"
-
-    INSTANCE_ID=200000
-    for ((i=1; i<=$NUM_RICS; i++))
-    do
-        api_delete_policy 204 $INSTANCE_ID $NUM_INSTANCES
-        INSTANCES=$(($INSTANCES-$NUM_INSTANCES))
-        sim_equal ricsim_g1_$i num_instances $NUM_INSTANCES
-        INSTANCE_ID=$(($INSTANCE_ID+$NUM_INSTANCES))
-    done
-
-    api_equal json:policy_ids $INSTANCES
-
-    echo "Delete all instances in each STD RIC"
-    INSTANCE_ID=200000
-    for ((i=1; i<=$NUM_RICS; i++))
-    do
-        api_delete_policy 204 $INSTANCE_ID $NUM_INSTANCES
-        INSTANCES=$(($INSTANCES-$NUM_INSTANCES))
-        sim_equal ricsim_g2_$i num_instances $NUM_INSTANCES
-        INSTANCE_ID=$(($INSTANCE_ID+$NUM_INSTANCES))
-    done
-
-    api_equal json:policy_ids 0
-done
-
+api_equal json:rics 3 120
 
 check_policy_agent_logs
+check_control_panel_logs
 
-#### TEST COMPLETE ####
+# Remove one OSC RIC and check
+start_ric_simulators ricsim_g2 1  STD_1.1.3
+
+prepare_consul_config      NOSDNC  ".consul_config.json"
+
+consul_config_app                  ".consul_config.json"
+
+api_equal json:rics 2 120
+
+check_policy_agent_logs
+check_control_panel_logs
 
 store_logs          END
 
+
+#### TEST COMPLETE ####
+
+
 print_result
+
+auto_clean_containers

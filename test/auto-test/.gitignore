@@ -9,3 +9,6 @@ logs
 .consul*
 .ext.consul*
 .dockererr
+.output.*
+.sdnc*
+.timer*

@@ -90,7 +90,6 @@ def events_write(id):
     try:
         print("Received callback for id: "+id +", content-type="+request.content_type)
         try:
-            print("data:"+request.get_data)
             if (request.content_type == MIME_JSON):
                 msg = request.json
                 print("Payload(json): "+str(msg))
@@ -102,7 +101,7 @@ def events_write(id):
                 print("Payload(content-type="+request.content_type+"). Setting data to empty, quoted, string")
         except:
             msg="\"\""
-            print("Payload does not contain any json or text data, setting empty string as payload")
+            print("(Exception) Payload does not contain any json or text data, setting empty string as payload")
 
         cntr_msg_callbacks += 1
         if (id in msg_callbacks.keys()):

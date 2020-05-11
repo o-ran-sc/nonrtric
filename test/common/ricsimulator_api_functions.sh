@@ -34,7 +34,7 @@ __execute_curl_to_sim() {
 	retcode=$?
     if [ $retcode -ne 0 ]; then
 		echo " RETCODE: "$retcode
-        echo -e $RED"  ERROR - fatal error when executing curl."$ERED
+        echo -e $RED" FAIL - fatal error when executing curl."$ERED
         return 1
     fi
     status=${res:${#res}-3}
@@ -42,7 +42,7 @@ __execute_curl_to_sim() {
         echo -e $GREEN" OK"$EGREEN
         return 0
     fi
-    echo -e $RED"  ERROR - expected http response: "$1" but got http response: "$status $ERED
+    echo -e $RED" FAIL - expected http response: "$1" but got http response: "$status $ERED
     return 1
 }
 
@@ -80,6 +80,27 @@ sim_print() {
 	app=$1
 	port=$(__find_sim_port $app)
 	echo -e $BOLD"INFO(${BASH_LINENO[0]}): $app, $2 = $(__do_curl $RIC_SIM_LOCALHOST$port/counter/$2)"$EBOLD
+}
+
+# Tests if a variable value in the RIC simulator contains the target string and and optional timeout
+# Arg: <ric-id> <variable-name> <target-value> - This test set pass or fail depending on if the variable contains
+# the target or not.
+# Arg: <ric-id> <variable-name> <target-value> <timeout-in-sec>  - This test waits up to the timeout seconds
+# before setting pass or fail depending on if the variable value contains the target
+# value or not.
+# (Function for test scripts)
+sim_contains_str() {
+
+	if [ $# -eq 3 ] || [ $# -eq 4 ]; then
+		app=$1
+		port=$(__find_sim_port $app)
+		__var_test $app "$RIC_SIM_LOCALHOST$port/counter/" $2 "contain_str" $3 $4
+		return 0
+	else
+		((RES_CONF_FAIL++))
+		__print_err "needs three or four args: <ric-id> <sim-param> <target-value> [ timeout ]"
+		return 1
+	fi
 }
 
 # Simulator API: Put a policy type in a ric
