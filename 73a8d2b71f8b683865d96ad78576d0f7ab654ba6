@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "06b02e1b_849b0a89",
+        "filename": "test/simulator-group/mr/docker-compose.yml",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2020-05-11T13:06:28Z",
+      "side": 0,
+      "message": "This must be mounted, otherwise it is not possible to switch certs.",
+      "range": {
+        "startLine": 32,
+        "startChar": 3,
+        "endLine": 33,
+        "endChar": 49
+      },
+      "revId": "73a8d2b71f8b683865d96ad78576d0f7ab654ba6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
