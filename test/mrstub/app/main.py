@@ -273,4 +273,4 @@ def reset():
 ### Main function ###
 
 if __name__ == "__main__":
-    app.run(port=HOST_PORT, host=HOST_IP)
+    app.run(port=HOST_PORT, host=HOST_IP, threaded=True)

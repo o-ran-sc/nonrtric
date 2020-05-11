@@ -97,30 +97,6 @@ echo "=== Fetch a request ==="
 RESULT="json:[{\"apiVersion\":\"1.0\",\"operation\":\"GET\",\"correlationId\":\""$CORRID"\",\"originatorId\": \"849e6c6b420\",\"payload\":{},\"requestId\":\"23343221\", \"target\":\"policy-agent\", \"timestamp\":\"????\", \"type\":\"request\",\"url\":\"/test2\"}]"
 do_curl GET '/events/A1-POLICY-AGENT-READ/users/policy-agent' 200
 
-echo "=== Fetch a request, empty. Shall delay 10 seconds ==="
-T1=$SECONDS
-RESULT="json:[]"
-do_curl GET '/events/A1-POLICY-AGENT-READ/users/policy-agent' 200
-T2=$SECONDS
-if [ $(($T2-$T1)) -lt 10 ] || [ $(($T2-$T1)) -gt 15 ]; then
-    echo "Delay to short or too long"$(($T2-$T1))". Should be default 10 sec"
-    exit 1
-else
-    echo "  Delay ok:"$(($T2-$T1))
-fi
-
-echo "=== Fetch a request, empty. Shall delay 5 seconds ==="
-T1=$SECONDS
-RESULT="json:[]"
-do_curl GET '/events/A1-POLICY-AGENT-READ/users/policy-agent?timeout=5000' 200
-T2=$SECONDS
-if [ $(($T2-$T1)) -lt 5 ] || [ $(($T2-$T1)) -gt 7 ]; then
-    echo "Delay to short or too long"$(($T2-$T1))". Should be 10 sec"
-    exit 1
-else
-    echo "  Delay ok:"$(($T2-$T1))
-fi
-
 echo "=== Fetch a request with limit 25, shall be empty.  ==="
 RESULT="json-array-size:0"
 do_curl GET '/events/A1-POLICY-AGENT-READ/users/policy-agent?timeout=1000&limit=25' 200
