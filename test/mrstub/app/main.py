@@ -24,16 +24,13 @@ import json
 from flask import Flask
 from flask import Response
 import traceback
+from threading import RLock
 
 app = Flask(__name__)
-
+lock = RLock()
 # list of messages to/from Dmaap
 msg_requests=[]
 msg_responses={}
-
-# Server info
-HOST_IP = "127.0.0.1"
-HOST_PORT = 2222
 
 # Metrics vars
 cntr_msg_requests_submitted=0
@@ -80,38 +77,39 @@ def create_message(operation, correlation_id, payload, url):
 def sendrequest():
     global msg_requests
     global cntr_msg_requests_submitted
+    with lock:
+        print("APP_WRITE_URL lock")
+        try:
 
-    try:
+            oper=request.args.get('operation')
+            if (oper is None):
+                print(APP_WRITE_URL+" parameter 'operation' missing")
+                return Response('Parameter operation missing in request', status=400, mimetype=MIME_TEXT)
 
-        oper=request.args.get('operation')
-        if (oper is None):
-            print(APP_WRITE_URL+" parameter 'operation' missing")
-            return Response('Parameter operation missing in request', status=400, mimetype=MIME_TEXT)
+            url=request.args.get('url')
+            if (url is None):
+                print(APP_WRITE_URL+" parameter 'url' missing")
+                return Response('Parameter url missing in request', status=400, mimetype=MIME_TEXT)
 
-        url=request.args.get('url')
-        if (url is None):
-            print(APP_WRITE_URL+" parameter 'url' missing")
-            return Response('Parameter url missing in request', status=400, mimetype=MIME_TEXT)
+            if (oper != "GET" and oper != "PUT" and oper != "POST" and oper != "DELETE"):
+                print(APP_WRITE_URL+" parameter 'operation' need to be: DEL|PUT|POST|DELETE")
+                return Response('Parameter operation does not contain DEL|PUT|POST|DELETE in request', status=400, mimetype=MIME_TEXT)
 
-        if (oper != "GET" and oper != "PUT" and oper != "POST" and oper != "DELETE"):
-            print(APP_WRITE_URL+" parameter 'operation' need to be: DEL|PUT|POST|DELETE")
-            return Response('Parameter operation does not contain DEL|PUT|POST|DELETE in request', status=400, mimetype=MIME_TEXT)
+            print(APP_WRITE_URL+" operation="+oper+" url="+url)
+            correlation_id=str(time.time_ns())
+            payload=None
+            if (oper == "PUT") and (request.json is not None):
+                payload=json.dumps(request.json)
 
-        print(APP_WRITE_URL+" operation="+oper+" url="+url)
-        correlation_id=str(time.time_ns())
-        payload=None
-        if (oper == "PUT") and (request.json is not None):
-            payload=json.dumps(request.json)
-
-        msg=create_message(oper, correlation_id, payload, url)
-        print(msg)
-        print(APP_WRITE_URL+" MSG(correlationid = "+correlation_id+"): " + json.dumps(json.loads(msg), indent=2))
-        msg_requests.append(msg)
-        cntr_msg_requests_submitted += 1
-        return Response(correlation_id, status=200, mimetype=MIME_TEXT)
-    except Exception as e:
-        print(APP_WRITE_URL+"-"+CAUGHT_EXCEPTION+" "+str(e) + " "+traceback.format_exc())
-        return Response(SERVER_ERROR+" "+str(e), status=500, mimetype=MIME_TEXT)
+            msg=create_message(oper, correlation_id, payload, url)
+            print(msg)
+            print(APP_WRITE_URL+" MSG(correlationid = "+correlation_id+"): " + json.dumps(json.loads(msg), indent=2))
+            msg_requests.append(msg)
+            cntr_msg_requests_submitted += 1
+            return Response(correlation_id, status=200, mimetype=MIME_TEXT)
+        except Exception as e:
+            print(APP_WRITE_URL+"-"+CAUGHT_EXCEPTION+" "+str(e) + " "+traceback.format_exc())
+            return Response(SERVER_ERROR+" "+str(e), status=500, mimetype=MIME_TEXT)
 
 # Receive a message response for MR for the included correlation id
 # URI and parameter, (GET): /receive-response?correlationid=<correlation-id>
@@ -121,25 +119,26 @@ def sendrequest():
 def receiveresponse():
     global msg_responses
     global cntr_msg_responses_fetched
+    with lock:
+        print("APP_READ_URL lock")
+        try:
+            id=request.args.get('correlationid')
+            if (id is None):
+                print(APP_READ_URL+" parameter 'correclationid' missing")
+                return Response('Parameter correlationid missing in json', status=500, mimetype=MIME_TEXT)
 
-    try:
-        id=request.args.get('correlationid')
-        if (id is None):
-            print(APP_READ_URL+" parameter 'correclationid' missing")
-            return Response('Parameter correlationid missing in json', status=500, mimetype=MIME_TEXT)
+            if (id in msg_responses):
+                answer=msg_responses[id]
+                del msg_responses[id]
+                print(APP_READ_URL+" response (correlationid="+id+"): " + answer)
+                cntr_msg_responses_fetched += 1
+                return Response(answer, status=200, mimetype=MIME_JSON)
 
-        if (id in msg_responses):
-            answer=msg_responses[id]
-            del msg_responses[id]
-            print(APP_READ_URL+" response (correlationid="+id+"): " + answer)
-            cntr_msg_responses_fetched += 1
-            return Response(answer, status=200, mimetype=MIME_JSON)
-
-        print(APP_READ_URL+" - no messages (correlationid="+id+"): ")
-        return Response('', status=204, mimetype=MIME_JSON)
-    except Exception as e:
-        print(APP_READ_URL+"-"+CAUGHT_EXCEPTION+" "+str(e) + " "+traceback.format_exc())
-        return Response(SERVER_ERROR+" "+str(e), status=500, mimetype=MIME_TEXT)
+            print(APP_READ_URL+" - no messages (correlationid="+id+"): ")
+            return Response('', status=204, mimetype=MIME_JSON)
+        except Exception as e:
+            print(APP_READ_URL+"-"+CAUGHT_EXCEPTION+" "+str(e) + " "+traceback.format_exc())
+            return Response(SERVER_ERROR+" "+str(e), status=500, mimetype=MIME_TEXT)
 
 ### Dmaap interface ###
 
@@ -162,14 +161,31 @@ def events_read():
     if (limit>4096):
         limit=4096
     print("Limting number of returned messages to: "+str(limit))
+
+    timeout=request.args.get('timeout')
+    if (timeout is None):
+        timeout=10000
+
+    startTime=int(round(time.time() * 1000))
+    currentTime=int(round(time.time() * 1000))
+    while(currentTime<startTime+timeout and len(msg_requests)==0):
+        currentTime=int(round(time.time() * 1000))
+
+    print("timeout: "+str(timeout)+", startTime: "+str(startTime)+", currentTime: "+str(currentTime))
+
+    if(currentTime>=startTime+timeout):
+        return Response("[]", status=200, mimetype=MIME_JSON)
+
     try:
         msgs=''
         cntr=0
         while(cntr<limit and len(msg_requests)>0):
             if (len(msgs)>1):
                 msgs=msgs+','
-            msgs=msgs+msg_requests.pop(0)
-            cntr_msg_requests_fetched += 1
+            with lock:
+                print("AGENT_READ_URL lock")
+                msgs=msgs+msg_requests.pop(0)
+                cntr_msg_requests_fetched += 1
             cntr=cntr+1
         msgs='['+msgs+']'
         print(AGENT_READ_URL+" MSGs: "+json.dumps(json.loads(msgs), indent=2))
@@ -186,35 +202,36 @@ def events_read():
 def events_write():
     global msg_responses
     global cntr_msg_responses_submitted
+    with lock:
+        print("AGENT_WRITE_URL lock")
+        try:
+            answer=request.json
+            print(AGENT_WRITE_URL+ " json=" + json.dumps(answer, indent=2))
+            for item in answer:
+                id=item['correlationId']
+                if (id is None):
+                    print(AGENT_WRITE_URL+" parameter 'correlatonid' missing")
+                    return Response('Parameter <correlationid> missing in json', status=400, mimetype=MIME_TEXT)
+                msg=item['message']
+                if (msg is None):
+                    print(AGENT_WRITE_URL+" parameter 'msgs' missing")
+                    return Response('Parameter >message> missing in json', status=400, mimetype=MIME_TEXT)
+                status=item['status']
+                if (status is None):
+                    print(AGENT_WRITE_URL+" parameter 'status' missing")
+                    return Response('Parameter <status> missing in json', status=400, mimetype=MIME_TEXT)
+                if isinstance(msg, list) or isinstance(msg, dict):
+                    msg_str=json.dumps(msg)+status[0:3]
+                else:
+                    msg_str=msg+status[0:3]
+                msg_responses[id]=msg_str
+                cntr_msg_responses_submitted += 1
+                print(AGENT_WRITE_URL+ " msg+status (correlationid="+id+") :" + str(msg_str))
+        except Exception as e:
+            print(AGENT_WRITE_URL+"-"+CAUGHT_EXCEPTION+" "+str(e) + " "+traceback.format_exc())
+            return Response('{"message": "' + SERVER_ERROR + ' ' + str(e) + '","status":"500"}', status=200, mimetype=MIME_JSON)
 
-    try:
-        answer=request.json
-        print(AGENT_WRITE_URL+ " json=" + json.dumps(answer, indent=2))
-        for item in answer:
-            id=item['correlationId']
-            if (id is None):
-                print(AGENT_WRITE_URL+" parameter 'correlatonid' missing")
-                return Response('Parameter <correlationid> missing in json', status=400, mimetype=MIME_TEXT)
-            msg=item['message']
-            if (msg is None):
-                print(AGENT_WRITE_URL+" parameter 'msgs' missing")
-                return Response('Parameter >message> missing in json', status=400, mimetype=MIME_TEXT)
-            status=item['status']
-            if (status is None):
-                print(AGENT_WRITE_URL+" parameter 'status' missing")
-                return Response('Parameter <status> missing in json', status=400, mimetype=MIME_TEXT)
-            if isinstance(msg, list) or isinstance(msg, dict):
-                msg_str=json.dumps(msg)+status[0:3]
-            else:
-                msg_str=msg+status[0:3]
-            msg_responses[id]=msg_str
-            cntr_msg_responses_submitted += 1
-            print(AGENT_WRITE_URL+ " msg+status (correlationid="+id+") :" + str(msg_str))
-    except Exception as e:
-        print(AGENT_WRITE_URL+"-"+CAUGHT_EXCEPTION+" "+str(e) + " "+traceback.format_exc())
-        return Response('{"message": "' + SERVER_ERROR + ' ' + str(e) + '","status":"500"}', status=200, mimetype=MIME_JSON)
-
-    return Response('{}', status=200, mimetype=MIME_JSON)
+        return Response('{}', status=200, mimetype=MIME_JSON)
 
 
 ### Functions for metrics read out ###
@@ -269,8 +286,3 @@ def reset():
     msg_requests=[]
     msg_responses={}
     return Response('OK', status=200, mimetype=MIME_TEXT)
-
-### Main function ###
-
-if __name__ == "__main__":
-    app.run(port=HOST_PORT, host=HOST_IP)
