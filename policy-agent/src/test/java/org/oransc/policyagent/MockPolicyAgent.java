@@ -20,6 +20,8 @@
 
 package org.oransc.policyagent;
 
+import static org.awaitility.Awaitility.await;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -49,6 +51,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.util.StringUtils;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
@@ -143,11 +146,22 @@ public class MockPolicyAgent {
     private int port;
 
     private void keepServerAlive() throws InterruptedException, IOException {
-        logger.info("Keeping server alive!");
-        Thread.sleep(1000);
+        waitForConfigurationToBeLoaded();
         loadInstances();
+        logger.info("Keeping server alive!");
         synchronized (this) {
             this.wait();
+        }
+    }
+
+    private void waitForConfigurationToBeLoaded() throws IOException {
+        String json = getConfigJsonFromFile();
+        try {
+            int noOfRicsInConfigFile = StringUtils.countOccurrencesOf(json, "baseUrl");
+            await().until(() -> rics.size() == noOfRicsInConfigFile);
+        } catch (Exception e) {
+            logger.info("Loaded rics: {}, and no of rics in config file: {} never matched!", rics.size(),
+                StringUtils.countOccurrencesOf(json, "baseUrl"));
         }
     }
 
@@ -160,8 +174,7 @@ public class MockPolicyAgent {
     private void loadInstances() throws IOException {
         PolicyType unnamedPolicyType = policyTypes.get("");
         Ric ric = rics.get("ric1");
-        File jsonFile = getFile("test_application_configuration.json");
-        String json = new String(Files.readAllBytes(jsonFile.toPath()));
+        String json = getConfigJsonFromFile();
 
         Policy policy = ImmutablePolicy.builder() //
             .id("typelessPolicy") //
@@ -174,9 +187,14 @@ public class MockPolicyAgent {
         this.policies.put(policy);
     }
 
+    private String getConfigJsonFromFile() throws IOException {
+        File jsonFile = getFile("test_application_configuration.json");
+        String json = new String(Files.readAllBytes(jsonFile.toPath()));
+        return json;
+    }
+
     @Test
-    @SuppressWarnings("squid:S2699") // Tests should include assertions. This test is only for keeping the server
-                                     // alive,
+    @SuppressWarnings("squid:S2699") // Tests should include assertions. This test is only for keeping the server alive,
                                      // so it will only be confusing to add an assertion.
     public void runMock() throws Exception {
         keepServerAlive();

@@ -41,15 +41,16 @@ public class LockTest {
         try {
             Thread.sleep(100);
         } catch (InterruptedException e) {
+            // Do nothing.
         }
     }
 
     private void asynchUnlock(Lock lock) {
-        Thread t = new Thread(() -> {
+        Thread thread = new Thread(() -> {
             sleep();
             lock.unlockBlocking();
         });
-        t.start();
+        thread.start();
     }
 
     @Test
