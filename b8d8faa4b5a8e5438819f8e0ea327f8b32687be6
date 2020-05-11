@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "516cec25_bb4e1c50",
+        "filename": "test/mrstub/Dockerfile",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1000247
+      },
+      "writtenOn": "2020-05-11T13:59:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "47d0d1c4_016f98fc",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 34
+      },
+      "revId": "b8d8faa4b5a8e5438819f8e0ea327f8b32687be6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "46fc2e53_86c13860",
         "filename": "test/mrstub/app/main.py",
         "patchSetId": 3
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "cdc03007_abee633b",
+        "filename": "test/mrstub/app/nginx.conf",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1000247
+      },
+      "writtenOn": "2020-05-11T13:59:20Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "7d27bfe0_c731facc",
+      "range": {
+        "startLine": 43,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 49
+      },
+      "revId": "b8d8faa4b5a8e5438819f8e0ea327f8b32687be6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6e776ded_b07ad426",
         "filename": "test/mrstub/mrstub-build-start.sh",
         "patchSetId": 3
@@ -91,6 +139,30 @@
       "revId": "b8d8faa4b5a8e5438819f8e0ea327f8b32687be6",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44e0093d_5afdd037",
+        "filename": "test/mrstub/mrstub-build-start.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1000247
+      },
+      "writtenOn": "2020-05-11T13:59:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6e776ded_b07ad426",
+      "range": {
+        "startLine": 23,
+        "startChar": 11,
+        "endLine": 23,
+        "endChar": 33
+      },
+      "revId": "b8d8faa4b5a8e5438819f8e0ea327f8b32687be6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
