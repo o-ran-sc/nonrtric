@@ -78,6 +78,7 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
   protected static final String NO_SERVICE_LOGIC_ACTIVE = "No service logic active for ";
   private static final String NON_NULL_PARAM = "non-null";
   private static final String NULL_PARAM = "null";
+  private static final String REST_CLIENT_RESPONSE_EXCEPTION_MSG = "Caught RestClientResponseException: {}";
 
   private final Logger log = LoggerFactory.getLogger(NonrtRicApiProvider.class);
   private final ExecutorService executor;
@@ -155,6 +156,7 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
   }
 
   @Override
+  @SuppressWarnings("common-java:DuplicatedBlocks") // Since Sonar cannot see that the blocks are not identical.
   public ListenableFuture<RpcResult<PutA1PolicyOutput>> putA1Policy(PutA1PolicyInput input) {
     log.info("Start of putPolicy");
     PutA1PolicyOutputBuilder responseBuilder = new PutA1PolicyOutputBuilder();
@@ -169,7 +171,7 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
         }
         responseBuilder.setHttpStatus(response.getStatusCodeValue());
     } catch (RestClientResponseException ex) {
-        log.error("Caught RestClientResponseException: {}", ex.getMessage());
+        log.error(REST_CLIENT_RESPONSE_EXCEPTION_MSG, ex.getMessage());
         if (ex.getResponseBodyAsByteArray() != null) {
             responseBuilder.setBody(ex.getResponseBodyAsString());
         }
@@ -196,7 +198,7 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
         }
         responseBuilder.setHttpStatus(response.getStatusCodeValue());
     } catch (RestClientResponseException ex) {
-        log.error("Caught RestClientResponseException: {}", ex.getMessage());
+        log.error(REST_CLIENT_RESPONSE_EXCEPTION_MSG, ex.getMessage());
         if (ex.getResponseBodyAsByteArray() != null) {
             responseBuilder.setBody(ex.getResponseBodyAsString());
         }
@@ -209,6 +211,7 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
     return Futures.immediateFuture(rpcResult);
   }
 
+  @SuppressWarnings("common-java:DuplicatedBlocks") // Since Sonar cannot see that the blocks are not identical.
   private GetA1PolicyOutput getA1(GetA1PolicyInput input) {
     log.info("Start of getA1");
     GetA1PolicyOutputBuilder responseBuilder = new GetA1PolicyOutputBuilder();
@@ -222,7 +225,7 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
         }
         responseBuilder.setHttpStatus(response.getStatusCodeValue());
     } catch (RestClientResponseException ex) {
-        log.error("Caught RestClientResponseException: {}", ex.getMessage());
+        log.error(REST_CLIENT_RESPONSE_EXCEPTION_MSG, ex.getMessage());
         if (ex.getResponseBodyAsByteArray() != null) {
             responseBuilder.setBody(ex.getResponseBodyAsString());
         }
