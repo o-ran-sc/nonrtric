@@ -68,7 +68,7 @@ public class DmaapMessageConsumer {
     }
 
     public Thread start() {
-        Thread thread = new Thread(() -> this.checkConfigLoop());
+        Thread thread = new Thread(this::checkConfigLoop);
         thread.start();
         return thread;
     }
