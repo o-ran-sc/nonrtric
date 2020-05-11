@@ -47,6 +47,7 @@ services:
     entrypoint: ["/opt/onap/sdnc/bin/startODL.sh"]
     ports:
       - ${SDNC_ONAP_EXTERNAL_PORT}:${SDNC_ONAP_INTERNAL_PORT}
+      - ${SDNC_ONAP_EXTERNAL_SECURE_PORT}:${SDNC_ONAP_INTERNAL_SECURE_PORT}
     links:
       - db:dbhost
       - db:sdnctldb01

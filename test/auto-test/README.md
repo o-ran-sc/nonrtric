@@ -34,7 +34,21 @@ Test case command:
 Discription:
 local: test image: POLICY_AGENT_LOCAL_IMAGE=o-ran-sc/nonrtric-policy-agent
 remote: test image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-policy-agent
+
 ```
+
+### Test case categories
+1-99 - Basic sanity tests
+
+100-199 - API tests
+
+300-399 - Config changes and sync
+
+800-899 - Stability and capacity test
+
+900-999 - Misc test
+
+Suites
 
 ### Test case file
 A test case file contains a number of steps to verify a certain functionality.

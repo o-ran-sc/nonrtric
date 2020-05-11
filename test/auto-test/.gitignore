@@ -9,5 +9,6 @@ logs
 .consul*
 .ext.consul*
 .dockererr
-.sdnc-reply.json
-.sndc.payload.json
+.output.*
+.sdnc*
+.timer*

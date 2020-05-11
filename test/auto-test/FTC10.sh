@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 #  ============LICENSE_START===============================================
 #  Copyright (C) 2020 Nordix Foundation. All rights reserved.
@@ -17,7 +17,7 @@
 #  ============LICENSE_END=================================================
 #
 
-TC_ONELINE_DESCR="Basic use case, register rapp, create/update policy, delete policy, de-register rapp using both STD and OSC interface over REST and Dmaap"
+TC_ONELINE_DESCR="Basic use case, register service, create/update policy, delete policy, de-register service using both STD and OSC interface while mixing REST and Dmaap"
 
 . ../common/testcase_common.sh $@
 . ../common/agent_api_functions.sh
@@ -67,30 +67,30 @@ api_equal json:policy_types 2 60
 # Create policies
 use_agent_rest_http
 
-api_put_service 201 "rapp1" 3600 "$CR_PATH/1"
+api_put_service 201 "service1" 3600 "$CR_PATH/1"
 
-api_put_policy 201 "rapp1" ricsim_g1_1 1 2000 testdata/OSC/pi1_template.json 1
+api_put_policy 201 "service1" ricsim_g1_1 1 2000 testdata/OSC/pi1_template.json 1
 
 sim_equal ricsim_g1_1 num_instances 1
 
 
 use_agent_dmaap
 
-api_put_policy 201 "rapp1" ricsim_g1_1 1 3000 testdata/OSC/pi1_template.json 1
+api_put_policy 201 "service1" ricsim_g1_1 1 3000 testdata/OSC/pi1_template.json 1
 
 sim_equal ricsim_g1_1 num_instances 2
 
 
 use_agent_rest_http
 
-api_put_policy 201 "rapp1" ricsim_g2_1 NOTYPE 2100 testdata/STD/pi1_template.json 1
+api_put_policy 201 "service1" ricsim_g2_1 NOTYPE 2100 testdata/STD/pi1_template.json 1
 
 sim_equal ricsim_g2_1 num_instances 1
 
 
 use_agent_dmaap
 
-api_put_policy 201 "rapp1" ricsim_g2_1 NOTYPE 3100 testdata/STD/pi1_template.json 1
+api_put_policy 201 "service1" ricsim_g2_1 NOTYPE 3100 testdata/STD/pi1_template.json 1
 
 sim_equal ricsim_g2_1 num_instances 2
 
@@ -98,16 +98,16 @@ sim_equal ricsim_g2_1 num_instances 2
 #Update policies
 use_agent_rest_http
 
-api_put_service 200 "rapp1" 3600 "$CR_PATH/callbacks/1"
+api_put_service 200 "service1" 3600 "$CR_PATH/callbacks/1"
 
-api_put_policy 200 "rapp1" ricsim_g1_1 1 2000 testdata/OSC/pi1_template.json 1
+api_put_policy 200 "service1" ricsim_g1_1 1 2000 testdata/OSC/pi1_template.json 1
 
 sim_equal ricsim_g1_1 num_instances 2
 
 
 use_agent_dmaap
 
-api_put_policy 200 "rapp1" ricsim_g1_1 1 3000 testdata/OSC/pi1_template.json 1
+api_put_policy 200 "service1" ricsim_g1_1 1 3000 testdata/OSC/pi1_template.json 1
 
 sim_equal ricsim_g1_1 num_instances 2
 
@@ -115,14 +115,14 @@ sim_equal ricsim_g1_1 num_instances 2
 use_agent_rest_http
 
 
-api_put_policy 200 "rapp1" ricsim_g2_1 NOTYPE 2100 testdata/STD/pi1_template.json 1
+api_put_policy 200 "service1" ricsim_g2_1 NOTYPE 2100 testdata/STD/pi1_template.json 1
 
 sim_equal ricsim_g2_1 num_instances 2
 
 
 use_agent_dmaap
 
-api_put_policy 200 "rapp1" ricsim_g2_1 NOTYPE 3100 testdata/STD/pi1_template.json 1
+api_put_policy 200 "service1" ricsim_g2_1 NOTYPE 3100 testdata/STD/pi1_template.json 1
 
 sim_equal ricsim_g2_1 num_instances 2
 
@@ -146,6 +146,11 @@ api_delete_policy 204 3100
 sim_equal ricsim_g1_1 num_instances 0
 sim_equal ricsim_g2_1 num_instances 0
 
+# Check remote host access to simulator
+
+sim_contains_ste ricsim_g1_1 hosts "policy-agent"
+sim_contains_ste ricsim_g2_1 hosts "policy-agent"
+
 # Check policy removal
 use_agent_rest_http
 api_get_policy 404 2000
@@ -155,9 +160,9 @@ api_get_policy 404 3100
 
 # Remove the service
 use_agent_dmaap
-api_delete_services 204 "rapp1"
+api_delete_services 204 "service1"
 
-api_get_services 404 "rapp1"
+api_get_services 404 "service1"
 
 
 
@@ -168,3 +173,5 @@ check_policy_agent_logs
 store_logs          END
 
 print_result
+
+auto_clean_containers

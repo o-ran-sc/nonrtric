@@ -32,8 +32,12 @@ try:
         resp=status
         if ( 'body' in output.keys()):
             body=str(output['body'])
-            bodyJson=json.loads(body)
-            resp=str(json.dumps(bodyJson))+str(status)
+            try:
+                bodyJson=json.loads(body)
+                resp=str(json.dumps(bodyJson))+str(status)
+            except Exception as e1:
+                resp=body+str(status)
+
         print(resp)
 
 except Exception as e:

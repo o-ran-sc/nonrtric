@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 #  ============LICENSE_START===============================================
 #  Copyright (C) 2020 Nordix Foundation. All rights reserved.
@@ -50,6 +50,8 @@ start_control_panel
 
 start_policy_agent
 
+set_agent_debug
+
 use_agent_rest_http
 
 #Verify no callbacks or dmaap messages has been sent
@@ -62,85 +64,84 @@ api_get_status 200
 #Print simulator interface version
 sim_print ricsim_g1_1 interface
 
-api_put_service 201 "rapp1" 15 "$CR_PATH/rapp1"
+api_put_service 201 "service1" 15 "$CR_PATH/service1"
 
-api_get_services 200 "rapp1" 15 "$CR_PATH/rapp1"
+api_get_services 200 "service1" "service1" 15 "$CR_PATH/service1"
 
-api_put_service 201 "rapp2" 120 "$CR_PATH/rapp2"
+api_put_service 201 "service2" 120 "$CR_PATH/service2"
 
-api_get_services 200 "rapp2" 120 "$CR_PATH/rapp2"
+api_get_services 200 "service2" "service2" 120 "$CR_PATH/service2"
 
-api_put_service 200 "rapp1" 50 "$CR_PATH/rapp1"
-api_put_service 200 "rapp2" 180 "$CR_PATH/rapp2"
+api_put_service 200 "service1" 50 "$CR_PATH/service1"
+api_put_service 200 "service2" 180 "$CR_PATH/service2"
 
-api_get_services 200 "rapp1" 50 "$CR_PATH/rapp1"
-api_get_services 200 "rapp2" 180 "$CR_PATH/rapp2"
+api_get_services 200 "service1" "service1" 50 "$CR_PATH/service1"
+api_get_services 200 "service2" "service2" 180 "$CR_PATH/service2"
 
-api_get_service_ids 200 "rapp1" "rapp2"
-
-sleep_wait 30 "Waiting for keep alive timeout"
-
-api_get_services 200 "rapp1" 50 "$CR_PATH/rapp1"
-api_get_services 200 "rapp2" 180 "$CR_PATH/rapp2"
-
-sleep_wait 100 "Waiting for keep alive timeout"
-
-api_get_services 404 "rapp1"
-api_get_services 200 "rapp2" 180 "$CR_PATH/rapp2"
-
-api_delete_services 204 "rapp2"
-
-api_get_services 404 "rapp1"
-api_get_services 404 "rapp2"
-
-api_put_service 201 "rapp3" 60 "$CR_PATH/rapp3"
-
-api_get_services 200 "rapp3" 60 "$CR_PATH/rapp3"
+api_get_service_ids 200 "service1" "service2"
 
 sleep_wait 30 "Waiting for keep alive timeout"
 
-api_put_service 200 "rapp3" 60 "$CR_PATH/rapp3"
+api_get_services 200 "service1" "service1" 50 "$CR_PATH/service1"
+api_get_services 200 "service2" "service2" 180 "$CR_PATH/service2"
 
 sleep_wait 100 "Waiting for keep alive timeout"
 
-api_get_services 404 "rapp3"
+api_get_services 404 "service1"
+api_get_services 200 "service2" "service2" 180 "$CR_PATH/service2"
 
-api_put_service 201 "rapp4" 120 "$CR_PATH/rapp4"
+api_delete_services 204 "service2"
+
+api_get_services 404 "service1"
+api_get_services 404 "service2"
+
+api_put_service 201 "service3" 60 "$CR_PATH/service3"
+
+api_get_services 200 "service3" "service3" 60 "$CR_PATH/service3"
+
+sleep_wait 30 "Waiting for keep alive timeout"
+
+api_put_service 200 "service3" 60 "$CR_PATH/service3"
+
+sleep_wait 100 "Waiting for keep alive timeout"
+
+api_get_services 404 "service3"
+
+api_put_service 201 "service4" 120 "$CR_PATH/service4"
 
 sleep_wait 60 "Waiting for keep alive timeout"
 
-api_get_services 200 "rapp4" 120 "$CR_PATH/rapp4"
+api_get_services 200 "service4" "service4" 120 "$CR_PATH/service4"
 
-api_put_services_keepalive 200 "rapp4"
+api_put_services_keepalive 200 "service4"
 
 sleep_wait 90 "Waiting for keep alive timeout"
 
-api_get_services 200 "rapp4" 120 "$CR_PATH/rapp4"
+api_get_services 200 "service4" "service4" 120 "$CR_PATH/service4"
 
-api_delete_services 204 "rapp4"
+api_delete_services 204 "service4"
 
-api_get_services 404 "rapp4"
+api_get_services 404 "service4"
 
-api_get_services 404 "rapp1"
-api_get_services 404 "rapp2"
-api_get_services 404 "rapp3"
-
-api_get_service_ids 200
-
-api_delete_services 404 "rapp1"
-api_delete_services 404 "rapp2"
-api_delete_services 404 "rapp3"
-api_delete_services 404 "rapp4"
-
-api_put_services_keepalive 404 "rapp1"
-api_put_services_keepalive 404 "rapp2"
-api_put_services_keepalive 404 "rapp3"
-api_put_services_keepalive 404 "rapp4"
+api_get_services 404 "service1"
+api_get_services 404 "service2"
+api_get_services 404 "service3"
 
 api_get_service_ids 200
 
+api_delete_services 404 "service1"
+api_delete_services 404 "service2"
+api_delete_services 404 "service3"
+api_delete_services 404 "service4"
 
+api_put_services_keepalive 404 "service1"
+api_put_services_keepalive 404 "service2"
+api_put_services_keepalive 404 "service3"
+api_put_services_keepalive 404 "service4"
 
+api_get_service_ids 200
+
+deviation "TR18 Agents sends callback with empty body"
 cr_equal received_callbacks 0
 mr_equal requests_submitted 0
 
