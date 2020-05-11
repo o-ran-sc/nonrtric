@@ -15,27 +15,7 @@
 #  ============LICENSE_END=================================================
 #
 
-#Dockerfile to create an image with both python3.8 and nodejs 14
-FROM python:3.8
+FROM tiangolo/uwsgi-nginx-flask:python3.7
 
-WORKDIR /usr/src/app
+COPY ./app /app
 
-#Install python modules
-COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
-
-#Install nodejs and packages
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
-RUN apt-get install -y nodejs
-COPY package.json package.json
-RUN npm install express
-RUN npm install express-http-proxy
-
-#Copy apps and start script
-COPY mr.py mr.py
-COPY frontend.js frontend.js
-COPY start.sh start.sh
-
-RUN chmod +x ./start.sh
-
-CMD ["./start.sh"]

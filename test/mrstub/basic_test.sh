@@ -52,7 +52,7 @@ echo "=== Stub reset ==="
 RESULT="OK"
 do_curl GET /reset 200
 
-## Test with json response
+### Test with json response
 
 echo "=== Send a request ==="
 RESULT="*"
@@ -74,7 +74,7 @@ do_curl GET '/events/A1-POLICY-AGENT-READ/users/policy-agent' 200
 echo "=== Send a json response ==="
 # Create minimal accepted response message
 echo "[{\"correlationId\": \""$CORRID"\", \"message\": {\"test\":\"testresponse\"}, \"status\": \"200\"}]" > .tmp.json
-RESULT="OK"
+RESULT="{}"
 do_curl POST /events/A1-POLICY-AGENT-WRITE 200 .tmp.json
 
 echo "=== Fetch a response ==="
@@ -121,6 +121,8 @@ else
     echo "  Delay ok:"$(($T2-$T1))
 fi
 
+sleep 5
+
 echo "=== Fetch a request with limit 25, shall be empty.  ==="
 RESULT="json-array-size:0"
 do_curl GET '/events/A1-POLICY-AGENT-READ/users/policy-agent?timeout=1000&limit=25' 200
@@ -147,7 +149,7 @@ do_curl GET '/events/A1-POLICY-AGENT-READ/users/policy-agent?timeout=1000&limit=
 echo "=== Send a json response ==="
 # Create minimal accepted response message
 echo "[{\"correlationId\": \""$CORRID"\", \"message\": \"test2-response\", \"status\": \"200\"}]" > .tmp.json
-RESULT="OK"
+RESULT="{}"
 do_curl POST /events/A1-POLICY-AGENT-WRITE 200 .tmp.json
 
 echo "=== Fetch a response ==="
