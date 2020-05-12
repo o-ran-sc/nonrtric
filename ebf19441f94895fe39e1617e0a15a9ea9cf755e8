@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e4b55387_69e41aa2",
+        "filename": "test/mrstub/basic_test.sh",
+        "patchSetId": 8
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 1000247
+      },
+      "writtenOn": "2020-05-12T19:25:40Z",
+      "side": 1,
+      "message": "this test case has a race condition with the following one, need to sleep 5 seconds",
+      "revId": "ebf19441f94895fe39e1617e0a15a9ea9cf755e8",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
