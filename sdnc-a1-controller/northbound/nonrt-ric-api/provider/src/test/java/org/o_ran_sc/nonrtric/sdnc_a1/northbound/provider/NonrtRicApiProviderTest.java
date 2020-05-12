@@ -18,13 +18,11 @@
  * ============LICENSE_END=========================================================
  */
 
-package org.o_ran_sc.nonrtric.sdnc_a1.northbound;
+package org.o_ran_sc.nonrtric.sdnc_a1.northbound.provider;
 
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
-
 import java.util.concurrent.ExecutionException;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +30,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.o_ran_sc.nonrtric.sdnc_a1.northbound.provider.NonrtRicApiProvider;
 import org.o_ran_sc.nonrtric.sdnc_a1.northbound.restadapter.RestAdapter;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
@@ -53,6 +50,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestClientResponseException;
 
 /**
  * This class Tests all the methods in NonrtRicApiProvider
@@ -82,7 +80,7 @@ public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
   }
 
   @Test
-  public void testGetA1Policy() throws InterruptedException, ExecutionException {
+  public void testGetA1PolicySuccess() throws InterruptedException, ExecutionException {
     GetA1PolicyInputBuilder inputBuilder = new GetA1PolicyInputBuilder();
     inputBuilder.setNearRtRicUrl(nearRtRicUrl);
     Whitebox.setInternalState(nonrtRicApiProvider, "restAdapter", restAdapter);
@@ -95,7 +93,7 @@ public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
   }
 
   @Test
-  public void testGetA1PolicyType() throws InterruptedException, ExecutionException {
+  public void testGetA1PolicyTypeSuccess() throws InterruptedException, ExecutionException {
     GetA1PolicyTypeInputBuilder inputBuilder = new GetA1PolicyTypeInputBuilder();
     inputBuilder.setNearRtRicUrl(nearRtRicUrl);
     Whitebox.setInternalState(nonrtRicApiProvider, "restAdapter", restAdapter);
@@ -108,7 +106,7 @@ public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
   }
 
   @Test
-  public void testGetA1PolicyStatus() throws InterruptedException, ExecutionException {
+  public void testGetA1PolicyStatusSuccess() throws InterruptedException, ExecutionException {
     GetA1PolicyStatusInputBuilder inputBuilder = new GetA1PolicyStatusInputBuilder();
     inputBuilder.setNearRtRicUrl(nearRtRicUrl);
     Whitebox.setInternalState(nonrtRicApiProvider, "restAdapter", restAdapter);
@@ -121,7 +119,21 @@ public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
   }
 
   @Test
-  public void testPutA1Policy() throws InterruptedException, ExecutionException {
+  public void testGetA1Failure() throws InterruptedException, ExecutionException {
+    GetA1PolicyInputBuilder inputBuilder = new GetA1PolicyInputBuilder();
+    inputBuilder.setNearRtRicUrl(nearRtRicUrl);
+    Whitebox.setInternalState(nonrtRicApiProvider, "restAdapter", restAdapter);
+    String returnedBody = "GET failed";
+    int returnedStatusCode = 404;
+    when(restAdapter.get(eq(nearRtRicUrl.getValue()), eq(String.class)))
+    .thenThrow(new RestClientResponseException(null, returnedStatusCode, null, null, returnedBody.getBytes(), null));
+    GetA1PolicyOutput result = nonrtRicApiProvider.getA1(inputBuilder.build());
+    Assert.assertEquals(returnedBody, result.getBody());
+    Assert.assertTrue(returnedStatusCode == result.getHttpStatus());
+  }
+
+  @Test
+  public void testPutA1PolicySuccess() throws InterruptedException, ExecutionException {
     PutA1PolicyInputBuilder inputBuilder = new PutA1PolicyInputBuilder();
     String testPolicy = "{}";
     inputBuilder.setNearRtRicUrl(nearRtRicUrl);
@@ -136,15 +148,49 @@ public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
   }
 
   @Test
-  public void testDeleteA1() throws InterruptedException, ExecutionException {
+  public void testPutA1PolicyFailure() throws InterruptedException, ExecutionException {
+    PutA1PolicyInputBuilder inputBuilder = new PutA1PolicyInputBuilder();
+    String testPolicy = "{}";
+    inputBuilder.setNearRtRicUrl(nearRtRicUrl);
+    inputBuilder.setBody(testPolicy);
+    Whitebox.setInternalState(nonrtRicApiProvider, "restAdapter", restAdapter);
+    String returnedBody = "PUT failed";
+    int returnedStatusCode = 400;
+    when(restAdapter.put(eq(nearRtRicUrl.getValue()), eq(testPolicy), eq(String.class)))
+    .thenThrow(new RestClientResponseException(null, returnedStatusCode, null, null, returnedBody.getBytes(), null));
+    PutA1PolicyOutput result = nonrtRicApiProvider.putA1Policy(inputBuilder.build()).get().getResult();
+    Assert.assertEquals(returnedBody, result.getBody());
+    Assert.assertTrue(returnedStatusCode == result.getHttpStatus());
+  }
+
+  @Test
+  public void testDeleteA1Success() throws InterruptedException, ExecutionException {
     DeleteA1PolicyInputBuilder inputBuilder = new DeleteA1PolicyInputBuilder();
     inputBuilder.setNearRtRicUrl(nearRtRicUrl);
     Whitebox.setInternalState(nonrtRicApiProvider, "restAdapter", restAdapter);
+    ResponseEntity<Object> getResponseNoContent = new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    String returnedBody = "returned body";
+    ResponseEntity<Object> getResponseOk = new ResponseEntity<>(returnedBody, HttpStatus.OK);
+    when(restAdapter.delete(nearRtRicUrl.getValue())).thenReturn(getResponseNoContent).thenReturn(getResponseOk);
+    DeleteA1PolicyOutput resultNoContent = nonrtRicApiProvider.deleteA1Policy(inputBuilder.build()).get().getResult();
+    Assert.assertTrue(HttpStatus.NO_CONTENT.value() == resultNoContent.getHttpStatus());
+    DeleteA1PolicyOutput resultOk = nonrtRicApiProvider.deleteA1Policy(inputBuilder.build()).get().getResult();
+    Assert.assertEquals(returnedBody, resultOk.getBody());
+    Assert.assertTrue(HttpStatus.OK.value() == resultOk.getHttpStatus());
+  }
 
-    ResponseEntity<Object> getResponse = new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    when(restAdapter.delete(nearRtRicUrl.getValue())).thenReturn(getResponse);
+  @Test
+  public void testDeleteA1Failure() throws InterruptedException, ExecutionException {
+    DeleteA1PolicyInputBuilder inputBuilder = new DeleteA1PolicyInputBuilder();
+    inputBuilder.setNearRtRicUrl(nearRtRicUrl);
+    Whitebox.setInternalState(nonrtRicApiProvider, "restAdapter", restAdapter);
+    String returnedBody = "DELETE failed";
+    int returnedStatusCode = 404;
+    when(restAdapter.delete(nearRtRicUrl.getValue()))
+    .thenThrow(new RestClientResponseException(null, returnedStatusCode, null, null, returnedBody.getBytes(), null));
     DeleteA1PolicyOutput result = nonrtRicApiProvider.deleteA1Policy(inputBuilder.build()).get().getResult();
-    Assert.assertTrue(HttpStatus.NO_CONTENT.value() == result.getHttpStatus());
+    Assert.assertEquals(returnedBody, result.getBody());
+    Assert.assertTrue(returnedStatusCode == result.getHttpStatus());
   }
 
 }

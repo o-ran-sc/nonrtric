@@ -96,7 +96,6 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
     setNotificationService(notificationPublishService);
     setRpcRegistry(rpcProviderRegistry);
     initialize();
-
   }
 
   public void initialize() {
@@ -209,7 +208,7 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
     return Futures.immediateFuture(rpcResult);
   }
 
-  private GetA1PolicyOutput getA1(GetA1PolicyInput input) {
+  protected GetA1PolicyOutput getA1(GetA1PolicyInput input) {
     log.info("Start of getA1");
     GetA1PolicyOutputBuilder responseBuilder = new GetA1PolicyOutputBuilder();
 
