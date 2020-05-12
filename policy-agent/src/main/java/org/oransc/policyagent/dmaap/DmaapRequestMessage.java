@@ -35,8 +35,6 @@ public interface DmaapRequestMessage {
         PUT, GET, DELETE, POST
     }
 
-    String type();
-
     String correlationId();
 
     String target();

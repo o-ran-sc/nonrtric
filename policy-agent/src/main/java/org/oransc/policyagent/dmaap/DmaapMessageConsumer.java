@@ -41,12 +41,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * The class fetches incoming requests from DMAAP. It uses the timeout parameter that lets the MessageRouter keep the
- * connection with the Kafka open until requests are sent in.
+ * The class fetches incoming requests from DMAAP. It uses the timeout parameter
+ * that lets the MessageRouter keep the connection with the Kafka open until
+ * requests are sent in.
  *
- * If there is no DMaaP configuration in the application configuration, then this service will regularly check the
- * configuration and start polling DMaaP if the configuration is added. If the DMaaP configuration is removed, then the
- * service will stop polling and resume checking for configuration.
+ * If there is no DMaaP configuration in the application configuration, then
+ * this service will regularly check the configuration and start polling DMaaP
+ * if the configuration is added. If the DMaaP configuration is removed, then
+ * the service will stop polling and resume checking for configuration.
  *
  * Each received request is processed by {@link DmaapMessageHandler}.
  */
@@ -58,6 +60,9 @@ public class DmaapMessageConsumer {
     private static final Logger logger = LoggerFactory.getLogger(DmaapMessageConsumer.class);
 
     private final ApplicationConfig applicationConfig;
+
+    private DmaapMessageHandler dmaapMessageHandler = null;
+    private MRConsumer messageRouterConsumer = null;
 
     @Value("${server.port}")
     private int localServerPort;
@@ -132,13 +137,15 @@ public class DmaapMessageConsumer {
         getDmaapMessageHandler().handleDmaapMsg(msg);
     }
 
-    private DmaapMessageHandler getDmaapMessageHandler() throws IOException {
-        String agentBaseUrl = "https://localhost:" + this.localServerPort;
-        AsyncRestClient agentClient = createRestClient(agentBaseUrl);
-        Properties dmaapPublisherProperties = applicationConfig.getDmaapPublisherConfig();
-        MRBatchingPublisher producer = getMessageRouterPublisher(dmaapPublisherProperties);
-
-        return createDmaapMessageHandler(agentClient, producer);
+    protected DmaapMessageHandler getDmaapMessageHandler() throws IOException {
+        if (this.dmaapMessageHandler == null) {
+            String agentBaseUrl = "https://localhost:" + this.localServerPort;
+            AsyncRestClient agentClient = new AsyncRestClient(agentBaseUrl);
+            Properties dmaapPublisherProperties = applicationConfig.getDmaapPublisherConfig();
+            MRBatchingPublisher producer = MRClientFactory.createBatchingPublisher(dmaapPublisherProperties);
+            this.dmaapMessageHandler = new DmaapMessageHandler(producer, agentClient);
+        }
+        return this.dmaapMessageHandler;
     }
 
     protected void sleep(Duration duration) {
@@ -150,18 +157,10 @@ public class DmaapMessageConsumer {
     }
 
     protected MRConsumer getMessageRouterConsumer(Properties dmaapConsumerProperties) throws IOException {
-        return MRClientFactory.createConsumer(dmaapConsumerProperties);
+        if (this.messageRouterConsumer == null) {
+            this.messageRouterConsumer = MRClientFactory.createConsumer(dmaapConsumerProperties);
+        }
+        return this.messageRouterConsumer;
     }
 
-    protected DmaapMessageHandler createDmaapMessageHandler(AsyncRestClient agentClient, MRBatchingPublisher producer) {
-        return new DmaapMessageHandler(producer, agentClient);
-    }
-
-    protected AsyncRestClient createRestClient(String agentBaseUrl) {
-        return new AsyncRestClient(agentBaseUrl);
-    }
-
-    protected MRBatchingPublisher getMessageRouterPublisher(Properties dmaapPublisherProperties) throws IOException {
-        return MRClientFactory.createBatchingPublisher(dmaapPublisherProperties);
-    }
 }

@@ -89,7 +89,8 @@ public class DmaapMessageHandlerTest {
         Optional<JsonObject> payload =
             ((operation == Operation.PUT || operation == Operation.POST) ? Optional.of(payloadAsJson())
                 : Optional.empty());
-        return ImmutableDmaapRequestMessage.builder().apiVersion("apiVersion") //
+        return ImmutableDmaapRequestMessage.builder() //
+            .apiVersion("apiVersion") //
             .correlationId("correlationId") //
             .operation(operation) //
             .originatorId("originatorId") //
@@ -97,7 +98,6 @@ public class DmaapMessageHandlerTest {
             .requestId("requestId") //
             .target("target") //
             .timestamp("timestamp") //
-            .type("type") //
             .url(URL) //
             .build();
     }

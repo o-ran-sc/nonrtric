@@ -23,11 +23,9 @@ package org.oransc.policyagent.dmaap;
 import static ch.qos.logback.classic.Level.WARN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -49,10 +47,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.onap.dmaap.mr.client.MRBatchingPublisher;
 import org.onap.dmaap.mr.client.MRConsumer;
 import org.onap.dmaap.mr.client.response.MRConsumerResponse;
-import org.oransc.policyagent.clients.AsyncRestClient;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.tasks.RefreshConfigTask;
 import org.oransc.policyagent.utils.LoggingUtils;
@@ -159,8 +155,7 @@ public class DmaapMessageConsumerTest {
 
     @Test
     public void dmaapConfiguredAndOneMessage_thenPollOnceAndProcessMessage() throws Exception {
-        Properties properties = setUpMrConfig();
-
+        setUpMrConfig();
         messageConsumerUnderTest = spy(new DmaapMessageConsumer(applicationConfigMock));
 
         doReturn(false, false, true).when(messageConsumerUnderTest).isStopped();
@@ -174,19 +169,9 @@ public class DmaapMessageConsumerTest {
         response.setActualMessages(messages);
         when(messageRouterConsumerMock.fetchWithReturnConsumerResponse()).thenReturn(response);
 
-        doReturn(messageHandlerMock).when(messageConsumerUnderTest)
-            .createDmaapMessageHandler(any(AsyncRestClient.class), any(MRBatchingPublisher.class));
-
-        AsyncRestClient restClientMock = mock(AsyncRestClient.class);
-        doReturn(restClientMock).when(messageConsumerUnderTest).createRestClient(anyString());
-
-        MRBatchingPublisher publisherMock = mock(MRBatchingPublisher.class);
-        doReturn(publisherMock).when(messageConsumerUnderTest).getMessageRouterPublisher(any(Properties.class));
+        doReturn(messageHandlerMock).when(messageConsumerUnderTest).getDmaapMessageHandler();
 
         messageConsumerUnderTest.start().join();
-
-        verify(messageConsumerUnderTest).createRestClient("https://localhost:0");
-        verify(messageConsumerUnderTest).getMessageRouterPublisher(properties);
 
         verify(messageHandlerMock).handleDmaapMsg(responseMessage);
         verifyNoMoreInteractions(messageHandlerMock);
