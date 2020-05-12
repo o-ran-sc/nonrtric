@@ -78,6 +78,7 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
   protected static final String NO_SERVICE_LOGIC_ACTIVE = "No service logic active for ";
   private static final String NON_NULL_PARAM = "non-null";
   private static final String NULL_PARAM = "null";
+  private static final String REST_CLIENT_RESPONSE_EXCEPTION_MSG = "Caught RestClientResponseException: {}";
 
   private final Logger log = LoggerFactory.getLogger(NonrtRicApiProvider.class);
   private final ExecutorService executor;
@@ -156,80 +157,80 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
   @Override
   public ListenableFuture<RpcResult<PutA1PolicyOutput>> putA1Policy(PutA1PolicyInput input) {
     log.info("Start of putPolicy");
-    PutA1PolicyOutputBuilder responseBuilder = new PutA1PolicyOutputBuilder();
+    PutA1PolicyOutputBuilder putPolicyResponseBuilder = new PutA1PolicyOutputBuilder();
 
     try {
         final Uri uri = input.getNearRtRicUrl();
         log.info("PUT Request input.GetA1Policy() : {} ", uri);
-        ResponseEntity<String> response = restAdapter.put(uri.getValue(), input.getBody(), String.class);
-        if (response.hasBody()) {
-            log.info("Response PutA1Policy : {} ", response.getBody());
-            responseBuilder.setBody(response.getBody());
+        ResponseEntity<String> putPolicyResponse = restAdapter.put(uri.getValue(), input.getBody(), String.class);
+        if (putPolicyResponse.hasBody()) {
+            log.info("Response PutA1Policy : {} ", putPolicyResponse.getBody());
+            putPolicyResponseBuilder.setBody(putPolicyResponse.getBody());
         }
-        responseBuilder.setHttpStatus(response.getStatusCodeValue());
+        putPolicyResponseBuilder.setHttpStatus(putPolicyResponse.getStatusCodeValue());
     } catch (RestClientResponseException ex) {
-        log.error("Caught RestClientResponseException: {}", ex.getMessage());
+        log.error(REST_CLIENT_RESPONSE_EXCEPTION_MSG, ex.getMessage());
         if (ex.getResponseBodyAsByteArray() != null) {
-            responseBuilder.setBody(ex.getResponseBodyAsString());
+            putPolicyResponseBuilder.setBody(ex.getResponseBodyAsString());
         }
-        responseBuilder.setHttpStatus(ex.getRawStatusCode());
+        putPolicyResponseBuilder.setHttpStatus(ex.getRawStatusCode());
     }
 
     log.info("End of PutA1Policy");
     RpcResult<PutA1PolicyOutput> rpcResult = RpcResultBuilder.<PutA1PolicyOutput>status(true)
-        .withResult(responseBuilder.build()).build();
+        .withResult(putPolicyResponseBuilder.build()).build();
     return Futures.immediateFuture(rpcResult);
   }
 
   @Override
   public ListenableFuture<RpcResult<DeleteA1PolicyOutput>> deleteA1Policy(DeleteA1PolicyInput input) {
     log.info("Start of DeleteA1Policy");
-    DeleteA1PolicyOutputBuilder responseBuilder = new DeleteA1PolicyOutputBuilder();
+    DeleteA1PolicyOutputBuilder deletePolicyResponseBuilder = new DeleteA1PolicyOutputBuilder();
 
     try {
         final Uri uri = input.getNearRtRicUrl();
-        ResponseEntity<Object> response = restAdapter.delete(uri.getValue());
-        if (response.hasBody()) {
-            log.info("Response DeleteA1Policy : {} ", response.getBody());
-            responseBuilder.setBody(response.getBody().toString());
+        ResponseEntity<Object> deletePolicyResponse = restAdapter.delete(uri.getValue());
+        if (deletePolicyResponse.hasBody()) {
+            log.info("Response DeleteA1Policy : {} ", deletePolicyResponse.getBody());
+            deletePolicyResponseBuilder.setBody(deletePolicyResponse.getBody().toString());
         }
-        responseBuilder.setHttpStatus(response.getStatusCodeValue());
+        deletePolicyResponseBuilder.setHttpStatus(deletePolicyResponse.getStatusCodeValue());
     } catch (RestClientResponseException ex) {
-        log.error("Caught RestClientResponseException: {}", ex.getMessage());
+        log.error(REST_CLIENT_RESPONSE_EXCEPTION_MSG, ex.getMessage());
         if (ex.getResponseBodyAsByteArray() != null) {
-            responseBuilder.setBody(ex.getResponseBodyAsString());
+            deletePolicyResponseBuilder.setBody(ex.getResponseBodyAsString());
         }
-        responseBuilder.setHttpStatus(ex.getRawStatusCode());
+        deletePolicyResponseBuilder.setHttpStatus(ex.getRawStatusCode());
     }
 
     log.info("End of DeleteA1Policy");
     RpcResult<DeleteA1PolicyOutput> rpcResult = RpcResultBuilder.<DeleteA1PolicyOutput>status(true)
-        .withResult(responseBuilder.build()).build();
+        .withResult(deletePolicyResponseBuilder.build()).build();
     return Futures.immediateFuture(rpcResult);
   }
 
   protected GetA1PolicyOutput getA1(GetA1PolicyInput input) {
     log.info("Start of getA1");
-    GetA1PolicyOutputBuilder responseBuilder = new GetA1PolicyOutputBuilder();
+    GetA1PolicyOutputBuilder getPolicyResponseBuilder = new GetA1PolicyOutputBuilder();
 
     try {
         final Uri uri = input.getNearRtRicUrl();
-        ResponseEntity<String> response = restAdapter.get(uri.getValue(), String.class);
-        if (response.hasBody()) {
-            log.info("Response getA1 : {} ", response.getBody());
-            responseBuilder.setBody(response.getBody());
+        ResponseEntity<String> getPolicyResponse = restAdapter.get(uri.getValue(), String.class);
+        if (getPolicyResponse.hasBody()) {
+            log.info("Response getA1 : {} ", getPolicyResponse.getBody());
+            getPolicyResponseBuilder.setBody(getPolicyResponse.getBody());
         }
-        responseBuilder.setHttpStatus(response.getStatusCodeValue());
+        getPolicyResponseBuilder.setHttpStatus(getPolicyResponse.getStatusCodeValue());
     } catch (RestClientResponseException ex) {
-        log.error("Caught RestClientResponseException: {}", ex.getMessage());
+        log.error(REST_CLIENT_RESPONSE_EXCEPTION_MSG, ex.getMessage());
         if (ex.getResponseBodyAsByteArray() != null) {
-            responseBuilder.setBody(ex.getResponseBodyAsString());
+            getPolicyResponseBuilder.setBody(ex.getResponseBodyAsString());
         }
-        responseBuilder.setHttpStatus(ex.getRawStatusCode());
+        getPolicyResponseBuilder.setHttpStatus(ex.getRawStatusCode());
     }
 
     log.info("End of getA1");
-    return responseBuilder.build();
+    return getPolicyResponseBuilder.build();
   }
 
   @Override
@@ -242,31 +243,31 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
 
   @Override
   public ListenableFuture<RpcResult<GetA1PolicyStatusOutput>> getA1PolicyStatus(GetA1PolicyStatusInput input) {
-    GetA1PolicyInputBuilder getInputBuilder = new GetA1PolicyInputBuilder();
-    getInputBuilder.setNearRtRicUrl(input.getNearRtRicUrl());
-    GetA1PolicyOutput getOutput = getA1(getInputBuilder.build());
+    GetA1PolicyInputBuilder getPolicyStatusInputBuilder = new GetA1PolicyInputBuilder();
+    getPolicyStatusInputBuilder.setNearRtRicUrl(input.getNearRtRicUrl());
+    GetA1PolicyOutput getOutput = getA1(getPolicyStatusInputBuilder.build());
 
-    GetA1PolicyStatusOutputBuilder outputBuilder = new GetA1PolicyStatusOutputBuilder();
-    outputBuilder.setBody(getOutput.getBody());
-    outputBuilder.setHttpStatus(getOutput.getHttpStatus());
+    GetA1PolicyStatusOutputBuilder getPolicyStatusoutputBuilder = new GetA1PolicyStatusOutputBuilder();
+    getPolicyStatusoutputBuilder.setBody(getOutput.getBody());
+    getPolicyStatusoutputBuilder.setHttpStatus(getOutput.getHttpStatus());
 
     return Futures.immediateFuture(RpcResultBuilder.<GetA1PolicyStatusOutput>status(true) //
-        .withResult(outputBuilder.build()) //
+        .withResult(getPolicyStatusoutputBuilder.build()) //
         .build());
   }
 
   @Override
   public ListenableFuture<RpcResult<GetA1PolicyTypeOutput>> getA1PolicyType(GetA1PolicyTypeInput input) {
-    GetA1PolicyInputBuilder getInputBuilder = new GetA1PolicyInputBuilder();
-    getInputBuilder.setNearRtRicUrl(input.getNearRtRicUrl());
-    GetA1PolicyOutput getOutput = getA1(getInputBuilder.build());
+    GetA1PolicyInputBuilder getPolicyTypeInputBuilder = new GetA1PolicyInputBuilder();
+    getPolicyTypeInputBuilder.setNearRtRicUrl(input.getNearRtRicUrl());
+    GetA1PolicyOutput getOutput = getA1(getPolicyTypeInputBuilder.build());
 
-    GetA1PolicyTypeOutputBuilder outputBuilder = new GetA1PolicyTypeOutputBuilder();
-    outputBuilder.setBody(getOutput.getBody());
-    outputBuilder.setHttpStatus(getOutput.getHttpStatus());
+    GetA1PolicyTypeOutputBuilder getPolicyTypeOutputBuilder = new GetA1PolicyTypeOutputBuilder();
+    getPolicyTypeOutputBuilder.setBody(getOutput.getBody());
+    getPolicyTypeOutputBuilder.setHttpStatus(getOutput.getHttpStatus());
 
     return Futures.immediateFuture(RpcResultBuilder.<GetA1PolicyTypeOutput>status(true) //
-        .withResult(outputBuilder.build()) //
+        .withResult(getPolicyTypeOutputBuilder.build()) //
         .build());
   }
 

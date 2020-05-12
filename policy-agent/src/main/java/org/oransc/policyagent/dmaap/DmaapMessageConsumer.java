@@ -44,10 +44,12 @@ import org.springframework.stereotype.Component;
  * The class fetches incoming requests from DMAAP. It uses the timeout parameter that lets the MessageRouter keep the
  * connection with the Kafka open until requests are sent in.
  *
+ * <p>
  * If there is no DMaaP configuration in the application configuration, then this service will regularly check the
  * configuration and start polling DMaaP if the configuration is added. If the DMaaP configuration is removed, then the
  * service will stop polling and resume checking for configuration.
  *
+ * <p>
  * Each received request is processed by {@link DmaapMessageHandler}.
  */
 @Component
@@ -67,8 +69,14 @@ public class DmaapMessageConsumer {
         this.applicationConfig = applicationConfig;
     }
 
+    /**
+     * Starts the consumer. If there is a DMaaP configuration, it will start polling for messages. Otherwise it will
+     * check regularly for the configuration.
+     *
+     * @return the running thread, for test purposes.
+     */
     public Thread start() {
-        Thread thread = new Thread(() -> this.checkConfigLoop());
+        Thread thread = new Thread(this::checkConfigLoop);
         thread.start();
         return thread;
     }

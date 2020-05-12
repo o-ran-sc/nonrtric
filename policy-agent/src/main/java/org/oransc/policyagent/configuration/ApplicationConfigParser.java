@@ -70,8 +70,6 @@ public class ApplicationConfigParser {
         Properties dmaapConsumerConfig = new Properties();
 
         JsonObject agentConfigJson = root.getAsJsonObject(CONFIG);
-        List<RicConfig> ricConfigs = parseRics(agentConfigJson);
-        Map<String, ControllerConfig> controllerConfigs = parseControllerConfigs(agentConfigJson);
 
         JsonObject json = agentConfigJson.getAsJsonObject("streams_publishes");
         if (json != null) {
@@ -83,6 +81,8 @@ public class ApplicationConfigParser {
             dmaapConsumerConfig = parseDmaapConfig(json);
         }
 
+        List<RicConfig> ricConfigs = parseRics(agentConfigJson);
+        Map<String, ControllerConfig> controllerConfigs = parseControllerConfigs(agentConfigJson);
         checkConfigurationConsistency(ricConfigs, controllerConfigs);
 
         return ImmutableConfigParserResult.builder() //

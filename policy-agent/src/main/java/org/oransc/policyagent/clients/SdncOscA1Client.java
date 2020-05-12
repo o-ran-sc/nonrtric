@@ -78,14 +78,12 @@ public class SdncOscA1Client implements A1Client {
     private final A1ProtocolType protocolType;
 
     /**
-     * Constructor
-     * 
+     * Constructor that creates the REST client to use.
+     *
      * @param protocolType the southbound protocol of the controller. Supported
      *        protocols are SDNC_OSC_STD_V1_1 and SDNC_OSC_OSC_V1
-     * @param ricConfig
-     * @param controllerBaseUrl the base URL of the SDNC controller
-     * @param username username to accesss the SDNC controller
-     * @param password password to accesss the SDNC controller
+     * @param ricConfig the configuration of the Ric to communicate with
+     * @param controllerConfig the configuration of the SDNC controller to use
      */
     public SdncOscA1Client(A1ProtocolType protocolType, RicConfig ricConfig, ControllerConfig controllerConfig) {
         this(protocolType, ricConfig, controllerConfig,
@@ -93,6 +91,15 @@ public class SdncOscA1Client implements A1Client {
         logger.debug("SdncOscA1Client for ric: {}, a1Controller: {}", ricConfig.name(), controllerConfig);
     }
 
+    /**
+     * Constructor where the REST client to use is provided.
+     *
+     * @param protocolType the southbound protocol of the controller. Supported
+     *        protocols are SDNC_OSC_STD_V1_1 and SDNC_OSC_OSC_V1
+     * @param ricConfig the configuration of the Ric to communicate with
+     * @param controllerConfig the configuration of the SDNC controller to use
+     * @param restClient the REST client to use
+     */
     public SdncOscA1Client(A1ProtocolType protocolType, RicConfig ricConfig, ControllerConfig controllerConfig,
         AsyncRestClient restClient) {
         this.restClient = restClient;
