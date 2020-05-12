@@ -9,7 +9,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: "loggers,logfile,health,info,metrics"
+        include: "loggers,logfile,health,info,metrics,threaddump"
 
 logging:
   level:

@@ -687,7 +687,7 @@ public class ApplicationTest {
         addPolicyType("type1", "ric");
         addPolicyType("type2", "ric");
 
-        for (int i = 0; i < 100; ++i) {
+        for (int i = 0; i < 10; ++i) {
             Thread t =
                 new Thread(new ConcurrencyTestRunnable(baseUrl(), supervision, a1ClientFactory, rics, policyTypes),
                     "TestThread_" + i);

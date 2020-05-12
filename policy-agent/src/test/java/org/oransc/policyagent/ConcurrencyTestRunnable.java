@@ -34,6 +34,7 @@ import org.oransc.policyagent.utils.MockA1Client;
 import org.oransc.policyagent.utils.MockA1ClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 
 /**
  * Invoke operations over the NBI and start synchronizations in a separate
@@ -59,11 +60,26 @@ class ConcurrencyTestRunnable implements Runnable {
         this.webClient = new AsyncRestClient(baseUrl);
     }
 
+    private void printStatusInfo() {
+        try {
+            String url = "/actuator/metrics/jvm.threads.live";
+            ResponseEntity<String> result = webClient.getForEntity(url).block();
+            System.out.println(Thread.currentThread() + result.getBody());
+
+            url = "/rics";
+            result = webClient.getForEntity(url).block();
+            System.out.println(Thread.currentThread() + result.getBody());
+
+        } catch (Exception e) {
+            logger.error(Thread.currentThread() + "Concurrency test printStatusInfo exception " + e.toString());
+        }
+    }
+
     @Override
     public void run() {
         try {
-            for (int i = 0; i < 100; ++i) {
-                if (i % 10 == 0) {
+            for (int i = 0; i < 500; ++i) {
+                if (i % 100 == 0) {
                     createInconsistency();
                     this.supervision.checkAllRics();
                 }
@@ -77,6 +93,7 @@ class ConcurrencyTestRunnable implements Runnable {
             }
         } catch (Exception e) {
             logger.error("Concurrency test exception " + e.toString());
+            printStatusInfo();
         }
     }
 
