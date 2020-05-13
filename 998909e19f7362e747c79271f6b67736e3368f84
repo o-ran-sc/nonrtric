@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "f2b5e055_f5eff183",
+        "filename": "test/mrstub/Dockerfile",
+        "patchSetId": 9
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1000247
+      },
+      "writtenOn": "2020-05-13T17:09:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0f4c2091_6f3df211",
+      "range": {
+        "startLine": 28,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 28
+      },
+      "revId": "998909e19f7362e747c79271f6b67736e3368f84",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "337bc8c1_b3199b1e",
         "filename": "test/mrstub/app/nginx.conf",
         "patchSetId": 9
@@ -45,6 +69,30 @@
       "revId": "998909e19f7362e747c79271f6b67736e3368f84",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b40235cd_45477c88",
+        "filename": "test/mrstub/app/nginx.conf",
+        "patchSetId": 9
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1000247
+      },
+      "writtenOn": "2020-05-13T17:09:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "337bc8c1_b3199b1e",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 30
+      },
+      "revId": "998909e19f7362e747c79271f6b67736e3368f84",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
