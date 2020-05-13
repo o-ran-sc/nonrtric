@@ -83,7 +83,7 @@ public class RefreshConfigTask {
     /**
      * The time between refreshes of the configuration.
      */
-    public static final Duration CONFIG_REFRESH_INTERVAL = Duration.ofMinutes(1);
+    static final Duration CONFIG_REFRESH_INTERVAL = Duration.ofMinutes(1);
 
     final ApplicationConfig appConfig;
     @Getter(AccessLevel.PROTECTED)

@@ -88,6 +88,7 @@ public class ServiceSupervisionTest {
         .ric(ric) //
         .type(policyType) //
         .lastModified("lastModified") //
+        .isTransient(false) //
         .build();
 
     @Test

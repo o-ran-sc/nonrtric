@@ -183,6 +183,7 @@ public class MockPolicyAgent {
             .ric(ric) //
             .type(unnamedPolicyType) //
             .lastModified("now") //
+            .isTransient(false) //
             .build();
         this.policies.put(policy);
     }

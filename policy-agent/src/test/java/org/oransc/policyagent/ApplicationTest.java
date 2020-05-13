@@ -274,13 +274,23 @@ public class ApplicationTest {
         testErrorCode(restClient().get(url), HttpStatus.NOT_FOUND);
     }
 
-    private String putPolicyUrl(String serviceName, String ricName, String policyTypeName, String policyInstanceId) {
+    private String putPolicyUrl(String serviceName, String ricName, String policyTypeName, String policyInstanceId,
+        boolean isTransient) {
+        String url;
         if (policyTypeName.isEmpty()) {
-            return "/policy?id=" + policyInstanceId + "&ric=" + ricName + "&service=" + serviceName;
+            url = "/policy?id=" + policyInstanceId + "&ric=" + ricName + "&service=" + serviceName;
         } else {
-            return "/policy?id=" + policyInstanceId + "&ric=" + ricName + "&service=" + serviceName + "&type="
+            url = "/policy?id=" + policyInstanceId + "&ric=" + ricName + "&service=" + serviceName + "&type="
                 + policyTypeName;
         }
+        if (isTransient) {
+            url += "&transient=true";
+        }
+        return url;
+    }
+
+    private String putPolicyUrl(String serviceName, String ricName, String policyTypeName, String policyInstanceId) {
+        return putPolicyUrl(serviceName, ricName, policyTypeName, policyInstanceId, false);
     }
 
     @Test
@@ -293,7 +303,8 @@ public class ApplicationTest {
         putService(serviceName);
         addPolicyType(policyTypeName, ricName);
 
-        String url = putPolicyUrl(serviceName, ricName, policyTypeName, policyInstanceId);
+        // PUT a transient policy
+        String url = putPolicyUrl(serviceName, ricName, policyTypeName, policyInstanceId, true);
         final String policyBody = jsonString();
         this.rics.getRic(ricName).setState(Ric.RicState.AVAILABLE);
 
@@ -304,6 +315,13 @@ public class ApplicationTest {
         assertThat(policy.id()).isEqualTo(policyInstanceId);
         assertThat(policy.ownerServiceName()).isEqualTo(serviceName);
         assertThat(policy.ric().name()).isEqualTo("ric1");
+        assertThat(policy.isTransient()).isEqualTo(true);
+
+        // Put a non transient policy
+        url = putPolicyUrl(serviceName, ricName, policyTypeName, policyInstanceId);
+        restClient().put(url, policyBody).block();
+        policy = policies.getPolicy(policyInstanceId);
+        assertThat(policy.isTransient()).isEqualTo(false);
 
         url = "/policies";
         String rsp = restClient().get(url).block();
@@ -632,12 +650,15 @@ public class ApplicationTest {
 
     private Policy addPolicy(String id, String typeName, String service, String ric) throws ServiceException {
         addRic(ric);
-        Policy p = ImmutablePolicy.builder().id(id) //
+        Policy p = ImmutablePolicy.builder() //
+            .id(id) //
             .json(jsonString()) //
             .ownerServiceName(service) //
             .ric(rics.getRic(ric)) //
             .type(addPolicyType(typeName, ric)) //
-            .lastModified("lastModified").build();
+            .lastModified("lastModified") //
+            .isTransient(false) //
+            .build();
         policies.put(p);
         return p;
     }

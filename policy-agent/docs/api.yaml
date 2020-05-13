@@ -112,6 +112,12 @@ paths:
           description: service
           required: true
           type: string
+        - name: transient
+          in: query
+          description: transient
+          required: false
+          type: boolean
+          default: false
         - name: type
           in: query
           description: type

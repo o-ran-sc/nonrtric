@@ -107,6 +107,7 @@ class ConcurrencyTestRunnable implements Runnable {
             .ric(ric) //
             .ownerServiceName("") //
             .lastModified("") //
+            .isTransient(false) //
             .build();
     }
 

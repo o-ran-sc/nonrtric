@@ -50,7 +50,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.onap.dmaap.mr.client.MRConsumer;
 import org.onap.dmaap.mr.client.response.MRConsumerResponse;
 import org.oransc.policyagent.configuration.ApplicationConfig;
-import org.oransc.policyagent.tasks.RefreshConfigTask;
 import org.oransc.policyagent.utils.LoggingUtils;
 import org.springframework.http.HttpStatus;
 
@@ -82,7 +81,7 @@ public class DmaapMessageConsumerTest {
         messageConsumerUnderTest.start().join();
 
         InOrder orderVerifier = inOrder(messageConsumerUnderTest);
-        orderVerifier.verify(messageConsumerUnderTest).sleep(RefreshConfigTask.CONFIG_REFRESH_INTERVAL);
+        orderVerifier.verify(messageConsumerUnderTest).sleep(DmaapMessageConsumer.TIME_BETWEEN_DMAAP_RETRIES);
         orderVerifier.verify(messageConsumerUnderTest).fetchAllMessages();
     }
 
@@ -99,7 +98,7 @@ public class DmaapMessageConsumerTest {
 
         InOrder orderVerifier = inOrder(messageConsumerUnderTest);
         orderVerifier.verify(messageConsumerUnderTest).fetchAllMessages();
-        orderVerifier.verify(messageConsumerUnderTest).sleep(RefreshConfigTask.CONFIG_REFRESH_INTERVAL);
+        orderVerifier.verify(messageConsumerUnderTest).sleep(DmaapMessageConsumer.TIME_BETWEEN_DMAAP_RETRIES);
     }
 
     @Test
@@ -112,7 +111,7 @@ public class DmaapMessageConsumerTest {
         response.setResponseCode(Integer.toString(HttpStatus.OK.value()));
         response.setActualMessages(Collections.emptyList());
 
-        doReturn(false, false, true).when(messageConsumerUnderTest).isStopped();
+        doReturn(false, true).when(messageConsumerUnderTest).isStopped();
         doReturn(messageRouterConsumerMock).when(messageConsumerUnderTest)
             .getMessageRouterConsumer(any(Properties.class));
         when(messageRouterConsumerMock.fetchWithReturnConsumerResponse()).thenReturn(response);
@@ -130,7 +129,7 @@ public class DmaapMessageConsumerTest {
         messageConsumerUnderTest = spy(new DmaapMessageConsumer(applicationConfigMock));
 
         doNothing().when(messageConsumerUnderTest).sleep(any(Duration.class));
-        doReturn(false, false, true).when(messageConsumerUnderTest).isStopped();
+        doReturn(false, true).when(messageConsumerUnderTest).isStopped();
         doReturn(messageRouterConsumerMock).when(messageConsumerUnderTest)
             .getMessageRouterConsumer(any(Properties.class));
 
@@ -158,7 +157,7 @@ public class DmaapMessageConsumerTest {
         setUpMrConfig();
         messageConsumerUnderTest = spy(new DmaapMessageConsumer(applicationConfigMock));
 
-        doReturn(false, false, true).when(messageConsumerUnderTest).isStopped();
+        doReturn(false, true).when(messageConsumerUnderTest).isStopped();
         doReturn(messageRouterConsumerMock).when(messageConsumerUnderTest)
             .getMessageRouterConsumer(any(Properties.class));
 
