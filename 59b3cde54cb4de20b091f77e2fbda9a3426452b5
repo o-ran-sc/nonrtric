@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d8cbf9ea_f9dae46f",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageConsumer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-05-13T09:08:19Z",
+      "side": 1,
+      "message": "spelling, wait",
+      "range": {
+        "startLine": 99,
+        "startChar": 58,
+        "endLine": 99,
+        "endChar": 66
+      },
+      "revId": "59b3cde54cb4de20b091f77e2fbda9a3426452b5",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
