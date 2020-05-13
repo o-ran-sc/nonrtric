@@ -310,6 +310,7 @@ public class RefreshConfigTaskTest {
             .ric(ric) //
             .json("{}") //
             .ownerServiceName("ownerServiceName") //
+            .isTransient(false) //
             .build();
         return policy;
     }

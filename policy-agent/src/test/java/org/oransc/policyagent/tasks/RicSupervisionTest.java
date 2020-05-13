@@ -78,6 +78,7 @@ public class RicSupervisionTest {
         .ric(RIC_1) //
         .type(POLICY_TYPE_1) //
         .lastModified("now") //
+        .isTransient(false) //
         .build();
 
     private static final Policy POLICY_2 = ImmutablePolicy.builder() //
@@ -87,6 +88,7 @@ public class RicSupervisionTest {
         .ric(RIC_1) //
         .type(POLICY_TYPE_1) //
         .lastModified("now") //
+        .isTransient(false) //
         .build();
 
     @Mock

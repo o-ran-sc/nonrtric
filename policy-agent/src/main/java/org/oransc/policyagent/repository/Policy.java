@@ -37,4 +37,6 @@ public interface Policy {
     public PolicyType type();
 
     public String lastModified();
+
+    public boolean isTransient();
 }

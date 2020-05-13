@@ -33,7 +33,6 @@ import org.onap.dmaap.mr.client.response.MRConsumerResponse;
 import org.oransc.policyagent.clients.AsyncRestClient;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.exceptions.ServiceException;
-import org.oransc.policyagent.tasks.RefreshConfigTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,36 +73,30 @@ public class DmaapMessageConsumer {
     }
 
     /**
-     * Starts the consumer. If there is a DMaaP configuration, it will start polling for messages. Otherwise it will
-     * check regularly for the configuration.
+     * Starts the consumer. If there is a DMaaP configuration, it will start polling
+     * for messages. Otherwise it will check regularly for the configuration.
      *
      * @return the running thread, for test purposes.
      */
     public Thread start() {
-        Thread thread = new Thread(this::checkConfigLoop);
+        Thread thread = new Thread(this::messageHandlingLoop);
         thread.start();
         return thread;
     }
 
-    private void checkConfigLoop() {
-        while (!isStopped()) {
-            if (isDmaapConfigured()) {
-                messageHandlingLoop();
-            } else {
-                sleep(RefreshConfigTask.CONFIG_REFRESH_INTERVAL);
-            }
-        }
-    }
-
     private void messageHandlingLoop() {
-        while (!isStopped() && isDmaapConfigured()) {
+        while (!isStopped()) {
             try {
-                Iterable<String> dmaapMsgs = fetchAllMessages();
-                if (dmaapMsgs != null && Iterables.size(dmaapMsgs) > 0) {
-                    logger.debug("Fetched all the messages from DMAAP and will start to process the messages");
-                    for (String msg : dmaapMsgs) {
-                        processMsg(msg);
+                if (isDmaapConfigured()) {
+                    Iterable<String> dmaapMsgs = fetchAllMessages();
+                    if (dmaapMsgs != null && Iterables.size(dmaapMsgs) > 0) {
+                        logger.debug("Fetched all the messages from DMAAP and will start to process the messages");
+                        for (String msg : dmaapMsgs) {
+                            processMsg(msg);
+                        }
                     }
+                } else {
+                    sleep(TIME_BETWEEN_DMAAP_RETRIES); // wait for configuration
                 }
             } catch (Exception e) {
                 logger.warn("Cannot fetch because of {}", e.getMessage());

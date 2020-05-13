@@ -63,6 +63,7 @@ public class A1ClientHelper {
             .ric(createRic(nearRtRicUrl)) //
             .type(createPolicyType(type)) //
             .lastModified("now") //
+            .isTransient(false) //
             .build();
     }
 
