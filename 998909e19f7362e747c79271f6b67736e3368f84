@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0f4c2091_6f3df211",
+        "filename": "test/mrstub/Dockerfile",
+        "patchSetId": 9
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2020-05-13T16:35:12Z",
+      "side": 1,
+      "message": "Should specify version of nginx",
+      "range": {
+        "startLine": 28,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 28
+      },
+      "revId": "998909e19f7362e747c79271f6b67736e3368f84",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "337bc8c1_b3199b1e",
+        "filename": "test/mrstub/app/nginx.conf",
+        "patchSetId": 9
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2020-05-13T16:35:12Z",
+      "side": 1,
+      "message": "Should also listen to IPV6, I think Yongchaos ini-file had that. \nUnclear if this will be needed but all other container are tested to have IPV6 working.\nThe internal local port 2222 can stay on IPV4 only.",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 30
+      },
+      "revId": "998909e19f7362e747c79271f6b67736e3368f84",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
