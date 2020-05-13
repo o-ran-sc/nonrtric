@@ -209,6 +209,7 @@ public class PolicyController {
         @RequestParam(name = "id", required = true) String instanceId, //
         @RequestParam(name = "ric", required = true) String ricName, //
         @RequestParam(name = "service", required = true) String service, //
+        @RequestParam(name = "transient", required = true, defaultValue = "false") boolean isTransient, //
         @RequestBody Object jsonBody) {
 
         String jsonString = gson.toJson(jsonBody);
@@ -225,6 +226,7 @@ public class PolicyController {
             .ric(ric) //
             .ownerServiceName(service) //
             .lastModified(getTimeStampUtc()) //
+            .isTransient(isTransient) //
             .build();
 
         final boolean isCreate = this.policies.get(policy.id()) == null;

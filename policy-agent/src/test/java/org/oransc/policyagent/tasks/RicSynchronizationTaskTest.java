@@ -80,14 +80,19 @@ public class RicSynchronizationTaskTest {
         .controllerName("controllerName") //
         .build());
 
-    private static final Policy POLICY_1 = ImmutablePolicy.builder() //
-        .id("policyId1") //
-        .json("") //
-        .ownerServiceName("service") //
-        .ric(RIC_1) //
-        .type(POLICY_TYPE_1) //
-        .lastModified("now") //
-        .build();
+    private static Policy createPolicy(boolean isTransient) {
+        return ImmutablePolicy.builder() //
+            .id("policyId1") //
+            .json("") //
+            .ownerServiceName("service") //
+            .ric(RIC_1) //
+            .type(POLICY_TYPE_1) //
+            .lastModified("now") //
+            .isTransient(isTransient) //
+            .build();
+    }
+
+    private static final Policy POLICY_1 = createPolicy(false);
 
     private static final String SERVICE_1_NAME = "service1";
     private static final String SERVICE_1_CALLBACK_URL = "callbackUrl";
@@ -196,6 +201,9 @@ public class RicSynchronizationTaskTest {
     public void ricIdleAndHavePolicies_thenSynchronizationWithRecreationOfPolicies() {
         RIC_1.setState(RicState.AVAILABLE);
 
+        Policy transientPolicy = createPolicy(true);
+
+        policies.put(transientPolicy);
         policies.put(POLICY_1);
 
         setUpCreationOfA1Client();
@@ -214,7 +222,7 @@ public class RicSynchronizationTaskTest {
         verifyNoMoreInteractions(a1ClientMock);
 
         assertThat(policyTypes.size()).isEqualTo(0);
-        assertThat(policies.size()).isEqualTo(1);
+        assertThat(policies.size()).isEqualTo(1); // The transient policy shall be deleted
         assertThat(RIC_1.getState()).isEqualTo(RicState.AVAILABLE);
     }
 

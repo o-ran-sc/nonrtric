@@ -198,8 +198,16 @@ public class RicSynchronizationTask {
             .flatMapMany(notUsed -> Flux.just(policy));
     }
 
+    private boolean checkTransient(Policy policy) {
+        if (policy.isTransient()) {
+            this.policies.remove(policy);
+        }
+        return policy.isTransient();
+    }
+
     private Flux<Policy> recreateAllPoliciesInRic(Ric ric, A1Client a1Client) {
         return Flux.fromIterable(policies.getForRic(ric.name())) //
+            .filter(policy -> !checkTransient(policy)) //
             .flatMap(policy -> putPolicy(policy, ric, a1Client), CONCURRENCY_RIC);
     }
 
