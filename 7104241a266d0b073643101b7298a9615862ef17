@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1375f16e_685853a3",
+        "filename": "policy-agent/config/application.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-05-14T10:33:37Z",
+      "side": 1,
+      "message": "probably good to rename it to https-port, just for the sake of clarity",
+      "revId": "7104241a266d0b073643101b7298a9615862ef17",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "389d7e53_c87ca673",
+        "filename": "policy-agent/config/application.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-05-14T10:33:37Z",
+      "side": 1,
+      "message": "using the keystore as truststore? Does it mean that it will only trust itself?",
+      "revId": "7104241a266d0b073643101b7298a9615862ef17",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7cd82daa_5e118520",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/AsyncRestClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-05-14T10:33:37Z",
+      "side": 1,
+      "message": "It would be better to rename this since config is too vague when going through the code. May be webConfig or clientConfig",
+      "revId": "7104241a266d0b073643101b7298a9615862ef17",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d60425c6_46c59120",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/OscA1Client.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-05-14T10:33:37Z",
+      "side": 1,
+      "message": "see other comment",
+      "revId": "7104241a266d0b073643101b7298a9615862ef17",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
