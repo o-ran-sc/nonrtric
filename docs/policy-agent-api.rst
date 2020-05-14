@@ -19,7 +19,7 @@ A1 Policy Management Service API
 A1 Policy Management Service - Introduction
 *******************************************
 
-The A1 Policy Management Service ("Policy Agent") is an SMO/NONRTRIC service above the NONRTRIC A1 Adaptor/Controller
+The A1 Policy Management Service ("Policy Agent") is an SMO/NONRTRIC service above the NONRTRIC A1 Adapter/Controller
 that provides:
 
 * Unified REST & DMAAP APIs for managing A1 Policies in all Near |nbh| RT |nbsp| RICs
@@ -29,9 +29,9 @@ that provides:
 * Synchronized view of policy types in all Near |nbh| RT |nbsp| RICs
 * Policy Query API (e.g. per Near |nbh| RT |nbsp| RIC, per "service", per policy type)
 * An initial interface for unified Near |nbh| RT |nbsp| RIC ID to Near |nbh| RT |nbsp| RIC address mapping.
-  (Note:  may also later act as adaptor to A&AI, CMDBs etc. to "find" Near |nbh| RT |nbsp| RICs - TBC)
+  (Note:  may also later act as adapter to A&AI, CMDBs etc. to "find" Near |nbh| RT |nbsp| RICs - TBC)
 * An Initial "O1 ManagedElement" mapping database & interface to find appropriate Near |nbh| RT |nbsp| RIC for RAN elements.
-  (Note: may also later act as adaptor to A&AI, RuntimeDB, other CMDBs etc. - TBC)
+  (Note: may also later act as adapter to A&AI, RuntimeDB, other CMDBs etc. - TBC)
 * Monitors all Near |nbh| RT |nbsp| RICs and recovers from inconsistencies (Note: e.g. Near |nbh| RT |nbsp| RIC restarts)
 * Support for different Southbound connectors on a per Near |nbh| RT |nbsp| RIC basis. (Note: e.g. different A1
   versions, different Near |nbh| RT |nbsp| RIC versions, different A1 adapters, different or proprietary A1
@@ -585,25 +585,33 @@ Policy Management
 Policies can be queried, created, updated, and deleted. A policy is always created in a specific
 Near |nbh| RT |nbsp| RIC.
 
+A policy is defined by its policy type schema.
+
 When a policy is created, the Policy Agent stores information about it in its internal repository. At regular intervals,
 it then checks with all Near |nbh| RT |nbsp| RICs that this repository is synchronized. If, for some reason, there is an
-inconsistency, the Policy Agent will start a synchronization job and try to reflect the status of the
-Near |nbh| RT |nbsp| RIC. If this fails, the Policy Agent will delete all policies for the specific
+inconsistency, the Policy Agent will start a synchronization job and try to reset the Near |nbh| RT |nbsp| RIC to its last-known-good status. 
+If this fails, the Policy Agent will clear all policies for the specific
 Near |nbh| RT |nbsp| RIC in the internal repository and set its state to *UNKNOWN*. This means that no interaction with
 the Near |nbh| RT |nbsp| RIC is possible until the Policy Agent has been able to contact it again and re-synchronize its
 state in the repository.
 
-A policy is defined by its type schema.
+Once a service has created a policy, it is the service's responsibility to maintain its life cycle. When
+a Near |nbh| RT |nbsp| RIC has been restarted, the Policy Agent will try to recreate policies in the
+Near |nbh| RT |nbsp| RIC according to the policies maintained in its local repository. 
+This means that the service must delete any policies it has created. 
 
-Once a service has created a policy, it is the service's responsibility to maintain its life cycle. Since policies are
-transient, they will not survive a restart of a Near |nbh| RT |nbsp| RIC. But this is handled by the Policy Agent. When
-a Near |nbh| RT |nbsp| RIC has been restarted, the Policy Agent will try to recreate the policies in the
-Near |nbh| RT |nbsp| RIC that are stored in its local repository. This means that the service always must delete any
-policy it has created. There are only two exceptions, see below:
+A policy may be created as a "transient policy", whereby if this policy "disappears" at any stage it will not be 
+re-synchronized to the Near |nbh| RT |nbsp| RIC. 
+For example, this is useful if the policy should not survive a restart of the Near |nbh| RT |nbsp| RIC.
+A non-transient policy will continue to be maintained in the Near |nbh| RT |nbsp| RIC until it is explicitly deleted 
+(or the service that creates it fails to update its Keep Alive status if approapriate).
 
-- The service has registered a "*Keep Alive Interval*", then its policies will be deleted if it fails to notify the
-  Policy Agent in due time.
-- The Policy Agent completely fails to synchronize with a Near |nbh| RT |nbsp| RIC.
+There are some exceptions where policies instances are not re-synchronized after a Near |nbh| RT |nbsp| RIC restart 
+or when some insoncsistency is identified: 
+
+- The service has registered a "*Keep Alive Interval*", but the service then fails to update its Keep Alive status the service's policies are deleted.
+- The Policy Agent completely fails to synchronize with a Near |nbh| RT |nbsp| RIC, as described above.
+- Policies that are marked as transient polcies.
 
 /policies
 ~~~~~~~~~
@@ -820,6 +828,10 @@ The name of the Near |nbh| RT |nbsp| RIC where the policy will be created.
 service: (*Required*)
 
 The name of the service creating the policy.
+
+transient: (*Optional*)
+
+If the policy is transient or not (boolean defaulted to false).
 
 type: (*Optional*)
 
