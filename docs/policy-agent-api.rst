@@ -821,6 +821,10 @@ service: (*Required*)
 
 The name of the service creating the policy.
 
+transient: (*Optional*)
+
+If the policy is transient or not (boolean defaulted to false).
+
 type: (*Optional*)
 
 The name of the policy type.
