@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14dc29a1_af10e5c2",
+        "filename": "policy-agent/config/application.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-05-14T11:42:45Z",
+      "side": 1,
+      "message": "Trailing white space",
+      "range": {
+        "startLine": 32,
+        "startChar": 71,
+        "endLine": 32,
+        "endChar": 72
+      },
+      "revId": "f6eff9b30c7fd86c3a795f6a734b996e4ba34b06",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67b0c6e3_8c6b882d",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/AsyncRestClient.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-05-14T11:42:45Z",
+      "side": 1,
+      "message": "There is quite a lot of new code introduced in this class. But there seems to be no new tests added that will cover this new functionality.",
+      "revId": "f6eff9b30c7fd86c3a795f6a734b996e4ba34b06",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "99dc4fe2_b57fa065",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/AsyncRestClient.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-05-14T11:42:45Z",
+      "side": 1,
+      "message": "We usually use e1.getMessage() to avoid getiing stack traces in the logs. Would that be applicable here to?",
+      "range": {
+        "startLine": 211,
+        "startChar": 56,
+        "endLine": 211,
+        "endChar": 58
+      },
+      "revId": "f6eff9b30c7fd86c3a795f6a734b996e4ba34b06",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "664175c7_2528fef4",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/AsyncRestClient.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-05-14T11:42:45Z",
+      "side": 1,
+      "message": "We usually use e1.getMessage() to avoid getiing stack traces in the logs. Would that be applicable here to?",
+      "range": {
+        "startLine": 220,
+        "startChar": 56,
+        "endLine": 220,
+        "endChar": 58
+      },
+      "revId": "f6eff9b30c7fd86c3a795f6a734b996e4ba34b06",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
