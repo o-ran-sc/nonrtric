@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "54db18b6_76104b18",
+        "filename": "policy-agent/config/application.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-05-14T11:11:03Z",
+      "side": 1,
+      "message": "I cannot, because this name \u0027port\u0027 is defined and used by the springboot framework.",
+      "parentUuid": "1375f16e_685853a3",
+      "revId": "7104241a266d0b073643101b7298a9615862ef17",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "389d7e53_c87ca673",
         "filename": "policy-agent/config/application.yaml",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2020-05-14T10:33:37Z",
       "side": 1,
       "message": "using the keystore as truststore? Does it mean that it will only trust itself?",
+      "revId": "7104241a266d0b073643101b7298a9615862ef17",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "352bfb78_bee58239",
+        "filename": "policy-agent/config/application.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-05-14T11:11:03Z",
+      "side": 1,
+      "message": "I it up to the person setting up this. But a jks file can contain several certs.\nIn the checked in keystore.jks, one cert and private key with alias \u0027policy_agent\u0027 is stored.\nThe same cert is also stored as a trusted one, so in this case it can be the same file. \nBut a separate file for trust can be used too. The agent does not have to trust its own cert, it is only needed when ApplicationTest is executed when the trust-store-used flag is true.",
+      "parentUuid": "389d7e53_c87ca673",
       "revId": "7104241a266d0b073643101b7298a9615862ef17",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "ba00b918_c94d3663",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/AsyncRestClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-05-14T11:11:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7cd82daa_5e118520",
+      "revId": "7104241a266d0b073643101b7298a9615862ef17",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d60425c6_46c59120",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/OscA1Client.java",
         "patchSetId": 1
@@ -67,6 +121,24 @@
       "revId": "7104241a266d0b073643101b7298a9615862ef17",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef15a2fe_219e2e83",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/OscA1Client.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-05-14T11:11:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d60425c6_46c59120",
+      "revId": "7104241a266d0b073643101b7298a9615862ef17",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
