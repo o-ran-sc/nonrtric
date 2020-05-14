@@ -595,11 +595,14 @@ state in the repository.
 
 A policy is defined by its type schema.
 
-Once a service has created a policy, it is the service's responsibility to maintain its life cycle. Since policies are
+A policy is transient if this policy may disappear, for instance as a result of a restart of the NearRT-RIC. Non transient
+means that the XXX (the name of the service, use same name as everywhere else) will make sure that the policy exists
+until it is explicitly deleted.
+Once a service has created a policy, it is the service's responsibility to maintain its life cycle. If some policies are
 transient, they will not survive a restart of a Near |nbh| RT |nbsp| RIC. But this is handled by the Policy Agent. When
-a Near |nbh| RT |nbsp| RIC has been restarted, the Policy Agent will try to recreate the policies in the
-Near |nbh| RT |nbsp| RIC that are stored in its local repository. This means that the service always must delete any
-policy it has created. There are only two exceptions, see below:
+a Near |nbh| RT |nbsp| RIC has been restarted, the Policy Agent will try to recreate the non transient policies in the
+Near |nbh| RT |nbsp| RIC that are stored in its local repository. This means that the service always must delete any non
+transient policy it has created. There are only two exceptions, see below:
 
 - The service has registered a "*Keep Alive Interval*", then its policies will be deleted if it fails to notify the
   Policy Agent in due time.
@@ -820,6 +823,10 @@ The name of the Near |nbh| RT |nbsp| RIC where the policy will be created.
 service: (*Required*)
 
 The name of the service creating the policy.
+
+transient: (*Optional*)
+
+If the policy is transient or not (boolean defaulted to false).
 
 type: (*Optional*)
 
