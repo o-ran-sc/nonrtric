@@ -1,5 +1,4 @@
 #!/bin/bash
-
 #  ============LICENSE_START===============================================
 #  Copyright (C) 2020 Nordix Foundation. All rights reserved.
 #  ========================================================================
@@ -17,5 +16,8 @@
 #  ============LICENSE_END=================================================
 #
 
-nodejs frontend.js &
-python3 -u ./mr.py
+#start nginx
+nginx -c /usr/src/app/nginx.conf
+
+#start mrstub
+python3 -u main.py

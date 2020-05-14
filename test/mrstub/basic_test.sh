@@ -74,7 +74,7 @@ do_curl GET '/events/A1-POLICY-AGENT-READ/users/policy-agent' 200
 echo "=== Send a json response ==="
 # Create minimal accepted response message
 echo "[{\"correlationId\": \""$CORRID"\", \"message\": {\"test\":\"testresponse\"}, \"status\": \"200\"}]" > .tmp.json
-RESULT="OK"
+RESULT="{}"
 do_curl POST /events/A1-POLICY-AGENT-WRITE 200 .tmp.json
 
 echo "=== Fetch a response ==="
@@ -115,7 +115,7 @@ RESULT="json:[]"
 do_curl GET '/events/A1-POLICY-AGENT-READ/users/policy-agent?timeout=5000' 200
 T2=$SECONDS
 if [ $(($T2-$T1)) -lt 5 ] || [ $(($T2-$T1)) -gt 7 ]; then
-    echo "Delay to short or too long"$(($T2-$T1))". Should be 10 sec"
+    echo "Delay too short or too long"$(($T2-$T1))". Should be 10 sec"
     exit 1
 else
     echo "  Delay ok:"$(($T2-$T1))
@@ -147,7 +147,7 @@ do_curl GET '/events/A1-POLICY-AGENT-READ/users/policy-agent?timeout=1000&limit=
 echo "=== Send a json response ==="
 # Create minimal accepted response message
 echo "[{\"correlationId\": \""$CORRID"\", \"message\": \"test2-response\", \"status\": \"200\"}]" > .tmp.json
-RESULT="OK"
+RESULT="{}"
 do_curl POST /events/A1-POLICY-AGENT-WRITE 200 .tmp.json
 
 echo "=== Fetch a response ==="
