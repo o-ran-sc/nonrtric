@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "72dd00bc_c6f8e933",
+        "filename": "policy-agent/config/application.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-05-14T12:01:34Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "54db18b6_76104b18",
+      "revId": "7104241a266d0b073643101b7298a9615862ef17",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "389d7e53_c87ca673",
         "filename": "policy-agent/config/application.yaml",
         "patchSetId": 1
@@ -69,6 +87,24 @@
       "revId": "7104241a266d0b073643101b7298a9615862ef17",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a0d13f4_b566299f",
+        "filename": "policy-agent/config/application.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-05-14T12:01:34Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "352bfb78_bee58239",
+      "revId": "7104241a266d0b073643101b7298a9615862ef17",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     },
     {
       "key": {
