@@ -63,7 +63,7 @@ G3_COUNT=0
 export RIC_SIM_HTTPX="http"
 export RIC_SIM_LOCALHOST=$RIC_SIM_HTTPX"://localhost:"
 export RIC_SIM_PORT=$RIC_SIM_INTERNAL_PORT
-export RIC_SIM_CERT_MOUNT_DIR="./fakedir"  #Fake dir so that the sim container does not find any cert
+export RIC_SIM_CERT_MOUNT_DIR="./cert"
 
 #Localhost constant
 LOCALHOST="http://localhost:"
@@ -945,7 +945,6 @@ use_simulator_http() {
 	export RIC_SIM_HTTPX="http"
 	export RIC_SIM_LOCALHOST=$RIC_SIM_HTTPX"://localhost:"
 	export RIC_SIM_PORT=$RIC_SIM_INTERNAL_PORT
-	export RIC_SIM_CERT_MOUNT_DIR="./fakedir"  #Fake dir so that the sim container does not find any cert
 	echo ""
 }
 
@@ -954,7 +953,6 @@ use_simulator_https() {
 	export RIC_SIM_HTTPX="https"
 	export RIC_SIM_LOCALHOST=$RIC_SIM_HTTPX"://localhost:"
 	export RIC_SIM_PORT=$RIC_SIM_INTERNAL_SECURE_PORT
-	export RIC_SIM_CERT_MOUNT_DIR="./cert"
 	echo ""
 }
 
