@@ -59,7 +59,8 @@ class SdncJsonHelper {
             if (!inputString.isEmpty()) {
                 JSONArray jsonArray = new JSONArray(inputString);
                 for (int i = 0; i < jsonArray.length(); i++) {
-                    arrayList.add(jsonArray.getString(i));
+                    Object value = jsonArray.get(i);
+                    arrayList.add(value.toString());
                 }
             }
             return Flux.fromIterable(arrayList);

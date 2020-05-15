@@ -143,6 +143,17 @@ public class SdncOscA1ClientTest {
             "title should be updated to contain policyType ID");
     }
 
+    @Test
+    void parseJsonArrayOfString() {
+        // One integer and one string
+        String inputString = "[1, \"1\" ]";
+
+        List<String> result = SdncJsonHelper.parseJsonArrayOfString(inputString).collectList().block();
+        assertEquals(2, result.size(), "");
+        assertEquals("1", result.get(0), "");
+        assertEquals("1", result.get(1), "");
+    }
+
     private String policiesUrl() {
         return RIC_1_URL + "/A1-P/v1/policies";
     }
