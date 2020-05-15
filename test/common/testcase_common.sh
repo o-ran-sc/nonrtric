@@ -63,7 +63,7 @@ G3_COUNT=0
 export RIC_SIM_HTTPX="http"
 export RIC_SIM_LOCALHOST=$RIC_SIM_HTTPX"://localhost:"
 export RIC_SIM_PORT=$RIC_SIM_INTERNAL_PORT
-export RIC_SIM_CERT_MOUNT_DIR="./fakedir"  #Fake dir so that the sim container does not find any cert
+export RIC_SIM_CERT_MOUNT_DIR="./cert"
 
 #Localhost constant
 LOCALHOST="http://localhost:"
@@ -611,8 +611,8 @@ __print_err() {
 # (Not for test scripts)
 __find_sim_port() {
     name=$1" " #Space appended to prevent matching 10 if 1 is desired....
-    cmdstr="docker ps --filter name=${name} --format \"{{.Names}} {{.Ports}}\" | grep '${name}' | sed s/0.0.0.0:// | cut -f 2 -d ' ' | cut -f 1 -d '-'"
-	res=$(eval $cmdstr)
+    cmdstr="docker inspect --format='{{(index (index .NetworkSettings.Ports \"$RIC_SIM_PORT/tcp\") 0).HostPort}}' ${name}"
+    res=$(eval $cmdstr)
 	if [[ "$res" =~ ^[0-9]+$ ]]; then
 		echo $res
 	else
@@ -945,7 +945,6 @@ use_simulator_http() {
 	export RIC_SIM_HTTPX="http"
 	export RIC_SIM_LOCALHOST=$RIC_SIM_HTTPX"://localhost:"
 	export RIC_SIM_PORT=$RIC_SIM_INTERNAL_PORT
-	export RIC_SIM_CERT_MOUNT_DIR="./fakedir"  #Fake dir so that the sim container does not find any cert
 	echo ""
 }
 
@@ -954,7 +953,6 @@ use_simulator_https() {
 	export RIC_SIM_HTTPX="https"
 	export RIC_SIM_LOCALHOST=$RIC_SIM_HTTPX"://localhost:"
 	export RIC_SIM_PORT=$RIC_SIM_INTERNAL_SECURE_PORT
-	export RIC_SIM_CERT_MOUNT_DIR="./cert"
 	echo ""
 }
 
