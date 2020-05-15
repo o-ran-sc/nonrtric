@@ -29,7 +29,8 @@ services:
     networks:
       - default
     ports:
-      - ${RIC_SIM_PORT}/tcp
+      - ${RIC_SIM_INTERNAL_PORT}/tcp
+      - ${RIC_SIM_INTERNAL_SECURE_PORT}/tcp
     environment:
       - A1_VERSION=${G1_A1_VERSION}
       - REMOTE_HOSTS_LOGGING=1
@@ -40,7 +41,8 @@ services:
     networks:
       - default
     ports:
-      - ${RIC_SIM_PORT}/tcp
+      - ${RIC_SIM_INTERNAL_PORT}/tcp
+      - ${RIC_SIM_INTERNAL_SECURE_PORT}/tcp
     environment:
       - A1_VERSION=${G2_A1_VERSION}
       - REMOTE_HOSTS_LOGGING=1
@@ -51,7 +53,8 @@ services:
     networks:
       - default
     ports:
-      - ${RIC_SIM_PORT}/tcp
+      - ${RIC_SIM_INTERNAL_PORT}/tcp
+      - ${RIC_SIM_INTERNAL_SECURE_PORT}/tcp
     environment:
       - A1_VERSION=${G3_A1_VERSION}
       - REMOTE_HOSTS_LOGGING=1
