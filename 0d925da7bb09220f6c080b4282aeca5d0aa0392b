@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c618c49_18285c77",
+        "filename": "docs/policy-agent-api.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-05-15T12:22:31Z",
+      "side": 1,
+      "message": "The intention with this was not that you should just paste it in. \nPlease replace XXX with the correct term and remove \"(the name of the service, use same name as everywhere else)\".",
+      "range": {
+        "startLine": 599,
+        "startChar": 15,
+        "endLine": 599,
+        "endChar": 79
+      },
+      "revId": "0d925da7bb09220f6c080b4282aeca5d0aa0392b",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
