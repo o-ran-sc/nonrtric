@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b2947723_8f98d35b",
+        "filename": "docs/policy-agent-api.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 826,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-05-15T07:03:20Z",
+      "side": 1,
+      "message": "The documentation should describe what transient means. \nTransient means that the policy may disappear, for instance as a result of a restart of the NearRT-RIC. Non transient means that the XXX (the name of the service, use same name as everywhere else) will make sure that the policy exists until it is explicitly deleted.",
+      "revId": "7b0e1bd93f7d194c77f26ffb1c94ae4b6eee5395",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
