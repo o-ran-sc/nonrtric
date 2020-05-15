@@ -67,6 +67,7 @@ public class AsyncRestClient {
     private final String baseUrl;
     private static final AtomicInteger sequenceNumber = new AtomicInteger();
     private final WebClientConfig clientConfig;
+    static KeyStore clientTrustStore = null;
 
     public AsyncRestClient(String baseUrl) {
         this(baseUrl,
@@ -222,12 +223,20 @@ public class AsyncRestClient {
         }
     }
 
-    SslContext createSslContextSecure(String trustStorePath, String trustStorePass)
+    private static synchronized KeyStore getTrustStore(String trustStorePath, String trustStorePass)
+        throws NoSuchAlgorithmException, CertificateException, IOException, KeyStoreException {
+        if (clientTrustStore == null) {
+            KeyStore store = KeyStore.getInstance(KeyStore.getDefaultType());
+            store.load(new FileInputStream(ResourceUtils.getFile(trustStorePath)), trustStorePass.toCharArray());
+            clientTrustStore = store;
+        }
+        return clientTrustStore;
+    }
+
+    private SslContext createSslContextRejectingUntrustedPeers(String trustStorePath, String trustStorePass)
         throws NoSuchAlgorithmException, CertificateException, IOException, KeyStoreException {
 
-        final KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        trustStore.load(new FileInputStream(ResourceUtils.getFile(trustStorePath)), trustStorePass.toCharArray());
-
+        final KeyStore trustStore = getTrustStore(trustStorePath, trustStorePass);
         List<Certificate> certificateList = Collections.list(trustStore.aliases()).stream() //
             .filter(alias -> isCertificateEntry(trustStore, alias)) //
             .map(alias -> getCertificate(trustStore, alias)) //
@@ -242,8 +251,10 @@ public class AsyncRestClient {
     private SslContext createSslContext()
         throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException {
         if (this.clientConfig.isTrustStoreUsed()) {
-            return createSslContextSecure(this.clientConfig.trustStore(), this.clientConfig.trustStorePassword());
+            return createSslContextRejectingUntrustedPeers(this.clientConfig.trustStore(),
+                this.clientConfig.trustStorePassword());
         } else {
+            // Trust anyone
             return SslContextBuilder.forClient() //
                 .trustManager(InsecureTrustManagerFactory.INSTANCE) //
                 .build();

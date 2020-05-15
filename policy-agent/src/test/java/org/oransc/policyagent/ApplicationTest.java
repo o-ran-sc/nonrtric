@@ -46,7 +46,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.oransc.policyagent.clients.AsyncRestClient;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.configuration.ImmutableRicConfig;
+import org.oransc.policyagent.configuration.ImmutableWebClientConfig;
 import org.oransc.policyagent.configuration.RicConfig;
+import org.oransc.policyagent.configuration.WebClientConfig;
 import org.oransc.policyagent.controllers.PolicyInfo;
 import org.oransc.policyagent.controllers.ServiceRegistrationInfo;
 import org.oransc.policyagent.controllers.ServiceStatus;
@@ -211,7 +213,9 @@ public class ApplicationTest {
         addRic("ric2");
         this.addPolicyType("", "ric2");
         url = "/rics?policyType=";
-        rsp = restClient().get(url).block();
+
+        // This tests also validation of trusted certs restClient(true)
+        rsp = restClient(true).get(url).block();
         assertThat(rsp).contains("ric2");
         assertThat(rsp).doesNotContain("ric1");
         assertThat(rsp).contains("AVAILABLE");
@@ -725,8 +729,19 @@ public class ApplicationTest {
         logger.info("Concurrency test took " + Duration.between(startTime, Instant.now()));
     }
 
+    private AsyncRestClient restClient(boolean useTrustValidation) {
+        WebClientConfig config = this.applicationConfig.getWebClientConfig();
+        config = ImmutableWebClientConfig.builder() //
+            .isTrustStoreUsed(useTrustValidation) //
+            .trustStore(config.trustStore()) //
+            .trustStorePassword(config.trustStorePassword()) //
+            .build();
+
+        return new AsyncRestClient(baseUrl(), config);
+    }
+
     private AsyncRestClient restClient() {
-        return new AsyncRestClient(baseUrl(), this.applicationConfig.getWebClientConfig());
+        return restClient(false);
     }
 
     private void testErrorCode(Mono<?> request, HttpStatus expStatus) {
