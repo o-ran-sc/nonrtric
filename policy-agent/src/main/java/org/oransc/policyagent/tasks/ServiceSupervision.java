@@ -50,6 +50,7 @@ import reactor.core.publisher.Mono;
 @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
 public class ServiceSupervision {
     private static final Logger logger = LoggerFactory.getLogger(ServiceSupervision.class);
+    static final int CONCURRENCY_RIC = 1; // How may paralell requests that is sent to one NearRT RIC
     private final Services services;
     private final Policies policies;
     private A1ClientFactory a1ClientFactory;
@@ -85,7 +86,7 @@ public class ServiceSupervision {
             .doOnNext(service -> logger.info("Service is expired: {}", service.getName())) //
             .doOnNext(service -> services.remove(service.getName())) //
             .flatMap(this::getAllPoliciesForService) //
-            .flatMap(this::deletePolicy);
+            .flatMap(this::deletePolicy, CONCURRENCY_RIC);
     }
 
     @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
