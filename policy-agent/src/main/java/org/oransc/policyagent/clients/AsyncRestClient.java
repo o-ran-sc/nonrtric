@@ -57,6 +57,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
+import reactor.netty.resources.ConnectionProvider;
 import reactor.netty.tcp.TcpClient;
 
 /**
@@ -178,8 +179,9 @@ public class AsyncRestClient {
     }
 
     private Mono<ResponseEntity<String>> retrieve(Object traceTag, RequestHeadersSpec<?> request) {
+        final Class<String> clazz = String.class;
         return request.retrieve() //
-            .toEntity(String.class) //
+            .toEntity(clazz) //
             .doOnNext(entity -> logger.trace("{} Received: {}", traceTag, entity.getBody())) //
             .doOnError(throwable -> onHttpError(traceTag, throwable));
     }
@@ -263,9 +265,11 @@ public class AsyncRestClient {
     }
 
     private WebClient createWebClient(String baseUrl, SslContext sslContext) {
-        TcpClient tcpClient = TcpClient.create() //
+        ConnectionProvider connectionProvider = ConnectionProvider.newConnection();
+        TcpClient tcpClient = TcpClient.create(connectionProvider) //
             .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10_000) //
             .secure(c -> c.sslContext(sslContext)) //
+
             .doOnConnected(connection -> {
                 connection.addHandlerLast(new ReadTimeoutHandler(30));
                 connection.addHandlerLast(new WriteTimeoutHandler(30));

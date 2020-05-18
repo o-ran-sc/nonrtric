@@ -47,6 +47,7 @@ public class Services {
 
     public synchronized void put(Service service) {
         logger.debug("Put service: {}", service.getName());
+        service.keepAlive();
         registeredServices.put(service.getName(), service);
     }
 
