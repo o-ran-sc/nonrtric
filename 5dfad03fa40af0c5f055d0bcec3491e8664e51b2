@@ -1,0 +1,182 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1e2975cb_52bfd944",
+        "filename": "docs/policy-agent-api.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 592,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-05-18T07:41:51Z",
+      "side": 1,
+      "message": "Please remove all trailing whitespaces",
+      "range": {
+        "startLine": 592,
+        "startChar": 141,
+        "endLine": 592,
+        "endChar": 142
+      },
+      "revId": "5dfad03fa40af0c5f055d0bcec3491e8664e51b2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c0e5112_97c50748",
+        "filename": "docs/policy-agent-api.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 607,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-05-18T07:41:51Z",
+      "side": 1,
+      "message": "Not needed, please remove",
+      "range": {
+        "startLine": 607,
+        "startChar": 69,
+        "endLine": 607,
+        "endChar": 85
+      },
+      "revId": "5dfad03fa40af0c5f055d0bcec3491e8664e51b2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9614b606_c9693172",
+        "filename": "docs/policy-agent-api.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 607,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-05-18T07:41:51Z",
+      "side": 1,
+      "message": "created",
+      "range": {
+        "startLine": 607,
+        "startChar": 21,
+        "endLine": 607,
+        "endChar": 29
+      },
+      "revId": "5dfad03fa40af0c5f055d0bcec3491e8664e51b2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cbac901d_211d81b6",
+        "filename": "docs/policy-agent-api.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-05-18T07:41:51Z",
+      "side": 1,
+      "message": "policy",
+      "range": {
+        "startLine": 609,
+        "startChar": 32,
+        "endLine": 609,
+        "endChar": 41
+      },
+      "revId": "5dfad03fa40af0c5f055d0bcec3491e8664e51b2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "928d22cb_6d17e813",
+        "filename": "docs/policy-agent-api.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 610,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-05-18T07:41:51Z",
+      "side": 1,
+      "message": "inconsistency",
+      "range": {
+        "startLine": 610,
+        "startChar": 13,
+        "endLine": 610,
+        "endChar": 28
+      },
+      "revId": "5dfad03fa40af0c5f055d0bcec3491e8664e51b2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8dd76bd9_54f5c9b9",
+        "filename": "docs/policy-agent-api.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 612,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-05-18T07:41:51Z",
+      "side": 1,
+      "message": "Not needed, please remove",
+      "range": {
+        "startLine": 612,
+        "startChar": 114,
+        "endLine": 612,
+        "endChar": 149
+      },
+      "revId": "5dfad03fa40af0c5f055d0bcec3491e8664e51b2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "091bb164_76b52162",
+        "filename": "docs/policy-agent-api.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 614,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-05-18T07:41:51Z",
+      "side": 1,
+      "message": "policies",
+      "range": {
+        "startLine": 614,
+        "startChar": 40,
+        "endLine": 614,
+        "endChar": 47
+      },
+      "revId": "5dfad03fa40af0c5f055d0bcec3491e8664e51b2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43b00035_295c2871",
+        "filename": "docs/policy-agent-api.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 834,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-05-18T07:41:51Z",
+      "side": 1,
+      "message": "I think it would be good to describe, in short, what transient means here to.",
+      "revId": "5dfad03fa40af0c5f055d0bcec3491e8664e51b2",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
