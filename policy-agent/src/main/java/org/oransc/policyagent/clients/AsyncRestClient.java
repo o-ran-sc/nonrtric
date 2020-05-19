@@ -50,6 +50,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ResourceUtils;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -179,7 +180,7 @@ public class AsyncRestClient {
     private Mono<ResponseEntity<String>> retrieve(Object traceTag, RequestHeadersSpec<?> request) {
         return request.retrieve() //
             .toEntity(String.class) //
-            .doOnNext(entity -> logger.trace("{} Received: {}", traceTag, entity.getBody()))
+            .doOnNext(entity -> logger.trace("{} Received: {}", traceTag, entity.getBody())) //
             .doOnError(throwable -> onHttpError(traceTag, throwable));
     }
 
@@ -272,9 +273,14 @@ public class AsyncRestClient {
         HttpClient httpClient = HttpClient.from(tcpClient);
         ReactorClientHttpConnector connector = new ReactorClientHttpConnector(httpClient);
 
+        ExchangeStrategies exchangeStrategies = ExchangeStrategies.builder() //
+            .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(-1)) //
+            .build();
+
         return WebClient.builder() //
             .clientConnector(connector) //
             .baseUrl(baseUrl) //
+            .exchangeStrategies(exchangeStrategies) //
             .build();
     }
 
