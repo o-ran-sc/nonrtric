@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #  ============LICENSE_START===============================================
 #  Copyright (C) 2020 Nordix Foundation. All rights reserved.
 #  ========================================================================
@@ -15,23 +17,5 @@
 #  ============LICENSE_END=================================================
 #
 
-FROM python:3.8-slim-buster
-
-COPY app/ /usr/src/app/
-COPY cert/ /usr/src/app/cert/
-
-WORKDIR /usr/src/app/
-
-RUN chmod +x start.sh
-
-#install nginx
-RUN apt-get update
-RUN apt-get install -y nginx=1.14.*
-
-#install curl
-RUN apt-get install -y curl
-
-#start mrstub
-RUN pip install -r requirements.txt
-
-CMD [ "./start.sh" ]
+# This will generate a self-signed certificate with password 'test'
+openssl req -x509 -passout pass:"test" -newkey rsa:2048 -keyout key.crt -out cert.crt -days 9999
