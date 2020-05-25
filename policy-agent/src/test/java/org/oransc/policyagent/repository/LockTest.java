@@ -54,7 +54,7 @@ public class LockTest {
     }
 
     @Test
-    public void testLock() throws IOException, ServiceException {
+    void testLock() throws IOException, ServiceException {
         Lock lock = new Lock();
         lock.lockBlocking(LockType.SHARED);
         lock.unlockBlocking();
@@ -69,7 +69,7 @@ public class LockTest {
     }
 
     @Test
-    public void testReactiveLock() {
+    void testReactiveLock() {
         Lock lock = new Lock();
 
         Mono<Lock> seq = lock.lock(LockType.EXCLUSIVE) //

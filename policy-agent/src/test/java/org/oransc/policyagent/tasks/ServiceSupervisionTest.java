@@ -92,7 +92,7 @@ public class ServiceSupervisionTest {
         .build();
 
     @Test
-    public void serviceExpired_policyAndServiceAreDeletedInRepoAndPolicyIsDeletedInRic() {
+    void serviceExpired_policyAndServiceAreDeletedInRepoAndPolicyIsDeletedInRic() {
         setUpRepositoryWithKeepAliveInterval(Duration.ofSeconds(2));
 
         setUpCreationOfA1Client();
@@ -113,7 +113,7 @@ public class ServiceSupervisionTest {
     }
 
     @Test
-    public void serviceExpiredButDeleteInRicFails_policyAndServiceAreDeletedInRepoAndErrorLoggedForRic() {
+    void serviceExpiredButDeleteInRicFails_policyAndServiceAreDeletedInRepoAndErrorLoggedForRic() {
         setUpRepositoryWithKeepAliveInterval(Duration.ofSeconds(2));
 
         setUpCreationOfA1Client();
@@ -140,7 +140,7 @@ public class ServiceSupervisionTest {
     }
 
     @Test
-    public void serviceNotExpired_shouldNotBeChecked() {
+    void serviceNotExpired_shouldNotBeChecked() {
         setUpRepositoryWithKeepAliveInterval(Duration.ofSeconds(2));
 
         ServiceSupervision serviceSupervisionUnderTest =
@@ -156,7 +156,7 @@ public class ServiceSupervisionTest {
     }
 
     @Test
-    public void serviceWithoutKeepAliveInterval_shouldNotBeChecked() {
+    void serviceWithoutKeepAliveInterval_shouldNotBeChecked() {
         setUpRepositoryWithKeepAliveInterval(Duration.ofSeconds(0));
 
         ServiceSupervision serviceSupervisionUnderTest =

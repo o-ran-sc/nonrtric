@@ -78,14 +78,14 @@ public class A1ClientFactoryTest {
     }
 
     @BeforeEach
-    public void createFactoryUnderTest() {
+    void createFactoryUnderTest() {
         factoryUnderTest = spy(new A1ClientFactory(applicationConfigMock));
         this.ric = new Ric(ricConfig(""));
 
     }
 
     @Test
-    public void getProtocolVersion_ok() throws ServiceException {
+    void getProtocolVersion_ok() throws ServiceException {
         whenGetProtocolVersionThrowException(clientMock1);
         whenGetProtocolVersionReturn(clientMock2, A1ProtocolType.STD_V1_1);
         doReturn(clientMock1, clientMock2).when(factoryUnderTest).createClient(any(), any());
@@ -97,7 +97,7 @@ public class A1ClientFactoryTest {
     }
 
     @Test
-    public void getProtocolVersion_ok_Last() throws ServiceException {
+    void getProtocolVersion_ok_Last() throws ServiceException {
         whenGetProtocolVersionThrowException(clientMock1, clientMock2, clientMock3);
         whenGetProtocolVersionReturn(clientMock4, A1ProtocolType.STD_V1_1);
         doReturn(clientMock1, clientMock2, clientMock3, clientMock4).when(factoryUnderTest).createClient(any(), any());
@@ -109,7 +109,7 @@ public class A1ClientFactoryTest {
     }
 
     @Test
-    public void getProtocolVersion_error() throws ServiceException {
+    void getProtocolVersion_error() throws ServiceException {
         whenGetProtocolVersionThrowException(clientMock1, clientMock2, clientMock3, clientMock4);
         doReturn(clientMock1, clientMock2, clientMock3, clientMock4).when(factoryUnderTest).createClient(any(), any());
 
@@ -126,13 +126,13 @@ public class A1ClientFactoryTest {
     }
 
     @Test
-    public void create_check_types() throws ServiceException {
+    void create_check_types() throws ServiceException {
         assertTrue(createClient(A1ProtocolType.STD_V1_1) instanceof StdA1ClientVersion1);
         assertTrue(createClient(A1ProtocolType.OSC_V1) instanceof OscA1Client);
     }
 
     @Test
-    public void create_check_types_controllers() throws ServiceException {
+    void create_check_types_controllers() throws ServiceException {
         this.ric = new Ric(ricConfig("anythingButEmpty"));
         whenGetGetControllerConfigReturn();
         assertTrue(createClient(A1ProtocolType.SDNC_ONAP) instanceof SdncOnapA1Client);

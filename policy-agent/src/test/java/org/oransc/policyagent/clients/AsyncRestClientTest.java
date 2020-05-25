@@ -53,7 +53,7 @@ public class AsyncRestClientTest {
     private static AsyncRestClient clientUnderTest;
 
     @BeforeAll
-    public static void init() {
+    static void init() {
         // skip a lot of unnecessary logs from MockWebServer
         InternalLoggerFactory.setDefaultFactory(JdkLoggerFactory.INSTANCE);
         Loggers.useJdkLoggers();
@@ -62,12 +62,12 @@ public class AsyncRestClientTest {
     }
 
     @AfterAll
-    public static void tearDown() throws IOException {
+    static void tearDown() throws IOException {
         mockWebServer.shutdown();
     }
 
     @Test
-    public void testGetNoError() {
+    void testGetNoError() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(SUCCESS_CODE) //
             .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE) //
             .setBody(TEST_JSON));
@@ -77,7 +77,7 @@ public class AsyncRestClientTest {
     }
 
     @Test
-    public void testGetError() {
+    void testGetError() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(ERROR_CODE));
 
         Mono<String> returnedMono = clientUnderTest.get(REQUEST_URL);
@@ -86,7 +86,7 @@ public class AsyncRestClientTest {
     }
 
     @Test
-    public void testPutNoError() {
+    void testPutNoError() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(SUCCESS_CODE) //
             .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE) //
             .setBody(TEST_JSON));
@@ -96,7 +96,7 @@ public class AsyncRestClientTest {
     }
 
     @Test
-    public void testPutError() {
+    void testPutError() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(ERROR_CODE));
 
         Mono<String> returnedMono = clientUnderTest.put(REQUEST_URL, TEST_JSON);
@@ -105,7 +105,7 @@ public class AsyncRestClientTest {
     }
 
     @Test
-    public void testDeleteNoError() {
+    void testDeleteNoError() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(SUCCESS_CODE));
 
         Mono<String> returnedMono = clientUnderTest.delete(REQUEST_URL);
@@ -113,7 +113,7 @@ public class AsyncRestClientTest {
     }
 
     @Test
-    public void testDeleteError() {
+    void testDeleteError() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(ERROR_CODE));
 
         Mono<String> returnedMono = clientUnderTest.delete(REQUEST_URL);
@@ -122,7 +122,7 @@ public class AsyncRestClientTest {
     }
 
     @Test
-    public void testPostNoError() {
+    void testPostNoError() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(SUCCESS_CODE) //
             .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE) //
             .setBody(TEST_JSON));
@@ -132,7 +132,7 @@ public class AsyncRestClientTest {
     }
 
     @Test
-    public void testPostError() {
+    void testPostError() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(ERROR_CODE));
 
         Mono<String> returnedMono = clientUnderTest.post(REQUEST_URL, TEST_JSON);
@@ -141,7 +141,7 @@ public class AsyncRestClientTest {
     }
 
     @Test
-    public void testPostWithAuthHeaderNoError() {
+    void testPostWithAuthHeaderNoError() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(SUCCESS_CODE) //
             .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE) //
             .setBody(TEST_JSON));
@@ -151,7 +151,7 @@ public class AsyncRestClientTest {
     }
 
     @Test
-    public void testPostWithAuthHeaderError() {
+    void testPostWithAuthHeaderError() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(ERROR_CODE));
 
         Mono<String> returnedMono = clientUnderTest.postWithAuthHeader(REQUEST_URL, TEST_JSON, USERNAME, PASSWORD);
