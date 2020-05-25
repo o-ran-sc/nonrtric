@@ -22,6 +22,30 @@
       "revId": "84b1a8cacf6f2511fabd3fad25a57ad9991d6649",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96d1a1f0_39ec1216",
+        "filename": "test/auto-test/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-05-25T11:15:49Z",
+      "side": 1,
+      "message": "Yes. It seems to be the customary way of doing it when looking at other README files.",
+      "parentUuid": "5ef92f6e_15ea5bd6",
+      "range": {
+        "startLine": 86,
+        "startChar": 1,
+        "endLine": 86,
+        "endChar": 10
+      },
+      "revId": "84b1a8cacf6f2511fabd3fad25a57ad9991d6649",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
