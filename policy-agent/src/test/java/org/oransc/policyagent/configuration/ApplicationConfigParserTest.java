@@ -47,12 +47,12 @@ import org.onap.dmaap.mr.test.clients.ProtocolTypeConstants;
 import org.oransc.policyagent.exceptions.ServiceException;
 import org.springframework.http.MediaType;
 
-public class ApplicationConfigParserTest {
+class ApplicationConfigParserTest {
 
     ApplicationConfigParser parserUnderTest = new ApplicationConfigParser();
 
     @Test
-    public void whenCorrectConfig() throws Exception {
+    void whenCorrectConfig() throws Exception {
         JsonObject jsonRootObject = getJsonRootObject();
 
         ApplicationConfigParser.ConfigParserResult result = parserUnderTest.parse(jsonRootObject);
@@ -111,7 +111,7 @@ public class ApplicationConfigParserTest {
     }
 
     @Test
-    public void whenDmaapConfigHasSeveralStreamsPublishing() throws Exception {
+    void whenDmaapConfigHasSeveralStreamsPublishing() throws Exception {
         JsonObject jsonRootObject = getJsonRootObject();
         JsonObject json = jsonRootObject.getAsJsonObject("config").getAsJsonObject("streams_publishes");
         JsonObject fake_info_object = new JsonObject();
@@ -131,6 +131,7 @@ public class ApplicationConfigParserTest {
         private JsonObject dmaap_publisher;
         private JsonObject fake_info_object;
 
+        @Override
         public String toString() {
             return String.format("[dmaap_publisher=%s, fake_info_object=%s]", dmaap_publisher.toString(),
                 fake_info_object.toString());
@@ -138,7 +139,7 @@ public class ApplicationConfigParserTest {
     }
 
     @Test
-    public void whenDmaapConfigHasSeveralStreamsSubscribing() throws Exception {
+    void whenDmaapConfigHasSeveralStreamsSubscribing() throws Exception {
         JsonObject jsonRootObject = getJsonRootObject();
         JsonObject json = jsonRootObject.getAsJsonObject("config").getAsJsonObject("streams_subscribes");
         JsonObject fake_info_object = new JsonObject();
@@ -158,6 +159,7 @@ public class ApplicationConfigParserTest {
         private JsonObject dmaap_subscriber;
         private JsonObject fake_info_object;
 
+        @Override
         public String toString() {
             return String.format("[dmaap_subscriber=%s, fake_info_object=%s]", dmaap_subscriber.toString(),
                 fake_info_object.toString());
@@ -165,7 +167,7 @@ public class ApplicationConfigParserTest {
     }
 
     @Test
-    public void whenMalformedUrlStreamsSubscribing() throws Exception {
+    void whenMalformedUrlStreamsSubscribing() throws Exception {
         JsonObject jsonRootObject = getJsonRootObject();
         final String wrongTopicUrl = "WrongTopicUrl";
         JsonObject json = getDmaapInfo(jsonRootObject, "streams_subscribes", "dmaap_subscriber");
@@ -181,7 +183,7 @@ public class ApplicationConfigParserTest {
     }
 
     @Test
-    public void whenMalformedUrlStreamsPublishing() throws Exception {
+    void whenMalformedUrlStreamsPublishing() throws Exception {
         JsonObject jsonRootObject = getJsonRootObject();
         final String wrongTopicUrl = "WrongTopicUrl";
         JsonObject json = getDmaapInfo(jsonRootObject, "streams_publishes", "dmaap_publisher");
@@ -197,7 +199,7 @@ public class ApplicationConfigParserTest {
     }
 
     @Test
-    public void whenWrongMemberNameInObject() throws Exception {
+    void whenWrongMemberNameInObject() throws Exception {
         JsonObject jsonRootObject = getJsonRootObject();
         JsonObject json = jsonRootObject.getAsJsonObject("config");
         json.remove("ric");
@@ -209,7 +211,7 @@ public class ApplicationConfigParserTest {
     }
 
     @Test
-    public void whenWrongUrlPathStreamsSubscribing() throws Exception {
+    void whenWrongUrlPathStreamsSubscribing() throws Exception {
         JsonObject jsonRootObject = getJsonRootObject();
         final String wrongTopicUrlString =
             "http://admin:admin@localhost:6845/events/A1-POLICY-AGENT-READ/users/policy-agent/wrong-topic-url";
@@ -225,7 +227,7 @@ public class ApplicationConfigParserTest {
     }
 
     @Test
-    public void whenWrongUrlPathStreamsPublishing() throws Exception {
+    void whenWrongUrlPathStreamsPublishing() throws Exception {
         JsonObject jsonRootObject = getJsonRootObject();
         final String wrongTopicUrlString =
             "http://admin:admin@localhost:6845/events/A1-POLICY-AGENT-WRITE/wrong-topic-url";
@@ -240,7 +242,7 @@ public class ApplicationConfigParserTest {
             "Wrong error message when the streams publishes' URL has incorrect syntax");
     }
 
-    public JsonObject getDmaapInfo(JsonObject jsonRootObject, String streamsPublishesOrSubscribes,
+    JsonObject getDmaapInfo(JsonObject jsonRootObject, String streamsPublishesOrSubscribes,
         String dmaapPublisherOrSubscriber) throws Exception {
         return jsonRootObject.getAsJsonObject("config").getAsJsonObject(streamsPublishesOrSubscribes)
             .getAsJsonObject(dmaapPublisherOrSubscriber).getAsJsonObject("dmaap_info");

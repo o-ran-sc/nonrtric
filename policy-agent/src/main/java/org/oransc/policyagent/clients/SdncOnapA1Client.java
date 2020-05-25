@@ -111,7 +111,7 @@ public class SdncOnapA1Client implements A1Client {
             .policyTypeId(policy.type().name()) //
             .policyInstanceId(policy.id()) //
             .policyInstance(policy.json()) //
-            .properties(new ArrayList<String>()) //
+            .properties(new ArrayList<>()) //
             .build();
 
         String inputJsonString = SdncJsonHelper.createInputJsonString(inputParams);

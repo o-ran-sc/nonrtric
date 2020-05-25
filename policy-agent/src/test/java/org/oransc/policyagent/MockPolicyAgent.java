@@ -55,7 +55,7 @@ import org.springframework.util.StringUtils;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
-public class MockPolicyAgent {
+class MockPolicyAgent {
     private static final Logger logger = LoggerFactory.getLogger(MockPolicyAgent.class);
 
     @Autowired
@@ -199,9 +199,8 @@ public class MockPolicyAgent {
 
     @Test
     @SuppressWarnings("squid:S2699") // Tests should include assertions. This test is only for keeping the server
-                                     // alive,
-                                     // so it will only be confusing to add an assertion.
-    public void runMock() throws Exception {
+                                     // alive, so it will only be confusing to add an assertion.
+    void runMock() throws Exception {
         keepServerAlive();
     }
 

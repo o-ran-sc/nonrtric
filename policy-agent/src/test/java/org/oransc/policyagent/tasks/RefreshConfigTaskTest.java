@@ -85,7 +85,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
-public class RefreshConfigTaskTest {
+class RefreshConfigTaskTest {
 
     private static final boolean CONFIG_FILE_EXISTS = true;
     private static final boolean CONFIG_FILE_DOES_NOT_EXIST = false;
@@ -99,7 +99,7 @@ public class RefreshConfigTaskTest {
     CbsClient cbsClient;
 
     private static final String RIC_1_NAME = "ric1";
-    public static final ImmutableRicConfig CORRECT_RIC_CONIFG = ImmutableRicConfig.builder() //
+    private static final ImmutableRicConfig CORRECT_RIC_CONIFG = ImmutableRicConfig.builder() //
         .name(RIC_1_NAME) //
         .baseUrl("http://localhost:8080/") //
         .managedElementIds(new Vector<String>(Arrays.asList("kista_1", "kista_2"))) //
@@ -130,7 +130,7 @@ public class RefreshConfigTaskTest {
     }
 
     @Test
-    public void startWithStubbedRefresh_thenTerminationLogged() {
+    void startWithStubbedRefresh_thenTerminationLogged() {
         refreshTaskUnderTest = this.createTestObject(CONFIG_FILE_DOES_NOT_EXIST, null, null, false);
         doReturn(Flux.empty()).when(refreshTaskUnderTest).createRefreshTask();
 
@@ -142,7 +142,7 @@ public class RefreshConfigTaskTest {
     }
 
     @Test
-    public void startWithStubbedRefreshReturnError_thenErrorAndTerminationLogged() {
+    void startWithStubbedRefreshReturnError_thenErrorAndTerminationLogged() {
         refreshTaskUnderTest = this.createTestObject(CONFIG_FILE_DOES_NOT_EXIST, null, null, false);
         doReturn(Flux.error(new Exception("Error"))).when(refreshTaskUnderTest).createRefreshTask();
 
@@ -156,7 +156,7 @@ public class RefreshConfigTaskTest {
     }
 
     @Test
-    public void stop_thenTaskIsDisposed() throws Exception {
+    void stop_thenTaskIsDisposed() throws Exception {
         refreshTaskUnderTest = this.createTestObject(CONFIG_FILE_DOES_NOT_EXIST, null, null, false);
         refreshTaskUnderTest.systemEnvironment = new Properties();
 
@@ -167,7 +167,7 @@ public class RefreshConfigTaskTest {
     }
 
     @Test
-    public void whenTheConfigurationFits_thenConfiguredRicsArePutInRepository() throws Exception {
+    void whenTheConfigurationFits_thenConfiguredRicsArePutInRepository() throws Exception {
         refreshTaskUnderTest = this.createTestObject(CONFIG_FILE_EXISTS);
         refreshTaskUnderTest.systemEnvironment = new Properties();
         // When
@@ -193,7 +193,7 @@ public class RefreshConfigTaskTest {
     }
 
     @Test
-    public void whenFileExistsButJsonIsIncorrect_thenNoRicsArePutInRepository() throws Exception {
+    void whenFileExistsButJsonIsIncorrect_thenNoRicsArePutInRepository() throws Exception {
         refreshTaskUnderTest = this.createTestObject(CONFIG_FILE_EXISTS);
         refreshTaskUnderTest.systemEnvironment = new Properties();
 
@@ -213,7 +213,7 @@ public class RefreshConfigTaskTest {
     }
 
     @Test
-    public void whenPeriodicConfigRefreshNoConsul_thenErrorIsLogged() {
+    void whenPeriodicConfigRefreshNoConsul_thenErrorIsLogged() {
         refreshTaskUnderTest = this.createTestObject(CONFIG_FILE_DOES_NOT_EXIST);
         refreshTaskUnderTest.systemEnvironment = new Properties();
 
@@ -239,7 +239,7 @@ public class RefreshConfigTaskTest {
     }
 
     @Test
-    public void whenPeriodicConfigRefreshSuccess_thenNewConfigIsCreatedAndRepositoryUpdated() throws Exception {
+    void whenPeriodicConfigRefreshSuccess_thenNewConfigIsCreatedAndRepositoryUpdated() throws Exception {
         Rics rics = new Rics();
         Policies policies = new Policies();
         refreshTaskUnderTest = this.createTestObject(CONFIG_FILE_DOES_NOT_EXIST, rics, policies, false);

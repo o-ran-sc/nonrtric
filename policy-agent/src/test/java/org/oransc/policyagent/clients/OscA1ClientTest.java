@@ -43,7 +43,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
-public class OscA1ClientTest {
+class OscA1ClientTest {
 
     private static final String RIC_URL = "RicUrl";
 
@@ -65,7 +65,7 @@ public class OscA1ClientTest {
     AsyncRestClient asyncRestClientMock;
 
     @BeforeEach
-    public void init() {
+    void init() {
         RicConfig ricConfig = ImmutableRicConfig.builder() //
             .name("name") //
             .baseUrl("RicBaseUrl") //
@@ -77,7 +77,7 @@ public class OscA1ClientTest {
     }
 
     @Test
-    public void testGetPolicyTypeIdentities() {
+    void testGetPolicyTypeIdentities() {
         List<String> policyTypeIds = Arrays.asList(POLICY_TYPE_1_ID, POLICY_TYPE_2_ID);
         Mono<String> policyTypeIdsResp = Mono.just(policyTypeIds.toString());
         when(asyncRestClientMock.get(anyString())).thenReturn(policyTypeIdsResp);
@@ -88,7 +88,7 @@ public class OscA1ClientTest {
     }
 
     @Test
-    public void testGetPolicyIdentities() {
+    void testGetPolicyIdentities() {
         Mono<String> policyTypeIdsResp = Mono.just(Arrays.asList(POLICY_TYPE_1_ID, POLICY_TYPE_2_ID).toString());
         Mono<String> policyIdsType1Resp = Mono.just(Arrays.asList(POLICY_1_ID).toString());
         Mono<String> policyIdsType2Resp = Mono.just(Arrays.asList(POLICY_2_ID).toString());
@@ -104,7 +104,7 @@ public class OscA1ClientTest {
     }
 
     @Test
-    public void testGetValidPolicyType() {
+    void testGetValidPolicyType() {
         String policyType = "{\"create_schema\": " + POLICY_TYPE_SCHEMA_VALID + "}";
         Mono<String> policyTypeResp = Mono.just(policyType);
 
@@ -117,7 +117,7 @@ public class OscA1ClientTest {
     }
 
     @Test
-    public void testGetInValidPolicyTypeJson() {
+    void testGetInValidPolicyTypeJson() {
         String policyType = "{\"create_schema\": " + POLICY_TYPE_SCHEMA_INVALID + "}";
         Mono<String> policyTypeResp = Mono.just(policyType);
 
@@ -129,7 +129,7 @@ public class OscA1ClientTest {
     }
 
     @Test
-    public void testGetPolicyTypeWithoutCreateSchema() {
+    void testGetPolicyTypeWithoutCreateSchema() {
         Mono<String> policyTypeResp = Mono.just(POLICY_TYPE_SCHEMA_VALID);
 
         when(asyncRestClientMock.get(anyString())).thenReturn(policyTypeResp);
@@ -140,7 +140,7 @@ public class OscA1ClientTest {
     }
 
     @Test
-    public void testPutPolicy() {
+    void testPutPolicy() {
         when(asyncRestClientMock.put(anyString(), anyString())).thenReturn(Mono.empty());
 
         clientUnderTest
@@ -150,7 +150,7 @@ public class OscA1ClientTest {
     }
 
     @Test
-    public void testDeletePolicy() {
+    void testDeletePolicy() {
         when(asyncRestClientMock.delete(anyString())).thenReturn(Mono.empty());
 
         Mono<String> returnedMono = clientUnderTest
@@ -160,7 +160,7 @@ public class OscA1ClientTest {
     }
 
     @Test
-    public void testDeleteAllPolicies() {
+    void testDeleteAllPolicies() {
         Mono<String> policyTypeIdsResp = Mono.just(Arrays.asList(POLICY_TYPE_1_ID, POLICY_TYPE_2_ID).toString());
         Mono<String> policyIdsType1Resp = Mono.just(Arrays.asList(POLICY_1_ID).toString());
         Mono<String> policyIdsType2Resp = Mono.just(Arrays.asList(POLICY_2_ID).toString());

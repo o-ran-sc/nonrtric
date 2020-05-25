@@ -20,17 +20,17 @@
 
 package org.o_ran_sc.nonrtric.sdnc_a1.northbound.restadapter;
 
+import static org.junit.Assert.assertEquals;
 import java.io.IOException;
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClientException;
-import okhttp3.mockwebserver.MockResponse;
-import okhttp3.mockwebserver.MockWebServer;
-import okhttp3.mockwebserver.RecordedRequest;
 
 public class RestAdapterImplTest {
     private static MockWebServer mockWebServer;
@@ -40,8 +40,8 @@ public class RestAdapterImplTest {
     private static final String INVALID_PROTOCOL = "ftp";
     private static final String REQUEST_URL = "/test";
     private static final String TEST_BODY = "test";
-    private static final int SUCCESS_CODE = 200;
-    private static final int ERROR_CODE = 500;
+    private static final Integer SUCCESS_CODE = 200;
+    private static final Integer ERROR_CODE = 500;
 
     @Before
     public void init() throws IOException {
@@ -59,10 +59,10 @@ public class RestAdapterImplTest {
     public void testInvalidUrlOrProtocol() throws InterruptedException {
         ResponseEntity<String> response = adapterUnderTest.get("://localhost:" + mockWebServer.getPort() + REQUEST_URL,
                 String.class);
-        Assert.assertTrue(HttpStatus.BAD_REQUEST.value() == response.getStatusCodeValue());
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCodeValue());
         response = adapterUnderTest.get(INVALID_PROTOCOL + "://localhost:" + mockWebServer.getPort() + REQUEST_URL,
                 String.class);
-        Assert.assertTrue(HttpStatus.BAD_REQUEST.value() == response.getStatusCodeValue());
+        assertEquals(HttpStatus.BAD_REQUEST.value(), response.getStatusCodeValue());
     }
 
     @Test
@@ -71,10 +71,10 @@ public class RestAdapterImplTest {
         ResponseEntity<String> response = adapterUnderTest.get(VALID_PROTOCOL + "://localhost:"
                 + mockWebServer.getPort() + REQUEST_URL, String.class);
         RecordedRequest recordedRequest = mockWebServer.takeRequest();
-        Assert.assertEquals(TEST_BODY, response.getBody());
-        Assert.assertTrue(SUCCESS_CODE == response.getStatusCodeValue());
-        Assert.assertEquals("GET", recordedRequest.getMethod());
-        Assert.assertEquals(REQUEST_URL, recordedRequest.getPath());
+        assertEquals(TEST_BODY, response.getBody());
+        assertEquals(SUCCESS_CODE.intValue(), response.getStatusCodeValue());
+        assertEquals("GET", recordedRequest.getMethod());
+        assertEquals(REQUEST_URL, recordedRequest.getPath());
     }
 
     @Test(expected = RestClientException.class)
@@ -89,11 +89,11 @@ public class RestAdapterImplTest {
         ResponseEntity<String> response = adapterUnderTest.put(VALID_PROTOCOL + "://localhost:"
                 + mockWebServer.getPort() + REQUEST_URL, TEST_BODY, String.class);
         RecordedRequest recordedRequest = mockWebServer.takeRequest();
-        Assert.assertEquals(TEST_BODY, response.getBody());
-        Assert.assertTrue(SUCCESS_CODE == response.getStatusCodeValue());
-        Assert.assertEquals("PUT", recordedRequest.getMethod());
-        Assert.assertEquals(REQUEST_URL, recordedRequest.getPath());
-        Assert.assertEquals(TEST_BODY, recordedRequest.getBody().readUtf8());
+        assertEquals(TEST_BODY, response.getBody());
+        assertEquals(SUCCESS_CODE.intValue(), response.getStatusCodeValue());
+        assertEquals("PUT", recordedRequest.getMethod());
+        assertEquals(REQUEST_URL, recordedRequest.getPath());
+        assertEquals(TEST_BODY, recordedRequest.getBody().readUtf8());
     }
 
     @Test(expected = RestClientException.class)
@@ -109,9 +109,9 @@ public class RestAdapterImplTest {
         ResponseEntity<String> response = adapterUnderTest.delete(VALID_PROTOCOL + "://localhost:"
                 + mockWebServer.getPort() + REQUEST_URL);
         RecordedRequest recordedRequest = mockWebServer.takeRequest();
-        Assert.assertTrue(SUCCESS_CODE == response.getStatusCodeValue());
-        Assert.assertEquals("DELETE", recordedRequest.getMethod());
-        Assert.assertEquals(REQUEST_URL, recordedRequest.getPath());
+        assertEquals(SUCCESS_CODE.intValue(), response.getStatusCodeValue());
+        assertEquals("DELETE", recordedRequest.getMethod());
+        assertEquals(REQUEST_URL, recordedRequest.getPath());
     }
 
     @Test(expected = RestClientException.class)

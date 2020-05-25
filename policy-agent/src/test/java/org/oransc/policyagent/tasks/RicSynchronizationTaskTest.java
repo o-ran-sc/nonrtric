@@ -65,7 +65,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @ExtendWith(MockitoExtension.class)
-public class RicSynchronizationTaskTest {
+class RicSynchronizationTaskTest {
     private static final String POLICY_TYPE_1_NAME = "type1";
     private static final PolicyType POLICY_TYPE_1 = ImmutablePolicyType.builder() //
         .name(POLICY_TYPE_1_NAME) //
@@ -109,7 +109,7 @@ public class RicSynchronizationTaskTest {
     private Services services;
 
     @BeforeEach
-    public void init() {
+    void init() {
         policyTypes = new PolicyTypes();
         policies = new Policies();
         services = new Services();
@@ -118,7 +118,7 @@ public class RicSynchronizationTaskTest {
     }
 
     @Test
-    public void ricAlreadySynchronizing_thenNoSynchronization() {
+    void ricAlreadySynchronizing_thenNoSynchronization() {
         RIC_1.setState(RicState.SYNCHRONIZING);
         RIC_1.addSupportedPolicyType(POLICY_TYPE_1);
 
@@ -139,7 +139,7 @@ public class RicSynchronizationTaskTest {
     }
 
     @Test
-    public void ricIdlePolicyTypeInRepo_thenSynchronizationWithReuseOfTypeFromRepoAndCorrectServiceNotified() {
+    void ricIdlePolicyTypeInRepo_thenSynchronizationWithReuseOfTypeFromRepoAndCorrectServiceNotified() {
         RIC_1.setState(RicState.AVAILABLE);
 
         policyTypes.put(POLICY_TYPE_1);
@@ -175,7 +175,7 @@ public class RicSynchronizationTaskTest {
     }
 
     @Test
-    public void ricIdlePolicyTypeNotInRepo_thenSynchronizationWithTypeFromRic() throws Exception {
+    void ricIdlePolicyTypeNotInRepo_thenSynchronizationWithTypeFromRic() throws Exception {
         RIC_1.setState(RicState.AVAILABLE);
 
         setUpCreationOfA1Client();
@@ -198,7 +198,7 @@ public class RicSynchronizationTaskTest {
     }
 
     @Test
-    public void ricIdleAndHavePolicies_thenSynchronizationWithRecreationOfPolicies() {
+    void ricIdleAndHavePolicies_thenSynchronizationWithRecreationOfPolicies() {
         RIC_1.setState(RicState.AVAILABLE);
 
         Policy transientPolicy = createPolicy(true);
@@ -227,7 +227,7 @@ public class RicSynchronizationTaskTest {
     }
 
     @Test
-    public void ricIdleAndErrorDeletingPoliciesFirstTime_thenSynchronizationWithDeletionOfPolicies() {
+    void ricIdleAndErrorDeletingPoliciesFirstTime_thenSynchronizationWithDeletionOfPolicies() {
         RIC_1.setState(RicState.AVAILABLE);
 
         policies.put(POLICY_1);
@@ -253,7 +253,7 @@ public class RicSynchronizationTaskTest {
     }
 
     @Test
-    public void ricIdleAndErrorDeletingPoliciesAllTheTime_thenSynchronizationWithFailedRecovery() {
+    void ricIdleAndErrorDeletingPoliciesAllTheTime_thenSynchronizationWithFailedRecovery() {
         RIC_1.setState(RicState.AVAILABLE);
 
         policies.put(POLICY_1);
@@ -284,7 +284,7 @@ public class RicSynchronizationTaskTest {
     }
 
     @Test
-    public void ricIdlePolicyTypeInRepo_thenSynchronizationWithErrorOnServiceNotificationErrorLogged() {
+    void ricIdlePolicyTypeInRepo_thenSynchronizationWithErrorOnServiceNotificationErrorLogged() {
         RIC_1.setState(RicState.AVAILABLE);
 
         policyTypes.put(POLICY_TYPE_1);

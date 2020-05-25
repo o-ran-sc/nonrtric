@@ -35,7 +35,7 @@ import org.oransc.policyagent.exceptions.EnvironmentLoaderException;
 import org.oransc.policyagent.utils.LoggingUtils;
 import reactor.test.StepVerifier;
 
-public class EnvironmentProcessorTest {
+class EnvironmentProcessorTest {
     private static final String CONSUL_HOST = "CONSUL_HOST";
     private static final String CONSUL_HOST_VALUE = "consulHost";
 
@@ -46,7 +46,7 @@ public class EnvironmentProcessorTest {
     private static final String HOSTNAME_VALUE = "hostname";
 
     @Test
-    public void allPropertiesAvailableWithHostname_thenAllPropertiesAreReturnedWithGivenConsulPort() {
+    void allPropertiesAvailableWithHostname_thenAllPropertiesAreReturnedWithGivenConsulPort() {
         Properties systemEnvironment = new Properties();
         String consulPort = "8080";
         systemEnvironment.put(CONSUL_HOST, CONSUL_HOST_VALUE);
@@ -66,7 +66,7 @@ public class EnvironmentProcessorTest {
     }
 
     @Test
-    public void consulHostMissing_thenExceptionReturned() {
+    void consulHostMissing_thenExceptionReturned() {
         Properties systemEnvironment = new Properties();
 
         StepVerifier.create(EnvironmentProcessor.readEnvironmentVariables(systemEnvironment))
@@ -76,7 +76,7 @@ public class EnvironmentProcessorTest {
     }
 
     @Test
-    public void withAllPropertiesExceptConsulPort_thenAllPropertiesAreReturnedWithDefaultConsulPortAndWarning() {
+    void withAllPropertiesExceptConsulPort_thenAllPropertiesAreReturnedWithDefaultConsulPortAndWarning() {
         Properties systemEnvironment = new Properties();
         systemEnvironment.put(CONSUL_HOST, CONSUL_HOST_VALUE);
         systemEnvironment.put(CONFIG_BINDING_SERVICE, CONFIG_BINDING_SERVICE_VALUE);
@@ -101,7 +101,7 @@ public class EnvironmentProcessorTest {
     }
 
     @Test
-    public void configBindingServiceMissing_thenExceptionReturned() {
+    void configBindingServiceMissing_thenExceptionReturned() {
         Properties systemEnvironment = new Properties();
         systemEnvironment.put(CONSUL_HOST, CONSUL_HOST_VALUE);
 
@@ -112,7 +112,7 @@ public class EnvironmentProcessorTest {
     }
 
     @Test
-    public void allPropertiesAvailableWithServiceName_thenAllPropertiesAreReturned() {
+    void allPropertiesAvailableWithServiceName_thenAllPropertiesAreReturned() {
         Properties systemEnvironment = new Properties();
         String consulPort = "8080";
         systemEnvironment.put(CONSUL_HOST, CONSUL_HOST_VALUE);
@@ -132,7 +132,7 @@ public class EnvironmentProcessorTest {
     }
 
     @Test
-    public void serviceNameAndHostnameMissing_thenExceptionIsReturned() {
+    void serviceNameAndHostnameMissing_thenExceptionIsReturned() {
         Properties systemEnvironment = new Properties();
         systemEnvironment.put(CONSUL_HOST, CONSUL_HOST_VALUE);
         systemEnvironment.put(CONFIG_BINDING_SERVICE, CONFIG_BINDING_SERVICE_VALUE);

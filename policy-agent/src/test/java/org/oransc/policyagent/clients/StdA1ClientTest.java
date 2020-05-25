@@ -42,7 +42,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
-public class StdA1ClientTest {
+class StdA1ClientTest {
     private static final String RIC_URL = "RicUrl";
     private static final String POLICY_TYPE_1_NAME = "type1";
     private static final String POLICY_1_ID = "policy1";
@@ -59,7 +59,7 @@ public class StdA1ClientTest {
     RicConfig ricConfigMock;
 
     @BeforeEach
-    public void init() {
+    void init() {
         clientUnderTest = new StdA1ClientVersion1(asyncRestClientMock, ricConfigMock);
     }
 
@@ -72,14 +72,14 @@ public class StdA1ClientTest {
     }
 
     @Test
-    public void testGetPolicyTypeIdentities() {
+    void testGetPolicyTypeIdentities() {
         List<String> policyTypeIds = clientUnderTest.getPolicyTypeIdentities().block();
         assertEquals(1, policyTypeIds.size(), "should hardcoded to one");
         assertEquals("", policyTypeIds.get(0), "should hardcoded to empty");
     }
 
     @Test
-    public void testGetPolicyIdentities() {
+    void testGetPolicyIdentities() {
         doReturn(RIC_URL).when(ricConfigMock).baseUrl();
         Mono<String> policyIds = Mono.just(Arrays.asList(POLICY_1_ID, POLICY_2_ID).toString());
         when(asyncRestClientMock.get(anyString())).thenReturn(policyIds);
@@ -91,13 +91,13 @@ public class StdA1ClientTest {
     }
 
     @Test
-    public void testGetValidPolicyType() {
+    void testGetValidPolicyType() {
         String policyType = clientUnderTest.getPolicyTypeSchema(POLICY_TYPE_1_NAME).block();
         assertEquals("{}", policyType, "");
     }
 
     @Test
-    public void testPutPolicyValidResponse() {
+    void testPutPolicyValidResponse() {
         doReturn(RIC_URL).when(ricConfigMock).baseUrl();
         when(asyncRestClientMock.put(anyString(), anyString())).thenReturn(Mono.just(POLICY_JSON));
 
@@ -109,7 +109,7 @@ public class StdA1ClientTest {
     }
 
     @Test
-    public void testDeletePolicy() {
+    void testDeletePolicy() {
         doReturn(RIC_URL).when(ricConfigMock).baseUrl();
         final String url = policiesBaseUrl() + POLICY_1_ID;
         when(asyncRestClientMock.delete(url)).thenReturn(Mono.empty());
@@ -121,7 +121,7 @@ public class StdA1ClientTest {
     }
 
     @Test
-    public void testDeleteAllPolicies() {
+    void testDeleteAllPolicies() {
         doReturn(RIC_URL).when(ricConfigMock).baseUrl();
         Mono<String> policyIds = Mono.just(Arrays.asList(POLICY_1_ID, POLICY_2_ID).toString());
         when(asyncRestClientMock.get(policiesUrl())).thenReturn(policyIds);

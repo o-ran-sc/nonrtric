@@ -34,7 +34,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
-public class LockTest {
+class LockTest {
 
     @SuppressWarnings("squid:S2925") // "Thread.sleep" should not be used in tests.
     private void sleep() {
@@ -54,7 +54,7 @@ public class LockTest {
     }
 
     @Test
-    public void testLock() throws IOException, ServiceException {
+    void testLock() throws IOException, ServiceException {
         Lock lock = new Lock();
         lock.lockBlocking(LockType.SHARED);
         lock.unlockBlocking();
@@ -69,7 +69,7 @@ public class LockTest {
     }
 
     @Test
-    public void testReactiveLock() {
+    void testReactiveLock() {
         Lock lock = new Lock();
 
         Mono<Lock> seq = lock.lock(LockType.EXCLUSIVE) //
