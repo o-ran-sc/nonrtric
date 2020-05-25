@@ -183,7 +183,7 @@ public class ApplicationTest {
     private int port;
 
     @BeforeEach
-    public void reset() {
+    void reset() {
         rics.clear();
         policies.clear();
         policyTypes.clear();
@@ -192,7 +192,7 @@ public class ApplicationTest {
     }
 
     @AfterEach
-    public void verifyNoRicLocks() {
+    void verifyNoRicLocks() {
         for (Ric ric : this.rics.getRics()) {
             ric.getLock().lockBlocking(LockType.EXCLUSIVE);
             ric.getLock().unlockBlocking();
@@ -202,7 +202,7 @@ public class ApplicationTest {
     }
 
     @Test
-    public void testGetRics() throws Exception {
+    void testGetRics() throws Exception {
         addRic("ric1");
         this.addPolicyType("type1", "ric1");
         String url = "/rics?policyType=type1";
@@ -231,7 +231,7 @@ public class ApplicationTest {
     }
 
     @Test
-    public void testSynchronization() throws Exception {
+    void testSynchronization() throws Exception {
         // Two polictypes will be put in the NearRT RICs
         PolicyTypes nearRtRicPolicyTypes = new PolicyTypes();
         nearRtRicPolicyTypes.put(createPolicyType("typeName"));
@@ -267,7 +267,7 @@ public class ApplicationTest {
     }
 
     @Test
-    public void testGetRicForManagedElement_thenReturnCorrectRic() throws Exception {
+    void testGetRicForManagedElement_thenReturnCorrectRic() throws Exception {
         String ricName = "ric1";
         String managedElementId = "kista_1";
         addRic(ricName, managedElementId);
@@ -301,7 +301,7 @@ public class ApplicationTest {
     }
 
     @Test
-    public void testPutPolicy() throws Exception {
+    void testPutPolicy() throws Exception {
         String serviceName = "service1";
         String ricName = "ric1";
         String policyTypeName = "type1";
@@ -358,7 +358,7 @@ public class ApplicationTest {
      *
      * @throws ServiceException
      */
-    public void testErrorFromRIC() throws ServiceException {
+    void testErrorFromRIC() throws ServiceException {
         putService("service1");
         addPolicyType("type1", "ric1");
 
@@ -392,7 +392,7 @@ public class ApplicationTest {
     }
 
     @Test
-    public void testPutTypelessPolicy() throws Exception {
+    void testPutTypelessPolicy() throws Exception {
         putService("service1");
         addPolicyType("", "ric1");
         String url = putPolicyUrl("service1", "ric1", "", "id1");
@@ -407,7 +407,7 @@ public class ApplicationTest {
     }
 
     @Test
-    public void testRefuseToUpdatePolicy() throws Exception {
+    void testRefuseToUpdatePolicy() throws Exception {
         // Test that only the json can be changed for a already created policy
         // In this case service is attempted to be changed
         this.addRic("ric1");
@@ -421,7 +421,7 @@ public class ApplicationTest {
     }
 
     @Test
-    public void testGetPolicy() throws Exception {
+    void testGetPolicy() throws Exception {
         String url = "/policy?id=id";
         Policy policy = addPolicy("id", "typeName", "service1", "ric1");
         {
@@ -435,7 +435,7 @@ public class ApplicationTest {
     }
 
     @Test
-    public void testDeletePolicy() throws Exception {
+    void testDeletePolicy() throws Exception {
         addPolicy("id", "typeName", "service1", "ric1");
         assertThat(policies.size()).isEqualTo(1);
 
@@ -450,7 +450,7 @@ public class ApplicationTest {
     }
 
     @Test
-    public void testGetPolicySchemas() throws Exception {
+    void testGetPolicySchemas() throws Exception {
         addPolicyType("type1", "ric1");
         addPolicyType("type2", "ric2");
 
@@ -474,7 +474,7 @@ public class ApplicationTest {
     }
 
     @Test
-    public void testGetPolicySchema() throws Exception {
+    void testGetPolicySchema() throws Exception {
         addPolicyType("type1", "ric1");
         addPolicyType("type2", "ric2");
 
@@ -490,7 +490,7 @@ public class ApplicationTest {
     }
 
     @Test
-    public void testGetPolicyTypes() throws Exception {
+    void testGetPolicyTypes() throws Exception {
         addPolicyType("type1", "ric1");
         addPolicyType("type2", "ric2");
 
@@ -508,7 +508,7 @@ public class ApplicationTest {
     }
 
     @Test
-    public void testGetPolicies() throws Exception {
+    void testGetPolicies() throws Exception {
         addPolicy("id1", "type1", "service1");
 
         String url = "/policies";
@@ -524,7 +524,7 @@ public class ApplicationTest {
     }
 
     @Test
-    public void testGetPoliciesFilter() throws Exception {
+    void testGetPoliciesFilter() throws Exception {
         addPolicy("id1", "type1", "service1");
         addPolicy("id2", "type1", "service2");
         addPolicy("id3", "type2", "service1");
@@ -553,7 +553,7 @@ public class ApplicationTest {
     }
 
     @Test
-    public void testGetPolicyIdsFilter() throws Exception {
+    void testGetPolicyIdsFilter() throws Exception {
         addPolicy("id1", "type1", "service1", "ric1");
         addPolicy("id2", "type1", "service2", "ric1");
         addPolicy("id3", "type2", "service1", "ric1");
@@ -579,7 +579,7 @@ public class ApplicationTest {
     }
 
     @Test
-    public void testPutAndGetService() throws Exception {
+    void testPutAndGetService() throws Exception {
         // PUT
         putService("name", 0, HttpStatus.CREATED);
         putService("name", 0, HttpStatus.OK);
@@ -625,7 +625,7 @@ public class ApplicationTest {
     }
 
     @Test
-    public void testServiceSupervision() throws Exception {
+    void testServiceSupervision() throws Exception {
         putService("service1", 1, HttpStatus.CREATED);
         addPolicyType("type1", "ric1");
 
@@ -642,7 +642,7 @@ public class ApplicationTest {
     }
 
     @Test
-    public void testGetPolicyStatus() throws Exception {
+    void testGetPolicyStatus() throws Exception {
         addPolicy("id", "typeName", "service1", "ric1");
         assertThat(policies.size()).isEqualTo(1);
 
@@ -707,7 +707,7 @@ public class ApplicationTest {
     }
 
     @Test
-    public void testConcurrency() throws Exception {
+    void testConcurrency() throws Exception {
         final Instant startTime = Instant.now();
         List<Thread> threads = new ArrayList<>();
         a1ClientFactory.setResponseDelay(Duration.ofMillis(1));

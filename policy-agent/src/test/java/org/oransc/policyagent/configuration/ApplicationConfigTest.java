@@ -57,7 +57,7 @@ public class ApplicationConfigTest {
     }
 
     @Test
-    public void gettingNotAddedRicShouldThrowException() {
+    void gettingNotAddedRicShouldThrowException() {
         ApplicationConfig appConfigUnderTest = new ApplicationConfig();
 
         appConfigUnderTest.setConfiguration(configParserResult(RIC_CONFIG_1));
@@ -70,7 +70,7 @@ public class ApplicationConfigTest {
     }
 
     @Test
-    public void addRicShouldNotifyAllObserversOfRicAdded() throws Exception {
+    void addRicShouldNotifyAllObserversOfRicAdded() throws Exception {
         ApplicationConfig appConfigUnderTest = new ApplicationConfig();
 
         RicConfigUpdate update = appConfigUnderTest.setConfiguration(configParserResult(RIC_CONFIG_1)).blockFirst();
@@ -87,7 +87,7 @@ public class ApplicationConfigTest {
     }
 
     @Test
-    public void changedRicShouldNotifyAllObserversOfRicChanged() throws Exception {
+    void changedRicShouldNotifyAllObserversOfRicChanged() throws Exception {
         ApplicationConfig appConfigUnderTest = new ApplicationConfig();
 
         appConfigUnderTest.setConfiguration(configParserResult(RIC_CONFIG_1));
@@ -107,7 +107,7 @@ public class ApplicationConfigTest {
     }
 
     @Test
-    public void removedRicShouldNotifyAllObserversOfRicRemoved() {
+    void removedRicShouldNotifyAllObserversOfRicRemoved() {
         ApplicationConfig appConfigUnderTest = new ApplicationConfig();
 
         ImmutableRicConfig ricConfig2 = ImmutableRicConfig.builder() //

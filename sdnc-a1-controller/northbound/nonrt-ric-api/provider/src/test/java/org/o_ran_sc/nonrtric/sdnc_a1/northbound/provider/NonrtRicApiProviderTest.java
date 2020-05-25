@@ -20,10 +20,10 @@
 
 package org.o_ran_sc.nonrtric.sdnc_a1.northbound.provider;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 import java.util.concurrent.ExecutionException;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -63,6 +63,9 @@ import org.springframework.web.client.RestClientResponseException;
 public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
 
   protected static final Logger LOG = LoggerFactory.getLogger(NonrtRicApiProviderTest.class);
+
+  private static final Integer HTTP_OK_AS_INTEGER = HttpStatus.OK.value();
+
   protected NonrtRicApiProvider nonrtRicApiProvider;
   protected DataBroker dataBroker;
   @Mock
@@ -88,8 +91,8 @@ public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
     ResponseEntity<Object> getResponse = new ResponseEntity<>(returnedBody, HttpStatus.OK);
     when(restAdapter.get(eq(nearRtRicUrl.getValue()), eq(String.class))).thenReturn(getResponse);
     GetA1PolicyOutput result = nonrtRicApiProvider.getA1Policy(inputBuilder.build()).get().getResult();
-    Assert.assertEquals(returnedBody, result.getBody());
-    Assert.assertTrue(HttpStatus.OK.value() == result.getHttpStatus());
+    assertEquals(returnedBody, result.getBody());
+    assertEquals(HTTP_OK_AS_INTEGER, result.getHttpStatus());
   }
 
   @Test
@@ -101,8 +104,8 @@ public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
     ResponseEntity<Object> getResponse = new ResponseEntity<>(returnedBody, HttpStatus.OK);
     when(restAdapter.get(eq(nearRtRicUrl.getValue()), eq(String.class))).thenReturn(getResponse);
     GetA1PolicyTypeOutput result = nonrtRicApiProvider.getA1PolicyType(inputBuilder.build()).get().getResult();
-    Assert.assertEquals(returnedBody, result.getBody());
-    Assert.assertTrue(HttpStatus.OK.value() == result.getHttpStatus());
+    assertEquals(returnedBody, result.getBody());
+    assertEquals(HTTP_OK_AS_INTEGER, result.getHttpStatus());
   }
 
   @Test
@@ -114,8 +117,8 @@ public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
     ResponseEntity<Object> getResponse = new ResponseEntity<>(returnedBody, HttpStatus.OK);
     when(restAdapter.get(eq(nearRtRicUrl.getValue()), eq(String.class))).thenReturn(getResponse);
     GetA1PolicyStatusOutput result = nonrtRicApiProvider.getA1PolicyStatus(inputBuilder.build()).get().getResult();
-    Assert.assertEquals(returnedBody, result.getBody());
-    Assert.assertTrue(HttpStatus.OK.value() == result.getHttpStatus());
+    assertEquals(returnedBody, result.getBody());
+    assertEquals(HTTP_OK_AS_INTEGER, result.getHttpStatus());
   }
 
   @Test
@@ -124,12 +127,12 @@ public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
     inputBuilder.setNearRtRicUrl(nearRtRicUrl);
     Whitebox.setInternalState(nonrtRicApiProvider, "restAdapter", restAdapter);
     String returnedBody = "GET failed";
-    int returnedStatusCode = 404;
+    Integer notFoundStatusCode = HttpStatus.NOT_FOUND.value();
     when(restAdapter.get(eq(nearRtRicUrl.getValue()), eq(String.class)))
-    .thenThrow(new RestClientResponseException(null, returnedStatusCode, null, null, returnedBody.getBytes(), null));
+    .thenThrow(new RestClientResponseException(null, notFoundStatusCode, null, null, returnedBody.getBytes(), null));
     GetA1PolicyOutput result = nonrtRicApiProvider.getA1(inputBuilder.build());
-    Assert.assertEquals(returnedBody, result.getBody());
-    Assert.assertTrue(returnedStatusCode == result.getHttpStatus());
+    assertEquals(returnedBody, result.getBody());
+    assertEquals(notFoundStatusCode, result.getHttpStatus());
   }
 
   @Test
@@ -143,8 +146,8 @@ public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
     ResponseEntity<String> putResponse = new ResponseEntity<>(returnedBody, HttpStatus.CREATED);
     when(restAdapter.put(eq(nearRtRicUrl.getValue()), eq(testPolicy), eq(String.class))).thenReturn(putResponse);
     PutA1PolicyOutput result = nonrtRicApiProvider.putA1Policy(inputBuilder.build()).get().getResult();
-    Assert.assertEquals(returnedBody, result.getBody());
-    Assert.assertTrue(HttpStatus.CREATED.value() == result.getHttpStatus());
+    assertEquals(returnedBody, result.getBody());
+    assertEquals(Integer.valueOf(HttpStatus.CREATED.value()), result.getHttpStatus());
   }
 
   @Test
@@ -155,12 +158,12 @@ public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
     inputBuilder.setBody(testPolicy);
     Whitebox.setInternalState(nonrtRicApiProvider, "restAdapter", restAdapter);
     String returnedBody = "PUT failed";
-    int returnedStatusCode = 400;
+    Integer badRequestStatusCode = HttpStatus.BAD_REQUEST.value();
     when(restAdapter.put(eq(nearRtRicUrl.getValue()), eq(testPolicy), eq(String.class)))
-    .thenThrow(new RestClientResponseException(null, returnedStatusCode, null, null, returnedBody.getBytes(), null));
+    .thenThrow(new RestClientResponseException(null, badRequestStatusCode, null, null, returnedBody.getBytes(), null));
     PutA1PolicyOutput result = nonrtRicApiProvider.putA1Policy(inputBuilder.build()).get().getResult();
-    Assert.assertEquals(returnedBody, result.getBody());
-    Assert.assertTrue(returnedStatusCode == result.getHttpStatus());
+    assertEquals(returnedBody, result.getBody());
+    assertEquals(badRequestStatusCode, result.getHttpStatus());
   }
 
   @Test
@@ -173,10 +176,10 @@ public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
     ResponseEntity<Object> getResponseOk = new ResponseEntity<>(returnedBody, HttpStatus.OK);
     when(restAdapter.delete(nearRtRicUrl.getValue())).thenReturn(getResponseNoContent).thenReturn(getResponseOk);
     DeleteA1PolicyOutput resultNoContent = nonrtRicApiProvider.deleteA1Policy(inputBuilder.build()).get().getResult();
-    Assert.assertTrue(HttpStatus.NO_CONTENT.value() == resultNoContent.getHttpStatus());
+    assertEquals(Integer.valueOf(HttpStatus.NO_CONTENT.value()), resultNoContent.getHttpStatus());
     DeleteA1PolicyOutput resultOk = nonrtRicApiProvider.deleteA1Policy(inputBuilder.build()).get().getResult();
-    Assert.assertEquals(returnedBody, resultOk.getBody());
-    Assert.assertTrue(HttpStatus.OK.value() == resultOk.getHttpStatus());
+    assertEquals(returnedBody, resultOk.getBody());
+    assertEquals(HTTP_OK_AS_INTEGER, resultOk.getHttpStatus());
   }
 
   @Test
@@ -185,12 +188,12 @@ public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
     inputBuilder.setNearRtRicUrl(nearRtRicUrl);
     Whitebox.setInternalState(nonrtRicApiProvider, "restAdapter", restAdapter);
     String returnedBody = "DELETE failed";
-    int returnedStatusCode = 404;
+    Integer notFoundStatusCode = HttpStatus.NOT_FOUND.value();
     when(restAdapter.delete(nearRtRicUrl.getValue()))
-    .thenThrow(new RestClientResponseException(null, returnedStatusCode, null, null, returnedBody.getBytes(), null));
+    .thenThrow(new RestClientResponseException(null, notFoundStatusCode, null, null, returnedBody.getBytes(), null));
     DeleteA1PolicyOutput result = nonrtRicApiProvider.deleteA1Policy(inputBuilder.build()).get().getResult();
-    Assert.assertEquals(returnedBody, result.getBody());
-    Assert.assertTrue(returnedStatusCode == result.getHttpStatus());
+    assertEquals(returnedBody, result.getBody());
+    assertEquals(notFoundStatusCode, result.getHttpStatus());
   }
 
 }

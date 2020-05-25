@@ -65,12 +65,12 @@ public class DmaapMessageConsumerTest {
     private DmaapMessageConsumer messageConsumerUnderTest;
 
     @AfterEach
-    public void resetLogging() {
+    void resetLogging() {
         LoggingUtils.getLogListAppender(DmaapMessageConsumer.class);
     }
 
     @Test
-    public void dmaapNotConfigured_thenSleepAndRetryUntilConfig() throws Exception {
+    void dmaapNotConfigured_thenSleepAndRetryUntilConfig() throws Exception {
         messageConsumerUnderTest = spy(new DmaapMessageConsumer(applicationConfigMock));
 
         doNothing().when(messageConsumerUnderTest).sleep(any(Duration.class));
@@ -86,7 +86,7 @@ public class DmaapMessageConsumerTest {
     }
 
     @Test
-    public void dmaapConfigurationRemoved_thenStopPollingDmaapSleepAndRetry() throws Exception {
+    void dmaapConfigurationRemoved_thenStopPollingDmaapSleepAndRetry() throws Exception {
         messageConsumerUnderTest = spy(new DmaapMessageConsumer(applicationConfigMock));
 
         doNothing().when(messageConsumerUnderTest).sleep(any(Duration.class));
@@ -102,7 +102,7 @@ public class DmaapMessageConsumerTest {
     }
 
     @Test
-    public void dmaapConfiguredAndNoMessages_thenPollOnce() throws Exception {
+    void dmaapConfiguredAndNoMessages_thenPollOnce() throws Exception {
         setUpMrConfig();
 
         messageConsumerUnderTest = spy(new DmaapMessageConsumer(applicationConfigMock));
@@ -123,7 +123,7 @@ public class DmaapMessageConsumerTest {
     }
 
     @Test
-    public void dmaapConfiguredAndErrorGettingMessages_thenLogWarningAndSleep() throws Exception {
+    void dmaapConfiguredAndErrorGettingMessages_thenLogWarningAndSleep() throws Exception {
         setUpMrConfig();
 
         messageConsumerUnderTest = spy(new DmaapMessageConsumer(applicationConfigMock));
@@ -153,7 +153,7 @@ public class DmaapMessageConsumerTest {
     }
 
     @Test
-    public void dmaapConfiguredAndOneMessage_thenPollOnceAndProcessMessage() throws Exception {
+    void dmaapConfiguredAndOneMessage_thenPollOnceAndProcessMessage() throws Exception {
         setUpMrConfig();
         messageConsumerUnderTest = spy(new DmaapMessageConsumer(applicationConfigMock));
 

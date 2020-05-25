@@ -201,7 +201,7 @@ public class MockPolicyAgent {
     @SuppressWarnings("squid:S2699") // Tests should include assertions. This test is only for keeping the server
                                      // alive,
                                      // so it will only be confusing to add an assertion.
-    public void runMock() throws Exception {
+    void runMock() throws Exception {
         keepServerAlive();
     }
 

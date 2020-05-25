@@ -82,7 +82,7 @@ public class SdncOscA1ClientTest {
     }
 
     @BeforeEach
-    public void init() {
+    void init() {
         asyncRestClientMock = mock(AsyncRestClient.class);
         Ric ric = A1ClientHelper.createRic(RIC_1_URL);
 
@@ -91,14 +91,14 @@ public class SdncOscA1ClientTest {
     }
 
     @Test
-    public void testGetPolicyTypeIdentities_STD() {
+    void testGetPolicyTypeIdentities_STD() {
         List<String> policyTypeIds = clientUnderTest.getPolicyTypeIdentities().block();
         assertEquals(1, policyTypeIds.size(), "should hardcoded to one");
         assertEquals("", policyTypeIds.get(0), "should hardcoded to empty");
     }
 
     @Test
-    public void testGetPolicyTypeIdentities_OSC() {
+    void testGetPolicyTypeIdentities_OSC() {
         clientUnderTest = new SdncOscA1Client(A1ProtocolType.SDNC_OSC_OSC_V1, //
             A1ClientHelper.createRic(RIC_1_URL).getConfig(), //
             controllerConfig(), asyncRestClientMock);
@@ -127,7 +127,7 @@ public class SdncOscA1ClientTest {
     }
 
     @Test
-    public void testGetTypeSchema_OSC() throws IOException {
+    void testGetTypeSchema_OSC() throws IOException {
         clientUnderTest = new SdncOscA1Client(A1ProtocolType.SDNC_OSC_OSC_V1, //
             A1ClientHelper.createRic(RIC_1_URL).getConfig(), //
             controllerConfig(), asyncRestClientMock);
@@ -171,7 +171,7 @@ public class SdncOscA1ClientTest {
     }
 
     @Test
-    public void testGetPolicyIdentities() {
+    void testGetPolicyIdentities() {
 
         String policyIdsResp = createResponse(Arrays.asList(POLICY_1_ID, POLICY_2_ID));
         whenAsyncPostThenReturn(Mono.just(policyIdsResp));
@@ -189,13 +189,13 @@ public class SdncOscA1ClientTest {
     }
 
     @Test
-    public void testGetValidPolicyType() {
+    void testGetValidPolicyType() {
         String policyType = clientUnderTest.getPolicyTypeSchema("").block();
         assertEquals("{}", policyType, "");
     }
 
     @Test
-    public void testPutPolicyValidResponse() {
+    void testPutPolicyValidResponse() {
         whenPostReturnOkResponse();
 
         String returned = clientUnderTest
@@ -213,7 +213,7 @@ public class SdncOscA1ClientTest {
     }
 
     @Test
-    public void testPutPolicyRejected() {
+    void testPutPolicyRejected() {
         final String policyJson = "{}";
         AdapterOutput adapterOutput = ImmutableAdapterOutput.builder() //
             .body("NOK") //
@@ -243,7 +243,7 @@ public class SdncOscA1ClientTest {
     }
 
     @Test
-    public void testDeletePolicy() {
+    void testDeletePolicy() {
         whenPostReturnOkResponse();
 
         String returned = clientUnderTest
@@ -261,7 +261,7 @@ public class SdncOscA1ClientTest {
     }
 
     @Test
-    public void testGetStatus() {
+    void testGetStatus() {
         whenPostReturnOkResponse();
 
         Policy policy = A1ClientHelper.createPolicy(RIC_1_URL, POLICY_1_ID, POLICY_JSON_VALID, POLICY_TYPE_1_ID);
@@ -281,7 +281,7 @@ public class SdncOscA1ClientTest {
     }
 
     @Test
-    public void testGetVersion() {
+    void testGetVersion() {
         whenPostReturnOkResponse();
         A1ProtocolType returnedVersion = clientUnderTest.getProtocolVersion().block();
         assertEquals(A1ProtocolType.SDNC_OSC_STD_V1_1, returnedVersion, "");
