@@ -30,3 +30,18 @@ Store all Policy Agent app and simulators log to the test case log dir. All logs
 separate logs stored at different steps in the test script.
 If logs need to be stored in several locations, use different prefix to easily identify the location
 when the logs where taken.
+
+## License
+
+Copyright (C) 2020 Nordix Foundation. All rights reserved.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
