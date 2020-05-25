@@ -30,7 +30,7 @@
     <packaging>pom</packaging>
     <groupId>org.o-ran-sc.nonrtric.sdnc-a1.oam</groupId>
     <artifactId>installation</artifactId>
-    <version>1.7.3-SNAPSHOT</version>
+    <version>1.7.5-SNAPSHOT</version>
 
     <name>sdnc-a1-oam :: installation</name>
     <description>Installs SDN-C on local file system</description>

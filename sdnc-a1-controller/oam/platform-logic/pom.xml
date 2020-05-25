@@ -30,7 +30,7 @@
 
     <groupId>org.o-ran-sc.nonrtric.sdnc-a1.oam</groupId>
     <artifactId>platform-logic</artifactId>
-    <version>1.7.3-SNAPSHOT</version>
+    <version>1.7.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>sdnc-a1-oam :: platform-logic</name>

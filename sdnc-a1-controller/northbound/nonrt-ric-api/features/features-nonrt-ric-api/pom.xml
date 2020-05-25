@@ -30,7 +30,7 @@
 
 	<groupId>org.o-ran-sc.nonrtric.sdnc-a1.northbound</groupId>
 	<artifactId>features-nonrt-ric-api</artifactId>
-	<version>1.7.3-SNAPSHOT</version>
+	<version>1.7.5-SNAPSHOT</version>
 	<packaging>feature</packaging>
 
 	<name>sdnc-a1-northbound :: nonrt-ric-api :: ${project.artifactId}</name>

@@ -29,15 +29,11 @@
 
 	<groupId>org.o-ran-sc.nonrtric.sdnc-a1.oam</groupId>
 	<artifactId>sdnc-a1-oam</artifactId>
-	<version>1.7.3-SNAPSHOT</version>
+	<version>1.7.5-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>sdnc-a1-oam</name>
 	<description>The SDN-C OAM component contains the components needed to operate, administer and maintain the SDN-C platform.</description>
-	<url>https://wiki.onap.org</url>
-	<organization>
-		<name>AT&amp;T</name>
-	</organization>
 
 	<modules>
 		<module>platform-logic</module>
