@@ -43,7 +43,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
-public class SdncOnapA1ClientTest {
+class SdncOnapA1ClientTest {
     private static final String CONTROLLER_USERNAME = "username";
     private static final String CONTROLLER_PASSWORD = "password";
     private static final String RIC_1_URL = "RicUrl";
@@ -66,7 +66,7 @@ public class SdncOnapA1ClientTest {
     AsyncRestClient asyncRestClientMock;
 
     @BeforeEach
-    public void init() {
+    void init() {
         asyncRestClientMock = mock(AsyncRestClient.class);
         ControllerConfig controllerCfg = ImmutableControllerConfig.builder() //
             .name("name") //
@@ -80,7 +80,7 @@ public class SdncOnapA1ClientTest {
     }
 
     @Test
-    public void testGetPolicyTypeIdentities() {
+    void testGetPolicyTypeIdentities() {
         SdncOnapA1Client.SdncOnapAdapterInput inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .build();
@@ -98,7 +98,7 @@ public class SdncOnapA1ClientTest {
     }
 
     @Test
-    public void testGetPolicyIdentities() {
+    void testGetPolicyIdentities() {
         SdncOnapA1Client.SdncOnapAdapterInput inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .build();
@@ -136,7 +136,7 @@ public class SdncOnapA1ClientTest {
     }
 
     @Test
-    public void testGetValidPolicyType() {
+    void testGetValidPolicyType() {
         SdncOnapA1Client.SdncOnapAdapterInput inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .policyTypeId(POLICY_TYPE_1_ID) //
@@ -154,7 +154,7 @@ public class SdncOnapA1ClientTest {
     }
 
     @Test
-    public void testGetInvalidPolicyType() {
+    void testGetInvalidPolicyType() {
         SdncOnapA1Client.SdncOnapAdapterInput inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .policyTypeId(POLICY_TYPE_1_ID) //
@@ -172,7 +172,7 @@ public class SdncOnapA1ClientTest {
     }
 
     @Test
-    public void testPutPolicy() {
+    void testPutPolicy() {
         SdncOnapA1Client.SdncOnapAdapterInput inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .policyTypeId(POLICY_TYPE_1_ID) //
@@ -192,7 +192,7 @@ public class SdncOnapA1ClientTest {
     }
 
     @Test
-    public void testDeletePolicy() {
+    void testDeletePolicy() {
         SdncOnapA1Client.SdncOnapAdapterInput inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .policyTypeId(POLICY_TYPE_1_ID) //
@@ -210,7 +210,7 @@ public class SdncOnapA1ClientTest {
     }
 
     @Test
-    public void testDeleteAllPolicies() {
+    void testDeleteAllPolicies() {
         SdncOnapA1Client.SdncOnapAdapterInput inputParams = ImmutableSdncOnapAdapterInput.builder() //
             .nearRtRicId(RIC_1_URL) //
             .build();

@@ -22,6 +22,7 @@ package org.oransc.policyagent.dmaap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -61,7 +62,7 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-public class DmaapMessageHandlerTest {
+class DmaapMessageHandlerTest {
     private static final Logger logger = LoggerFactory.getLogger(DmaapMessageHandlerTest.class);
     private static final String URL = "url";
 
@@ -112,22 +113,22 @@ public class DmaapMessageHandlerTest {
     }
 
     @Test
-    public void testMessageParsing() {
+    void testMessageParsing() {
         String message = dmaapInputMessage(Operation.DELETE);
         logger.info(message);
         DmaapRequestMessage parsedMessage = gson.fromJson(message, ImmutableDmaapRequestMessage.class);
-        assertTrue(parsedMessage != null);
+        assertNotNull(parsedMessage);
         assertFalse(parsedMessage.payload().isPresent());
 
         message = dmaapInputMessage(Operation.PUT);
         logger.info(message);
         parsedMessage = gson.fromJson(message, ImmutableDmaapRequestMessage.class);
-        assertTrue(parsedMessage != null);
+        assertNotNull(parsedMessage);
         assertTrue(parsedMessage.payload().isPresent());
     }
 
     @Test
-    public void unparseableMessage_thenWarning() {
+    void unparseableMessage_thenWarning() {
         final ListAppender<ILoggingEvent> logAppender = LoggingUtils.getLogListAppender(DmaapMessageHandler.class);
 
         testedObject.handleDmaapMsg("bad message");
@@ -137,7 +138,7 @@ public class DmaapMessageHandlerTest {
     }
 
     @Test
-    public void successfulDelete() throws IOException {
+    void successfulDelete() throws IOException {
         doReturn(okResponse()).when(agentClient).deleteForEntity(anyString());
         doReturn(1).when(dmaapClient).send(anyString());
         doReturn(new MRPublisherResponse()).when(dmaapClient).sendBatchWithResponse();
@@ -159,7 +160,7 @@ public class DmaapMessageHandlerTest {
     }
 
     @Test
-    public void successfulGet() throws IOException {
+    void successfulGet() throws IOException {
         doReturn(okResponse()).when(agentClient).getForEntity(anyString());
         doReturn(1).when(dmaapClient).send(anyString());
         doReturn(new MRPublisherResponse()).when(dmaapClient).sendBatchWithResponse();
@@ -179,7 +180,7 @@ public class DmaapMessageHandlerTest {
     }
 
     @Test
-    public void successfulPut() throws IOException {
+    void successfulPut() throws IOException {
         doReturn(okResponse()).when(agentClient).putForEntity(anyString(), anyString());
         doReturn(1).when(dmaapClient).send(anyString());
         doReturn(new MRPublisherResponse()).when(dmaapClient).sendBatchWithResponse();
@@ -199,7 +200,7 @@ public class DmaapMessageHandlerTest {
     }
 
     @Test
-    public void successfulPost() throws IOException {
+    void successfulPost() throws IOException {
         doReturn(okResponse()).when(agentClient).postForEntity(anyString(), anyString());
         doReturn(1).when(dmaapClient).send(anyString());
         doReturn(new MRPublisherResponse()).when(dmaapClient).sendBatchWithResponse();
@@ -219,7 +220,7 @@ public class DmaapMessageHandlerTest {
     }
 
     @Test
-    public void exceptionWhenCallingPolicyAgent_thenNotFoundResponse() throws IOException {
+    void exceptionWhenCallingPolicyAgent_thenNotFoundResponse() throws IOException {
         WebClientResponseException except = new WebClientResponseException(400, "Refused", null, null, null, null);
         doReturn(Mono.error(except)).when(agentClient).putForEntity(anyString(), any());
         doReturn(1).when(dmaapClient).send(anyString());
@@ -243,7 +244,7 @@ public class DmaapMessageHandlerTest {
     }
 
     @Test
-    public void unsupportedOperationInMessage_thenNotFoundResponseWithNotImplementedOperation() throws Exception {
+    void unsupportedOperationInMessage_thenNotFoundResponseWithNotImplementedOperation() throws Exception {
         String message = dmaapInputMessage(Operation.PUT).toString();
         String badOperation = "BAD";
         message = message.replace(Operation.PUT.toString(), badOperation);
@@ -261,7 +262,7 @@ public class DmaapMessageHandlerTest {
     }
 
     @Test
-    public void putWithoutPayload_thenNotFoundResponseWithWarning() throws Exception {
+    void putWithoutPayload_thenNotFoundResponseWithWarning() throws Exception {
         String message = dmaapInputMessage(Operation.PUT).toString();
         message = message.replace(",\"payload\":{\"name\":\"name\",\"schema\":\"schema\"}", "");
 
