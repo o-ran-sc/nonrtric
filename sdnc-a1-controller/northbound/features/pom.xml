@@ -30,7 +30,7 @@ limitations under the License.
 
 	<groupId>org.o-ran-sc.nonrtric.sdnc-a1.northbound</groupId>
 	<artifactId>sdnc-northbound-feature-aggregator</artifactId>
-	<version>1.7.3-SNAPSHOT</version>
+	<version>1.7.5-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>sdnc-a1-northbound :: features</name>
