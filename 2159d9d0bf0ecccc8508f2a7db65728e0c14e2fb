@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3eb9ce59_b59fb950",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RefreshConfigTask.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-05-27T11:39:04Z",
+      "side": 1,
+      "message": "Yes,I actually just thought of that myself. I will put it back.",
+      "parentUuid": "7c24726d_c4970d80",
+      "range": {
+        "startLine": 163,
+        "startChar": 7,
+        "endLine": 163,
+        "endChar": 49
+      },
+      "revId": "2159d9d0bf0ecccc8508f2a7db65728e0c14e2fb",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4ca59340_482ff7f8",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RefreshConfigTask.java",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "2159d9d0bf0ecccc8508f2a7db65728e0c14e2fb",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e00c090_ff3b3b9a",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RefreshConfigTask.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-05-27T11:39:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4ca59340_482ff7f8",
+      "range": {
+        "startLine": 249,
+        "startChar": 17,
+        "endLine": 249,
+        "endChar": 88
+      },
+      "revId": "2159d9d0bf0ecccc8508f2a7db65728e0c14e2fb",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
