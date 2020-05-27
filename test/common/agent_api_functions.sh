@@ -370,15 +370,15 @@ api_get_policy() {
 }
 
 # API Test function: PUT /policy
-# args: <response-code> <service-name> <ric-id> <policytype-id> <policy-id> <template-file> [<count>]
+# args: <response-code> <service-name> <ric-id> <policytype-id> <policy-id> <transient> <template-file> [<count>]
 # (Function for test scripts)
 api_put_policy() {
 	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
     echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
 	((RES_TEST++))
 
-    if [ $# -lt 6 ] || [ $# -gt 7 ]; then
-        __print_err "<response-code> <service-name> <ric-id> <policytype-id> <policy-id> <template-file> [<count>]" $@
+    if [ $# -lt 7 ] || [ $# -gt 8 ]; then
+        __print_err "<response-code> <service-name> <ric-id> <policytype-id> <policy-id> <transient> <template-file> [<count>]" $@
         return 1
     fi
 
@@ -386,28 +386,29 @@ api_put_policy() {
 	count=0
 	max=1
 
-	if [ $# -eq 7 ]; then
-		max=$7
+	if [ $# -eq 8 ]; then
+		max=$8
 	fi
 
 	pid=$5
-	file=$6
+	file=$7
 
 	while [ $count -lt $max ]; do
 		query="/policy?id=$pid&ric=$ric&service=$2"
 
-		if [ $4 == "NOTYPE" ]; then
-			query="/policy?id=$pid&ric=$ric&service=$2"
-		else
-			query="/policy?id=$pid&ric=$ric&service=$2&type=$4"
+		if [ $4 != "NOTYPE" ]; then
+			query=$query"&type=$4"
+		fi
+
+		if [ $6 != NOTRANSIENT ]; then
+			query=$query"&transient=$6"
 		fi
 
 		file=".p.json"
-		sed 's/XXX/'${pid}'/g' $6 > $file
+		sed 's/XXX/'${pid}'/g' $7 > $file
     	res="$(__do_curl_to_agent PUT $query $file)"
     	status=${res:${#res}-3}
 		echo -ne " Creating "$count"("$max")${SAMELINE}"
-
 		if [ $status -ne $1 ]; then
 			let pid=$pid+1
 			echo " Created "$count"?("$max")"
@@ -428,15 +429,15 @@ api_put_policy() {
 }
 
 # API Test function: PUT /policy to run in batch
-# args: <response-code> <service-name> <ric-id> <policytype-id> <policy-id> <template-file> [<count>]
+# args: <response-code> <service-name> <ric-id> <policytype-id> <policy-id> <transient> <template-file> [<count>]
 # (Function for test scripts)
 api_put_policy_batch() {
 	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
     echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
 	((RES_TEST++))
 
-    if [ $# -lt 6 ] || [ $# -gt 7 ]; then
-        __print_err "<response-code> <service-name> <ric-id> <policytype-id> <policy-id> <template-file> [<count>]" $@
+    if [ $# -lt 7 ] || [ $# -gt 8 ]; then
+        __print_err "<response-code> <service-name> <ric-id> <policytype-id> <policy-id> <transient> <template-file> [<count>]" $@
         return 1
     fi
 
@@ -444,24 +445,26 @@ api_put_policy_batch() {
 	count=0
 	max=1
 
-	if [ $# -eq 7 ]; then
-		max=$7
+	if [ $# -eq 8 ]; then
+		max=$8
 	fi
 
 	pid=$5
-	file=$6
+	file=$7
 	ARR=""
 	while [ $count -lt $max ]; do
 		query="/policy?id=$pid&ric=$ric&service=$2"
 
-		if [ $4 == "NOTYPE" ]; then
-			query="/policy?id=$pid&ric=$ric&service=$2"
-		else
-			query="/policy?id=$pid&ric=$ric&service=$2&type=$4"
+		if [ $4 != "NOTYPE" ]; then
+			query=$query"&type=$4"
+		fi
+
+		if [ $6 != NOTRANSIENT ]; then
+			query=$query"&transient=$6"
 		fi
 
 		file=".p.json"
-		sed 's/XXX/'${pid}'/g' $6 > $file
+		sed 's/XXX/'${pid}'/g' $7 > $file
     	res="$(__do_curl_to_agent PUT_BATCH $query $file)"
     	status=${res:${#res}-3}
 		echo -ne " Requested(batch) "$count"("$max")${SAMELINE}"
@@ -507,6 +510,89 @@ api_put_policy_batch() {
 	return 0
 }
 
+# API Test function: PUT /policy to run in i parallel for a number of rics
+# args: <response-code> <service-name> <ric-id-base> <number-of-rics> <policytype-id> <policy-start-id> <transient> <template-file> <count-per-ric> <number-of-threads>
+# (Function for test scripts)
+api_put_policy_parallel() {
+	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
+    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
+	((RES_TEST++))
+
+    if [ $# -ne 10 ]; then
+        __print_err " <response-code> <service-name> <ric-id-base> <number-of-rics> <policytype-id> <policy-start-id> <transient> <template-file> <count-per-ric> <number-of-threads>" $@
+        return 1
+    fi
+	resp_code=$1; shift;
+	serv=$1; shift
+	ric_base=$1; shift;
+	num_rics=$1; shift;
+	type=$1; shift;
+	start_id=$1; shift;
+	transient=$1; shift;
+	template=$1; shift;
+	count=$1; shift;
+	pids=$1; shift;
+
+	if [ $ADAPTER != $RESTBASE ] && [ $ADAPTER != $RESTBASE_SECURE ]; then
+		echo " Info - api_put_policy_parallel uses only the agent REST interface - create over dmaap in parallel is not supported"
+		echo " Info - will execute over agent REST"
+	fi
+
+	if [ $serv == "NOSERVICE" ]; then
+		serv=""
+	fi
+	query="/policy?service=$serv"
+
+	if [ $type != "NOTYPE" ]; then
+		query=$query"&type=$type"
+	fi
+
+	if [ $transient != NOTRANSIENT ]; then
+	 	query=$query"&transient=$transient"
+	fi
+
+	urlbase=${ADAPTER}${query}
+
+	for ((i=1; i<=$pids; i++))
+	do
+		echo "" > ".pid${i}.res.txt"
+		echo $resp_code $urlbase $ric_base $num_rics $start_id $template $count $pids $i > ".pid${i}.txt"
+		echo $i
+	done  | xargs -n 1 -I{} -P $pids bash -c '{
+		arg=$(echo {})
+		echo " Parallel process $arg started"
+		tmp=$(< ".pid${arg}.txt")
+		python3 ../common/create_policies_process.py $tmp > .pid${arg}.res.txt
+	}'
+	msg=""
+	for ((i=1; i<=$pids; i++))
+	do
+		file=".pid${i}.res.txt"
+		tmp=$(< $file)
+		if [ -z "$tmp" ]; then
+			echo " Process $i : unknown result (result file empty"
+			msg="failed"
+		else
+			res=${tmp:0:1}
+			if [ $res == "0" ]; then
+				echo " Process $i : OK"
+			else
+				echo " Process $i : failed - "${tmp:1}
+				msg="failed"
+			fi
+		fi
+	done
+	if [ -z $msg ]; then
+		echo " $(($count*$num_rics)) policies created/updated"
+		((RES_PASS++))
+		echo -e $GREEN" PASS"$EGREEN
+		return 0
+	fi
+
+	echo -e $RED" FAIL. One of more processes failed to execute" $ERED
+	((RES_FAIL++))
+	return 1
+}
 
 # API Test function: DELETE /policy
 # args: <response-code> <policy-id> [count]
@@ -619,6 +705,74 @@ api_delete_policy_batch() {
 	((RES_PASS++))
 	echo -e $GREEN" PASS"$EGREEN
 	return 0
+}
+
+# API Test function: DELETE /policy to run in i parallel for a number of rics
+# args: <response-code> <number-of-rics> <policy-start-id> <count-per-ric> <number-of-threads>
+# (Function for test scripts)
+api_delete_policy_parallel() {
+	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
+    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
+	((RES_TEST++))
+
+    if [ $# -ne 5 ]; then
+        __print_err " <response-code> <ric-id-base> <number-of-rics> <policy-start-id> <count-per-ric> <number-of-threads>" $@
+        return 1
+    fi
+	resp_code=$1; shift;
+	num_rics=$1; shift;
+	start_id=$1; shift;
+	count=$1; shift;
+	pids=$1; shift;
+
+	if [ $ADAPTER != $RESTBASE ] && [ $ADAPTER != $RESTBASE_SECURE ]; then
+		echo " Info - api_delete_policy_parallel uses only the agent REST interface - create over dmaap in parallel is not supported"
+		echo " Info - will execute over agent REST"
+	fi
+
+	query="/policy"
+
+	urlbase=${ADAPTER}${query}
+
+	for ((i=1; i<=$pids; i++))
+	do
+		echo "" > ".pid${i}.del.res.txt"
+		echo $resp_code $urlbase $num_rics $start_id $count $pids $i > ".pid${i}.del.txt"
+		echo $i
+	done  | xargs -n 1 -I{} -P $pids bash -c '{
+		arg=$(echo {})
+		echo " Parallel process $arg started"
+		tmp=$(< ".pid${arg}.del.txt")
+		python3 ../common/delete_policies_process.py $tmp > .pid${arg}.del.res.txt
+	}'
+	msg=""
+	for ((i=1; i<=$pids; i++))
+	do
+		file=".pid${i}.del.res.txt"
+		tmp=$(< $file)
+		if [ -z "$tmp" ]; then
+			echo " Process $i : unknown result (result file empty"
+			msg="failed"
+		else
+			res=${tmp:0:1}
+			if [ $res == "0" ]; then
+				echo " Process $i : OK"
+			else
+				echo " Process $i : failed - "${tmp:1}
+				msg="failed"
+			fi
+		fi
+	done
+	if [ -z $msg ]; then
+		echo " $(($count*$num_rics)) deleted"
+		((RES_PASS++))
+		echo -e $GREEN" PASS"$EGREEN
+		return 0
+	fi
+
+	echo -e $RED" FAIL. One of more processes failed to execute" $ERED
+	((RES_FAIL++))
+	return 1
 }
 
 # API Test function: GET /policy_ids

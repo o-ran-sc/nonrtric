@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OSC_Type5_1.0.0",
+  "description": "Type 5 policy type",
+  "type": "object",
+  "properties": {
+    "scope": {
+      "type": "object",
+      "properties": {
+        "sliceId": {
+          "type": "string"
+        },
+        "cellId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "sliceId",
+        "cellId"
+      ]
+    },
+    "qosObjective": {
+      "type": "object",
+      "properties": {
+        "priorityLevel": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "priorityLevel"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "scope", "qosObjective"
+  ]
+}

@@ -17,7 +17,10 @@
 #  ============LICENSE_END=================================================
 #
 
-TC_ONELINE_DESCR="Repeatedly create and delete policies in each RICs for 24h. Via agent REST/DMAAP/DMAAP_BATCH and SDNC using http"
+TC_ONELINE_DESCR="Repeatedly create and delete policies in each RICs for 24h (or configured number of days). Via agent REST/DMAAP/DMAAP_BATCH and SDNC using http or https"
+
+#App names to exclude checking pulling images for, space separated list
+EXCLUDED_IMAGES="SDNC_ONAP"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
@@ -34,7 +37,22 @@ NUM_RICS=30
 # Number of policy instances per RIC
 NUM_INSTANCES=5
 
+DAYS=3
+
 clean_containers
+
+# use http or https for all apis
+HTTPX=https
+
+if [ $HTTPX == "http" ]; then
+   use_agent_rest_http
+   use_sdnc_http
+   use_simulator_http
+else
+   use_agent_rest_https
+   use_sdnc_https
+   use_simulator_https
+fi
 
 start_ric_simulators ricsim_g1 $NUM_RICS OSC_2.1.0
 
@@ -55,7 +73,6 @@ start_control_panel
 
 start_policy_agent
 
-use_agent_rest_http
 
 api_get_status 200
 
@@ -101,10 +118,10 @@ done
 echo "Register a service"
 api_put_service 201 "serv1" 0 "$CR_PATH/1"
 
-TEST_DURATION=$((24*3600))
+TEST_DURATION=$((24*3600*$DAYS))
 TEST_START=$SECONDS
 
-AGENT_INTERFACES="REST DMAAP DMAAP-BATCH"
+AGENT_INTERFACES="REST REST_PARALLEL DMAAP DMAAP-BATCH"
 
 MR_MESSAGES=0
 
@@ -122,8 +139,12 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
       echo "## Testing using agent interface: $interface ##"
       echo "############################################"
 
-      if [ $interface == "REST" ]; then
-         use_agent_rest_http
+      if [ $interface == "REST" ] || [ $interface == "REST_PARALLEL" ]; then
+         if [ $HTTPX == "http" ]; then
+            use_agent_rest_http
+         else
+            use_agent_rest_https
+         fi
       else
          use_agent_dmaap
       fi
@@ -131,14 +152,17 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
       echo "Create $NUM_INSTANCES instances in each OSC RIC"
       INSTANCE_ID=200000
       INSTANCES=0
+      if [ $interface == "REST_PARALLEL" ]; then
+         api_put_policy_parallel 201 "serv1" ricsim_g1_ $NUM_RICS 1 $INSTANCE_ID NOTRANSIENT testdata/OSC/pi1_template.json $NUM_INSTANCES 3
+      fi
       for ((i=1; i<=$NUM_RICS; i++))
       do
          if [ $interface == "DMAAP-BATCH" ]; then
-            api_put_policy_batch 201 "serv1" ricsim_g1_$i 1 $INSTANCE_ID testdata/OSC/pi1_template.json $NUM_INSTANCES
-         else
-            api_put_policy 201 "serv1" ricsim_g1_$i 1 $INSTANCE_ID testdata/OSC/pi1_template.json $NUM_INSTANCES
+            api_put_policy_batch 201 "serv1" ricsim_g1_$i 1 $INSTANCE_ID NOTRANSIENT testdata/OSC/pi1_template.json $NUM_INSTANCES
+         elif [ $interface == "DMAAP" ] || [ $interface == "REST" ]; then
+            api_put_policy 201 "serv1" ricsim_g1_$i 1 $INSTANCE_ID NOTRANSIENT testdata/OSC/pi1_template.json $NUM_INSTANCES
          fi
-         if [ $interface != "REST" ]; then
+         if [ $interface == "DMAAP" ] || [ $interface == "DMAAP-BATCH" ]; then
             MR_MESSAGES=$(($MR_MESSAGES+$NUM_INSTANCES))
          fi
          sim_equal ricsim_g1_$i num_instances $NUM_INSTANCES
@@ -149,14 +173,17 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
       api_equal json:policy_ids $INSTANCES
 
       echo "Create $NUM_INSTANCES instances in each STD RIC"
+      if [ $interface == "REST_PARALLEL" ]; then
+         api_put_policy_parallel 201 "serv1" ricsim_g2_ $NUM_RICS NOTYPE $INSTANCE_ID NOTRANSIENT testdata/STD/pi1_template.json $NUM_INSTANCES 3
+      fi
       for ((i=1; i<=$NUM_RICS; i++))
       do
          if [ $interface == "DMAAP-BATCH" ]; then
-            api_put_policy_batch 201 "serv1" ricsim_g2_$i NOTYPE $INSTANCE_ID testdata/STD/pi1_template.json $NUM_INSTANCES
-         else
-            api_put_policy 201 "serv1" ricsim_g2_$i NOTYPE $INSTANCE_ID testdata/STD/pi1_template.json $NUM_INSTANCES
+            api_put_policy_batch 201 "serv1" ricsim_g2_$i NOTYPE $INSTANCE_ID NOTRANSIENT testdata/STD/pi1_template.json $NUM_INSTANCES
+         elif [ $interface == "DMAAP" ] || [ $interface == "REST" ]; then
+            api_put_policy 201 "serv1" ricsim_g2_$i NOTYPE $INSTANCE_ID NOTRANSIENT testdata/STD/pi1_template.json $NUM_INSTANCES
          fi
-         if [ $interface != "REST" ]; then
+         if [ $interface == "DMAAP" ] || [ $interface == "DMAAP-BATCH" ]; then
             MR_MESSAGES=$(($MR_MESSAGES+$NUM_INSTANCES))
          fi
          sim_equal ricsim_g2_$i num_instances $NUM_INSTANCES
@@ -170,14 +197,17 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
       echo "Delete all instances in each OSC RIC"
 
       INSTANCE_ID=200000
+      if [ $interface == "REST_PARALLEL" ]; then
+         api_delete_policy_parallel 204 $NUM_RICS $INSTANCE_ID $NUM_INSTANCES 3
+      fi
       for ((i=1; i<=$NUM_RICS; i++))
       do
          if [ $interface == "DMAAP-BATCH" ]; then
             api_delete_policy_batch 204 $INSTANCE_ID $NUM_INSTANCES
-         else
+         elif [ $interface == "DMAAP" ] || [ $interface == "REST" ]; then
             api_delete_policy 204 $INSTANCE_ID $NUM_INSTANCES
          fi
-         if [ $interface != "REST" ]; then
+         if [ $interface == "DMAAP" ] || [ $interface == "DMAAP-BATCH" ]; then
             MR_MESSAGES=$(($MR_MESSAGES+$NUM_INSTANCES))
          fi
          INSTANCES=$(($INSTANCES-$NUM_INSTANCES))
@@ -189,14 +219,17 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
 
       echo "Delete all instances in each STD RIC"
 
+      if [ $interface == "REST_PARALLEL" ]; then
+         api_delete_policy_parallel 204 $NUM_RICS $INSTANCE_ID $NUM_INSTANCES 3
+      fi
       for ((i=1; i<=$NUM_RICS; i++))
       do
          if [ $interface == "DMAAP-BATCH" ]; then
             api_delete_policy_batch 204 $INSTANCE_ID $NUM_INSTANCES
-         else
+         elif [ $interface == "DMAAP" ] || [ $interface == "REST" ]; then
             api_delete_policy 204 $INSTANCE_ID $NUM_INSTANCES
          fi
-         if [ $interface != "REST" ]; then
+         if [ $interface == "DMAAP" ] || [ $interface == "DMAAP-BATCH" ]; then
             MR_MESSAGES=$(($MR_MESSAGES+$NUM_INSTANCES))
          fi
          INSTANCES=$(($INSTANCES-$NUM_INSTANCES))

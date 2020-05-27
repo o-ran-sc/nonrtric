@@ -41,9 +41,9 @@ __do_curl_to_controller() {
         body=$(echo "$3" | sed 's/"/\\"/g')
         json='{"input":{"near-rt-ric-url":"'$2'","body":"'"$body"'"}}'
     fi
-    echo "$json" > .sndc.payload.json
+    echo "$json" > .sdnc.payload.json
     echo "  FILE: $json"  >> $HTTPLOG
-    curlString="curl -skw %{http_code} -X POST $SDNC_HTTPX://$SDNC_USER:$SDNC_PWD@localhost:$SDNC_LOCAL_PORT$SDNC_API_URL$1 -H accept:application/json -H Content-Type:application/json --data-binary @.sndc.payload.json"
+    curlString="curl -skw %{http_code} -X POST $SDNC_HTTPX://$SDNC_USER:$SDNC_PWD@localhost:$SDNC_LOCAL_PORT$SDNC_API_URL$1 -H accept:application/json -H Content-Type:application/json --data-binary @.sdnc.payload.json"
     echo "  CMD: "$curlString >> $HTTPLOG
     res=$($curlString)
     retcode=$?

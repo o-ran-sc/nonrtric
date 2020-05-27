@@ -20,6 +20,9 @@
 
 TC_ONELINE_DESCR="Testing of service registration timeouts and keepalive"
 
+#App names to exclude checking pulling images for, space separated list
+EXCLUDED_IMAGES="SDMC SDNC_ONAP"
+
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
@@ -138,6 +141,46 @@ api_put_services_keepalive 404 "service1"
 api_put_services_keepalive 404 "service2"
 api_put_services_keepalive 404 "service3"
 api_put_services_keepalive 404 "service4"
+
+# Policy delete after timeout
+api_put_service 201 "service10" 600 "$CR_PATH/service10"
+
+sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
+
+api_equal json:rics 1 60
+
+api_equal json:policy_schemas 1 120
+
+api_equal json:policy_types 1
+
+api_equal json:policies 0
+
+api_put_policy 201 "service10" ricsim_g1_1 1 5000 NOTRANSIENT testdata/OSC/pi1_template.json
+
+api_equal json:policies 1
+
+sim_equal ricsim_g1_1 num_instances 1
+
+api_put_policy 201 "service10" ricsim_g1_1 1 5001 true testdata/OSC/pi1_template.json
+
+api_equal json:policies 2
+
+sim_equal ricsim_g1_1 num_instances 2
+
+sim_post_delete_instances 200 ricsim_g1_1
+
+#Wait for recreate of non transient policy
+api_equal json:policies 1 180
+
+sim_equal ricsim_g1_1 num_instances 1
+
+api_put_service 200 "service10" 10 "$CR_PATH/service10"
+
+#Wait for service expiry
+api_equal json:policies 0 120
+
+sim_equal ricsim_g1_1 num_instances 0
+
 
 api_get_service_ids 200
 

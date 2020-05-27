@@ -19,6 +19,9 @@
 
 TC_ONELINE_DESCR="Create 10000 policies in sequence using http/https and Agent REST/DMAAP with/without SDNC controller"
 
+#App names to exclude checking pulling images for, space separated list
+EXCLUDED_IMAGES="SDNC_ONAP"
+
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
@@ -133,10 +136,10 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         api_equal json:policy_types 2 120  #Wait for the agent to refresh types from the simulators
 
-        api_put_service 201 "rapp1" 3600 "$CR_PATH/callbacks/1"
+        api_put_service 201 "serv1" 3600 "$CR_PATH/1"
 
         start_timer "Create polices in OSC via agent REST and $interface using "$__httpx
-        api_put_policy 201 "rapp1" ricsim_g1_1 1 $START_ID testdata/OSC/pi1_template.json $NUM_POLICIES
+        api_put_policy 201 "serv1" ricsim_g1_1 1 $START_ID NOTRANSIENT testdata/OSC/pi1_template.json $NUM_POLICIES
         print_timer "Create polices in OSC via agent REST and $interface using "$__httpx
 
         sim_equal ricsim_g1_1 num_instances $NUM_POLICIES
@@ -144,7 +147,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         START_ID=$(($START_ID+$NUM_POLICIES))
 
         start_timer "Create polices in STD via agent REST and $interface using "$__httpx
-        api_put_policy 201 "rapp1" ricsim_g2_1 NOTYPE $START_ID testdata/STD/pi1_template.json $NUM_POLICIES
+        api_put_policy 201 "serv1" ricsim_g2_1 NOTYPE $START_ID NOTRANSIENT testdata/STD/pi1_template.json $NUM_POLICIES
         print_timer "Create polices in STD via agent REST and $interface using "$__httpx
 
         sim_equal ricsim_g2_1 num_instances $NUM_POLICIES
@@ -154,7 +157,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         START_ID=$(($START_ID+$NUM_POLICIES))
 
         start_timer "Create polices in OSC via agent DMAAP, one by one, and $interface using "$__httpx
-        api_put_policy 201 "rapp1" ricsim_g1_1 1 $START_ID testdata/OSC/pi1_template.json $NUM_POLICIES
+        api_put_policy 201 "serv1" ricsim_g1_1 1 $START_ID NOTRANSIENT testdata/OSC/pi1_template.json $NUM_POLICIES
         print_timer "Create polices in OSC via agent DMAAP, one by one, and $interface using "$__httpx
 
         sim_equal ricsim_g1_1 num_instances $((2*$NUM_POLICIES))
@@ -162,7 +165,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         START_ID=$(($START_ID+$NUM_POLICIES))
 
         start_timer "Create polices in STD via agent DMAAP, one by one, and $interface using "$__httpx
-        api_put_policy 201 "rapp1" ricsim_g2_1 NOTYPE $START_ID testdata/STD/pi1_template.json $NUM_POLICIES
+        api_put_policy 201 "serv1" ricsim_g2_1 NOTYPE $START_ID NOTRANSIENT testdata/STD/pi1_template.json $NUM_POLICIES
         print_timer "Create polices in STD via agent DMAAP, one by one, and $interface using "$__httpx
 
         sim_equal ricsim_g2_1 num_instances $((2*$NUM_POLICIES))
@@ -170,7 +173,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         START_ID=$(($START_ID+$NUM_POLICIES))
 
         start_timer "Create polices in OSC via agent DMAAP in batch and $interface using "$__httpx
-        api_put_policy_batch 201 "rapp1" ricsim_g1_1 1 $START_ID testdata/OSC/pi1_template.json $NUM_POLICIES
+        api_put_policy_batch 201 "serv1" ricsim_g1_1 1 $START_ID NOTRANSIENT testdata/OSC/pi1_template.json $NUM_POLICIES
         print_timer "Create polices in OSC via agent DMAAP in batch and $interface using "$__httpx
 
         sim_equal ricsim_g1_1 num_instances $((3*$NUM_POLICIES))
@@ -178,7 +181,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         START_ID=$(($START_ID+$NUM_POLICIES))
 
         start_timer "Create polices in STD via agent DMAAP in batch and $interface using "$__httpx
-        api_put_policy_batch 201 "rapp1" ricsim_g2_1 NOTYPE $START_ID testdata/STD/pi1_template.json $NUM_POLICIES
+        api_put_policy_batch 201 "serv1" ricsim_g2_1 NOTYPE $START_ID NOTRANSIENT testdata/STD/pi1_template.json $NUM_POLICIES
         print_timer "Create polices in STD via agent DMAAP in batch and $interface using "$__httpx
 
         sim_equal ricsim_g2_1 num_instances $((3*$NUM_POLICIES))

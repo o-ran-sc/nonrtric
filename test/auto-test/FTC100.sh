@@ -20,6 +20,9 @@
 
 TC_ONELINE_DESCR="Full agent API walk through using agent REST/DMAAP and with/without SDNC A1 Controller"
 
+#App names to exclude checking pulling images for, space separated list
+EXCLUDED_IMAGES="SDNC_ONAP"
+
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
@@ -286,15 +289,21 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         deviation "TR10 - agent allows policy creation on unregistered service (orig problem) - test combo $interface and $__httpx"
         #Kept until decison
-        #api_put_policy 400 "unregistered-service" ricsim_g1_1 1 2000 testdata/OSC/pi1_template.json
+        #api_put_policy 400 "unregistered-service" ricsim_g1_1 1 2000 NOTRANSIENT testdata/OSC/pi1_template.json
         #Allow 201 for now
-        api_put_policy 201 "unregistered-service" ricsim_g1_1 1 2000 testdata/OSC/pi1_template.json
+        api_put_policy 201 "unregistered-service" ricsim_g1_1 1 2000 NOTRANSIENT testdata/OSC/pi1_template.json
 
-        api_put_policy 201 "service10" ricsim_g1_1 1 5000 testdata/OSC/pi1_template.json
-        api_put_policy 200 "service10" ricsim_g1_1 1 5000 testdata/OSC/pi1_template.json
+        api_put_policy 201 "service10" ricsim_g1_1 1 5000 NOTRANSIENT testdata/OSC/pi1_template.json
+        api_put_policy 200 "service10" ricsim_g1_1 1 5000 NOTRANSIENT testdata/OSC/pi1_template.json
 
-        api_put_policy 201 "service10" ricsim_g2_1 NOTYPE 5100 testdata/STD/pi1_template.json
-        api_put_policy 200 "service10" ricsim_g2_1 NOTYPE 5100 testdata/STD/pi1_template.json
+        api_put_policy 200 "service10" ricsim_g1_1 1 5000 true testdata/OSC/pi1_template.json
+        api_put_policy 200 "service10" ricsim_g1_1 1 5000 false testdata/OSC/pi1_template.json
+
+        api_put_policy 201 "service10" ricsim_g2_1 NOTYPE 5100 NOTRANSIENT testdata/STD/pi1_template.json
+        api_put_policy 200 "service10" ricsim_g2_1 NOTYPE 5100 NOTRANSIENT testdata/STD/pi1_template.json
+
+        api_put_policy 200 "service10" ricsim_g2_1 NOTYPE 5100 true testdata/STD/pi1_template.json
+        api_put_policy 200 "service10" ricsim_g2_1 NOTYPE 5100 false testdata/STD/pi1_template.json
 
         VAL='NOT IN EFFECT'
         api_get_policy_status 200 5000 OSC "$VAL" "false"
