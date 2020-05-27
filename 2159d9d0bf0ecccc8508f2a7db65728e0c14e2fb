@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7c24726d_c4970d80",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RefreshConfigTask.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-05-27T10:53:40Z",
+      "side": 1,
+      "message": "are you really sure that this try/catch can be removed? \nI have a vague memory that the cbs client sometimes throws exceptions and \nwe do not want the regular polling for configuration to ever be stopped.\n\nI would leave this try/catch.",
+      "range": {
+        "startLine": 163,
+        "startChar": 7,
+        "endLine": 163,
+        "endChar": 49
+      },
+      "revId": "2159d9d0bf0ecccc8508f2a7db65728e0c14e2fb",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ca59340_482ff7f8",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/tasks/RefreshConfigTask.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-05-27T10:53:40Z",
+      "side": 1,
+      "message": "I think you migh just catch Exception instead. More readable and more safe, since that also includes runtime exceptions.",
+      "range": {
+        "startLine": 249,
+        "startChar": 17,
+        "endLine": 249,
+        "endChar": 88
+      },
+      "revId": "2159d9d0bf0ecccc8508f2a7db65728e0c14e2fb",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
