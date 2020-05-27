@@ -20,6 +20,9 @@
 
 TC_ONELINE_DESCR="Sample tests of the SDNC A1 controller restconf API using http/https (no agent)"
 
+#App names to exclude checking pulling images for, space separated list
+EXCLUDED_IMAGES="PA CP SDNC_ONAP"
+
 . ../common/testcase_common.sh  $@
 . ../common/controller_api_functions.sh
 . ../common/ricsimulator_api_functions.sh

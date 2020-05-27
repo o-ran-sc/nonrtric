@@ -19,6 +19,9 @@
 
 TC_ONELINE_DESCR="Basic use case, register service, create/update policy, delete policy, de-register service using both STD and OSC interface while mixing REST and Dmaap"
 
+#App names to exclude checking pulling images for, space separated list
+EXCLUDED_IMAGES="SDNC SDNC_ONAP"
+
 . ../common/testcase_common.sh $@
 . ../common/agent_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
@@ -69,28 +72,28 @@ use_agent_rest_http
 
 api_put_service 201 "service1" 3600 "$CR_PATH/1"
 
-api_put_policy 201 "service1" ricsim_g1_1 1 2000 testdata/OSC/pi1_template.json 1
+api_put_policy 201 "service1" ricsim_g1_1 1 2000 NOTRANSIENT testdata/OSC/pi1_template.json 1
 
 sim_equal ricsim_g1_1 num_instances 1
 
 
 use_agent_dmaap
 
-api_put_policy 201 "service1" ricsim_g1_1 1 3000 testdata/OSC/pi1_template.json 1
+api_put_policy 201 "service1" ricsim_g1_1 1 3000 NOTRANSIENT testdata/OSC/pi1_template.json 1
 
 sim_equal ricsim_g1_1 num_instances 2
 
 
 use_agent_rest_http
 
-api_put_policy 201 "service1" ricsim_g2_1 NOTYPE 2100 testdata/STD/pi1_template.json 1
+api_put_policy 201 "service1" ricsim_g2_1 NOTYPE 2100 NOTRANSIENT testdata/STD/pi1_template.json 1
 
 sim_equal ricsim_g2_1 num_instances 1
 
 
 use_agent_dmaap
 
-api_put_policy 201 "service1" ricsim_g2_1 NOTYPE 3100 testdata/STD/pi1_template.json 1
+api_put_policy 201 "service1" ricsim_g2_1 NOTYPE 3100 NOTRANSIENT testdata/STD/pi1_template.json 1
 
 sim_equal ricsim_g2_1 num_instances 2
 
@@ -98,16 +101,16 @@ sim_equal ricsim_g2_1 num_instances 2
 #Update policies
 use_agent_rest_http
 
-api_put_service 200 "service1" 3600 "$CR_PATH/callbacks/1"
+api_put_service 200 "service1" 3600 "$CR_PATH/1"
 
-api_put_policy 200 "service1" ricsim_g1_1 1 2000 testdata/OSC/pi1_template.json 1
+api_put_policy 200 "service1" ricsim_g1_1 1 2000 NOTRANSIENT testdata/OSC/pi1_template.json 1
 
 sim_equal ricsim_g1_1 num_instances 2
 
 
 use_agent_dmaap
 
-api_put_policy 200 "service1" ricsim_g1_1 1 3000 testdata/OSC/pi1_template.json 1
+api_put_policy 200 "service1" ricsim_g1_1 1 3000 NOTRANSIENT testdata/OSC/pi1_template.json 1
 
 sim_equal ricsim_g1_1 num_instances 2
 
@@ -115,14 +118,14 @@ sim_equal ricsim_g1_1 num_instances 2
 use_agent_rest_http
 
 
-api_put_policy 200 "service1" ricsim_g2_1 NOTYPE 2100 testdata/STD/pi1_template.json 1
+api_put_policy 200 "service1" ricsim_g2_1 NOTYPE 2100 NOTRANSIENT testdata/STD/pi1_template.json 1
 
 sim_equal ricsim_g2_1 num_instances 2
 
 
 use_agent_dmaap
 
-api_put_policy 200 "service1" ricsim_g2_1 NOTYPE 3100 testdata/STD/pi1_template.json 1
+api_put_policy 200 "service1" ricsim_g2_1 NOTYPE 3100 NOTRANSIENT testdata/STD/pi1_template.json 1
 
 sim_equal ricsim_g2_1 num_instances 2
 

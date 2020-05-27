@@ -1,0 +1,36 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "4",
+    "description": "Type 4 policy type",
+    "type": "object",
+    "properties": {
+      "scope": {
+        "type": "object",
+        "properties": {
+          "cellId": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "cellId"
+        ]
+      },
+      "qosObjective": {
+        "type": "object",
+        "properties": {
+          "priorityLevel": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "priorityLevel"
+        ]
+      }
+    },
+    "additionalProperties": false,
+    "required": [
+      "scope", "qosObjective"
+    ]
+  }

@@ -41,7 +41,7 @@ CONTROL_PANEL_REMOTE_IMAGE_TAG="1.0.0"
 
 # SDNC A1 Controller local image and tag
 SDNC_A1_CONTROLLER_LOCAL_IMAGE="o-ran-sc/nonrtric-a1-controller"
-SDNC_A1_CONTROLLER_LOCAL_IMAGE_TAG="1.0.0-SNAPSHOT"
+SDNC_A1_CONTROLLER_LOCAL_IMAGE_TAG="1.7.4-SNAPSHOT"
 # SDNC A1 Controller remote image and tag
 SDNC_A1_CONTROLLER_REMOTE_IMAGE="nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-a1-controller"
 SDNC_A1_CONTROLLER_REMOTE_IMAGE_TAG="1.7.4"

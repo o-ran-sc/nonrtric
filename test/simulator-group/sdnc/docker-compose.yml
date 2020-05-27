@@ -55,12 +55,9 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=openECOMP1.0
       - SDNC_CONFIG_DIR=/opt/onap/sdnc/data/properties
-    dns:
-      - ${DNS_IP_ADDR-10.0.100.1}
     logging:
       driver:   "json-file"
       options:
         max-size: "30m"
         max-file: "5"
-    extra_hosts:
-        aaf.osaaf.org: 10.12.6.214
+

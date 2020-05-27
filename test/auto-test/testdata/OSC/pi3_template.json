@@ -1,0 +1,8 @@
+{
+    "scope": {
+      "groupId": "groupXXX"
+    },
+    "qosObjective": {
+      "priorityLevel": XXX
+    }
+  }

@@ -20,6 +20,9 @@
 
 TC_ONELINE_DESCR="Resync of RIC via changes in the consul config"
 
+#App names to exclude checking pulling images for, space separated list
+EXCLUDED_IMAGES="SDNC_ONAP"
+
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
