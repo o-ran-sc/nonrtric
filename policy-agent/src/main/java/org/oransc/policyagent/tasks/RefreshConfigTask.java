@@ -22,8 +22,10 @@ package org.oransc.policyagent.tasks;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapterFactory;
 
 import java.io.BufferedInputStream;
@@ -69,8 +71,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * Regularly refreshes the configuration from Consul or from a local
- * configuration file.
+ * Regularly refreshes the configuration from Consul or from a local configuration file.
  */
 @Component
 public class RefreshConfigTask {
@@ -158,8 +159,8 @@ public class RefreshConfigTask {
     }
 
     private Mono<JsonObject> getFromCbs(CbsClient cbsClient) {
-        final CbsRequest getConfigRequest = CbsRequests.getAll(RequestDiagnosticContext.create());
         try {
+            final CbsRequest getConfigRequest = CbsRequests.getAll(RequestDiagnosticContext.create());
             return cbsClient.get(getConfigRequest) //
                 .onErrorResume(this::ignoreErrorMono);
         } catch (Exception e) {
@@ -249,7 +250,7 @@ public class RefreshConfigTask {
             appParser.parse(rootObject);
             logger.debug("Local configuration file loaded: {}", filepath);
             return Flux.just(rootObject);
-        } catch (IOException | ServiceException e) {
+        } catch (Exception e) {
             logger.error("Local configuration file not loaded: {}, {}", filepath, e.getMessage());
             return Flux.empty();
         }
