@@ -174,7 +174,8 @@ class RefreshConfigTaskTest {
         doReturn(getCorrectJson()).when(refreshTaskUnderTest).createInputStream(any());
         doReturn("fileName").when(appConfig).getLocalConfigurationFilePath();
 
-        StepVerifier.create(refreshTaskUnderTest.createRefreshTask()) //
+        StepVerifier //
+            .create(refreshTaskUnderTest.createRefreshTask()) //
             .expectSubscription() //
             .expectNext(Type.ADDED) //
             .expectNext(Type.ADDED) //
@@ -193,7 +194,7 @@ class RefreshConfigTaskTest {
     }
 
     @Test
-    void whenFileExistsButJsonIsIncorrect_thenNoRicsArePutInRepository() throws Exception {
+    void whenFileExistsButJsonIsIncorrect_thenNoRicsArePutInRepositoryAndErrorIsLogged() throws Exception {
         refreshTaskUnderTest = this.createTestObject(CONFIG_FILE_EXISTS);
         refreshTaskUnderTest.systemEnvironment = new Properties();
 
@@ -201,7 +202,10 @@ class RefreshConfigTaskTest {
         doReturn(getIncorrectJson()).when(refreshTaskUnderTest).createInputStream(any());
         doReturn("fileName").when(appConfig).getLocalConfigurationFilePath();
 
-        StepVerifier.create(refreshTaskUnderTest.createRefreshTask()) //
+        final ListAppender<ILoggingEvent> logAppender = LoggingUtils.getLogListAppender(RefreshConfigTask.class, ERROR);
+
+        StepVerifier //
+            .create(refreshTaskUnderTest.createRefreshTask()) //
             .expectSubscription() //
             .expectNoEvent(Duration.ofMillis(100)) //
             .thenCancel() //
@@ -210,6 +214,8 @@ class RefreshConfigTaskTest {
         // Then
         verify(refreshTaskUnderTest).loadConfigurationFromFile();
         assertThat(appConfig.getRicConfigs().size()).isEqualTo(0);
+
+        assertThat(logAppender.list.toString().contains("Local configuration file not loaded: fileName, ")).isTrue();
     }
 
     @Test
@@ -224,10 +230,9 @@ class RefreshConfigTaskTest {
         when(cbsClient.get(any())).thenReturn(Mono.error(new IOException()));
 
         final ListAppender<ILoggingEvent> logAppender = LoggingUtils.getLogListAppender(RefreshConfigTask.class, WARN);
-        Flux<Type> task = refreshTaskUnderTest.createRefreshTask();
 
         StepVerifier //
-            .create(task) //
+            .create(refreshTaskUnderTest.createRefreshTask()) //
             .expectSubscription() //
             .expectNoEvent(Duration.ofMillis(1000)) //
             .thenCancel() //
@@ -259,16 +264,14 @@ class RefreshConfigTaskTest {
         doReturn(Mono.just(props)).when(refreshTaskUnderTest).getEnvironment(any());
         doReturn(Mono.just(cbsClient)).when(refreshTaskUnderTest).createCbsClient(props);
 
-        JsonObject configAsJson = getJsonRootObject();
+        JsonObject configAsJson = getJsonRootObject(true);
         String newBaseUrl = "newBaseUrl";
         modifyTheRicConfiguration(configAsJson, newBaseUrl);
         when(cbsClient.get(any())).thenReturn(Mono.just(configAsJson));
         doNothing().when(refreshTaskUnderTest).runRicSynchronization(any(Ric.class));
 
-        Flux<Type> task = refreshTaskUnderTest.createRefreshTask();
-
         StepVerifier //
-            .create(task) //
+            .create(refreshTaskUnderTest.createRefreshTask()) //
             .expectSubscription() //
             .expectNext(Type.CHANGED) //
             .expectNext(Type.ADDED) //
@@ -286,6 +289,35 @@ class RefreshConfigTaskTest {
         assertThat(rics.get(ric2Name)).isNotNull();
 
         assertThat(policies.size()).isEqualTo(0);
+    }
+
+    @Test
+    void whenPeriodicConfigRefreshInvalidJson_thenErrorIsLogged() throws Exception {
+        Rics rics = new Rics();
+        Policies policies = new Policies();
+        refreshTaskUnderTest = this.createTestObject(CONFIG_FILE_DOES_NOT_EXIST, rics, policies, false);
+        refreshTaskUnderTest.systemEnvironment = new Properties();
+
+        appConfig.setConfiguration(configParserResult());
+
+        EnvProperties props = properties();
+        doReturn(Mono.just(props)).when(refreshTaskUnderTest).getEnvironment(any());
+        doReturn(Mono.just(cbsClient)).when(refreshTaskUnderTest).createCbsClient(props);
+
+        JsonObject configAsJson = getJsonRootObject(false);
+        when(cbsClient.get(any())).thenReturn(Mono.just(configAsJson));
+
+        final ListAppender<ILoggingEvent> logAppender = LoggingUtils.getLogListAppender(RefreshConfigTask.class, ERROR);
+
+        StepVerifier //
+            .create(refreshTaskUnderTest.createRefreshTask()) //
+            .expectSubscription() //
+            .expectNoEvent(Duration.ofMillis(1000)) //
+            .thenCancel() //
+            .verify();
+
+        assertThat(logAppender.list.toString()
+            .contains("Could not parse configuration org.oransc.policyagent.exceptions.ServiceException: ")).isTrue();
     }
 
     private RicConfig getRicConfig(String name) {
@@ -330,8 +362,9 @@ class RefreshConfigTaskTest {
                 .addProperty("baseUrl", newBaseUrl);
     }
 
-    private JsonObject getJsonRootObject() throws JsonIOException, JsonSyntaxException, IOException {
-        JsonObject rootObject = JsonParser.parseReader(new InputStreamReader(getCorrectJson())).getAsJsonObject();
+    private JsonObject getJsonRootObject(boolean valid) throws JsonIOException, JsonSyntaxException, IOException {
+        JsonObject rootObject = JsonParser
+            .parseReader(new InputStreamReader(valid ? getCorrectJson() : getIncorrectJson())).getAsJsonObject();
         return rootObject;
     }
 
@@ -342,9 +375,7 @@ class RefreshConfigTaskTest {
     }
 
     private static InputStream getIncorrectJson() {
-        String string = "{" + //
-            "    \"config\": {" + //
-            "        \"ric\": {"; //
+        String string = "{}"; //
         return new ByteArrayInputStream((string.getBytes(StandardCharsets.UTF_8)));
     }
 }

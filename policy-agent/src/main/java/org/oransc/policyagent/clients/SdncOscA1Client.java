@@ -80,10 +80,12 @@ public class SdncOscA1Client implements A1Client {
     /**
      * Constructor that creates the REST client to use.
      *
-     * @param protocolType the southbound protocol of the controller. Supported
-     *        protocols are SDNC_OSC_STD_V1_1 and SDNC_OSC_OSC_V1
+     * @param protocolType the southbound protocol of the controller. Supported protocols are SDNC_OSC_STD_V1_1 and
+     *        SDNC_OSC_OSC_V1
      * @param ricConfig the configuration of the Ric to communicate with
      * @param controllerConfig the configuration of the SDNC controller to use
+     *
+     * @throws IllegalArgumentException when the protocolType is wrong.
      */
     public SdncOscA1Client(A1ProtocolType protocolType, RicConfig ricConfig, ControllerConfig controllerConfig) {
         this(protocolType, ricConfig, controllerConfig,
@@ -94,14 +96,21 @@ public class SdncOscA1Client implements A1Client {
     /**
      * Constructor where the REST client to use is provided.
      *
-     * @param protocolType the southbound protocol of the controller. Supported
-     *        protocols are SDNC_OSC_STD_V1_1 and SDNC_OSC_OSC_V1
+     * @param protocolType the southbound protocol of the controller. Supported protocols are SDNC_OSC_STD_V1_1 and
+     *        SDNC_OSC_OSC_V1
      * @param ricConfig the configuration of the Ric to communicate with
      * @param controllerConfig the configuration of the SDNC controller to use
      * @param restClient the REST client to use
+     *
+     * @throws IllegalArgumentException when the protocolType is wrong.
      */
     public SdncOscA1Client(A1ProtocolType protocolType, RicConfig ricConfig, ControllerConfig controllerConfig,
         AsyncRestClient restClient) {
+        if (!(A1ProtocolType.SDNC_OSC_STD_V1_1.equals(protocolType)
+            || A1ProtocolType.SDNC_OSC_OSC_V1.equals(protocolType))) {
+            throw new IllegalArgumentException("Protocol type must be " + A1ProtocolType.SDNC_OSC_STD_V1_1 + " or "
+                + A1ProtocolType.SDNC_OSC_OSC_V1 + ", was: " + protocolType);
+        }
         this.restClient = restClient;
         this.ricConfig = ricConfig;
         this.protocolType = protocolType;
@@ -112,20 +121,14 @@ public class SdncOscA1Client implements A1Client {
     public Mono<List<String>> getPolicyTypeIdentities() {
         if (this.protocolType == A1ProtocolType.SDNC_OSC_STD_V1_1) {
             return Mono.just(Arrays.asList(""));
-        } else if (this.protocolType == A1ProtocolType.SDNC_OSC_OSC_V1) {
+        } else {
             OscA1Client.UriBuilder uri = new OscA1Client.UriBuilder(ricConfig);
             final String ricUrl = uri.createPolicyTypesUri();
             return post(GET_POLICY_RPC, ricUrl, Optional.empty()) //
                 .flatMapMany(SdncJsonHelper::parseJsonArrayOfString) //
                 .collectList();
-        } else {
-            return Mono.error(createIllegalProtocolException());
         }
 
-    }
-
-    private Exception createIllegalProtocolException() {
-        return new NullPointerException("Bug, unhandeled protocoltype: " + this.protocolType);
     }
 
     @Override
@@ -138,13 +141,11 @@ public class SdncOscA1Client implements A1Client {
     public Mono<String> getPolicyTypeSchema(String policyTypeId) {
         if (this.protocolType == A1ProtocolType.SDNC_OSC_STD_V1_1) {
             return Mono.just("{}");
-        } else if (this.protocolType == A1ProtocolType.SDNC_OSC_OSC_V1) {
+        } else {
             OscA1Client.UriBuilder uri = new OscA1Client.UriBuilder(ricConfig);
             final String ricUrl = uri.createGetSchemaUri(policyTypeId);
             return post(GET_POLICY_RPC, ricUrl, Optional.empty()) //
                 .flatMap(response -> OscA1Client.extractCreateSchema(response, policyTypeId));
-        } else {
-            return Mono.error(createIllegalProtocolException());
         }
     }
 
@@ -167,13 +168,11 @@ public class SdncOscA1Client implements A1Client {
         if (this.protocolType == A1ProtocolType.SDNC_OSC_STD_V1_1) {
             return getPolicyIds() //
                 .flatMap(policyId -> deletePolicyById("", policyId), CONCURRENCY_RIC); //
-        } else if (this.protocolType == A1ProtocolType.SDNC_OSC_OSC_V1) {
+        } else {
             OscA1Client.UriBuilder uriBuilder = new OscA1Client.UriBuilder(ricConfig);
             return getPolicyTypeIdentities() //
                 .flatMapMany(Flux::fromIterable) //
                 .flatMap(type -> oscDeleteInstancesForType(uriBuilder, type), CONCURRENCY_RIC);
-        } else {
-            return Flux.error(createIllegalProtocolException());
         }
     }
 
@@ -205,10 +204,8 @@ public class SdncOscA1Client implements A1Client {
     private Mono<A1UriBuilder> getUriBuilder() {
         if (protocolType == A1ProtocolType.SDNC_OSC_STD_V1_1) {
             return Mono.just(new StdA1ClientVersion1.UriBuilder(ricConfig));
-        } else if (this.protocolType == A1ProtocolType.SDNC_OSC_OSC_V1) {
-            return Mono.just(new OscA1Client.UriBuilder(ricConfig));
         } else {
-            return Mono.error(createIllegalProtocolException());
+            return Mono.just(new OscA1Client.UriBuilder(ricConfig));
         }
     }
 
@@ -230,14 +227,12 @@ public class SdncOscA1Client implements A1Client {
             final String ricUrl = uri.createGetPolicyIdsUri();
             return post(GET_POLICY_RPC, ricUrl, Optional.empty()) //
                 .flatMapMany(SdncJsonHelper::parseJsonArrayOfString);
-        } else if (this.protocolType == A1ProtocolType.SDNC_OSC_OSC_V1) {
+        } else {
             OscA1Client.UriBuilder uri = new OscA1Client.UriBuilder(ricConfig);
             return getPolicyTypeIdentities() //
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(type -> post(GET_POLICY_RPC, uri.createGetPolicyIdsUri(type), Optional.empty())) //
                 .flatMap(SdncJsonHelper::parseJsonArrayOfString);
-        } else {
-            return Flux.error(createIllegalProtocolException());
         }
     }
 
@@ -272,10 +267,10 @@ public class SdncOscA1Client implements A1Client {
         } else {
             logger.debug("Error response: {} {}", output.httpStatus(), body);
             byte[] responseBodyBytes = body.getBytes(StandardCharsets.UTF_8);
-            WebClientResponseException e = new WebClientResponseException(output.httpStatus(), "statusText", null,
-                responseBodyBytes, StandardCharsets.UTF_8, null);
+            WebClientResponseException responseException = new WebClientResponseException(output.httpStatus(),
+                "statusText", null, responseBodyBytes, StandardCharsets.UTF_8, null);
 
-            return Mono.error(e);
+            return Mono.error(responseException);
         }
     }
 

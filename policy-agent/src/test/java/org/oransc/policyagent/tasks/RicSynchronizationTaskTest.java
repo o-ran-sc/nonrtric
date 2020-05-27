@@ -80,9 +80,9 @@ class RicSynchronizationTaskTest {
         .controllerName("controllerName") //
         .build());
 
-    private static Policy createPolicy(boolean isTransient) {
+    private static Policy createPolicy(String policyId, boolean isTransient) {
         return ImmutablePolicy.builder() //
-            .id("policyId1") //
+            .id(policyId) //
             .json("") //
             .ownerServiceName("service") //
             .ric(RIC_1) //
@@ -92,7 +92,7 @@ class RicSynchronizationTaskTest {
             .build();
     }
 
-    private static final Policy POLICY_1 = createPolicy(false);
+    private static final Policy POLICY_1 = createPolicy("policyId1", false);
 
     private static final String SERVICE_1_NAME = "service1";
     private static final String SERVICE_1_CALLBACK_URL = "callbackUrl";
@@ -201,7 +201,7 @@ class RicSynchronizationTaskTest {
     void ricIdleAndHavePolicies_thenSynchronizationWithRecreationOfPolicies() {
         RIC_1.setState(RicState.AVAILABLE);
 
-        Policy transientPolicy = createPolicy(true);
+        Policy transientPolicy = createPolicy("transientPolicyId", true);
 
         policies.put(transientPolicy);
         policies.put(POLICY_1);

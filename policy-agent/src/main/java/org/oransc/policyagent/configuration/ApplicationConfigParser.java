@@ -71,6 +71,10 @@ public class ApplicationConfigParser {
 
         JsonObject agentConfigJson = root.getAsJsonObject(CONFIG);
 
+        if (agentConfigJson == null) {
+            throw new ServiceException("Missing root configuration \"" + CONFIG + "\" in JSON: " + root);
+        }
+
         JsonObject json = agentConfigJson.getAsJsonObject("streams_publishes");
         if (json != null) {
             dmaapPublisherConfig = parseDmaapConfig(json);
