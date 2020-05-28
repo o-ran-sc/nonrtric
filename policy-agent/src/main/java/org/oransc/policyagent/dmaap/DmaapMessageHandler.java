@@ -73,8 +73,8 @@ public class DmaapMessageHandler {
                 .flatMap(
                     response -> sendDmaapResponse(response.getBody(), dmaapRequestMessage, response.getStatusCode()));
         } catch (Exception e) {
-            logger.warn("Received unparsable message from DMAAP: {}", msg);
-            return Mono.error(e); // Cannot make any response
+            String errorMsg = "Received unparsable message from DMAAP: \"" + msg + "\", reason: " + e.getMessage();
+            return Mono.error(new ServiceException(errorMsg)); // Cannot make any response
         }
     }
 

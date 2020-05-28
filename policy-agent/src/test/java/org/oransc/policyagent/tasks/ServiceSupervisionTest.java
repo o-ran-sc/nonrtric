@@ -136,7 +136,7 @@ class ServiceSupervisionTest {
         assertThat(loggingEvent.getLevel()).isEqualTo(WARN);
         String expectedLogMessage =
             "Could not delete policy: " + POLICY_ID + " from ric: " + RIC_NAME + ". Cause: " + originalErrorMessage;
-        assertThat(loggingEvent.toString().contains(expectedLogMessage)).isTrue();
+        assertThat(loggingEvent.getFormattedMessage()).isEqualTo(expectedLogMessage);
     }
 
     @Test

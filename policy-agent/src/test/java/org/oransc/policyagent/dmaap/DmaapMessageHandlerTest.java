@@ -20,6 +20,7 @@
 
 package org.oransc.policyagent.dmaap;
 
+import static ch.qos.logback.classic.Level.WARN;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -32,7 +33,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 
@@ -129,12 +129,15 @@ class DmaapMessageHandlerTest {
 
     @Test
     void unparseableMessage_thenWarning() {
-        final ListAppender<ILoggingEvent> logAppender = LoggingUtils.getLogListAppender(DmaapMessageHandler.class);
+        final ListAppender<ILoggingEvent> logAppender =
+            LoggingUtils.getLogListAppender(DmaapMessageHandler.class, WARN);
 
-        testedObject.handleDmaapMsg("bad message");
+        String msg = "bad message";
+        testedObject.handleDmaapMsg(msg);
 
-        assertThat(logAppender.list.get(0).getLevel()).isEqualTo(Level.WARN);
-        assertThat(logAppender.list.toString().contains("handleDmaapMsg failure ")).isTrue();
+        assertThat(logAppender.list.get(0).getFormattedMessage()).startsWith(
+            "handleDmaapMsg failure org.oransc.policyagent.exceptions.ServiceException: Received unparsable "
+                + "message from DMAAP: \"" + msg + "\", reason: ");
     }
 
     @Test
@@ -237,7 +240,9 @@ class DmaapMessageHandlerTest {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(dmaapClient).send(captor.capture());
         String actualMessage = captor.getValue();
-        assertThat(actualMessage.contains(HttpStatus.BAD_REQUEST.toString())).isTrue();
+        assertThat(actualMessage.contains(HttpStatus.BAD_REQUEST.toString()))
+            .as("Message \"%s\" sent to DMaaP contains %s", actualMessage, HttpStatus.BAD_REQUEST) //
+            .isTrue();
 
         verify(dmaapClient).sendBatchWithResponse();
         verifyNoMoreInteractions(dmaapClient);
@@ -255,7 +260,9 @@ class DmaapMessageHandlerTest {
         verify(dmaapClient).send(captor.capture());
         String actualMessage = captor.getValue();
         assertThat(actualMessage
-            .contains(HttpStatus.BAD_REQUEST + "\",\"message\":\"Not implemented operation: " + badOperation)).isTrue();
+            .contains(HttpStatus.BAD_REQUEST + "\",\"message\":\"Not implemented operation: " + badOperation)) //
+                .as("Message \"%s\" sent to DMaaP contains %s", actualMessage, HttpStatus.BAD_REQUEST) //
+                .isTrue();
 
         verify(dmaapClient).sendBatchWithResponse();
         verifyNoMoreInteractions(dmaapClient);
@@ -266,11 +273,12 @@ class DmaapMessageHandlerTest {
         String message = dmaapInputMessage(Operation.PUT).toString();
         message = message.replace(",\"payload\":{\"name\":\"name\",\"schema\":\"schema\"}", "");
 
-        final ListAppender<ILoggingEvent> logAppender = LoggingUtils.getLogListAppender(DmaapMessageHandler.class);
+        final ListAppender<ILoggingEvent> logAppender =
+            LoggingUtils.getLogListAppender(DmaapMessageHandler.class, WARN);
 
         testedObject.handleDmaapMsg(message);
 
-        assertThat(logAppender.list.get(0).getLevel()).isEqualTo(Level.WARN);
-        assertThat(logAppender.list.toString().contains("Expected payload in message from DMAAP: ")).isTrue();
+        assertThat(logAppender.list.get(0).getFormattedMessage())
+            .startsWith("Expected payload in message from DMAAP: ");
     }
 }

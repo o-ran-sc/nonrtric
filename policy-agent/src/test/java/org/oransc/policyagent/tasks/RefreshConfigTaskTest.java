@@ -23,6 +23,7 @@ package org.oransc.policyagent.tasks;
 import static ch.qos.logback.classic.Level.ERROR;
 import static ch.qos.logback.classic.Level.WARN;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -138,21 +139,22 @@ class RefreshConfigTaskTest {
 
         refreshTaskUnderTest.start();
 
-        assertThat(logAppender.list.toString().contains("Configuration refresh terminated")).isTrue();
+        assertThat(logAppender.list.get(0).getFormattedMessage()).isEqualTo("Configuration refresh terminated");
     }
 
     @Test
     void startWithStubbedRefreshReturnError_thenErrorAndTerminationLogged() {
         refreshTaskUnderTest = this.createTestObject(CONFIG_FILE_DOES_NOT_EXIST, null, null, false);
-        doReturn(Flux.error(new Exception("Error"))).when(refreshTaskUnderTest).createRefreshTask();
+        String errorMessage = "Error";
+        doReturn(Flux.error(new Exception(errorMessage))).when(refreshTaskUnderTest).createRefreshTask();
 
         final ListAppender<ILoggingEvent> logAppender = LoggingUtils.getLogListAppender(RefreshConfigTask.class, ERROR);
 
         refreshTaskUnderTest.start();
 
         ILoggingEvent event = logAppender.list.get(0);
-        assertThat(event.getLevel()).isEqualTo(ERROR);
-        assertThat(event.toString().contains("Configuration refresh terminated due to exception")).isTrue();
+        assertThat(event.getFormattedMessage())
+            .isEqualTo("Configuration refresh terminated due to exception java.lang.Exception: " + errorMessage);
     }
 
     @Test
@@ -163,7 +165,7 @@ class RefreshConfigTaskTest {
         refreshTaskUnderTest.start();
         refreshTaskUnderTest.stop();
 
-        assertThat(refreshTaskUnderTest.getRefreshTask().isDisposed()).isTrue();
+        assertThat(refreshTaskUnderTest.getRefreshTask().isDisposed()).as("Refresh task is disposed").isTrue();
     }
 
     @Test
@@ -215,7 +217,9 @@ class RefreshConfigTaskTest {
         verify(refreshTaskUnderTest).loadConfigurationFromFile();
         assertThat(appConfig.getRicConfigs().size()).isEqualTo(0);
 
-        assertThat(logAppender.list.toString().contains("Local configuration file not loaded: fileName, ")).isTrue();
+        await().until(() -> logAppender.list.size() > 0);
+        assertThat(logAppender.list.get(0).getFormattedMessage())
+            .startsWith("Local configuration file not loaded: fileName, ");
     }
 
     @Test
@@ -238,9 +242,9 @@ class RefreshConfigTaskTest {
             .thenCancel() //
             .verify();
 
-        assertThat(
-            logAppender.list.toString().contains("Could not refresh application configuration. java.io.IOException"))
-                .isTrue();
+        await().until(() -> logAppender.list.size() > 0);
+        assertThat(logAppender.list.get(0).getFormattedMessage())
+            .isEqualTo("Could not refresh application configuration. java.io.IOException");
     }
 
     @Test
@@ -316,8 +320,9 @@ class RefreshConfigTaskTest {
             .thenCancel() //
             .verify();
 
-        assertThat(logAppender.list.toString()
-            .contains("Could not parse configuration org.oransc.policyagent.exceptions.ServiceException: ")).isTrue();
+        await().until(() -> logAppender.list.size() > 0);
+        assertThat(logAppender.list.get(0).getFormattedMessage())
+            .startsWith("Could not parse configuration org.oransc.policyagent.exceptions.ServiceException: ");
     }
 
     private RicConfig getRicConfig(String name) {
