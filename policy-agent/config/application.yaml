@@ -29,7 +29,7 @@ server:
       key-password: policy_agent
       key-alias: policy_agent
 app:
-  filepath: /opt/app/policy-agent/config/application_configuration.json
+  filepath: /opt/app/policy-agent/data/application_configuration.json
   webclient:
     trust-store-used: false
     trust-store-password: policy_agent
