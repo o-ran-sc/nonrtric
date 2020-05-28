@@ -308,7 +308,8 @@ class RicSynchronizationTaskTest {
 
         ILoggingEvent loggingEvent = logAppender.list.get(0);
         assertThat(loggingEvent.getLevel()).isEqualTo(WARN);
-        verifyCorrectLogMessage(0, logAppender, "Service notification failed for service: " + SERVICE_1_NAME);
+        verifyCorrectLogMessage(0, logAppender,
+            "Service notification failed for service: " + SERVICE_1_NAME + ". Cause: " + originalErrorMessage);
     }
 
     private void setUpCreationOfA1Client() {
@@ -333,6 +334,6 @@ class RicSynchronizationTaskTest {
     private void verifyCorrectLogMessage(int messageIndex, ListAppender<ILoggingEvent> logAppender,
         String expectedMessage) {
         ILoggingEvent loggingEvent = logAppender.list.get(messageIndex);
-        assertThat(loggingEvent.toString().contains(expectedMessage)).isTrue();
+        assertThat(loggingEvent.getFormattedMessage()).isEqualTo(expectedMessage);
     }
 }

@@ -332,7 +332,7 @@ class ApplicationTest {
 
         url = "/policies";
         String rsp = restClient().get(url).block();
-        assertThat(rsp.contains(policyInstanceId)).isTrue();
+        assertThat(rsp.contains(policyInstanceId)).as("Response contains policy instance ID.").isTrue();
 
         url = "/policy?id=" + policyInstanceId;
         rsp = restClient().get(url).block();
@@ -400,10 +400,10 @@ class ApplicationTest {
 
         String rsp = restClient().get("/policies").block();
         List<PolicyInfo> info = parseList(rsp, PolicyInfo.class);
-        assertThat(info).size().isEqualTo(1);
+        assertThat(info.size()).isEqualTo(1);
         PolicyInfo policyInfo = info.get(0);
-        assertThat(policyInfo.id.equals("id1")).isTrue();
-        assertThat(policyInfo.type.equals("")).isTrue();
+        assertThat(policyInfo.id).isEqualTo("id1");
+        assertThat(policyInfo.type).isEqualTo("");
     }
 
     @Test
@@ -581,8 +581,9 @@ class ApplicationTest {
     @Test
     void testPutAndGetService() throws Exception {
         // PUT
-        putService("name", 0, HttpStatus.CREATED);
-        putService("name", 0, HttpStatus.OK);
+        String serviceName = "name";
+        putService(serviceName, 0, HttpStatus.CREATED);
+        putService(serviceName, 0, HttpStatus.OK);
 
         // GET one service
         String url = "/services?name=name";
@@ -591,12 +592,12 @@ class ApplicationTest {
         assertThat(info.size()).isEqualTo(1);
         ServiceStatus status = info.iterator().next();
         assertThat(status.keepAliveIntervalSeconds).isEqualTo(0);
-        assertThat(status.serviceName).isEqualTo("name");
+        assertThat(status.serviceName).isEqualTo(serviceName);
 
         // GET (all)
         url = "/services";
         rsp = restClient().get(url).block();
-        assertThat(rsp.contains("name")).isTrue();
+        assertThat(rsp.contains(serviceName)).as("Response contains service name").isTrue();
         logger.info(rsp);
 
         // Keep alive
@@ -610,17 +611,17 @@ class ApplicationTest {
         restClient().delete(url).block();
         assertThat(services.size()).isEqualTo(0);
 
-        // Keep alive, no registerred service
+        // Keep alive, no registered service
         testErrorCode(restClient().put("/services/keepalive?name=name", ""), HttpStatus.NOT_FOUND);
 
         // PUT servive with bad payload
         testErrorCode(restClient().put("/service", "crap"), HttpStatus.BAD_REQUEST);
         testErrorCode(restClient().put("/service", "{}"), HttpStatus.BAD_REQUEST);
-        testErrorCode(restClient().put("/service", createServiceJson("name", -123)), HttpStatus.BAD_REQUEST);
-        testErrorCode(restClient().put("/service", createServiceJson("name", 0, "missing.portandprotocol.com")),
+        testErrorCode(restClient().put("/service", createServiceJson(serviceName, -123)), HttpStatus.BAD_REQUEST);
+        testErrorCode(restClient().put("/service", createServiceJson(serviceName, 0, "missing.portandprotocol.com")),
             HttpStatus.BAD_REQUEST);
 
-        // GET non existing servive
+        // GET non existing service
         testErrorCode(restClient().get("/services?name=XXX"), HttpStatus.NOT_FOUND);
     }
 
@@ -648,7 +649,7 @@ class ApplicationTest {
 
         String url = "/policy_status?id=id";
         String rsp = restClient().get(url).block();
-        assertThat(rsp.equals("OK")).isTrue();
+        assertThat(rsp).isEqualTo("OK");
 
         // GET non existing policy status
         url = "/policy_status?id=XXX";
@@ -657,7 +658,7 @@ class ApplicationTest {
 
     private Policy addPolicy(String id, String typeName, String service, String ric) throws ServiceException {
         addRic(ric);
-        Policy p = ImmutablePolicy.builder() //
+        Policy policy = ImmutablePolicy.builder() //
             .id(id) //
             .json(jsonString()) //
             .ownerServiceName(service) //
@@ -666,8 +667,8 @@ class ApplicationTest {
             .lastModified("lastModified") //
             .isTransient(false) //
             .build();
-        policies.put(p);
-        return p;
+        policies.put(policy);
+        return policy;
     }
 
     private Policy addPolicy(String id, String typeName, String service) throws ServiceException {
@@ -716,11 +717,11 @@ class ApplicationTest {
         addPolicyType("type2", "ric");
 
         for (int i = 0; i < 10; ++i) {
-            Thread t =
+            Thread thread =
                 new Thread(new ConcurrencyTestRunnable(baseUrl(), supervision, a1ClientFactory, rics, policyTypes),
                     "TestThread_" + i);
-            t.start();
-            threads.add(t);
+            thread.start();
+            threads.add(thread);
         }
         for (Thread t : threads) {
             t.join();
@@ -755,11 +756,11 @@ class ApplicationTest {
             .verify();
     }
 
-    private boolean checkWebClientError(Throwable t, HttpStatus expStatus, String responseContains) {
-        assertTrue(t instanceof WebClientResponseException);
-        WebClientResponseException e = (WebClientResponseException) t;
-        assertThat(e.getStatusCode()).isEqualTo(expStatus);
-        assertThat(e.getResponseBodyAsString()).contains(responseContains);
+    private boolean checkWebClientError(Throwable throwable, HttpStatus expStatus, String responseContains) {
+        assertTrue(throwable instanceof WebClientResponseException);
+        WebClientResponseException responseException = (WebClientResponseException) throwable;
+        assertThat(responseException.getStatusCode()).isEqualTo(expStatus);
+        assertThat(responseException.getResponseBodyAsString()).contains(responseContains);
         return true;
     }
 
@@ -809,8 +810,8 @@ class ApplicationTest {
         List<T> result = new ArrayList<>();
         JsonArray jsonArr = JsonParser.parseString(jsonString).getAsJsonArray();
         for (JsonElement jsonElement : jsonArr) {
-            T o = gson.fromJson(jsonElement.toString(), clazz);
-            result.add(o);
+            T json = gson.fromJson(jsonElement.toString(), clazz);
+            result.add(json);
         }
         return result;
     }

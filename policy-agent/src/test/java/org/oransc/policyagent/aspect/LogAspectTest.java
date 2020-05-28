@@ -47,7 +47,7 @@ class LogAspectTest {
         // 'proceed(Object[])' is never called
         verify(proceedingJoinPoint, never()).proceed(null);
 
-        assertThat(logAppender.list.toString().contains("Execution time of")).isTrue();
+        assertThat(logAppender.list.get(0).getFormattedMessage()).startsWith("Execution time of");
     }
 
     @Test
@@ -60,7 +60,7 @@ class LogAspectTest {
 
         sampleAspect.entryLog(proceedingJoinPoint);
 
-        assertThat(logAppender.list.toString().contains("Entering method: " + signature)).isTrue();
+        assertThat(logAppender.list.get(0).getFormattedMessage()).isEqualTo("Entering method: " + signature);
     }
 
     @Test
@@ -73,6 +73,6 @@ class LogAspectTest {
 
         sampleAspect.exitLog(proceedingJoinPoint);
 
-        assertThat(logAppender.list.toString().contains("Exiting method: " + signature)).isTrue();
+        assertThat(logAppender.list.get(0).getFormattedMessage()).isEqualTo("Exiting method: " + signature);
     }
 }

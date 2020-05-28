@@ -145,9 +145,8 @@ class DmaapMessageConsumerTest {
 
         messageConsumerUnderTest.start().join();
 
-        assertThat(logAppender.list.toString()
-            .contains("Cannot fetch because of Error respons " + responseCode + " " + responseMessage + " from DMaaP."))
-                .isTrue();
+        assertThat(logAppender.list.get(0).getFormattedMessage()).isEqualTo(
+            "Cannot fetch because of Error respons " + responseCode + " " + responseMessage + " from DMaaP.");
 
         verify(messageConsumerUnderTest).sleep(DmaapMessageConsumer.TIME_BETWEEN_DMAAP_RETRIES);
     }

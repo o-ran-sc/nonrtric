@@ -121,8 +121,8 @@ class SdncOscA1ClientTest {
 
         List<String> policyTypeIds = clientUnderTest.getPolicyTypeIdentities().block();
 
-        assertEquals(1, policyTypeIds.size(), "");
-        assertEquals(POLICY_TYPE_1_ID, policyTypeIds.get(0), "");
+        assertEquals(1, policyTypeIds.size());
+        assertEquals(POLICY_TYPE_1_ID, policyTypeIds.get(0));
 
         String expUrl = RIC_1_URL + "/a1-p/policytypes";
         ImmutableAdapterRequest expectedParams = ImmutableAdapterRequest.builder() //
@@ -137,7 +137,7 @@ class SdncOscA1ClientTest {
     void getTypeSchema_STD() {
         String policyType = clientUnderTest.getPolicyTypeSchema("").block();
 
-        assertEquals("{}", policyType, "");
+        assertEquals("{}", policyType);
     }
 
     @Test
@@ -164,9 +164,9 @@ class SdncOscA1ClientTest {
         String inputString = "[1, \"1\" ]";
 
         List<String> result = SdncJsonHelper.parseJsonArrayOfString(inputString).collectList().block();
-        assertEquals(2, result.size(), "");
-        assertEquals("1", result.get(0), "");
-        assertEquals("1", result.get(1), "");
+        assertEquals(2, result.size());
+        assertEquals("1", result.get(0));
+        assertEquals("1", result.get(1));
     }
 
     @Test
@@ -177,7 +177,7 @@ class SdncOscA1ClientTest {
 
         List<String> returned = clientUnderTest.getPolicyIdentities().block();
 
-        assertEquals(2, returned.size(), "");
+        assertEquals(2, returned.size());
 
         ImmutableAdapterRequest expectedParams = ImmutableAdapterRequest.builder() //
             .nearRtRicUrl(policiesUrl()) //
@@ -200,7 +200,7 @@ class SdncOscA1ClientTest {
 
         List<String> returned = clientUnderTest.getPolicyIdentities().block();
 
-        assertEquals(2, returned.size(), "");
+        assertEquals(2, returned.size());
 
         ImmutableAdapterRequest expectedParams = ImmutableAdapterRequest.builder() //
             .nearRtRicUrl(RIC_1_URL + "/a1-p/policytypes/type1/policies") //
@@ -218,7 +218,7 @@ class SdncOscA1ClientTest {
             .putPolicy(A1ClientHelper.createPolicy(RIC_1_URL, POLICY_1_ID, POLICY_JSON_VALID, POLICY_TYPE_1_ID))
             .block();
 
-        assertEquals("OK", returned, "");
+        assertEquals("OK", returned);
         final String expUrl = policiesUrl() + "/" + POLICY_1_ID;
         AdapterRequest expectedInputParams = ImmutableAdapterRequest.builder() //
             .nearRtRicUrl(expUrl) //
@@ -267,7 +267,7 @@ class SdncOscA1ClientTest {
             .deletePolicy(A1ClientHelper.createPolicy(RIC_1_URL, POLICY_1_ID, POLICY_JSON_VALID, POLICY_TYPE_1_ID))
             .block();
 
-        assertEquals("OK", returned, "");
+        assertEquals("OK", returned);
         final String expUrl = policiesUrl() + "/" + POLICY_1_ID;
         AdapterRequest expectedInputParams = ImmutableAdapterRequest.builder() //
             .nearRtRicUrl(expUrl) //

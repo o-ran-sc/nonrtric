@@ -20,9 +20,9 @@
 
 package org.oransc.policyagent.tasks;
 
+import static ch.qos.logback.classic.Level.WARN;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 
@@ -90,14 +90,14 @@ class EnvironmentProcessorTest {
             .appName(HOSTNAME_VALUE) //
             .build();
 
-        final ListAppender<ILoggingEvent> logAppender = LoggingUtils.getLogListAppender(EnvironmentProcessor.class);
+        final ListAppender<ILoggingEvent> logAppender =
+            LoggingUtils.getLogListAppender(EnvironmentProcessor.class, WARN);
 
         StepVerifier.create(EnvironmentProcessor.readEnvironmentVariables(systemEnvironment))
             .expectNext(expectedEnvProperties).expectComplete();
 
-        assertThat(logAppender.list.get(0).getLevel()).isEqualTo(Level.WARN);
-        assertThat(logAppender.list.toString()
-            .contains("$CONSUL_PORT variable will be set to default port " + defaultConsulPort)).isTrue();
+        assertThat(logAppender.list.get(0).getFormattedMessage())
+            .isEqualTo("$CONSUL_PORT variable will be set to default port " + defaultConsulPort);
     }
 
     @Test
