@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66f418e9_ce916fce",
+        "filename": "test/common/test_env.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-05-28T10:51:14Z",
+      "side": 1,
+      "message": "This has recently been stepped to 1.7.5, should that be used here?",
+      "range": {
+        "startLine": 44,
+        "startChar": 36,
+        "endLine": 44,
+        "endChar": 41
+      },
+      "revId": "822125cbabf245ea8e536801034148d4cb1ad14e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
