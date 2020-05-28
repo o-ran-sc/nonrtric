@@ -21,20 +21,16 @@
 // Presents a web page on localhost:9999/mon
 
 var LOCALHOST="http://127.0.0.1:"
-var LOCALHOSTSECURE="https://127.0.0.1:"
-//This var may switch between LOCALHOST and LOCALHOSTSECURE
-var SIM_LOCALHOST=LOCALHOST
 var MRSTUB_PORT="3905"
 var AGENT_PORT="8081"
 var CR_PORT="8090"
 var http = require('http');
-var https = require('https');
 
 var express = require('express');
 var app = express();
 var fieldSize=32;
 
-
+var flagstore={}
 
 //I am alive
 app.get("/",function(req, res){
@@ -42,15 +38,12 @@ app.get("/",function(req, res){
 })
 
 //Get parameter valuue from other server
-function getSimCtr(httpx, url, index, cb) {
+function getSimCtr(url, index, cb) {
     var data = '';
-    var http_type=http
-    if (httpx=="https") {
-        http_type=https
-    }
-    console.log("URL: "+ url + " - " + httpx)
+
+    console.log("URL: "+ url + " - ")
     try {
-        http_type.get(url, (resp) => {
+        http.get(url, (resp) => {
             // A chunk of data has been recieved.
             resp.on('data', (chunk) => {
                 data += chunk;
@@ -133,6 +126,34 @@ function padding(val, fieldSize, pad) {
 	return s;
 }
 
+//Function to check if the previous call has returned, if so return true, if not return false
+//For preventing multiple calls to slow containers.
+function checkFunctionFlag(flag) {
+    if (flagstore.hasOwnProperty(flag)) {
+        if (flagstore[flag] == 0) {
+            flagstore[flag]=1
+            return true
+        } else if (flagstore[flag] > 10) {
+            //Reset flag after ten attempts
+            console.log("Force release flag "+flag)
+            flagstore[flag]=1
+            return true
+        } else {
+            //Previous call not returned
+            console.log("Flag not available "+flag)
+            flagstore[flag]=flagstore[flag]+1
+            return false
+        }
+    } else {
+        flagstore[flag]=1
+        return true
+    }
+}
+//Clear flag for parameter
+function clearFlag(flag) {
+    flagstore[flag]=0
+}
+
 //Status variables, for parameters values fetched from other simulators
 var mr1="", mr2="", mr3="", mr4="", mr5="", mr6="";
 
@@ -164,11 +185,6 @@ var getCtr=0
 
 var refreshInterval=4000
 
-//Ignore self signed cert
-process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
-
-var sim_http_type="http"
-
 function fetchAllMetrics() {
     setTimeout(() => {
 
@@ -197,124 +213,156 @@ function fetchAllMetrics() {
 
         //Get metric values from the simulators
         for(var index=0;index<simnames.length;index++) {
-            try {
-                if (index == 0) {
-                    // Check is simulator are running on http or https - no response assumes http
-                    getSimCtr("https",LOCALHOSTSECURE+simports[index]+"/", index, function(data, index) {
-                        if (data=="OK") {
-                            console.log("Found https simulator - assuming all simulators using https" )
-                            sim_http_type="https"
-                            SIM_LOCALHOST=LOCALHOSTSECURE
-                        } else {
-                            console.log("No https simulator found - assuming all simulators using http" )
-                            sim_http_type="http"
-                            SIM_LOCALHOST=LOCALHOST
-                        }
-                    });
 
-                }
-            } catch(err) {
-                console.log("No https simulator found - assuming all simulators using http" )
-                sim_http_type="http"
-                SIM_LOCALHOST=LOCALHOST
+            if (checkFunctionFlag("simvar1_"+index)) {
+                getSimCtr(LOCALHOST+simports[index]+"/counter/num_instances", index, function(data, index) {
+                    simvar1[index] = data;
+                    clearFlag("simvar1_"+index)
+                });
             }
-            getSimCtr(sim_http_type, SIM_LOCALHOST+simports[index]+"/counter/num_instances", index, function(data, index) {
-                simvar1[index] = data;
-            });
-            getSimCtr(sim_http_type, SIM_LOCALHOST+simports[index]+"/counter/num_types", index, function(data,index) {
-                simvar2[index] = data;
-            });
-            getSimCtr(sim_http_type, SIM_LOCALHOST+simports[index]+"/policytypes", index, function(data,index) {
-                data=data.replace(/\[/g,'');
-                data=data.replace(/\]/g,'');
-                data=data.replace(/ /g,'');
-                data=data.replace(/\"/g,'');
-                simvar3[index] = data;
-            });
-            getSimCtr(sim_http_type, SIM_LOCALHOST+simports[index]+"/counter/interface", index, function(data,index) {
-                simvar4[index] = data;
-            });
-            getSimCtr(sim_http_type, SIM_LOCALHOST+simports[index]+"/counter/remote_hosts", index, function(data,index) {
-                simvar5[index] = data;
-            });
+            if (checkFunctionFlag("simvar2_"+index)) {
+                getSimCtr(LOCALHOST+simports[index]+"/counter/num_types", index, function(data,index) {
+                    simvar2[index] = data;
+                    clearFlag("simvar2_"+index)
+                });
+            }
+            if (checkFunctionFlag("simvar3_"+index)) {
+                getSimCtr(LOCALHOST+simports[index]+"/policytypes", index, function(data,index) {
+                    data=data.replace(/\[/g,'');
+                    data=data.replace(/\]/g,'');
+                    data=data.replace(/ /g,'');
+                    data=data.replace(/\"/g,'');
+                    simvar3[index] = data;
+                    clearFlag("simvar3_"+index)
+                });
+            }
+            if (checkFunctionFlag("simvar4_"+index)) {
+                getSimCtr(LOCALHOST+simports[index]+"/counter/interface", index, function(data,index) {
+                    simvar4[index] = data;
+                    clearFlag("simvar4_"+index)
+                });
+            }
+            if (checkFunctionFlag("simvar5_"+index)) {
+                getSimCtr(LOCALHOST+simports[index]+"/counter/remote_hosts", index, function(data,index) {
+                    simvar5[index] = data;
+                    clearFlag("simvar5_"+index)
+                });
+            }
         }
 
         //MR - get metrics values from the MR stub
-        getSimCtr("http", LOCALHOST+MRSTUB_PORT+"/counter/requests_submitted", 0, function(data, index) {
-            mr1 = data;
-        });
-        getSimCtr("http", LOCALHOST+MRSTUB_PORT+"/counter/requests_fetched", 0, function(data, index) {
-            mr2 = data;
-        });
-        getSimCtr("http", LOCALHOST+MRSTUB_PORT+"/counter/current_requests", 0, function(data, index) {
-            mr3 = data;
-        });
-        getSimCtr("http", LOCALHOST+MRSTUB_PORT+"/counter/responses_submitted", 0, function(data, index) {
-            mr4 = data;
-        });
-        getSimCtr("http", LOCALHOST+MRSTUB_PORT+"/counter/responses_fetched", 0, function(data, index) {
-            mr5 = data;
-        });
-        getSimCtr("http", LOCALHOST+MRSTUB_PORT+"/counter/current_responses", 0, function(data, index) {
-            mr6 = data;
-        });
+        if (checkFunctionFlag("mr1")) {
+            getSimCtr(LOCALHOST+MRSTUB_PORT+"/counter/requests_submitted", 0, function(data, index) {
+                mr1 = data;
+                clearFlag("mr1")
+            });
+        }
+        if (checkFunctionFlag("mr2")) {
+            getSimCtr(LOCALHOST+MRSTUB_PORT+"/counter/requests_fetched", 0, function(data, index) {
+                mr2 = data;
+                clearFlag("mr2")
+            });
+        }
+        if (checkFunctionFlag("mr3")) {
+            getSimCtr(LOCALHOST+MRSTUB_PORT+"/counter/current_requests", 0, function(data, index) {
+                mr3 = data;
+                clearFlag("mr3")
+            });
+        }
+        if (checkFunctionFlag("mr4")) {
+            getSimCtr(LOCALHOST+MRSTUB_PORT+"/counter/responses_submitted", 0, function(data, index) {
+                mr4 = data;
+                clearFlag("mr4")
+            });
+        }
+        if (checkFunctionFlag("mr5")) {
+            getSimCtr(LOCALHOST+MRSTUB_PORT+"/counter/responses_fetched", 0, function(data, index) {
+                mr5 = data;
+                clearFlag("mr5")
+            });
+        }
+        if (checkFunctionFlag("mr6")) {
+            getSimCtr(LOCALHOST+MRSTUB_PORT+"/counter/current_responses", 0, function(data, index) {
+                mr6 = data;
+                clearFlag("mr6")
+            });
+        }
 
         //CR - get metrics values from the callbackreceiver
-        getSimCtr("http", LOCALHOST+CR_PORT+"/counter/received_callbacks", 0, function(data, index) {
-            cr1 = data;
-        });
-        getSimCtr("http", LOCALHOST+CR_PORT+"/counter/fetched_callbacks", 0, function(data, index) {
-            cr2 = data;
-        });
-        getSimCtr("http", LOCALHOST+CR_PORT+"/counter/current_messages", 0, function(data, index) {
-            cr3 = data;
-        });
-
-        //Agent - get metrics from the agent
-        getSimCtr("http", LOCALHOST+AGENT_PORT+"/status", 0, function(data, index) {
-            ag1 = data;
-        });
-        getSimCtr("http", LOCALHOST+AGENT_PORT+"/services", 0, function(data, index) {
-            ag2="";
-            try {
-                var jd=JSON.parse(data);
-                for(var key in jd) {
-                    if (ag2.length > 1) {
-                        ag2=ag2+", "
+        if (checkFunctionFlag("cr1")) {
+            getSimCtr(LOCALHOST+CR_PORT+"/counter/received_callbacks", 0, function(data, index) {
+                cr1 = data;
+                clearFlag("cr1")
+            });
+        }
+        if (checkFunctionFlag("cr2")) {
+            getSimCtr(LOCALHOST+CR_PORT+"/counter/fetched_callbacks", 0, function(data, index) {
+                cr2 = data;
+                clearFlag("cr2")
+            });
+        }
+        if (checkFunctionFlag("cr3")) {
+            getSimCtr(LOCALHOST+CR_PORT+"/counter/current_messages", 0, function(data, index) {
+                cr3 = data;
+                clearFlag("cr3")
+            });
+        }
+        //Agent - more get metrics from the agent
+        if (checkFunctionFlag("ag1")) {
+            getSimCtr(LOCALHOST+AGENT_PORT+"/status", 0, function(data, index) {
+                ag1 = data;
+                clearFlag("ag1")
+            });
+        }
+        if (checkFunctionFlag("ag2")) {
+            getSimCtr(LOCALHOST+AGENT_PORT+"/services", 0, function(data, index) {
+                ag2="";
+                try {
+                    var jd=JSON.parse(data);
+                    for(var key in jd) {
+                        if (ag2.length > 1) {
+                            ag2=ag2+", "
+                        }
+                        ag2=ag2+(jd[key]["serviceName"]).trim()
                     }
-                    ag2=ag2+(jd[key]["serviceName"]).trim()
                 }
-            }
-            catch (err) {
-                ag2=data
-            }
-        });
-        getSimCtr("http", LOCALHOST+AGENT_PORT+"/policy_types", 0, function(data, index) {
-            ag3="";
-            try {
-                var jd=JSON.parse(data);
-                for(var key in jd) {
-                    if (ag3.length > 0) {
-                        ag3=ag3+", "
+                catch (err) {
+                    ag2=data
+                }
+                clearFlag("ag2")
+            });
+        }
+        if (checkFunctionFlag("ag3")) {
+            getSimCtr(LOCALHOST+AGENT_PORT+"/policy_types", 0, function(data, index) {
+                ag3="";
+                try {
+                    var jd=JSON.parse(data);
+                    for(var key in jd) {
+                        if (ag3.length > 0) {
+                            ag3=ag3+", "
+                        }
+                        ag3=ag3+jd[key].trim()
                     }
-                    ag3=ag3+jd[key].trim()
                 }
-            }
-            catch (err) {
-                ag3=""
-            }
-        });
-        getSimCtr("http", LOCALHOST+AGENT_PORT+"/policy_ids", 0, function(data, index) {
-            ag4=""
-            try {
-                var jd=JSON.parse(data);
-                ag4=""+jd.length
-            }
-            catch (err) {
+                catch (err) {
+                    ag3=""
+                }
+                clearFlag("ag3")
+            });
+        }
+        if (checkFunctionFlag("ag4")) {
+            getSimCtr(LOCALHOST+AGENT_PORT+"/policy_ids", 0, function(data, index) {
                 ag4=""
-            }
-        });
-
+                try {
+                    var jd=JSON.parse(data);
+                    ag4=""+jd.length
+                }
+                catch (err) {
+                    ag4=""
+                }
+                clearFlag("ag4")
+            });
+        }
 
 
         fetchAllMetrics();

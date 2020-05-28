@@ -19,6 +19,9 @@
 
 TC_ONELINE_DESCR="Testing of the health check app"
 
+#App names to exclude checking pulling images for, space separated list
+EXCLUDED_IMAGES="SDNC_ONAP"
+
 . ../common/testcase_common.sh $@
 . ../common/agent_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
@@ -80,12 +83,12 @@ use_agent_rest_http
 
 api_put_service 201 "rapp1" 3600 "$CR_PATH/1"
 
-api_put_policy 201 "rapp1" ricsim_g1_1 1 2010 testdata/OSC/pi1_template.json 1
-api_put_policy 201 "rapp1" ricsim_g1_2 1 2020 testdata/OSC/pi1_template.json 1
-api_put_policy 201 "rapp1" ricsim_g1_3 1 2030 testdata/OSC/pi1_template.json 1
-api_put_policy 201 "rapp1" ricsim_g1_4 1 2040 testdata/OSC/pi1_template.json 1
-api_put_policy 201 "rapp1" ricsim_g1_5 1 2050 testdata/OSC/pi1_template.json 1
-api_put_policy 201 "rapp1" ricsim_g1_6 1 2060 testdata/OSC/pi1_template.json 1
+api_put_policy 201 "rapp1" ricsim_g1_1 1 2010 NOTRANSIENT testdata/OSC/pi1_template.json 1
+api_put_policy 201 "rapp1" ricsim_g1_2 1 2020 NOTRANSIENT testdata/OSC/pi1_template.json 1
+api_put_policy 201 "rapp1" ricsim_g1_3 1 2030 NOTRANSIENT testdata/OSC/pi1_template.json 1
+api_put_policy 201 "rapp1" ricsim_g1_4 1 2040 NOTRANSIENT testdata/OSC/pi1_template.json 1
+api_put_policy 201 "rapp1" ricsim_g1_5 1 2050 NOTRANSIENT testdata/OSC/pi1_template.json 1
+api_put_policy 201 "rapp1" ricsim_g1_6 1 2060 NOTRANSIENT testdata/OSC/pi1_template.json 1
 
 sim_equal ricsim_g1_1 num_instances 1
 sim_equal ricsim_g1_2 num_instances 1
@@ -94,11 +97,11 @@ sim_equal ricsim_g1_4 num_instances 1
 sim_equal ricsim_g1_5 num_instances 1
 sim_equal ricsim_g1_6 num_instances 1
 
-api_put_policy 201 "rapp1" ricsim_g2_1 NOTYPE 2110 testdata/STD/pi1_template.json 1
-api_put_policy 201 "rapp1" ricsim_g2_2 NOTYPE 2120 testdata/STD/pi1_template.json 1
-api_put_policy 201 "rapp1" ricsim_g2_3 NOTYPE 2130 testdata/STD/pi1_template.json 1
-api_put_policy 201 "rapp1" ricsim_g2_4 NOTYPE 2140 testdata/STD/pi1_template.json 1
-api_put_policy 201 "rapp1" ricsim_g2_5 NOTYPE 2150 testdata/STD/pi1_template.json 1
+api_put_policy 201 "rapp1" ricsim_g2_1 NOTYPE 2110 NOTRANSIENT testdata/STD/pi1_template.json 1
+api_put_policy 201 "rapp1" ricsim_g2_2 NOTYPE 2120 NOTRANSIENT testdata/STD/pi1_template.json 1
+api_put_policy 201 "rapp1" ricsim_g2_3 NOTYPE 2130 NOTRANSIENT testdata/STD/pi1_template.json 1
+api_put_policy 201 "rapp1" ricsim_g2_4 NOTYPE 2140 NOTRANSIENT testdata/STD/pi1_template.json 1
+api_put_policy 201 "rapp1" ricsim_g2_5 NOTYPE 2150 NOTRANSIENT testdata/STD/pi1_template.json 1
 
 sim_equal ricsim_g2_1 num_instances 1
 sim_equal ricsim_g2_2 num_instances 1

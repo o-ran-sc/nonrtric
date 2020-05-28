@@ -1,0 +1,8 @@
+{
+    "scope": {
+      "cellId": "cellXXX"
+    },
+    "qosObjective": {
+      "priorityLevel": XXX
+    }
+  }

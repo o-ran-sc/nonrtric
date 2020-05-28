@@ -20,6 +20,9 @@
 
 TC_ONELINE_DESCR="Sanity test, create service and then create,update and delete a policy using http/https and Agent REST/DMAAP with/without SDNC controller"
 
+#App names to exclude checking pulling images for, space separated list
+EXCLUDED_IMAGES="SDNC_ONAP"
+
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
@@ -166,11 +169,11 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "########### A1 Policy Management ###########"
         echo "############################################"
 
-        api_put_policy 201 "serv1" ricsim_g1_1 1 5000 testdata/OSC/pi1_template.json
-        api_put_policy 200 "serv1" ricsim_g1_1 1 5000 testdata/OSC/pi1_template.json
+        api_put_policy 201 "serv1" ricsim_g1_1 1 5000 NOTRANSIENT testdata/OSC/pi1_template.json
+        api_put_policy 200 "serv1" ricsim_g1_1 1 5000 NOTRANSIENT testdata/OSC/pi1_template.json
 
-        api_put_policy 201 "serv1" ricsim_g2_1 NOTYPE 5100 testdata/STD/pi1_template.json
-        api_put_policy 200 "serv1" ricsim_g2_1 NOTYPE 5100 testdata/STD/pi1_template.json
+        api_put_policy 201 "serv1" ricsim_g2_1 NOTYPE 5100 NOTRANSIENT testdata/STD/pi1_template.json
+        api_put_policy 200 "serv1" ricsim_g2_1 NOTYPE 5100 NOTRANSIENT testdata/STD/pi1_template.json
 
         api_delete_policy 204 5000
 
