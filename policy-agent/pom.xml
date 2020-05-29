@@ -18,10 +18,9 @@
 * limitations under the License.
 * ========================LICENSE_END===================================
 -->
-<project
-    xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -77,8 +76,8 @@
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
         <dependency>
-         <groupId>org.springframework.boot</groupId>
-         <artifactId>spring-boot-starter-aop</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -226,8 +225,8 @@
                 <configuration>
                     <configFile>${project.basedir}/eclipse-formatter.xml</configFile>
                 </configuration>
-                <!-- https://code.revelc.net/formatter-maven-plugin/ use mvn formatter:format 
-					spotless:apply process-sources -->
+                <!-- https://code.revelc.net/formatter-maven-plugin/ use mvn formatter:format spotless:apply
+                process-sources -->
             </plugin>
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
@@ -241,9 +240,8 @@
                         </importOrder>
                     </java>
                 </configuration>
-                <!-- https://github.com/diffplug/spotless/tree/master/plugin-maven use 
-					mvn spotless:apply to rewrite source files use mvn spotless:check to validate 
-					source files -->
+                <!-- https://github.com/diffplug/spotless/tree/master/plugin-maven use mvn spotless:apply to rewrite
+                source files use mvn spotless:check to validate source files -->
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -292,6 +290,24 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <!-- Generate a source jar -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Deploy-jar-to-nexus -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>io.fabric8</groupId>
