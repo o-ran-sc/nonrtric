@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f0f5ffc7_92b173cf",
+        "filename": "policy-agent/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 1000014
+      },
+      "writtenOn": "2020-05-29T14:54:02Z",
+      "side": 1,
+      "message": "The merge job uses the mvn goal \"deploy\" which will do that task. This plugin definition probably does no harm, but I would remove it bcos it doesn\u0027t add any parameters or anything.",
+      "range": {
+        "startLine": 308,
+        "startChar": 0,
+        "endLine": 311,
+        "endChar": 2
+      },
+      "revId": "b7e51f8fbc5a0a46a6f3054efa5ef5c09a6889ec",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
