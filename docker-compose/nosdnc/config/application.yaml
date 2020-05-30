@@ -1,0 +1,37 @@
+spring:
+  profiles:
+    active: prod
+  main:
+    allow-bean-definition-overriding: true
+  aop:
+    auto: false
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "loggers,logfile,health,info,metrics,threaddump,heapdump"
+
+logging:
+  level:
+    ROOT: ERROR
+    org.springframework: ERROR
+    org.springframework.data: ERROR
+    org.springframework.web.reactive.function.client.ExchangeFunctions: ERROR
+    org.oransc.policyagent: INFO
+  file: /var/log/policy-agent/application.log
+server:
+   port : 8433
+   http-port: 8081
+   ssl:
+      key-store-type: JKS
+      key-store-password: policy_agent
+      key-store: classpath:keystore.jks
+      key-password: policy_agent
+      key-alias: policy_agent
+app:
+  filepath: /opt/app/policy-agent/config/application_configuration.json
+  webclient:
+    trust-store-used: false
+    trust-store-password: policy_agent
+    trust-store: classpath:keystore.jks
+
