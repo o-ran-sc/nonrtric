@@ -13,7 +13,7 @@
          {
             "name":"ric2",
             "baseUrl":"http://a1-sim-STD:8085/",
-            "managedElementIds":[
+            "managedElementIds": [
                "kista_1",
                "kista_2"
             ]
