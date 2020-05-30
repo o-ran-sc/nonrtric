@@ -1,0 +1,27 @@
+{
+   "config": {
+      "//description": "Application configuration",
+      "ric": [
+         {
+            "name": "ric1",
+            "baseUrl": "http://a1-sim-OSC:8085/",
+            "policyTypes": ["1", "2"],
+            "state": "AVAILABLE",
+            "managedElementIds": [
+               "kista_1",
+               "kista_2"
+            ]
+         },
+         {
+            "name":"ric2",
+            "baseUrl":"http://a1-sim-STD:8085/",
+            "policyTypes": [""],
+            "state": "AVAILABLE",
+            "managedElementIds":[
+               "kista_1",
+               "kista_2"
+            ]
+         }
+      ]
+   }
+}
