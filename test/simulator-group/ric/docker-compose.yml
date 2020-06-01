@@ -34,6 +34,7 @@ services:
     environment:
       - A1_VERSION=${G1_A1_VERSION}
       - REMOTE_HOSTS_LOGGING=1
+      - ALLOW_HTTP=true
     volumes:
       - ${RIC_SIM_CERT_MOUNT_DIR}:/usr/src/app/cert:ro
   g2:
@@ -46,6 +47,7 @@ services:
     environment:
       - A1_VERSION=${G2_A1_VERSION}
       - REMOTE_HOSTS_LOGGING=1
+      - ALLOW_HTTP=true
     volumes:
       - ${RIC_SIM_CERT_MOUNT_DIR}:/usr/src/app/cert:ro
   g3:
@@ -58,5 +60,6 @@ services:
     environment:
       - A1_VERSION=${G3_A1_VERSION}
       - REMOTE_HOSTS_LOGGING=1
+      - ALLOW_HTTP=true
     volumes:
       - ${RIC_SIM_CERT_MOUNT_DIR}:/usr/src/app/cert:ro
