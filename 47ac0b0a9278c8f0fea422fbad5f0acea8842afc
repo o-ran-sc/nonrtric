@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1d22ac1c_50790062",
+        "filename": "docker-compose/nosdnc/docker-compose.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-06-01T16:13:45Z",
+      "side": 1,
+      "message": "The control-panel also has https port 8082.",
+      "revId": "47ac0b0a9278c8f0fea422fbad5f0acea8842afc",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30e65f3c_58a98d9f",
+        "filename": "docker-compose/sdnc/docker-compose.yml",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-06-01T16:13:45Z",
+      "side": 1,
+      "message": "see other comment.",
+      "revId": "47ac0b0a9278c8f0fea422fbad5f0acea8842afc",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
