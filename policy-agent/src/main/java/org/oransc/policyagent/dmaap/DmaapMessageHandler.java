@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
@@ -81,7 +82,7 @@ public class DmaapMessageHandler {
     private Mono<ResponseEntity<String>> handleAgentCallError(Throwable t, String originalMessage,
         DmaapRequestMessage dmaapRequestMessage) {
         logger.debug("Agent call failed: {}", t.getMessage());
-        HttpStatus status = HttpStatus.NOT_FOUND;
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         String errorMessage = t.getMessage();
         if (t instanceof WebClientResponseException) {
             WebClientResponseException exception = (WebClientResponseException) t;
@@ -90,7 +91,10 @@ public class DmaapMessageHandler {
         } else if (t instanceof ServiceException) {
             status = HttpStatus.BAD_REQUEST;
             errorMessage = prepareBadOperationErrorMessage(t, originalMessage);
-
+        } else if (t instanceof WebClientException) {
+            errorMessage = t.getMessage();
+        } else {
+            logger.warn("Unexpected exception ", t);
         }
         return sendDmaapResponse(errorMessage, dmaapRequestMessage, status) //
             .flatMap(notUsed -> Mono.empty());
@@ -119,7 +123,6 @@ public class DmaapMessageHandler {
         } else {
             return Mono.error(new ServiceException("Not implemented operation: " + operation));
         }
-
     }
 
     private String payload(DmaapRequestMessage message) {
