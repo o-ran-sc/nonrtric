@@ -27,7 +27,8 @@ RUN mkdir -p /opt/app/policy-agent/etc/cert/
 
 EXPOSE 8081 8433
 
-ADD /config/* /opt/app/policy-agent/config/
+ADD /config/application.yaml /opt/app/policy-agent/config/application.yaml
+ADD /config/application_configuration.json /opt/app/policy-agent/data/application_configuration.json
 ADD target/${JAR} /opt/app/policy-agent/policy-agent.jar
 
 
