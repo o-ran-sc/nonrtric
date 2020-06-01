@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "214a7929_b605279c",
+        "filename": "policy-agent/Dockerfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-06-01T10:51:11Z",
+      "side": 1,
+      "message": "Will this means that the example application configuration is included in the docker container? \nI do not think that is OK, because then the component will then always load this fake/faulty configuration when started. \nThat will lead to hard to understand and malicious behavior at startup.",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 31,
+        "endChar": 99
+      },
+      "revId": "855d29136a580ebc53e27f3920b92ce25a62dda3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
