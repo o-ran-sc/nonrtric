@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c77ab854_1ee76153",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/AsyncRestClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-06-02T09:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0d895071_a4df674b",
+      "range": {
+        "startLine": 199,
+        "startChar": 41,
+        "endLine": 199,
+        "endChar": 46
+      },
+      "revId": "0b500b869b4935d0ffc94accde76f995bd04218e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "455700c6_e9b8f48f",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageHandler.java",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "0b500b869b4935d0ffc94accde76f995bd04218e",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f5c9b47_2b1919c2",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-06-02T09:53:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "455700c6_e9b8f48f",
+      "range": {
+        "startLine": 94,
+        "startChar": 19,
+        "endLine": 97,
+        "endChar": 52
+      },
+      "revId": "0b500b869b4935d0ffc94accde76f995bd04218e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
