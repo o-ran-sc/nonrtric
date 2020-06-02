@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "34cbcc15_6aff4bda",
+        "filename": "docker-compose/nosdnc/config/application_configuration.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-06-02T06:54:06Z",
+      "side": 1,
+      "message": "Why is this here? There is no such configuration.",
+      "range": {
+        "startLine": 8,
+        "startChar": 9,
+        "endLine": 9,
+        "endChar": 33
+      },
+      "revId": "08288fa64c9b7908c9e988f1f0f3300cf16ccfc8",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a410b5f_39baa4f6",
+        "filename": "docker-compose/nosdnc/config/application_configuration.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-06-02T06:54:06Z",
+      "side": 1,
+      "message": "Why is this here? There is no such configuration.",
+      "range": {
+        "startLine": 18,
+        "startChar": 11,
+        "endLine": 19,
+        "endChar": 33
+      },
+      "revId": "08288fa64c9b7908c9e988f1f0f3300cf16ccfc8",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
