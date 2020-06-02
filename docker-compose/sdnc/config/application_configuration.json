@@ -1,0 +1,33 @@
+{
+   "config": {
+      "//description": "Application configuration",
+      "controller": [
+         {
+            "name": "a1-controller",
+            "baseUrl": "http://a1-controller:8181",
+            "userName": "admin",
+            "password": "Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U"
+         }
+      ],
+      "ric": [
+         {
+            "name": "ric1",
+            "baseUrl": "http://a1-sim-OSC:8085/",
+            "controller": "a1-controller",
+            "managedElementIds": [
+               "kista_1",
+               "kista_2"
+            ]
+         },
+         {
+            "name":"ric2",
+            "baseUrl":"http://a1-sim-STD:8085/",
+            "controller": "a1-controller",
+            "managedElementIds":[
+               "kista_1",
+               "kista_2"
+            ]
+         }
+      ]
+   }
+}
