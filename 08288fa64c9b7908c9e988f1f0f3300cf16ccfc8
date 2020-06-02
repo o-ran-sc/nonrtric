@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3a7ec7a4_6bed5475",
+        "filename": "docker-compose/nosdnc/config/application_configuration.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1000247
+      },
+      "writtenOn": "2020-06-02T06:58:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "34cbcc15_6aff4bda",
+      "range": {
+        "startLine": 8,
+        "startChar": 9,
+        "endLine": 9,
+        "endChar": 33
+      },
+      "revId": "08288fa64c9b7908c9e988f1f0f3300cf16ccfc8",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a410b5f_39baa4f6",
         "filename": "docker-compose/nosdnc/config/application_configuration.json",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "08288fa64c9b7908c9e988f1f0f3300cf16ccfc8",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e62bb0d_eaa60990",
+        "filename": "docker-compose/nosdnc/config/application_configuration.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1000247
+      },
+      "writtenOn": "2020-06-02T06:58:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a410b5f_39baa4f6",
+      "range": {
+        "startLine": 18,
+        "startChar": 11,
+        "endLine": 19,
+        "endChar": 33
+      },
+      "revId": "08288fa64c9b7908c9e988f1f0f3300cf16ccfc8",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
