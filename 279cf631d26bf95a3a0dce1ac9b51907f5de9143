@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7aaf386_6559168c",
+        "filename": "docker-compose/README.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1000112
+      },
+      "writtenOn": "2020-06-02T12:11:09Z",
+      "side": 1,
+      "message": "Please change the license",
+      "revId": "279cf631d26bf95a3a0dce1ac9b51907f5de9143",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
