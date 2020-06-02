@@ -34,7 +34,7 @@ import java.util.Properties;
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
+import org.apache.http.conn.ssl.TrustAllStrategy;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContexts;
 import org.slf4j.Logger;
@@ -87,7 +87,7 @@ public class RestAdapterImpl implements RestAdapter {
                   SSLContexts.custom()
                              .loadKeyMaterial(ResourceUtils.getFile(properties.getProperty("key-store")),
                                      keystorePassword.toCharArray(), keystorePassword.toCharArray())
-                             .loadTrustMaterial(null, new TrustSelfSignedStrategy())
+                             .loadTrustMaterial(null, new TrustAllStrategy())
                              .build(),
                   NoopHostnameVerifier.INSTANCE);
           HttpClient client = HttpClients.custom().setSSLSocketFactory(scsf).build();
