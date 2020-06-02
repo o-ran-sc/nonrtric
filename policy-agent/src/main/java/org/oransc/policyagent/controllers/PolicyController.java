@@ -269,6 +269,7 @@ public class PolicyController {
             RejectionException e = new RejectionException("Policy cannot change RIC, policyId: " + current.id() + //
                 ", RIC name: " + current.ric().name() + //
                 ", new name: " + policy.ric().name(), HttpStatus.CONFLICT);
+            logger.debug("Request rejected, {}", e);
             return Mono.error(e);
         }
         return Mono.just("OK");
@@ -276,6 +277,7 @@ public class PolicyController {
 
     private Mono<Object> checkSupportedType(Ric ric, PolicyType type) {
         if (!ric.isSupportingType(type.name())) {
+            logger.debug("Request rejected, type not supported, RIC: {}", ric);
             RejectionException e = new RejectionException(
                 "Type: " + type.name() + " not supported by RIC: " + ric.name(), HttpStatus.NOT_FOUND);
             return Mono.error(e);
@@ -287,6 +289,7 @@ public class PolicyController {
         if (ric.getState() == Ric.RicState.AVAILABLE) {
             return Mono.just("OK");
         } else {
+            logger.debug("Request rejected RIC not IDLE, ric: {}", ric);
             RejectionException e = new RejectionException(
                 "Ric is not operational, RIC name: " + ric.name() + ", state: " + ric.getState(), HttpStatus.LOCKED);
             return Mono.error(e);
