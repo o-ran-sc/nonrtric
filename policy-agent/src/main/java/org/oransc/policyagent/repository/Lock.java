@@ -44,6 +44,115 @@ public class Lock {
     private final List<LockRequest> lockRequestQueue = new LinkedList<>();
     private static AsynchCallbackExecutor callbackProcessor = new AsynchCallbackExecutor();
 
+    public enum LockType {
+        EXCLUSIVE, SHARED
+    }
+
+    /** The caller thread will be blocked util the lock is granted. */
+    public synchronized void lockBlocking(LockType locktype) {
+        while (!tryLock(locktype)) {
+            this.waitForUnlock();
+        }
+    }
+
+    /** Reactive version. The Lock will be emitted when the lock is granted */
+    public synchronized Mono<Lock> lock(LockType lockType) {
+        if (tryLock(lockType)) {
+            return Mono.just(this);
+        } else {
+            return Mono.create(monoSink -> addToQueue(monoSink, lockType));
+        }
+    }
+
+    public Mono<Lock> unlock() {
+        return Mono.create(monoSink -> {
+            unlockBlocking();
+            monoSink.success(this);
+        });
+    }
+
+    public synchronized void unlockBlocking() {
+        if (lockCounter <= 0) {
+            lockCounter = -1; // Might as well stop, to make it easier to find the problem
+            logger.error("Number of unlocks must match the number of locks");
+        }
+        this.lockCounter--;
+        if (lockCounter == 0) {
+            isExclusive = false;
+        }
+        this.notifyAll();
+        this.processQueuedEntries();
+    }
+
+    @Override
+    public synchronized String toString() {
+        return "Lock cnt: " + this.lockCounter + " exclusive: " + this.isExclusive + " queued: "
+            + this.lockRequestQueue.size();
+    }
+
+    /** returns the current number of granted locks */
+    public synchronized int getLockCounter() {
+        return this.lockCounter;
+    }
+
+    private void processQueuedEntries() {
+        List<LockRequest> granted = new ArrayList<>();
+        for (Iterator<LockRequest> i = lockRequestQueue.iterator(); i.hasNext();) {
+            LockRequest request = i.next();
+            if (tryLock(request.lockType)) {
+                i.remove();
+                granted.add(request);
+            }
+        }
+        callbackProcessor.addAll(granted);
+    }
+
+    private synchronized void addToQueue(MonoSink<Lock> callback, LockType lockType) {
+        lockRequestQueue.add(new LockRequest(callback, lockType, this));
+        processQueuedEntries();
+    }
+
+    @SuppressWarnings("java:S2274") // Always invoke wait() and await() methods inside a loop
+    private synchronized void waitForUnlock() {
+        try {
+            this.wait();
+        } catch (InterruptedException e) {
+            logger.warn("waitForUnlock interrupted", e);
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private boolean tryLock(LockType lockType) {
+        if (this.isExclusive) {
+            return false;
+        }
+        if (lockType == LockType.EXCLUSIVE && lockCounter > 0) {
+            return false;
+        }
+        lockCounter++;
+        this.isExclusive = lockType == LockType.EXCLUSIVE;
+        return true;
+    }
+
+    /**
+     * Represents a queued lock request
+     */
+    private static class LockRequest {
+        final MonoSink<Lock> callback;
+        final LockType lockType;
+        final Lock lock;
+
+        LockRequest(MonoSink<Lock> callback, LockType lockType, Lock lock) {
+            this.callback = callback;
+            this.lockType = lockType;
+            this.lock = lock;
+        }
+    }
+
+    /**
+     * A separate thread that calls a MonoSink to continue. This is done after a
+     * queued lock is granted.
+     */
     private static class AsynchCallbackExecutor implements Runnable {
         private List<LockRequest> lockRequestQueue = new LinkedList<>();
 
@@ -85,111 +194,4 @@ public class Lock {
             }
         }
     }
-
-    public enum LockType {
-        EXCLUSIVE, SHARED
-    }
-
-    /** The caller thread will be blocked util the lock is granted. */
-    public synchronized void lockBlocking(LockType locktype) {
-        while (!tryLock(locktype)) {
-            this.waitForUnlock();
-        }
-    }
-
-    /** Reactive version. The Lock will be emitted when the lock is granted */
-    public synchronized Mono<Lock> lock(LockType lockType) {
-        if (tryLock(lockType)) {
-            return Mono.just(this);
-        } else {
-            return Mono.create(monoSink -> addToQueue(monoSink, lockType));
-        }
-    }
-
-    public Mono<Lock> unlock() {
-        return Mono.create(monoSink -> {
-            unlockBlocking();
-            monoSink.success(this);
-        });
-    }
-
-    public void unlockBlocking() {
-        synchronized (this) {
-            if (lockCounter <= 0) {
-                lockCounter = -1; // Might as well stop, to make it easier to find the problem
-                logger.error("Number of unlocks must match the number of locks");
-            }
-            this.lockCounter--;
-            if (lockCounter == 0) {
-                isExclusive = false;
-            }
-            this.notifyAll();
-        }
-        this.processQueuedEntries();
-    }
-
-    @Override
-    public String toString() {
-        return "Lock cnt: " + this.lockCounter + " exclusive: " + this.isExclusive + " queued: "
-            + this.lockRequestQueue.size();
-    }
-
-    /** returns the current number of granted locks */
-    public synchronized int getLockCounter() {
-        return this.lockCounter;
-    }
-
-    private void processQueuedEntries() {
-        List<LockRequest> granted = new ArrayList<>();
-        synchronized (this) {
-            for (Iterator<LockRequest> i = lockRequestQueue.iterator(); i.hasNext();) {
-                LockRequest request = i.next();
-                if (tryLock(request.lockType)) {
-                    i.remove();
-                    granted.add(request);
-                }
-            }
-        }
-        callbackProcessor.addAll(granted);
-    }
-
-    private static class LockRequest {
-        final MonoSink<Lock> callback;
-        final LockType lockType;
-        final Lock lock;
-
-        LockRequest(MonoSink<Lock> callback, LockType lockType, Lock lock) {
-            this.callback = callback;
-            this.lockType = lockType;
-            this.lock = lock;
-        }
-    }
-
-    private synchronized void addToQueue(MonoSink<Lock> callback, LockType lockType) {
-        lockRequestQueue.add(new LockRequest(callback, lockType, this));
-        processQueuedEntries();
-    }
-
-    @SuppressWarnings("java:S2274") // Always invoke wait() and await() methods inside a loop
-    private synchronized void waitForUnlock() {
-        try {
-            this.wait();
-        } catch (InterruptedException e) {
-            logger.warn("waitForUnlock interrupted", e);
-            Thread.currentThread().interrupt();
-        }
-    }
-
-    private boolean tryLock(LockType lockType) {
-        if (this.isExclusive) {
-            return false;
-        }
-        if (lockType == LockType.EXCLUSIVE && lockCounter > 0) {
-            return false;
-        }
-        lockCounter++;
-        this.isExclusive = lockType == LockType.EXCLUSIVE;
-        return true;
-    }
-
 }
