@@ -167,6 +167,7 @@ public class Lock {
 
     private synchronized void addToQueue(MonoSink<Lock> callback, LockType lockType) {
         lockRequestQueue.add(new LockRequest(callback, lockType, this));
+        processQueuedEntries();
     }
 
     @SuppressWarnings("java:S2274") // Always invoke wait() and await() methods inside a loop
