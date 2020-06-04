@@ -16,7 +16,7 @@
 version: '3.0'
 services:
   policy-agent:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-policy-agent:1.0.0
+    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-policy-agent:2.0.0
     container_name: policy-agent
     networks:
       default:
@@ -55,7 +55,7 @@ services:
       - ALLOW_HTTP=true
 
   policy-control-panel:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-controlpanel:1.0.0
+    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-controlpanel:2.0.0
     container_name: policy-control-panel
     networks:
       - default
