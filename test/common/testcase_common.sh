@@ -94,6 +94,9 @@ AUTO_CLEAN=""
 # Var to hold the app names to use local image for when running 'remote' or 'remote-remove'
 USE_LOCAL_IMAGES=""
 
+# Use this var (STOP_AT_ERROR=1 in the test script) for debugging/trouble shooting to take all logs and exit at first FAIL test case
+STOP_AT_ERROR=0
+
 # Set a description string for the test case
 if [ -z "$TC_ONELINE_DESCR" ]; then
 	TC_ONELINE_DESCR="<no-description>"
@@ -120,6 +123,11 @@ TESTLOGS=$PWD/logs
 # Create a http message log for this testcase
 HTTPLOG=$PWD"/.httplog_"$ATC".txt"
 echo "" > $HTTPLOG
+
+#Create result file (containing '1' for error) for this test case
+#Will be replaced with a file containing '0' if script is ok
+
+echo "1" > "$PWD/.result$ATC.txt"
 
 # Create a log dir for the test case
 mkdir -p $TESTLOGS/$ATC
@@ -179,7 +187,13 @@ if [ $paramerror -eq 0 ]; then
 	fi
 fi
 if [ $paramerror -eq 0 ]; then
-	if [ "$1" == "-use-local-image" ]; then
+	if [ "$1" == "--stop-at-error" ]; then
+		STOP_AT_ERROR=1
+		shift;
+	fi
+fi
+if [ $paramerror -eq 0 ]; then
+	if [ "$1" == "--use-local-image" ]; then
 		USE_LOCAL_IMAGES=${@:2}
 		while [ $# -gt 0 ]; do
 			shift;
@@ -192,7 +206,7 @@ if [ $paramerror -eq 0 ] && [ $# -gt 0 ]; then
 fi
 
 if [ $paramerror -eq 1 ]; then
-	echo -e $RED"Expected arg: local|remote|remote-remove [auto-clean] [-use-local-image <app-nam> [<app-name>]]"$ERED
+	echo -e $RED"Expected arg: local|remote|remote-remove [auto-clean] [--stop-at-error] [--use-local-image <app-nam> [<app-name>]*]"$ERED
 	exit 1
 fi
 
@@ -242,7 +256,7 @@ __check_image_var() {
 
 
 #Check if app local image shall override remote image
-check_image_local_override() {
+__check_image_local_override() {
 	for im in $USE_LOCAL_IMAGES; do
 		if [ "$1" == "$im" ]; then
 			return 1
@@ -252,7 +266,7 @@ check_image_local_override() {
 }
 
 #Check if app uses image excluded from this test run
-check_excluded_image() {
+__check_excluded_image() {
 	for im in $EXCLUDED_IMAGES; do
 		if [ "$1" == "$im" ]; then
 			return 1
@@ -280,7 +294,7 @@ if [ $START_ARG == "local" ]; then
 
 elif [ $START_ARG == "remote" ] || [ $START_ARG == "remote-remove" ]; then
 
-	check_image_local_override 'PA'
+	__check_image_local_override 'PA'
 	if [ $? -eq 0 ]; then
 		#Remote agent image
 		__check_image_var " Policy Agent" $START_ARG "POLICY_AGENT_IMAGE" "POLICY_AGENT_REMOTE_IMAGE" "POLICY_AGENT_REMOTE_IMAGE_TAG"
@@ -289,7 +303,7 @@ elif [ $START_ARG == "remote" ] || [ $START_ARG == "remote-remove" ]; then
 		__check_image_var " Policy Agent" $START_ARG "POLICY_AGENT_IMAGE" "POLICY_AGENT_LOCAL_IMAGE" "POLICY_AGENT_LOCAL_IMAGE_TAG"
 	fi
 
-	check_image_local_override 'CP'
+	__check_image_local_override 'CP'
 	if [ $? -eq 0 ]; then
 		#Remote Control Panel image
 		__check_image_var " Control Panel" $START_ARG "CONTROL_PANEL_IMAGE" "CONTROL_PANEL_REMOTE_IMAGE" "CONTROL_PANEL_REMOTE_IMAGE_TAG"
@@ -298,7 +312,7 @@ elif [ $START_ARG == "remote" ] || [ $START_ARG == "remote-remove" ]; then
 		__check_image_var " Control Panel" $START_ARG "CONTROL_PANEL_IMAGE" "CONTROL_PANEL_LOCAL_IMAGE" "CONTROL_PANEL_LOCAL_IMAGE_TAG"
 	fi
 
-	check_image_local_override 'SDNC'
+	__check_image_local_override 'SDNC'
 	if [ $? -eq 0 ]; then
 		#Remote SDNC image
 		__check_image_var " SDNC A1 Controller" $START_ARG "SDNC_A1_CONTROLLER_IMAGE" "SDNC_A1_CONTROLLER_REMOTE_IMAGE" "SDNC_A1_CONTROLLER_REMOTE_IMAGE_TAG"
@@ -307,7 +321,7 @@ elif [ $START_ARG == "remote" ] || [ $START_ARG == "remote-remove" ]; then
 		__check_image_var " SDNC A1 Controller" $START_ARG "SDNC_A1_CONTROLLER_IMAGE" "SDNC_A1_CONTROLLER_LOCAL_IMAGE" "SDNC_A1_CONTROLLER_LOCAL_IMAGE_TAG"
 	fi
 
-	check_image_local_override 'RICSIM'
+	__check_image_local_override 'RICSIM'
 	if [ $? -eq 0 ]; then
 		#Remote ric sim image
 		__check_image_var " RIC Simulator" $START_ARG "RIC_SIM_IMAGE" "RIC_SIM_REMOTE_IMAGE" "RIC_SIM_REMOTE_IMAGE_TAG"
@@ -329,7 +343,7 @@ __check_image_var " Callback Receiver" $START_ARG "CR_IMAGE" "CR_LOCAL_IMAGE" "C
 __check_image_var " Consul" $START_ARG "CONSUL_IMAGE" "CONSUL_REMOTE_IMAGE" "CONSUL_REMOTE_IMAGE_TAG"
 __check_image_var " CBS" $START_ARG "CBS_IMAGE" "CBS_REMOTE_IMAGE" "CBS_REMOTE_IMAGE_TAG"
 __check_image_var " SDNC DB" $START_ARG "SDNC_DB_IMAGE" "SDNC_DB_REMOTE_IMAGE" "SDNC_DB_REMOTE_IMAGE_TAG"
-check_excluded_image 'SDNC_ONAP'
+__check_excluded_image 'SDNC_ONAP'
 if [ $? -eq 0 ]; then
 	__check_image_var " SDNC ONAP A1 Adapter" $START_ARG "SDNC_ONAP_A1_ADAPTER_IMAGE" "SDNC_ONAP_A1_ADAPTER_REMOTE_IMAGE" "SDNC_ONAP_A1_ADAPTER_REMOTE_IMAGE_TAG"
 	__check_image_var " SDNC ONAP DB" $START_ARG "SDNC_ONAP_DB_IMAGE" "SDNC_ONAP_DB_REMOTE_IMAGE" "SDNC_ONAP_DB_REMOTE_IMAGE_TAG"
@@ -453,21 +467,21 @@ __check_and_pull_image() {
 echo -e $BOLD"Pulling configured images, if needed"$EBOLD
 
 START_ARG_MOD=$START_ARG
-check_image_local_override 'PA'
+__check_image_local_override 'PA'
 if [ $? -eq 1 ]; then
 	START_ARG_MOD="local"
 fi
 app="Policy Agent";             __check_and_pull_image $START_ARG_MOD "$app" $POLICY_AGENT_APP_NAME $POLICY_AGENT_IMAGE
 
 START_ARG_MOD=$START_ARG
-check_image_local_override 'CP'
+__check_image_local_override 'CP'
 if [ $? -eq 1 ]; then
 	START_ARG_MOD="local"
 fi
 app="Non-RT RIC Control Panel"; __check_and_pull_image $START_ARG_MOD "$app" $CONTROL_PANEL_APP_NAME $CONTROL_PANEL_IMAGE
 
 START_ARG_MOD=$START_ARG
-check_image_local_override 'RICSIM'
+__check_image_local_override 'RICSIM'
 if [ $? -eq 1 ]; then
 	START_ARG_MOD="local"
 fi
@@ -475,10 +489,10 @@ app="Near-RT RIC Simulator";    __check_and_pull_image $START_ARG_MOD "$app" $RI
 
 app="Consul";                   __check_and_pull_image $START_ARG "$app" $CONSUL_APP_NAME $CONSUL_IMAGE
 app="CBS";                      __check_and_pull_image $START_ARG "$app" $CBS_APP_NAME $CBS_IMAGE
-check_excluded_image 'SDNC'
+__check_excluded_image 'SDNC'
 if [ $? -eq 0 ]; then
 	START_ARG_MOD=$START_ARG
-	check_image_local_override 'SDNC'
+	__check_image_local_override 'SDNC'
 	if [ $? -eq 1 ]; then
 		START_ARG_MOD="local"
 	fi
@@ -487,7 +501,7 @@ if [ $? -eq 0 ]; then
 else
 	echo -e $YELLOW" Excluding SDNC image and related DB image from image check/pull"$EYELLOW
 fi
-check_excluded_image 'SDNC_ONAP'
+__check_excluded_image 'SDNC_ONAP'
 if [ $? -eq 0 ]; then
 	app="SDNC ONAP A1 Adapter";     __check_and_pull_image $START_ARG "$app" $SDNC_ONAP_APP_NAME $SDNC_ONAP_A1_ADAPTER_IMAGE
 	app="SDNC ONAP DB";             __check_and_pull_image $START_ARG "$app" $SDNC_ONAP_APP_NAME $SDNC_ONAP_DB_IMAGE
@@ -554,12 +568,12 @@ echo -e " Message Router\t$(docker images --format $format_string $MRSTUB_IMAGE)
 echo -e " Callback Receiver\t$(docker images --format $format_string $CR_IMAGE)" >>   $docker_tmp_file
 echo -e " Consul\t$(docker images --format $format_string $CONSUL_IMAGE)" >>   $docker_tmp_file
 echo -e " CBS\t$(docker images --format $format_string $CBS_IMAGE)" >>   $docker_tmp_file
-check_excluded_image 'SDNC'
+__check_excluded_image 'SDNC'
 if [ $? -eq 0 ]; then
 	echo -e " SDNC A1 Controller\t$(docker images --format $format_string $SDNC_A1_CONTROLLER_IMAGE)" >>   $docker_tmp_file
 	echo -e " SDNC DB\t$(docker images --format $format_string $SDNC_DB_IMAGE)" >>   $docker_tmp_file
 fi
-check_excluded_image 'SDNC_ONAP'
+__check_excluded_image 'SDNC_ONAP'
 if [ $? -eq 0 ]; then
 	echo -e " SDNC ONAP A1 Adapter\t$(docker images --format $format_string $SDNC_ONAP_A1_ADAPTER_IMAGE)" >>   $docker_tmp_file
 	echo -e " SDNC ONAP DB\t$(docker images --format $format_string $SDNC_ONAP_DB_IMAGE)" >>   $docker_tmp_file
@@ -640,6 +654,8 @@ print_result() {
 		if [ -f .tmp_tcsuite_pass ]; then
 			echo " - "$ATC " -- "$TC_ONELINE_DESCR"  Execution time: "$duration" seconds" >> .tmp_tcsuite_pass
 		fi
+		#Create file with OK exit code
+		echo "0" > "$PWD/.result$ATC.txt"
 	else
 		echo -e "One or more tests with status  \033[31m\033[1mFAIL\033[0m "
 		echo -e "\033[31m\033[1m  ___ _   ___ _    \033[0m"
@@ -743,6 +759,16 @@ deviation() {
 	echo ""
 }
 
+# Stop at first FAIL test case and take all logs - only for debugging/trouble shooting
+__check_stop_at_error() {
+	if [ $STOP_AT_ERROR -eq 1 ]; then
+		echo -e $RED"Test script configured to stop at first FAIL, taking all logs and stops"$ERED
+		store_logs "STOP_AT_ERROR"
+		exit 1
+	fi
+	return 0
+}
+
 # Stop and remove all containers
 # args: -
 # (Function for test scripts)
@@ -817,7 +843,7 @@ auto_clean_containers() {
 }
 
 # Function to sleep a test case for a numner of seconds. Prints the optional text args as info
-# args: <sleep-time-in-sec> [any-text-in-quoteds-to-printed]
+# args: <sleep-time-in-sec> [any-text-in-quotes-to-be-printed]
 # (Function for test scripts)
 sleep_wait() {
 
@@ -1305,7 +1331,7 @@ start_sdnc() {
 
 	echo -e $BOLD"Starting SDNC A1 Controller"$EBOLD
 
-	check_excluded_image 'SDNC'
+	__check_excluded_image 'SDNC'
 	if [ $? -eq 1 ]; then
 		echo -e $RED"The image for SDNC and the related DB has not been checked for this test run due to arg to the test script"$ERED
 		echo -e $RED"SDNC will not be started"$ERED
@@ -1343,7 +1369,7 @@ start_sdnc_onap() {
 
 	echo -e $BOLD"Starting SDNC ONAP A1 Adapter"$EBOLD
 
-	check_excluded_image 'SDNC_ONAP'
+	__check_excluded_image 'SDNC_ONAP'
 	if [ $? -eq 1 ]; then
 		echo -e $RED"The image for SDNC ONAP and the related DB has not been checked for this test run due to arg to the test script"$ERED
 		echo -e $RED"SDNC ONAP will not be started"$ERED
@@ -1509,6 +1535,20 @@ set_agent_debug() {
 	return 0
 }
 
+# Turn on trace level tracing in the agent
+# args: -
+# (Function for test scripts)
+set_agent_trace() {
+	echo -e $BOLD"Setting agent trace"$EBOLD
+	curl $LOCALHOST$POLICY_AGENT_EXTERNAL_PORT/actuator/loggers/org.oransc.policyagent -X POST  -H 'Content-Type: application/json' -d '{"configuredLevel":"trace"}' &> /dev/null
+	if [ $? -ne 0 ]; then
+		__print_err "could not set trace mode" $@
+		return 1
+	fi
+	echo ""
+	return 0
+}
+
 # Perform curl retries when making direct call to the agent for the specified http response codes
 # Speace separated list of http response codes
 # args: [<response-code>]*
@@ -1656,7 +1696,6 @@ __var_test() {
 			checkjsonarraycount=1
 		fi
 
-		#echo -e "---- ${1} sim test criteria: \033[1m ${3} \033[0m ${4} ${5} within ${6} seconds ----"
 		echo -e $BOLD"TEST(${BASH_LINENO[1]}): ${1}, ${3} ${4} ${5} within ${6} seconds"$EBOLD
 		((RES_TEST++))
 		start=$SECONDS
@@ -1679,39 +1718,35 @@ __var_test() {
 			if [ $retcode -ne 0 ]; then
 				if [ $duration -gt $6 ]; then
 					((RES_FAIL++))
-					#echo -e "----  \033[31m\033[1mFAIL\033[0m - Target ${3} ${4} ${5}  not reached in ${6} seconds, result = ${result} ----"
 					echo -e $RED" FAIL${ERED} - ${3} ${4} ${5} not reached in ${6} seconds, result = ${result}"
+					__check_stop_at_error
 					return
 				fi
 			elif [ $4 = "=" ] && [ "$result" -eq $5 ]; then
 				((RES_PASS++))
 				echo -e " Result=${result} after ${duration} seconds${SAMELINE}"
 				echo -e $GREEN" PASS${EGREEN} - Result=${result} after ${duration} seconds"
-				#echo -e "----  \033[32m\033[1mPASS\033[0m - Test criteria met in ${duration} seconds ----"
 				return
 			elif [ $4 = ">" ] && [ "$result" -gt $5 ]; then
 				((RES_PASS++))
 				echo -e " Result=${result} after ${duration} seconds${SAMELINE}"
 				echo -e $GREEN" PASS${EGREEN} - Result=${result} after ${duration} seconds"
-				#echo -e "----  \033[32m\033[1mPASS\033[0m - Test criteria met in ${duration} seconds, result = ${result}  ----"
 				return
 			elif [ $4 = "<" ] && [ "$result" -lt $5 ]; then
 				((RES_PASS++))
 				echo -e " Result=${result} after ${duration} seconds${SAMELINE}"
 				echo -e $GREEN" PASS${EGREEN} - Result=${result} after ${duration} seconds"
-				#echo -e "----  \033[32m\033[1mPASS\033[0m - Test criteria met in ${duration} seconds, result = ${result}  ----"
 				return
 			elif [ $4 = "contain_str" ] && [[ $result =~ $5 ]]; then
 				((RES_PASS++))
 				echo -e " Result=${result} after ${duration} seconds${SAMELINE}"
 				echo -e $GREEN" PASS${EGREEN} - Result=${result} after ${duration} seconds"
-				#echo -e "----  \033[32m\033[1mPASS\033[0m - Test criteria met in ${duration} seconds, result = ${result}  ----"
 				return
 			else
 				if [ $duration -gt $6 ]; then
 					((RES_FAIL++))
 					echo -e $RED" FAIL${ERED} - ${3} ${4} ${5} not reached in ${6} seconds, result = ${result}"
-					#echo -e "----  \033[31m\033[1mFAIL\033[0m - Target ${3} ${4} ${5}  not reached in ${6} seconds, result = ${result} ----"
+					__check_stop_at_error
 					return
 				fi
 			fi
@@ -1722,7 +1757,6 @@ __var_test() {
 			checkjsonarraycount=1
 		fi
 
-		#echo -e "---- ${1} sim test criteria: \033[1m ${3} \033[0m ${4} ${5} ----"
 		echo -e $BOLD"TEST(${BASH_LINENO[1]}): ${1}, ${3} ${4} ${5}"$EBOLD
 		((RES_TEST++))
 		if [ $checkjsonarraycount -eq 0 ]; then
@@ -1738,28 +1772,24 @@ __var_test() {
 		fi
 		if [ $retcode -ne 0 ]; then
 			((RES_FAIL++))
-			#echo -e "----  \033[31m\033[1mFAIL\033[0m - Target ${3} ${4} ${5} not reached, result = ${result} ----"
 			echo -e $RED" FAIL ${ERED}- ${3} ${4} ${5} not reached, result = ${result}"
+			__check_stop_at_error
 		elif [ $4 = "=" ] && [ "$result" -eq $5 ]; then
 			((RES_PASS++))
 			echo -e $GREEN" PASS${EGREEN} - Result=${result}"
-			#echo -e "----  \033[32m\033[1mPASS\033[0m - Test criteria met"
 		elif [ $4 = ">" ] && [ "$result" -gt $5 ]; then
 			((RES_PASS++))
 			echo -e $GREEN" PASS${EGREEN} - Result=${result}"
-			#echo -e "----  \033[32m\033[1mPASS\033[0m - Test criteria met, result = ${result} ----"
 		elif [ $4 = "<" ] && [ "$result" -lt $5 ]; then
 			((RES_PASS++))
 			echo -e $GREEN" PASS${EGREEN} - Result=${result}"
-			#echo -e "----  \033[32m\033[1mPASS\033[0m - Test criteria met, result = ${result} ----"
 		elif [ $4 = "contain_str" ] && [[ $result =~ $5 ]]; then
 			((RES_PASS++))
 			echo -e $GREEN" PASS${EGREEN} - Result=${result}"
-			#echo -e "----  \033[32m\033[1mPASS\033[0m - Test criteria met, result = ${result} ----"
 		else
 			((RES_FAIL++))
 			echo -e $RED" FAIL${ERED} - ${3} ${4} ${5} not reached, result = ${result}"
-			#echo -e "----  \033[31m\033[1mFAIL\033[0m - Target ${3} ${4} ${5} not reached, result = ${result} ----"
+			__check_stop_at_error
 		fi
 	else
 		echo "Wrong args to __var_test, needs five or six args: <simulator-name> <host> <variable-name> <condition-operator> <target-value> [ <timeout> ]"

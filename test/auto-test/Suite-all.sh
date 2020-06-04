@@ -17,25 +17,31 @@
 #  ============LICENSE_END=================================================
 #
 
-TS_ONELINE_DESCR="Test suite - interface testing. Agent REST, DMAAP and SNDC controller resconf"
+TS_ONELINE_DESCR="Test suite - all test cases except the stab test(s)"
 
 . ../common/testsuite_common.sh
 
 suite_setup
 
 ############# TEST CASES #################
-
 ARG1=$1
 
-./FTC100.sh $ARG1
+./FTC1.sh $1
 
 if [ $ARG1 == "remote-remove" ]; then
     #Prevent image removal for every test case
     ARG1="remote"
 fi
 
-./FTC110.sh $ARG1
-./FTC150.sh $ARG1
+./FTC10.sh $1
+./FTC100.sh $1
+./FTC110.sh $1
+./FTC150.sh $1
+./FTC300.sh $1
+./FTC310.sh $1
+./FTC350.sh $1
+./FTC800.sh $1
+./FTC850.sh $1
 
 ##########################################
 

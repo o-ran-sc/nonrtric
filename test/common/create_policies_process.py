@@ -23,6 +23,7 @@ import os
 import json
 import sys
 import requests
+import traceback
 
 # disable warning about unverified https requests
 from requests.packages import urllib3
@@ -61,7 +62,10 @@ try:
                     headers = {'Content-type': 'application/json'}
                     resp=requests.put(url, json.dumps(json.loads(payload)), headers=headers, verify=False, timeout=90)
                 except Exception as e1:
-                    print("1Put failed for id:"+str(i)+ ", "+str(e1))
+                    print("1Put failed for id:"+str(i)+ ", "+str(e1) + " "+traceback.format_exc())
+                    sys.exit()
+                if (resp.status_code == None):
+                    print("1Put failed for id:"+str(i)+ ", expected response code: "+responsecode+", got: None")
                     sys.exit()
                 if (resp.status_code != responsecode):
                     print("1Put failed for id:"+str(i)+ ", expected response code: "+responsecode+", got: "+str(resp.status_code))

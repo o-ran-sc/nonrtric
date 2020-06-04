@@ -214,7 +214,7 @@ sim_post_forcedelay() {
 	app=$2
 	res=$(__find_sim_port $app)
 
-    curlString="curl -X POST -skw %{http_code} $RIC_SIM_LOCALHOST$res/delay"
+    curlString="curl -X POST -skw %{http_code} $RIC_SIM_LOCALHOST$res/forcedelay"
 	if [ $# -eq 3 ]; then
 		curlString=$curlString"?delay="$3
 	fi
