@@ -25,7 +25,7 @@
 
 # Local Policy Agent image and tag
 POLICY_AGENT_LOCAL_IMAGE="o-ran-sc/nonrtric-policy-agent"
-POLICY_AGENT_LOCAL_IMAGE_TAG="2.0.0-SNAPSHOT"
+POLICY_AGENT_LOCAL_IMAGE_TAG="2.0.0"
 # Remote Policy Agent image and tag
 POLICY_AGENT_REMOTE_IMAGE="nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-policy-agent"
 POLICY_AGENT_REMOTE_IMAGE_TAG="2.0.0"
