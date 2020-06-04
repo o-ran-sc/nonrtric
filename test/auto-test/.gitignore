@@ -13,3 +13,4 @@ logs
 .sdnc*
 .timer*
 .pid*
+.result*

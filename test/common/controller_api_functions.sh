@@ -98,12 +98,14 @@ controller_api_get_A1_policy_ids() {
     if [ $? -ne 0 ]; then
 		echo -e $RED" FAIL. Exepected status "$1", got "$status "(likely remote server error)"$ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
 
 	if [ $status -ne $1 ]; then
 		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
     body=${res:0:${#res}-3}
@@ -128,6 +130,7 @@ controller_api_get_A1_policy_ids() {
 	if [ $res -ne 0 ]; then
 		echo -e $RED" FAIL, returned body not correct"$ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
 
@@ -163,12 +166,14 @@ controller_api_get_A1_policy_type() {
     if [ $? -ne 0 ]; then
 		echo -e $RED" FAIL. Exepected status "$1", got "$status "(likely remote server error)"$ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
 
 	if [ $status -ne $1 ]; then
 		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
     body=${res:0:${#res}-3}
@@ -184,6 +189,7 @@ controller_api_get_A1_policy_type() {
 		if [ $res -ne 0 ]; then
 			echo -e $RED" FAIL, returned body not correct"$ERED
 			((RES_FAIL++))
+			__check_stop_at_error
 			return 1
 		fi
 	fi
@@ -222,12 +228,14 @@ controller_api_delete_A1_policy() {
     if [ $? -ne 0 ]; then
 		echo -e $RED" FAIL. Exepected status "$1", got "$status "(likely remote server error)"$ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
 
 	if [ $status -ne $1 ]; then
 		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
 
@@ -268,12 +276,14 @@ controller_api_put_A1_policy() {
     if [ $? -ne 0 ]; then
 		echo -e $RED" FAIL. Exepected status "$1", got "$status "(likely remote server error)"$ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
 
 	if [ $status -ne $1 ]; then
 		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
 
@@ -325,12 +335,14 @@ controller_api_get_A1_policy_status() {
     if [ $? -ne 0 ]; then
 		echo -e $RED" FAIL. Exepected status "$1", got "$status "(likely remote server error)"$ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
 
 	if [ $status -ne $1 ]; then
 		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
 
@@ -343,6 +355,7 @@ controller_api_get_A1_policy_status() {
 		if [ $res -ne 0 ]; then
 			echo -e $RED" FAIL, returned body not correct"$ERED
 			((RES_FAIL++))
+			__check_stop_at_error
 			return 1
 		fi
 	fi

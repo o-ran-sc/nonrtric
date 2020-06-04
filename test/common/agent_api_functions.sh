@@ -280,6 +280,7 @@ api_get_policies() {
 	if [ $status -ne $1 ]; then
 		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
 
@@ -316,6 +317,7 @@ api_get_policies() {
 		if [ $res -ne 0 ]; then
 			echo -e $RED" FAIL, returned body not correct"$ERED
 			((RES_FAIL++))
+			__check_stop_at_error
 			return 1
 		fi
 	fi
@@ -346,6 +348,7 @@ api_get_policy() {
 	if [ $status -ne $1 ]; then
 		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
 
@@ -360,6 +363,7 @@ api_get_policy() {
 		if [ $res -ne 0 ]; then
 			echo -e $RED" FAIL, returned body not correct"$ERED
 			((RES_FAIL++))
+			__check_stop_at_error
 			return 1
 		fi
 	fi
@@ -414,6 +418,7 @@ api_put_policy() {
 			echo " Created "$count"?("$max")"
 			echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 			((RES_FAIL++))
+			__check_stop_at_error
 			return 1
 		fi
 
@@ -474,6 +479,7 @@ api_put_policy_batch() {
 			echo " Requested(batch) "$count"?("$max")"
 			echo -e $RED" FAIL. Exepected status 200 (in request), got "$status $ERED
 			((RES_FAIL++))
+			__check_stop_at_error
 			return 1
 		fi
 		cid=${res:0:${#res}-3}
@@ -496,6 +502,7 @@ api_put_policy_batch() {
 			echo " Created(batch) "$count"?("$max")"
 			echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 			((RES_FAIL++))
+			__check_stop_at_error
 			return 1
 		fi
 
@@ -591,6 +598,7 @@ api_put_policy_parallel() {
 
 	echo -e $RED" FAIL. One of more processes failed to execute" $ERED
 	((RES_FAIL++))
+	__check_stop_at_error
 	return 1
 }
 
@@ -626,6 +634,7 @@ api_delete_policy() {
 			echo " Deleted "$count"?("$max")"
 			echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 			((RES_FAIL++))
+			__check_stop_at_error
 			return 1
 		fi
 		let pid=$pid+1
@@ -672,6 +681,7 @@ api_delete_policy_batch() {
 			echo " Requested(batch) "$count"?("$max")"
 			echo -e $RED" FAIL. Exepected status 200 (in request), got "$status $ERED
 			((RES_FAIL++))
+			__check_stop_at_error
 			return 1
 		fi
 		cid=${res:0:${#res}-3}
@@ -695,6 +705,7 @@ api_delete_policy_batch() {
 			echo " Deleted(batch) "$count"?("$max")"
 			echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 			((RES_FAIL++))
+			__check_stop_at_error
 			return 1
 		fi
 
@@ -772,6 +783,7 @@ api_delete_policy_parallel() {
 
 	echo -e $RED" FAIL. One of more processes failed to execute" $ERED
 	((RES_FAIL++))
+	__check_stop_at_error
 	return 1
 }
 
@@ -816,6 +828,7 @@ api_get_policy_ids() {
 	if [ $status -ne $1 ]; then
 		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
 
@@ -839,6 +852,7 @@ api_get_policy_ids() {
 		if [ $res -ne 0 ]; then
 			echo -e $RED" FAIL, returned body not correct"$ERED
 			((RES_FAIL++))
+			__check_stop_at_error
 			return 1
 		fi
 	fi
@@ -868,6 +882,7 @@ api_get_policy_schema() {
 	if [ $status -ne $1 ]; then
 		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
 
@@ -882,6 +897,7 @@ api_get_policy_schema() {
 		if [ $res -ne 0 ]; then
 			echo -e $RED" FAIL, returned body not correct"$ERED
 			((RES_FAIL++))
+			__check_stop_at_error
 			return 1
 		fi
 	fi
@@ -915,6 +931,7 @@ api_get_policy_schemas() {
 	if [ $status -ne $1 ]; then
 		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
 
@@ -940,6 +957,7 @@ api_get_policy_schemas() {
 		if [ $res -ne 0 ]; then
 			echo -e $RED" FAIL, returned body not correct"$ERED
 			((RES_FAIL++))
+			__check_stop_at_error
 			return 1
 		fi
 	fi
@@ -988,6 +1006,7 @@ api_get_policy_status() {
 	if [ $status -ne $1 ]; then
 		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
 
@@ -998,6 +1017,7 @@ api_get_policy_status() {
 	if [ $res -ne 0 ]; then
 		echo -e $RED" FAIL, returned body not correct"$ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
 
@@ -1033,6 +1053,7 @@ api_get_policy_types() {
 	if [ $status -ne $1 ]; then
 		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
 
@@ -1057,6 +1078,7 @@ api_get_policy_types() {
 		if [ $res -ne 0 ]; then
 			echo -e $RED" FAIL, returned body not correct"$ERED
 			((RES_FAIL++))
+			__check_stop_at_error
 			return 1
 		fi
 	fi
@@ -1088,6 +1110,7 @@ api_get_status() {
 	if [ $status -ne $1 ]; then
 		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
 
@@ -1120,6 +1143,7 @@ api_get_ric() {
 	if [ $status -ne $1 ]; then
 		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
 
@@ -1128,6 +1152,7 @@ api_get_ric() {
 		if [ "$body" != "$3" ]; then
 			echo -e $RED" FAIL, returned body not correct"$ERED
 			((RES_FAIL++))
+			__check_stop_at_error
 			return 1
 		fi
 	fi
@@ -1163,6 +1188,7 @@ api_get_rics() {
 	if [ $status -ne $1 ]; then
 		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
 
@@ -1172,6 +1198,7 @@ api_get_rics() {
 		if [ $res -ne 0 ]; then
 			echo -e $RED" FAIL, could not create target ric info json"$ERED
 			((RES_FAIL++))
+			__check_stop_at_error
 			return 1
 		fi
 
@@ -1181,6 +1208,7 @@ api_get_rics() {
 		if [ $res -ne 0 ]; then
 			echo -e $RED" FAIL, returned body not correct"$ERED
 			((RES_FAIL++))
+			__check_stop_at_error
 			return 1
 		fi
 	fi
@@ -1217,6 +1245,7 @@ api_put_service() {
 	if [ $status -ne $1 ]; then
 		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
 
@@ -1264,6 +1293,7 @@ api_get_services() {
 	if [ $status -ne $1 ]; then
 		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
 
@@ -1290,6 +1320,7 @@ api_get_services() {
 		if [ $res -ne 0 ]; then
 			echo -e $RED" FAIL, returned body not correct"$ERED
 			((RES_FAIL++))
+			__check_stop_at_error
 			return 1
 		fi
 	fi
@@ -1319,6 +1350,7 @@ api_get_service_ids() {
 	if [ $status -ne $1 ]; then
 		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
 
@@ -1338,6 +1370,7 @@ api_get_service_ids() {
 	if [ $res -ne 0 ]; then
 		echo -e $RED" FAIL, returned body not correct"$ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
 
@@ -1366,6 +1399,7 @@ api_delete_services() {
 	if [ $status -ne $1 ]; then
 		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
 
@@ -1394,6 +1428,7 @@ api_put_services_keepalive() {
 	if [ $status -ne $1 ]; then
 		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 		((RES_FAIL++))
+		__check_stop_at_error
 		return 1
 	fi
 
