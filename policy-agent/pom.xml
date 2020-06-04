@@ -61,6 +61,7 @@
         <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
         <sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
+        <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
     </properties>
     <dependencies>
         <dependency>
@@ -226,7 +227,7 @@
                 <configuration>
                     <configFile>${project.basedir}/eclipse-formatter.xml</configFile>
                 </configuration>
-                <!-- https://code.revelc.net/formatter-maven-plugin/ use mvn formatter:format 
+                <!-- https://code.revelc.net/formatter-maven-plugin/ use mvn formatter:format
 					spotless:apply process-sources -->
             </plugin>
             <plugin>
@@ -241,8 +242,8 @@
                         </importOrder>
                     </java>
                 </configuration>
-                <!-- https://github.com/diffplug/spotless/tree/master/plugin-maven use 
-					mvn spotless:apply to rewrite source files use mvn spotless:check to validate 
+                <!-- https://github.com/diffplug/spotless/tree/master/plugin-maven use
+					mvn spotless:apply to rewrite source files use mvn spotless:check to validate
 					source files -->
             </plugin>
             <plugin>
@@ -359,6 +360,27 @@
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
                 <version>${sonar-maven-plugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${exec-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>run-test-script</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <executable>bash</executable>
+                    <arguments>
+                        <argument>run_test.sh</argument>
+                    </arguments>
+                    <workingDirectory>../test/jenkins/</workingDirectory>
+                </configuration>
             </plugin>
         </plugins>
     </build>
