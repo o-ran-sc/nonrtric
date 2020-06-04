@@ -178,3 +178,5 @@ store_logs          END
 print_result
 
 auto_clean_containers
+
+clean_containers
