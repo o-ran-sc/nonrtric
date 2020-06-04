@@ -25,26 +25,26 @@
 
 # Local Policy Agent image and tag
 POLICY_AGENT_LOCAL_IMAGE="o-ran-sc/nonrtric-policy-agent"
-POLICY_AGENT_LOCAL_IMAGE_TAG="1.0.0-SNAPSHOT"
+POLICY_AGENT_LOCAL_IMAGE_TAG="2.0.0-SNAPSHOT"
 # Remote Policy Agent image and tag
 POLICY_AGENT_REMOTE_IMAGE="nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-policy-agent"
-POLICY_AGENT_REMOTE_IMAGE_TAG="1.0.0"
+POLICY_AGENT_REMOTE_IMAGE_TAG="2.0.0"
 
 
 # Control Panel local image and tag
 CONTROL_PANEL_LOCAL_IMAGE="o-ran-sc/nonrtric-controlpanel"
-CONTROL_PANEL_LOCAL_IMAGE_TAG="1.0.0-SNAPSHOT"
+CONTROL_PANEL_LOCAL_IMAGE_TAG="2.0.0-SNAPSHOT"
 # Control Panel remote image and tag
 CONTROL_PANEL_REMOTE_IMAGE="nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-controlpanel"
-CONTROL_PANEL_REMOTE_IMAGE_TAG="1.0.0"
+CONTROL_PANEL_REMOTE_IMAGE_TAG="2.0.0"
 
 
 # SDNC A1 Controller local image and tag
 SDNC_A1_CONTROLLER_LOCAL_IMAGE="o-ran-sc/nonrtric-a1-controller"
-SDNC_A1_CONTROLLER_LOCAL_IMAGE_TAG="1.7.5-SNAPSHOT"
+SDNC_A1_CONTROLLER_LOCAL_IMAGE_TAG="2.0.0-SNAPSHOT"
 # SDNC A1 Controller remote image and tag
 SDNC_A1_CONTROLLER_REMOTE_IMAGE="nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-a1-controller"
-SDNC_A1_CONTROLLER_REMOTE_IMAGE_TAG="1.7.5"
+SDNC_A1_CONTROLLER_REMOTE_IMAGE_TAG="2.0.0"
 
 
 #SDNC DB remote image and tag
@@ -69,7 +69,7 @@ RIC_SIM_LOCAL_IMAGE="nexus3.o-ran-sc.org:10004/o-ran-sc/a1-simulator"
 RIC_SIM_LOCAL_IMAGE_TAG="latest"
 # Near RT RIC Simulator remote image and tag
 RIC_SIM_REMOTE_IMAGE="nexus3.o-ran-sc.org:10004/o-ran-sc/a1-simulator"
-RIC_SIM_REMOTE_IMAGE_TAG="1.0.1"
+RIC_SIM_REMOTE_IMAGE_TAG="2.0.0"
 
 
 #Consul remote image and tag
