@@ -17,6 +17,8 @@
 
 import argparse
 from datetime import datetime
+from jinja2 import Template
+from flask import Flask, request
 from pygments.util import xrange
 from requests import ConnectionError
 import requests
@@ -32,6 +34,53 @@ TIME_BETWEEN_CHECKS = 60
 type_to_use = ''
 policy_body = ''
 
+app = Flask(__name__)
+
+# Server info
+HOST_IP = "::"
+HOST_PORT = 9990
+APP_URL = "/stats"
+
+stat_page_template = """
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv=\"refresh\" content=\"{{refreshTime}}\">
+        <title>Non-RealTime RIC Health Check</title>
+    </head>
+    <body>
+        <h3>General</h3>
+        <font face=\"monospace\">
+            Time of last check:...................{{time}}<br>
+            Duration of check:....................{{duration}}<br>
+            Number of checks:.....................{{noOfChecks}}<br>
+        </font>
+        <h3>Near-RT RICs</h3>
+        <font face=\"monospace\">
+            Number of unavailable rics:...........{{noOfUnavailableRics}}<br>
+            Number of rics not supporting type....{{noOfNotSupportingRics}}<br>
+            Number of rics supporting type:.......{{noOfSupportingRics}}<br>
+        </font>
+        <h3>Policies</h3>
+        <font face=\"monospace\">
+            Number of created policies:...........{{noOfCreatedPolicies}}<br>
+            Number of read policies:..............{{noOfReadPolicies}}<br>
+            Number of updated policies:...........{{noOfUpdatedPolicies}}<br>
+            Number of deleted policies:...........{{noOfDeletedPolicies}}<br>
+        </font>
+    </body>
+</html>
+"""
+
+duration = 0
+no_of_checks = 0
+no_of_unavailable_rics = 0
+no_of_rics_not_supporting_type = 0
+no_of_rics_supporting_type = 0
+no_of_created_policies = 0
+no_of_read_policies = 0
+no_of_updated_policies = 0
+no_of_deleted_policies = 0
 
 class Ric:
 
@@ -78,6 +127,26 @@ class PolicyCheckThread (threading.Thread):
                 verboseprint(f'Deleted policy: {self.thread_id} from ric: {self.ric.name}')
                 self.ric.no_of_deleted_policies += 1
 
+
+class MonitorServer (threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+
+    def run(self):
+        verboseprint('Staring monitor server')
+        app.run(port=HOST_PORT, host=HOST_IP)
+
+
+@app.route(APP_URL,
+    methods=['GET'])
+def produceStatsPage():
+    t = Template(stat_page_template)
+    page = t.render(refreshTime=TIME_BETWEEN_CHECKS, time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    duration=duration, noOfChecks=no_of_checks, noOfUnavailableRics=no_of_unavailable_rics,
+    noOfNotSupportingRics=no_of_rics_not_supporting_type, noOfSupportingRics=no_of_rics_supporting_type,
+    noOfCreatedPolicies=no_of_created_policies, noOfReadPolicies=no_of_read_policies,
+    noOfUpdatedPolicies=no_of_updated_policies, noOfDeletedPolicies=no_of_deleted_policies)
+    return page,200
 
 def get_rics_from_agent():
     resp = requests.get(BASE_URL + '/rics')
@@ -146,15 +215,20 @@ def delete_policy(thread_id):
     return True
 
 
-def statistics(duration):
+def statistics():
+    global duration
+    global no_of_checks
+    global no_of_unavailable_rics
+    global no_of_rics_not_supporting_type
+    global no_of_rics_supporting_type
+    global no_of_created_policies
+    global no_of_read_policies
+    global no_of_updated_policies
+    global no_of_deleted_policies
+
     no_of_unavailable_rics = 0
     no_of_rics_not_supporting_type = 0
     no_of_rics_supporting_type = 0
-    no_of_created_policies = 0
-    no_of_read_policies = 0
-    no_of_updated_policies = 0
-    no_of_deleted_policies = 0
-
     for ric in rics.values():
         if not (ric.state == 'AVAILABLE' or ric.state == 'CONSISTENCY_CHECK'):
             no_of_unavailable_rics += 1
@@ -242,7 +316,9 @@ if __name__ == '__main__':
 
     rics = create_ric_dict(rics_from_agent)
 
-    no_of_checks = 0
+    monitor_server = MonitorServer()
+    monitor_server.start()
+
     while True:
         start_time = datetime.now()
         chunked_rics = split_rics_equally(get_no_of_chunks(RIC_CHUNK_SIZE, rics.__len__()))
@@ -252,7 +328,7 @@ if __name__ == '__main__':
         no_of_checks += 1
         finish_time = datetime.now()
         duration = finish_time - start_time
-        statistics(duration)
+        statistics()
         sleep_time = TIME_BETWEEN_CHECKS - duration.total_seconds()
         verboseprint(f'Sleeping {sleep_time} seconds')
         time.sleep(sleep_time)
