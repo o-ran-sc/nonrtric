@@ -29,16 +29,16 @@ This will build the project and create artifcats in maven repo
 Go to oam/installation directory and run this command ::
     mvn clean install -P docker
 
-This will create the docker images required for sdnc
+This will create the docker images required for the A1 Controller
 
 After this step check for the docker images created by the maven build with this command ::
-    docker images | grep sdnc
+    docker images | grep a1-controller
 
 Go to oam/installation/src/main/yaml and run this command ::
-    docker-compose up -d sdnc
+    docker-compose up -d a1-controller
 
-This will create the docker containers with the sdnc image, you can check the status of the docker container using ::
-    docker-compose logs -f sdnc
+This will create the docker containers with the A1 Controller image, you can check the status of the docker container using ::
+    docker-compose logs -f a1-controller
 
 The SDNC url to access the Northbound API,
     http://localhost:8282/apidoc/explorer/index.html
