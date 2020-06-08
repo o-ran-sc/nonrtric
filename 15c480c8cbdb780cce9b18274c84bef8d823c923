@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "59545a79_6d673a1b",
+        "filename": "test/jenkins/run_test.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1000247
+      },
+      "writtenOn": "2020-06-08T19:52:30Z",
+      "side": 1,
+      "message": "It already exists.",
+      "parentUuid": "040c9009_ae0b2588",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 30,
+        "endChar": 16
+      },
+      "revId": "15c480c8cbdb780cce9b18274c84bef8d823c923",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5a152ee0_dd338a5c",
         "filename": "test/jenkins/run_test.sh",
         "patchSetId": 9
@@ -36,6 +60,30 @@
       "writtenOn": "2020-06-08T19:37:48Z",
       "side": 1,
       "message": "I suggest FTC1 which is the sanity test and test both http and http using these four combinations REST   DMAAP   REST+SDNC   DMAAP+SDNC.\nFTC10 does not test the A1-controller.\nOne drawback, FTC1 takes 20 min, FTC10 2 min.",
+      "range": {
+        "startLine": 31,
+        "startChar": 5,
+        "endLine": 31,
+        "endChar": 10
+      },
+      "revId": "15c480c8cbdb780cce9b18274c84bef8d823c923",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e063e9c_792e29bc",
+        "filename": "test/jenkins/run_test.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1000247
+      },
+      "writtenOn": "2020-06-08T19:52:30Z",
+      "side": 1,
+      "message": "Yes, exactly what I am thinking on the pros and cons. FTC1 takes too long. I suggest leave it as FTC10 for a while.",
+      "parentUuid": "5a152ee0_dd338a5c",
       "range": {
         "startLine": 31,
         "startChar": 5,
@@ -68,6 +116,30 @@
       "revId": "15c480c8cbdb780cce9b18274c84bef8d823c923",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce4fe170_38a7f082",
+        "filename": "test/jenkins/run_test.sh",
+        "patchSetId": 9
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 1000247
+      },
+      "writtenOn": "2020-06-08T19:52:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bcddc2e8_740eb0a2",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 6
+      },
+      "revId": "15c480c8cbdb780cce9b18274c84bef8d823c923",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
