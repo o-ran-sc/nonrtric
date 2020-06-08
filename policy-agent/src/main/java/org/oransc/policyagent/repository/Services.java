@@ -63,7 +63,7 @@ public class Services {
         return registeredServices.size();
     }
 
-    public void clear() {
+    public synchronized void clear() {
         registeredServices.clear();
     }
 }
