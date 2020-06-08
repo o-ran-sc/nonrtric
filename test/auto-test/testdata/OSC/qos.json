@@ -1,23 +1,23 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "OSC_Type5_1.0.0",
-  "description": "Type 5 policy type",
+  "title": "OSC_Type1_1.0.0",
+  "description": "Quality of Service policy type",
   "type": "object",
   "properties": {
     "scope": {
       "type": "object",
       "properties": {
-        "sliceId": {
+        "ueId": {
           "type": "string"
         },
-        "cellId": {
+        "qosId": {
           "type": "string"
         }
       },
       "additionalProperties": false,
       "required": [
-        "sliceId",
-        "cellId"
+        "ueId",
+        "qosId"
       ]
     },
     "qosObjectives": {

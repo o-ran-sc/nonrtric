@@ -119,7 +119,7 @@ controller_api_get_A1_policy_ids() {
         if [ "$targetJson" != "[" ]; then
             targetJson=$targetJson","
         fi
-        targetJson=$targetJson"\"$pid\""
+        targetJson=$targetJson"\"$UUID$pid\""
     done
     targetJson=$targetJson"]"
 
@@ -209,10 +209,10 @@ controller_api_delete_A1_policy() {
 
     paramError=1
     if [ $# -eq 5 ] && [ $2 == "OSC" ]; then
-        url="http://$3:$RIC_SIM_INTERNAL_PORT/a1-p/policytypes/$4/policies/$5"
+        url="http://$3:$RIC_SIM_INTERNAL_PORT/a1-p/policytypes/$4/policies/$UUID$5"
 		paramError=0
     elif [ $# -eq 4 ] && [ $2 == "STD" ]; then
-        url="http://$3:$RIC_SIM_INTERNAL_PORT/A1-P/v1/policies/$4"
+        url="http://$3:$RIC_SIM_INTERNAL_PORT/A1-P/v1/policies/$UUID$4"
         paramError=0
 	fi
 
@@ -254,12 +254,12 @@ controller_api_put_A1_policy() {
 
     paramError=1
     if [ $# -eq 6 ] && [ $2 == "OSC" ]; then
-        url="http://$3:$RIC_SIM_INTERNAL_PORT/a1-p/policytypes/$4/policies/$5"
+        url="http://$3:$RIC_SIM_INTERNAL_PORT/a1-p/policytypes/$4/policies/$UUID$5"
         body=$(sed 's/XXX/'${5}'/g' $6)
 
 		paramError=0
     elif [ $# -eq 5 ] && [ $2 == "STD" ]; then
-        url="http://$3:$RIC_SIM_INTERNAL_PORT/A1-P/v1/policies/$4"
+        url="http://$3:$RIC_SIM_INTERNAL_PORT/A1-P/v1/policies/$UUID$4"
         body=$(sed 's/XXX/'${4}'/g' $5)
         paramError=0
 	fi
@@ -304,7 +304,7 @@ controller_api_get_A1_policy_status() {
     targetJson=""
     paramError=1
     if [ $# -ge 5 ] && [ $2 == "OSC" ]; then
-        url="http://$3:$RIC_SIM_INTERNAL_PORT/a1-p/policytypes/$4/policies/$5/status"
+        url="http://$3:$RIC_SIM_INTERNAL_PORT/a1-p/policytypes/$4/policies/$UUID$5/status"
         if [ $# -gt 5 ]; then
             targetJson="{\"instance_status\":\"$6\""
             targetJson=$targetJson",\"has_been_deleted\":\"$7\""
@@ -312,7 +312,7 @@ controller_api_get_A1_policy_status() {
         fi
 		paramError=0
     elif [ $# -ge 4 ] && [ $2 == "STD" ]; then
-        url="http://$3:$RIC_SIM_INTERNAL_PORT/A1-P/v1/policies/$4/status"
+        url="http://$3:$RIC_SIM_INTERNAL_PORT/A1-P/v1/policies/$UUID$4/status"
         if [ $# -gt 4 ]; then
             targetJson="{\"enforceStatus\":\"$5\""
             if [ $# -eq 6 ]; then

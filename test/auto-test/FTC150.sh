@@ -29,6 +29,8 @@ EXCLUDED_IMAGES="PA CP SDNC_ONAP"
 
 #### TEST BEGIN ####
 
+generate_uuid
+
 #Test agent and simulator protocol versions (others are http only)
 TESTED_PROTOCOLS="HTTP HTTPS"
 

@@ -132,6 +132,7 @@ export CONFIG_BINDING_SERVICE="config-binding-service"          # Host name of C
 export RIC_SIM_BASE="g"                                         # Base name of the RIC Simulator container, shall be the group code
                                                                 # Note, a prefix is added to each container name by the .env file in the 'ric' dir
 RIC_SIM_PREFIX="ricsim"                                         # Prefix added to ric container name, added in the .env file in the 'ric' dir
+                                                                # This prefix can be changed from the command line
 export RIC_SIM_INTERNAL_PORT=8085                               # RIC Simulator container internal port (container -> container).
                                                                 # (external ports allocated by docker)
 export RIC_SIM_INTERNAL_SECURE_PORT=8185                        # RIC Simulator container internal secure port (container -> container).
@@ -166,6 +167,9 @@ export CONTROL_PANEL_APP_NAME="control-panel"                   # Name of the Co
 export CONTROL_PANEL_EXTERNAL_PORT=8080                         # Control Panel container external port (host -> container)
 export CONTROL_PANEL_INTERNAL_PORT=8080                         # Control Panel container external port (host -> container)
 CONTROL_PANEL_LOGPATH="/logs/nonrtric-controlpanel.log"         # Path the application log in the Control Panel container
+
+UUID=""                                                         # UUID used as prefix to the policy id to simulate a real UUID
+                                                                # Testscript need to set the UUID to use other this empty prefix is used
 
 RESTBASE="http://localhost:"$POLICY_AGENT_EXTERNAL_PORT         # Base url to the Agent NB REST interface
 RESTBASE_SECURE="https://localhost:"$POLICY_AGENT_EXTERNAL_SECURE_PORT # Base url to the secure Agent NB REST interface

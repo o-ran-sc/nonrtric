@@ -42,6 +42,8 @@ TESTED_PROTOCOLS="HTTP HTTPS"
 NUM_RICS=20
 NUM_POLICIES_PER_RIC=500
 
+generate_uuid
+
 for __httpx in $TESTED_PROTOCOLS ; do
     for interface in $TESTED_VARIANTS ; do
 
@@ -79,6 +81,8 @@ for __httpx in $TESTED_PROTOCOLS ; do
         consul_config_app                  ".consul_config.json"
 
         start_mr # Not used, but removes error messages from the agent log
+
+        start_control_panel
 
         start_policy_agent
 

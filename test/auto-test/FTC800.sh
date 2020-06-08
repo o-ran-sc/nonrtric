@@ -28,6 +28,8 @@ EXCLUDED_IMAGES="SDNC_ONAP"
 
 #### TEST BEGIN ####
 
+generate_uuid
+
 #Local vars in test script
 ##########################
 # Path to callback receiver

@@ -41,7 +41,7 @@ app.get("/",function(req, res){
 function getSimCtr(url, index, cb) {
     var data = '';
 
-    console.log("URL: "+ url + " - ")
+    //console.log("URL: "+ url + " - ")
     try {
         http.get(url, (resp) => {
             // A chunk of data has been recieved.
@@ -185,6 +185,8 @@ var getCtr=0
 
 var refreshInterval=4000
 
+var ricbasename="ricsim"
+
 function fetchAllMetrics() {
     setTimeout(() => {
 
@@ -195,7 +197,7 @@ function fetchAllMetrics() {
         if (getCtr%3 == 0) {
             //Extract the port numbers from the running simulators, for every 3 calls
             const { exec } = require('child_process');
-            exec('docker ps --filter "name=ricsim" --format "{{.Names}} {{.Ports}}" | sed s/0.0.0.0:// | cut -d \'>\' -f1 | sed \'s/[[-]]*$//\'', (err, stdout, stderr) => {
+            exec('docker ps --filter "name='+ricbasename+'" --format "{{.Names}} {{.Ports}}" | sed s/0.0.0.0:// | cut -d \'>\' -f1 | sed \'s/[[-]]*$//\'', (err, stdout, stderr) => {
 
                 var simulators = ""
                 simulators=`${stdout}`.replace(/(\r\n|\n|\r)/gm," ");
@@ -377,6 +379,14 @@ setInterval(() => {
 
 app.get("/mon",function(req, res){
 
+    var bn=req.query.basename
+
+    if (bn == undefined) {
+        getCtr=0
+        return res.redirect('/mon?basename=ricsim');
+    } else {
+        ricbasename=bn
+    }
 
     refreshInterval=2000
 
@@ -388,6 +398,9 @@ app.get("/mon",function(req, res){
             "<title>Policy Agent and simulator monitor</title>"+
             "</head>" +
             "<body>" +
+            "<font size=\"-3\" face=\"monospace\">" +
+            "<p>Change basename in url if other ric sim prefix is used</p>" +
+            "</font>" +
             "<h3>Policy agent</h3>" +
             "<font face=\"monospace\">" +
             "Status:..............................." + formatDataRow(ag1) + "<br>" +

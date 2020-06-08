@@ -24,7 +24,7 @@
           "cellId"
         ]
       },
-      "qosObjective": {
+      "qosObjectives": {
         "type": "object",
         "properties": {
           "priorityLevel": {
@@ -39,7 +39,7 @@
     },
     "additionalProperties": false,
     "required": [
-      "scope", "qosObjective"
+      "scope", "qosObjectives"
     ]
   }
 }

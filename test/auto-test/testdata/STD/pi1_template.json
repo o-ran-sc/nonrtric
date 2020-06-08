@@ -3,7 +3,7 @@
     "ueId": "ueXXX",
     "qosId": "qosXXX"
   },
-  "qosObjective": {
+  "qosObjectives": {
     "priorityLevel": XXX
   }
 }
