@@ -54,12 +54,20 @@ public class ApplicationConfig {
     private String sslTrustStore = "";
 
     private Map<String, RicConfig> ricConfigs = new HashMap<>();
-    @Getter
+
     private Properties dmaapPublisherConfig;
-    @Getter
+
     private Properties dmaapConsumerConfig;
 
     private Map<String, ControllerConfig> controllerConfigs = new HashMap<>();
+
+    public synchronized Properties getDmaapPublisherConfig(){
+        return this.dmaapPublisherConfig;
+    }
+
+    public synchronized Properties getDmaapConsumerConfig(){
+        return this.dmaapConsumerConfig;
+    }
 
     public synchronized Collection<RicConfig> getRicConfigs() {
         return this.ricConfigs.values();
