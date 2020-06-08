@@ -269,7 +269,7 @@ public class PolicyController {
             RejectionException e = new RejectionException("Policy cannot change RIC, policyId: " + current.id() + //
                 ", RIC name: " + current.ric().name() + //
                 ", new name: " + policy.ric().name(), HttpStatus.CONFLICT);
-            logger.debug("Request rejected, {}", e);
+            logger.debug("Request rejected, {}", e.getMessage());
             return Mono.error(e);
         }
         return Mono.just("OK");
