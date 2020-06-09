@@ -153,8 +153,8 @@ sim_equal ricsim_g2_1 num_instances 0
 
 # Check remote host access to simulator
 
-sim_contains_ste ricsim_g1_1 hosts "policy-agent"
-sim_contains_ste ricsim_g2_1 hosts "policy-agent"
+sim_contains_str ricsim_g1_1 hosts "policy-agent"
+sim_contains_str ricsim_g2_1 hosts "policy-agent"
 
 # Check policy removal
 use_agent_rest_http

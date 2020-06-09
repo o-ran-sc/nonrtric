@@ -26,8 +26,13 @@ curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compo
 chmod +x docker-compose
 export PATH=$PATH:`pwd`
 
+clean_docker(){
+    docker stop $(docker ps -aq)
+    docker system prune -f
+}
 # Run auto-test scripts
 cd ../auto-test/
+clean_docker
 bash FTC10.sh remote auto-clean --use-local-image PA SDNC
 
 echo "--> run_integration.sh END"
@@ -35,8 +40,8 @@ echo "--> run_integration.sh END"
 FILE=.resultFTC10.txt
 if [[ -f "$FILE" ]]; then
     res=$(cat .resultFTC10.txt)
-    docker system prune -f
+    clean_docker
     exit $res
 fi
-docker system prune -f
+clean_docker
 exit 1

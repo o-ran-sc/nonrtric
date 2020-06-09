@@ -28,9 +28,6 @@ RUN chmod +x start.sh
 RUN apt-get update
 RUN apt-get install -y nginx=1.14.*
 
-#install curl
-RUN apt-get install -y curl
-
 #start mrstub
 RUN pip install -r requirements.txt
 
