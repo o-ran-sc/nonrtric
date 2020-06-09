@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a6362e90_090017af",
+        "filename": "test/jenkins/.gitignore",
+        "patchSetId": 10
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-06-09T06:27:11Z",
+      "side": 1,
+      "message": "Maybe good to use wildcard here, so that we don\u0027t have to change it if we change the test that is executed",
+      "range": {
+        "startLine": 3,
+        "startChar": 9,
+        "endLine": 3,
+        "endChar": 18
+      },
+      "revId": "f40c3b6d38ddb3532897dff991662b4b7d1d66b6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4b83b1bf_a7f91dbf",
+        "filename": "test/jenkins/.gitignore",
+        "patchSetId": 10
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-06-09T06:27:11Z",
+      "side": 1,
+      "message": "See above comment",
+      "range": {
+        "startLine": 6,
+        "startChar": 7,
+        "endLine": 6,
+        "endChar": 16
+      },
+      "revId": "f40c3b6d38ddb3532897dff991662b4b7d1d66b6",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
