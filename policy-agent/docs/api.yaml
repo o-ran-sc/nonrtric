@@ -26,19 +26,22 @@ paths:
       parameters:
         - name: ric
           in: query
-          description: ric
+          description: The name of the Near-RT RIC to get policies for.
           required: false
           type: string
+          allowEmptyValue: false
         - name: service
           in: query
-          description: service
+          description: The name of the service to get policies for.
           required: false
           type: string
+          allowEmptyValue: false
         - name: type
           in: query
-          description: type
+          description: The name of the policy type to get policies for.
           required: false
           type: string
+          allowEmptyValue: false
       responses:
         '200':
           description: Policies
@@ -66,9 +69,10 @@ paths:
       parameters:
         - name: id
           in: query
-          description: id
+          description: The ID of the policy instance.
           required: true
           type: string
+          allowEmptyValue: false
       responses:
         '200':
           description: Policy found
@@ -93,9 +97,10 @@ paths:
       parameters:
         - name: id
           in: query
-          description: id
+          description: The ID of the policy instance.
           required: true
           type: string
+          allowEmptyValue: false
         - in: body
           name: jsonBody
           description: jsonBody
@@ -104,25 +109,30 @@ paths:
             type: object
         - name: ric
           in: query
-          description: ric
+          description: The name of the Near-RT RIC where the policy will be created.
           required: true
           type: string
+          allowEmptyValue: false
         - name: service
           in: query
-          description: service
+          description: The name of the service creating the policy.
           required: true
           type: string
+          allowEmptyValue: false
         - name: transient
           in: query
-          description: transient
+          description: If the policy is transient or not (boolean defaulted to false). A policy is transient if it will be forgotten when the service needs to reconnect to the Near-RT RIC.
           required: false
           type: boolean
           default: false
+          allowEmptyValue: false
+          x-example: false
         - name: type
           in: query
-          description: type
+          description: The name of the policy type.
           required: false
           type: string
+          allowEmptyValue: false
       responses:
         '200':
           description: Policy updated
@@ -155,9 +165,10 @@ paths:
       parameters:
         - name: id
           in: query
-          description: id
+          description: The ID of the policy instance.
           required: true
           type: string
+          allowEmptyValue: false
       responses:
         '200':
           description: OK
@@ -191,19 +202,22 @@ paths:
       parameters:
         - name: ric
           in: query
-          description: ric
+          description: The name of the Near-RT RIC to get policies for.
           required: false
           type: string
+          allowEmptyValue: false
         - name: service
           in: query
-          description: service
+          description: The name of the service to get policies for.
           required: false
           type: string
+          allowEmptyValue: false
         - name: type
           in: query
-          description: type
+          description: The name of the policy type to get policies for.
           required: false
           type: string
+          allowEmptyValue: false
       responses:
         '200':
           description: Policy ids
@@ -231,9 +245,10 @@ paths:
       parameters:
         - name: id
           in: query
-          description: id
+          description: The ID of the policy type to get the definition for.
           required: true
           type: string
+          allowEmptyValue: false
       responses:
         '200':
           description: Policy schema
@@ -259,9 +274,10 @@ paths:
       parameters:
         - name: ric
           in: query
-          description: ric
+          description: The name of the Near-RT RIC to get the definitions for.
           required: false
           type: string
+          allowEmptyValue: false
       responses:
         '200':
           description: Policy schemas
@@ -289,9 +305,10 @@ paths:
       parameters:
         - name: id
           in: query
-          description: id
+          description: The ID of the policy.
           required: true
           type: string
+          allowEmptyValue: false
       responses:
         '200':
           description: Policy status
@@ -317,9 +334,10 @@ paths:
       parameters:
         - name: ric
           in: query
-          description: ric
+          description: The name of the Near-RT RIC to get types for.
           required: false
           type: string
+          allowEmptyValue: false
       responses:
         '200':
           description: Policy type names
@@ -625,4 +643,3 @@ definitions:
         format: int64
         description: time since last invocation by the service
     title: ServiceStatus
-
