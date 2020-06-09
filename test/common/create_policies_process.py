@@ -30,21 +30,25 @@ from requests.packages import urllib3
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-#arg responsecode baseurl ric_base num_rics startid templatepath count pids pid_id
+#arg responsecode baseurl ric_base num_rics uuid startid templatepath count pids pid_id
 try:
-    if len(sys.argv) != 10:
-        print("1Expected 9 args, got "+str(len(sys.argv)-1)+ ". Args: responsecode baseurl ric_base num_rics startid templatepath count pids pid_id")
+    if len(sys.argv) != 11:
+        print("1Expected 10 args, got "+str(len(sys.argv)-1)+ ". Args: responsecode baseurl ric_base num_rics uuid startid templatepath count pids pid_id")
         sys.exit()
 
     responsecode=int(sys.argv[1])
     baseurl=sys.argv[2]
     ric_base=sys.argv[3]
     num_rics=int(sys.argv[4])
-    start=int(sys.argv[5])
-    templatepath=sys.argv[6]
-    count=int(sys.argv[7])
-    pids=int(sys.argv[8])
-    pid_id=int(sys.argv[9])
+    uuid=sys.argv[5]
+    start=int(sys.argv[6])
+    templatepath=sys.argv[7]
+    count=int(sys.argv[8])
+    pids=int(sys.argv[9])
+    pid_id=int(sys.argv[10])
+
+    if uuid == "NOUUID":
+        uuid=""
 
     with open(templatepath, 'r') as file:
         template = file.read()
@@ -57,18 +61,18 @@ try:
                 payload=template.replace("XXX",str(i))
                 ric_id=(i%num_rics)+1
                 ric=ric_base+str(ric_id)
-                url=baseurl+"&id="+str(i)+"&ric="+str(ric)
+                url=baseurl+"&id="+uuid+str(i)+"&ric="+str(ric)
                 try:
                     headers = {'Content-type': 'application/json'}
                     resp=requests.put(url, json.dumps(json.loads(payload)), headers=headers, verify=False, timeout=90)
                 except Exception as e1:
-                    print("1Put failed for id:"+str(i)+ ", "+str(e1) + " "+traceback.format_exc())
+                    print("1Put failed for id:"+uuid+str(i)+ ", "+str(e1) + " "+traceback.format_exc())
                     sys.exit()
                 if (resp.status_code == None):
-                    print("1Put failed for id:"+str(i)+ ", expected response code: "+responsecode+", got: None")
+                    print("1Put failed for id:"+uuid+str(i)+ ", expected response code: "+responsecode+", got: None")
                     sys.exit()
                 if (resp.status_code != responsecode):
-                    print("1Put failed for id:"+str(i)+ ", expected response code: "+responsecode+", got: "+str(resp.status_code))
+                    print("1Put failed for id:"+uuid+str(i)+ ", expected response code: "+responsecode+", got: "+str(resp.status_code))
                     sys.exit()
 
     print("0")

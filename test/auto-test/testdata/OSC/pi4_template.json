@@ -2,7 +2,7 @@
     "scope": {
       "cellId": "cellXXX"
     },
-    "qosObjective": {
+    "qosObjectives": {
       "priorityLevel": XXX
     }
   }

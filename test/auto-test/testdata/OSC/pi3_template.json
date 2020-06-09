@@ -2,7 +2,7 @@
     "scope": {
       "groupId": "groupXXX"
     },
-    "qosObjective": {
+    "qosObjectives": {
       "priorityLevel": XXX
     }
   }

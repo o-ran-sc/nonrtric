@@ -18,7 +18,7 @@
 #
 
 # This is a script that contains all the functions needed for auto test
-# Arg: local|remote|remote-remove [auto-clean]
+# Arg: local|remote|remote-remove [auto-clean] [--stop-at-error] [--ricsim-prefix <prefix> ] [--use-local-image <app-nam> [<app-name>]*]
 
 
 #Formatting for 'echo' cmd
@@ -93,6 +93,9 @@ AUTO_CLEAN=""
 
 # Var to hold the app names to use local image for when running 'remote' or 'remote-remove'
 USE_LOCAL_IMAGES=""
+
+# List of available apps to override with local image
+AVAILABLE_LOCAL_IMAGES_OVERRIDE="PA CP SDNC RICSIM"
 
 # Use this var (STOP_AT_ERROR=1 in the test script) for debugging/trouble shooting to take all logs and exit at first FAIL test case
 STOP_AT_ERROR=0
@@ -180,33 +183,67 @@ if [ $paramerror -eq 0 ]; then
 		shift;
 	fi
 fi
-if [ $paramerror -eq 0 ]; then
-	if [ "$1" == "auto-clean" ]; then
-		AUTO_CLEAN="auto"
-		shift;
-	fi
-fi
-if [ $paramerror -eq 0 ]; then
-	if [ "$1" == "--stop-at-error" ]; then
-		STOP_AT_ERROR=1
-		shift;
-	fi
-fi
-if [ $paramerror -eq 0 ]; then
-	if [ "$1" == "--use-local-image" ]; then
-		USE_LOCAL_IMAGES=${@:2}
-		while [ $# -gt 0 ]; do
+foundparm=0
+while [ $paramerror -eq 0 ] && [ $foundparm -eq 0 ]; do
+	foundparm=1
+	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "auto-clean" ]; then
+			AUTO_CLEAN="auto"
+			echo "Option set - Auto clean at end of test script"
 			shift;
-		done
+			foundparm=0
+		fi
 	fi
-fi
+	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "--stop-at-error" ]; then
+			STOP_AT_ERROR=1
+			echo "Option set - Stop at first error"
+			shift;
+			foundparm=0
+		fi
+	fi
+	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "--ricsim-prefix" ]; then
+			shift;
+			RIC_SIM_PREFIX=$1
+			if [ -z "$1" ]; then
+				paramerror=1
+			else
+				echo "Option set - Overriding RIC_SIM_PREFIX with: "$1
+				shift;
+				foundparm=0
+			fi
+		fi
+	fi
+	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "--use-local-image" ]; then
+			USE_LOCAL_IMAGES=""
+			shift
+			while [ $# -gt 0 ] && [[ "$1" != "--"* ]]; do
+				USE_LOCAL_IMAGES=$USE_LOCAL_IMAGES" "$1
+				if [[ "$AVAILABLE_LOCAL_IMAGES_OVERRIDE" != *"$1"* ]]; then
+					paramerror=1
+				fi
+				shift;
+			done
+			foundparm=0
+			if [ -z "$USE_LOCAL_IMAGES" ]; then
+				paramerror=1
+			else
+				echo "Option set - Override remote images for app(s):"$USE_LOCAL_IMAGES
+			fi
+		fi
+	fi
+done
+echo ""
 
+#Still params left?
 if [ $paramerror -eq 0 ] && [ $# -gt 0 ]; then
 	paramerror=1
 fi
 
 if [ $paramerror -eq 1 ]; then
-	echo -e $RED"Expected arg: local|remote|remote-remove [auto-clean] [--stop-at-error] [--use-local-image <app-nam> [<app-name>]*]"$ERED
+	echo -e $RED"Expected arg: local|remote|remote-remove [auto-clean] [--stop-at-error] [--ricsim-prefix <prefix> ] [--use-local-image <app-nam> [<app-name>]*]"$ERED
 	exit 1
 fi
 
@@ -829,6 +866,14 @@ clean_containers() {
 	echo -e $BOLD" Removing all dangling/untagged docker images"$EBOLD
     docker rmi --force $(docker images -q -f dangling=true) &> /dev/null
 	echo ""
+
+	CONTRS=$(docker ps | awk '$1 != "CONTAINER" { n++ }; END { print n+0 }')
+	if [ $? -eq 0 ]; then
+		if [ $CONTRS -ne 0 ]; then
+			echo -e $RED"Containers running, may cause distubance to the test case"$ERED
+			docker ps -a
+		fi
+	fi
 }
 
 # Function stop and remove all container in the end of the test script, if the arg 'auto-clean' is given at test script start
@@ -1048,6 +1093,13 @@ __start_container() {
 	return 0
 }
 
+# Generate a UUID to use as prefix for policy ids
+generate_uuid() {
+	UUID=$(python3 -c 'import sys,uuid; sys.stdout.write(uuid.uuid4().hex)')
+	#Reduce length to make space for serial id, us 'a' as marker where the serial id is added
+	UUID=${UUID:0:${#UUID}-4}"a"
+}
+
 ####################
 ### Consul functions
 ####################
@@ -1182,7 +1234,7 @@ prepare_consul_config() {
 
 	config_json=$config_json"\n   \"ric\": ["
 
-	rics=$(docker ps | grep ricsim | awk '{print $NF}')
+	rics=$(docker ps | grep $RIC_SIM_PREFIX | awk '{print $NF}')
 
 	if [ $? -ne 0 ] || [ -z "$rics" ]; then
 		echo -e $RED" FAIL - the names of the running RIC Simulator cannot be retrieved." $ERED
@@ -1257,31 +1309,36 @@ use_simulator_https() {
 }
 
 # Start one group (ricsim_g1, ricsim_g2 or ricsim_g3) with a number of RIC Simulators using a given A interface
+# 'ricsim' may be set on command line to other prefix
 # args:  ricsim_g1|ricsim_g2|ricsim_g3 <count> <interface-id>
 # (Function for test scripts)
 start_ric_simulators() {
 
 	echo -e $BOLD"Starting RIC Simulators"$EBOLD
 
+	RIC1=$RIC_SIM_PREFIX"_g1"
+	RIC2=$RIC_SIM_PREFIX"_g2"
+	RIC3=$RIC_SIM_PREFIX"_g3"
+
 	if [ $# != 3 ]; then
 		((RES_CONF_FAIL++))
-    	__print_err "need three args,  ricsim_g1|ricsim_g2|ricsim_g3 <count> <interface-id>" $@
+    	__print_err "need three args,  $RIC1|$RIC2|$RIC3 <count> <interface-id>" $@
 		exit 1
 	fi
 	echo " $2 simulators using basename: $1 on interface: $3"
 	#Set env var for simulator count and A1 interface vesion for the given group
-	if [ $1 == "ricsim_g1" ]; then
+	if [ $1 == "$RIC1" ]; then
 		G1_COUNT=$2
 		G1_A1_VERSION=$3
-	elif [ $1 == "ricsim_g2" ]; then
+	elif [ $1 == "$RIC2" ]; then
 		G2_COUNT=$2
 		G2_A1_VERSION=$3
-	elif [ $1 == "ricsim_g3" ]; then
+	elif [ $1 == "$RIC3" ]; then
 		G3_COUNT=$2
 		G3_A1_VERSION=$3
 	else
 		((RES_CONF_FAIL++))
-    	__print_err "need three args, gricsim_g1|ricsim_g2|ricsim_g3 <count> <interface-id>" $@
+    	__print_err "need three args, $RIC1|$RIC2|$RIC3 <count> <interface-id>" $@
 		exit 1
 	fi
 

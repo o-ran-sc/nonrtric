@@ -63,7 +63,8 @@ The script can be started with these arguments
 | `remote-remove` | same as remote but all images are removed first so that fresh images are pulled when running |
 | `auto-clean` | all containers will be automatically stopped and removed when the test case is complete. Requires the function 'auto_clean_containers' to be included last in the applicable auto-test script |
 | `--stop-at-error` | intended for debugging and make the script stop at first 'FAIL' and save all logs with a prefix 'STOP_AT_ERROR' |
-| `--use-local-image` | Only applicable when running as 'remote' or 'remote-remove'. Mainly for debugging when a locally built image shall be used together with other remote images from nexus.Accepts a space separated list of PA, CP, RICSIM, SDNC for Policy Agent, Control Panel, A1-controller and the Ric simulator |
+| `--use-local-image <app-nam> [<app-name>]*` | nnly applicable when running as 'remote' or 'remote-remove'. Mainly for debugging when a locally built image shall be used together with other remote images from nexus.Accepts a space separated list of PA, CP, RICSIM, SDNC for Policy Agent, Control Panel, A1-controller and the Ric simulator |
+| `--ricsim-prefix <prefix>` | use another prefix for the ric simulator container name than the standard 'ricsim'. Note that the testscript has to read and use the env var `$RIC_SIM_PREFIX` instead of a hardcoded name of the ric(s). |
 
 #### Function: print_result ####
 Print a test report of an auto-test script.
@@ -130,7 +131,12 @@ Make the script sleep for a number of seconds.
 | `<sleep-time-in-sec> ` | Number of seconds to sleep |
 | `<any-text-in-quotes-to-be-printed>` | Optional. The text will be printed, if present |
 
-
+#### Function: generate_uuid ####
+Geneate a UUID prefix to use along with the policy instance number when creating/deleting policies. Sets the env var UUID.
+UUID is then automatically added to the policy id in GET/PUT/DELETE.
+| arg list |
+|--|
+| None |
 
 #### Function: consul_config_app ####
 Function to load a json config from a file into consul for the Policy Agent

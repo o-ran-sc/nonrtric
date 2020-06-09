@@ -27,6 +27,7 @@ EXCLUDED_IMAGES="SDMC SDNC_ONAP"
 . ../common/agent_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
 
+generate_uuid
 
 #Local vars in test script
 ##########################

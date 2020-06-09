@@ -35,6 +35,8 @@ EXCLUDED_IMAGES="SDNC_ONAP"
 # Path to callback receiver
 CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
 
+generate_uuid
+
 # Tested variants of REST/DMAAP/SDNC config
 TESTED_VARIANTS="REST   DMAAP   REST+SDNC   DMAAP+SDNC"
 #Test agent and simulator protocol versions (others are http only)

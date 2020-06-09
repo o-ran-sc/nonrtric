@@ -3,7 +3,7 @@
       "sliceId": "sliceXXX",
       "cellId": "cellXXX"
     },
-    "qosObjective": {
+    "qosObjectives": {
       "priorityLevel": XXX
     }
   }

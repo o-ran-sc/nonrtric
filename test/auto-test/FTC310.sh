@@ -30,6 +30,7 @@ EXCLUDED_IMAGES="SDNC_ONAP"
 
 #### TEST BEGIN ####
 
+generate_uuid
 
 # Clean container and start all needed containers #
 clean_containers

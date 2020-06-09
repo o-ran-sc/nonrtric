@@ -251,7 +251,7 @@ api_get_policies() {
 	fi
 
     if [ $paramError -ne 0 ]; then
-        __print_err "<response-code> <ric-id>|NORIC <service-id>|NOSERVICE <policy-ype-id>|NOTYPE [ NOID | [<policy-id> <ric-id> <service-id> EMPTY|<policy-type-id> <template-file>]*]" $@
+        __print_err "<response-code> <ric-id>|NORIC <service-id>|NOSERVICE <policy-type-id>|NOTYPE [ NOID | [<policy-id> <ric-id> <service-id> EMPTY|<policy-type-id> <template-file>]*]" $@
         return 1
     fi
 	queryparams=""
@@ -297,7 +297,7 @@ api_get_policies() {
 				if [ "$targetJson" != "[" ]; then
 					targetJson=$targetJson","
 				fi
-				targetJson=$targetJson"{\"id\":\"${arr[$i]}\",\"lastModified\":\"????\",\"ric\":\"${arr[$i+1]}\",\"service\":\"${arr[$i+2]}\",\"type\":"
+				targetJson=$targetJson"{\"id\":\"$UUID${arr[$i]}\",\"lastModified\":\"????\",\"ric\":\"${arr[$i+1]}\",\"service\":\"${arr[$i+2]}\",\"type\":"
 				if [ "${arr[$i+3]}" == "EMPTY" ]; then
 					targetJson=$targetJson"\"\","
 				else
@@ -341,7 +341,7 @@ api_get_policy() {
         return 1
     fi
 
-	query="/policy?id=$2"
+	query="/policy?id=$UUID$2"
 	res="$(__do_curl_to_agent GET $query)"
 	status=${res:${#res}-3}
 
@@ -398,7 +398,7 @@ api_put_policy() {
 	file=$7
 
 	while [ $count -lt $max ]; do
-		query="/policy?id=$pid&ric=$ric&service=$2"
+		query="/policy?id=$UUID$pid&ric=$ric&service=$2"
 
 		if [ $4 != "NOTYPE" ]; then
 			query=$query"&type=$4"
@@ -414,7 +414,6 @@ api_put_policy() {
     	status=${res:${#res}-3}
 		echo -ne " Creating "$count"("$max")${SAMELINE}"
 		if [ $status -ne $1 ]; then
-			let pid=$pid+1
 			echo " Created "$count"?("$max")"
 			echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 			((RES_FAIL++))
@@ -458,7 +457,7 @@ api_put_policy_batch() {
 	file=$7
 	ARR=""
 	while [ $count -lt $max ]; do
-		query="/policy?id=$pid&ric=$ric&service=$2"
+		query="/policy?id=$UUID$pid&ric=$ric&service=$2"
 
 		if [ $4 != "NOTYPE" ]; then
 			query=$query"&type=$4"
@@ -475,7 +474,6 @@ api_put_policy_batch() {
 		echo -ne " Requested(batch) "$count"("$max")${SAMELINE}"
 
 		if [ $status -ne 200 ]; then
-			let pid=$pid+1
 			echo " Requested(batch) "$count"?("$max")"
 			echo -e $RED" FAIL. Exepected status 200 (in request), got "$status $ERED
 			((RES_FAIL++))
@@ -498,7 +496,6 @@ api_put_policy_batch() {
 		echo -ne " Created(batch) "$count"("$max")${SAMELINE}"
 
 		if [ $status -ne $1 ]; then
-			let pid=$pid+1
 			echo " Created(batch) "$count"?("$max")"
 			echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 			((RES_FAIL++))
@@ -562,8 +559,12 @@ api_put_policy_parallel() {
 
 	for ((i=1; i<=$pids; i++))
 	do
+		uuid=$UUID
+		if [ -z "$uuid" ]; then
+			uuid="NOUUID"
+		fi
 		echo "" > ".pid${i}.res.txt"
-		echo $resp_code $urlbase $ric_base $num_rics $start_id $template $count $pids $i > ".pid${i}.txt"
+		echo $resp_code $urlbase $ric_base $num_rics $uuid $start_id $template $count $pids $i > ".pid${i}.txt"
 		echo $i
 	done  | xargs -n 1 -I{} -P $pids bash -c '{
 		arg=$(echo {})
@@ -625,7 +626,7 @@ api_delete_policy() {
 	pid=$2
 
 	while [ $count -lt $max ]; do
-		query="/policy?id="$pid
+		query="/policy?id="$UUID$pid
 		res="$(__do_curl_to_agent DELETE $query)"
 		status=${res:${#res}-3}
 		echo -ne " Deleting "$count"("$max")${SAMELINE}"
@@ -671,13 +672,12 @@ api_delete_policy_batch() {
 	pid=$2
 	ARR=""
 	while [ $count -lt $max ]; do
-		query="/policy?id="$pid
+		query="/policy?id="$UUID$pid
 		res="$(__do_curl_to_agent DELETE_BATCH $query)"
 		status=${res:${#res}-3}
 		echo -ne " Requested(batch) "$count"("$max")${SAMELINE}"
 
 		if [ $status -ne 200 ]; then
-			let pid=$pid+1
 			echo " Requested(batch) "$count"?("$max")"
 			echo -e $RED" FAIL. Exepected status 200 (in request), got "$status $ERED
 			((RES_FAIL++))
@@ -701,7 +701,6 @@ api_delete_policy_batch() {
 		echo -ne " Deleted(batch) "$count"("$max")${SAMELINE}"
 
 		if [ $status -ne $1 ]; then
-			let pid=$pid+1
 			echo " Deleted(batch) "$count"?("$max")"
 			echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 			((RES_FAIL++))
@@ -747,8 +746,12 @@ api_delete_policy_parallel() {
 
 	for ((i=1; i<=$pids; i++))
 	do
+		uuid=$UUID
+		if [ -z "$uuid" ]; then
+			uuid="NOUUID"
+		fi
 		echo "" > ".pid${i}.del.res.txt"
-		echo $resp_code $urlbase $num_rics $start_id $count $pids $i > ".pid${i}.del.txt"
+		echo $resp_code $urlbase $num_rics $uuid $start_id $count $pids $i > ".pid${i}.del.txt"
 		echo $i
 	done  | xargs -n 1 -I{} -P $pids bash -c '{
 		arg=$(echo {})
@@ -841,7 +844,7 @@ api_get_policy_ids() {
 				targetJson=$targetJson","
 			fi
 			if [ $pid != "NOID" ]; then
-				targetJson=$targetJson"\"$pid\""
+				targetJson=$targetJson"\"$UUID$pid\""
 			fi
 		done
 
@@ -998,7 +1001,7 @@ api_get_policy_status() {
 		return 1
 	fi
 
-	query="/policy_status?id="$2
+	query="/policy_status?id="$UUID$2
 
 	res="$(__do_curl_to_agent GET $query)"
     status=${res:${#res}-3}
