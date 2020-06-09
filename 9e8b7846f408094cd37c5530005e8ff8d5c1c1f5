@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "19ba0cc3_a89c67d3",
+        "filename": "docs/use-cases.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-06-09T10:34:46Z",
+      "side": 1,
+      "message": "Suggest just copying the content over from readme?",
+      "revId": "9e8b7846f408094cd37c5530005e8ff8d5c1c1f5",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
