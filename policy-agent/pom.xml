@@ -62,6 +62,7 @@
         <sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
         <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
+        <exec.skip>true</exec.skip>
     </properties>
     <dependencies>
         <dependency>
