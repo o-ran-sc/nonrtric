@@ -30,7 +30,8 @@
 
     <name>nonrtric</name>
     <properties>
-    <sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
+        <sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
+        <exec.skip>true</exec.skip>
     </properties>
     <modules>
         <module>policy-agent</module>
