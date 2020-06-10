@@ -944,7 +944,7 @@ __create_docker_network() {
 	fi
 	if [ "$tmp" != $DOCKER_SIM_NWNAME ]; then
 		echo -e "Creating docker network:$BOLD $DOCKER_SIM_NWNAME $EBOLD"
-		docker network create $DOCKER_SIM_NWNAME
+        docker network ls|grep $DOCKER_SIM_NWNAME > /dev/null || docker network create --driver bridge $DOCKER_SIM_NWNAME
 		if [ $? -ne 0 ]; then
 			echo -e $RED" Could not create docker network $DOCKER_SIM_NWNAME"$ERED
 			return 1
