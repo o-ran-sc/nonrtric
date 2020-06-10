@@ -11,3 +11,5 @@ docs/_build/
 .settings
 .pydevproject
 infer-out/
+
+.vscode
