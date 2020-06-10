@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "79bd2199_fcefcc28",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/configuration/ApplicationConfig.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2020-06-10T13:48:37Z",
+      "side": 1,
+      "message": "I dont see thee need to make a simple gets synchronized. I general, methods modifying common data or iterate over common data need to be protected. But once this config is fetched by a thread, the contents can still be modified by that thread and causing problem to another thread that has fecthed the same properties. I guess in this case, the config is modified only by one thread (the thread reading the config) and if other threads are just reading the data. However, it could be a problem if the data is updated when the other threads does not expect the data to be changed.",
+      "range": {
+        "startLine": 64,
+        "startChar": 1,
+        "endLine": 70,
+        "endChar": 5
+      },
+      "revId": "f1c16ca2d298be1bfde5938ac1853d1174a5c87e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
