@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d8cd225_65a2682b",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/RicRepositoryController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-06-12T18:15:41Z",
+      "side": 1,
+      "message": "ID rather than name?",
+      "range": {
+        "startLine": 93,
+        "startChar": 70,
+        "endLine": 93,
+        "endChar": 75
+      },
+      "revId": "880ca8e85367d5ac87c316e4497b5712e5657921",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
