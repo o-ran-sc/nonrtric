@@ -25,6 +25,7 @@ import com.google.gson.GsonBuilder;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
@@ -67,7 +68,8 @@ public class RicRepositoryController {
             @ApiResponse(code = 404, message = "RIC is not found", response = String.class) //
         })
     public ResponseEntity<String> getRic(
-        @RequestParam(name = "managedElementId", required = true) String managedElementId) {
+        @ApiParam(name = "managedElementId", required = true, value = "The ID of the Managed Element")@RequestParam( //
+            name = "managedElementId", required = true) String managedElementId) {
 
         Optional<Ric> ric = this.rics.lookupRicForManagedElement(managedElementId);
 
@@ -88,7 +90,8 @@ public class RicRepositoryController {
             @ApiResponse(code = 200, message = "OK", response = RicInfo.class, responseContainer = "List"), //
             @ApiResponse(code = 404, message = "Policy type is not found", response = String.class)})
     public ResponseEntity<String> getRics(
-        @RequestParam(name = "policyType", required = false) String supportingPolicyType) {
+        @ApiParam(name = "policyType", required = false, value = "The name of the policy type")@RequestParam(name = //
+            "policyType", required = false) String supportingPolicyType) {
 
         if ((supportingPolicyType != null) && (this.types.get(supportingPolicyType) == null)) {
             return new ResponseEntity<>("Policy type not found", HttpStatus.NOT_FOUND);
