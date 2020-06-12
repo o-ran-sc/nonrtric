@@ -46,6 +46,53 @@
       "revId": "f1c16ca2d298be1bfde5938ac1853d1174a5c87e",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8495c62_9c2e7b02",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/configuration/ApplicationConfig.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-06-12T12:31:56Z",
+      "side": 1,
+      "message": "It does not matter if it is synchronized or not.\nA reference in Java is atomic. \nThere is no problem with this code or the way it was before the change.",
+      "parentUuid": "90dcb15f_8f9bad0e",
+      "range": {
+        "startLine": 64,
+        "startChar": 1,
+        "endLine": 70,
+        "endChar": 5
+      },
+      "revId": "f1c16ca2d298be1bfde5938ac1853d1174a5c87e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7143105_d4d2a9ae",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/repository/Services.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-06-12T12:31:56Z",
+      "side": 1,
+      "message": "This must be synchronized. Currently only used in unittest.",
+      "range": {
+        "startLine": 66,
+        "startChar": 11,
+        "endLine": 66,
+        "endChar": 24
+      },
+      "revId": "f1c16ca2d298be1bfde5938ac1853d1174a5c87e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
