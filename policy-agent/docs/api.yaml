@@ -365,9 +365,10 @@ paths:
       parameters:
         - name: managedElementId
           in: query
-          description: managedElementId
+          description: The ID of the Managed Element
           required: true
           type: string
+          allowEmptyValue: false
       responses:
         '200':
           description: RIC is found
@@ -393,9 +394,10 @@ paths:
       parameters:
         - name: policyType
           in: query
-          description: policyType
+          description: The name of the policy type
           required: false
           type: string
+          allowEmptyValue: false
       responses:
         '200':
           description: OK
@@ -460,9 +462,10 @@ paths:
       parameters:
         - name: name
           in: query
-          description: name
+          description: The name of the service
           required: false
           type: string
+          allowEmptyValue: false
       responses:
         '200':
           description: OK
@@ -489,9 +492,10 @@ paths:
       parameters:
         - name: name
           in: query
-          description: name
+          description: The name of the service
           required: true
           type: string
+          allowEmptyValue: false
       responses:
         '200':
           description: OK
@@ -523,9 +527,10 @@ paths:
       parameters:
         - name: name
           in: query
-          description: name
+          description: The name of the service
           required: true
           type: string
+          allowEmptyValue: false
       responses:
         '200':
           description: 'Service supervision timer refreshed, OK'

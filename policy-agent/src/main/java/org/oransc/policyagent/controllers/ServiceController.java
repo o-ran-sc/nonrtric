@@ -25,6 +25,7 @@ import com.google.gson.GsonBuilder;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
@@ -72,8 +73,8 @@ public class ServiceController {
             @ApiResponse(code = 200, message = "OK", response = ServiceStatus.class, responseContainer = "List"), //
             @ApiResponse(code = 404, message = "Service is not found", response = String.class)})
     public ResponseEntity<String> getServices(//
+        @ApiParam(name = "name", required = false, value = "The name of the service") //
         @RequestParam(name = "name", required = false) String name) {
-
         if (name != null && this.services.get(name) == null) {
             return new ResponseEntity<>("Service not found", HttpStatus.NOT_FOUND);
         }
@@ -133,6 +134,7 @@ public class ServiceController {
             @ApiResponse(code = 404, message = "Service not found", response = String.class)})
     @DeleteMapping("/services")
     public ResponseEntity<String> deleteService(//
+        @ApiParam(name = "name", required = true, value = "The name of the service") //
         @RequestParam(name = "name", required = true) String serviceName) {
         try {
             Service service = removeService(serviceName);
@@ -152,6 +154,7 @@ public class ServiceController {
             @ApiResponse(code = 404, message = "The service is not found, needs re-registration")})
     @PutMapping("/services/keepalive")
     public ResponseEntity<String> keepAliveService(//
+        @ApiParam(name = "name", required = true, value = "The name of the service") //
         @RequestParam(name = "name", required = true) String serviceName) {
         try {
             services.getService(serviceName).keepAlive();
