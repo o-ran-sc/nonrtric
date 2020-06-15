@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "13dc2ec6_c0a4dddb",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/RicRepositoryController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-06-15T07:11:52Z",
+      "side": 1,
+      "message": "A general comment is that it gets very hard to read if several tags are on the same line. Example:\n\n   public ResponseEntity\u003cString\u003e getPolicySchemas(@ApiParam(name \u003d \"ric\", required \u003d false, value \u003d \"The name of \" + //\n        \"the Near-RT RIC to get the definitions for.\") @RequestParam(name \u003d \"ric\", required \u003d false) String ricName) {\n\nThis would be more readable like this: \n\n public ResponseEntity\u003cString\u003e getPolicySchemas(//\n            @ApiParam(name \u003d \"ric\", required \u003d false, value \u003d \"The name of \"\n                    + \"the Near-RT RIC to get the definitions for.\") //\n            @RequestParam(name \u003d \"ric\", required \u003d false) String ricName) {",
+      "revId": "880ca8e85367d5ac87c316e4497b5712e5657921",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d47e726d_231aade3",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/RicRepositoryController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-06-15T07:11:52Z",
+      "side": 1,
+      "message": "General comment: please run the code formatting (to get correct indentation etc.) before submitting: \n\n\u003emvn formatter:format spotless:apply process-sources",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 22
+      },
+      "revId": "880ca8e85367d5ac87c316e4497b5712e5657921",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0d8cd225_65a2682b",
         "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/RicRepositoryController.java",
         "patchSetId": 1
