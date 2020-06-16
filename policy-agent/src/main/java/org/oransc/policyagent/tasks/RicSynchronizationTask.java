@@ -134,7 +134,7 @@ public class RicSynchronizationTask {
     private void notifyAllServices(String body) {
         for (Service service : services.getAll()) {
             String url = service.getCallbackUrl();
-            if (service.getCallbackUrl().length() > 0) {
+            if (url.length() > 0) {
                 createNotificationClient(url) //
                     .put("", body) //
                     .subscribe( //

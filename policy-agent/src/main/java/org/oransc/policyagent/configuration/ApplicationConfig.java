@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.validation.constraints.NotEmpty;
 
@@ -54,10 +53,12 @@ public class ApplicationConfig {
     private String sslTrustStore = "";
 
     private Map<String, RicConfig> ricConfigs = new HashMap<>();
+
     @Getter
-    private Properties dmaapPublisherConfig;
+    private String dmaapConsumerTopicUrl;
+
     @Getter
-    private Properties dmaapConsumerConfig;
+    private String dmaapProducerTopicUrl;
 
     private Map<String, ControllerConfig> controllerConfigs = new HashMap<>();
 
@@ -109,9 +110,10 @@ public class ApplicationConfig {
         ApplicationConfigParser.ConfigParserResult parserResult) {
 
         Collection<RicConfigUpdate> modifications = new ArrayList<>();
-        this.dmaapPublisherConfig = parserResult.dmaapPublisherConfig();
-        this.dmaapConsumerConfig = parserResult.dmaapConsumerConfig();
         this.controllerConfigs = parserResult.controllerConfigs();
+
+        this.dmaapConsumerTopicUrl = parserResult.dmaapConsumerTopicUrl();
+        this.dmaapProducerTopicUrl = parserResult.dmaapProducerTopicUrl();
 
         Map<String, RicConfig> newRicConfigs = new HashMap<>();
         for (RicConfig newConfig : parserResult.ricConfigs()) {
