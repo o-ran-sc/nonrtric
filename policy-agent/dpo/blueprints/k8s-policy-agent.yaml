@@ -67,7 +67,7 @@ node_templates:
         streams_subscribes:
           dmaap_subscriber:
             dmaap_info:
-              topic_url: { concat: ['https://message-router:3905/events/',{ get_input: subscribe_topic_name }, '/', { get_input: consumer_group }, "/", { get_input: consumer_id }] }
+              topic_url: { concat: ['https://message-router:3905/events/',{ get_input: subscribe_topic_name }, '/', { get_input: consumer_group }, "/", { get_input: consumer_id }, "?timeout=15000&limit=100"] }
             type: message_router
         ric:
           - name: ric1

@@ -25,7 +25,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -46,8 +45,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.onap.dmaap.mr.client.MRBatchingPublisher;
-import org.onap.dmaap.mr.client.response.MRPublisherResponse;
 import org.oransc.policyagent.clients.AsyncRestClient;
 import org.oransc.policyagent.dmaap.DmaapRequestMessage.Operation;
 import org.oransc.policyagent.repository.ImmutablePolicyType;
@@ -57,7 +54,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -66,7 +62,7 @@ class DmaapMessageHandlerTest {
     private static final Logger logger = LoggerFactory.getLogger(DmaapMessageHandlerTest.class);
     private static final String URL = "url";
 
-    private final MRBatchingPublisher dmaapClient = mock(MRBatchingPublisher.class);
+    private final AsyncRestClient dmaapClient = mock(AsyncRestClient.class);
     private final AsyncRestClient agentClient = mock(AsyncRestClient.class);
     private DmaapMessageHandler testedObject;
     private static Gson gson = new GsonBuilder() //
@@ -112,6 +108,11 @@ class DmaapMessageHandlerTest {
         return Mono.just(entity);
     }
 
+    private Mono<ResponseEntity<String>> notOkResponse() {
+        ResponseEntity<String> entity = new ResponseEntity<>("NOK", HttpStatus.BAD_GATEWAY);
+        return Mono.just(entity);
+    }
+
     @Test
     void testMessageParsing() {
         String message = dmaapInputMessage(Operation.DELETE);
@@ -143,8 +144,7 @@ class DmaapMessageHandlerTest {
     @Test
     void successfulDelete() throws IOException {
         doReturn(okResponse()).when(agentClient).deleteForEntity(anyString());
-        doReturn(1).when(dmaapClient).send(anyString());
-        doReturn(new MRPublisherResponse()).when(dmaapClient).sendBatchWithResponse();
+        doReturn(Mono.just("OK")).when(dmaapClient).post(anyString(), anyString());
 
         String message = dmaapInputMessage(Operation.DELETE);
 
@@ -157,16 +157,15 @@ class DmaapMessageHandlerTest {
         verify(agentClient).deleteForEntity(URL);
         verifyNoMoreInteractions(agentClient);
 
-        verify(dmaapClient).send(anyString());
-        verify(dmaapClient).sendBatchWithResponse();
+        verify(dmaapClient).post(anyString(), anyString());
+
         verifyNoMoreInteractions(dmaapClient);
     }
 
     @Test
     void successfulGet() throws IOException {
         doReturn(okResponse()).when(agentClient).getForEntity(anyString());
-        doReturn(1).when(dmaapClient).send(anyString());
-        doReturn(new MRPublisherResponse()).when(dmaapClient).sendBatchWithResponse();
+        doReturn(Mono.just("OK")).when(dmaapClient).post(anyString(), anyString());
 
         StepVerifier //
             .create(testedObject.createTask(dmaapInputMessage(Operation.GET))) //
@@ -177,16 +176,14 @@ class DmaapMessageHandlerTest {
         verify(agentClient).getForEntity(URL);
         verifyNoMoreInteractions(agentClient);
 
-        verify(dmaapClient).send(anyString());
-        verify(dmaapClient).sendBatchWithResponse();
+        verify(dmaapClient).post(anyString(), anyString());
         verifyNoMoreInteractions(dmaapClient);
     }
 
     @Test
     void successfulPut() throws IOException {
         doReturn(okResponse()).when(agentClient).putForEntity(anyString(), anyString());
-        doReturn(1).when(dmaapClient).send(anyString());
-        doReturn(new MRPublisherResponse()).when(dmaapClient).sendBatchWithResponse();
+        doReturn(Mono.just("OK")).when(dmaapClient).post(anyString(), anyString());
 
         StepVerifier //
             .create(testedObject.createTask(dmaapInputMessage(Operation.PUT))) //
@@ -197,16 +194,14 @@ class DmaapMessageHandlerTest {
         verify(agentClient).putForEntity(URL, payloadAsString());
         verifyNoMoreInteractions(agentClient);
 
-        verify(dmaapClient).send(anyString());
-        verify(dmaapClient).sendBatchWithResponse();
+        verify(dmaapClient).post(anyString(), anyString());
         verifyNoMoreInteractions(dmaapClient);
     }
 
     @Test
     void successfulPost() throws IOException {
         doReturn(okResponse()).when(agentClient).postForEntity(anyString(), anyString());
-        doReturn(1).when(dmaapClient).send(anyString());
-        doReturn(new MRPublisherResponse()).when(dmaapClient).sendBatchWithResponse();
+        doReturn(Mono.just("OK")).when(dmaapClient).post(anyString(), anyString());
 
         StepVerifier //
             .create(testedObject.createTask(dmaapInputMessage(Operation.POST))) //
@@ -217,34 +212,28 @@ class DmaapMessageHandlerTest {
         verify(agentClient).postForEntity(URL, payloadAsString());
         verifyNoMoreInteractions(agentClient);
 
-        verify(dmaapClient).send(anyString());
-        verify(dmaapClient).sendBatchWithResponse();
+        verify(dmaapClient).post(anyString(), anyString());
         verifyNoMoreInteractions(dmaapClient);
     }
 
     @Test
     void exceptionWhenCallingPolicyAgent_thenNotFoundResponse() throws IOException {
-        WebClientResponseException except = new WebClientResponseException(400, "Refused", null, null, null, null);
-        doReturn(Mono.error(except)).when(agentClient).putForEntity(anyString(), any());
-        doReturn(1).when(dmaapClient).send(anyString());
-        doReturn(new MRPublisherResponse()).when(dmaapClient).sendBatchWithResponse();
 
-        StepVerifier //
-            .create(testedObject.createTask(dmaapInputMessage(Operation.PUT))) //
-            .expectSubscription() //
-            .verifyComplete(); //
+        doReturn(notOkResponse()).when(agentClient).putForEntity(anyString(), anyString());
+        doReturn(Mono.just("OK")).when(dmaapClient).post(anyString(), anyString());
+
+        testedObject.createTask(dmaapInputMessage(Operation.PUT)).block();
 
         verify(agentClient).putForEntity(anyString(), anyString());
         verifyNoMoreInteractions(agentClient);
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(dmaapClient).send(captor.capture());
+        verify(dmaapClient).post(anyString(), captor.capture());
         String actualMessage = captor.getValue();
-        assertThat(actualMessage.contains(HttpStatus.BAD_REQUEST.toString()))
-            .as("Message \"%s\" sent to DMaaP contains %s", actualMessage, HttpStatus.BAD_REQUEST) //
+        assertThat(actualMessage.contains(HttpStatus.BAD_GATEWAY.toString()))
+            .as("Message \"%s\" sent to DMaaP contains %s", actualMessage, HttpStatus.BAD_GATEWAY) //
             .isTrue();
 
-        verify(dmaapClient).sendBatchWithResponse();
         verifyNoMoreInteractions(dmaapClient);
     }
 
@@ -257,15 +246,10 @@ class DmaapMessageHandlerTest {
         testedObject.handleDmaapMsg(message);
 
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(dmaapClient).send(captor.capture());
+        verify(dmaapClient).post(anyString(), captor.capture());
         String actualMessage = captor.getValue();
-        assertThat(actualMessage
-            .contains(HttpStatus.BAD_REQUEST + "\",\"message\":\"Not implemented operation: " + badOperation)) //
-                .as("Message \"%s\" sent to DMaaP contains %s", actualMessage, HttpStatus.BAD_REQUEST) //
-                .isTrue();
-
-        verify(dmaapClient).sendBatchWithResponse();
-        verifyNoMoreInteractions(dmaapClient);
+        assertThat(actualMessage.contains("Not implemented operation")).isTrue();
+        assertThat(actualMessage.contains("BAD_REQUEST")).isTrue();
     }
 
     @Test

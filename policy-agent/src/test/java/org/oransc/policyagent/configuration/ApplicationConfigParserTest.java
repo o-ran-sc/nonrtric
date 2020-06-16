@@ -20,7 +20,6 @@
 
 package org.oransc.policyagent.configuration;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -36,16 +35,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.Properties;
 
 import org.junit.jupiter.api.Test;
-import org.onap.dmaap.mr.test.clients.ProtocolTypeConstants;
 import org.oransc.policyagent.exceptions.ServiceException;
-import org.springframework.http.MediaType;
 
 class ApplicationConfigParserTest {
 
@@ -57,35 +52,13 @@ class ApplicationConfigParserTest {
 
         ApplicationConfigParser.ConfigParserResult result = parserUnderTest.parse(jsonRootObject);
 
-        Properties actualPublisherConfig = result.dmaapPublisherConfig();
-        assertAll("publisherConfig",
-            () -> assertEquals("localhost:6845/events", actualPublisherConfig.get("ServiceName"), "Wrong ServiceName"),
-            () -> assertEquals("A1-POLICY-AGENT-WRITE", actualPublisherConfig.get("topic"), "Wrong topic"),
-            () -> assertEquals("localhost:6845", actualPublisherConfig.get("host"), "Wrong host"),
-            () -> assertEquals(MediaType.APPLICATION_JSON.toString(), actualPublisherConfig.get("contenttype"),
-                "Wrong contenttype"),
-            () -> assertEquals("admin", actualPublisherConfig.get("userName"), "Wrong userName"),
-            () -> assertEquals("admin", actualPublisherConfig.get("password"), "Wrong password"),
-            () -> assertEquals(ProtocolTypeConstants.HTTPNOAUTH.toString(), actualPublisherConfig.get("TransportType"),
-                "Wrong TransportType"),
-            () -> assertEquals("15000", actualPublisherConfig.get("timeout"), "Wrong timeout"),
-            () -> assertEquals("100", actualPublisherConfig.get("limit"), "Wrong limit"));
+        String topicUrl = result.dmaapProducerTopicUrl();
+        assertEquals("http://admin:admin@localhost:6845/events/A1-POLICY-AGENT-WRITE", topicUrl, "controller contents");
 
-        Properties actualConsumerConfig = result.dmaapConsumerConfig();
-        assertAll("consumerConfig",
-            () -> assertEquals("localhost:6845/events", actualConsumerConfig.get("ServiceName"), "Wrong ServiceName"),
-            () -> assertEquals("A1-POLICY-AGENT-READ", actualConsumerConfig.get("topic"), "Wrong topic"),
-            () -> assertEquals("localhost:6845", actualConsumerConfig.get("host"), "Wrong host"),
-            () -> assertEquals(MediaType.APPLICATION_JSON.toString(), actualConsumerConfig.get("contenttype"),
-                "Wrong contenttype"),
-            () -> assertEquals("admin", actualConsumerConfig.get("userName"), "Wrong userName"),
-            () -> assertEquals("admin", actualConsumerConfig.get("password"), "Wrong password"),
-            () -> assertEquals("users", actualConsumerConfig.get("group"), "Wrong group"),
-            () -> assertEquals("policy-agent", actualConsumerConfig.get("id"), "Wrong id"),
-            () -> assertEquals(ProtocolTypeConstants.HTTPNOAUTH.toString(), actualConsumerConfig.get("TransportType"),
-                "Wrong TransportType"),
-            () -> assertEquals("15000", actualConsumerConfig.get("timeout"), "Wrong timeout"),
-            () -> assertEquals("100", actualConsumerConfig.get("limit"), "Wrong limit"));
+        topicUrl = result.dmaapConsumerTopicUrl();
+        assertEquals(
+            "http://admin:admin@localhost:6845/events/A1-POLICY-AGENT-READ/users/policy-agent?timeout=15000&limit=100",
+            topicUrl, "controller contents");
 
         Map<String, ControllerConfig> controllers = result.controllerConfigs();
         assertEquals(1, controllers.size(), "size");
@@ -167,38 +140,6 @@ class ApplicationConfigParserTest {
     }
 
     @Test
-    void whenMalformedUrlStreamsSubscribing() throws Exception {
-        JsonObject jsonRootObject = getJsonRootObject();
-        final String wrongTopicUrl = "WrongTopicUrl";
-        JsonObject json = getDmaapInfo(jsonRootObject, "streams_subscribes", "dmaap_subscriber");
-        json.addProperty("topic_url", wrongTopicUrl);
-        final String expectedMessage = "Could not parse the URL";
-
-        Exception actualException = assertThrows(ServiceException.class, () -> parserUnderTest.parse(jsonRootObject));
-
-        assertEquals(expectedMessage, actualException.getMessage().replace("\"", ""),
-            "Wrong error message when the streams subscribes' URL is malformed");
-        assertEquals(MalformedURLException.class, actualException.getCause().getClass(),
-            "The exception is not a MalformedURLException");
-    }
-
-    @Test
-    void whenMalformedUrlStreamsPublishing() throws Exception {
-        JsonObject jsonRootObject = getJsonRootObject();
-        final String wrongTopicUrl = "WrongTopicUrl";
-        JsonObject json = getDmaapInfo(jsonRootObject, "streams_publishes", "dmaap_publisher");
-        json.addProperty("topic_url", wrongTopicUrl);
-        final String expectedMessage = "Could not parse the URL";
-
-        Exception actualException = assertThrows(ServiceException.class, () -> parserUnderTest.parse(jsonRootObject));
-
-        assertEquals(expectedMessage, actualException.getMessage().replace("\"", ""),
-            "Wrong error message when the streams publishes' URL is malformed");
-        assertEquals(MalformedURLException.class, actualException.getCause().getClass(),
-            "The exception is not a MalformedURLException");
-    }
-
-    @Test
     void whenWrongMemberNameInObject() throws Exception {
         JsonObject jsonRootObject = getJsonRootObject();
         JsonObject json = jsonRootObject.getAsJsonObject("config");
@@ -208,38 +149,6 @@ class ApplicationConfigParserTest {
         Exception actualException = assertThrows(ServiceException.class, () -> parserUnderTest.parse(jsonRootObject));
 
         assertEquals(message, actualException.getMessage(), "Wrong error message when wrong member name in object");
-    }
-
-    @Test
-    void whenWrongUrlPathStreamsSubscribing() throws Exception {
-        JsonObject jsonRootObject = getJsonRootObject();
-        final String wrongTopicUrlString =
-            "http://admin:admin@localhost:6845/events/A1-POLICY-AGENT-READ/users/policy-agent/wrong-topic-url";
-        final URL wrongTopicUrl = new URL(wrongTopicUrlString);
-        JsonObject json = getDmaapInfo(jsonRootObject, "streams_subscribes", "dmaap_subscriber");
-        json.addProperty("topic_url", wrongTopicUrlString);
-        final String expectedMessage = "The path has incorrect syntax: " + wrongTopicUrl.getPath();
-
-        Exception actualException = assertThrows(ServiceException.class, () -> parserUnderTest.parse(jsonRootObject));
-
-        assertEquals(expectedMessage, actualException.getMessage(),
-            "Wrong error message when the streams subscribes' URL has incorrect syntax");
-    }
-
-    @Test
-    void whenWrongUrlPathStreamsPublishing() throws Exception {
-        JsonObject jsonRootObject = getJsonRootObject();
-        final String wrongTopicUrlString =
-            "http://admin:admin@localhost:6845/events/A1-POLICY-AGENT-WRITE/wrong-topic-url";
-        final URL wrongTopicUrl = new URL(wrongTopicUrlString);
-        JsonObject json = getDmaapInfo(jsonRootObject, "streams_publishes", "dmaap_publisher");
-        json.addProperty("topic_url", wrongTopicUrlString);
-        final String expectedMessage = "The path has incorrect syntax: " + wrongTopicUrl.getPath();
-
-        Exception actualException = assertThrows(ServiceException.class, () -> parserUnderTest.parse(jsonRootObject));
-
-        assertEquals(expectedMessage, actualException.getMessage(),
-            "Wrong error message when the streams publishes' URL has incorrect syntax");
     }
 
     JsonObject getDmaapInfo(JsonObject jsonRootObject, String streamsPublishesOrSubscribes,
