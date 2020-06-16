@@ -80,26 +80,11 @@
         </plugins>
     </build>
 
-	<dependencyManagement>
-	    <dependencies>
-	    	<dependency>
-	    	    <groupId>org.onap.ccsdk.sli.core</groupId>
-	    	    <artifactId>sli-core-artifacts</artifactId>
-	    	    <version>${ccsdk.sli.core.version}</version>
-	    	    <type>pom</type>
-	    	    <scope>import</scope>
-	    	</dependency>
-	    </dependencies>
-	</dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>org.o-ran-sc.nonrtric.sdnc-a1.northbound</groupId>
             <artifactId>nonrt-ric-api-model</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -112,38 +97,13 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.onap.ccsdk.sli.core</groupId>
-            <artifactId>sli-common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.onap.ccsdk.sli.core</groupId>
-            <artifactId>sli-provider</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal-binding-api</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>sal-common-util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>sal-test-model</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-
         <dependency>
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal-binding-broker-impl</artifactId>
@@ -172,10 +132,6 @@
             <artifactId>mockwebserver</artifactId>
             <version>3.14.6</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
         </dependency>
     </dependencies>
 </project>

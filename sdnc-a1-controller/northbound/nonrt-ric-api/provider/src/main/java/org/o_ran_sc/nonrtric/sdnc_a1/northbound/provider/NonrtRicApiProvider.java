@@ -31,8 +31,6 @@ import org.o_ran_sc.nonrtric.sdnc_a1.northbound.restadapter.RestAdapterImpl;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.controller.sal.binding.api.BindingAwareBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.yang.gen.v1.org.o_ran_sc.nonrtric.sdnc_a1.northbound.a1.adapter.rev200122.A1ADAPTERAPIService;
 import org.opendaylight.yang.gen.v1.org.o_ran_sc.nonrtric.sdnc_a1.northbound.a1.adapter.rev200122.DeleteA1PolicyInput;
@@ -86,7 +84,6 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
   protected DataBroker dataBroker;
   protected NotificationPublishService notificationService;
   protected RpcProviderRegistry rpcRegistry;
-  protected BindingAwareBroker.RpcRegistration<?> rpcRegistration;
   private RestAdapter restAdapter;
 
   public NonrtRicApiProvider(DataBroker dataBroker, NotificationPublishService notificationPublishService,
@@ -101,20 +98,14 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
 
   public void initialize() {
     log.info("Initializing provider for {}", APP_NAME);
-    createContainers();
     restAdapter = new RestAdapterImpl();
     log.info("Initialization complete for {}", APP_NAME);
-  }
-
-  protected void initializeChild() {
-    // Override if you have custom initialization intelligence
   }
 
   @Override
   public void close() throws Exception {
     log.info("Closing provider for {}", APP_NAME);
     executor.shutdown();
-    rpcRegistration.close();
     log.info("Successfully closed provider for {}", APP_NAME);
   }
 
@@ -136,21 +127,6 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
     this.rpcRegistry = rpcRegistry;
     if (log.isDebugEnabled()) {
       log.debug("RpcRegistry set to {}", rpcRegistry == null ? NULL_PARAM : NON_NULL_PARAM);
-    }
-  }
-
-  private void createContainers() {
-
-    final WriteTransaction t = dataBroker.newReadWriteTransaction();
-
-    try {
-      CheckedFuture<Void, TransactionCommitFailedException> checkedFuture = t.submit();
-      checkedFuture.get();
-      log.info("Create containers succeeded!");
-
-    } catch (InterruptedException | ExecutionException e) {
-      log.error("Create containers failed: ", e);
-      Thread.currentThread().interrupt();
     }
   }
 
