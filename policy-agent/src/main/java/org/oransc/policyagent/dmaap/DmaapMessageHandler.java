@@ -24,10 +24,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
-import java.io.IOException;
 import java.util.Optional;
 
-import org.onap.dmaap.mr.client.MRBatchingPublisher;
 import org.oransc.policyagent.clients.AsyncRestClient;
 import org.oransc.policyagent.dmaap.DmaapRequestMessage.Operation;
 import org.oransc.policyagent.exceptions.ServiceException;
@@ -49,10 +47,10 @@ public class DmaapMessageHandler {
     private static final Logger logger = LoggerFactory.getLogger(DmaapMessageHandler.class);
     private static Gson gson = new GsonBuilder() //
         .create(); //
-    private final MRBatchingPublisher dmaapClient;
+    private final AsyncRestClient dmaapClient;
     private final AsyncRestClient agentClient;
 
-    public DmaapMessageHandler(MRBatchingPublisher dmaapClient, AsyncRestClient agentClient) {
+    public DmaapMessageHandler(AsyncRestClient dmaapClient, AsyncRestClient agentClient) {
         this.agentClient = agentClient;
         this.dmaapClient = dmaapClient;
     }
@@ -99,11 +97,7 @@ public class DmaapMessageHandler {
     }
 
     private String prepareBadOperationErrorMessage(Throwable t, String originalMessage) {
-        String operationParameterStart = "operation\":\"";
-        int indexOfOperationStart = originalMessage.indexOf(operationParameterStart) + operationParameterStart.length();
-        int indexOfOperationEnd = originalMessage.indexOf("\",\"", indexOfOperationStart);
-        String badOperation = originalMessage.substring(indexOfOperationStart, indexOfOperationEnd);
-        return t.getMessage().replace("null", badOperation);
+        return t.getMessage();
     }
 
     private Mono<ResponseEntity<String>> invokePolicyAgent(DmaapRequestMessage dmaapRequestMessage) {
@@ -141,14 +135,8 @@ public class DmaapMessageHandler {
     }
 
     private Mono<String> sendToDmaap(String body) {
-        try {
-            logger.debug("sendToDmaap: {} ", body);
-            dmaapClient.send(body);
-            dmaapClient.sendBatchWithResponse();
-            return Mono.just("OK");
-        } catch (IOException e) {
-            return Mono.error(e);
-        }
+        logger.debug("sendToDmaap: {} ", body);
+        return dmaapClient.post("", "[" + body + "]");
     }
 
     private Mono<String> handleResponseCallError(Throwable t) {
