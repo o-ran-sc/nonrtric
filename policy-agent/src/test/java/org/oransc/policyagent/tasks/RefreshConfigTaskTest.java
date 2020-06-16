@@ -355,8 +355,8 @@ class RefreshConfigTaskTest {
     ConfigParserResult configParserResult(RicConfig... rics) {
         return ImmutableConfigParserResult.builder() //
             .ricConfigs(Arrays.asList(rics)) //
-            .dmaapConsumerConfig(new Properties()) //
-            .dmaapPublisherConfig(new Properties()) //
+            .dmaapConsumerTopicUrl("") //
+            .dmaapProducerTopicUrl("") //
             .controllerConfigs(new HashMap<>()) //
             .build();
     }

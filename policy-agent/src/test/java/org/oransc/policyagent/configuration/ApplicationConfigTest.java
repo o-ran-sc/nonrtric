@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Properties;
 import java.util.Vector;
 
 import org.junit.jupiter.api.Test;
@@ -50,8 +49,8 @@ class ApplicationConfigTest {
     ConfigParserResult configParserResult(RicConfig... rics) {
         return ImmutableConfigParserResult.builder() //
             .ricConfigs(Arrays.asList(rics)) //
-            .dmaapConsumerConfig(new Properties()) //
-            .dmaapPublisherConfig(new Properties()) //
+            .dmaapConsumerTopicUrl("dmaapConsumerTopicUrl") //
+            .dmaapProducerTopicUrl("dmaapProducerTopicUrl") //
             .controllerConfigs(new HashMap<>()) //
             .build();
     }
