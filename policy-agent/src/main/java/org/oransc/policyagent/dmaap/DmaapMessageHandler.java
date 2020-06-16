@@ -24,10 +24,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
-import java.io.IOException;
 import java.util.Optional;
 
-import org.onap.dmaap.mr.client.MRBatchingPublisher;
 import org.oransc.policyagent.clients.AsyncRestClient;
 import org.oransc.policyagent.dmaap.DmaapRequestMessage.Operation;
 import org.oransc.policyagent.exceptions.ServiceException;
@@ -49,10 +47,10 @@ public class DmaapMessageHandler {
     private static final Logger logger = LoggerFactory.getLogger(DmaapMessageHandler.class);
     private static Gson gson = new GsonBuilder() //
         .create(); //
-    private final MRBatchingPublisher dmaapClient;
+    private final AsyncRestClient dmaapClient;
     private final AsyncRestClient agentClient;
 
-    public DmaapMessageHandler(MRBatchingPublisher dmaapClient, AsyncRestClient agentClient) {
+    public DmaapMessageHandler(AsyncRestClient dmaapClient, AsyncRestClient agentClient) {
         this.agentClient = agentClient;
         this.dmaapClient = dmaapClient;
     }
@@ -68,9 +66,12 @@ public class DmaapMessageHandler {
 
     Mono<String> createTask(String msg) {
         try {
-            DmaapRequestMessage dmaapRequestMessage = gson.fromJson(msg, ImmutableDmaapRequestMessage.class);
+            final String noSlashMsg = msg.replace("\"", "") //
+                .replace("\\", "\"");
+
+            DmaapRequestMessage dmaapRequestMessage = gson.fromJson(noSlashMsg, ImmutableDmaapRequestMessage.class);
             return this.invokePolicyAgent(dmaapRequestMessage) //
-                .onErrorResume(t -> handleAgentCallError(t, msg, dmaapRequestMessage)) //
+                .onErrorResume(t -> handleAgentCallError(t, noSlashMsg, dmaapRequestMessage)) //
                 .flatMap(
                     response -> sendDmaapResponse(response.getBody(), dmaapRequestMessage, response.getStatusCode()));
         } catch (Exception e) {
@@ -141,14 +142,8 @@ public class DmaapMessageHandler {
     }
 
     private Mono<String> sendToDmaap(String body) {
-        try {
-            logger.debug("sendToDmaap: {} ", body);
-            dmaapClient.send(body);
-            dmaapClient.sendBatchWithResponse();
-            return Mono.just("OK");
-        } catch (IOException e) {
-            return Mono.error(e);
-        }
+        logger.debug("sendToDmaap: {} ", body);
+        return dmaapClient.post("", body);
     }
 
     private Mono<String> handleResponseCallError(Throwable t) {
