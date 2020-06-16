@@ -1,0 +1,5 @@
+---
+distribution_type: maven
+version: 2.0.0
+project: nonrtric-sdnc-a1-controller
+log_dir: nonrtric-sdnc-a1-controller-maven-stage-master/13
