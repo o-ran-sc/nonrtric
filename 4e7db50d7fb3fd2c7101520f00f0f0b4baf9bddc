@@ -52,6 +52,24 @@
       "revId": "4e7db50d7fb3fd2c7101520f00f0f0b4baf9bddc",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47660e38_709d44b3",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2020-06-17T14:51:14Z",
+      "side": 1,
+      "message": "It is possible to update the MR sim to accept both array and single message. I will do that but I think it should be ok to always write a array. Assuming the real MR does not care.  \nAnyway, the MR sim will be updated in my ongoing commit: https://gerrit.o-ran-sc.org/r/c/nonrtric/+/4168",
+      "parentUuid": "2a57b0b0_5ea5fdfe",
+      "revId": "4e7db50d7fb3fd2c7101520f00f0f0b4baf9bddc",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
