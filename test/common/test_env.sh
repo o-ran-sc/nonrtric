@@ -112,7 +112,7 @@ export MR_INTERNAL_PORT=3905                                    # MR stub contai
 export MR_EXTERNAL_SECURE_PORT=3906                             # MR stub container external secure port (host -> container)
 export MR_INTERNAL_SECURE_PORT=3906                             # MR stub container internal secure port (container -> container)
 export MR_APP_NAME="message-router"                             # Name for the MR
-export MR_READ_URL="/events/A1-POLICY-AGENT-READ/users/policy-agent" # Path to read messages from MR
+export MR_READ_URL="/events/A1-POLICY-AGENT-READ/users/policy-agent?timeout=15000&limit=100" # Path to read messages from MR
 export MR_WRITE_URL="/events/A1-POLICY-AGENT-WRITE"             # Path write messages to MR
 
 export CR_EXTERNAL_PORT=8090                                    # Callback receiver container external port (host -> container)

@@ -53,9 +53,13 @@ for __httpx in $TESTED_PROTOCOLS ; do
         clean_containers
 
         if [ $__httpx == "HTTPS" ]; then
+            #echo "Using secure ports between agent and MR"
+            use_mr_https
             echo "Using secure ports towards simulators"
             use_simulator_https
         else
+            #"Using non-secure ports between agent and MR"
+            use_mr_http
             echo "Using non-secure ports towards simulators"
             use_simulator_http
         fi

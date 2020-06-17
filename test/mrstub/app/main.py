@@ -211,6 +211,12 @@ def events_write():
         try:
             answer=request.json
             print(AGENT_WRITE_URL+ " json=" + json.dumps(answer, indent=2))
+            if isinstance(answer, dict):
+                #Create a an array if the answer is a dict (single message)
+                answer_list=[]
+                answer_list.append(answer)
+                answer=answer_list
+
             for item in answer:
                 id=item['correlationId']
                 if (id is None):
