@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3ac594e4_34487ef0",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 1000112
+      },
+      "writtenOn": "2020-06-17T13:34:39Z",
+      "side": 1,
+      "message": "Why we need to enclose the body with [] ?",
+      "revId": "4e7db50d7fb3fd2c7101520f00f0f0b4baf9bddc",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
