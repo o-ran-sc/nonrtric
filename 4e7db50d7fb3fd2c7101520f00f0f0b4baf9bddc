@@ -34,6 +34,24 @@
       "revId": "4e7db50d7fb3fd2c7101520f00f0f0b4baf9bddc",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a57b0b0_5ea5fdfe",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/dmaap/DmaapMessageHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 1000112
+      },
+      "writtenOn": "2020-06-17T14:04:31Z",
+      "side": 1,
+      "message": "Yes real MR accepts both but we receive one request \u0026 send the response of that request back to MR.\n\nI\u0027m ok with an Array but just its not an array of responses sent back to MR. At any time only one message is sent back to DMaaP. Please correct me if im wrong.",
+      "parentUuid": "18c8275a_8ed0f6f3",
+      "revId": "4e7db50d7fb3fd2c7101520f00f0f0b4baf9bddc",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
