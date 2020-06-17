@@ -382,7 +382,7 @@ api_put_policy() {
 	((RES_TEST++))
 
     if [ $# -lt 7 ] || [ $# -gt 8 ]; then
-        __print_err "<response-code> <service-name> <ric-id> <policytype-id> <policy-id> <transient> <template-file> [<count>]" $@
+        __print_err "<response-code> <service-name> <ric-id> <policytype-id> <policy-id> <transient>|NOTRANSIENT <template-file> [<count>]" $@
         return 1
     fi
 
