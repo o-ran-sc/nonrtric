@@ -37,19 +37,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>odl-mdsal-broker</artifactId>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.onap.ccsdk.sli.core</groupId>
-            <artifactId>ccsdk-sli</artifactId>
-            <version>${ccsdk.sli.core.version}</version>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>nonrt-ric-api-model</artifactId>
             <version>${project.version}</version>
@@ -59,6 +46,5 @@
             <artifactId>nonrt-ric-api-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
-
     </dependencies>
 </project>
