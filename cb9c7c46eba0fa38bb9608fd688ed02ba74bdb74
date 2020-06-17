@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d02cff0_03126711",
+        "filename": "policy-agent/src/test/java/org/oransc/policyagent/dmaap/DmaapMessageConsumerTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-06-17T12:22:25Z",
+      "side": 1,
+      "message": "This looks like a strange error message.",
+      "range": {
+        "startLine": 139,
+        "startChar": 24,
+        "endLine": 139,
+        "endChar": 85
+      },
+      "revId": "cb9c7c46eba0fa38bb9608fd688ed02ba74bdb74",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
