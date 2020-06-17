@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "022c4c26_d3fe5c19",
+        "filename": "docs/developer-guide.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-06-17T12:08:55Z",
+      "side": 1,
+      "message": "Understood. Thanks.",
+      "parentUuid": "292c2cbc_21c43c71",
+      "range": {
+        "startLine": 16,
+        "startChar": 29,
+        "endLine": 16,
+        "endChar": 41
+      },
+      "revId": "9c841958219d6cf1d3fc2447f87a3f4d9532548e",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e13b1320_1896f795",
         "filename": "docs/developer-guide.rst",
         "patchSetId": 1
