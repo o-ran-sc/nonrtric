@@ -68,15 +68,8 @@ for __httpx in $TESTED_PROTOCOLS ; do
         start_mr
 
         if [ $__httpx == "HTTPS" ]; then
-
-            deviation "TR17 - agent cannot use https towards MR - test combo $interface and $__httpx"
-            #This is the intention
             #echo "Using secure ports between agent and MR"
-            #use_mr_https
-
-            #Work around until it is fixed
-            #"Using non-secure ports between agent and MR"
-            use_mr_http
+            use_mr_https
         else
             #"Using non-secure ports between agent and MR"
             use_mr_http
