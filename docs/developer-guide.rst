@@ -15,21 +15,21 @@ Prerequisites
 
 1. Java development kit (JDK), version 11
 2. Maven dependency-management tool, version 3.6 or later
-3. Python, version 2 or later
+3. Python, version 2
 4. Docker, version 19.03.1 or latest
 5. Docker Compose, version 1.24.1 or latest
 
 Build and run
 -------------
 Go to the northbound directory and run this command ::
-    mvn clean install -Dmaven.test.skip=true
+    mvn clean install 
 
 This will build the project and create artifcats in maven repo
 
 Go to oam/installation directory and run this command ::
     mvn clean install -P docker
 
-This will create the docker images required for a1-controller.
+This will create the docker images required for A1 controller.
 
 After this step check for the docker images created by the maven build with this command ::
     docker images | grep a1-controller
@@ -37,10 +37,10 @@ After this step check for the docker images created by the maven build with this
 Go to oam/installation/src/main/yaml and run this command ::
     docker-compose up -d a1-controller
 
-This will create the docker containers with the a1-controller image, you can check the status of the docker container using ::
+This will create the docker containers with the A1 controller image, you can check the status of the docker container using ::
     docker-compose logs -f a1-controller
 
-The Open Daylight GUI url to access the Northbound API,
+The SDNC url to access the Northbound API,
     http://localhost:8282/apidoc/explorer/index.html
 
 Credentials: admin/Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U
