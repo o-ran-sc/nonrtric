@@ -24,8 +24,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,16 +31,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
-import org.onap.dmaap.mr.test.clients.ProtocolTypeConstants;
 import org.oransc.policyagent.exceptions.ServiceException;
-import org.springframework.http.MediaType;
 
 /**
  * Parser for the Json representing of the component configuration.
@@ -57,17 +52,18 @@ public class ApplicationConfigParser {
     public interface ConfigParserResult {
         List<RicConfig> ricConfigs();
 
-        Properties dmaapPublisherConfig();
-
-        Properties dmaapConsumerConfig();
-
         Map<String, ControllerConfig> controllerConfigs();
+
+        String dmaapConsumerTopicUrl();
+
+        String dmaapProducerTopicUrl();
+
     }
 
     public ConfigParserResult parse(JsonObject root) throws ServiceException {
 
-        Properties dmaapPublisherConfig = new Properties();
-        Properties dmaapConsumerConfig = new Properties();
+        String dmaapProducerTopicUrl = "";
+        String dmaapConsumerTopicUrl = "";
 
         JsonObject agentConfigJson = root.getAsJsonObject(CONFIG);
 
@@ -77,12 +73,12 @@ public class ApplicationConfigParser {
 
         JsonObject json = agentConfigJson.getAsJsonObject("streams_publishes");
         if (json != null) {
-            dmaapPublisherConfig = parseDmaapConfig(json);
+            dmaapProducerTopicUrl = parseDmaapConfig(json);
         }
 
         json = agentConfigJson.getAsJsonObject("streams_subscribes");
         if (json != null) {
-            dmaapConsumerConfig = parseDmaapConfig(json);
+            dmaapConsumerTopicUrl = parseDmaapConfig(json);
         }
 
         List<RicConfig> ricConfigs = parseRics(agentConfigJson);
@@ -90,8 +86,8 @@ public class ApplicationConfigParser {
         checkConfigurationConsistency(ricConfigs, controllerConfigs);
 
         return ImmutableConfigParserResult.builder() //
-            .dmaapConsumerConfig(dmaapConsumerConfig) //
-            .dmaapPublisherConfig(dmaapPublisherConfig) //
+            .dmaapConsumerTopicUrl(dmaapConsumerTopicUrl) //
+            .dmaapProducerTopicUrl(dmaapProducerTopicUrl) //
             .ricConfigs(ricConfigs) //
             .controllerConfigs(controllerConfigs) //
             .build();
@@ -114,7 +110,6 @@ public class ApplicationConfigParser {
             }
 
         }
-
     }
 
     private List<RicConfig> parseRics(JsonObject config) throws ServiceException {
@@ -177,7 +172,7 @@ public class ApplicationConfigParser {
         return get(obj, memberName).getAsJsonArray();
     }
 
-    private Properties parseDmaapConfig(JsonObject streamCfg) throws ServiceException {
+    private String parseDmaapConfig(JsonObject streamCfg) throws ServiceException {
         Set<Entry<String, JsonElement>> streamConfigEntries = streamCfg.entrySet();
         if (streamConfigEntries.size() != 1) {
             throw new ServiceException(
@@ -185,71 +180,10 @@ public class ApplicationConfigParser {
         }
         JsonObject streamConfigEntry = streamConfigEntries.iterator().next().getValue().getAsJsonObject();
         JsonObject dmaapInfo = get(streamConfigEntry, "dmaap_info").getAsJsonObject();
-        String topicUrl = getAsString(dmaapInfo, "topic_url");
-
-        try {
-            Properties dmaapProps = new Properties();
-            URL url = new URL(topicUrl);
-            String passwd = "";
-            String userName = "";
-            if (url.getUserInfo() != null) {
-                String[] userInfo = url.getUserInfo().split(":");
-                userName = userInfo[0];
-                passwd = userInfo[1];
-            }
-            String urlPath = url.getPath();
-            DmaapUrlPath path = parseDmaapUrlPath(urlPath);
-
-            dmaapProps.put("ServiceName", url.getHost() + ":" + url.getPort() + "/events");
-            dmaapProps.put("topic", path.dmaapTopicName);
-            dmaapProps.put("host", url.getHost() + ":" + url.getPort());
-            dmaapProps.put("contenttype", MediaType.APPLICATION_JSON.toString());
-            dmaapProps.put("userName", userName);
-            dmaapProps.put("password", passwd);
-            dmaapProps.put("group", path.consumerGroup);
-            dmaapProps.put("id", path.consumerId);
-            dmaapProps.put("TransportType", ProtocolTypeConstants.HTTPNOAUTH.toString());
-            dmaapProps.put("timeout", "15000");
-            dmaapProps.put("limit", "100");
-            dmaapProps.put("maxBatchSize", "10");
-            dmaapProps.put("maxAgeMs", "10000");
-            dmaapProps.put("compress", true);
-            dmaapProps.put("MessageSentThreadOccurance", "2");
-            return dmaapProps;
-        } catch (MalformedURLException e) {
-            throw new ServiceException("Could not parse the URL", e);
-        }
+        return getAsString(dmaapInfo, "topic_url");
     }
 
     private static @NotNull String getAsString(JsonObject obj, String memberName) throws ServiceException {
         return get(obj, memberName).getAsString();
-    }
-
-    private class DmaapUrlPath {
-        final String dmaapTopicName;
-        final String consumerGroup;
-        final String consumerId;
-
-        DmaapUrlPath(String dmaapTopicName, String consumerGroup, String consumerId) {
-            this.dmaapTopicName = dmaapTopicName;
-            this.consumerGroup = consumerGroup;
-            this.consumerId = consumerId;
-        }
-    }
-
-    private DmaapUrlPath parseDmaapUrlPath(String urlPath) throws ServiceException {
-        String[] tokens = urlPath.split("/"); // /events/A1-P/users/sdnc1
-        if (!(tokens.length == 3 ^ tokens.length == 5)) {
-            throw new ServiceException("The path has incorrect syntax: " + urlPath);
-        }
-
-        final String dmaapTopicName = tokens[2]; // /events/A1-P
-        String consumerGroup = ""; // users
-        String consumerId = ""; // sdnc1
-        if (tokens.length == 5) {
-            consumerGroup = tokens[3];
-            consumerId = tokens[4];
-        }
-        return new DmaapUrlPath(dmaapTopicName, consumerGroup, consumerId);
     }
 }

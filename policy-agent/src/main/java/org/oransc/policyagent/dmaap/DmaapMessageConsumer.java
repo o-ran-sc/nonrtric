@@ -21,15 +21,15 @@
 package org.oransc.policyagent.dmaap;
 
 import com.google.common.collect.Iterables;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Properties;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.onap.dmaap.mr.client.MRBatchingPublisher;
-import org.onap.dmaap.mr.client.MRClientFactory;
-import org.onap.dmaap.mr.client.MRConsumer;
-import org.onap.dmaap.mr.client.response.MRConsumerResponse;
 import org.oransc.policyagent.clients.AsyncRestClient;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.exceptions.ServiceException;
@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 /**
@@ -62,7 +63,6 @@ public class DmaapMessageConsumer {
     private final ApplicationConfig applicationConfig;
 
     private DmaapMessageHandler dmaapMessageHandler = null;
-    private MRConsumer messageRouterConsumer = null;
 
     @Value("${server.http-port}")
     private int localServerHttpPort;
@@ -99,7 +99,7 @@ public class DmaapMessageConsumer {
                     sleep(TIME_BETWEEN_DMAAP_RETRIES); // wait for configuration
                 }
             } catch (Exception e) {
-                logger.warn("Cannot fetch because of {}", e.getMessage());
+                logger.warn("{}", e.getMessage());
                 sleep(TIME_BETWEEN_DMAAP_RETRIES);
             }
         }
@@ -110,25 +110,35 @@ public class DmaapMessageConsumer {
     }
 
     protected boolean isDmaapConfigured() {
-        Properties consumerCfg = applicationConfig.getDmaapConsumerConfig();
-        Properties producerCfg = applicationConfig.getDmaapPublisherConfig();
-        return (consumerCfg != null && consumerCfg.size() > 0 && producerCfg != null && producerCfg.size() > 0);
+        String producerTopicUrl = applicationConfig.getDmaapProducerTopicUrl();
+        String consumerTopicUrl = applicationConfig.getDmaapConsumerTopicUrl();
+        return (!producerTopicUrl.isEmpty() && !consumerTopicUrl.isEmpty());
+    }
+
+    private static List<String> parseMessages(String jsonString) {
+        JsonArray arrayOfMessages = JsonParser.parseString(jsonString).getAsJsonArray();
+        List<String> result = new ArrayList<>();
+        for (JsonElement element : arrayOfMessages) {
+            if (element.isJsonPrimitive()) {
+                result.add(element.getAsString());
+            } else {
+                String messageAsString = element.toString();
+                result.add(messageAsString);
+            }
+        }
+        return result;
     }
 
     protected Iterable<String> fetchAllMessages() throws ServiceException, IOException {
-        Properties dmaapConsumerProperties = this.applicationConfig.getDmaapConsumerConfig();
-        MRConsumer consumer = getMessageRouterConsumer(dmaapConsumerProperties);
-        MRConsumerResponse response = consumer.fetchWithReturnConsumerResponse();
-        if (response == null || !"200".equals(response.getResponseCode())) {
-            String errorMessage = "DMaaP NULL response received";
-            if (response != null) {
-                errorMessage = "Error respons " + response.getResponseCode() + " " + response.getResponseMessage()
-                    + " from DMaaP.";
-            }
-            throw new ServiceException(errorMessage);
+        String topicUrl = this.applicationConfig.getDmaapConsumerTopicUrl();
+        AsyncRestClient consumer = getMessageRouterConsumer();
+        ResponseEntity<String> response = consumer.getForEntity(topicUrl).block();
+        logger.debug("DMaaP consumer received {} : {}", response.getStatusCode(), response.getBody());
+        if (response.getStatusCode().is2xxSuccessful()) {
+            return parseMessages(response.getBody());
         } else {
-            logger.debug("DMaaP consumer received {} : {}", response.getResponseCode(), response.getResponseMessage());
-            return response.getActualMessages();
+            throw new ServiceException("Cannot fetch because of Error respons: " + response.getStatusCode().toString()
+                + " " + response.getBody());
         }
     }
 
@@ -141,8 +151,8 @@ public class DmaapMessageConsumer {
         if (this.dmaapMessageHandler == null) {
             String agentBaseUrl = "http://localhost:" + this.localServerHttpPort;
             AsyncRestClient agentClient = new AsyncRestClient(agentBaseUrl);
-            Properties dmaapPublisherProperties = applicationConfig.getDmaapPublisherConfig();
-            MRBatchingPublisher producer = MRClientFactory.createBatchingPublisher(dmaapPublisherProperties);
+            AsyncRestClient producer = new AsyncRestClient(this.applicationConfig.getDmaapProducerTopicUrl(),
+                this.applicationConfig.getWebClientConfig());
             this.dmaapMessageHandler = new DmaapMessageHandler(producer, agentClient);
         }
         return this.dmaapMessageHandler;
@@ -156,11 +166,8 @@ public class DmaapMessageConsumer {
         }
     }
 
-    protected MRConsumer getMessageRouterConsumer(Properties dmaapConsumerProperties) throws IOException {
-        if (this.messageRouterConsumer == null) {
-            this.messageRouterConsumer = MRClientFactory.createConsumer(dmaapConsumerProperties);
-        }
-        return this.messageRouterConsumer;
+    protected AsyncRestClient getMessageRouterConsumer() {
+        return new AsyncRestClient("", this.applicationConfig.getWebClientConfig());
     }
 
 }
