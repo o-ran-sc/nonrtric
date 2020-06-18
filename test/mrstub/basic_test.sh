@@ -72,13 +72,23 @@ RESULT="json:[{\"apiVersion\":\"1.0\",\"operation\":\"PUT\",\"correlationId\":\"
 do_curl GET '/events/A1-POLICY-AGENT-READ/users/policy-agent' 200
 
 echo "=== Send a json response ==="
-# Create minimal accepted response message
+# Create minimal accepted response message, array
 echo "[{\"correlationId\": \""$CORRID"\", \"message\": {\"test\":\"testresponse\"}, \"status\": \"200\"}]" > .tmp.json
 RESULT="{}"
 do_curl POST /events/A1-POLICY-AGENT-WRITE 200 .tmp.json
 
 echo "=== Fetch a response ==="
 RESULT="{\"test\": \"testresponse\"}200"
+do_curl GET '/receive-response?correlationid='$CORRID 200
+
+echo "=== Send a json response ==="
+# Create minimal accepted response message, single message - no array
+echo "{\"correlationId\": \""$CORRID"\", \"message\": {\"test\":\"testresponse2\"}, \"status\": \"200\"}" > .tmp.json
+RESULT="{}"
+do_curl POST /events/A1-POLICY-AGENT-WRITE 200 .tmp.json
+
+echo "=== Fetch a response ==="
+RESULT="{\"test\": \"testresponse2\"}200"
 do_curl GET '/receive-response?correlationid='$CORRID 200
 
 ### Test with plain text response
