@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.onap.ccsdk.parent</groupId>
         <artifactId>odlparent-lite</artifactId>
-        <version>1.5.1</version>
+        <version>1.5.9</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -41,6 +41,7 @@
      <sdnc.project.version>${project.version}</sdnc.project.version>
      <sdnc.build.timestamp>${maven.build.timestamp}</sdnc.build.timestamp>
      <sdnc.northbound.version>2.0.0-SNAPSHOT</sdnc.northbound.version>
+     <gmaven-plugin.version>1.5</gmaven-plugin.version>
      <ccsdk.docker.version>0.7.0</ccsdk.docker.version>
      <docker.push.phase>deploy</docker.push.phase>
     </properties>
@@ -66,8 +67,9 @@
         <plugins>
 
             <plugin>
-                <groupId>org.codehaus.groovy.maven</groupId>
+                <groupId>org.codehaus.gmaven</groupId>
                 <artifactId>gmaven-plugin</artifactId>
+                <version>${gmaven-plugin.version}</version>
                 <executions>
                     <execution>
                         <phase>validate</phase>
@@ -242,7 +244,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.0.2</version>
                 <executions>
                     <execution>
                         <id>unpack sdnc features</id>
@@ -278,7 +279,6 @@
             <plugin>
                 <artifactId>exec-maven-plugin</artifactId>
                 <groupId>org.codehaus.mojo</groupId>
-                <version>1.5.0</version>
                 <executions>
                     <execution>
                         <id>change shell permissions</id>

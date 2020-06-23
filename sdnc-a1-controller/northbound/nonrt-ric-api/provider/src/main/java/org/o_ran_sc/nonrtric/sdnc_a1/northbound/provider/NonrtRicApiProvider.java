@@ -26,9 +26,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.o_ran_sc.nonrtric.sdnc_a1.northbound.restadapter.RestAdapter;
 import org.o_ran_sc.nonrtric.sdnc_a1.northbound.restadapter.RestAdapterImpl;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.NotificationPublishService;
+import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.yang.gen.v1.org.o_ran_sc.nonrtric.sdnc_a1.northbound.a1.adapter.rev200122.A1ADAPTERAPIService;
 import org.opendaylight.yang.gen.v1.org.o_ran_sc.nonrtric.sdnc_a1.northbound.a1.adapter.rev200122.DeleteA1PolicyInput;
 import org.opendaylight.yang.gen.v1.org.o_ran_sc.nonrtric.sdnc_a1.northbound.a1.adapter.rev200122.DeleteA1PolicyOutput;
@@ -66,7 +66,6 @@ import org.springframework.web.client.RestClientResponseException;
  *
  */
 
-@SuppressWarnings("squid:S1874") // "@Deprecated" code should not be used
 public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
 
   protected static final String APP_NAME = "nonrt-ric-api";
@@ -80,16 +79,16 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
 
   protected DataBroker dataBroker;
   protected NotificationPublishService notificationService;
-  protected RpcProviderRegistry rpcRegistry;
+  protected RpcProviderService rpcProviderService;
   private RestAdapter restAdapter;
 
   public NonrtRicApiProvider(DataBroker dataBroker, NotificationPublishService notificationPublishService,
-      RpcProviderRegistry rpcProviderRegistry) {
+      RpcProviderService rpcProviderService) {
     log.info("Creating provider for {}", APP_NAME);
     executor = Executors.newFixedThreadPool(1);
     setDataBroker(dataBroker);
     setNotificationService(notificationPublishService);
-    setRpcRegistry(rpcProviderRegistry);
+    setRpcService(rpcProviderService);
     initialize();
   }
 
@@ -120,10 +119,10 @@ public class NonrtRicApiProvider implements AutoCloseable, A1ADAPTERAPIService {
     }
   }
 
-  public void setRpcRegistry(RpcProviderRegistry rpcRegistry) {
-    this.rpcRegistry = rpcRegistry;
+  public void setRpcService(RpcProviderService rpcProviderService) {
+    this.rpcProviderService = rpcProviderService;
     if (log.isDebugEnabled()) {
-      log.debug("RpcRegistry set to {}", rpcRegistry == null ? NULL_PARAM : NON_NULL_PARAM);
+      log.debug("RpcProviderService set to {}", rpcProviderService == null ? NULL_PARAM : NON_NULL_PARAM);
     }
   }
 
