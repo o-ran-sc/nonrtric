@@ -34,7 +34,7 @@ public interface RestAdapter {
    * Retrieve a representation by doing a GET on the specified URL. The response (if any) is
    * converted and returned.
    *
-   * @param uri the URL
+   * @param url the URL
    * @param clazz responseType the type of the return value
    * @return the converted object
    */
@@ -45,7 +45,7 @@ public interface RestAdapter {
    * Create or update a resource by PUTting the given object to the URI.
    *
    * @param url the URL
-   * @param request the String to be PUT (may be {@code null})
+   * @param body the String to be PUT (may be {@code null})
    * @param clazz responseType the type of the return value
    * @return the response code
    */
