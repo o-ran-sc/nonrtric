@@ -55,6 +55,10 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=openECOMP1.0
       - SDNC_CONFIG_DIR=/opt/onap/sdnc/data/properties
+    #volumes:
+    #  - <path_to_keystore>:/etc/ssl/certs/java/keystore.jks:ro
+    #  - <path_to_truststore>:/etc/ssl/certs/java/truststore.jks:ro
+    #  - <path_to_https-props>:/opt/onap/sdnc/data/properties/https-props.properties:ro
     dns:
       - ${DNS_IP_ADDR-10.0.100.1}
     logging:

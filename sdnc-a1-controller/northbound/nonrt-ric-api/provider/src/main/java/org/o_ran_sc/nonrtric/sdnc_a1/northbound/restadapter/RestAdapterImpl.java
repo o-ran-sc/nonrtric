@@ -20,7 +20,7 @@
 
 package org.o_ran_sc.nonrtric.sdnc_a1.northbound.restadapter;
 
-import java.io.FileNotFoundException;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -36,6 +36,7 @@ import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustAllStrategy;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +59,6 @@ import org.springframework.web.client.RestTemplate;
 
 public class RestAdapterImpl implements RestAdapter {
 
-  private static final String PROPERTIES_FILE = "nonrt-ric-api-provider.properties";
   private final Logger log = LoggerFactory.getLogger(RestAdapterImpl.class);
 
   private RestTemplate restTemplateHttp;
@@ -76,24 +76,26 @@ public class RestAdapterImpl implements RestAdapter {
 
   private RestTemplate createRestTemplateForHttps() throws IOException, UnrecoverableKeyException, CertificateException,
               NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
-      InputStream inputStream = RestAdapterImpl.class.getClassLoader().getResourceAsStream(PROPERTIES_FILE);
-      if (inputStream == null) {
-          throw new FileNotFoundException("properties file not found in classpath");
-      } else {
+      try (InputStream inputStream = new FileInputStream(ResourceUtils.getFile("/opt/onap/sdnc/data/properties/https-props.properties"))) {
           Properties properties = new Properties();
           properties.load(inputStream);
-          final String keystorePassword = properties.getProperty("key-store-password");
-          SSLConnectionSocketFactory scsf = new SSLConnectionSocketFactory(
-                  SSLContexts.custom()
-                             .loadKeyMaterial(ResourceUtils.getFile(properties.getProperty("key-store")),
-                                     keystorePassword.toCharArray(), keystorePassword.toCharArray())
-                             .loadTrustMaterial(null, new TrustAllStrategy())
-                             .build(),
-                  NoopHostnameVerifier.INSTANCE);
+          final String keyPassword = properties.getProperty("key-password");
+          final String keystorePassword = properties.getProperty("keystore-password");
+          final String truststorePassword = properties.getProperty("truststore-password");
+          final boolean isTrustStoreUsed = Boolean.parseBoolean(properties.getProperty("isTrustStoreUsed"));
+          SSLContextBuilder builder = SSLContexts.custom()
+                                                 .loadKeyMaterial(ResourceUtils.getFile(properties.getProperty("key-store")),
+                                                         keystorePassword.toCharArray(), keyPassword.toCharArray());
+          if (isTrustStoreUsed) {
+              builder.loadTrustMaterial(ResourceUtils.getFile(properties.getProperty("trust-store")),
+                              truststorePassword.toCharArray());
+          } else {
+              builder.loadTrustMaterial(null, new TrustAllStrategy());
+          }
+          SSLConnectionSocketFactory scsf = new SSLConnectionSocketFactory(builder.build(), NoopHostnameVerifier.INSTANCE);
           HttpClient client = HttpClients.custom().setSSLSocketFactory(scsf).build();
           HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
           requestFactory.setHttpClient(client);
-          inputStream.close();
           return new RestTemplate(requestFactory);
       }
   }
