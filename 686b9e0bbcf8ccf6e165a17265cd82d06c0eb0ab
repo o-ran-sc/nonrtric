@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0f7be62e_b00691a6",
+        "filename": "sdnc-a1-controller/northbound/features/features-sdnc-a1-northbound/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-06-23T16:12:08Z",
+      "side": 1,
+      "message": "Our a1-controller is based on el-alto version. Upgrading ccsdk parent version to Frankfurt might break something due to incompatibility. But if you can also run some tests and verify that everything works fine after this update, then it might be ok.",
+      "revId": "686b9e0bbcf8ccf6e165a17265cd82d06c0eb0ab",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
