@@ -32,7 +32,7 @@ limitations under the License.
 	<parent>
 		<groupId>org.onap.ccsdk.parent</groupId>
 		<artifactId>single-feature-parent</artifactId>
-		<version>1.5.1</version>
+		<version>1.5.9</version>
 		<relativePath/>
 	</parent>
 

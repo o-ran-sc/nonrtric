@@ -31,10 +31,9 @@ import org.mockito.Mock;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.o_ran_sc.nonrtric.sdnc_a1.northbound.restadapter.RestAdapter;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
-import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
+import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.opendaylight.mdsal.binding.api.NotificationPublishService;
+import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.yang.gen.v1.org.o_ran_sc.nonrtric.sdnc_a1.northbound.a1.adapter.rev200122.DeleteA1PolicyInputBuilder;
 import org.opendaylight.yang.gen.v1.org.o_ran_sc.nonrtric.sdnc_a1.northbound.a1.adapter.rev200122.DeleteA1PolicyOutput;
 import org.opendaylight.yang.gen.v1.org.o_ran_sc.nonrtric.sdnc_a1.northbound.a1.adapter.rev200122.GetA1PolicyInputBuilder;
@@ -60,7 +59,7 @@ import org.springframework.web.client.RestClientResponseException;
  */
 
 @RunWith(MockitoJUnitRunner.class)
-public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
+public class NonrtRicApiProviderTest {
 
   protected static final Logger LOG = LoggerFactory.getLogger(NonrtRicApiProviderTest.class);
 
@@ -71,15 +70,14 @@ public class NonrtRicApiProviderTest extends AbstractConcurrentDataBrokerTest {
   @Mock
   protected NotificationPublishService mockNotificationPublishService;
   @Mock
-  protected RpcProviderRegistry mockRpcProviderRegistry;
+  protected RpcProviderService mockRpcProviderService;
   @Mock
   private RestAdapter restAdapter;
   private static Uri nearRtRicUrl = new Uri("http://ric1:8085");
 
   @Before
   public void setUp() throws Exception {
-    dataBroker = getDataBroker();
-    nonrtRicApiProvider = new NonrtRicApiProvider(dataBroker, mockNotificationPublishService, mockRpcProviderRegistry);
+    nonrtRicApiProvider = new NonrtRicApiProvider(null, mockNotificationPublishService, mockRpcProviderService);
   }
 
   @Test
