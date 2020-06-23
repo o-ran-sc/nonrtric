@@ -20,10 +20,8 @@
 
 package org.o_ran_sc.nonrtric.sdnc_a1.northbound.provider;
 
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.o_ran_sc.nonrtric.sdnc_a1.northbound.restadapter.RestAdapter;
