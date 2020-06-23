@@ -45,7 +45,7 @@ ENV SDNC_CONFIG_DIR /opt/onap/sdnc/data/properties
 ENV JAVA_SECURITY_DIR /etc/ssl/certs/java
 ENV SDNC_NORTHBOUND_REPO mvn:org.o-ran-sc.nonrtric.sdnc-a1.northbound/sdnc-a1-northbound-all/${sdnc.northbound.version}/xml/features
 ENV SDNC_KEYSTORE keystore.jks
-ENV SDNC_KEYPASS sdnc-a1-controller
+ENV SDNC_TRUSTSTORE truststore.jks
 ENV SDNC_SECUREPORT 8443
 
 USER root
@@ -60,13 +60,11 @@ RUN sed -i "s/odl-restconf-all/odl-restconf-all,odl-netconf-topology/g"  $ODL_HO
 
 # Install java certificate
 COPY $SDNC_KEYSTORE $JAVA_SECURITY_DIR
+COPY $SDNC_TRUSTSTORE $JAVA_SECURITY_DIR
 
 # Secure with TLS
 RUN echo org.osgi.service.http.secure.enabled=true >> $ODL_HOME/etc/custom.properties
 RUN echo org.osgi.service.http.secure.port=$SDNC_SECUREPORT >> $ODL_HOME/etc/custom.properties
-RUN echo org.ops4j.pax.web.ssl.keystore=$JAVA_SECURITY_DIR/$SDNC_KEYSTORE >> $ODL_HOME/etc/custom.properties
-RUN echo org.ops4j.pax.web.ssl.password=$SDNC_KEYPASS >> $ODL_HOME/etc/custom.properties
-RUN echo org.ops4j.pax.web.ssl.keypassword=$SDNC_KEYPASS >> $ODL_HOME/etc/custom.properties
 
 RUN chown -R odl:odl /opt
 
