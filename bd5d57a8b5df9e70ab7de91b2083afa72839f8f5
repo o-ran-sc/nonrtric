@@ -49,6 +49,23 @@
     },
     {
       "key": {
+        "uuid": "bf15fe67_68801997",
+        "filename": "sdnc-a1-controller/oam/installation/src/main/properties/https-props.properties",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-06-24T08:54:52Z",
+      "side": 1,
+      "message": "About the file name of this file; was it not better to have a name that shows that the information is specific for the A1 client (and not for https in general)?",
+      "revId": "bd5d57a8b5df9e70ab7de91b2083afa72839f8f5",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "560fd562_4db6fcf6",
         "filename": "sdnc-a1-controller/oam/installation/src/main/yaml/README.md",
         "patchSetId": 1
