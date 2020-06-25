@@ -50,11 +50,16 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Bean;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.StringUtils;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
+@TestPropertySource(
+    properties = { //
+        "server.ssl.key-store=./config/keystore.jks", //
+        "app.webclient.trust-store=./config/truststore.jks"})
 class MockPolicyAgent {
     private static final Logger logger = LoggerFactory.getLogger(MockPolicyAgent.class);
 
