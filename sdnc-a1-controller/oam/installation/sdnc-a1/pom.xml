@@ -190,9 +190,7 @@
                                 <resource>
                                     <directory>src/main/resources</directory>
                                     <includes>
-                                        <include>idmlight.db.mv.db</include>
-                                        <include>keystore.jks</include>
-                                        <include>aaa-app-config.xml</include>
+                                        <include>*.jks</include>
                                     </includes>
                                     <filtering>false</filtering>
                                 </resource>

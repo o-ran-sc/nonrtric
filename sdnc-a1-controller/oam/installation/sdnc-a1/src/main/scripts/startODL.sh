@@ -27,11 +27,16 @@
 ODL_HOME=${ODL_HOME:-/opt/opendaylight/current}
 ODL_ADMIN_USERNAME=${ODL_ADMIN_USERNAME:-admin}
 ODL_ADMIN_PASSWORD=${ODL_ADMIN_PASSWORD:-Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U}
+HTTPS_PROPS=${HTTPS_PROPS:-/opt/onap/sdnc/data/properties/https-props.properties}
 SDNC_HOME=${SDNC_HOME:-/opt/onap/sdnc}
 SDNC_BIN=${SDNC_BIN:-/opt/onap/sdnc/bin}
 MYSQL_PASSWD=${MYSQL_PASSWD:-openECOMP1.0}
 INSTALLED_DIR=${INSTALLED_FILE:-/opt/opendaylight/current/daexim}
 export ODL_ADMIN_PASSWORD ODL_ADMIN_USERNAME
+
+echo org.ops4j.pax.web.ssl.keystore=$(cat $HTTPS_PROPS | grep -w key-store | cut -d '=' -f2) >> /opt/opendaylight/etc/custom.properties
+echo org.ops4j.pax.web.ssl.password=$(cat $HTTPS_PROPS | grep -w keystore-password | cut -d '=' -f2) >> /opt/opendaylight/etc/custom.properties
+echo org.ops4j.pax.web.ssl.keypassword=$(cat $HTTPS_PROPS | grep -w key-password | cut -d '=' -f2) >> /opt/opendaylight/etc/custom.properties
 
 #
 # Wait for database
