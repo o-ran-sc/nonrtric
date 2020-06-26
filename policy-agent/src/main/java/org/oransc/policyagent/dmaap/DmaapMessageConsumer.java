@@ -129,7 +129,7 @@ public class DmaapMessageConsumer {
         return result;
     }
 
-    protected Iterable<String> fetchAllMessages() throws ServiceException, IOException {
+    protected Iterable<String> fetchAllMessages() throws ServiceException {
         String topicUrl = this.applicationConfig.getDmaapConsumerTopicUrl();
         AsyncRestClient consumer = getMessageRouterConsumer();
         ResponseEntity<String> response = consumer.getForEntity(topicUrl).block();
@@ -147,7 +147,7 @@ public class DmaapMessageConsumer {
         getDmaapMessageHandler().handleDmaapMsg(msg);
     }
 
-    protected DmaapMessageHandler getDmaapMessageHandler() throws IOException {
+    protected DmaapMessageHandler getDmaapMessageHandler() {
         if (this.dmaapMessageHandler == null) {
             String agentBaseUrl = "http://localhost:" + this.localServerHttpPort;
             AsyncRestClient agentClient = new AsyncRestClient(agentBaseUrl);

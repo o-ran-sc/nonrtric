@@ -332,7 +332,7 @@ class ApplicationTest {
 
         url = "/policies";
         String rsp = restClient().get(url).block();
-        assertThat(rsp.contains(policyInstanceId)).as("Response contains policy instance ID.").isTrue();
+        assertThat(rsp).contains(policyInstanceId).as("Response contains policy instance ID.");
 
         url = "/policy?id=" + policyInstanceId;
         rsp = restClient().get(url).block();
@@ -403,7 +403,7 @@ class ApplicationTest {
         assertThat(info.size()).isEqualTo(1);
         PolicyInfo policyInfo = info.get(0);
         assertThat(policyInfo.id).isEqualTo("id1");
-        assertThat(policyInfo.type).isEqualTo("");
+        assertThat(policyInfo.type).isEmpty();
     }
 
     @Test
@@ -597,7 +597,7 @@ class ApplicationTest {
         // GET (all)
         url = "/services";
         rsp = restClient().get(url).block();
-        assertThat(rsp.contains(serviceName)).as("Response contains service name").isTrue();
+        assertThat(rsp).contains(serviceName).as("Response contains service name");
         logger.info(rsp);
 
         // Keep alive
