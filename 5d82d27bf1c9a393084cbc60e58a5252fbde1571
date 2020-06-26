@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6c7ffc9e_6b9c67b3",
+        "filename": "policy-agent/config/application.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-06-26T09:50:48Z",
+      "side": 1,
+      "message": "If this is true, then the cert used by the controller and the A1 simulators must be put in the trustore in the repo (if the function tests is not updated to override these files). If the cert used by the controller or the A1 simplator are changed, the truststore.jks in this repo must be updated. \nI think it would be simpler to have this default to false and not use trust validation in our function tests. The unittest still validates that trust validation works in the agent (by overriding this flag in one test).",
+      "range": {
+        "startLine": 34,
+        "startChar": 2,
+        "endLine": 34,
+        "endChar": 26
+      },
+      "revId": "5d82d27bf1c9a393084cbc60e58a5252fbde1571",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
