@@ -22,6 +22,30 @@
       "revId": "5d82d27bf1c9a393084cbc60e58a5252fbde1571",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75894785_62f1c78e",
+        "filename": "policy-agent/config/application.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-06-26T11:00:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6c7ffc9e_6b9c67b3",
+      "range": {
+        "startLine": 34,
+        "startChar": 2,
+        "endLine": 34,
+        "endChar": 26
+      },
+      "revId": "5d82d27bf1c9a393084cbc60e58a5252fbde1571",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
