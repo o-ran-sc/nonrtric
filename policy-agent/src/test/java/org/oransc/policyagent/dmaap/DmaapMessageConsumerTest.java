@@ -131,12 +131,12 @@ class DmaapMessageConsumerTest {
         when(messageRouterConsumerMock.getForEntity(any())).thenReturn(response);
 
         final ListAppender<ILoggingEvent> logAppender =
-            LoggingUtils.getLogListAppender(DmaapMessageConsumer.class, WARN);
+                LoggingUtils.getLogListAppender(DmaapMessageConsumer.class, WARN);
 
         messageConsumerUnderTest.start().join();
 
         assertThat(logAppender.list.get(0).getFormattedMessage())
-            .isEqualTo("Cannot fetch because of Error respons: 400 BAD_REQUEST Error");
+                .isEqualTo("Cannot fetch because of Error respons: 400 BAD_REQUEST Error");
 
         verify(messageConsumerUnderTest).sleep(DmaapMessageConsumer.TIME_BETWEEN_DMAAP_RETRIES);
     }
@@ -147,8 +147,16 @@ class DmaapMessageConsumerTest {
         setUpMrConfig();
         messageConsumerUnderTest = spy(new DmaapMessageConsumer(applicationConfigMock));
 
-        String message =
-            "{\"apiVersion\":\"1.0\",\"operation\":\"GET\",\"correlationId\":\"1592341013115594000\",\"originatorId\":\"849e6c6b420\",\"payload\":{},\"requestId\":\"23343221\", \"target\":\"policy-agent\",\"timestamp\":\"2020-06-16 20:56:53.115665\",\"type\":\"request\",\"url\":\"/rics\"}";
+        String message = "{\"apiVersion\":\"1.0\"," //
+                + "\"operation\":\"GET\"," //
+                + "\"correlationId\":\"1592341013115594000\"," //
+                + "\"originatorId\":\"849e6c6b420\"," //
+                + "\"payload\":{}," //
+                + "\"requestId\":\"23343221\", " //
+                + "\"target\":\"policy-agent\"," //
+                + "\"timestamp\":\"2020-06-16 20:56:53.115665\"," //
+                + "\"type\":\"request\"," //
+                + "\"url\":\"/rics\"}";
         String messages = "[" + message + "]";
 
         doReturn(false, true).when(messageConsumerUnderTest).isStopped();
@@ -164,7 +172,7 @@ class DmaapMessageConsumerTest {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(messageHandlerMock).handleDmaapMsg(captor.capture());
         String messageAfterJsonParsing = captor.getValue();
-        assertThat(messageAfterJsonParsing.contains("apiVersion")).isTrue();
+        assertThat(messageAfterJsonParsing).contains("apiVersion");
 
         verifyNoMoreInteractions(messageHandlerMock);
     }

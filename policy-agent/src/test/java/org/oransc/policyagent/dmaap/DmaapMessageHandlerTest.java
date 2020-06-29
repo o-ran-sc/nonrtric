@@ -230,9 +230,8 @@ class DmaapMessageHandlerTest {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(dmaapClient).post(anyString(), captor.capture());
         String actualMessage = captor.getValue();
-        assertThat(actualMessage.contains(HttpStatus.BAD_GATEWAY.toString()))
-            .as("Message \"%s\" sent to DMaaP contains %s", actualMessage, HttpStatus.BAD_GATEWAY) //
-            .isTrue();
+        assertThat(actualMessage).contains(HttpStatus.BAD_GATEWAY.toString())
+            .as("Message \"%s\" sent to DMaaP contains %s", actualMessage, HttpStatus.BAD_GATEWAY);
 
         verifyNoMoreInteractions(dmaapClient);
     }
@@ -248,8 +247,8 @@ class DmaapMessageHandlerTest {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(dmaapClient).post(anyString(), captor.capture());
         String actualMessage = captor.getValue();
-        assertThat(actualMessage.contains("Not implemented operation")).isTrue();
-        assertThat(actualMessage.contains("BAD_REQUEST")).isTrue();
+        assertThat(actualMessage).contains("Not implemented operation");
+        assertThat(actualMessage).contains("BAD_REQUEST");
     }
 
     @Test
