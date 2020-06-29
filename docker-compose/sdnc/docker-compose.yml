@@ -26,7 +26,12 @@ services:
       - 8081:8081
       - 8433:8433
     volumes:
-      - ./config:/opt/app/policy-agent/config:ro
+      - ./config/application_configuration.json:/opt/app/policy-agent/data/application_configuration.json:ro
+    # For using own certs instead of the default ones (built into the container),
+    # place them in config/ directory, update the application-policyagent.yaml file, and uncomment the following lines
+    #  - ./config/keystore-policyagent.jks:/opt/app/policy-agent/etc/cert/keystore.jks:ro
+    #  - ./config/truststore-policyagent.jks:/opt/app/policy-agent/etc/cert/truststore.jks:ro
+    #  - ./config/application-policyagent.yaml:/opt/app/policy-agent/config/application.yaml:ro
 
   a1-sim-OSC:
     image: nexus3.o-ran-sc.org:10004/o-ran-sc/a1-simulator:2.0.0
@@ -97,6 +102,12 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=openECOMP1.0
       - SDNC_CONFIG_DIR=/opt/onap/sdnc/data/properties
+    # For using own certs instead of the default ones (built into the container),
+    # place them in config/ directory, update the https-props-a1controller.properties file, and uncomment the following lines
+    #volumes:
+    #  - ./config/keystore-a1controller.jks:/etc/ssl/certs/java/keystore.jks:ro
+    #  - ./config/truststore-a1controller.jks:/etc/ssl/certs/java/truststore.jks:ro
+    #  - ./config/https-props-a1controller.properties:/opt/onap/sdnc/data/properties/https-props.properties:ro
     logging:
       driver:   "json-file"
       options:

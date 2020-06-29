@@ -25,13 +25,13 @@ server:
    ssl:
       key-store-type: JKS
       key-store-password: policy_agent
-      key-store: classpath:keystore.jks
+      key-store: /opt/app/policy-agent/etc/cert/keystore.jks
       key-password: policy_agent
       key-alias: policy_agent
 app:
-  filepath: /opt/app/policy-agent/config/application_configuration.json
+  filepath: /opt/app/policy-agent/data/application_configuration.json
   webclient:
     trust-store-used: false
     trust-store-password: policy_agent
-    trust-store: classpath:keystore.jks
+    trust-store: /opt/app/policy-agent/etc/cert/truststore.jks
 
