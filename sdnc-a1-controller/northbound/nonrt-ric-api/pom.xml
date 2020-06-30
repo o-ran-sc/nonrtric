@@ -37,10 +37,6 @@
 
 	<name>sdnc-a1-northbound :: nonrt-ric-api</name>
 
-	<properties>
-		<sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
-	</properties>
-
 	<modules>
 		<module>model</module>
 		<module>provider</module>
@@ -54,7 +50,6 @@
             		<plugin>
                 		<groupId>org.sonarsource.scanner.maven</groupId>
                 		<artifactId>sonar-maven-plugin</artifactId>
-                		<version>${sonar-maven-plugin.version}</version>
             		</plugin>
         	</plugins>
 	</build>

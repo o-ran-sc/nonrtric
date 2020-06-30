@@ -25,7 +25,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -142,7 +141,7 @@ public class DmaapMessageConsumer {
         }
     }
 
-    private void processMsg(String msg) throws IOException {
+    private void processMsg(String msg) {
         logger.debug("Message Reveived from DMAAP : {}", msg);
         getDmaapMessageHandler().handleDmaapMsg(msg);
     }
