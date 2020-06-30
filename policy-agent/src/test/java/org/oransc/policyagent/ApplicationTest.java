@@ -337,7 +337,7 @@ class ApplicationTest {
 
         url = "/policies";
         String rsp = restClient().get(url).block();
-        assertThat(rsp).contains(policyInstanceId).as("Response contains policy instance ID.");
+        assertThat(rsp).as("Response contains policy instance ID.").contains(policyInstanceId);
 
         url = "/policy?id=" + policyInstanceId;
         rsp = restClient().get(url).block();
@@ -348,6 +348,7 @@ class ApplicationTest {
         testErrorCode(restClient().put(url, policyBody), HttpStatus.NOT_FOUND);
 
         url = putPolicyUrl(serviceName, ricName, policyTypeName + "XX", policyInstanceId);
+        addPolicyType(policyTypeName + "XX", "otherRic");
         testErrorCode(restClient().put(url, policyBody), HttpStatus.NOT_FOUND);
 
         url = putPolicyUrl(serviceName, ricName, policyTypeName, policyInstanceId);
@@ -602,7 +603,7 @@ class ApplicationTest {
         // GET (all)
         url = "/services";
         rsp = restClient().get(url).block();
-        assertThat(rsp).contains(serviceName).as("Response contains service name");
+        assertThat(rsp).as("Response contains service name").contains(serviceName);
         logger.info(rsp);
 
         // Keep alive

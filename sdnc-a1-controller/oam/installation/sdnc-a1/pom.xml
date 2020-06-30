@@ -99,7 +99,7 @@
                         <name>${standalone.image.name}:${standalone.image.version}</name>
                         <build>
                          <cleanup>try</cleanup>
-                         <dockerFileDir>${basedir}/target/docker-stage</dockerFileDir>
+                         <contextDir>${basedir}/target/docker-stage</contextDir>
                          <dockerFile>standalone.Dockerfile</dockerFile>
                          <tags>
                              <tag>${standalone.image.version}</tag>
@@ -123,7 +123,7 @@
                          <name>${standalone.image.name}:${standalone.image.version}</name>
                          <build>
                           <cleanup>try</cleanup>
-                          <dockerFileDir>${basedir}/target/docker-stage</dockerFileDir>
+                          <contextDir>${basedir}/target/docker-stage</contextDir>
                           <dockerFile>standalone.Dockerfile</dockerFile>
                           <tags>
                              <tag>${standalone.image.version}</tag>
@@ -242,7 +242,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.0.2</version>
                 <executions>
                     <execution>
                         <id>unpack sdnc features</id>
@@ -278,7 +277,6 @@
             <plugin>
                 <artifactId>exec-maven-plugin</artifactId>
                 <groupId>org.codehaus.mojo</groupId>
-                <version>1.5.0</version>
                 <executions>
                     <execution>
                         <id>change shell permissions</id>
