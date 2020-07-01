@@ -105,8 +105,8 @@ class ServiceSupervisionTest {
 
         serviceSupervisionUnderTest.checkAllServices().blockLast();
 
-        assertThat(policies.size()).isEqualTo(0);
-        assertThat(services.size()).isEqualTo(0);
+        assertThat(policies.size()).isZero();
+        assertThat(services.size()).isZero();
 
         verify(a1ClientMock).deletePolicy(policy);
         verifyNoMoreInteractions(a1ClientMock);
@@ -129,8 +129,8 @@ class ServiceSupervisionTest {
 
         serviceSupervisionUnderTest.checkAllServices().blockLast();
 
-        assertThat(policies.size()).isEqualTo(0);
-        assertThat(services.size()).isEqualTo(0);
+        assertThat(policies.size()).isZero();
+        assertThat(services.size()).isZero();
 
         ILoggingEvent loggingEvent = logAppender.list.get(0);
         assertThat(loggingEvent.getLevel()).isEqualTo(WARN);

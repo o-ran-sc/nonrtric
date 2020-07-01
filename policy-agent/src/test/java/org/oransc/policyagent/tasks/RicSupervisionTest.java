@@ -118,7 +118,7 @@ class RicSupervisionTest {
         for (Ric ric : this.rics.getRics()) {
             ric.getLock().lockBlocking(LockType.EXCLUSIVE);
             ric.getLock().unlockBlocking();
-            assertThat(ric.getLock().getLockCounter()).isEqualTo(0);
+            assertThat(ric.getLock().getLockCounter()).isZero();
         }
     }
 
