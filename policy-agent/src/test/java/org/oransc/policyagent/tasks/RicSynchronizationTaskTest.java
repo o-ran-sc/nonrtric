@@ -135,7 +135,7 @@ class RicSynchronizationTaskTest {
         assertThat(policyTypes.size()).isEqualTo(1);
         assertThat(policies.size()).isEqualTo(1);
         assertThat(RIC_1.getState()).isEqualTo(RicState.SYNCHRONIZING);
-        assertThat(RIC_1.getSupportedPolicyTypeNames().size()).isEqualTo(1);
+        assertThat(RIC_1.getSupportedPolicyTypeNames()).hasSize(1);
     }
 
     @Test
@@ -170,7 +170,7 @@ class RicSynchronizationTaskTest {
         verifyNoMoreInteractions(restClientMock);
 
         assertThat(policyTypes.size()).isEqualTo(1);
-        assertThat(policies.size()).isEqualTo(0);
+        assertThat(policies.size()).isZero();
         assertThat(RIC_1.getState()).isEqualTo(RicState.AVAILABLE);
     }
 
@@ -193,7 +193,7 @@ class RicSynchronizationTaskTest {
 
         assertThat(policyTypes.size()).isEqualTo(1);
         assertThat(policyTypes.getType(POLICY_TYPE_1_NAME).schema()).isEqualTo(typeSchema);
-        assertThat(policies.size()).isEqualTo(0);
+        assertThat(policies.size()).isZero();
         assertThat(RIC_1.getState()).isEqualTo(RicState.AVAILABLE);
     }
 
@@ -221,7 +221,7 @@ class RicSynchronizationTaskTest {
         verify(a1ClientMock).putPolicy(POLICY_1);
         verifyNoMoreInteractions(a1ClientMock);
 
-        assertThat(policyTypes.size()).isEqualTo(0);
+        assertThat(policyTypes.size()).isZero();
         assertThat(policies.size()).isEqualTo(1); // The transient policy shall be deleted
         assertThat(RIC_1.getState()).isEqualTo(RicState.AVAILABLE);
     }
@@ -247,8 +247,8 @@ class RicSynchronizationTaskTest {
         verify(a1ClientMock, times(2)).deleteAllPolicies();
         verifyNoMoreInteractions(a1ClientMock);
 
-        assertThat(policyTypes.size()).isEqualTo(0);
-        assertThat(policies.size()).isEqualTo(0);
+        assertThat(policyTypes.size()).isZero();
+        assertThat(policies.size()).isZero();
         assertThat(RIC_1.getState()).isEqualTo(RicState.AVAILABLE);
     }
 
@@ -278,8 +278,8 @@ class RicSynchronizationTaskTest {
         verify(a1ClientMock, times(2)).deleteAllPolicies();
         verifyNoMoreInteractions(a1ClientMock);
 
-        assertThat(policyTypes.size()).isEqualTo(0);
-        assertThat(policies.size()).isEqualTo(0);
+        assertThat(policyTypes.size()).isZero();
+        assertThat(policies.size()).isZero();
         assertThat(RIC_1.getState()).isEqualTo(RicState.UNAVAILABLE);
     }
 

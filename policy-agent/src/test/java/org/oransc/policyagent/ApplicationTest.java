@@ -201,7 +201,7 @@ class ApplicationTest {
         for (Ric ric : this.rics.getRics()) {
             ric.getLock().lockBlocking(LockType.EXCLUSIVE);
             ric.getLock().unlockBlocking();
-            assertThat(ric.getLock().getLockCounter()).isEqualTo(0);
+            assertThat(ric.getLock().getLockCounter()).isZero();
             assertThat(ric.getState()).isEqualTo(Ric.RicState.AVAILABLE);
         }
     }
@@ -221,14 +221,14 @@ class ApplicationTest {
 
         // This tests also validation of trusted certs restClient(true)
         rsp = restClient(true).get(url).block();
-        assertThat(rsp).contains("ric2");
-        assertThat(rsp).doesNotContain("ric1");
-        assertThat(rsp).contains("AVAILABLE");
+        assertThat(rsp).contains("ric2") //
+            .doesNotContain("ric1") //
+            .contains("AVAILABLE");
 
         // All RICs
         rsp = restClient().get("/rics").block();
-        assertThat(rsp).contains("ric2");
-        assertThat(rsp).contains("ric1");
+        assertThat(rsp).contains("ric2") //
+            .contains("ric1");
 
         // Non existing policy type
         url = "/rics?policyType=XXXX";
@@ -267,8 +267,8 @@ class ApplicationTest {
         assertThat(ricPolicy.json()).isEqualTo(policy.json());
 
         // Both types should be in the agent storage after the synch
-        assertThat(ric1.getSupportedPolicyTypes().size()).isEqualTo(2);
-        assertThat(ric2.getSupportedPolicyTypes().size()).isEqualTo(2);
+        assertThat(ric1.getSupportedPolicyTypes()).hasSize(2);
+        assertThat(ric2.getSupportedPolicyTypes()).hasSize(2);
     }
 
     @Test
@@ -327,13 +327,13 @@ class ApplicationTest {
         assertThat(policy.id()).isEqualTo(policyInstanceId);
         assertThat(policy.ownerServiceName()).isEqualTo(serviceName);
         assertThat(policy.ric().name()).isEqualTo("ric1");
-        assertThat(policy.isTransient()).isEqualTo(true);
+        assertThat(policy.isTransient()).isTrue();
 
         // Put a non transient policy
         url = putPolicyUrl(serviceName, ricName, policyTypeName, policyInstanceId);
         restClient().put(url, policyBody).block();
         policy = policies.getPolicy(policyInstanceId);
-        assertThat(policy.isTransient()).isEqualTo(false);
+        assertThat(policy.isTransient()).isFalse();
 
         url = "/policies";
         String rsp = restClient().get(url).block();
@@ -359,8 +359,7 @@ class ApplicationTest {
 
     @Test
     /**
-     * Test that HttpStatus and body from failing REST call to A1 is passed on to
-     * the caller.
+     * Test that HttpStatus and body from failing REST call to A1 is passed on to the caller.
      *
      * @throws ServiceException
      */
@@ -406,7 +405,7 @@ class ApplicationTest {
 
         String rsp = restClient().get("/policies").block();
         List<PolicyInfo> info = parseList(rsp, PolicyInfo.class);
-        assertThat(info.size()).isEqualTo(1);
+        assertThat(info).hasSize(1);
         PolicyInfo policyInfo = info.get(0);
         assertThat(policyInfo.id).isEqualTo("id1");
         assertThat(policyInfo.type).isEmpty();
@@ -449,7 +448,7 @@ class ApplicationTest {
         ResponseEntity<String> entity = restClient().deleteForEntity(url).block();
 
         assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-        assertThat(policies.size()).isEqualTo(0);
+        assertThat(policies.size()).isZero();
 
         // Delete a non existing policy
         testErrorCode(restClient().get(url), HttpStatus.NOT_FOUND);
@@ -462,17 +461,17 @@ class ApplicationTest {
 
         String url = "/policy_schemas";
         String rsp = this.restClient().get(url).block();
-        assertThat(rsp).contains("type1");
-        assertThat(rsp).contains("[{\"title\":\"type2\"}");
+        assertThat(rsp).contains("type1") //
+            .contains("[{\"title\":\"type2\"}");
 
         List<String> info = parseSchemas(rsp);
-        assertThat(info.size()).isEqualTo(2);
+        assertThat(info).hasSize(2);
 
         url = "/policy_schemas?ric=ric1";
         rsp = restClient().get(url).block();
         assertThat(rsp).contains("type1");
         info = parseSchemas(rsp);
-        assertThat(info.size()).isEqualTo(1);
+        assertThat(info).hasSize(1);
 
         // Get schema for non existing RIC
         url = "/policy_schemas?ric=ric1XXX";
@@ -487,8 +486,8 @@ class ApplicationTest {
         String url = "/policy_schema?id=type1";
         String rsp = restClient().get(url).block();
         logger.info(rsp);
-        assertThat(rsp).contains("type1");
-        assertThat(rsp).contains("title");
+        assertThat(rsp).contains("type1") //
+            .contains("title");
 
         // Get non existing schema
         url = "/policy_schema?id=type1XX";
@@ -521,7 +520,7 @@ class ApplicationTest {
         String rsp = restClient().get(url).block();
         logger.info(rsp);
         List<PolicyInfo> info = parseList(rsp, PolicyInfo.class);
-        assertThat(info).size().isEqualTo(1);
+        assertThat(info).hasSize(1);
         PolicyInfo policyInfo = info.get(0);
         assert (policyInfo.validate());
         assertThat(policyInfo.id).isEqualTo("id1");
@@ -538,16 +537,16 @@ class ApplicationTest {
         String url = "/policies?type=type1";
         String rsp = restClient().get(url).block();
         logger.info(rsp);
-        assertThat(rsp).contains("id1");
-        assertThat(rsp).contains("id2");
-        assertThat(rsp.contains("id3")).isFalse();
+        assertThat(rsp).contains("id1") //
+            .contains("id2") //
+            .doesNotContain("id3");
 
         url = "/policies?type=type1&service=service2";
         rsp = restClient().get(url).block();
         logger.info(rsp);
-        assertThat(rsp.contains("id1")).isFalse();
-        assertThat(rsp).contains("id2");
-        assertThat(rsp.contains("id3")).isFalse();
+        assertThat(rsp).doesNotContain("id1") //
+            .contains("id2") //
+            .doesNotContain("id3");
 
         // Test get policies for non existing type
         url = "/policies?type=type1XXX";
@@ -567,9 +566,9 @@ class ApplicationTest {
         String url = "/policy_ids?type=type1";
         String rsp = restClient().get(url).block();
         logger.info(rsp);
-        assertThat(rsp).contains("id1");
-        assertThat(rsp).contains("id2");
-        assertThat(rsp.contains("id3")).isFalse();
+        assertThat(rsp).contains("id1") //
+            .contains("id2") //
+            .doesNotContain("id3");
 
         url = "/policy_ids?type=type1&service=service1&ric=ric1";
         rsp = restClient().get(url).block();
@@ -595,7 +594,7 @@ class ApplicationTest {
         String url = "/services?name=name";
         String rsp = restClient().get(url).block();
         List<ServiceStatus> info = parseList(rsp, ServiceStatus.class);
-        assertThat(info.size()).isEqualTo(1);
+        assertThat(info).hasSize(1);
         ServiceStatus status = info.iterator().next();
         assertThat(status.keepAliveIntervalSeconds).isEqualTo(0);
         assertThat(status.serviceName).isEqualTo(serviceName);

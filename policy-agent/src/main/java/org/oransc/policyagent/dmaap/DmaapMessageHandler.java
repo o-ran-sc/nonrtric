@@ -45,7 +45,7 @@ import reactor.core.publisher.Mono;
 public class DmaapMessageHandler {
     private static final Logger logger = LoggerFactory.getLogger(DmaapMessageHandler.class);
     private static Gson gson = new GsonBuilder() //
-            .create(); //
+        .create(); //
     private final AsyncRestClient dmaapClient;
     private final AsyncRestClient agentClient;
 
@@ -67,9 +67,9 @@ public class DmaapMessageHandler {
         try {
             DmaapRequestMessage dmaapRequestMessage = gson.fromJson(msg, ImmutableDmaapRequestMessage.class);
             return this.invokePolicyAgent(dmaapRequestMessage) //
-                    .onErrorResume(t -> handleAgentCallError(t, dmaapRequestMessage)) //
-                    .flatMap(response -> sendDmaapResponse(response.getBody(), dmaapRequestMessage,
-                            response.getStatusCode()));
+                .onErrorResume(t -> handleAgentCallError(t, dmaapRequestMessage)) //
+                .flatMap(
+                    response -> sendDmaapResponse(response.getBody(), dmaapRequestMessage, response.getStatusCode()));
         } catch (Exception e) {
             String errorMsg = "Received unparsable message from DMAAP: \"" + msg + "\", reason: " + e.getMessage();
             return Mono.error(new ServiceException(errorMsg)); // Cannot make any response
@@ -77,7 +77,7 @@ public class DmaapMessageHandler {
     }
 
     private Mono<ResponseEntity<String>> handleAgentCallError(Throwable error,
-            DmaapRequestMessage dmaapRequestMessage) {
+        DmaapRequestMessage dmaapRequestMessage) {
         logger.debug("Agent call failed: {}", error.getMessage());
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         String errorMessage = error.getMessage();
@@ -92,7 +92,7 @@ public class DmaapMessageHandler {
             logger.warn("Unexpected exception ", error);
         }
         return sendDmaapResponse(errorMessage, dmaapRequestMessage, status) //
-                .flatMap(notUsed -> Mono.empty());
+            .flatMap(notUsed -> Mono.empty());
     }
 
     private Mono<ResponseEntity<String>> invokePolicyAgent(DmaapRequestMessage dmaapRequestMessage) {
@@ -123,10 +123,10 @@ public class DmaapMessageHandler {
     }
 
     private Mono<String> sendDmaapResponse(String response, DmaapRequestMessage dmaapRequestMessage,
-            HttpStatus status) {
+        HttpStatus status) {
         return createDmaapResponseMessage(dmaapRequestMessage, response, status) //
-                .flatMap(this::sendToDmaap) //
-                .onErrorResume(this::handleResponseCallError);
+            .flatMap(this::sendToDmaap) //
+            .onErrorResume(this::handleResponseCallError);
     }
 
     private Mono<String> sendToDmaap(String body) {
@@ -140,16 +140,16 @@ public class DmaapMessageHandler {
     }
 
     private Mono<String> createDmaapResponseMessage(DmaapRequestMessage dmaapRequestMessage, String response,
-            HttpStatus status) {
+        HttpStatus status) {
         DmaapResponseMessage dmaapResponseMessage = ImmutableDmaapResponseMessage.builder() //
-                .status(status.toString()) //
-                .message(response == null ? "" : response) //
-                .type("response") //
-                .correlationId(dmaapRequestMessage.correlationId() == null ? "" : dmaapRequestMessage.correlationId()) //
-                .originatorId(dmaapRequestMessage.originatorId() == null ? "" : dmaapRequestMessage.originatorId()) //
-                .requestId(dmaapRequestMessage.requestId() == null ? "" : dmaapRequestMessage.requestId()) //
-                .timestamp(dmaapRequestMessage.timestamp() == null ? "" : dmaapRequestMessage.timestamp()) //
-                .build();
+            .status(status.toString()) //
+            .message(response == null ? "" : response) //
+            .type("response") //
+            .correlationId(dmaapRequestMessage.correlationId() == null ? "" : dmaapRequestMessage.correlationId()) //
+            .originatorId(dmaapRequestMessage.originatorId() == null ? "" : dmaapRequestMessage.originatorId()) //
+            .requestId(dmaapRequestMessage.requestId() == null ? "" : dmaapRequestMessage.requestId()) //
+            .timestamp(dmaapRequestMessage.timestamp() == null ? "" : dmaapRequestMessage.timestamp()) //
+            .build();
         String str = gson.toJson(dmaapResponseMessage);
         return Mono.just(str);
 

@@ -215,7 +215,7 @@ class RefreshConfigTaskTest {
 
         // Then
         verify(refreshTaskUnderTest).loadConfigurationFromFile();
-        assertThat(appConfig.getRicConfigs().size()).isEqualTo(0);
+        assertThat(appConfig.getRicConfigs()).hasSize(0);
 
         await().until(() -> logAppender.list.size() > 0);
         assertThat(logAppender.list.get(0).getFormattedMessage())
@@ -283,7 +283,7 @@ class RefreshConfigTaskTest {
             .thenCancel() //
             .verify();
 
-        assertThat(appConfig.getRicConfigs().size()).isEqualTo(2);
+        assertThat(appConfig.getRicConfigs()).hasSize(2);
         assertThat(appConfig.getRic(RIC_1_NAME).baseUrl()).isEqualTo(newBaseUrl);
         String ric2Name = "ric2";
         assertThat(appConfig.getRic(ric2Name)).isNotNull();
@@ -292,7 +292,7 @@ class RefreshConfigTaskTest {
         assertThat(rics.get(RIC_1_NAME).getConfig().baseUrl()).isEqualTo(newBaseUrl);
         assertThat(rics.get(ric2Name)).isNotNull();
 
-        assertThat(policies.size()).isEqualTo(0);
+        assertThat(policies.size()).isZero();
     }
 
     @Test

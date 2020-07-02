@@ -65,7 +65,7 @@ class LockTest {
         lock.lockBlocking(LockType.SHARED);
         lock.unlockBlocking();
 
-        assertThat(lock.getLockCounter()).isEqualTo(0);
+        assertThat(lock.getLockCounter()).isZero();
     }
 
     @Test
@@ -82,7 +82,7 @@ class LockTest {
             .expectNext(lock) //
             .verifyComplete();
 
-        assertThat(lock.getLockCounter()).isEqualTo(0);
+        assertThat(lock.getLockCounter()).isZero();
 
     }
 
