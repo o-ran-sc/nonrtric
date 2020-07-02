@@ -363,7 +363,7 @@ class ApplicationTest {
      *
      * @throws ServiceException
      */
-    void testErrorFromRIC() throws ServiceException {
+    void testErrorFromRic() throws ServiceException {
         putService("service1");
         addPolicyType("type1", "ric1");
 
@@ -596,7 +596,7 @@ class ApplicationTest {
         List<ServiceStatus> info = parseList(rsp, ServiceStatus.class);
         assertThat(info).hasSize(1);
         ServiceStatus status = info.iterator().next();
-        assertThat(status.keepAliveIntervalSeconds).isEqualTo(0);
+        assertThat(status.keepAliveIntervalSeconds).isZero();
         assertThat(status.serviceName).isEqualTo(serviceName);
 
         // GET (all)
@@ -614,7 +614,7 @@ class ApplicationTest {
         assertThat(services.size()).isEqualTo(1);
         url = "/services?name=name";
         restClient().delete(url).block();
-        assertThat(services.size()).isEqualTo(0);
+        assertThat(services.size()).isZero();
 
         // Keep alive, no registered service
         testErrorCode(restClient().put("/services/keepalive?name=name", ""), HttpStatus.NOT_FOUND);
@@ -643,8 +643,8 @@ class ApplicationTest {
         assertThat(services.size()).isEqualTo(1);
 
         // Timeout after ~1 second
-        await().untilAsserted(() -> assertThat(policies.size()).isEqualTo(0));
-        assertThat(services.size()).isEqualTo(0);
+        await().untilAsserted(() -> assertThat(policies.size()).isZero());
+        assertThat(services.size()).isZero();
     }
 
     @Test
@@ -731,7 +731,7 @@ class ApplicationTest {
         for (Thread t : threads) {
             t.join();
         }
-        assertThat(policies.size()).isEqualTo(0);
+        assertThat(policies.size()).isZero();
         logger.info("Concurrency test took " + Duration.between(startTime, Instant.now()));
     }
 

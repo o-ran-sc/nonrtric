@@ -215,7 +215,7 @@ class RefreshConfigTaskTest {
 
         // Then
         verify(refreshTaskUnderTest).loadConfigurationFromFile();
-        assertThat(appConfig.getRicConfigs()).hasSize(0);
+        assertThat(appConfig.getRicConfigs()).isEmpty();
 
         await().until(() -> logAppender.list.size() > 0);
         assertThat(logAppender.list.get(0).getFormattedMessage())
