@@ -99,7 +99,7 @@
                         <name>${standalone.image.name}:${standalone.image.version}</name>
                         <build>
                          <cleanup>try</cleanup>
-                         <dockerFileDir>${basedir}/target/docker-stage</dockerFileDir>
+                         <contextDir>${basedir}/target/docker-stage</contextDir>
                          <dockerFile>standalone.Dockerfile</dockerFile>
                          <tags>
                              <tag>${standalone.image.version}</tag>
@@ -123,7 +123,7 @@
                          <name>${standalone.image.name}:${standalone.image.version}</name>
                          <build>
                           <cleanup>try</cleanup>
-                          <dockerFileDir>${basedir}/target/docker-stage</dockerFileDir>
+                          <contextDir>${basedir}/target/docker-stage</contextDir>
                           <dockerFile>standalone.Dockerfile</dockerFile>
                           <tags>
                              <tag>${standalone.image.version}</tag>
