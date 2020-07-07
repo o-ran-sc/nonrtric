@@ -13,7 +13,7 @@ SDNC A1 Controller
 Prerequisites
 -------------
 
-1. Java development kit (JDK), version 11
+1. Java development kit (JDK), version 8
 2. Maven dependency-management tool, version 3.6 or later
 3. Python, version 2
 4. Docker, version 19.03.1 or latest
