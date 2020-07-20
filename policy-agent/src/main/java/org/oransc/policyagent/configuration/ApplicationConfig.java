@@ -43,6 +43,18 @@ public class ApplicationConfig {
     @Value("${app.filepath}")
     private String localConfigurationFilePath;
 
+    @Value("${server.ssl.key-store-type}")
+    private String sslKeyStoreType = "";
+
+    @Value("${server.ssl.key-store-password}")
+    private String sslKeyStorePassword = "";
+
+    @Value("${server.ssl.key-store}")
+    private String sslKeyStore = "";
+
+    @Value("${server.ssl.key-password}")
+    private String sslKeyPassword = "";
+
     @Value("${app.webclient.trust-store-used}")
     private boolean sslTrustStoreUsed = false;
 
@@ -68,6 +80,10 @@ public class ApplicationConfig {
 
     public WebClientConfig getWebClientConfig() {
         return ImmutableWebClientConfig.builder() //
+            .keyStoreType(this.sslKeyStoreType) //
+            .keyStorePassword(this.sslKeyStorePassword) //
+            .keyStore(this.sslKeyStore) //
+            .keyPassword(this.sslKeyPassword) //
             .isTrustStoreUsed(this.sslTrustStoreUsed) //
             .trustStore(this.sslTrustStore) //
             .trustStorePassword(this.sslTrustStorePassword) //

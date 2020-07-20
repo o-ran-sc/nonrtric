@@ -738,6 +738,10 @@ class ApplicationTest {
     private AsyncRestClient restClient(boolean useTrustValidation) {
         WebClientConfig config = this.applicationConfig.getWebClientConfig();
         config = ImmutableWebClientConfig.builder() //
+            .keyStoreType(config.keyStoreType()) //
+            .keyStorePassword(config.keyStorePassword()) //
+            .keyStore(config.keyStore()) //
+            .keyPassword(config.keyPassword()) //
             .isTrustStoreUsed(useTrustValidation) //
             .trustStore(config.trustStore()) //
             .trustStorePassword(config.trustStorePassword()) //

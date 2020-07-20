@@ -29,6 +29,7 @@ import io.netty.handler.timeout.WriteTimeoutHandler;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -41,7 +42,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import org.oransc.policyagent.configuration.ImmutableWebClientConfig;
+import javax.net.ssl.KeyManagerFactory;
+
 import org.oransc.policyagent.configuration.WebClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,10 +72,11 @@ public class AsyncRestClient {
     private static final AtomicInteger sequenceNumber = new AtomicInteger();
     private final WebClientConfig clientConfig;
     static KeyStore clientTrustStore = null;
+    private boolean sslEnabled = true;
 
     public AsyncRestClient(String baseUrl) {
-        this(baseUrl,
-            ImmutableWebClientConfig.builder().isTrustStoreUsed(false).trustStore("").trustStorePassword("").build());
+        this(baseUrl, null);
+        this.sslEnabled = false;
     }
 
     public AsyncRestClient(String baseUrl, WebClientConfig config) {
@@ -236,7 +239,8 @@ public class AsyncRestClient {
         return clientTrustStore;
     }
 
-    private SslContext createSslContextRejectingUntrustedPeers(String trustStorePath, String trustStorePass)
+    private SslContext createSslContextRejectingUntrustedPeers(String trustStorePath, String trustStorePass,
+        KeyManagerFactory keyManager)
         throws NoSuchAlgorithmException, CertificateException, IOException, KeyStoreException {
 
         final KeyStore trustStore = getTrustStore(trustStorePath, trustStorePass);
@@ -247,40 +251,50 @@ public class AsyncRestClient {
         final X509Certificate[] certificates = certificateList.toArray(new X509Certificate[certificateList.size()]);
 
         return SslContextBuilder.forClient() //
+            .keyManager(keyManager) //
             .trustManager(certificates) //
             .build();
     }
 
-    private SslContext createSslContext()
+    private SslContext createSslContext(KeyManagerFactory keyManager)
         throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException {
         if (this.clientConfig.isTrustStoreUsed()) {
             return createSslContextRejectingUntrustedPeers(this.clientConfig.trustStore(),
-                this.clientConfig.trustStorePassword());
+                this.clientConfig.trustStorePassword(), keyManager);
         } else {
             // Trust anyone
             return SslContextBuilder.forClient() //
+                .keyManager(keyManager) //
                 .trustManager(InsecureTrustManagerFactory.INSTANCE) //
                 .build();
         }
     }
 
-    private WebClient createWebClient(String baseUrl, SslContext sslContext) {
-        ConnectionProvider connectionProvider = ConnectionProvider.newConnection();
-        TcpClient tcpClient = TcpClient.create(connectionProvider) //
+    private TcpClient createTcpClientSecure(SslContext sslContext) {
+        return TcpClient.create(ConnectionProvider.newConnection()) //
             .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10_000) //
             .secure(c -> c.sslContext(sslContext)) //
-
             .doOnConnected(connection -> {
                 connection.addHandlerLast(new ReadTimeoutHandler(30));
                 connection.addHandlerLast(new WriteTimeoutHandler(30));
             });
+    }
+
+    private TcpClient createTcpClientInsecure() {
+        return TcpClient.create(ConnectionProvider.newConnection()) //
+            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10_000) //
+            .doOnConnected(connection -> {
+                connection.addHandlerLast(new ReadTimeoutHandler(30));
+                connection.addHandlerLast(new WriteTimeoutHandler(30));
+            });
+    }
+
+    private WebClient createWebClient(String baseUrl, TcpClient tcpClient) {
         HttpClient httpClient = HttpClient.from(tcpClient);
         ReactorClientHttpConnector connector = new ReactorClientHttpConnector(httpClient);
-
         ExchangeStrategies exchangeStrategies = ExchangeStrategies.builder() //
             .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(-1)) //
             .build();
-
         return WebClient.builder() //
             .clientConnector(connector) //
             .baseUrl(baseUrl) //
@@ -291,8 +305,24 @@ public class AsyncRestClient {
     private Mono<WebClient> getWebClient() {
         if (this.webClient == null) {
             try {
-                SslContext sslContext = createSslContext();
-                this.webClient = createWebClient(this.baseUrl, sslContext);
+                if (this.sslEnabled) {
+                    final KeyManagerFactory keyManager =
+                        KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                    final KeyStore keyStore = KeyStore.getInstance(this.clientConfig.keyStoreType());
+                    final String keyStoreFile = this.clientConfig.keyStore();
+                    final String keyStorePassword = this.clientConfig.keyStorePassword();
+                    final String keyPassword = this.clientConfig.keyPassword();
+                    try (final InputStream inputStream = new FileInputStream(keyStoreFile)) {
+                        keyStore.load(inputStream, keyStorePassword.toCharArray());
+                    }
+                    keyManager.init(keyStore, keyPassword.toCharArray());
+                    SslContext sslContext = createSslContext(keyManager);
+                    TcpClient tcpClient = createTcpClientSecure(sslContext);
+                    this.webClient = createWebClient(this.baseUrl, tcpClient);
+                } else {
+                    TcpClient tcpClient = createTcpClientInsecure();
+                    this.webClient = createWebClient(this.baseUrl, tcpClient);
+                }
             } catch (Exception e) {
                 logger.error("Could not create WebClient {}", e.getMessage());
                 return Mono.error(e);
