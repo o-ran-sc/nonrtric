@@ -29,6 +29,7 @@ import io.netty.handler.timeout.WriteTimeoutHandler;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -40,6 +41,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
+import javax.net.ssl.KeyManagerFactory;
 
 import org.oransc.policyagent.configuration.ImmutableWebClientConfig;
 import org.oransc.policyagent.configuration.WebClientConfig;
@@ -73,7 +76,9 @@ public class AsyncRestClient {
 
     public AsyncRestClient(String baseUrl) {
         this(baseUrl,
-            ImmutableWebClientConfig.builder().isTrustStoreUsed(false).trustStore("").trustStorePassword("").build());
+            ImmutableWebClientConfig.builder().isTrustStoreUsed(false).trustStore("").trustStorePassword("")
+                .keyStoreType("JKS").keyStorePassword("policy_agent").keyStore("./config/keystore.jks")
+                .keyPassword("policy_agent").build());
     }
 
     public AsyncRestClient(String baseUrl, WebClientConfig config) {
@@ -236,7 +241,8 @@ public class AsyncRestClient {
         return clientTrustStore;
     }
 
-    private SslContext createSslContextRejectingUntrustedPeers(String trustStorePath, String trustStorePass)
+    private SslContext createSslContextRejectingUntrustedPeers(String trustStorePath, String trustStorePass,
+        KeyManagerFactory keyManager)
         throws NoSuchAlgorithmException, CertificateException, IOException, KeyStoreException {
 
         final KeyStore trustStore = getTrustStore(trustStorePath, trustStorePass);
@@ -247,18 +253,20 @@ public class AsyncRestClient {
         final X509Certificate[] certificates = certificateList.toArray(new X509Certificate[certificateList.size()]);
 
         return SslContextBuilder.forClient() //
+            .keyManager(keyManager) //
             .trustManager(certificates) //
             .build();
     }
 
-    private SslContext createSslContext()
+    private SslContext createSslContext(KeyManagerFactory keyManager)
         throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException {
         if (this.clientConfig.isTrustStoreUsed()) {
             return createSslContextRejectingUntrustedPeers(this.clientConfig.trustStore(),
-                this.clientConfig.trustStorePassword());
+                this.clientConfig.trustStorePassword(), keyManager);
         } else {
             // Trust anyone
             return SslContextBuilder.forClient() //
+                .keyManager(keyManager) //
                 .trustManager(InsecureTrustManagerFactory.INSTANCE) //
                 .build();
         }
@@ -291,7 +299,17 @@ public class AsyncRestClient {
     private Mono<WebClient> getWebClient() {
         if (this.webClient == null) {
             try {
-                SslContext sslContext = createSslContext();
+                final KeyManagerFactory keyManager =
+                    KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                final KeyStore keyStore = KeyStore.getInstance(this.clientConfig.keyStoreType());
+                final String keyStoreFile = this.clientConfig.keyStore();
+                final String keyStorePassword = this.clientConfig.keyStorePassword();
+                final String keyPassword = this.clientConfig.keyPassword();
+                try (final InputStream inputStream = new FileInputStream(keyStoreFile)) {
+                    keyStore.load(inputStream, keyStorePassword.toCharArray());
+                }
+                keyManager.init(keyStore, keyPassword.toCharArray());
+                SslContext sslContext = createSslContext(keyManager);
                 this.webClient = createWebClient(this.baseUrl, sslContext);
             } catch (Exception e) {
                 logger.error("Could not create WebClient {}", e.getMessage());
