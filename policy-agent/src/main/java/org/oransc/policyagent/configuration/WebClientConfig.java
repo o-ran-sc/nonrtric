@@ -25,6 +25,16 @@ import org.immutables.value.Value;
 @Value.Immutable
 @Value.Style(redactedMask = "####")
 public interface WebClientConfig {
+    public String keyStoreType();
+
+    @Value.Redacted
+    public String keyStorePassword();
+
+    public String keyStore();
+
+    @Value.Redacted
+    public String keyPassword();
+
     public boolean isTrustStoreUsed();
 
     @Value.Redacted
