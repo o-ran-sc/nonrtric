@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3d981689_4b5373ec",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/AsyncRestClient.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-07-21T11:07:26Z",
+      "side": 1,
+      "message": "This part, except for getting the passwords, could be moved to a method called something like \"getKeyStore\".",
+      "range": {
+        "startLine": 309,
+        "startChar": 0,
+        "endLine": 318,
+        "endChar": 0
+      },
+      "revId": "48ae0f39d9d03cc1ec976762e6f7400447ace0a4",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
