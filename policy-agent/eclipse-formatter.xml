@@ -59,7 +59,7 @@
 <setting id="org.eclipse.jdt.core.formatter.blank_lines_before_member_type" value="0"/>
 <setting id="org.eclipse.jdt.core.formatter.blank_lines_before_method" value="1"/>
 <setting id="org.eclipse.jdt.core.formatter.blank_lines_before_new_chunk" value="1"/>
-<setting id="org.eclipse.jdt.core.formatter.blank_lines_before_package" value="0"/>
+<setting id="org.eclipse.jdt.core.formatter.blank_lines_before_package" value="1"/>
 <setting id="org.eclipse.jdt.core.formatter.blank_lines_between_import_groups" value="1"/>
 <setting id="org.eclipse.jdt.core.formatter.blank_lines_between_type_declarations" value="2"/>
 <setting id="org.eclipse.jdt.core.formatter.brace_position_for_annotation_type_declaration" value="end_of_line"/>
@@ -77,7 +77,7 @@
 <setting id="org.eclipse.jdt.core.formatter.comment.clear_blank_lines_in_block_comment" value="false"/>
 <setting id="org.eclipse.jdt.core.formatter.comment.clear_blank_lines_in_javadoc_comment" value="false"/>
 <setting id="org.eclipse.jdt.core.formatter.comment.format_block_comments" value="true"/>
-<setting id="org.eclipse.jdt.core.formatter.comment.format_header" value="true"/>
+<setting id="org.eclipse.jdt.core.formatter.comment.format_header" value="false"/>
 <setting id="org.eclipse.jdt.core.formatter.comment.format_html" value="true"/>
 <setting id="org.eclipse.jdt.core.formatter.comment.format_javadoc_comments" value="true"/>
 <setting id="org.eclipse.jdt.core.formatter.comment.format_line_comments" value="true"/>
@@ -312,4 +312,3 @@
 <setting id="org.eclipse.jdt.core.formatter.wrap_outer_expressions_when_nested" value="true"/>
 </profile>
 </profiles>
-
