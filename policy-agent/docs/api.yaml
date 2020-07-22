@@ -1,650 +1,842 @@
-swagger: '2.0'
+openapi: 3.0.1
 info:
-  description: This page lists all the rest apis for the service.
-  version: '1.0'
   title: A1 Policy management service
-host: 'localhost:8081'
-basePath: /
+  description: 'The O-RAN Non-RT RIC PolicyAgent provides a REST API for management of policices. It provides support for: -Supervision of clients (R-APPs) to eliminate stray policies in case of failure -Consistency monitoring of the SMO view of policies and the actual situation in the RICs -Consistency monitoring of RIC capabilities (policy types) -Policy configuration. This includes: -One REST API towards all RICs in the network -Query functions that can find all policies in a RIC, all policies owned by a service (R-APP), all policies of a type etc. -Maps O1 resources (ManagedElement) as defined in O1 to the controlling RIC
+    of A1 policices.'
+  version: "1.0"
+servers:
+- url: https://localhost:8433/
+- url: http://localhost:8081/
 tags:
-  - name: A1 Policy Management
-    description: Policy Controller
-  - name: Health check
-    description: Status Controller
-  - name: RIC Repository
-    description: Ric Repository Controller
-  - name: Service registry and supervision
-    description: Service Controller
+- name: A1 Policy Management
+  description: Policy Controller
+- name: Health check
+  description: Status Controller
+- name: RIC Repository
+  description: Ric Repository Controller
+- name: Service registry and supervision
+  description: Service Controller
 paths:
   /policies:
     get:
       tags:
-        - A1 Policy Management
+      - A1 Policy Management
       summary: Query policies
       operationId: getPoliciesUsingGET
-      produces:
-        - '*/*'
       parameters:
-        - name: ric
-          in: query
-          description: The name of the Near-RT RIC to get policies for.
-          required: false
+      - name: ric
+        in: query
+        description: The name of the Near-RT RIC to get policies for.
+        allowEmptyValue: false
+        schema:
           type: string
-          allowEmptyValue: false
-        - name: service
-          in: query
-          description: The name of the service to get policies for.
-          required: false
+        example: 'ric1'
+      - name: service
+        in: query
+        description: The name of the service to get policies for.
+        allowEmptyValue: false
+        schema:
           type: string
-          allowEmptyValue: false
-        - name: type
-          in: query
-          description: The name of the policy type to get policies for.
-          required: false
+        example: 'controlpanel'
+      - name: type
+        in: query
+        description: The name of the policy type to get policies for.
+        allowEmptyValue: false
+        schema:
           type: string
-          allowEmptyValue: false
+        example: '1'
       responses:
-        '200':
+        200:
           description: Policies
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/PolicyInfo'
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-        '404':
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PolicyInfo'
+              examples:
+                OSC:
+                  $ref: '#/components/examples/Policies-OSC'
+                STD:
+                  $ref: '#/components/examples/Policies-STD'
+        404:
           description: RIC or type not found
-          schema:
-            type: string
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: string
+                example: RIC not found
       deprecated: false
   /policy:
     get:
       tags:
-        - A1 Policy Management
+      - A1 Policy Management
       summary: Returns a policy configuration
       operationId: getPolicyUsingGET
-      produces:
-        - '*/*'
       parameters:
-        - name: id
-          in: query
-          description: The ID of the policy instance.
-          required: true
+      - name: id
+        in: query
+        description: The ID of the policy instance.
+        required: true
+        allowEmptyValue: false
+        schema:
           type: string
-          allowEmptyValue: false
+        example: 'e26d76e1-b43f-427e-a3c2-b7c4e05a6431'
       responses:
-        '200':
+        200:
           description: Policy found
-          schema:
-            type: object
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-        '404':
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: object
+              examples:
+                OSC:
+                  $ref: '#/components/examples/Policy-OSC'
+                STD:
+                  $ref: '#/components/examples/Policy-STD'
+        404:
           description: Policy is not found
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: string
+                example: 'Could not find policy: e26d76e1-b43f-427e-a3c2-b7c4e05a6431'
       deprecated: false
     put:
       tags:
-        - A1 Policy Management
+      - A1 Policy Management
       summary: Put a policy
       operationId: putPolicyUsingPUT
-      consumes:
-        - application/json
-      produces:
-        - '*/*'
       parameters:
-        - name: id
-          in: query
-          description: The ID of the policy instance.
-          required: true
+      - name: id
+        in: query
+        description: The ID of the policy instance.
+        required: true
+        allowEmptyValue: false
+        schema:
           type: string
-          allowEmptyValue: false
-        - in: body
-          name: jsonBody
-          description: jsonBody
-          required: true
-          schema:
-            type: object
-        - name: ric
-          in: query
-          description: The name of the Near-RT RIC where the policy will be created.
-          required: true
+        example: '73428e58-1670-4972-8498-e7e8f1003631'
+      - name: ric
+        in: query
+        description: The name of the Near-RT RIC where the policy will be created.
+        required: true
+        allowEmptyValue: false
+        schema:
           type: string
-          allowEmptyValue: false
-        - name: service
-          in: query
-          description: The name of the service creating the policy.
-          required: true
+        example: 'ric1'
+      - name: service
+        in: query
+        description: The name of the service creating the policy.
+        required: true
+        allowEmptyValue: false
+        schema:
           type: string
-          allowEmptyValue: false
-        - name: transient
-          in: query
-          description: If the policy is transient or not (boolean defaulted to false). A policy is transient if it will be forgotten when the service needs to reconnect to the Near-RT RIC.
-          required: false
+        example: 'Service1'
+      - name: transient
+        in: query
+        description: If the policy is transient or not (boolean defaulted to false).
+          A policy is transient if it will be forgotten when the service needs to
+          reconnect to the Near-RT RIC.
+        allowEmptyValue: false
+        schema:
           type: boolean
           default: false
-          allowEmptyValue: false
-          x-example: false
-        - name: type
-          in: query
-          description: The name of the policy type.
-          required: false
+        example: false
+      - name: type
+        in: query
+        description: The name of the policy type. The policy type is mandatory for OSC A1 version and should not be provided for STD A1 version.
+        allowEmptyValue: false
+        schema:
           type: string
-          allowEmptyValue: false
+        example: 'STD_PolicyModelUnconstrained_0.2.0'
+      requestBody:
+        description: jsonBody
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                scope:
+                  qosId: "3"
+                  ueId: "1"
+                statement:
+                  priorityLevel: 1
+        required: true
       responses:
-        '200':
+        200:
           description: Policy updated
-          schema:
-            type: object
-        '201':
+        201:
           description: Policy created
-          schema:
-            type: object
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-        '404':
+        404:
           description: RIC or policy type is not found
-          schema:
-            type: string
-        '423':
+        423:
           description: RIC is not operational
-          schema:
-            type: string
-      deprecated: false
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: string
+                example: 'Ric is not operational, RIC name:ric1, state:UNAVAILABLE'
     delete:
       tags:
-        - A1 Policy Management
+      - A1 Policy Management
       summary: Delete a policy
       operationId: deletePolicyUsingDELETE
-      produces:
-        - '*/*'
       parameters:
-        - name: id
-          in: query
-          description: The ID of the policy instance.
-          required: true
+      - name: id
+        in: query
+        description: The ID of the policy instance.
+        required: true
+        allowEmptyValue: false
+        schema:
           type: string
-          allowEmptyValue: false
+        example: '73428e58-1670-4972-8498-e7e8f1003631'
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            type: object
-        '204':
+        204:
           description: Policy deleted
-          schema:
-            type: object
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-        '404':
+        404:
           description: Policy is not found
-          schema:
-            type: string
-        '423':
+        423:
           description: RIC is not operational
-          schema:
-            type: string
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: string
+                example: 'Ric is not operational, RIC name:ric1,state:UNAVAILABLE'
       deprecated: false
   /policy_ids:
     get:
       tags:
-        - A1 Policy Management
-      summary: 'Query policies, only IDs returned'
+      - A1 Policy Management
+      summary: Query policies, only IDs returned
       operationId: getPolicyIdsUsingGET
-      produces:
-        - '*/*'
       parameters:
-        - name: ric
-          in: query
-          description: The name of the Near-RT RIC to get policies for.
-          required: false
+      - name: ric
+        in: query
+        description: The name of the Near-RT RIC to get policies for.
+        allowEmptyValue: false
+        schema:
           type: string
-          allowEmptyValue: false
-        - name: service
-          in: query
-          description: The name of the service to get policies for.
-          required: false
+        example: 'ric1'
+      - name: service
+        in: query
+        description: The name of the service to get policies for.
+        allowEmptyValue: false
+        schema:
           type: string
-          allowEmptyValue: false
-        - name: type
-          in: query
-          description: The name of the policy type to get policies for.
-          required: false
+        example: 'Service1'
+      - name: type
+        in: query
+        description: The name of the policy type to get policies for.
+        allowEmptyValue: false
+        schema:
           type: string
-          allowEmptyValue: false
+        example: '1'
       responses:
-        '200':
+        200:
           description: Policy ids
-          schema:
-            type: array
-            items:
-              type: string
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-        '404':
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: array
+                items:
+                  type: string
+              examples:
+                OSC:
+                  value:
+                    - 73428e58-1670-4972-8498-e7e8f1003631
+                    - 73428e58-1670-4972-8498-e7e8f100363e
+                STD:
+                  value:
+                    - 73428e58-1670-4972-8498-e7e8f1003632
+                    - 73428e58-1670-4972-8498-e7e8f1003634
+        404:
           description: RIC or type not found
-          schema:
-            type: string
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: string
+                example: RIC not found
       deprecated: false
   /policy_schema:
     get:
       tags:
-        - A1 Policy Management
-      summary: Returns one policy type schema definition
+      - A1 Policy Management
+      summary: Returns one policy type schema definition. Applicable only for OSC Version.
       operationId: getPolicySchemaUsingGET
-      produces:
-        - '*/*'
       parameters:
-        - name: id
-          in: query
-          description: The ID of the policy type to get the definition for.
-          required: true
+      - name: id
+        in: query
+        description: The ID of the policy type to get the definition for.
+        required: true
+        allowEmptyValue: false
+        schema:
           type: string
-          allowEmptyValue: false
+        example: '11'
       responses:
-        '200':
+        200:
           description: Policy schema
-          schema:
-            type: object
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-        '404':
-          description: RIC is not found
-          schema:
-            type: string
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: object
+              examples:
+                OSC:
+                  value:
+                    $schema: http://json-schema.org/draft-07/schema#
+                    description: QoS policy type
+                    title: "1"
+                    type: object
+                    properties:
+                      scope:
+                        additionalProperties: false
+                        type: object
+                        properties:
+                          qosId:
+                            type: string
+                          ueId:
+                            type: string
+                        required:
+                        - ueId
+                        - qosId
+                      statement:
+                        additionalProperties: false
+                        type: object
+                        properties:
+                          priorityLevel:
+                            type: number
+                        required:
+                        - priorityLevel
+        404:
+          description: Type not found
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: string
+                example: 'org.oransc.policyagent.exceptions.ServiceException: Could
+                  not find type: 11'
       deprecated: false
   /policy_schemas:
     get:
       tags:
-        - A1 Policy Management
+      - A1 Policy Management
       summary: Returns policy type schema definitions
       operationId: getPolicySchemasUsingGET
-      produces:
-        - '*/*'
       parameters:
-        - name: ric
-          in: query
-          description: The name of the Near-RT RIC to get the definitions for.
-          required: false
+      - name: ric
+        in: query
+        description: The name of the Near-RT RIC to get the definitions for.
+        allowEmptyValue: false
+        schema:
           type: string
-          allowEmptyValue: false
+        example: ric1
       responses:
-        '200':
+        200:
           description: Policy schemas
-          schema:
-            type: array
-            items:
-              type: object
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-        '404':
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties: {}
+              examples:
+                OSC:
+                  value:
+                    - $schema: http://json-schema.org/draft-07/schema#
+                      description: QoS policy type
+                      title: "1"
+                      type: object
+                      properties:
+                        scope:
+                          additionalProperties: false
+                          type: object
+                          properties:
+                            qosId:
+                              type: string
+                            ueId:
+                              type: string
+                          required:
+                          - ueId
+                          - qosId
+                        statement:
+                          additionalProperties: false
+                          type: object
+                          properties:
+                            priorityLevel:
+                              type: number
+                          required:
+                          - priorityLevel
+        404:
           description: RIC is not found
-          schema:
-            type: string
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: string
+                example: 'org.oransc.policyagent.exceptions.ServiceException: Could
+                  not find ric: ric1'
       deprecated: false
   /policy_status:
     get:
       tags:
-        - A1 Policy Management
+      - A1 Policy Management
       summary: Returns a policy status
       operationId: getPolicyStatusUsingGET
-      produces:
-        - '*/*'
       parameters:
-        - name: id
-          in: query
-          description: The ID of the policy.
-          required: true
+      - name: id
+        in: query
+        description: The ID of the policy.
+        required: true
+        allowEmptyValue: false
+        schema:
           type: string
-          allowEmptyValue: false
+        example: 73428e58-1670-4972-8498-e7e8f100363q
       responses:
-        '200':
+        200:
           description: Policy status
-          schema:
-            type: object
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-        '404':
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: object
+              examples:
+                OSC:
+                  value:
+                    instance_status: NOT IN EFFECT
+                    has_been_deleted: "false"
+                    created_at: 07/20/2020, 17:15:39
+                STD:
+                  value:
+                    enforceStatus: UNDEFINED
+        404:
           description: Policy is not found
-          schema:
-            type: string
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: string
+                example: 'Could not find policy: 73428e58-1670-4972-8498-e7e8f100363q'
       deprecated: false
   /policy_types:
     get:
       tags:
-        - A1 Policy Management
+      - A1 Policy Management
       summary: Query policy type names
       operationId: getPolicyTypesUsingGET
-      produces:
-        - '*/*'
       parameters:
-        - name: ric
-          in: query
-          description: The name of the Near-RT RIC to get types for.
-          required: false
+      - name: ric
+        in: query
+        description: The name of the Near-RT RIC to get types for.
+        allowEmptyValue: false
+        schema:
           type: string
-          allowEmptyValue: false
+        example: 'ric11'
       responses:
-        '200':
+        200:
           description: Policy type names
-          schema:
-            type: array
-            items:
-              type: string
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-        '404':
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: array
+                items:
+                  type: string
+              examples:
+                OSC:
+                  value:
+                    - "1"
+        404:
           description: RIC is not found
-          schema:
-            type: string
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: string
+                example: 'org.oransc.policyagent.exceptions.ServiceException: Could
+                  not find ric: ric11'
       deprecated: false
   /ric:
     get:
       tags:
-        - RIC Repository
+      - RIC Repository
       summary: Returns the name of a RIC managing one Mananged Element
       operationId: getRicUsingGET
-      produces:
-        - '*/*'
       parameters:
-        - name: managedElementId
-          in: query
-          description: The ID of the Managed Element
-          required: true
+      - name: managedElementId
+        in: query
+        description: The ID of the Managed Element
+        required: true
+        allowEmptyValue: false
+        schema:
           type: string
-          allowEmptyValue: false
+        example: 'Node 1'
       responses:
-        '200':
+        200:
           description: RIC is found
-          schema:
-            type: string
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-        '404':
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: string
+                example: ric1
+        404:
           description: RIC is not found
-          schema:
-            type: string
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: string
+                example: No RIC found
       deprecated: false
   /rics:
     get:
       tags:
-        - RIC Repository
+      - RIC Repository
       summary: Query Near-RT RIC information
       operationId: getRicsUsingGET
-      produces:
-        - '*/*'
       parameters:
-        - name: policyType
-          in: query
-          description: The name of the policy type
-          required: false
+      - name: policyType
+        in: query
+        description: The name of the policy type
+        allowEmptyValue: false
+        schema:
           type: string
-          allowEmptyValue: false
+        example: 'STD_PolicyModelUnconstrained_0.2.0'
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/RicInfo'
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-        '404':
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RicInfo'
+        404:
           description: Policy type is not found
-          schema:
-            type: string
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: string
+                example: Policy type not found
       deprecated: false
   /service:
     put:
       tags:
-        - Service registry and supervision
+      - Service registry and supervision
       summary: Register a service
       operationId: putServiceUsingPUT
-      consumes:
-        - application/json
-      produces:
-        - '*/*'
-      parameters:
-        - in: body
-          name: registrationInfo
-          description: registrationInfo
-          required: true
-          schema:
-            $ref: '#/definitions/ServiceRegistrationInfo'
+      requestBody:
+        description: registrationInfo
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceRegistrationInfo'
+        required: true
       responses:
-        '200':
+        200:
           description: Service updated
-          schema:
-            type: string
-        '201':
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: string
+              example: OK
+        201:
           description: Service created
-          schema:
-            type: string
-        '400':
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: string
+                example: OK
+        400:
           description: The ServiceRegistrationInfo is not accepted
-          schema:
-            type: string
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-        '404':
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: string
+                example: Missing mandatory parameter 'serviceName'
+        404:
           description: Not Found
       deprecated: false
+      x-codegen-request-body-name: registrationInfo
   /services:
     get:
       tags:
-        - Service registry and supervision
+      - Service registry and supervision
       summary: Returns service information
       operationId: getServicesUsingGET
-      produces:
-        - '*/*'
       parameters:
-        - name: name
-          in: query
-          description: The name of the service
-          required: false
+      - name: name
+        in: query
+        description: The name of the service
+        allowEmptyValue: false
+        schema:
           type: string
-          allowEmptyValue: false
+        example: 'service1'
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/ServiceStatus'
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-        '404':
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: array
+                example:
+                - serviceName: "service1"
+                  keepAliveIntervalSeconds: 1000
+                  timeSinceLastActivitySeconds: 7
+                  callbackUrl: http://localhost:8080
+                items:
+                  $ref: '#/components/schemas/ServiceStatus'
+        404:
           description: Service is not found
-          schema:
-            type: string
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: string
+                example: Service not found
       deprecated: false
     delete:
       tags:
-        - Service registry and supervision
+      - Service registry and supervision
       summary: Delete a service
       operationId: deleteServiceUsingDELETE
-      produces:
-        - '*/*'
       parameters:
-        - name: name
-          in: query
-          description: The name of the service
-          required: true
+      - name: name
+        in: query
+        description: The name of the service
+        required: true
+        allowEmptyValue: false
+        schema:
           type: string
-          allowEmptyValue: false
+        example: 'service1'
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            type: string
-        '204':
+        204:
           description: OK
-          schema:
-            type: string
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-        '404':
+        404:
           description: Service not found
-          schema:
-            type: string
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: string
+                example: 'Could not find service: service1'
       deprecated: false
   /services/keepalive:
     put:
       tags:
-        - Service registry and supervision
+      - Service registry and supervision
       summary: Heartbeat from a serice
       operationId: keepAliveServiceUsingPUT
-      consumes:
-        - application/json
-      produces:
-        - '*/*'
       parameters:
-        - name: name
-          in: query
-          description: The name of the service
-          required: true
+      - name: name
+        in: query
+        description: The name of the service
+        required: true
+        allowEmptyValue: false
+        schema:
           type: string
-          allowEmptyValue: false
+        example: 'service1'
       responses:
-        '200':
-          description: 'Service supervision timer refreshed, OK'
-          schema:
-            type: string
-        '201':
+        200:
+          description: Service supervision timer refreshed, OK
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: string
+                example: OK
+        201:
           description: Created
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-        '404':
-          description: 'The service is not found, needs re-registration'
+        404:
+          description: The service is not found, needs re-registration
+          content:
+            text/plain;charset=ISO-8859-1:
+              schema:
+                type: string
+                example: 'Could not find service: service1'
       deprecated: false
   /status:
     get:
       tags:
-        - Health check
+      - Health check
       summary: Returns status and statistics of this service
       operationId: getStatusUsingGET
-      produces:
-        - '*/*'
       responses:
-        '200':
+        200:
           description: Service is living
-          schema:
-            type: string
-        '401':
-          description: Unauthorized
-        '403':
-          description: Forbidden
-        '404':
+          content:
+            '*/*':
+              schema:
+                type: string
+                example: alive
+        404:
           description: Not Found
       deprecated: false
-definitions:
-  Mono«ResponseEntity«object»»:
-    type: object
-    title: Mono«ResponseEntity«object»»
-  Mono«ResponseEntity«string»»:
-    type: object
-    title: Mono«ResponseEntity«string»»
-  PolicyInfo:
-    type: object
-    properties:
-      id:
-        type: string
-        description: identity of the policy
-      json:
-        type: object
-        description: the configuration of the policy
-      lastModified:
-        type: string
-        description: 'timestamp, last modification time'
-      ric:
-        type: string
-        description: identity of the target Near-RT RIC
-      service:
-        type: string
-        description: the name of the service owning the policy
-      type:
-        type: string
-        description: name of the policy type
-    title: PolicyInfo
-  RicInfo:
-    type: object
-    properties:
-      managedElementIds:
-        type: array
-        description: O1 identities for managed entities
-        items:
+components:
+  schemas:
+    PolicyInfo:
+      title: PolicyInfo
+      type: object
+      properties:
+        id:
           type: string
-      policyTypes:
-        type: array
-        description: supported policy types
-        items:
+          description: identity of the policy
+        json:
+          type: object
+          properties: {}
+          description: the configuration of the policy
+        lastModified:
           type: string
-      ricName:
-        type: string
-        description: identity of the ric
-      state:
-        type: string
-        description: state info
-    title: RicInfo
-  ServiceRegistrationInfo:
-    type: object
-    required:
+          description: timestamp, last modification time
+        ric:
+          type: string
+          description: identity of the target Near-RT RIC
+        service:
+          type: string
+          description: the name of the service owning the policy
+        type:
+          type: string
+          description: name of the policy type
+    RicInfo:
+      title: RicInfo
+      type: object
+      properties:
+        managedElementIds:
+          type: array
+          description: O1 identities for managed entities
+          items:
+            type: string
+        policyTypes:
+          type: array
+          description: supported policy types
+          items:
+            type: string
+        ricName:
+          type: string
+          description: identity of the ric
+        state:
+          type: string
+          description: state info
+      example:
+      - ricName: ric1
+        managedElementIds:
+          - ME-1
+          - ME-2
+        policyTypes:
+          - '1'
+        state: AVAILABLE
+      - ricName: ric3
+        managedElementIds:
+          - ME-1
+          - ME-2
+        policyTypes:
+          - ''
+        state: AVAILABLE
+      - ricName: ric2
+        managedElementIds:
+          - ME-1
+          - ME-2
+        policyTypes: []
+        state: AVAILABLE
+      - ricName: ric4
+        managedElementIds:
+          - ME-1
+          - ME-2
+        policyTypes:
+          - ''
+        state: AVAILABLE
+    ServiceRegistrationInfo:
+      title: ServiceRegistrationInfo
+      required:
       - serviceName
-    properties:
-      callbackUrl:
-        type: string
-        description: callback for notifying of RIC synchronization
-      keepAliveIntervalSeconds:
-        type: integer
-        format: int64
-        description: 'keep alive interval for the service. This is a heartbeat supervision of the service, which in regular intevals must invoke a ''keepAlive'' REST call. When a service does not invoke this call within the given time, it is considered unavailble. An unavailable service will be automatically deregistered and its policies will be deleted. Value 0 means no timeout supervision.'
-      serviceName:
-        type: string
-        description: identity of the service
-    title: ServiceRegistrationInfo
-  ServiceStatus:
-    type: object
-    properties:
-      callbackUrl:
-        type: string
-        description: callback for notifying of RIC synchronization
-      keepAliveIntervalSeconds:
-        type: integer
-        format: int64
-        description: policy keep alive timeout
-      serviceName:
-        type: string
-        description: identity of the service
-      timeSinceLastActivitySeconds:
-        type: integer
-        format: int64
-        description: time since last invocation by the service
-    title: ServiceStatus
+      type: object
+      properties:
+        callbackUrl:
+          type: string
+          description: callback for notifying of RIC synchronization
+        keepAliveIntervalSeconds:
+          type: integer
+          description: keep alive interval for the service. This is a heartbeat supervision
+            of the service, which in regular intevals must invoke a 'keepAlive' REST
+            call. When a service does not invoke this call within the given time,
+            it is considered unavailble. An unavailable service will be automatically
+            deregistered and its policies will be deleted. Value 0 means no timeout
+            supervision.
+          format: int64
+        serviceName:
+          type: string
+          description: identity of the service
+      example:
+        callbackUrl: http://localhost:9080
+        keepAliveIntervalSeconds: 1000
+        serviceName: service1
+    ServiceStatus:
+      title: ServiceStatus
+      type: object
+      properties:
+        callbackUrl:
+          type: string
+          description: callback for notifying of RIC synchronization
+        keepAliveIntervalSeconds:
+          type: integer
+          description: policy keep alive timeout
+          format: int64
+        serviceName:
+          type: string
+          description: identity of the service
+        timeSinceLastActivitySeconds:
+          type: integer
+          description: time since last invocation by the service
+          format: int64
+  examples:
+    Policies-STD:
+      value:
+        - id: a986eb38-aac3-4897-bdf5-0333ea2bf730
+          type: ''
+          ric: ric3
+          json:
+            scope:
+              ueId: ue1
+              groupId: group1
+              sliceId: slice1
+              qosId: qos1
+              cellId: cell1
+            statement:
+              priorityLevel: 5
+          service: controlpanel
+          lastModified: '2020-07-22T12:21:48.157854Z'
+    Policies-OSC:
+      value:
+        - id: 73428e58-1670-4972-8498-e7e8f1003631
+          type: '1'
+          ric: ric1
+          json:
+            scope:
+              qosId: '36'
+              ueId: '1'
+            statement:
+              priorityLevel: 1
+          service: c
+          lastModified: '2020-07-20T17:16:18.244383Z'
+        - id: 73428e58-1670-4972-8498-e7e8f100363e
+          type: '1'
+          ric: ric1
+          json:
+            scope:
+              qosId: '34'
+              ueId: '1'
+            statement:
+              priorityLevel: 1
+          service: controlpanel
+          lastModified: '2020-07-20T17:15:39.320469Z'
+    Policy-STD:
+      value:
+        scope:
+          ueId: ue1
+          groupId: group1
+          sliceId: slice1
+          qosId: qos1
+          cellId: cell1
+        statement:
+          priorityLevel: 5
+    Policy-OSC:
+      value:
+        scope:
+          qosId: '36'
+          ueId: '1'
+        statement:
+          priorityLevel: 1
