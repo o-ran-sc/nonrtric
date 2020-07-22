@@ -24,7 +24,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,7 +41,7 @@ public class StatusController {
             @ApiResponse(code = 200, message = "Service is living", response = String.class) //
         })
     public Mono<ResponseEntity<String>> getStatus() {
-        return Mono.just(new ResponseEntity<>("hunky dory", HttpStatus.OK));
+        return Mono.just(new ResponseEntity<>("alive", HttpStatus.OK));
     }
 
 }
