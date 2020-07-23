@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4faf5bde_de00c2e0",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-07-23T14:10:27Z",
+      "side": 1,
+      "message": "Maybe \"should not be provided\" is better, since it must be left empty not to get an error when using STD?",
+      "range": {
+        "startLine": 147,
+        "startChar": 102,
+        "endLine": 147,
+        "endChar": 119
+      },
+      "revId": "0b5dca1040bcb0c8b8f2b0f153fa7add036dee36",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b285c115_6a9f3bde",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-07-23T14:10:27Z",
+      "side": 1,
+      "message": "Missing space",
+      "range": {
+        "startLine": 206,
+        "startChar": 63,
+        "endLine": 206,
+        "endChar": 65
+      },
+      "revId": "0b5dca1040bcb0c8b8f2b0f153fa7add036dee36",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f162993_b83022a7",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-07-23T14:10:27Z",
+      "side": 1,
+      "message": "Use the same value for the input parameter as in the 404 output example.",
+      "range": {
+        "startLine": 276,
+        "startChar": 18,
+        "endLine": 276,
+        "endChar": 52
+      },
+      "revId": "0b5dca1040bcb0c8b8f2b0f153fa7add036dee36",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51159c7b_67dca857",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-07-23T14:10:27Z",
+      "side": 1,
+      "message": "Missing example value for parameter. Use the same value for the input parameter as in the 404 output example.",
+      "range": {
+        "startLine": 332,
+        "startChar": 0,
+        "endLine": 333,
+        "endChar": 1
+      },
+      "revId": "0b5dca1040bcb0c8b8f2b0f153fa7add036dee36",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "10335bac_177fe948",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-07-23T14:10:27Z",
+      "side": 1,
+      "message": "Missing example value for parameter. Use the same value for the input parameter as in the 404 output example.",
+      "range": {
+        "startLine": 392,
+        "startChar": 0,
+        "endLine": 392,
+        "endChar": 1
+      },
+      "revId": "0b5dca1040bcb0c8b8f2b0f153fa7add036dee36",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d64f2d46_9f40e62f",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-07-23T14:10:27Z",
+      "side": 1,
+      "message": "Use the same value as in the 404 output example.",
+      "range": {
+        "startLine": 430,
+        "startChar": 18,
+        "endLine": 430,
+        "endChar": 22
+      },
+      "revId": "0b5dca1040bcb0c8b8f2b0f153fa7add036dee36",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
