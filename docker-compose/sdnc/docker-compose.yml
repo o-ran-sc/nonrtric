@@ -16,7 +16,7 @@
 version: '3.0'
 services:
   policy-agent:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-policy-agent:2.0.0
+    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-policy-agent:2.1.0
     container_name: policy-agent
     networks:
       default:
@@ -85,7 +85,7 @@ services:
         max-file: "5"
 
   a1-controller:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-a1-controller:2.0.0
+    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-a1-controller:2.1.0
     depends_on :
       - db
     container_name: a1-controller
