@@ -1,0 +1,23 @@
+How the keystore.jks and truststore.jks is created. Note that this is just an example:
+
+1) Create a CA certificate and private key
+openssl genrsa -des3 -out CA-key.pem 2048
+openssl req -new -key CA-key.pem -x509 -days 1000 -out CA-cert.pem 
+
+2) Create a keystore with a private key entry that is signed by the CA 
+keytool -genkeypair -alias policy_agent -keyalg RSA -keysize 2048 -keystore keystore.jks -validity 3650 -storepass policy_agent
+keytool -certreq -alias policy_agent -file request.csr -keystore keystore.jks -ext san=dns:your.domain.com -storepass policy_agent
+openssl x509 -req -days 365 -in request.csr -CA CA-cert.pem -CAkey CA-key.pem -CAcreateserial -out ca_signed-cert.pem
+
+keytool -importcert -alias ca_cert -file CA-cert.pem -keystore keystore.jks -trustcacerts -storepass policy_agent 
+keytool -importcert -alias policy_agent -file ca_signed-cert.pem -keystore keystore.jks -trustcacerts -storepass policy_agent 
+
+
+
+3) Create a trust store that containing the CA cert (trusts all certs signed by the CA)
+keytool -genkeypair -alias not_used -keyalg RSA -keysize 2048 -keystore truststore.jks -validity 3650 -storepass policy_agent 
+keytool -importcert -alias ca_cert -file CA-cert.pem -keystore truststore.jks -trustcacerts -storepass policy_agent 
+
+
+//list 
+keytool -list -v -keystore keystore.jks -storepass policy_agent 
