@@ -34,6 +34,24 @@
       "revId": "48ae0f39d9d03cc1ec976762e6f7400447ace0a4",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07714ea2_631c1b84",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/controllers/StatusController.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-07-30T07:43:34Z",
+      "side": 0,
+      "message": "All files should be formatted the same way, and that is by using the command:\n\u003emvn formatter:format spotless:apply process-sources\n(not by IDEs, since we might use different IDEs and settings).\n\nI run that command, and the file was changed back to how it was (so this change should not be included). It is not a big deal though ...",
+      "parentUuid": "81648c0f_1dd74a44",
+      "revId": "48ae0f39d9d03cc1ec976762e6f7400447ace0a4",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
