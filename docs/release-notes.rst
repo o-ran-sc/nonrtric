@@ -127,7 +127,7 @@ Bronze Maintenance
 | **Project**                 | Non-RT RIC                                        |
 |                             |                                                   |
 +-----------------------------+---------------------------------------------------+
-| **Repo/commit-ID**          | nonrtric/dd3d3dce1ac7b915248cccdeb9ca7151cef9eff8 |
+| **Repo/commit-ID**          | nonrtric/479c5747925ea7842871fb15baafaa94a41ecf8a |
 |                             |                                                   |
 +-----------------------------+---------------------------------------------------+
 | **Release designation**     | Bronze                                            |
