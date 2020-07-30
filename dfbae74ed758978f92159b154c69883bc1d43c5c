@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "d0343097_386aeb54",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-07-30T08:04:31Z",
+      "side": 1,
+      "message": "OK. That sounds like a bug (?). \nI will look into that some day ..",
+      "parentUuid": "87c48bab_7f771e75",
+      "range": {
+        "startLine": 51,
+        "startChar": 9,
+        "endLine": 52,
+        "endChar": 42
+      },
+      "revId": "dfbae74ed758978f92159b154c69883bc1d43c5c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "cc4ec767_d43788b5",
         "filename": "policy-agent/docs/api.yaml",
         "patchSetId": 4
