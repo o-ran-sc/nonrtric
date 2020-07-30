@@ -16,7 +16,7 @@
 version: '3.0'
 services:
   policy-agent:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-policy-agent:2.0.0
+    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-policy-agent:2.0.1
     container_name: policy-agent
     networks:
       default:
