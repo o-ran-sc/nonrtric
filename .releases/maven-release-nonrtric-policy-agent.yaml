@@ -1,5 +1,5 @@
 ---
 distribution_type: maven
-version: 2.0.0
+version: 2.0.1
 project: nonrtric-policy-agent
-log_dir: nonrtric-policy-agent-maven-stage-master/19/
+log_dir: nonrtric-policy-agent-maven-stage-bronze/1
