@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "21844427_3b0e1d21",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-07-30T12:07:05Z",
+      "side": 1,
+      "message": "To do in next round of API improvements",
+      "parentUuid": "d0343097_386aeb54",
+      "range": {
+        "startLine": 51,
+        "startChar": 9,
+        "endLine": 52,
+        "endChar": 42
+      },
+      "revId": "dfbae74ed758978f92159b154c69883bc1d43c5c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cc4ec767_d43788b5",
         "filename": "policy-agent/docs/api.yaml",
         "patchSetId": 4
@@ -93,6 +117,30 @@
       "revId": "dfbae74ed758978f92159b154c69883bc1d43c5c",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9b4b4c5_3cd3847c",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-07-30T12:07:05Z",
+      "side": 1,
+      "message": "To do in next round of API improvements",
+      "parentUuid": "cc4ec767_d43788b5",
+      "range": {
+        "startLine": 88,
+        "startChar": 9,
+        "endLine": 89,
+        "endChar": 42
+      },
+      "revId": "dfbae74ed758978f92159b154c69883bc1d43c5c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     },
     {
       "key": {
@@ -119,6 +167,30 @@
     },
     {
       "key": {
+        "uuid": "fe5747a9_38836765",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-07-30T12:07:05Z",
+      "side": 1,
+      "message": "To do in next round of API improvements",
+      "parentUuid": "cf96b107_aa179e98",
+      "range": {
+        "startLine": 240,
+        "startChar": 10,
+        "endLine": 240,
+        "endChar": 42
+      },
+      "revId": "dfbae74ed758978f92159b154c69883bc1d43c5c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ad1c03e2_003557e0",
         "filename": "policy-agent/docs/api.yaml",
         "patchSetId": 4
@@ -139,6 +211,30 @@
       "revId": "dfbae74ed758978f92159b154c69883bc1d43c5c",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cbe8e0d3_44859faa",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-07-30T12:07:05Z",
+      "side": 1,
+      "message": "To do in next round of API improvements",
+      "parentUuid": "ad1c03e2_003557e0",
+      "range": {
+        "startLine": 281,
+        "startChar": 10,
+        "endLine": 281,
+        "endChar": 42
+      },
+      "revId": "dfbae74ed758978f92159b154c69883bc1d43c5c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     },
     {
       "key": {
@@ -165,6 +261,30 @@
     },
     {
       "key": {
+        "uuid": "d33eb6d3_c533403d",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-07-30T12:07:05Z",
+      "side": 1,
+      "message": "To do in next round of API improvements",
+      "parentUuid": "db2c0927_e8aed3df",
+      "range": {
+        "startLine": 338,
+        "startChar": 10,
+        "endLine": 338,
+        "endChar": 42
+      },
+      "revId": "dfbae74ed758978f92159b154c69883bc1d43c5c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "522dbbff_056a9bd6",
         "filename": "policy-agent/docs/api.yaml",
         "patchSetId": 4
@@ -185,6 +305,30 @@
       "revId": "dfbae74ed758978f92159b154c69883bc1d43c5c",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a807434_31490bed",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-07-30T12:07:05Z",
+      "side": 1,
+      "message": "To do in next round of API improvements",
+      "parentUuid": "522dbbff_056a9bd6",
+      "range": {
+        "startLine": 399,
+        "startChar": 11,
+        "endLine": 399,
+        "endChar": 42
+      },
+      "revId": "dfbae74ed758978f92159b154c69883bc1d43c5c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     },
     {
       "key": {
@@ -211,6 +355,30 @@
     },
     {
       "key": {
+        "uuid": "1403c38b_5364bf8e",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-07-30T12:07:05Z",
+      "side": 1,
+      "message": "To do in next round of API improvements",
+      "parentUuid": "ee1846ef_07029bc1",
+      "range": {
+        "startLine": 437,
+        "startChar": 11,
+        "endLine": 437,
+        "endChar": 42
+      },
+      "revId": "dfbae74ed758978f92159b154c69883bc1d43c5c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1b48bb73_e98f2d3b",
         "filename": "policy-agent/docs/api.yaml",
         "patchSetId": 4
@@ -231,6 +399,30 @@
       "revId": "dfbae74ed758978f92159b154c69883bc1d43c5c",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89dfb20c_912c85f0",
+        "filename": "policy-agent/docs/api.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 504,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-07-30T12:07:05Z",
+      "side": 1,
+      "message": "To do in next round of API improvements",
+      "parentUuid": "1b48bb73_e98f2d3b",
+      "range": {
+        "startLine": 504,
+        "startChar": 12,
+        "endLine": 504,
+        "endChar": 42
+      },
+      "revId": "dfbae74ed758978f92159b154c69883bc1d43c5c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
