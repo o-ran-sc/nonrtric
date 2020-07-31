@@ -96,7 +96,7 @@ class SdncOscA1ClientTest {
     @Test
     void createClientWithWrongProtocol_thenErrorIsThrown() {
         try {
-            new SdncOscA1Client(A1ProtocolType.STD_V1_1, null, null, null);
+            new SdncOscA1Client(A1ProtocolType.STD_V1_1, null, null, new AsyncRestClient("", null));
             fail("Should have thrown exception.");
         } catch (IllegalArgumentException e) {
             return;
