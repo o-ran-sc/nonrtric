@@ -33,6 +33,7 @@ import org.immutables.value.Value;
 import org.json.JSONObject;
 import org.oransc.policyagent.configuration.ControllerConfig;
 import org.oransc.policyagent.configuration.RicConfig;
+import org.oransc.policyagent.configuration.WebClientConfig;
 import org.oransc.policyagent.repository.Policy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,9 +88,10 @@ public class SdncOscA1Client implements A1Client {
      *
      * @throws IllegalArgumentException when the protocolType is wrong.
      */
-    public SdncOscA1Client(A1ProtocolType protocolType, RicConfig ricConfig, ControllerConfig controllerConfig) {
+    public SdncOscA1Client(A1ProtocolType protocolType, RicConfig ricConfig, ControllerConfig controllerConfig,
+        WebClientConfig clientConfig) {
         this(protocolType, ricConfig, controllerConfig,
-            new AsyncRestClient(controllerConfig.baseUrl() + "/restconf/operations"));
+            new AsyncRestClient(controllerConfig.baseUrl() + "/restconf/operations", clientConfig));
         logger.debug("SdncOscA1Client for ric: {}, a1Controller: {}", ricConfig.name(), controllerConfig);
     }
 
