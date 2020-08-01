@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
-
+import lombok.Getter;
 /**
  * Factory for A1 clients that supports four different protocol versions of the
  * A1 api.
@@ -38,6 +38,7 @@ public class A1ClientFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(A1ClientFactory.class);
 
+    @Getter
     private final ApplicationConfig appConfig;
 
     @Autowired

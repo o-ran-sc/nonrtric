@@ -150,7 +150,7 @@ public class DmaapMessageConsumer {
     protected DmaapMessageHandler getDmaapMessageHandler() throws IOException {
         if (this.dmaapMessageHandler == null) {
             String agentBaseUrl = "http://localhost:" + this.localServerHttpPort;
-            AsyncRestClient agentClient = new AsyncRestClient(agentBaseUrl);
+            AsyncRestClient agentClient = new AsyncRestClient(agentBaseUrl, this.applicationConfig.getWebClientConfig());
             AsyncRestClient producer = new AsyncRestClient(this.applicationConfig.getDmaapProducerTopicUrl(),
                 this.applicationConfig.getWebClientConfig());
             this.dmaapMessageHandler = new DmaapMessageHandler(producer, agentClient);
