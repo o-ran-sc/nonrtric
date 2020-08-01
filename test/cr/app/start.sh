@@ -1,3 +1,4 @@
+#!/bin/bash
 #  ============LICENSE_START===============================================
 #  Copyright (C) 2020 Nordix Foundation. All rights reserved.
 #  ========================================================================
@@ -15,17 +16,8 @@
 #  ============LICENSE_END=================================================
 #
 
-version: '3.0'
-networks:
-  default:
-    external:
-      name: ${DOCKER_SIM_NWNAME}
-services:
-  callback-receiver:
-    networks:
-      - default
-    container_name: ${CR_APP_NAME}
-    image: ${CR_IMAGE}
-    ports:
-      - ${CR_EXTERNAL_PORT}:${CR_INTERNAL_PORT}
-      - ${CR_EXTERNAL_SECURE_PORT}:${CR_INTERNAL_SECURE_PORT}
+#start nginx
+nginx -c /usr/src/app/nginx.conf
+
+#start mrstub
+python3 -u cr.py
