@@ -33,12 +33,12 @@ generate_uuid
 #Local vars in test script
 ##########################
 # Path to callback receiver
-CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
+CR_PATH="https://$CR_APP_NAME:$CR_EXTERNAL_SECURE_PORT/callbacks"
 
 # Tested variants of REST/DMAAP/SDNC config
-TESTED_VARIANTS="REST   DMAAP   REST+SDNC   DMAAP+SDNC DMAAP_BATCH DMAAP_BATCH+SDNC"
+TESTED_VARIANTS="REST"
 #Test agent and simulator protocol versions (others are http only)
-TESTED_PROTOCOLS="HTTP HTTPS"
+TESTED_PROTOCOLS="HTTP"
 for __httpx in $TESTED_PROTOCOLS ; do
     for interface in $TESTED_VARIANTS ; do
 

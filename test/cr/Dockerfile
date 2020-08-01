@@ -17,12 +17,17 @@
 
 FROM python:3.8-slim-buster
 
-WORKDIR /usr/src/app
+COPY app/ /usr/src/app/
+COPY cert/ /usr/src/app/cert/
 
-COPY requirements.txt requirements.txt
+WORKDIR /usr/src/app
 
 RUN pip install -r requirements.txt
 
-COPY cr.py cr.py
+RUN chmod +x start.sh
 
-CMD [ "python3", "-u", "./cr.py" ]
+#install nginx
+RUN apt-get update
+RUN apt-get install -y nginx=1.14.*
+
+CMD [ "./start.sh" ]
