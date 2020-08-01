@@ -32,7 +32,7 @@ msg_callbacks={}
 
 # Server info
 HOST_IP = "::"
-HOST_PORT = 8090
+HOST_PORT = 2222
 
 # Metrics vars
 cntr_msg_callbacks=0

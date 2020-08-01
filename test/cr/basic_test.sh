@@ -20,7 +20,27 @@
 # Automated test script for callback receiver container
 
 # callbackreciver port
-export PORT=8090
+# export PORT=8090
+if [ $# -ne 1 ]; then
+    echo "Usage: ./basic_test.sh nonsecure|secure"
+    exit 1
+fi
+if [ "$1" != "nonsecure" ] && [ "$1" != "secure" ]; then
+    echo "Usage: ./basic_test.sh nonsecure|secure"
+    exit 1
+fi
+
+if [ $1 == "nonsecure" ]; then
+    #Default http port for the simulator
+    PORT=8090
+    # Set http protocol
+    HTTPX="http"
+else
+    #Default https port for the simulator
+    PORT=8091
+    # Set https protocol
+    HTTPX="https"
+fi
 
 # source function to do curl and check result
 . ../common/do_curl_function.sh
