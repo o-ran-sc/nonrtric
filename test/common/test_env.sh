@@ -117,6 +117,8 @@ export MR_WRITE_URL="/events/A1-POLICY-AGENT-WRITE"             # Path write mes
 
 export CR_EXTERNAL_PORT=8090                                    # Callback receiver container external port (host -> container)
 export CR_INTERNAL_PORT=8090                                    # Callback receiver container internal port (container -> container)
+export CR_EXTERNAL_SECURE_PORT=8091                             # Callback receiver container external secure port (host -> container)
+export CR_INTERNAL_SECURE_PORT=8091                             # Callback receiver container internal secure port (container -> container)
 export CR_APP_NAME="callback-receiver"                          # Name for the Callback receiver
 
 export CONSUL_HOST="consul-server"                              # Host name of consul

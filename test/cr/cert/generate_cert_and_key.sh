@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #  ============LICENSE_START===============================================
 #  Copyright (C) 2020 Nordix Foundation. All rights reserved.
 #  ========================================================================
@@ -15,17 +17,5 @@
 #  ============LICENSE_END=================================================
 #
 
-version: '3.0'
-networks:
-  default:
-    external:
-      name: ${DOCKER_SIM_NWNAME}
-services:
-  callback-receiver:
-    networks:
-      - default
-    container_name: ${CR_APP_NAME}
-    image: ${CR_IMAGE}
-    ports:
-      - ${CR_EXTERNAL_PORT}:${CR_INTERNAL_PORT}
-      - ${CR_EXTERNAL_SECURE_PORT}:${CR_INTERNAL_SECURE_PORT}
+# This will generate a self-signed certificate with password 'test'
+openssl req -x509 -passout pass:"test" -newkey rsa:2048 -keyout key.crt -out cert.crt -days 9999
