@@ -33,7 +33,7 @@ generate_uuid
 #Local vars in test script
 ##########################
 # Path to callback receiver
-CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
+CR_PATH="https://$CR_APP_NAME:$CR_EXTERNAL_SECURE_PORT/callbacks"
 
 # Tested variants of REST/DMAAP/SDNC config
 TESTED_VARIANTS="REST   DMAAP   REST+SDNC   DMAAP+SDNC DMAAP_BATCH DMAAP_BATCH+SDNC"
