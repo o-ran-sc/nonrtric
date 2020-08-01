@@ -160,7 +160,7 @@ public class RicSynchronizationTask {
     }
 
     AsyncRestClient createNotificationClient(final String url) {
-        return new AsyncRestClient(url);
+        return new AsyncRestClient(url, this.a1ClientFactory.getAppConfig().getWebClientConfig());
     }
 
     private Flux<PolicyType> synchronizePolicyTypes(Ric ric, A1Client a1Client) {
