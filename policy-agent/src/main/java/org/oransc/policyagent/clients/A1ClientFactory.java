@@ -75,9 +75,10 @@ public class A1ClientFactory {
             assertNoControllerConfig(ric, version);
             return new OscA1Client(ric.getConfig(), this.appConfig.getWebClientConfig());
         } else if (version == A1ProtocolType.SDNC_OSC_STD_V1_1 || version == A1ProtocolType.SDNC_OSC_OSC_V1) {
-            return new SdncOscA1Client(version, ric.getConfig(), getControllerConfig(ric));
+            return new SdncOscA1Client(version, ric.getConfig(), getControllerConfig(ric),
+                this.appConfig.getWebClientConfig());
         } else if (version == A1ProtocolType.SDNC_ONAP) {
-            return new SdncOnapA1Client(ric.getConfig(), getControllerConfig(ric));
+            return new SdncOnapA1Client(ric.getConfig(), getControllerConfig(ric), this.appConfig.getWebClientConfig());
         } else {
             logger.error("Unhandled protocol: {}", version);
             throw new ServiceException("Unhandled protocol");

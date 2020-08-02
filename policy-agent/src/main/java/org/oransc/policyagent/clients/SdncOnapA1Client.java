@@ -29,6 +29,7 @@ import org.immutables.gson.Gson;
 import org.immutables.value.Value;
 import org.oransc.policyagent.configuration.ControllerConfig;
 import org.oransc.policyagent.configuration.RicConfig;
+import org.oransc.policyagent.configuration.WebClientConfig;
 import org.oransc.policyagent.repository.Policy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,8 +64,9 @@ public class SdncOnapA1Client implements A1Client {
     private final RicConfig ricConfig;
     private final AsyncRestClient restClient;
 
-    public SdncOnapA1Client(RicConfig ricConfig, ControllerConfig controllerConfig) {
-        this(ricConfig, controllerConfig, new AsyncRestClient(controllerConfig.baseUrl() + "/restconf/operations"));
+    public SdncOnapA1Client(RicConfig ricConfig, ControllerConfig controllerConfig, WebClientConfig clientConfig) {
+        this(ricConfig, controllerConfig,
+            new AsyncRestClient(controllerConfig.baseUrl() + "/restconf/operations", clientConfig));
         logger.debug("SdncOnapA1Client for ric: {}, a1ControllerBaseUrl: {}", ricConfig.name(),
             controllerConfig.baseUrl());
     }
