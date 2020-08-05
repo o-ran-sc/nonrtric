@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "0733015b_bf383127",
+        "filename": "test/common/test_env.sh",
+        "patchSetId": 4
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1000247
+      },
+      "writtenOn": "2020-08-05T12:16:01Z",
+      "side": 1,
+      "message": "yes",
+      "parentUuid": "b32fa53e_66f874b7",
+      "range": {
+        "startLine": 120,
+        "startChar": 24,
+        "endLine": 120,
+        "endChar": 36
+      },
+      "revId": "5ae1275e6a6e8f6f89732ab548e3fe106302cba5",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4ff12242_548bdde6",
         "filename": "test/cr/README.md",
         "patchSetId": 4
@@ -68,6 +92,30 @@
       "revId": "5ae1275e6a6e8f6f89732ab548e3fe106302cba5",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "295a77f4_6a9c915e",
+        "filename": "test/cr/README.md",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000247
+      },
+      "writtenOn": "2020-08-05T12:16:01Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "4ff12242_548bdde6",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 1
+      },
+      "revId": "5ae1275e6a6e8f6f89732ab548e3fe106302cba5",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
