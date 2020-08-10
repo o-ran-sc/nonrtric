@@ -30,8 +30,6 @@ EXCLUDED_IMAGES="SDNC_ONAP"
 
 #Local vars in test script
 ##########################
-# Path to callback receiver
-CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
 
 # Tested variants of REST/DMAAP/SDNC config
 TESTED_VARIANTS="REST   REST+SDNC"
@@ -53,6 +51,18 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "#####################################################################"
         echo "#####################################################################"
 
+        #Local vars in test script
+        ##########################
+
+        if [ $__httpx == "HTTPS" ]; then
+            # Path to callback receiver
+            CR_PATH="https://$CR_APP_NAME:$CR_EXTERNAL_SECURE_PORT/callbacks"
+            use_cr_https
+        else
+            # Path to callback receiver
+            CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
+            use_cr_http
+        fi
 
         # Clean container and start all needed containers #
         clean_containers

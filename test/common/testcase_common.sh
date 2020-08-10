@@ -75,6 +75,10 @@ export MR_HTTPX="http"
 export MR_PORT=$MR_INTERNAL_PORT
 export MR_LOCAL_PORT=$MR_EXTERNAL_PORT #When agent is running outside the docker net
 
+export CR_HTTPX="http"
+export CR_PORT=$CR_INTERNAL_PORT
+export CR_LOCAL_PORT=$CR_EXTERNAL_PORT #When CR is running outside the docker net
+
 export SDNC_HTTPX="http"
 export SDNC_PORT=$SDNC_INTERNAL_PORT
 export SDNC_LOCAL_PORT=$SDNC_EXTERNAL_PORT #When agent is running outside the docker net
@@ -1517,6 +1521,22 @@ start_cr() {
 
 }
 
+use_cr_http() {
+	echo -e $BOLD"Using http between test script and CR"$EBOLD
+	export CR_HTTPX="http"
+	export CR_PORT=$CR_INTERNAL_PORT
+	export CR_LOCAL_PORT=$CR_EXTERNAL_PORT
+	echo ""
+}
+
+use_cr_https() {
+	echo -e $BOLD"Using https between test script and CR"$EBOLD
+	export CR_HTTPX="https"
+	export CR_PORT=$CR_INTERNAL_SECURE_PORT
+	export CR_LOCAL_PORT=$CR_EXTERNAL_SECURE_PORT
+	echo ""
+}
+
 ###########################
 ### Policy Agents functions
 ###########################
@@ -1567,16 +1587,25 @@ use_agent_rest_https() {
 	return 0
 }
 
-# All calls to the agent will be directed to the agent dmaap interface from now on
+# All calls to the agent will be directed to the agent dmaap interface over http from now on
 # args: -
 # (Function for test scripts)
-use_agent_dmaap() {
-	echo -e $BOLD"Agent using DMAAP interface"$EBOLD
+use_agent_dmaap_http() {
+	echo -e $BOLD"Agent using DMAAP http interface"$EBOLD
 	export ADAPTER=$DMAAPBASE
 	echo ""
 	return 0
 }
 
+# All calls to the agent will be directed to the agent dmaap interface over https from now on
+# args: -
+# (Function for test scripts)
+use_agent_dmaap_https() {
+	echo -e $BOLD"Agent using DMAAP https interface"$EBOLD
+	export ADAPTER=$DMAAPBASE_SECURE
+	echo ""
+	return 0
+}
 
 # Turn on debug level tracing in the agent
 # args: -

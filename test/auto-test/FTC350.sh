@@ -34,6 +34,7 @@ generate_uuid
 ##########################
 # Path to callback receiver
 CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
+use_cr_http
 
 NUM_RICS=10
 NUM_RICS_2=$(($NUM_RICS-2))

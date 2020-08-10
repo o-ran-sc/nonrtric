@@ -34,6 +34,7 @@ generate_uuid
 ##########################
 # Path to callback receiver
 CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
+use_cr_http
 
 clean_containers
 
@@ -79,7 +80,7 @@ api_put_policy 201 "service1" ricsim_g1_1 1 2000 NOTRANSIENT testdata/OSC/pi1_te
 sim_equal ricsim_g1_1 num_instances 1
 
 
-use_agent_dmaap
+use_agent_dmaap_http
 
 api_put_policy 201 "service1" ricsim_g1_1 1 3000 NOTRANSIENT testdata/OSC/pi1_template.json 1
 
@@ -93,7 +94,7 @@ api_put_policy 201 "service1" ricsim_g2_1 NOTYPE 2100 NOTRANSIENT testdata/STD/p
 sim_equal ricsim_g2_1 num_instances 1
 
 
-use_agent_dmaap
+use_agent_dmaap_http
 
 api_put_policy 201 "service1" ricsim_g2_1 NOTYPE 3100 NOTRANSIENT testdata/STD/pi1_template.json 1
 
@@ -110,7 +111,7 @@ api_put_policy 200 "service1" ricsim_g1_1 1 2000 NOTRANSIENT testdata/OSC/pi1_te
 sim_equal ricsim_g1_1 num_instances 2
 
 
-use_agent_dmaap
+use_agent_dmaap_http
 
 api_put_policy 200 "service1" ricsim_g1_1 1 3000 NOTRANSIENT testdata/OSC/pi1_template.json 1
 
@@ -125,7 +126,7 @@ api_put_policy 200 "service1" ricsim_g2_1 NOTYPE 2100 NOTRANSIENT testdata/STD/p
 sim_equal ricsim_g2_1 num_instances 2
 
 
-use_agent_dmaap
+use_agent_dmaap_http
 
 api_put_policy 200 "service1" ricsim_g2_1 NOTYPE 3100 NOTRANSIENT testdata/STD/pi1_template.json 1
 
@@ -139,11 +140,11 @@ api_get_policy 200 3100 testdata/STD/pi1_template.json
 
 # Remove policies
 
-use_agent_dmaap
+use_agent_dmaap_http
 api_delete_policy 204 2000
 use_agent_rest_http
 api_delete_policy 204 3000
-use_agent_dmaap
+use_agent_dmaap_http
 api_delete_policy 204 2100
 use_agent_rest_http
 api_delete_policy 204 3100
@@ -164,7 +165,7 @@ api_get_policy 404 2100
 api_get_policy 404 3100
 
 # Remove the service
-use_agent_dmaap
+use_agent_dmaap_http
 api_delete_services 204 "service1"
 
 api_get_services 404 "service1"

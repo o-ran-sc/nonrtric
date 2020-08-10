@@ -250,6 +250,19 @@ Start the Callback Receiver container
 |--|
 | None |
 
+#### Function: use_cr_http ####
+Use http for getting event from CR.  The admin API is not affected. This is the default.
+| arg list |
+|--|
+| None |
+
+#### Function: use_cr_https ####
+Use https for getting event from CR. The admin API is not affected.
+Note: Not yet used as callback event is not fully implemented/deciced.
+| arg list |
+|--|
+| None |
+
 #### Function: start_policy_agent ####
 Start the Policy Agent container. If the test script is configured to use a stand alone Policy Agent (for example other container or stand alone app) the script will prompt for starting the stand alone Policy Agent.
 | arg list |
@@ -274,8 +287,14 @@ Use https for all API calls to the Policy Agent.
 |--|
 | None |
 
-#### Function: use_agent_dmaap ####
-Send and recieve all API calls to the Policy Agent over Dmaap via the MR.
+#### Function: use_agent_dmaap_http ####
+Send and recieve all API calls to the Policy Agent over Dmaap via the MR over http.
+| arg list |
+|--|
+| None |
+
+#### Function: use_agent_dmaap_https ####
+Send and recieve all API calls to the Policy Agent over Dmaap via the MR over https.
 | arg list |
 |--|
 | None |

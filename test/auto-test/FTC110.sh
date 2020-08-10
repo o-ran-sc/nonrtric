@@ -33,6 +33,7 @@ generate_uuid
 ##########################
 # Path to callback receiver
 CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
+use_cr_http
 
 
 #### TEST BEGIN ####

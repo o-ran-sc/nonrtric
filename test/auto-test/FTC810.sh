@@ -32,8 +32,7 @@ generate_uuid
 
 #Local vars in test script
 ##########################
-# Path to callback receiver
-CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
+
 # Number of RICs per interface type (OSC and STD)
 NUM_RICS=30
 # Number of policy instances per RIC
@@ -43,14 +42,20 @@ DAYS=3
 
 clean_containers
 
-# use http or https for all apis
-HTTPX=https
+# use HTTP or HTTPS for all apis
+HTTPX=HTTPS
 
-if [ $HTTPX == "http" ]; then
+if [ $HTTPX == "HTTP" ]; then
+   # Path to callback receiver
+   CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
+   use_cr_http
    use_agent_rest_http
    use_sdnc_http
    use_simulator_http
 else
+   # Path to callback receiver
+   CR_PATH="https://$CR_APP_NAME:$CR_EXTERNAL_SECURE_PORT/callbacks"
+   use_cr_https
    use_agent_rest_https
    use_sdnc_https
    use_simulator_https
@@ -142,13 +147,19 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
       echo "############################################"
 
       if [ $interface == "REST" ] || [ $interface == "REST_PARALLEL" ]; then
-         if [ $HTTPX == "http" ]; then
+         if [ $HTTPX == "HTTP" ]; then
             use_agent_rest_http
          else
             use_agent_rest_https
          fi
       else
-         use_agent_dmaap
+         if [ $HTTPX == "HTTPS" ]; then
+               echo "Using secure ports towards dmaap"
+               use_agent_dmaap_https
+         else
+               echo "Using non-secure ports towards dmaap"
+               use_agent_dmaap_http
+         fi
       fi
 
       echo "Create $NUM_INSTANCES instances in each OSC RIC"

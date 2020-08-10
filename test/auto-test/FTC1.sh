@@ -29,11 +29,6 @@ EXCLUDED_IMAGES="SDNC_ONAP"
 
 #### TEST BEGIN ####
 
-#Local vars in test script
-##########################
-
-# Path to callback receiver
-CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
 
 generate_uuid
 
@@ -50,6 +45,18 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "#####################################################################"
         echo "#####################################################################"
 
+        #Local vars in test script
+        ##########################
+
+        if [ $__httpx == "HTTPS" ]; then
+            # Path to callback receiver
+            CR_PATH="https://$CR_APP_NAME:$CR_EXTERNAL_SECURE_PORT/callbacks"
+            use_cr_https
+        else
+            # Path to callback receiver
+            CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
+            use_cr_http
+        fi
 
         # Clean container and start all needed containers #
         clean_containers
@@ -77,7 +84,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         start_cr
 
-        if [ $interface == "SDNC" ]; then
+        if [ $interface == "REST+SDNC" ] || [ $interface == "DMAAP+SDNC" ]; then
 
             start_sdnc
 
@@ -102,16 +109,18 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         start_control_panel
 
-        if [ $interface == "REST+SDNC" ] || [ $interface == "DMAAP+SDNC" ]; then
-            start_sdnc
-        fi
-
         start_policy_agent
 
         set_agent_debug
 
         if [ $interface == "DMAAP" ] || [ $interface == "DMAAP+SDNC" ]; then
-            use_agent_dmaap
+            if [ $__httpx == "HTTPS" ]; then
+                echo "Using secure ports towards dmaap"
+                use_agent_dmaap_https
+            else
+                echo "Using non-secure ports towards dmaap"
+                use_agent_dmaap_http
+            fi
         else
             if [ $__httpx == "HTTPS" ]; then
                 echo "Using secure ports towards the agent"

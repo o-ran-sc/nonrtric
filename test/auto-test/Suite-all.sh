@@ -26,22 +26,22 @@ suite_setup
 ############# TEST CASES #################
 ARG1=$1
 
-./FTC1.sh $1
+./FTC1.sh $ARG1
 
 if [ $ARG1 == "remote-remove" ]; then
     #Prevent image removal for every test case
     ARG1="remote"
 fi
 
-./FTC10.sh $1
-./FTC100.sh $1
-./FTC110.sh $1
-./FTC150.sh $1
-./FTC300.sh $1
-./FTC310.sh $1
-./FTC350.sh $1
-./FTC800.sh $1
-./FTC850.sh $1
+./FTC10.sh $ARG1
+./FTC100.sh $ARG1
+./FTC110.sh $ARG1
+./FTC150.sh $ARG1
+./FTC300.sh $ARG1
+./FTC310.sh $ARG1
+./FTC350.sh $ARG1
+./FTC800.sh $ARG1
+./FTC850.sh $ARG1
 
 ##########################################
 

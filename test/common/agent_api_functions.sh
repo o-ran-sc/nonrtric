@@ -76,7 +76,7 @@ __do_curl_to_agent() {
 			if [ $# -ne 2 ]; then
 				paramError=1
 			fi
-			if ! [ $ADAPTER == $DMAAPBASE ]; then
+			if [ $ADAPTER == $RESTBASE ] || [ $ADAPTER == $RESTBASE_SECURE ]; then
 				paramError=1
 			fi
 		else
@@ -143,7 +143,7 @@ __do_curl_to_agent() {
 			#urlencode the request url since it will be carried by send-request url
 			requestUrl=$(python3 -c "from __future__ import print_function; import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))"  "$2")
 			url=" "${ADAPTER}"/send-request?url="${requestUrl}"&operation="${oper}
-			curlString="curl -X POST${timeout}${httpcode}${content}${url}${file}"
+			curlString="curl -k -X POST${timeout}${httpcode}${content}${url}${file}"
 			echo " CMD: "$curlString >> $HTTPLOG
 			res=$($curlString)
 			retcode=$?
@@ -169,7 +169,7 @@ __do_curl_to_agent() {
 				cid=$2
 			fi
 			url=" "${ADAPTER}"/receive-response?correlationid="${cid}
-			curlString="curl -X GET"${timeout}${httpcode}${url}
+			curlString="curl -k -X GET"${timeout}${httpcode}${url}
 			echo " CMD: "$curlString >> $HTTPLOG
 			res=$($curlString)
 			retcode=$?

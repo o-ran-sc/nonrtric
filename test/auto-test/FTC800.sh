@@ -32,8 +32,6 @@ generate_uuid
 
 #Local vars in test script
 ##########################
-# Path to callback receiver
-CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
 # Number of policies in each sequence
 NUM_POLICIES=10000
 
@@ -50,6 +48,19 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "### Testing agent via $interface using $__httpx"
         echo "#####################################################################"
         echo "#####################################################################"
+
+        #Local vars in test script
+        ##########################
+
+        if [ $__httpx == "HTTPS" ]; then
+            # Path to callback receiver
+            CR_PATH="https://$CR_APP_NAME:$CR_EXTERNAL_SECURE_PORT/callbacks"
+            use_cr_https
+        else
+            # Path to callback receiver
+            CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
+            use_cr_http
+        fi
 
         # Policy instance start id
         START_ID=1
@@ -147,7 +158,13 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         sim_equal ricsim_g2_1 num_instances $NUM_POLICIES
 
-        use_agent_dmaap
+        if [ $__httpx == "HTTPS" ]; then
+            echo "Using secure ports towards dmaap"
+            use_agent_dmaap_https
+        else
+            echo "Using non-secure ports towards dmaap"
+            use_agent_dmaap_http
+        fi
 
         START_ID=$(($START_ID+$NUM_POLICIES))
 

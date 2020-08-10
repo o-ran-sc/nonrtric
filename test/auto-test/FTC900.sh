@@ -32,6 +32,7 @@ EXCLUDED_IMAGES="SDNC SDNC_ONAP"
 ##########################
 # Path to callback receiver
 CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
+use_cr_http
 
 clean_containers
 
