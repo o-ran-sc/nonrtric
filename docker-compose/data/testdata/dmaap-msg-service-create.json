@@ -1,0 +1,46 @@
+[
+    {
+        "apiVersion": "1.0",
+        "operation": "PUT",
+        "correlationId": "1596363458549998500",
+        "originatorId": "849e6c6b420",
+        "payload": {
+            "callbackUrl": "http://callback-receiver:8090/callbacks/1",
+            "keepAliveIntervalSeconds": "1000",
+            "serviceName": "serv1"
+        },
+        "requestId": "23343221",
+        "target": "policy-agent",
+        "timestamp": "2020-08-02 10:17:38.550324",
+        "type": "request",
+        "url": "/service"
+    },
+    {
+        "apiVersion": "1.0",
+        "operation": "PUT",
+        "correlationId": "1596363458549998501",
+        "originatorId": "849e6c6b421",
+        "payload": {
+            "callbackUrl": "http://callback-receiver:8090/callbacks/1",
+            "keepAliveIntervalSeconds": "1000",
+            "serviceName": "service1"
+        },
+        "requestId": "23343221",
+        "target": "policy-agent",
+        "timestamp": "2020-08-02 10:17:38.550324",
+        "type": "request",
+        "url": "/service"
+    },
+    {
+        "apiVersion": "1.0",
+        "operation": "PUT",
+        "correlationId": "1596363459196978900",
+        "originatorId": "849e6c6b420",
+        "payload": {},
+        "requestId": "23343221",
+        "target": "policy-agent",
+        "timestamp": "2020-08-02 10:17:39.197067",
+        "type": "request",
+        "url": "/services/keepalive?name=serv1"
+    }
+]
