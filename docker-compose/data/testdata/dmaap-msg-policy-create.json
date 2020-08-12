@@ -1,0 +1,82 @@
+[
+    {
+        "apiVersion": "1.0",
+        "operation": "PUT",
+        "correlationId": "1596304565904621535",
+        "originatorId": "849e6c6b420",
+        "payload": {
+            "scope": {
+                "ueId": "ue3000",
+                "qosId": "qos3000"
+            },
+            "qosObjectives": {
+                "priorityLevel": 3000
+            }
+        },
+        "requestId": "23343221",
+        "target": "policy-agent",
+        "timestamp": "2020-08-01 17:56:05.905035",
+        "type": "request",
+        "url": "/policy?id=0f7bb041e1584b1fa17e87520d70a3000&ric=ric1&service=service1&type=1"
+    },
+    {
+        "apiVersion": "1.0",
+        "operation": "PUT",
+        "correlationId": "1596304566656253556",
+        "originatorId": "849e6c6b420",
+        "payload": {
+            "scope": {
+                "ueId": "ue3100",
+                "qosId": "qos3100"
+            },
+            "qosObjectives": {
+                "priorityLevel": 3100
+            }
+        },
+        "requestId": "23343221",
+        "target": "policy-agent",
+        "timestamp": "2020-08-01 17:56:06.656949",
+        "type": "request",
+        "url": "/policy?id=0f7bb041e1584b1fa17e87520d70a3100&ric=ric1&service=service1&type=1"
+    },
+    {
+        "apiVersion": "1.0",
+        "operation": "PUT",
+        "correlationId": "1596304566656253557",
+        "originatorId": "849e6c6b420",
+        "payload": {
+            "scope": {
+                "ueId": "ue3100",
+                "qosId": "qos3100"
+            },
+            "qosObjectives": {
+                "priorityLevel": 3200
+            }
+        },
+        "requestId": "23343221",
+        "target": "policy-agent",
+        "timestamp": "2020-08-01 17:56:06.656949",
+        "type": "request",
+        "url": "/policy?id=0f7bb041e1584b1fa17e87520d70a3101&ric=ric1&service=service1&type=1"
+    },
+    {
+        "apiVersion": "1.0",
+        "operation": "PUT",
+        "correlationId": "1596304566656253558",
+        "originatorId": "849e6c6b420",
+        "payload": {
+            "scope": {
+                "ueId": "ue3102",
+                "qosId": "qos3102"
+            },
+            "qosObjectives": {
+                "priorityLevel": 3201
+            }
+        },
+        "requestId": "23343221",
+        "target": "policy-agent",
+        "timestamp": "2020-08-01 17:56:06.656949",
+        "type": "request",
+        "url": "/policy?id=0f7bb041e1584b1fa17e87520d70a3102&ric=ric2&service=service1"
+    }
+]
