@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e3e608e9_63a4256f",
+        "filename": "docker-compose/data/dmaap-msg.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2020-08-13T12:22:29Z",
+      "side": 1,
+      "message": "Question: Is the intention to print only the response code here (and in the following line). The code is not catch by a var so just printed.",
+      "range": {
+        "startLine": 46,
+        "startChar": 11,
+        "endLine": 46,
+        "endChar": 25
+      },
+      "revId": "83d30fb46655d6796c74ce4b47e171749029c82c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c72dc01_c979c2a3",
+        "filename": "docker-compose/data/testdata/dmaap-msg-policy-create.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2020-08-13T12:22:29Z",
+      "side": 1,
+      "message": "Minor comment: Unclear which values will be accecpted by the target --  values can be changed by the user\n\u0027qosObjective\u0027 or should it be \u0027qosObjectives\u0027?",
+      "range": {
+        "startLine": 8,
+        "startChar": 13,
+        "endLine": 15,
+        "endChar": 10
+      },
+      "revId": "83d30fb46655d6796c74ce4b47e171749029c82c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
