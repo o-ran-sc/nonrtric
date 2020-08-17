@@ -49,6 +49,29 @@
     },
     {
       "key": {
+        "uuid": "29c079ab_40599b48",
+        "filename": "docker-compose/data/testdata/dmaap-msg-policy-create.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-08-17T12:43:53Z",
+      "side": 1,
+      "message": "Please add the \u0027s\u0027 here and in the policy type schema (and sample data, tests etc.\nSee comment below",
+      "range": {
+        "startLine": 12,
+        "startChar": 24,
+        "endLine": 12,
+        "endChar": 26
+      },
+      "revId": "83d30fb46655d6796c74ce4b47e171749029c82c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6c72dc01_c979c2a3",
         "filename": "docker-compose/data/testdata/dmaap-msg-policy-create.json",
         "patchSetId": 5
@@ -84,6 +107,30 @@
       "side": 1,
       "message": "It is up to the definition of the policy type, in the file \"testdata/policy\", I defined it as \"qosObjective\", so here it should be the same. of cause we can them in both places.",
       "parentUuid": "6c72dc01_c979c2a3",
+      "range": {
+        "startLine": 8,
+        "startChar": 13,
+        "endLine": 15,
+        "endChar": 10
+      },
+      "revId": "83d30fb46655d6796c74ce4b47e171749029c82c",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0b1f56f_b2186a26",
+        "filename": "docker-compose/data/testdata/dmaap-msg-policy-create.json",
+        "patchSetId": 5
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1000103
+      },
+      "writtenOn": "2020-08-17T12:43:53Z",
+      "side": 1,
+      "message": "Can you please check that the spelling here (schema etc) is the same as the std version?\nIt will be difficult to find the spelling difference if someone pastes this example into a message to manipulate a policy type with just a slightly different schema (1 letter difference)\nThanks,",
+      "parentUuid": "4322849d_55108b17",
       "range": {
         "startLine": 8,
         "startChar": 13,
