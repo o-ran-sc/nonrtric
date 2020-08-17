@@ -13,7 +13,13 @@
 #  limitations under the License.
 #  ============LICENSE_END=================================================
 #
-version: '3.0'
+version: '3.5'
+
+networks:
+  default:
+    driver: bridge
+    name: nonrtric-docker-net
+
 services:
   policy-agent:
     image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-policy-agent:2.1.0
