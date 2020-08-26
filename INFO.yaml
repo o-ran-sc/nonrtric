@@ -16,7 +16,7 @@ issue_tracking:
     key: 'NONRTRIC'
 mailing_list:
     type: 'groups.io'
-    url: 'https://lists.o-ran-sc.org/g/main'
+    url: 'https://lists.o-ran-sc.org/g/discuss'
 realtime_discussion:
     type: 'irc'
     server: 'freenode.net'
