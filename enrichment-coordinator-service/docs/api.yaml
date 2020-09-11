@@ -1,0 +1,300 @@
+swagger: '2.0'
+info:
+  description: This page lists all the rest apis for the service.
+  version: '1.0'
+  title: Enrichment Data service
+host: 'localhost:8081'
+basePath: /
+tags:
+  - name: A1-E Enrichment Data Consumer API
+    description: Consumer Controller
+paths:
+  /A1-EI/v1/eitypes:
+    get:
+      tags:
+        - A1-E Enrichment Data Consumer API
+      summary: Query EI type identifiers
+      description: DETAILS TBD
+      operationId: getEiTypeIdentifiersUsingGET
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: EI type identifiers
+          schema:
+            type: array
+            items:
+              type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/A1-EI/v1/eitypes/{eiTypeId}':
+    get:
+      tags:
+        - A1-E Enrichment Data Consumer API
+      summary: Definitions for an individual EI Type
+      description: Query EI type
+      operationId: getEiTypeUsingGET
+      produces:
+        - application/json
+      parameters:
+        - name: eiTypeId
+          in: path
+          description: eiTypeId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: EI type
+          schema:
+            $ref: '#/definitions/ei_type_info'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Enrichment Information type is not found
+          schema:
+            $ref: '#/definitions/error_information'
+      deprecated: false
+  '/A1-EI/v1/eitypes/{eiTypeId}/eijobs':
+    get:
+      tags:
+        - A1-E Enrichment Data Consumer API
+      summary: Query EI job identifiers
+      description: Returns the identifiers for an EI Type
+      operationId: getEiJobIdsUsingGET
+      produces:
+        - application/json
+      parameters:
+        - name: eiTypeId
+          in: path
+          description: eiTypeId
+          required: true
+          type: string
+        - in: body
+          name: owner
+          description: identifies the owner of the job
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: EI type
+          schema:
+            type: array
+            items:
+              type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Enrichment Information type is not found
+          schema:
+            $ref: '#/definitions/error_information'
+      deprecated: false
+  '/A1-EI/v1/eitypes/{eiTypeId}/eijobs/{eiJobId}':
+    get:
+      tags:
+        - A1-E Enrichment Data Consumer API
+      summary: Individual EI Job
+      operationId: getIndividualEiJobUsingGET
+      produces:
+        - application/json
+      parameters:
+        - name: eiJobId
+          in: path
+          description: eiJobId
+          required: true
+          type: string
+        - name: eiTypeId
+          in: path
+          description: eiTypeId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: EI Job
+          schema:
+            $ref: '#/definitions/ei_job_info'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Enrichment Information type or job is not found
+          schema:
+            $ref: '#/definitions/error_information'
+      deprecated: false
+    put:
+      tags:
+        - A1-E Enrichment Data Consumer API
+      summary: Individual EI Job
+      description: Create or update an EI Job
+      operationId: putIndividualEiJobUsingPUT
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: eiJobId
+          in: path
+          description: eiJobId
+          required: true
+          type: string
+        - in: body
+          name: eiJobInfo
+          description: eiJobInfo
+          required: true
+          schema:
+            $ref: '#/definitions/ei_job_info'
+        - name: eiTypeId
+          in: path
+          description: eiTypeId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Job updated
+          schema:
+            type: object
+        '201':
+          description: Job created
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Enrichment Information type is not found
+          schema:
+            $ref: '#/definitions/error_information'
+      deprecated: false
+    delete:
+      tags:
+        - A1-E Enrichment Data Consumer API
+      summary: Individual EI Job
+      description: Delete an EI job
+      operationId: deleteIndividualEiJobUsingDELETE
+      produces:
+        - application/json
+      parameters:
+        - name: eiJobId
+          in: path
+          description: eiJobId
+          required: true
+          type: string
+        - name: eiTypeId
+          in: path
+          description: eiTypeId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Not used
+          schema:
+            type: object
+        '204':
+          description: Job deleted
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Enrichment Information type or job is not found
+          schema:
+            $ref: '#/definitions/error_information'
+      deprecated: false
+  '/A1-EI/v1/eitypes/{eiTypeId}/eijobs/{eiJobId}/status':
+    get:
+      tags:
+        - A1-E Enrichment Data Consumer API
+      summary: EI Job status
+      operationId: getEiJobStatusUsingGET
+      produces:
+        - application/json
+      parameters:
+        - name: eiJobId
+          in: path
+          description: eiJobId
+          required: true
+          type: string
+        - name: eiTypeId
+          in: path
+          description: eiTypeId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: EI Job status
+          schema:
+            $ref: '#/definitions/ei_job_status'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Enrichment Information type or job is not found
+          schema:
+            $ref: '#/definitions/error_information'
+      deprecated: false
+definitions:
+  ei_job_info:
+    type: object
+    properties:
+      job_data:
+        type: object
+        description: EI Type specific job data
+      owner:
+        type: string
+        description: Identity of the owner of the job
+      result_target:
+        type: string
+        description: the deliver information for the EI. This is typically a URL.
+    title: ei_job_info
+    description: Information for a Enrichment Information Job
+  ei_job_status:
+    type: object
+    properties:
+      operational_state:
+        type: string
+        description: |-
+          Operational state, values: 
+          ENABLED: TBD 
+          DISABLED: TBD.
+        enum:
+          - ENABLED
+          - DISABLED
+    title: ei_job_status
+    description: Status for an EI Job
+  ei_type_info:
+    type: object
+    properties:
+      job_data_schema:
+        type: object
+        description: Json schema for the job data
+    title: ei_type_info
+    description: Information for an EI type
+  error_information:
+    type: object
+    properties:
+      detail:
+        type: string
+        example: EI job type not found
+        description: ' A human-readable explanation specific to this occurrence of the problem.'
+      status:
+        type: integer
+        format: int32
+        example: 503
+        description: 'The HTTP status code generated by the origin server for this occurrence of the problem. '
+    title: error_information
+    description: 'Problem as defined in https://tools.ietf.org/html/rfc7807'
+
