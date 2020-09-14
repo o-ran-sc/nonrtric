@@ -1,43 +1,31 @@
+## Overview
+The bash scripts in this dir are intended for function test of the Non-RT RIC in different configurations, using simulators when needed for the external interfaces.
+A few of the bash scripts are so called 'suites', These suite scripts calls a sequence of the other bash scripts.
 
-## Automated test Description
-This auto-test repo stores test script for automated test cases for Policy Agent.
-Each of the testcase script will bring up a containerized test enviroment for Policy Agent,
-CBS, consul, and simulator(TBD).
+## Automated test scripts
+There are two types of scripts, filenames in the format FTCXXX.sh test one or more components of the Non-RT RIC. Filenames in the format SuiteZZZZ.sh tests a number of FTCXXX.sh script as one suite. (XXX is an integer selected from the categories described further below).
+FTC is short for Function Test Case.
 
-### Overview
+The requirements, in terms of the execution enviroment, to run a script or a suite is to have docker, docker-compose and python3 installed (the scripts warns if not installed).
+The scripts have been tested to work on both MacOS and Ubuntu. They should work also in git bash on windows but not yet verified.
 
-Right now, test cases are written in bash scripts. \
-Each test case script(ex. `FTC1.sh)` will call functions defined in `../common`. \
-The environment vriables are set in`test_env.sh`. \
-The automated test support both local build Policy Agent image testing and remote image stored in Nexus.
-```
-# Local image
-export POLICY_AGENT_LOCAL_IMAGE=o-ran-sc/nonrtric-policy-agent
-# Remote image
-export POLICY_AGENT_REMOTE_IMAGE=nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-policy-agent
-```
-### Test Cases Description(more TBD)
-`FTC1.sh`: Test policy-agent can refresh configurations from consul
+## Configuration
+The test scripts uses configuration from a single file, found in `../common/test_env.sh`, which contains all needed configuration in terms of image names, image tags, ports, file paths, passwords etc. This file can be modified if needed.  See the README.md in  `../common/` for all details of the config file.
 
-### Logs
-All log files are stored at `logs/<testcase id>`. \
-The logs include the application.log and the container log from Policy Agent, the container logs from each simulator and the
-test case log (same as the screen output). \
-In the test cases the logs are stored with a prefix so the logs can be stored at different steps during the test.
-All test cases contains an entry to save all logs with prefix 'END' at the end of each test case.
+## How to run
+A test script, for example FTC1, is executed from the cmd line using the script filename and one or more parameters:
 
-### Manual
-Test case command:
-```
-./<testcase-id>.sh local | remote
+ ./FTC1.sh remote.
 
-Discription:
-local: test image: POLICY_AGENT_LOCAL_IMAGE=o-ran-sc/nonrtric-policy-agent
-remote: test image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-policy-agent
+See the README.md in  `../common/` for all details about available parameters and their meaning.
 
-```
+Each test script prints out the overall result of the tests in the end of the execution.
 
-### Test case categories
+The test scripts produce quite a number of logs; all container logs, a log of all http/htps calls from the test scripts including the payload, some configuration created during test and also a test case log (same as what is printed on the screen during execution). All these logs are stored in `logs/FTCXXX/`. So each test script is using its own log directory.
+
+## Test case categories
+The test script are number using these basic categories.
+
 1-99 - Basic sanity tests
 
 100-199 - API tests
@@ -50,22 +38,23 @@ remote: test image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-policy-agent
 
 Suites
 
-### Test case file
-A test case file contains a number of steps to verify a certain functionality.
-A description of the test case should be given to the ``TC_ONELINE_DESCR`` var. The description will be printed in
-the test result.
+To get an overview of the available test scripts, use the following command to print the test script description:
+'grep ONELINE *.sh' in the dir of the test scripts.
 
-The empty template for a test case files looks like this:
-
-(Only the parts noted with < and > shall be changed.)
+## Test case file - template
+A test script contains a number of steps to verify a certain functionality.
+The empty template for a test case file looks like this.
+Only the parts noted with < and > shall be changed.
+It is strongly suggested to look at the existing test scripts, it is probably easier to copy an existing test script instead of creating one from scratch. The README.md in  `../common/` describes the functions available in the test script in detail.
 
 -----------------------------------------------------------
 ```
-#!/usr/bin/env bash
+#!/bin/bash
 
 TC_ONELINE_DESCR="<test case description>"
 
-. ../common/testcase_common.sh $1
+. ../common/testcase_common.sh  $@
+< other scripts need to be sourced for specific interfaces>
 
 #### TEST BEGIN ####
 
@@ -80,8 +69,6 @@ store_logs          END
 ```
 -----------------------------------------------------------
 
-The ../common/testcase_common.sh contains all functions needed for the test case file. See the README.md file in
-the ../common dir for a description of all available functions.
 
 ## License
 

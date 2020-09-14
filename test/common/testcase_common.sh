@@ -18,7 +18,7 @@
 #
 
 # This is a script that contains all the functions needed for auto test
-# Arg: local|remote|remote-remove [auto-clean] [--stop-at-error] [--ricsim-prefix <prefix> ] [--use-local-image <app-nam> [<app-name>]*]
+# Arg: local|remote|remote-remove [auto-clean] [--stop-at-error] [--ricsim-prefix <prefix> ] [ --env-file <environment-filename> ] [--use-local-image <app-nam> [<app-name>]*]
 
 
 #Formatting for 'echo' cmd
@@ -52,36 +52,10 @@ fi
 # Just resetting any previous echo formatting...
 echo -ne $EBOLD
 
-# source test environment variables
-. ../common/test_env.sh
+# default test environment variables
+TEST_ENV_VAR_FILE="../common/test_env.sh"
 
 echo "Test case started as: ${BASH_SOURCE[$i+1]} "$@
-
-#Vars for A1 interface version and container count
-G1_A1_VERSION=""
-G2_A1_VERSION=""
-G3_A1_VERSION=""
-G1_COUNT=0
-G2_COUNT=0
-G3_COUNT=0
-
-# Vars to switch between http and https. Extra curl flag needed for https
-export RIC_SIM_HTTPX="http"
-export RIC_SIM_LOCALHOST=$RIC_SIM_HTTPX"://localhost:"
-export RIC_SIM_PORT=$RIC_SIM_INTERNAL_PORT
-export RIC_SIM_CERT_MOUNT_DIR="./cert"
-
-export MR_HTTPX="http"
-export MR_PORT=$MR_INTERNAL_PORT
-export MR_LOCAL_PORT=$MR_EXTERNAL_PORT #When agent is running outside the docker net
-
-export CR_HTTPX="http"
-export CR_PORT=$CR_INTERNAL_PORT
-export CR_LOCAL_PORT=$CR_EXTERNAL_PORT #When CR is running outside the docker net
-
-export SDNC_HTTPX="http"
-export SDNC_PORT=$SDNC_INTERNAL_PORT
-export SDNC_LOCAL_PORT=$SDNC_EXTERNAL_PORT #When agent is running outside the docker net
 
 #Localhost constant
 LOCALHOST="http://localhost:"
@@ -220,6 +194,19 @@ while [ $paramerror -eq 0 ] && [ $foundparm -eq 0 ]; do
 		fi
 	fi
 	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "--env-file" ]; then
+			shift;
+			TEST_ENV_VAR_FILE=$1
+			if [ -z "$1" ]; then
+				paramerror=1
+			else
+				echo "Option set - Overriding test_env.sh with: "$1
+				shift;
+				foundparm=0
+			fi
+		fi
+	fi
+	if [ $paramerror -eq 0 ]; then
 		if [ "$1" == "--use-local-image" ]; then
 			USE_LOCAL_IMAGES=""
 			shift
@@ -247,9 +234,44 @@ if [ $paramerror -eq 0 ] && [ $# -gt 0 ]; then
 fi
 
 if [ $paramerror -eq 1 ]; then
-	echo -e $RED"Expected arg: local|remote|remote-remove [auto-clean] [--stop-at-error] [--ricsim-prefix <prefix> ] [--use-local-image <app-nam> [<app-name>]*]"$ERED
+	echo -e $RED"Expected arg: local|remote|remote-remove [auto-clean] [--stop-at-error] [--ricsim-prefix <prefix> ] [ --env-file <environment-filename> ] [--use-local-image <app-nam> [<app-name>]*]"$ERED
 	exit 1
 fi
+
+# sourcing the selected env variables for the test case
+if [ -f "$TEST_ENV_VAR_FILE" ]; then
+	echo -e $BOLD"Sourcing env vars from: "$TEST_ENV_VAR_FILE$EBOLD
+	. $TEST_ENV_VAR_FILE
+else
+	echo -e $RED"Selected env var fle does not exist: "$TEST_ENV_VAR_FILE$ERED
+	exit 1
+fi
+
+#Vars for A1 interface version and container count
+G1_A1_VERSION=""
+G2_A1_VERSION=""
+G3_A1_VERSION=""
+G1_COUNT=0
+G2_COUNT=0
+G3_COUNT=0
+
+# Vars to switch between http and https. Extra curl flag needed for https
+export RIC_SIM_HTTPX="http"
+export RIC_SIM_LOCALHOST=$RIC_SIM_HTTPX"://localhost:"
+export RIC_SIM_PORT=$RIC_SIM_INTERNAL_PORT
+export RIC_SIM_CERT_MOUNT_DIR="./cert"
+
+export MR_HTTPX="http"
+export MR_PORT=$MR_INTERNAL_PORT
+export MR_LOCAL_PORT=$MR_EXTERNAL_PORT #When agent is running outside the docker net
+
+export CR_HTTPX="http"
+export CR_PORT=$CR_INTERNAL_PORT
+export CR_LOCAL_PORT=$CR_EXTERNAL_PORT #When CR is running outside the docker net
+
+export SDNC_HTTPX="http"
+export SDNC_PORT=$SDNC_INTERNAL_PORT
+export SDNC_LOCAL_PORT=$SDNC_EXTERNAL_PORT #When agent is running outside the docker net
 
 echo -e $BOLD"Checking configured image setting for this test case"$EBOLD
 

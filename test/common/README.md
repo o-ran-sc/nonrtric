@@ -6,7 +6,7 @@ Some of the scripts can also be used for other kinds of tests, for example basic
 
 `test_env.sh` \
 Common env variables for test in the auto-test dir. All configuration of port numbers, image names and version etc shall be made in this file.
-Used by the auto test scripts/suites but could be used for other test script as well.
+Used by the auto test scripts/suites but could be used for other test script as well. It is possible to configure a test case with a different file using the command line argument '--env-file'.
 
 `testcase_common.sh` \
 Common functions for auto test cases in the auto-test dir. This script is the foundation of test auto environment which sets up images and enviroment variables needed by this script as well as the script adapting to the APIs.
@@ -54,7 +54,7 @@ The script can be started with these arguments
 
 | arg list |
 |--|
-| `local|remote|remote-remove [auto-clean] [--stop-at-error] [--use-local-image <app-nam> [<app-name>]*]` |
+| `local|remote|remote-remove [auto-clean] [--stop-at-error] [--ricsim-prefix <prefix> ] [ --env-file <environment-filename> ]  [--use-local-image <app-nam> [<app-name>]*]` |
 
 | parameter | description |
 |-|-|
@@ -63,8 +63,10 @@ The script can be started with these arguments
 | `remote-remove` | same as remote but all images are removed first so that fresh images are pulled when running |
 | `auto-clean` | all containers will be automatically stopped and removed when the test case is complete. Requires the function 'auto_clean_containers' to be included last in the applicable auto-test script |
 | `--stop-at-error` | intended for debugging and make the script stop at first 'FAIL' and save all logs with a prefix 'STOP_AT_ERROR' |
-| `--use-local-image <app-nam> [<app-name>]*` | nnly applicable when running as 'remote' or 'remote-remove'. Mainly for debugging when a locally built image shall be used together with other remote images from nexus.Accepts a space separated list of PA, CP, RICSIM, SDNC for Policy Agent, Control Panel, A1-controller and the Ric simulator |
 | `--ricsim-prefix <prefix>` | use another prefix for the ric simulator container name than the standard 'ricsim'. Note that the testscript has to read and use the env var `$RIC_SIM_PREFIX` instead of a hardcoded name of the ric(s). |
+| `--env-file` | point to a different file with environment variables, instead of the default 'test_env.sh' |
+| `--use-local-image <app-nam> [<app-name>]*` | nnly applicable when running as 'remote' or 'remote-remove'. Mainly for debugging when a locally built image shall be used together with other remote images from nexus.Accepts a space separated list of PA, CP, RICSIM, SDNC for Policy Agent, Control Panel, A1-controller and the Ric simulator |
+
 
 #### Function: print_result ####
 Print a test report of an auto-test script.
