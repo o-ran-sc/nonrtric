@@ -32,65 +32,77 @@ EXCLUDED_IMAGES="PA CP SDNC_ONAP"
 generate_uuid
 
 #Test agent and simulator protocol versions (others are http only)
-TESTED_PROTOCOLS="HTTP HTTPS"
+NB_TESTED_PROTOCOLS="HTTP HTTPS"
+SB_TESTED_PROTOCOLS="HTTP HTTPS"
 
-for __httpx in $TESTED_PROTOCOLS ; do
+for __nb_httpx in $NB_TESTED_PROTOCOLS ; do
+    for __sb_httpx in $SB_TESTED_PROTOCOLS ; do
 
-    echo "#####################################################################"
-    echo "#####################################################################"
-    echo "### Testing SDNC using: $__httpx"
-    echo "#####################################################################"
-    echo "#####################################################################"
-
-
-    # Clean container and start all needed containers #
-    clean_containers
-
-    start_ric_simulators ricsim_g1 1  OSC_2.1.0
-    start_ric_simulators ricsim_g2 1  STD_1.1.3
-
-    start_sdnc
-
-    if [ $__httpx == "HTTPS" ]; then
-        # "Using secure ports towards SDNC"
-        use_sdnc_https
-    else
-        #"Using non-secure ports towards SDNC"
-        use_sdnc_http
-    fi
-
-    # API tests
-
-    controller_api_get_A1_policy_type 404 OSC ricsim_g1_1 1
-
-    sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
+        echo "#####################################################################"
+        echo "#####################################################################"
+        echo "### Testing SDNC using Northbound: $__nb_httpx and Southbound: $__sb_httpx"
+        echo "#####################################################################"
+        echo "#####################################################################"
 
 
-    controller_api_get_A1_policy_ids 200 OSC ricsim_g1_1 1
-    controller_api_get_A1_policy_ids 200 STD ricsim_g2_1
+        # Clean container and start all needed containers #
+        clean_containers
 
-    controller_api_get_A1_policy_type 200 OSC ricsim_g1_1 1
-    controller_api_get_A1_policy_type 200 OSC ricsim_g1_1 1 testdata/OSC/sim_1.json
-    controller_api_get_A1_policy_type 404 OSC ricsim_g1_1 99
+        start_ric_simulators ricsim_g1 1  OSC_2.1.0
+        start_ric_simulators ricsim_g2 1  STD_1.1.3
 
-    controller_api_put_A1_policy 202 OSC ricsim_g1_1 1 4000 testdata/OSC/pi1_template.json
-    controller_api_put_A1_policy 404 OSC ricsim_g1_1 5 1001 testdata/OSC/pi1_template.json
-    controller_api_put_A1_policy 201 STD ricsim_g2_1   5000 testdata/STD/pi1_template.json
+        start_sdnc
 
-    controller_api_get_A1_policy_ids 200 OSC ricsim_g1_1 1 4000
-    controller_api_get_A1_policy_ids 200 STD ricsim_g2_1 5000
+        if [ $__nb_httpx == "HTTPS" ]; then
+            # "Using secure ports towards SDNC"
+            use_sdnc_https
+        else
+            #"Using non-secure ports towards SDNC"
+            use_sdnc_http
+        fi
 
-    controller_api_get_A1_policy_status 200 OSC ricsim_g1_1 1 4000
-    controller_api_get_A1_policy_status 200 STD ricsim_g2_1 5000
+        if [ $__sb_httpx == "HTTPS" ]; then
+            # "Using secure ports towards SDNC"
+            use_simulator_https
+        else
+            #"Using non-secure ports towards SDNC"
+            use_simulator_http
+        fi
 
-    VAL='NOT IN EFFECT'
-    controller_api_get_A1_policy_status 200 OSC ricsim_g1_1 1 4000 "$VAL" "false"
-    controller_api_get_A1_policy_status 200 STD ricsim_g2_1 5000 "UNDEFINED"
+        # API tests
 
-    controller_api_delete_A1_policy 202 OSC ricsim_g1_1 1 4000
-    controller_api_delete_A1_policy 204 STD ricsim_g2_1 5000
+        controller_api_get_A1_policy_type 404 OSC ricsim_g1_1 1
 
-    store_logs          $__httpx
+        sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
+
+
+        controller_api_get_A1_policy_ids 200 OSC ricsim_g1_1 1
+        controller_api_get_A1_policy_ids 200 STD ricsim_g2_1
+
+        controller_api_get_A1_policy_type 200 OSC ricsim_g1_1 1
+        controller_api_get_A1_policy_type 200 OSC ricsim_g1_1 1 testdata/OSC/sim_1.json
+        controller_api_get_A1_policy_type 404 OSC ricsim_g1_1 99
+
+        controller_api_put_A1_policy 202 OSC ricsim_g1_1 1 4000 testdata/OSC/pi1_template.json
+        controller_api_put_A1_policy 404 OSC ricsim_g1_1 5 1001 testdata/OSC/pi1_template.json
+        controller_api_put_A1_policy 201 STD ricsim_g2_1   5000 testdata/STD/pi1_template.json
+
+        controller_api_get_A1_policy_ids 200 OSC ricsim_g1_1 1 4000
+        controller_api_get_A1_policy_ids 200 STD ricsim_g2_1 5000
+
+        controller_api_get_A1_policy_status 200 OSC ricsim_g1_1 1 4000
+        controller_api_get_A1_policy_status 200 STD ricsim_g2_1 5000
+
+        VAL='NOT IN EFFECT'
+        controller_api_get_A1_policy_status 200 OSC ricsim_g1_1 1 4000 "$VAL" "false"
+        controller_api_get_A1_policy_status 200 STD ricsim_g2_1 5000 "UNDEFINED"
+
+        controller_api_delete_A1_policy 202 OSC ricsim_g1_1 1 4000
+        controller_api_delete_A1_policy 204 STD ricsim_g2_1 5000
+
+        store_logs          "NB_"$__nb_httpx"_SB_"$__sb_httpx
+
+    done
 
 done
 

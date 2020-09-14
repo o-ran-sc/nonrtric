@@ -146,6 +146,7 @@ export SDNC_INTERNAL_PORT=8181                                  # SNDC A1 Contro
 export SDNC_EXTERNAL_SECURE_PORT=8443                           # SNDC A1 Controller container external securee port (host -> container)
 export SDNC_INTERNAL_SECURE_PORT=8443                           # SNDC A1 Controller container internal secure port (container -> container)
 export SDNC_DB_APP_NAME="sdnc-db"                               # Name of the SDNC DB container
+export SDNC_A1_TRUSTSTORE_PASSWORD=""                           # SDNC truststore password
 SDNC_USER="admin"                                               # SDNC username
 SDNC_PWD="Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U"          # SNDC PWD
 SDNC_API_URL="/restconf/operations/A1-ADAPTER-API:"             # Base url path for SNDC API

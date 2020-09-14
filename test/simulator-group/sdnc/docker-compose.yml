@@ -13,12 +13,12 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 # ==================================================================================
-version: '2.1'
+version: '3'
 
 networks:
   default:
-    driver: bridge
-    name: ${DOCKER_SIM_NWNAME}
+    external:
+      name: ${DOCKER_SIM_NWNAME}
 
 services:
   db:
@@ -55,6 +55,7 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=openECOMP1.0
       - SDNC_CONFIG_DIR=/opt/onap/sdnc/data/properties
+      - A1_TRUSTSTORE_PASSWORD=${SDNC_A1_TRUSTSTORE_PASSWORD}
     logging:
       driver:   "json-file"
       options:
