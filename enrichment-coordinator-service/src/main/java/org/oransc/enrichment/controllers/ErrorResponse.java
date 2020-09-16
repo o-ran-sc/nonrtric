@@ -83,24 +83,19 @@ public class ErrorResponse {
         this.message = message;
     }
 
-    public static Mono<ResponseEntity<Object>> createMono(String text, HttpStatus code) {
-        return Mono.just(create(text, code));
-    }
-
     public static Mono<ResponseEntity<Object>> createMono(Exception e, HttpStatus code) {
-        return createMono(e.toString(), code);
+        return Mono.just(create(e, code));
     }
 
-    public static ResponseEntity<Object> create(String text, HttpStatus code) {
-        ErrorInfo p = new ErrorInfo(text, code.value());
+    public static ResponseEntity<Object> create(Exception e, HttpStatus code) {
+        if (e instanceof RuntimeException) {
+            code = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        ErrorInfo p = new ErrorInfo(e.toString(), code.value());
         String json = gson.toJson(p);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PROBLEM_JSON);
         return new ResponseEntity<>(json, headers, code);
-    }
-
-    public static ResponseEntity<Object> create(Exception e, HttpStatus code) {
-        return create(e.toString(), code);
     }
 
 }

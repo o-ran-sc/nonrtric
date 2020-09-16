@@ -23,8 +23,10 @@ package org.oransc.enrichment;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.apache.catalina.connector.Connector;
+import org.oransc.enrichment.clients.ProducerCallbacks;
 import org.oransc.enrichment.configuration.ApplicationConfig;
 import org.oransc.enrichment.repository.EiJobs;
+import org.oransc.enrichment.repository.EiProducers;
 import org.oransc.enrichment.repository.EiTypes;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
@@ -65,8 +67,18 @@ class BeanFactory {
     }
 
     @Bean
+    public EiProducers eiProducers() {
+        return new EiProducers();
+    }
+
+    @Bean
     public ApplicationConfig getApplicationConfig() {
         return this.applicationConfig;
+    }
+
+    @Bean
+    public ProducerCallbacks getProducerCallbacks() {
+        return new ProducerCallbacks();
     }
 
     private static Connector getHttpConnector(int httpPort) {

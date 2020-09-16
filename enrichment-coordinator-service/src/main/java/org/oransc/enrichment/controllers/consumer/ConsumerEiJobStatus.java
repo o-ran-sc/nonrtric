@@ -42,9 +42,9 @@ public class ConsumerEiJobStatus {
         + "ENABLED: TBD\n" //
         + "DISABLED: TBD.";
 
-    @ApiModelProperty(value = OPERATIONAL_STATE_DESCRIPTION, name = "operational_state")
+    @ApiModelProperty(value = OPERATIONAL_STATE_DESCRIPTION, name = "operational_state", required = true)
     @SerializedName("operational_state")
-    @JsonProperty("operational_state")
+    @JsonProperty(value = "operational_state", required = true)
     public final OperationalState state;
 
     public ConsumerEiJobStatus(OperationalState state) {

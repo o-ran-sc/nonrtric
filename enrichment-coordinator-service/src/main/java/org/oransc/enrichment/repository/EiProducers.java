@@ -28,45 +28,45 @@ import java.util.Vector;
 import org.oransc.enrichment.exceptions.ServiceException;
 
 /**
- * Dynamic representation of all EI Types in the system.
+ * Dynamic representation of all Rics in the system.
  */
-public class EiTypes {
-    Map<String, EiType> allEiTypes = new HashMap<>();
+public class EiProducers {
+    private Map<String, EiProducer> allEiProducers = new HashMap<>();
 
-    public synchronized void put(EiType type) {
-        allEiTypes.put(type.getId(), type);
+    public synchronized void put(EiProducer producer) {
+        allEiProducers.put(producer.id(), producer);
+
     }
 
-    public synchronized Collection<EiType> getAllEiTypes() {
-        return new Vector<>(allEiTypes.values());
+    public synchronized Collection<EiProducer> getAllProducers() {
+        return new Vector<>(allEiProducers.values());
     }
 
-    public synchronized EiType getType(String id) throws ServiceException {
-        EiType type = allEiTypes.get(id);
-        if (type == null) {
-            throw new ServiceException("Could not find EI type: " + id);
+    public synchronized EiProducer getProducer(String id) throws ServiceException {
+        EiProducer p = allEiProducers.get(id);
+        if (p == null) {
+            throw new ServiceException("Could not find EI producer: " + id);
         }
-        return type;
+        return p;
     }
 
-    public synchronized EiType get(String id) {
-        return allEiTypes.get(id);
+    public synchronized EiProducer get(String id) {
+        return allEiProducers.get(id);
     }
 
     public synchronized void remove(String id) {
-        allEiTypes.remove(id);
+        this.allEiProducers.remove(id);
     }
 
-    public synchronized void remove(EiType type) {
-        this.remove(type.getId());
+    public synchronized void remove(EiProducer producer) {
+        this.allEiProducers.remove(producer.id());
     }
 
     public synchronized int size() {
-        return allEiTypes.size();
+        return allEiProducers.size();
     }
 
     public synchronized void clear() {
-        this.allEiTypes.clear();
+        this.allEiProducers.clear();
     }
-
 }

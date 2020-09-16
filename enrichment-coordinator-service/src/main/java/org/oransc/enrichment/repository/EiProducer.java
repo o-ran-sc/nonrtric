@@ -20,21 +20,20 @@
 
 package org.oransc.enrichment.repository;
 
+import java.util.Collection;
+
 import org.immutables.gson.Gson;
 import org.immutables.value.Value;
 
-/**
- * Represents the dynamic information about a Near-RT RIC.
- */
 @Value.Immutable
 @Gson.TypeAdapters
-public interface EiJob {
+public interface EiProducer {
+    public String id();
 
-    String id();
+    public Collection<EiType> eiTypes();
 
-    EiType type();
+    public String jobCreationCallbackUrl();
 
-    String owner();
+    public String jobDeletionCallbackUrl();
 
-    Object jobData();
 }
