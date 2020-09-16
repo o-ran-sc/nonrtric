@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c4f9e242_5fab2d17",
+        "filename": "enrichment-coordinator-service/config/README",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-09-16T12:37:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "44aef838_87d39324",
+      "range": {
+        "startLine": 6,
+        "startChar": 66,
+        "endLine": 6,
+        "endChar": 67
+      },
+      "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "07571dd9_f9d80642",
         "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/SwaggerConfig.java",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23a8cdd4_2e75421a",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/SwaggerConfig.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-09-16T12:37:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "07571dd9_f9d80642",
+      "range": {
+        "startLine": 42,
+        "startChar": 40,
+        "endLine": 42,
+        "endChar": 51
+      },
+      "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "a6fdf86f_5642c114",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/ErrorResponse.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-09-16T12:37:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ea0c4d19_bed2a736",
+      "range": {
+        "startLine": 65,
+        "startChar": 108,
+        "endLine": 65,
+        "endChar": 109
+      },
+      "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d93f9809_be38a4a9",
         "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/ErrorResponse.java",
         "patchSetId": 1
@@ -91,6 +163,30 @@
       "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3df7cdc_a858a249",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/ErrorResponse.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-09-16T12:37:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d93f9809_be38a4a9",
+      "range": {
+        "startLine": 72,
+        "startChar": 21,
+        "endLine": 72,
+        "endChar": 22
+      },
+      "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "8e8a6e3f_fd8e9073",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-09-16T12:37:44Z",
+      "side": 1,
+      "message": "Done, actually it is returning job IDs for a type.",
+      "parentUuid": "1b7f5c01_b2e3982d",
+      "range": {
+        "startLine": 109,
+        "startChar": 97,
+        "endLine": 109,
+        "endChar": 101
+      },
+      "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c9be4cef_e191f383",
         "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerController.java",
         "patchSetId": 1
@@ -137,6 +257,30 @@
       "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c30a93ca_67a4be28",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-09-16T12:37:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c9be4cef_e191f383",
+      "range": {
+        "startLine": 112,
+        "startChar": 51,
+        "endLine": 112,
+        "endChar": 55
+      },
+      "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "05b2f2f0_9e2fafba",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-09-16T12:37:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b5cd7d57_ea240416",
+      "range": {
+        "startLine": 189,
+        "startChar": 27,
+        "endLine": 189,
+        "endChar": 38
+      },
+      "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "174f810b_f6dee530",
         "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerController.java",
         "patchSetId": 1
@@ -183,6 +351,30 @@
       "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9920e098_01a2b6b2",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-09-16T12:37:44Z",
+      "side": 1,
+      "message": "This is the way it expressed in the standard CR. This might change.",
+      "parentUuid": "174f810b_f6dee530",
+      "range": {
+        "startLine": 213,
+        "startChar": 27,
+        "endLine": 213,
+        "endChar": 38
+      },
+      "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     },
     {
       "key": {
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "a5d996b8_1497a046",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerEiJobStatus.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-09-16T12:37:44Z",
+      "side": 1,
+      "message": "Done. This will be defined by the A1E standard. It is point in polishing this now.",
+      "parentUuid": "7fb4f969_49c83fda",
+      "range": {
+        "startLine": 41,
+        "startChar": 91,
+        "endLine": 41,
+        "endChar": 92
+      },
+      "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d7b6d50f_efc4e462",
         "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerEiJobStatus.java",
         "patchSetId": 1
@@ -229,6 +445,30 @@
       "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2436714_48cdedf4",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerEiJobStatus.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-09-16T12:37:44Z",
+      "side": 1,
+      "message": "Done. This will be defined by the A1E standard. It is point in polishing this now.",
+      "parentUuid": "d7b6d50f_efc4e462",
+      "range": {
+        "startLine": 42,
+        "startChar": 23,
+        "endLine": 42,
+        "endChar": 24
+      },
+      "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     },
     {
       "key": {
@@ -255,6 +495,30 @@
     },
     {
       "key": {
+        "uuid": "2286b27c_ea25372f",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/repository/EiJob.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-09-16T12:37:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1d02f818_ad5f260d",
+      "range": {
+        "startLine": 42,
+        "startChar": 6,
+        "endLine": 42,
+        "endChar": 7
+      },
+      "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "244f7f99_630a557e",
         "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/repository/EiTypes.java",
         "patchSetId": 1
@@ -275,6 +539,30 @@
       "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40bb024c_f2de018d",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/repository/EiTypes.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-09-16T12:37:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "244f7f99_630a557e",
+      "range": {
+        "startLine": 31,
+        "startChar": 33,
+        "endLine": 31,
+        "endChar": 38
+      },
+      "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
