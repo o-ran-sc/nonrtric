@@ -1,0 +1,280 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "44aef838_87d39324",
+        "filename": "enrichment-coordinator-service/config/README",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-09-16T11:49:17Z",
+      "side": 1,
+      "message": "Please remove trailing whitespace",
+      "range": {
+        "startLine": 6,
+        "startChar": 66,
+        "endLine": 6,
+        "endChar": 67
+      },
+      "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07571dd9_f9d80642",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/SwaggerConfig.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-09-16T11:49:17Z",
+      "side": 1,
+      "message": "enrichement?",
+      "range": {
+        "startLine": 42,
+        "startChar": 40,
+        "endLine": 42,
+        "endChar": 51
+      },
+      "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea0c4d19_bed2a736",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/ErrorResponse.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-09-16T11:49:17Z",
+      "side": 1,
+      "message": "Please remove this whitespace, since it will show up as a trailing whitespace in the generated api documentation.",
+      "range": {
+        "startLine": 65,
+        "startChar": 108,
+        "endLine": 65,
+        "endChar": 109
+      },
+      "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d93f9809_be38a4a9",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/ErrorResponse.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-09-16T11:49:17Z",
+      "side": 1,
+      "message": "Please remove leading whitespace.",
+      "range": {
+        "startLine": 72,
+        "startChar": 21,
+        "endLine": 72,
+        "endChar": 22
+      },
+      "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b7f5c01_b2e3982d",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-09-16T11:49:17Z",
+      "side": 1,
+      "message": "Job",
+      "range": {
+        "startLine": 109,
+        "startChar": 97,
+        "endLine": 109,
+        "endChar": 101
+      },
+      "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9be4cef_e191f383",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-09-16T11:49:17Z",
+      "side": 1,
+      "message": "job",
+      "range": {
+        "startLine": 112,
+        "startChar": 51,
+        "endLine": 112,
+        "endChar": 55
+      },
+      "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5cd7d57_ea240416",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-09-16T11:49:17Z",
+      "side": 1,
+      "message": "Delete an",
+      "range": {
+        "startLine": 189,
+        "startChar": 27,
+        "endLine": 189,
+        "endChar": 38
+      },
+      "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "174f810b_f6dee530",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-09-16T11:49:17Z",
+      "side": 1,
+      "message": "Create an",
+      "range": {
+        "startLine": 213,
+        "startChar": 27,
+        "endLine": 213,
+        "endChar": 38
+      },
+      "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7fb4f969_49c83fda",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerEiJobStatus.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-09-16T11:49:17Z",
+      "side": 1,
+      "message": "Please remove this whitespace, since it will show up as a trailing whitespace in the generated api documentation.",
+      "range": {
+        "startLine": 41,
+        "startChar": 91,
+        "endLine": 41,
+        "endChar": 92
+      },
+      "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7b6d50f_efc4e462",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerEiJobStatus.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-09-16T11:49:17Z",
+      "side": 1,
+      "message": "Please remove this whitespace, since it will show up as a trailing whitespace in the generated api documentation.",
+      "range": {
+        "startLine": 42,
+        "startChar": 23,
+        "endLine": 42,
+        "endChar": 24
+      },
+      "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d02f818_ad5f260d",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/repository/EiJob.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-09-16T11:49:17Z",
+      "side": 1,
+      "message": "Please remove all trailing whitespaces.",
+      "range": {
+        "startLine": 42,
+        "startChar": 6,
+        "endLine": 42,
+        "endChar": 7
+      },
+      "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "244f7f99_630a557e",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/repository/EiTypes.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-09-16T11:49:17Z",
+      "side": 1,
+      "message": "Types",
+      "range": {
+        "startLine": 31,
+        "startChar": 33,
+        "endLine": 31,
+        "endChar": 38
+      },
+      "revId": "ebe1383db409cc1d19adebef605b0a42a88b82ef",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
