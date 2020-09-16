@@ -34,7 +34,7 @@
     </properties>
     <modules>
         <module>policy-agent</module>
-        <module>sdnc-a1-controller</module>
+        <module>sdnc-a1-controller</module>      
     </modules>
     <build>
         <plugins>

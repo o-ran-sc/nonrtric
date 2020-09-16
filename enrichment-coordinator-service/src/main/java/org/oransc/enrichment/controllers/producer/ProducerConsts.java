@@ -1,9 +1,9 @@
 /*-
  * ========================LICENSE_START=================================
- * O-RAN-SC
- * %%
- * Copyright (C) 2019 Nordix Foundation
- * %%
+ * ONAP : ccsdk oran
+ * ======================================================================
+ * Copyright (C) 2020 Nordix Foundation. All rights reserved.
+ * ======================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,23 +18,14 @@
  * ========================LICENSE_END===================================
  */
 
-package org.oransc.enrichment.repository;
+package org.oransc.enrichment.controllers.producer;
 
-import org.immutables.gson.Gson;
-import org.immutables.value.Value;
+public class ProducerConsts {
 
-/**
- * Represents the dynamic information about a Near-RT RIC.
- */
-@Value.Immutable
-@Gson.TypeAdapters
-public interface EiJob {
+    public static final String API_ROOT = "/ei-producer/v1";
+    public static final String PRODUCER_API_NAME = "Enrichment Data Producer API";
 
-    String id();
+    private ProducerConsts() {
+    }
 
-    EiType type();
-
-    String owner();
-
-    Object jobData();
 }

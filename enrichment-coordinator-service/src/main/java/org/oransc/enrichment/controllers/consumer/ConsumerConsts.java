@@ -22,7 +22,7 @@ package org.oransc.enrichment.controllers.consumer;
 
 public class ConsumerConsts {
 
-    public static final String A1E_API_ROOT = "/A1-EI/v1";
+    public static final String API_ROOT = "/A1-EI/v1";
     public static final String CONSUMER_API_NAME = "A1-E Enrichment Data Consumer API";
     public static final String OWNER_PARAM = "owner";
     public static final String OWNER_PARAM_DESCRIPTION = "identifies the owner of the job";

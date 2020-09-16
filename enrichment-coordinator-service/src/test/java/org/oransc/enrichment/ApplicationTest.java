@@ -21,6 +21,7 @@
 package org.oransc.enrichment;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.gson.Gson;
@@ -29,29 +30,44 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.oransc.enrichment.clients.AsyncRestClient;
+import org.oransc.enrichment.clients.ProducerJobInfo;
 import org.oransc.enrichment.configuration.ApplicationConfig;
 import org.oransc.enrichment.configuration.ImmutableWebClientConfig;
 import org.oransc.enrichment.configuration.WebClientConfig;
+import org.oransc.enrichment.controller.ProducerSimulatorController;
 import org.oransc.enrichment.controllers.consumer.ConsumerConsts;
 import org.oransc.enrichment.controllers.consumer.ConsumerEiJobInfo;
+import org.oransc.enrichment.controllers.producer.ProducerConsts;
+import org.oransc.enrichment.controllers.producer.ProducerRegistrationInfo;
+import org.oransc.enrichment.controllers.producer.ProducerRegistrationInfo.ProducerEiTypeRegistrationInfo;
 import org.oransc.enrichment.repository.EiJob;
 import org.oransc.enrichment.repository.EiJobs;
+import org.oransc.enrichment.repository.EiProducer;
+import org.oransc.enrichment.repository.EiProducers;
 import org.oransc.enrichment.repository.EiType;
 import org.oransc.enrichment.repository.EiTypes;
 import org.oransc.enrichment.repository.ImmutableEiJob;
-import org.oransc.enrichment.repository.ImmutableEiType;
+import org.oransc.enrichment.repository.ImmutableEiProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -81,7 +97,13 @@ class ApplicationTest {
     EiTypes eiTypes;
 
     @Autowired
+    EiProducers eiProducers;
+
+    @Autowired
     ApplicationConfig applicationConfig;
+
+    @Autowired
+    ProducerSimulatorController producerSimulator;
 
     private static Gson gson = new GsonBuilder() //
         .serializeNulls() //
@@ -92,7 +114,10 @@ class ApplicationTest {
      */
     @TestConfiguration
     static class TestBeanFactory {
-
+        @Bean
+        public ServletWebServerFactory servletContainer() {
+            return new TomcatServletWebServerFactory();
+        }
     }
 
     @LocalServerPort
@@ -102,12 +127,19 @@ class ApplicationTest {
     void reset() {
         this.eiJobs.clear();
         this.eiTypes.clear();
+        this.eiProducers.clear();
+        this.producerSimulator.getTestResults().reset();
+    }
+
+    @AfterEach
+    void check() {
+        assertThat(this.producerSimulator.getTestResults().errorFound).isFalse();
     }
 
     @Test
     void getEiTypes() throws Exception {
         addEiType("test");
-        String url = "/eitypes";
+        String url = ConsumerConsts.API_ROOT + "/eitypes";
         String rsp = restClient().get(url).block();
         assertThat(rsp).isEqualTo("[\"test\"]");
     }
@@ -115,35 +147,35 @@ class ApplicationTest {
     @Test
     void getEiType() throws Exception {
         addEiType("test");
-        String url = "/eitypes/test";
+        String url = ConsumerConsts.API_ROOT + "/eitypes/test";
         String rsp = restClient().get(url).block();
         assertThat(rsp).contains("job_data_schema");
     }
 
     @Test
     void getEiTypeNotFound() throws Exception {
-        String url = "/eitypes/junk";
-        testErrorCode(restClient().get(url), HttpStatus.NOT_FOUND, "Could not find EI Job: junk");
+        String url = ConsumerConsts.API_ROOT + "/eitypes/junk";
+        testErrorCode(restClient().get(url), HttpStatus.NOT_FOUND, "Could not find EI type: junk");
     }
 
     @Test
     void getEiJobsIds() throws Exception {
         addEiJob("typeId", "jobId");
-        String url = "/eitypes/typeId/eijobs";
+        String url = ConsumerConsts.API_ROOT + "/eitypes/typeId/eijobs";
         String rsp = restClient().get(url).block();
         assertThat(rsp).isEqualTo("[\"jobId\"]");
     }
 
     @Test
     void getEiJobTypeNotFound() throws Exception {
-        String url = "/eitypes/junk/eijobs";
-        testErrorCode(restClient().get(url), HttpStatus.NOT_FOUND, "Could not find EI Job: junk");
+        String url = ConsumerConsts.API_ROOT + "/eitypes/junk/eijobs";
+        testErrorCode(restClient().get(url), HttpStatus.NOT_FOUND, "Could not find EI type: junk");
     }
 
     @Test
     void getEiJob() throws Exception {
         addEiJob("typeId", "jobId");
-        String url = "/eitypes/typeId/eijobs/jobId";
+        String url = ConsumerConsts.API_ROOT + "/eitypes/typeId/eijobs/jobId";
         String rsp = restClient().get(url).block();
         assertThat(rsp).contains("job_data");
     }
@@ -151,7 +183,7 @@ class ApplicationTest {
     @Test
     void getEiJobStatus() throws Exception {
         addEiJob("typeId", "jobId");
-        String url = "/eitypes/typeId/eijobs/jobId/status";
+        String url = ConsumerConsts.API_ROOT + "/eitypes/typeId/eijobs/jobId/status";
         String rsp = restClient().get(url).block();
         assertThat(rsp).contains("ENABLED");
     }
@@ -162,20 +194,29 @@ class ApplicationTest {
     void deleteEiJob() throws Exception {
         addEiJob("typeId", "jobId");
         assertThat(this.eiJobs.size()).isEqualTo(1);
-        String url = "/eitypes/typeId/eijobs/jobId";
+        String url = ConsumerConsts.API_ROOT + "/eitypes/typeId/eijobs/jobId";
         restClient().delete(url).block();
         assertThat(this.eiJobs.size()).isEqualTo(0);
+
+        ProducerSimulatorController.TestResults simulatorResults = this.producerSimulator.getTestResults();
+        await().untilAsserted(() -> assertThat(simulatorResults.jobsStopped.size()).isEqualTo(1));
+        assertThat(simulatorResults.jobsStopped.get(0).id).isEqualTo("jobId");
     }
 
     @Test
     void putEiJob() throws Exception {
         addEiType("typeId");
 
-        String url = "/eitypes/typeId/eijobs/jobId";
+        String url = ConsumerConsts.API_ROOT + "/eitypes/typeId/eijobs/jobId";
         String body = gson.toJson(eiJobInfo());
         ResponseEntity<String> resp = restClient().putForEntity(url, body).block();
         assertThat(this.eiJobs.size()).isEqualTo(1);
         assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+
+        ProducerSimulatorController.TestResults simulatorResults = this.producerSimulator.getTestResults();
+        await().untilAsserted(() -> assertThat(simulatorResults.jobsStarted.size()).isEqualTo(1));
+        ProducerJobInfo request = simulatorResults.jobsStarted.get(0);
+        assertThat(request.id).isEqualTo("jobId");
 
         resp = restClient().putForEntity(url, body).block();
         assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -183,17 +224,101 @@ class ApplicationTest {
         assertThat(job.owner()).isEqualTo("owner");
     }
 
-    ConsumerEiJobInfo eiJobInfo() {
-        return new ConsumerEiJobInfo(jsonObject(), "owner");
+    @Test
+    void getEiProducerTypes() throws Exception {
+        this.addEiJob("typeId", "jobId");
+        String url = ProducerConsts.API_ROOT + "/eitypes";
+
+        ResponseEntity<String> resp = restClient().getForEntity(url).block();
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
-    // @Test
-    @SuppressWarnings("squid:S2699")
-    void runMock() throws Exception {
-        logger.info("Keeping server alive! " + this.port);
-        synchronized (this) {
-            this.wait();
-        }
+    @Test
+    void putEiProducer() throws Exception {
+        String url = ProducerConsts.API_ROOT + "/eiproducers/eiProducerId";
+        String body = gson.toJson(producerEiRegistratioInfo());
+
+        ResponseEntity<String> resp = restClient().putForEntity(url, body).block();
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+
+        assertThat(this.eiTypes.size()).isEqualTo(1);
+        EiType type = this.eiTypes.getType("typeId");
+        assertThat(type.getProducerIds().contains("eiProducerId")).isTrue();
+        assertThat(this.eiProducers.size()).isEqualTo(1);
+        assertThat(this.eiProducers.get("eiProducerId").eiTypes().iterator().next().getId().equals("typeId")).isTrue();
+
+        resp = restClient().putForEntity(url, body).block();
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    void putEiProducerExistingJob() throws Exception {
+        this.addEiJob("typeId", "jobId");
+        String url = ProducerConsts.API_ROOT + "/eiproducers/eiProducerId";
+        String body = gson.toJson(producerEiRegistratioInfo());
+
+        ResponseEntity<String> resp = restClient().putForEntity(url, body).block();
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+
+        ProducerSimulatorController.TestResults simulatorResults = this.producerSimulator.getTestResults();
+        await().untilAsserted(() -> assertThat(simulatorResults.jobsStarted.size()).isEqualTo(1));
+        ProducerJobInfo request = simulatorResults.jobsStarted.get(0);
+        assertThat(request.id).isEqualTo("jobId");
+    }
+
+    @Test
+    void getEiJobsForProducer() {
+        this.addEiJob("typeId", "jobId1");
+        this.addEiJob("typeId", "jobId2");
+
+        // PUT a consumer
+        String url = ProducerConsts.API_ROOT + "/eiproducers/eiProducerId";
+        String body = gson.toJson(producerEiRegistratioInfo());
+        restClient().putForEntity(url, body).block();
+
+        url = ProducerConsts.API_ROOT + "/eiproducers/eiProducerId/eijobs";
+        ResponseEntity<String> resp = restClient().getForEntity(url).block();
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        ProducerJobInfo[] parsedResp = gson.fromJson(resp.getBody(), ProducerJobInfo[].class);
+        assertThat(parsedResp[0].typeId).isEqualTo("typeId");
+        assertThat(parsedResp[1].typeId).isEqualTo("typeId");
+    }
+
+    @Test
+    void deleteEiProducer() throws Exception {
+        String url = ProducerConsts.API_ROOT + "/eiproducers/eiProducerId";
+        String url2 = ProducerConsts.API_ROOT + "/eiproducers/eiProducerId2";
+        String body = gson.toJson(producerEiRegistratioInfo());
+        restClient().putForEntity(url, body).block();
+        restClient().putForEntity(url2, body).block();
+        assertThat(this.eiProducers.size()).isEqualTo(2);
+        EiType type = this.eiTypes.getType("typeId");
+        assertThat(type.getProducerIds().contains("eiProducerId")).isTrue();
+        assertThat(type.getProducerIds().contains("eiProducerId2")).isTrue();
+
+        restClient().deleteForEntity(url).block();
+        assertThat(this.eiProducers.size()).isEqualTo(1);
+        assertThat(this.eiTypes.getType("typeId").getProducerIds().contains("eiProducerId")).isFalse();
+
+        restClient().deleteForEntity(url2).block();
+        assertThat(this.eiProducers.size()).isEqualTo(0);
+        assertThat(this.eiTypes.size()).isEqualTo(0);
+    }
+
+    ProducerEiTypeRegistrationInfo producerEiTypeRegistrationInfo() {
+        return new ProducerEiTypeRegistrationInfo(jsonObject(), "typeId");
+    }
+
+    ProducerRegistrationInfo producerEiRegistratioInfo() {
+        Collection<ProducerEiTypeRegistrationInfo> types = new ArrayList<>();
+        types.add(producerEiTypeRegistrationInfo());
+        return new ProducerRegistrationInfo(types, baseUrl() + ProducerSimulatorController.JOB_CREATED_URL,
+            baseUrl() + ProducerSimulatorController.JOB_DELETED_URL);
+    }
+
+    ConsumerEiJobInfo eiJobInfo() {
+        return new ConsumerEiJobInfo(jsonObject(), "owner");
     }
 
     JsonObject jsonObject() {
@@ -204,10 +329,10 @@ class ApplicationTest {
     }
 
     private EiJob addEiJob(String typeId, String jobId) {
-        addEiType(typeId);
+        EiType type = addEiType(typeId);
         EiJob job = ImmutableEiJob.builder() //
             .id(jobId) //
-            .typeId(typeId) //
+            .type(type) //
             .owner("owner") //
             .jobData(jsonObject()) //
             .build();
@@ -216,16 +341,21 @@ class ApplicationTest {
     }
 
     private EiType addEiType(String typeId) {
-        EiType t = ImmutableEiType.builder() //
-            .id(typeId) //
-            .jobDataSchema(jsonObject()) //
+        EiType eiType = new EiType(typeId, jsonObject());
+        this.eiTypes.put(eiType); //
+        EiProducer producer = ImmutableEiProducer.builder() //
+            .id("producerId") //
+            .eiTypes(Arrays.asList(eiType)) //
+            .jobCreationCallbackUrl(baseUrl() + ProducerSimulatorController.JOB_CREATED_URL) //
+            .jobDeletionCallbackUrl(baseUrl() + ProducerSimulatorController.JOB_DELETED_URL) //
             .build();
-        this.eiTypes.put(t);
-        return t;
+        this.eiProducers.put(producer);
+        eiType.addProducer(producer);
+        return eiType;
     }
 
     private String baseUrl() {
-        return "https://localhost:" + this.port + ConsumerConsts.A1E_API_ROOT;
+        return "https://localhost:" + this.port;
     }
 
     private AsyncRestClient restClient(boolean useTrustValidation) {
