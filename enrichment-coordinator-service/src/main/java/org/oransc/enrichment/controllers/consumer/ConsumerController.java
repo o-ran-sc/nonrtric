@@ -22,6 +22,7 @@ package org.oransc.enrichment.controllers.consumer;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -29,15 +30,20 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.oransc.enrichment.clients.ProducerCallbacks;
+import org.oransc.enrichment.configuration.ApplicationConfig;
 import org.oransc.enrichment.controllers.ErrorResponse;
 import org.oransc.enrichment.repository.EiJob;
 import org.oransc.enrichment.repository.EiJobs;
 import org.oransc.enrichment.repository.EiType;
 import org.oransc.enrichment.repository.EiTypes;
 import org.oransc.enrichment.repository.ImmutableEiJob;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -49,9 +55,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+@SuppressWarnings("java:S3457") // No need to call "toString()" method as formatting and string ..
 @RestController("ConsumerController")
 @Api(tags = {ConsumerConsts.CONSUMER_API_NAME})
 public class ConsumerController {
+
+    private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
+    @Autowired
+    ApplicationConfig applicationConfig;
 
     @Autowired
     private EiJobs eiJobs;
@@ -59,11 +71,14 @@ public class ConsumerController {
     @Autowired
     private EiTypes eiTypes;
 
+    @Autowired
+    ProducerCallbacks producerCallbacks;
+
     private static Gson gson = new GsonBuilder() //
         .serializeNulls() //
         .create(); //
 
-    @GetMapping(path = ConsumerConsts.A1E_API_ROOT + "/eitypes", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = ConsumerConsts.API_ROOT + "/eitypes", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Query EI type identifiers", notes = "DETAILS TBD")
     @ApiResponses(
         value = { //
@@ -77,13 +92,13 @@ public class ConsumerController {
     ) {
         List<String> result = new ArrayList<>();
         for (EiType eiType : this.eiTypes.getAllEiTypes()) {
-            result.add(eiType.id());
+            result.add(eiType.getId());
         }
 
         return new ResponseEntity<>(gson.toJson(result), HttpStatus.OK);
     }
 
-    @GetMapping(path = ConsumerConsts.A1E_API_ROOT + "/eitypes/{eiTypeId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = ConsumerConsts.API_ROOT + "/eitypes/{eiTypeId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Definitions for an individual EI Type", notes = "Query EI type")
     @ApiResponses(
         value = { //
@@ -104,7 +119,7 @@ public class ConsumerController {
     }
 
     @GetMapping(
-        path = ConsumerConsts.A1E_API_ROOT + "/eitypes/{eiTypeId}/eijobs",
+        path = ConsumerConsts.API_ROOT + "/eitypes/{eiTypeId}/eijobs",
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Query EI job identifiers", notes = "Returns the EI Job identifiers for an EI Type")
     @ApiResponses(
@@ -138,7 +153,7 @@ public class ConsumerController {
     }
 
     @GetMapping(
-        path = ConsumerConsts.A1E_API_ROOT + "/eitypes/{eiTypeId}/eijobs/{eiJobId}",
+        path = ConsumerConsts.API_ROOT + "/eitypes/{eiTypeId}/eijobs/{eiJobId}",
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Individual EI Job", notes = "")
     @ApiResponses(
@@ -161,7 +176,7 @@ public class ConsumerController {
     }
 
     @GetMapping(
-        path = ConsumerConsts.A1E_API_ROOT + "/eitypes/{eiTypeId}/eijobs/{eiJobId}/status",
+        path = ConsumerConsts.API_ROOT + "/eitypes/{eiTypeId}/eijobs/{eiJobId}/status",
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "EI Job status", notes = "")
     @ApiResponses(
@@ -184,11 +199,12 @@ public class ConsumerController {
     }
 
     private ConsumerEiJobStatus toEiJobStatus(EiJob job) {
+        // TODO
         return new ConsumerEiJobStatus(ConsumerEiJobStatus.OperationalState.ENABLED);
     }
 
     @DeleteMapping(
-        path = ConsumerConsts.A1E_API_ROOT + "/eitypes/{eiTypeId}/eijobs/{eiJobId}",
+        path = ConsumerConsts.API_ROOT + "/eitypes/{eiTypeId}/eijobs/{eiJobId}",
         produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Individual EI Job", notes = "Delete EI job")
     @ApiResponses(
@@ -203,7 +219,9 @@ public class ConsumerController {
         @PathVariable("eiTypeId") String eiTypeId, //
         @PathVariable("eiJobId") String eiJobId) {
         try {
-            this.eiJobs.remove(eiJobId);
+            EiJob job = this.eiJobs.getJob(eiJobId);
+            this.eiJobs.remove(job);
+            this.producerCallbacks.notifyProducersJobDeleted(job);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
@@ -211,7 +229,7 @@ public class ConsumerController {
     }
 
     @PutMapping(
-        path = ConsumerConsts.A1E_API_ROOT + "/eitypes/{eiTypeId}/eijobs/{eiJobId}", //
+        path = ConsumerConsts.API_ROOT + "/eitypes/{eiTypeId}/eijobs/{eiJobId}", //
         produces = MediaType.APPLICATION_JSON_VALUE, //
         consumes = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Individual EI Job", notes = "Create or update an EI Job")
@@ -228,28 +246,38 @@ public class ConsumerController {
         @PathVariable("eiJobId") String eiJobId, //
         @RequestBody ConsumerEiJobInfo eiJobInfo) {
         try {
-            this.eiTypes.getType(eiTypeId); // Just to check that the type exists
+            EiType eiType = this.eiTypes.getType(eiTypeId);
+            validateJobData(eiType.getJobDataSchema(), eiJobInfo.jobData);
             final boolean newJob = this.eiJobs.get(eiJobId) == null;
-            this.eiJobs.put(toEiJob(eiJobInfo, eiJobId, eiTypeId));
+            EiJob eiJob = toEiJob(eiJobInfo, eiJobId, eiType);
+            this.eiJobs.put(eiJob);
+            this.producerCallbacks.notifyProducersJobCreated(eiJob);
             return new ResponseEntity<>(newJob ? HttpStatus.CREATED : HttpStatus.OK);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
         }
     }
 
+    private void validateJobData(Object schemaObj, Object json) {
+        if (schemaObj instanceof JsonObject) {
+            JsonObject schema = (JsonObject) schemaObj;
+            logger.debug("schema {} json {}", schema, json);
+        }
+    }
+
     // Status TBD
 
-    private EiJob toEiJob(ConsumerEiJobInfo info, String id, String typeId) {
+    private EiJob toEiJob(ConsumerEiJobInfo info, String id, EiType type) {
         return ImmutableEiJob.builder() //
             .id(id) //
-            .typeId(typeId) //
+            .type(type) //
             .owner(info.owner) //
             .jobData(info.jobData) //
             .build();
     }
 
     private ConsumerEiTypeInfo toEiTypeInfo(EiType t) {
-        return new ConsumerEiTypeInfo(t.jobDataSchema());
+        return new ConsumerEiTypeInfo(t.getJobDataSchema());
     }
 
     private ConsumerEiJobInfo toEiJobInfo(EiJob s) {

@@ -24,36 +24,40 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
-import lombok.Getter;
+/**
+ * Dynamic representation of all Rics in the system.
+ */
 
-public class EiType {
-    @Getter
-    private final String id;
+public class MultiMap<T> {
 
-    @Getter
-    private final Object jobDataSchema;
+    private final Map<String, Map<String, T>> map = new HashMap<>();
 
-    private final Map<String, EiProducer> producers = new HashMap<>();
-
-    public EiType(String id, Object jobDataSchema) {
-        this.id = id;
-        this.jobDataSchema = jobDataSchema;
+    public void put(String key, String id, T value) {
+        this.map.computeIfAbsent(key, k -> new HashMap<>()).put(id, value);
     }
 
-    public synchronized Collection<EiProducer> getProducers() {
-        return Collections.unmodifiableCollection(producers.values());
+    public void remove(String key, String id) {
+        Map<String, T> innerMap = this.map.get(key);
+        if (innerMap != null) {
+            innerMap.remove(id);
+            if (innerMap.isEmpty()) {
+                this.map.remove(key);
+            }
+        }
     }
 
-    public synchronized Collection<String> getProducerIds() {
-        return Collections.unmodifiableCollection(producers.keySet());
+    public Collection<T> get(String key) {
+        Map<String, T> innerMap = this.map.get(key);
+        if (innerMap == null) {
+            return Collections.emptyList();
+        }
+        return new Vector<>(innerMap.values());
     }
 
-    public synchronized void addProducer(EiProducer producer) {
-        this.producers.put(producer.id(), producer);
+    public void clear() {
+        this.map.clear();
     }
 
-    public synchronized EiProducer removeProducer(EiProducer producer) {
-        return this.producers.remove(producer.id());
-    }
 }

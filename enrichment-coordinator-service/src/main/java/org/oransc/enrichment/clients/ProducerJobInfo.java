@@ -18,7 +18,7 @@
  * ========================LICENSE_END===================================
  */
 
-package org.oransc.enrichment.controllers.consumer;
+package org.oransc.enrichment.clients;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
@@ -27,26 +27,39 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 import org.immutables.gson.Gson;
+import org.oransc.enrichment.repository.EiJob;
+import org.oransc.enrichment.repository.EiType;
 
 @Gson.TypeAdapters
-@ApiModel(value = "ei_job_info", description = "Information for a Enrichment Information Job")
-public class ConsumerEiJobInfo {
+@ApiModel(value = "producer_ei_job_request", description = "Information EI job start")
+public class ProducerJobInfo {
 
-    @ApiModelProperty(value = "Identity of the owner of the job", required = true)
-    @SerializedName("owner")
-    @JsonProperty(value = "owner", required = true)
-    public String owner;
+    @ApiModelProperty(value = "Json for the job data", required = true)
+    @SerializedName("identity")
+    @JsonProperty("identity")
+    public String id;
 
-    @ApiModelProperty(value = "EI Type specific job data", required = true)
+    @ApiModelProperty(value = "Type idenitity for the job")
+    @SerializedName("type_identity")
+    @JsonProperty("type_identity")
+    public String typeId;
+
+    @ApiModelProperty(value = "Json for the job data")
     @SerializedName("job_data")
-    @JsonProperty(value = "job_data", required = true)
+    @JsonProperty("job_data")
     public Object jobData;
 
-    public ConsumerEiJobInfo() {
+    public ProducerJobInfo(Object jobData, String id, String typeId) {
+        this.id = id;
+        this.jobData = jobData;
+        this.typeId = typeId;
     }
 
-    public ConsumerEiJobInfo(Object jobData, String owner) {
-        this.jobData = jobData;
-        this.owner = owner;
+    public ProducerJobInfo(Object jobData, EiJob job, EiType type) {
+        this(jobData, job.id(), type.getId());
     }
+
+    public ProducerJobInfo() {
+    }
+
 }
