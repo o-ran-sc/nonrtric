@@ -8,6 +8,10 @@ basePath: /
 tags:
   - name: A1-E Enrichment Data Consumer API
     description: Consumer Controller
+  - name: Enrichment Data Producer API
+    description: Producer Controller
+  - name: Producer Simulator
+    description: Producer Simulator Controller
 paths:
   /A1-EI/v1/eitypes:
     get:
@@ -246,9 +250,279 @@ paths:
           schema:
             $ref: '#/definitions/error_information'
       deprecated: false
+  /ei-producer/v1/eiproducers:
+    get:
+      tags:
+        - Enrichment Data Producer API
+      summary: Query EI producer identifiers
+      description: DETAILS TBD
+      operationId: getEiProducerIdentifiersUsingGET
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: EI producer identifiers
+          schema:
+            type: array
+            items:
+              type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/ei-producer/v1/eiproducers/{eiProducerId}':
+    get:
+      tags:
+        - Enrichment Data Producer API
+      summary: Job definitions for an individual EI producer
+      description: Query EI jobs
+      operationId: getEiProducerUsingGET
+      produces:
+        - application/json
+      parameters:
+        - name: eiProducerId
+          in: path
+          description: eiProducerId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: EI Jobs
+          schema:
+            $ref: '#/definitions/producer_ei_type_info'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Enrichment Information producer is not found
+          schema:
+            $ref: '#/definitions/error_information'
+      deprecated: false
+    put:
+      tags:
+        - Enrichment Data Producer API
+      summary: Definitions for an individual EI producer
+      description: Put EI producer
+      operationId: putEiProducerUsingPUT
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: eiProducerId
+          in: path
+          description: eiProducerId
+          required: true
+          type: string
+        - in: body
+          name: registrationInfo
+          description: registrationInfo
+          required: true
+          schema:
+            $ref: '#/definitions/producer_registration_info'
+      responses:
+        '200':
+          description: Producer updated
+          schema:
+            type: object
+        '201':
+          description: Producer created
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+    delete:
+      tags:
+        - Enrichment Data Producer API
+      summary: Individual EI Producer
+      description: Delete an EI Producer
+      operationId: deleteEiProducerUsingDELETE
+      produces:
+        - application/json
+      parameters:
+        - name: eiProducerId
+          in: path
+          description: eiProducerId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Not used
+          schema:
+            type: object
+        '204':
+          description: Producer deleted
+          schema:
+            type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Producer is not found
+          schema:
+            $ref: '#/definitions/error_information'
+      deprecated: false
+  '/ei-producer/v1/eiproducers/{eiProducerId}/eijobs':
+    get:
+      tags:
+        - Enrichment Data Producer API
+      summary: Job definitions for an individual EI producer
+      description: Query EI producer jobs
+      operationId: getEiProducerJobsUsingGET
+      produces:
+        - application/json
+      parameters:
+        - name: eiProducerId
+          in: path
+          description: eiProducerId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: EI jobs
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/producer_ei_job_request'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Enrichment Information producer is not found
+          schema:
+            $ref: '#/definitions/error_information'
+      deprecated: false
+  /ei-producer/v1/eitypes:
+    get:
+      tags:
+        - Enrichment Data Producer API
+      summary: Query EI type identifiers
+      description: DETAILS TBD
+      operationId: getEiTypeIdentifiersUsingGET_1
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: EI type identifiers
+          schema:
+            type: array
+            items:
+              type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  '/ei-producer/v1/eitypes/{eiTypeId}':
+    get:
+      tags:
+        - Enrichment Data Producer API
+      summary: Definitions for an individual EI Type
+      description: Query EI type
+      operationId: getEiTypeUsingGET_1
+      produces:
+        - application/json
+      parameters:
+        - name: eiTypeId
+          in: path
+          description: eiTypeId
+          required: true
+          type: string
+      responses:
+        '200':
+          description: EI type
+          schema:
+            $ref: '#/definitions/producer_ei_type_info'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Enrichment Information type is not found
+          schema:
+            $ref: '#/definitions/error_information'
+      deprecated: false
+  /producer_simulator/job_created:
+    post:
+      tags:
+        - Producer Simulator
+      summary: Callback for job creation
+      operationId: jobCreatedCallbackUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/producer_ei_job_request'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
+  /producer_simulator/job_deleted:
+    post:
+      tags:
+        - Producer Simulator
+      summary: Callback for job deletion
+      operationId: jobDeletedCallbackUsingPOST
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: request
+          description: request
+          required: true
+          schema:
+            $ref: '#/definitions/producer_ei_job_request'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+      deprecated: false
 definitions:
   ei_job_info:
     type: object
+    required:
+      - job_data
+      - owner
     properties:
       job_data:
         type: object
@@ -256,13 +530,12 @@ definitions:
       owner:
         type: string
         description: Identity of the owner of the job
-      result_target:
-        type: string
-        description: the deliver information for the EI. This is typically a URL.
     title: ei_job_info
     description: Information for a Enrichment Information Job
   ei_job_status:
     type: object
+    required:
+      - operational_state
     properties:
       operational_state:
         type: string
@@ -297,4 +570,66 @@ definitions:
         description: 'The HTTP status code generated by the origin server for this occurrence of the problem. '
     title: error_information
     description: 'Problem as defined in https://tools.ietf.org/html/rfc7807'
+  producer_ei_job_request:
+    type: object
+    required:
+      - identity
+    properties:
+      identity:
+        type: string
+        description: Json for the job data
+      job_data:
+        type: object
+        description: Json for the job data
+      type_identity:
+        type: string
+        description: Type idenitity for the job
+    title: producer_ei_job_request
+    description: Information EI job start
+  producer_ei_type_info:
+    type: object
+    properties:
+      job_data_schema:
+        type: object
+        description: Json schema for the job data
+      producer_ids:
+        type: array
+        description: Registered producers
+        items:
+          type: string
+    title: producer_ei_type_info
+    description: Information for an EI type
+  producer_ei_type_registration_info:
+    type: object
+    required:
+      - ei_type_identity
+    properties:
+      ei_type_identity:
+        type: string
+        description: EI type identity
+      job_data_schema:
+        type: object
+        description: Json schema for the job data
+    title: producer_ei_type_registration_info
+    description: Information for an EI type
+  producer_registration_info:
+    type: object
+    required:
+      - job_creation_callback_url
+      - job_deletion_callback_url
+      - supported_ei_types
+    properties:
+      job_creation_callback_url:
+        type: string
+        description: callback for job creation
+      job_deletion_callback_url:
+        type: string
+        description: callback for job deletion
+      supported_ei_types:
+        type: array
+        description: Supported EI types
+        items:
+          $ref: '#/definitions/producer_ei_type_registration_info'
+    title: producer_registration_info
+    description: Information for an EI Producer
 

@@ -18,7 +18,7 @@
  * ========================LICENSE_END===================================
  */
 
-package org.oransc.enrichment.controllers.consumer;
+package org.oransc.enrichment.controllers.producer;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
@@ -26,27 +26,30 @@ import com.google.gson.annotations.SerializedName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.util.Collection;
+
 import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
-@ApiModel(value = "ei_job_info", description = "Information for a Enrichment Information Job")
-public class ConsumerEiJobInfo {
+@ApiModel(value = "producer_ei_type_info", description = "Information for an EI type")
+public class ProducerEiTypeInfo {
 
-    @ApiModelProperty(value = "Identity of the owner of the job", required = true)
-    @SerializedName("owner")
-    @JsonProperty(value = "owner", required = true)
-    public String owner;
+    @ApiModelProperty(value = "Json schema for the job data")
+    @SerializedName("job_data_schema")
+    @JsonProperty("job_data_schema")
+    public Object jobDataSchema;
 
-    @ApiModelProperty(value = "EI Type specific job data", required = true)
-    @SerializedName("job_data")
-    @JsonProperty(value = "job_data", required = true)
-    public Object jobData;
+    @ApiModelProperty(value = "Registered producers")
+    @SerializedName("producer_ids")
+    @JsonProperty(value = "producer_ids", required = true)
+    public Collection<String> producerIds;
 
-    public ConsumerEiJobInfo() {
+    public ProducerEiTypeInfo(Object jobDataSchema, Collection<String> producers) {
+        this.jobDataSchema = jobDataSchema;
+        this.producerIds = producers;
     }
 
-    public ConsumerEiJobInfo(Object jobData, String owner) {
-        this.jobData = jobData;
-        this.owner = owner;
+    public ProducerEiTypeInfo() {
     }
+
 }
