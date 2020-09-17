@@ -359,7 +359,8 @@ class ApplicationTest {
 
     @Test
     /**
-     * Test that HttpStatus and body from failing REST call to A1 is passed on to the caller.
+     * Test that HttpStatus and body from failing REST call to A1 is passed on to
+     * the caller.
      *
      * @throws ServiceException
      */
@@ -720,17 +721,23 @@ class ApplicationTest {
         addRic("ric");
         addPolicyType("type1", "ric");
         addPolicyType("type2", "ric");
+        List<ConcurrencyTestRunnable> tests = new ArrayList<>();
 
         for (int i = 0; i < 10; ++i) {
-            Thread thread =
-                new Thread(new ConcurrencyTestRunnable(baseUrl(), supervision, a1ClientFactory, rics, policyTypes),
-                    "TestThread_" + i);
+            ConcurrencyTestRunnable test =
+                new ConcurrencyTestRunnable(restClient(), supervision, a1ClientFactory, rics, policyTypes);
+            Thread thread = new Thread(test, "TestThread_" + i);
             thread.start();
             threads.add(thread);
+            tests.add(test);
         }
         for (Thread t : threads) {
             t.join();
         }
+        for (ConcurrencyTestRunnable test : tests) {
+            assertThat(test.isFailed()).isFalse();
+        }
+
         assertThat(policies.size()).isZero();
         logger.info("Concurrency test took " + Duration.between(startTime, Instant.now()));
     }

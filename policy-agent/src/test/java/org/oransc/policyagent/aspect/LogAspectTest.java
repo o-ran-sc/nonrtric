@@ -18,7 +18,6 @@
  * ========================LICENSE_END===================================
  */
 
-
 package org.oransc.policyagent.aspect;
 
 import static ch.qos.logback.classic.Level.TRACE;

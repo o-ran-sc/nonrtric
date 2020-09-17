@@ -20,6 +20,8 @@
 
 package org.oransc.policyagent.clients;
 
+import lombok.Getter;
+
 import org.oransc.policyagent.clients.A1Client.A1ProtocolType;
 import org.oransc.policyagent.configuration.ApplicationConfig;
 import org.oransc.policyagent.configuration.ControllerConfig;
@@ -29,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
-import lombok.Getter;
+
 /**
  * Factory for A1 clients that supports four different protocol versions of the
  * A1 api.
