@@ -49,15 +49,16 @@ class ConcurrencyTestRunnable implements Runnable {
     private final MockA1ClientFactory a1ClientFactory;
     private final Rics rics;
     private final PolicyTypes types;
+    private boolean failed = false;
 
-    ConcurrencyTestRunnable(String baseUrl, RicSupervision supervision, MockA1ClientFactory a1ClientFactory, Rics rics,
-        PolicyTypes types) {
+    ConcurrencyTestRunnable(AsyncRestClient webClient, RicSupervision supervision, MockA1ClientFactory a1ClientFactory,
+        Rics rics, PolicyTypes types) {
         this.count = nextCount.incrementAndGet();
         this.supervision = supervision;
         this.a1ClientFactory = a1ClientFactory;
         this.rics = rics;
         this.types = types;
-        this.webClient = new AsyncRestClient(baseUrl);
+        this.webClient = webClient;
     }
 
     private void printStatusInfo() {
@@ -94,7 +95,12 @@ class ConcurrencyTestRunnable implements Runnable {
         } catch (Exception e) {
             logger.error("Concurrency test exception " + e.toString());
             printStatusInfo();
+            failed = true;
         }
+    }
+
+    public boolean isFailed() {
+        return this.failed;
     }
 
     private Policy createPolicyObject(String id) {

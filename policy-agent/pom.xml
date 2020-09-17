@@ -54,7 +54,7 @@
         <json.version>20190722</json.version>
         <commons-net.version>3.6</commons-net.version>
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
-        <formatter-maven-plugin.version>2.8.1</formatter-maven-plugin.version>
+        <formatter-maven-plugin.version>2.12.2</formatter-maven-plugin.version>
         <spotless-maven-plugin.version>1.18.0</spotless-maven-plugin.version>
         <docker-maven-plugin>0.30.0</docker-maven-plugin>
         <version.dmaap>1.1.11</version.dmaap>
