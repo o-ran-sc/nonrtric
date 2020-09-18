@@ -81,7 +81,7 @@ public class ProducerController {
     ProducerCallbacks producerCallbacks;
 
     @GetMapping(path = ProducerConsts.API_ROOT + "/eitypes", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Query EI type identifiers", notes = "DETAILS TBD")
+    @ApiOperation(value = "EI type identifiers", notes = "")
     @ApiResponses(
         value = { //
             @ApiResponse(
@@ -101,7 +101,7 @@ public class ProducerController {
     }
 
     @GetMapping(path = ProducerConsts.API_ROOT + "/eitypes/{eiTypeId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Definitions for an individual EI Type", notes = "Query EI type")
+    @ApiOperation(value = "Individual EI Type", notes = "")
     @ApiResponses(
         value = { //
             @ApiResponse(code = 200, message = "EI type", response = ProducerEiTypeInfo.class), //
@@ -121,7 +121,7 @@ public class ProducerController {
     }
 
     @GetMapping(path = ProducerConsts.API_ROOT + "/eiproducers", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Query EI producer identifiers", notes = "DETAILS TBD")
+    @ApiOperation(value = "EI producer identifiers", notes = "")
     @ApiResponses(
         value = { //
             @ApiResponse(
@@ -143,10 +143,10 @@ public class ProducerController {
     @GetMapping(
         path = ProducerConsts.API_ROOT + "/eiproducers/{eiProducerId}",
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Definition for an individual EI producer", notes = "Query EI jobs")
+    @ApiOperation(value = "Individual EI producer", notes = "")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "EI Jobs", response = ProducerEiTypeInfo.class), //
+            @ApiResponse(code = 200, message = "EI Jobs", response = ProducerRegistrationInfo.class), //
             @ApiResponse(
                 code = 404,
                 message = "Enrichment Information producer is not found",
@@ -165,7 +165,7 @@ public class ProducerController {
     @GetMapping(
         path = ProducerConsts.API_ROOT + "/eiproducers/{eiProducerId}/eijobs",
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Job definitions for an individual EI producer", notes = "Query EI producer jobs")
+    @ApiOperation(value = "EI job definitions", notes = "EI job definitions for one EI producer")
     @ApiResponses(
         value = { //
             @ApiResponse(code = 200, message = "EI jobs", response = ProducerJobInfo.class, responseContainer = "List"), //
@@ -194,7 +194,7 @@ public class ProducerController {
     @PutMapping(
         path = ProducerConsts.API_ROOT + "/eiproducers/{eiProducerId}",
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Individual EI producer", notes = "Put EI producer")
+    @ApiOperation(value = "Individual EI producer", notes = "")
     @ApiResponses(
         value = { //
             @ApiResponse(code = 201, message = "Producer created", response = void.class), //
@@ -220,7 +220,7 @@ public class ProducerController {
     @DeleteMapping(
         path = ProducerConsts.API_ROOT + "/eiproducers/{eiProducerId}",
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Individual EI Producer", notes = "Delete an EI Producer")
+    @ApiOperation(value = "Individual EI producer", notes = "")
     @ApiResponses(
         value = { //
             @ApiResponse(code = 200, message = "Not used", response = void.class),

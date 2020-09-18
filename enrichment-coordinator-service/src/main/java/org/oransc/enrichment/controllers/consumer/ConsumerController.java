@@ -20,9 +20,9 @@
 
 package org.oransc.enrichment.controllers.consumer;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -34,9 +34,13 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.everit.json.schema.Schema;
+import org.everit.json.schema.loader.SchemaLoader;
+import org.json.JSONObject;
 import org.oransc.enrichment.clients.ProducerCallbacks;
 import org.oransc.enrichment.configuration.ApplicationConfig;
 import org.oransc.enrichment.controllers.ErrorResponse;
+import org.oransc.enrichment.exceptions.ServiceException;
 import org.oransc.enrichment.repository.EiJob;
 import org.oransc.enrichment.repository.EiJobs;
 import org.oransc.enrichment.repository.EiType;
@@ -79,7 +83,7 @@ public class ConsumerController {
         .create(); //
 
     @GetMapping(path = ConsumerConsts.API_ROOT + "/eitypes", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Query EI type identifiers", notes = "DETAILS TBD")
+    @ApiOperation(value = "EI type identifiers", notes = "")
     @ApiResponses(
         value = { //
             @ApiResponse(
@@ -99,7 +103,7 @@ public class ConsumerController {
     }
 
     @GetMapping(path = ConsumerConsts.API_ROOT + "/eitypes/{eiTypeId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Definitions for an individual EI Type", notes = "Query EI type")
+    @ApiOperation(value = "Individual EI type", notes = "")
     @ApiResponses(
         value = { //
             @ApiResponse(code = 200, message = "EI type", response = ConsumerEiTypeInfo.class), //
@@ -121,7 +125,7 @@ public class ConsumerController {
     @GetMapping(
         path = ConsumerConsts.API_ROOT + "/eitypes/{eiTypeId}/eijobs",
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Query EI job identifiers", notes = "Returns the EI Job identifiers for an EI Type")
+    @ApiOperation(value = "EI job identifiers", notes = "")
     @ApiResponses(
         value = { //
             @ApiResponse(
@@ -206,7 +210,7 @@ public class ConsumerController {
     @DeleteMapping(
         path = ConsumerConsts.API_ROOT + "/eitypes/{eiTypeId}/eijobs/{eiJobId}",
         produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Individual EI Job", notes = "Delete EI job")
+    @ApiOperation(value = "Individual EI Job", notes = "")
     @ApiResponses(
         value = { //
             @ApiResponse(code = 200, message = "Not used", response = void.class),
@@ -232,7 +236,7 @@ public class ConsumerController {
         path = ConsumerConsts.API_ROOT + "/eitypes/{eiTypeId}/eijobs/{eiJobId}", //
         produces = MediaType.APPLICATION_JSON_VALUE, //
         consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Individual EI Job", notes = "Create or update an EI Job")
+    @ApiOperation(value = "Individual EI Job", notes = "")
     @ApiResponses(
         value = { //
             @ApiResponse(code = 201, message = "Job created", response = void.class), //
@@ -258,11 +262,24 @@ public class ConsumerController {
         }
     }
 
-    private void validateJobData(Object schemaObj, Object json) {
-        if (schemaObj instanceof JsonObject) {
-            JsonObject schema = (JsonObject) schemaObj;
-            logger.debug("schema {} json {}", schema, json);
+    private void validateJobData(Object schemaObj, Object object) throws ServiceException {
+        if (schemaObj == null) {
+            return; // schema is optional for now
         }
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+
+            String schemaAsString = mapper.writeValueAsString(schemaObj);
+            JSONObject schemaJSON = new JSONObject(schemaAsString);
+            Schema schema = SchemaLoader.load(schemaJSON);
+
+            String objectAsString = mapper.writeValueAsString(object);
+            JSONObject json = new JSONObject(objectAsString);
+            schema.validate(json);
+        } catch (Exception e) {
+            throw new ServiceException("Json validation failure", e);
+        }
+
     }
 
     // Status TBD

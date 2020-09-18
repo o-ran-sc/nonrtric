@@ -23,10 +23,6 @@ package org.oransc.enrichment;
 import com.fasterxml.classmate.TypeResolver;
 import com.google.common.base.Predicates;
 
-import org.oransc.enrichment.clients.ProducerJobInfo;
-import org.oransc.enrichment.controllers.consumer.ConsumerEiJobInfo;
-import org.oransc.enrichment.controllers.producer.ProducerEiTypeInfo;
-import org.oransc.enrichment.controllers.producer.ProducerRegistrationInfo;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -67,17 +63,13 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
     public Docket api(TypeResolver resolver) {
         return new Docket(DocumentationType.SWAGGER_2) //
             .apiInfo(apiInfo()) //
-            .additionalModels(resolver.resolve(ConsumerEiJobInfo.class)) //
-            .additionalModels(resolver.resolve(ProducerRegistrationInfo.class)) //
-            .additionalModels(resolver.resolve(ProducerEiTypeInfo.class)) //
-            .additionalModels(resolver.resolve(ProducerJobInfo.class)) //
             .select() //
             .apis(RequestHandlerSelectors.any()) //
             .paths(PathSelectors.any()) //
-            .paths(Predicates.not(PathSelectors.regex("/error"))) //
-            // this endpoint is not implemented, but was visible for Swagger
-            .paths(Predicates.not(PathSelectors.regex("/actuator.*"))) //
-            // this endpoint is implemented by spring framework, exclude for now
+            .paths(Predicates.not(PathSelectors.regex("/error"))) // this endpoint is not implemented, but was
+                                                                  // visible for Swagger
+            .paths(Predicates.not(PathSelectors.regex("/actuator.*"))) // this endpoint is implemented by spring
+                                                                       // framework, exclude for now
             .build();
     }
 

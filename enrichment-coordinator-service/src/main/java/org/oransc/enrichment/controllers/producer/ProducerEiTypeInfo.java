@@ -35,13 +35,13 @@ import org.immutables.gson.Gson;
 public class ProducerEiTypeInfo {
 
     @ApiModelProperty(value = "Json schema for the job data")
-    @SerializedName("job_data_schema")
-    @JsonProperty("job_data_schema")
+    @SerializedName("ei_job_data_schema")
+    @JsonProperty("ei_job_data_schema")
     public Object jobDataSchema;
 
     @ApiModelProperty(value = "Registered producers")
-    @SerializedName("producer_ids")
-    @JsonProperty(value = "producer_ids", required = true)
+    @SerializedName("ei_producer_ids")
+    @JsonProperty(value = "ei_producer_ids", required = true)
     public Collection<String> producerIds;
 
     public ProducerEiTypeInfo(Object jobDataSchema, Collection<String> producers) {

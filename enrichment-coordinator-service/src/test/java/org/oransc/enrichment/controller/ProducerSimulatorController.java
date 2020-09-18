@@ -72,7 +72,7 @@ public class ProducerSimulatorController {
     private TestResults testResults = new TestResults();
 
     @PostMapping(path = JOB_CREATED_URL, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Callback for job creation", notes = "")
+    @ApiOperation(value = "Callback for EI job creation", notes = "")
     @ApiResponses(
         value = { //
             @ApiResponse(code = 200, message = "OK", response = void.class)}//
@@ -93,7 +93,7 @@ public class ProducerSimulatorController {
     }
 
     @PostMapping(path = JOB_DELETED_URL, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Callback for job deletion", notes = "")
+    @ApiOperation(value = "Callback for EI job deletion", notes = "")
     @ApiResponses(
         value = { //
             @ApiResponse(code = 200, message = "OK", response = void.class)}//

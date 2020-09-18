@@ -31,22 +31,24 @@ import org.oransc.enrichment.repository.EiJob;
 import org.oransc.enrichment.repository.EiType;
 
 @Gson.TypeAdapters
-@ApiModel(value = "producer_ei_job_request", description = "Information EI job start")
+@ApiModel(
+    value = "producer_ei_job_request",
+    description = "The body of the EI producer callbacks for EI job creation and deletion")
 public class ProducerJobInfo {
 
-    @ApiModelProperty(value = "Json for the job data", required = true)
-    @SerializedName("identity")
-    @JsonProperty("identity")
+    @ApiModelProperty(value = "Idenitity of the EI job", required = true)
+    @SerializedName("ei_job_identity")
+    @JsonProperty("ei_job_identity")
     public String id;
 
     @ApiModelProperty(value = "Type idenitity for the job")
-    @SerializedName("type_identity")
-    @JsonProperty("type_identity")
+    @SerializedName("ei_type_identity")
+    @JsonProperty("ei_type_identity")
     public String typeId;
 
     @ApiModelProperty(value = "Json for the job data")
-    @SerializedName("job_data")
-    @JsonProperty("job_data")
+    @SerializedName("ei_job_data")
+    @JsonProperty("ei_job_data")
     public Object jobData;
 
     public ProducerJobInfo(Object jobData, String id, String typeId) {

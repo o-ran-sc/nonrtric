@@ -33,8 +33,8 @@ import org.immutables.gson.Gson;
 public class ConsumerEiJobInfo {
 
     @ApiModelProperty(value = "Identity of the owner of the job", required = true)
-    @SerializedName("owner")
-    @JsonProperty(value = "owner", required = true)
+    @SerializedName("job_owner")
+    @JsonProperty(value = "job_owner", required = true)
     public String owner;
 
     @ApiModelProperty(value = "EI Type specific job data", required = true)

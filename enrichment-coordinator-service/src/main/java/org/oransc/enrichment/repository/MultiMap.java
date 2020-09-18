@@ -27,9 +27,9 @@ import java.util.Map;
 import java.util.Vector;
 
 /**
- * Dynamic representation of all Rics in the system.
+ * A map, where each key can be bound to may values (where each value has an own
+ * ID)
  */
-
 public class MultiMap<T> {
 
     private final Map<String, Map<String, T>> map = new HashMap<>();

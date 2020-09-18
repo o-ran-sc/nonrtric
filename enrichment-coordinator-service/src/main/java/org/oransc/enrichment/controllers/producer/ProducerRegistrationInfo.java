@@ -31,7 +31,7 @@ import java.util.Collection;
 import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
-@ApiModel(value = "producer_registration_info", description = "Information for an EI Producer")
+@ApiModel(value = "producer_registration_info", description = "Information for an EI producer")
 public class ProducerRegistrationInfo {
 
     @Gson.TypeAdapters
@@ -44,8 +44,8 @@ public class ProducerRegistrationInfo {
         public String eiTypeId;
 
         @ApiModelProperty(value = "Json schema for the job data")
-        @SerializedName("job_data_schema")
-        @JsonProperty("job_data_schema")
+        @SerializedName("ei_job_data_schema")
+        @JsonProperty("ei_job_data_schema")
         public Object jobDataSchema;
 
         public ProducerEiTypeRegistrationInfo(Object jobDataSchema, String eiTypeId) {
@@ -63,13 +63,13 @@ public class ProducerRegistrationInfo {
     public Collection<ProducerEiTypeRegistrationInfo> types;
 
     @ApiModelProperty(value = "callback for job creation", required = true)
-    @SerializedName("job_creation_callback_url")
-    @JsonProperty(value = "job_creation_callback_url", required = true)
+    @SerializedName("ei_job_creation_callback_url")
+    @JsonProperty(value = "ei_job_creation_callback_url", required = true)
     public String jobCreationCallbackUrl;
 
     @ApiModelProperty(value = "callback for job deletion", required = true)
-    @SerializedName("job_deletion_callback_url")
-    @JsonProperty(value = "job_deletion_callback_url", required = true)
+    @SerializedName("ei_job_deletion_callback_url")
+    @JsonProperty(value = "ei_job_deletion_callback_url", required = true)
     public String jobDeletionCallbackUrl;
 
     public ProducerRegistrationInfo(Collection<ProducerEiTypeRegistrationInfo> types, String jobCreationCallbackUrl,
