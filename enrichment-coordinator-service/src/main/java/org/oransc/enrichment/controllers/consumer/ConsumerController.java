@@ -20,9 +20,9 @@
 
 package org.oransc.enrichment.controllers.consumer;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -34,9 +34,13 @@ import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.everit.json.schema.Schema;
+import org.everit.json.schema.loader.SchemaLoader;
+import org.json.JSONObject;
 import org.oransc.enrichment.clients.ProducerCallbacks;
 import org.oransc.enrichment.configuration.ApplicationConfig;
 import org.oransc.enrichment.controllers.ErrorResponse;
+import org.oransc.enrichment.exceptions.ServiceException;
 import org.oransc.enrichment.repository.EiJob;
 import org.oransc.enrichment.repository.EiJobs;
 import org.oransc.enrichment.repository.EiType;
@@ -258,11 +262,24 @@ public class ConsumerController {
         }
     }
 
-    private void validateJobData(Object schemaObj, Object json) {
-        if (schemaObj instanceof JsonObject) {
-            JsonObject schema = (JsonObject) schemaObj;
-            logger.debug("schema {} json {}", schema, json);
+    private void validateJobData(Object schemaObj, Object object) throws ServiceException {
+        if (schemaObj == null) {
+            return; // schema is optional for now
         }
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+
+            String schemaAsString = mapper.writeValueAsString(schemaObj);
+            JSONObject schemaJSON = new JSONObject(schemaAsString);
+            Schema schema = SchemaLoader.load(schemaJSON);
+
+            String objectAsString = mapper.writeValueAsString(object);
+            JSONObject json = new JSONObject(objectAsString);
+            schema.validate(json);
+        } catch (Exception e) {
+            throw new ServiceException("Json validation failure", e);
+        }
+
     }
 
     // Status TBD
