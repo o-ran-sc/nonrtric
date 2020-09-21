@@ -20,8 +20,8 @@ logging:
     org.oransc.enrichment: INFO
   file: /var/log/policy-agent/application.log
 server:
-   port : 8433
-   http-port: 8081
+   port : 8434
+   http-port: 8082
    ssl:
       key-store-type: JKS
       key-store-password: policy_agent
