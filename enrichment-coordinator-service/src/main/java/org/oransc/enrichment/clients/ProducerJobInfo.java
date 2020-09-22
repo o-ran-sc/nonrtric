@@ -28,7 +28,6 @@ import io.swagger.annotations.ApiModelProperty;
 
 import org.immutables.gson.Gson;
 import org.oransc.enrichment.repository.EiJob;
-import org.oransc.enrichment.repository.EiType;
 
 @Gson.TypeAdapters
 @ApiModel(
@@ -51,14 +50,20 @@ public class ProducerJobInfo {
     @JsonProperty("ei_job_data")
     public Object jobData;
 
-    public ProducerJobInfo(Object jobData, String id, String typeId) {
+    @ApiModelProperty(value = "URI for the target of the EI")
+    @SerializedName("target_uri")
+    @JsonProperty("target_uri")
+    public String targetUri;
+
+    public ProducerJobInfo(Object jobData, String id, String typeId, String targetUri) {
         this.id = id;
         this.jobData = jobData;
         this.typeId = typeId;
+        this.targetUri = targetUri;
     }
 
-    public ProducerJobInfo(Object jobData, EiJob job, EiType type) {
-        this(jobData, job.id(), type.getId());
+    public ProducerJobInfo(EiJob job) {
+        this(job.jobData(), job.id(), job.type().getId(), job.targetUri());
     }
 
     public ProducerJobInfo() {
