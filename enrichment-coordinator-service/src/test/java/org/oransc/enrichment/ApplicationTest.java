@@ -233,7 +233,8 @@ class ApplicationTest {
 
         String url = ConsumerConsts.API_ROOT + "/eitypes/typeId/eijobs/jobId";
         // The element with name "property1" is mandatory in the schema
-        ConsumerEiJobInfo jobInfo = new ConsumerEiJobInfo(jsonObject("{ \"XXstring\" : \"value\" }"), "owner");
+        ConsumerEiJobInfo jobInfo =
+            new ConsumerEiJobInfo(jsonObject("{ \"XXstring\" : \"value\" }"), "owner", "targetUri");
         String body = gson.toJson(jobInfo);
 
         testErrorCode(restClient().put(url, body), HttpStatus.NOT_FOUND, "Json validation failure");
@@ -359,7 +360,7 @@ class ApplicationTest {
     }
 
     ConsumerEiJobInfo eiJobInfo() throws JsonMappingException, JsonProcessingException {
-        return new ConsumerEiJobInfo(jsonObject(), "owner");
+        return new ConsumerEiJobInfo(jsonObject(), "owner", "targetUri");
     }
 
     Object jsonObject(String json) {

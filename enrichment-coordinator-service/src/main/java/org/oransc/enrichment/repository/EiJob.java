@@ -37,4 +37,6 @@ public interface EiJob {
     String owner();
 
     Object jobData();
+
+    String targetUri();
 }
