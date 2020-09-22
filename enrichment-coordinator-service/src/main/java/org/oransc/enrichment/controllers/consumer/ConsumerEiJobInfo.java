@@ -42,11 +42,17 @@ public class ConsumerEiJobInfo {
     @JsonProperty(value = "job_data", required = true)
     public Object jobData;
 
+    @ApiModelProperty(value = "The target of the EI data", required = true)
+    @SerializedName("target_uri")
+    @JsonProperty(value = "target_uri", required = true)
+    public String targetUri;
+
     public ConsumerEiJobInfo() {
     }
 
-    public ConsumerEiJobInfo(Object jobData, String owner) {
+    public ConsumerEiJobInfo(Object jobData, String owner, String targetUri) {
         this.jobData = jobData;
         this.owner = owner;
+        this.targetUri = targetUri;
     }
 }

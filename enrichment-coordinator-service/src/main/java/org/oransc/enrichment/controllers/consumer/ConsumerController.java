@@ -290,6 +290,7 @@ public class ConsumerController {
             .type(type) //
             .owner(info.owner) //
             .jobData(info.jobData) //
+            .targetUri(info.targetUri) //
             .build();
     }
 
@@ -298,6 +299,6 @@ public class ConsumerController {
     }
 
     private ConsumerEiJobInfo toEiJobInfo(EiJob s) {
-        return new ConsumerEiJobInfo(s.jobData(), s.owner());
+        return new ConsumerEiJobInfo(s.jobData(), s.owner(), s.targetUri());
     }
 }
