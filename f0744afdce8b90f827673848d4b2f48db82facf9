@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "05810e22_4c5fd3a1",
+        "filename": "enrichment-coordinator-service/Dockerfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-09-22T11:44:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "70c2478d_2042818b",
+      "range": {
+        "startLine": 32,
+        "startChar": 34,
+        "endLine": 32,
+        "endChar": 46
+      },
+      "revId": "f0744afdce8b90f827673848d4b2f48db82facf9",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9d9d11ce_e3c808be",
         "filename": "enrichment-coordinator-service/Dockerfile",
         "patchSetId": 4
@@ -45,6 +69,30 @@
       "revId": "f0744afdce8b90f827673848d4b2f48db82facf9",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67be0273_f321877d",
+        "filename": "enrichment-coordinator-service/Dockerfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-09-22T11:44:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9d9d11ce_e3c808be",
+      "range": {
+        "startLine": 33,
+        "startChar": 36,
+        "endLine": 33,
+        "endChar": 48
+      },
+      "revId": "f0744afdce8b90f827673848d4b2f48db82facf9",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "f8f5e5ac_767ff90c",
+        "filename": "enrichment-coordinator-service/Dockerfile",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-09-22T11:44:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b40f2ef1_07a3d74c",
+      "range": {
+        "startLine": 38,
+        "startChar": 31,
+        "endLine": 38,
+        "endChar": 43
+      },
+      "revId": "f0744afdce8b90f827673848d4b2f48db82facf9",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "59772b69_8418596c",
         "filename": "enrichment-coordinator-service/config/application.yaml",
         "patchSetId": 4
@@ -91,6 +163,30 @@
       "revId": "f0744afdce8b90f827673848d4b2f48db82facf9",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0129cc6_c4970bfa",
+        "filename": "enrichment-coordinator-service/config/application.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-09-22T11:44:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "59772b69_8418596c",
+      "range": {
+        "startLine": 21,
+        "startChar": 17,
+        "endLine": 21,
+        "endChar": 29
+      },
+      "revId": "f0744afdce8b90f827673848d4b2f48db82facf9",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "45bbab54_242a6ca8",
+        "filename": "enrichment-coordinator-service/config/application.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-09-22T11:44:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6231cabe_3a5e10dc",
+      "range": {
+        "startLine": 27,
+        "startChar": 26,
+        "endLine": 27,
+        "endChar": 38
+      },
+      "revId": "f0744afdce8b90f827673848d4b2f48db82facf9",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "78b85a4a_98840d75",
         "filename": "enrichment-coordinator-service/config/application.yaml",
         "patchSetId": 4
@@ -137,6 +257,30 @@
       "revId": "f0744afdce8b90f827673848d4b2f48db82facf9",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aff461b6_1f730a0b",
+        "filename": "enrichment-coordinator-service/config/application.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-09-22T11:44:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "78b85a4a_98840d75",
+      "range": {
+        "startLine": 29,
+        "startChar": 20,
+        "endLine": 29,
+        "endChar": 32
+      },
+      "revId": "f0744afdce8b90f827673848d4b2f48db82facf9",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
