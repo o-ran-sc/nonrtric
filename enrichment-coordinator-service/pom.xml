@@ -31,7 +31,7 @@
     </parent>
     <groupId>org.o-ran-sc.nonrtric</groupId>
     <artifactId>enrichment-coordinator-service</artifactId>
-    <version>0.0.0-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <licenses>
         <license>
             <name>The Apache Software License, Version 2.0</name>
@@ -358,26 +358,6 @@
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
                 <version>${sonar-maven-plugin.version}</version>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>run-test-script</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <executable>bash</executable>
-                    <arguments>
-                        <argument>run_test.sh</argument>
-                    </arguments>
-                    <workingDirectory>../test/jenkins/</workingDirectory>
-                </configuration>
             </plugin>
         </plugins>
     </build>
