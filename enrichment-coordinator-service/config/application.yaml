@@ -18,7 +18,8 @@ logging:
     org.springframework.data: ERROR
     org.springframework.web.reactive.function.client.ExchangeFunctions: ERROR
     org.oransc.enrichment: INFO
-  file: /var/log/enrichment-coordinator-service/application.log
+  file:
+    name: /var/log/enrichment-coordinator-service/application.log
 server:
    port : 8434
    http-port: 8082
