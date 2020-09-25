@@ -180,7 +180,7 @@ public class ProducerController {
             Collection<ProducerJobInfo> producerJobs = new ArrayList<>();
             for (EiType type : producer.eiTypes()) {
                 for (EiJob eiJob : this.eiJobs.getJobsForType(type)) {
-                    ProducerJobInfo request = new ProducerJobInfo(eiJob.jobData(), eiJob, eiJob.type());
+                    ProducerJobInfo request = new ProducerJobInfo(eiJob);
                     producerJobs.add(request);
                 }
             }

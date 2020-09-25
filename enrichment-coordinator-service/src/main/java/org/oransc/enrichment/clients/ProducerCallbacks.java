@@ -56,7 +56,7 @@ public class ProducerCallbacks {
 
     public void notifyProducersJobDeleted(EiJob eiJob) {
         AsyncRestClient restClient = restClient(false);
-        ProducerJobInfo request = new ProducerJobInfo(eiJob.jobData(), eiJob, eiJob.type());
+        ProducerJobInfo request = new ProducerJobInfo(eiJob);
         String body = gson.toJson(request);
         for (EiProducer producer : eiJob.type().getProducers()) {
             restClient.post(producer.jobDeletionCallbackUrl(), body) //
@@ -67,7 +67,7 @@ public class ProducerCallbacks {
 
     public void notifyProducerJobStarted(EiProducer producer, EiJob eiJob) {
         AsyncRestClient restClient = restClient(false);
-        ProducerJobInfo request = new ProducerJobInfo(eiJob.jobData(), eiJob, eiJob.type());
+        ProducerJobInfo request = new ProducerJobInfo(eiJob);
         String body = gson.toJson(request);
 
         restClient.post(producer.jobCreationCallbackUrl(), body) //
