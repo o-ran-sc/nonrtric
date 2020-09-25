@@ -21,7 +21,7 @@ logging:
   file: /var/log/enrichment-coordinator-service/application.log
 server:
    port : 8434
-   http-port: 8082
+   http-port: 8081
    ssl:
       key-store-type: JKS
       key-store-password: policy_agent

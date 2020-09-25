@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -39,14 +38,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
         "app.webclient.trust-store=./config/truststore.jks"})
 class MockEnrichmentService {
     private static final Logger logger = LoggerFactory.getLogger(ApplicationTest.class);
-
-    /**
-     * Overrides the BeanFactory.
-     */
-    @TestConfiguration
-    static class TestBeanFactory {
-
-    }
 
     @LocalServerPort
     private int port;

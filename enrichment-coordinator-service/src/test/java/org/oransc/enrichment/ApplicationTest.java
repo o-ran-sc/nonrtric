@@ -54,8 +54,6 @@ import org.oransc.enrichment.repository.EiJobs;
 import org.oransc.enrichment.repository.EiProducers;
 import org.oransc.enrichment.repository.EiType;
 import org.oransc.enrichment.repository.EiTypes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -82,8 +80,8 @@ import reactor.test.StepVerifier;
         "server.ssl.key-store=./config/keystore.jks", //
         "app.webclient.trust-store=./config/truststore.jks"})
 class ApplicationTest {
-    private static final Logger logger = LoggerFactory.getLogger(ApplicationTest.class);
     private final String EI_TYPE_ID = "typeId";
+    private final String EI_PRODUCER_ID = "producerId";
     private final String EI_JOB_PROPERTY = "\"property1\"";
 
     @Autowired
@@ -137,7 +135,7 @@ class ApplicationTest {
 
     @Test
     void testGetEiTypes() throws Exception {
-        putEiProducerWithOneType("test");
+        putEiProducerWithOneType(EI_PRODUCER_ID, "test");
         String url = ConsumerConsts.API_ROOT + "/eitypes";
         String rsp = restClient().get(url).block();
         assertThat(rsp).isEqualTo("[\"test\"]");
@@ -145,7 +143,7 @@ class ApplicationTest {
 
     @Test
     void testGetEiType() throws Exception {
-        putEiProducerWithOneType("test");
+        putEiProducerWithOneType(EI_PRODUCER_ID, "test");
         String url = ConsumerConsts.API_ROOT + "/eitypes/test";
         String rsp = restClient().get(url).block();
         assertThat(rsp).contains("job_data_schema");
@@ -159,7 +157,7 @@ class ApplicationTest {
 
     @Test
     void testGetEiJobsIds() throws Exception {
-        putEiProducerWithOneType(EI_TYPE_ID);
+        putEiProducerWithOneType(EI_PRODUCER_ID, EI_TYPE_ID);
         putEiJob(EI_TYPE_ID, "jobId");
         String url = ConsumerConsts.API_ROOT + "/eitypes/typeId/eijobs";
         String rsp = restClient().get(url).block();
@@ -174,7 +172,7 @@ class ApplicationTest {
 
     @Test
     void testGetEiJob() throws Exception {
-        putEiProducerWithOneType(EI_TYPE_ID);
+        putEiProducerWithOneType(EI_PRODUCER_ID, EI_TYPE_ID);
         putEiJob(EI_TYPE_ID, "jobId");
         String url = ConsumerConsts.API_ROOT + "/eitypes/typeId/eijobs/jobId";
         String rsp = restClient().get(url).block();
@@ -182,8 +180,15 @@ class ApplicationTest {
     }
 
     @Test
+    void testGetEiJobNotFound() throws Exception {
+        putEiProducerWithOneType(EI_PRODUCER_ID, EI_TYPE_ID);
+        String url = ConsumerConsts.API_ROOT + "/eitypes/typeId/eijobs/junk";
+        testErrorCode(restClient().get(url), HttpStatus.NOT_FOUND, "Could not find EI job: junk");
+    }
+
+    @Test
     void testGetEiJobStatus() throws Exception {
-        putEiProducerWithOneType(EI_TYPE_ID);
+        putEiProducerWithOneType(EI_PRODUCER_ID, EI_TYPE_ID);
         putEiJob(EI_TYPE_ID, "jobId");
         String url = ConsumerConsts.API_ROOT + "/eitypes/typeId/eijobs/jobId/status";
         String rsp = restClient().get(url).block();
@@ -194,7 +199,7 @@ class ApplicationTest {
 
     @Test
     void testDeleteEiJob() throws Exception {
-        putEiProducerWithOneType(EI_TYPE_ID);
+        putEiProducerWithOneType(EI_PRODUCER_ID, EI_TYPE_ID);
         putEiJob(EI_TYPE_ID, "jobId");
         assertThat(this.eiJobs.size()).isEqualTo(1);
         String url = ConsumerConsts.API_ROOT + "/eitypes/typeId/eijobs/jobId";
@@ -207,8 +212,15 @@ class ApplicationTest {
     }
 
     @Test
+    void testDeleteEiJobNotFound() throws Exception {
+        putEiProducerWithOneType(EI_PRODUCER_ID, EI_TYPE_ID);
+        String url = ConsumerConsts.API_ROOT + "/eitypes/typeId/eijobs/junk";
+        testErrorCode(restClient().get(url), HttpStatus.NOT_FOUND, "Could not find EI job: junk");
+    }
+
+    @Test
     void testPutEiJob() throws Exception {
-        putEiProducerWithOneType(EI_TYPE_ID);
+        putEiProducerWithOneType(EI_PRODUCER_ID, EI_TYPE_ID);
 
         String url = ConsumerConsts.API_ROOT + "/eitypes/typeId/eijobs/jobId";
         String body = gson.toJson(eiJobInfo());
@@ -229,7 +241,7 @@ class ApplicationTest {
 
     @Test
     void testPutEiJob_jsonSchemavalidationError() throws Exception {
-        putEiProducerWithOneType(EI_TYPE_ID);
+        putEiProducerWithOneType(EI_PRODUCER_ID, EI_TYPE_ID);
 
         String url = ConsumerConsts.API_ROOT + "/eitypes/typeId/eijobs/jobId";
         // The element with name "property1" is mandatory in the schema
@@ -242,12 +254,43 @@ class ApplicationTest {
 
     @Test
     void testGetEiProducerTypes() throws Exception {
-        putEiProducerWithOneType(EI_TYPE_ID);
+        final String EI_TYPE_ID_2 = EI_TYPE_ID + "_2";
+        putEiProducerWithOneType("producer1", EI_TYPE_ID);
         putEiJob(EI_TYPE_ID, "jobId");
+        putEiProducerWithOneType("producer2", EI_TYPE_ID_2);
+        putEiJob(EI_TYPE_ID_2, "jobId2");
         String url = ProducerConsts.API_ROOT + "/eitypes";
 
         ResponseEntity<String> resp = restClient().getForEntity(url).block();
         assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(resp.getBody()).contains(EI_TYPE_ID);
+        assertThat(resp.getBody()).contains(EI_TYPE_ID_2);
+    }
+
+    @Test
+    void testReplacingEiProducerTypes() throws Exception {
+        final String REPLACED_TYPE_ID = "replaced";
+        putEiProducerWithOneType(EI_PRODUCER_ID, REPLACED_TYPE_ID);
+        putEiProducerWithOneType(EI_PRODUCER_ID, EI_TYPE_ID);
+
+        String url = ProducerConsts.API_ROOT + "/eitypes";
+
+        ResponseEntity<String> resp = restClient().getForEntity(url).block();
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(resp.getBody()).contains(EI_TYPE_ID);
+        assertThat(resp.getBody()).doesNotContain(REPLACED_TYPE_ID);
+    }
+
+    @Test
+    void testChangingEiTypeGetRejected() throws Exception {
+        putEiProducerWithOneType("producer1", "typeId1");
+        putEiProducerWithOneType("producer2", "typeId2");
+        putEiJob("typeId1", "jobId");
+
+        String url = ConsumerConsts.API_ROOT + "/eitypes/typeId2/eijobs/jobId";
+        String body = gson.toJson(eiJobInfo());
+        testErrorCode(restClient().put(url, body), HttpStatus.CONFLICT,
+            "Not allowed to change type for existing EI job");
     }
 
     @Test
@@ -275,7 +318,7 @@ class ApplicationTest {
 
     @Test
     void testPutEiProducerExistingJob() throws Exception {
-        putEiProducerWithOneType(EI_TYPE_ID);
+        putEiProducerWithOneType(EI_PRODUCER_ID, EI_TYPE_ID);
         putEiJob(EI_TYPE_ID, "jobId");
         String url = ProducerConsts.API_ROOT + "/eiproducers/eiProducerId";
         String body = gson.toJson(producerEiRegistratioInfo(EI_TYPE_ID));
@@ -307,7 +350,7 @@ class ApplicationTest {
 
     @Test
     void testGetEiJobsForProducer() throws JsonMappingException, JsonProcessingException, ServiceException {
-        putEiProducerWithOneType(EI_TYPE_ID);
+        putEiProducerWithOneType(EI_PRODUCER_ID, EI_TYPE_ID);
         putEiJob(EI_TYPE_ID, "jobId1");
         putEiJob(EI_TYPE_ID, "jobId2");
 
@@ -336,14 +379,18 @@ class ApplicationTest {
         EiType type = this.eiTypes.getType(EI_TYPE_ID);
         assertThat(type.getProducerIds().contains("eiProducerId")).isTrue();
         assertThat(type.getProducerIds().contains("eiProducerId2")).isTrue();
+        putEiJob(EI_TYPE_ID, "jobId");
+        assertThat(this.eiJobs.size()).isEqualTo(1);
 
         restClient().deleteForEntity(url).block();
         assertThat(this.eiProducers.size()).isEqualTo(1);
         assertThat(this.eiTypes.getType(EI_TYPE_ID).getProducerIds().contains("eiProducerId")).isFalse();
+        assertThat(this.eiJobs.size()).isEqualTo(1);
 
         restClient().deleteForEntity(url2).block();
         assertThat(this.eiProducers.size()).isEqualTo(0);
         assertThat(this.eiTypes.size()).isEqualTo(0);
+        assertThat(this.eiJobs.size()).isEqualTo(0);
     }
 
     ProducerEiTypeRegistrationInfo producerEiTypeRegistrationInfo(String typeId)
@@ -395,20 +442,19 @@ class ApplicationTest {
     private EiJob putEiJob(String eiTypeId, String jobId)
         throws JsonMappingException, JsonProcessingException, ServiceException {
 
-        String url = ConsumerConsts.API_ROOT + "/eitypes/typeId/eijobs/" + jobId;
+        String url = ConsumerConsts.API_ROOT + "/eitypes/" + eiTypeId + "/eijobs/" + jobId;
         String body = gson.toJson(eiJobInfo());
         restClient().putForEntity(url, body).block();
 
         return this.eiJobs.getJob(jobId);
     }
 
-    private EiType putEiProducerWithOneType(String eiTypeId)
+    private EiType putEiProducerWithOneType(String producerId, String eiTypeId)
         throws JsonMappingException, JsonProcessingException, ServiceException {
-        String url = ProducerConsts.API_ROOT + "/eiproducers/eiProducerId";
+        String url = ProducerConsts.API_ROOT + "/eiproducers/" + producerId;
         String body = gson.toJson(producerEiRegistratioInfo(eiTypeId));
 
         restClient().putForEntity(url, body).block();
-        assertThat(this.eiTypes.size()).isEqualTo(1);
         return this.eiTypes.getType(eiTypeId);
     }
 
