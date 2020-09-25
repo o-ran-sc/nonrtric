@@ -204,16 +204,29 @@ public class ProducerController {
         @PathVariable("eiProducerId") String eiProducerId, //
         @RequestBody ProducerRegistrationInfo registrationInfo) {
         try {
-            final EiProducer previousDefinition = this.eiProducers.get(eiProducerId);
+            EiProducer previousDefinition = this.eiProducers.get(eiProducerId);
             if (previousDefinition != null) {
-                deregisterProducer(previousDefinition, false);
+                for (EiType type : previousDefinition.eiTypes()) {
+                    type.removeProducer(previousDefinition);
+                }
             }
 
             registerProducer(eiProducerId, registrationInfo);
+            if (previousDefinition != null) {
+                purgeTypes(previousDefinition.eiTypes());
+            }
 
             return new ResponseEntity<>(previousDefinition == null ? HttpStatus.CREATED : HttpStatus.OK);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
+        }
+    }
+
+    private void purgeTypes(Collection<EiType> types) {
+        for (EiType type : types) {
+            if (type.getProducerIds().isEmpty()) {
+                this.deregisterType(type);
+            }
         }
     }
 
@@ -229,7 +242,7 @@ public class ProducerController {
     public ResponseEntity<Object> deleteEiProducer(@PathVariable("eiProducerId") String eiProducerId) {
         try {
             final EiProducer producer = this.eiProducers.getProducer(eiProducerId);
-            deregisterProducer(producer, true);
+            deregisterProducer(producer);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
@@ -255,7 +268,7 @@ public class ProducerController {
             .build();
     }
 
-    private void registerProducer(String producerId, ProducerRegistrationInfo registrationInfo) {
+    private EiProducer registerProducer(String producerId, ProducerRegistrationInfo registrationInfo) {
         ArrayList<EiType> types = new ArrayList<>();
         for (ProducerEiTypeRegistrationInfo typeInfo : registrationInfo.types) {
             types.add(registerType(typeInfo));
@@ -269,21 +282,26 @@ public class ProducerController {
             }
             type.addProducer(producer);
         }
+        return producer;
     }
 
-    private void deregisterProducer(EiProducer producer, boolean deleteJobs) {
+    private void deregisterType(EiType type) {
+        this.eiTypes.remove(type);
+        for (EiJob job : this.eiJobs.getJobsForType(type.getId())) {
+            this.eiJobs.remove(job);
+            this.logger.warn("Deleted job {} because no producers left", job.id());
+        }
+    }
+
+    private void deregisterProducer(EiProducer producer) {
         this.eiProducers.remove(producer);
         for (EiType type : producer.eiTypes()) {
             boolean removed = type.removeProducer(producer) != null;
             if (!removed) {
                 this.logger.error("Bug, no producer found");
             }
-            if (type.getProducerIds().isEmpty() && deleteJobs) {
-                this.eiTypes.remove(type);
-                for (EiJob job : this.eiJobs.getJobsForType(type.getId())) {
-                    this.eiJobs.remove(job);
-                    this.logger.warn("Deleted job {} because no producers left", job.id());
-                }
+            if (type.getProducerIds().isEmpty()) {
+                deregisterType(type);
             }
         }
     }

@@ -512,6 +512,7 @@ definitions:
     required:
       - job_data
       - job_owner
+      - target_uri
     properties:
       job_data:
         type: object
@@ -519,6 +520,9 @@ definitions:
       job_owner:
         type: string
         description: Identity of the owner of the job
+      target_uri:
+        type: string
+        description: The target of the EI data
     title: ei_job_info
     description: Information for a Enrichment Information Job
   ei_job_status:
@@ -573,6 +577,9 @@ definitions:
       ei_type_identity:
         type: string
         description: Type idenitity for the job
+      target_uri:
+        type: string
+        description: URI for the target of the EI
     title: producer_ei_job_request
     description: The body of the EI producer callbacks for EI job creation and deletion
   producer_ei_type_info:

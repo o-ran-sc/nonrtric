@@ -47,7 +47,7 @@ public class EiJobs {
     public synchronized EiJob getJob(String id) throws ServiceException {
         EiJob ric = allEiJobs.get(id);
         if (ric == null) {
-            throw new ServiceException("Could not find EI Job: " + id);
+            throw new ServiceException("Could not find EI job: " + id);
         }
         return ric;
     }

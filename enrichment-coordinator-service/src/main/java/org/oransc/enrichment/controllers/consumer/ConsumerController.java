@@ -252,10 +252,14 @@ public class ConsumerController {
         try {
             EiType eiType = this.eiTypes.getType(eiTypeId);
             validateJobData(eiType.getJobDataSchema(), eiJobInfo.jobData);
-            final boolean newJob = this.eiJobs.get(eiJobId) == null;
-            EiJob eiJob = toEiJob(eiJobInfo, eiJobId, eiType);
-            this.eiJobs.put(eiJob);
-            this.producerCallbacks.notifyProducersJobCreated(eiJob);
+            EiJob existingEiJob = this.eiJobs.get(eiJobId);
+            final boolean newJob = existingEiJob == null;
+            if (existingEiJob != null && !existingEiJob.type().getId().equals(eiTypeId)) {
+                return ErrorResponse.create("Not allowed to change type for existing EI job", HttpStatus.CONFLICT);
+            }
+            EiJob newEiJob = toEiJob(eiJobInfo, eiJobId, eiType);
+            this.eiJobs.put(newEiJob);
+            this.producerCallbacks.notifyProducersJobCreated(newEiJob);
             return new ResponseEntity<>(newJob ? HttpStatus.CREATED : HttpStatus.OK);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
