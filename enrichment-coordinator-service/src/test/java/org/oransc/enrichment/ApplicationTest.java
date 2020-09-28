@@ -204,7 +204,7 @@ class ApplicationTest {
         assertThat(this.eiJobs.size()).isEqualTo(1);
         String url = ConsumerConsts.API_ROOT + "/eitypes/typeId/eijobs/jobId";
         restClient().delete(url).block();
-        assertThat(this.eiJobs.size()).isEqualTo(0);
+        assertThat(this.eiJobs.size()).isZero();
 
         ProducerSimulatorController.TestResults simulatorResults = this.producerSimulator.getTestResults();
         await().untilAsserted(() -> assertThat(simulatorResults.jobsStopped.size()).isEqualTo(1));
@@ -303,10 +303,9 @@ class ApplicationTest {
 
         assertThat(this.eiTypes.size()).isEqualTo(1);
         EiType type = this.eiTypes.getType(EI_TYPE_ID);
-        assertThat(type.getProducerIds().contains("eiProducerId")).isTrue();
+        assertThat(type.getProducerIds()).contains("eiProducerId");
         assertThat(this.eiProducers.size()).isEqualTo(1);
-        assertThat(this.eiProducers.get("eiProducerId").eiTypes().iterator().next().getId().equals(EI_TYPE_ID))
-            .isTrue();
+        assertThat(this.eiProducers.get("eiProducerId").eiTypes().iterator().next().getId()).isEqualTo(EI_TYPE_ID);
 
         resp = restClient().putForEntity(url, body).block();
         assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -370,27 +369,43 @@ class ApplicationTest {
 
     @Test
     void testDeleteEiProducer() throws Exception {
-        String url = ProducerConsts.API_ROOT + "/eiproducers/eiProducerId";
-        String url2 = ProducerConsts.API_ROOT + "/eiproducers/eiProducerId2";
-        String body = gson.toJson(producerEiRegistratioInfo(EI_TYPE_ID));
-        restClient().putForEntity(url, body).block();
-        restClient().putForEntity(url2, body).block();
+        putEiProducerWithOneType("eiProducerId", EI_TYPE_ID);
+        putEiProducerWithOneType("eiProducerId2", EI_TYPE_ID);
+
         assertThat(this.eiProducers.size()).isEqualTo(2);
         EiType type = this.eiTypes.getType(EI_TYPE_ID);
-        assertThat(type.getProducerIds().contains("eiProducerId")).isTrue();
-        assertThat(type.getProducerIds().contains("eiProducerId2")).isTrue();
+        assertThat(type.getProducerIds()).contains("eiProducerId");
+        assertThat(type.getProducerIds()).contains("eiProducerId2");
         putEiJob(EI_TYPE_ID, "jobId");
         assertThat(this.eiJobs.size()).isEqualTo(1);
 
+        String url = ProducerConsts.API_ROOT + "/eiproducers/eiProducerId";
         restClient().deleteForEntity(url).block();
         assertThat(this.eiProducers.size()).isEqualTo(1);
-        assertThat(this.eiTypes.getType(EI_TYPE_ID).getProducerIds().contains("eiProducerId")).isFalse();
+        assertThat(this.eiTypes.getType(EI_TYPE_ID).getProducerIds()).doesNotContain("eiProducerId");
         assertThat(this.eiJobs.size()).isEqualTo(1);
 
+        String url2 = ProducerConsts.API_ROOT + "/eiproducers/eiProducerId2";
         restClient().deleteForEntity(url2).block();
-        assertThat(this.eiProducers.size()).isEqualTo(0);
-        assertThat(this.eiTypes.size()).isEqualTo(0);
-        assertThat(this.eiJobs.size()).isEqualTo(0);
+        assertThat(this.eiProducers.size()).isZero();
+        assertThat(this.eiTypes.size()).isZero();
+        assertThat(this.eiJobs.size()).isZero();
+    }
+
+    @Test
+    void testGetProducerEiType() throws JsonMappingException, JsonProcessingException, ServiceException {
+        putEiProducerWithOneType(EI_PRODUCER_ID, EI_TYPE_ID);
+        String url = ProducerConsts.API_ROOT + "/eitypes/" + EI_TYPE_ID;
+        ResponseEntity<String> resp = restClient().getForEntity(url).block();
+        assertThat(resp.getBody()).contains(EI_PRODUCER_ID);
+    }
+
+    @Test
+    void testGetProducerIdentifiers() throws JsonMappingException, JsonProcessingException, ServiceException {
+        putEiProducerWithOneType(EI_PRODUCER_ID, EI_TYPE_ID);
+        String url = ProducerConsts.API_ROOT + "/eiproducers";
+        ResponseEntity<String> resp = restClient().getForEntity(url).block();
+        assertThat(resp.getBody()).contains(EI_PRODUCER_ID);
     }
 
     ProducerEiTypeRegistrationInfo producerEiTypeRegistrationInfo(String typeId)

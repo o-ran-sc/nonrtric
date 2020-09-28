@@ -24,7 +24,7 @@ import org.immutables.gson.Gson;
 import org.immutables.value.Value;
 
 /**
- * Represents the dynamic information about a Near-RT RIC.
+ * Represents the dynamic information about a EI Job
  */
 @Value.Immutable
 @Gson.TypeAdapters
