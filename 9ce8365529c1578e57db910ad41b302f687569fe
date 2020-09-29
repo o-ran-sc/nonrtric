@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b73135cb_f634255f",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/clients/ProducerCallbacks.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-09-29T08:13:09Z",
+      "side": 1,
+      "message": "Should this method really be public? I cannot see it being called anywhere outside this class.",
+      "range": {
+        "startLine": 72,
+        "startChar": 4,
+        "endLine": 72,
+        "endChar": 11
+      },
+      "revId": "9ce8365529c1578e57db910ad41b302f687569fe",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
