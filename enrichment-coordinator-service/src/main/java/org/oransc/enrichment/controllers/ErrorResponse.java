@@ -27,6 +27,7 @@ import com.google.gson.annotations.SerializedName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import org.oransc.enrichment.exceptions.ServiceException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -82,13 +83,18 @@ public class ErrorResponse {
         this.message = message;
     }
 
-    public static Mono<ResponseEntity<Object>> createMono(Exception e, HttpStatus code) {
+    public static Mono<ResponseEntity<Object>> createMono(Throwable e, HttpStatus code) {
         return Mono.just(create(e, code));
     }
 
-    public static ResponseEntity<Object> create(Exception e, HttpStatus code) {
+    public static ResponseEntity<Object> create(Throwable e, HttpStatus code) {
         if (e instanceof RuntimeException) {
             code = HttpStatus.INTERNAL_SERVER_ERROR;
+        } else if (e instanceof ServiceException) {
+            ServiceException se = (ServiceException) e;
+            if (se.getHttpStatus() != null) {
+                code = se.getHttpStatus();
+            }
         }
         return create(e.toString(), code);
     }

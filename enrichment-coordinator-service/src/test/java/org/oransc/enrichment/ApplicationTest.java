@@ -45,6 +45,7 @@ import org.oransc.enrichment.configuration.WebClientConfig;
 import org.oransc.enrichment.controller.ProducerSimulatorController;
 import org.oransc.enrichment.controllers.consumer.ConsumerConsts;
 import org.oransc.enrichment.controllers.consumer.ConsumerEiJobInfo;
+import org.oransc.enrichment.controllers.consumer.ConsumerEiTypeInfo;
 import org.oransc.enrichment.controllers.producer.ProducerConsts;
 import org.oransc.enrichment.controllers.producer.ProducerRegistrationInfo;
 import org.oransc.enrichment.controllers.producer.ProducerRegistrationInfo.ProducerEiTypeRegistrationInfo;
@@ -146,7 +147,8 @@ class ApplicationTest {
         putEiProducerWithOneType(EI_PRODUCER_ID, "test");
         String url = ConsumerConsts.API_ROOT + "/eitypes/test";
         String rsp = restClient().get(url).block();
-        assertThat(rsp).contains("job_data_schema");
+        ConsumerEiTypeInfo info = gson.fromJson(rsp, ConsumerEiTypeInfo.class);
+        assertThat(info.jobParametersSchema).isNotNull();
     }
 
     @Test
@@ -176,7 +178,8 @@ class ApplicationTest {
         putEiJob(EI_TYPE_ID, "jobId");
         String url = ConsumerConsts.API_ROOT + "/eitypes/typeId/eijobs/jobId";
         String rsp = restClient().get(url).block();
-        assertThat(rsp).contains("job_data");
+        ConsumerEiJobInfo info = gson.fromJson(rsp, ConsumerEiJobInfo.class);
+        assertThat(info.owner).isEqualTo("owner");
     }
 
     @Test
@@ -220,7 +223,9 @@ class ApplicationTest {
 
     @Test
     void testPutEiJob() throws Exception {
+        // Test that one producer accepting a job is enough
         putEiProducerWithOneType(EI_PRODUCER_ID, EI_TYPE_ID);
+        putEiProducerWithOneTypeRejecting("simulateProducerError", EI_TYPE_ID);
 
         String url = ConsumerConsts.API_ROOT + "/eitypes/typeId/eijobs/jobId";
         String body = gson.toJson(eiJobInfo());
@@ -233,10 +238,23 @@ class ApplicationTest {
         ProducerJobInfo request = simulatorResults.jobsStarted.get(0);
         assertThat(request.id).isEqualTo("jobId");
 
+        assertThat(simulatorResults.noOfRejectedCreate).isEqualTo(1);
+
         resp = restClient().putForEntity(url, body).block();
         assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
         EiJob job = this.eiJobs.getJob("jobId");
         assertThat(job.owner()).isEqualTo("owner");
+    }
+
+    @Test
+    void putEiProducerWithOneType_rejecting() throws JsonMappingException, JsonProcessingException, ServiceException {
+        putEiProducerWithOneTypeRejecting("simulateProducerError", EI_TYPE_ID);
+        String url = ConsumerConsts.API_ROOT + "/eitypes/typeId/eijobs/jobId";
+        String body = gson.toJson(eiJobInfo());
+        testErrorCode(restClient().put(url, body), HttpStatus.CONFLICT, "Job not accepted by any producers");
+
+        ProducerSimulatorController.TestResults simulatorResults = this.producerSimulator.getTestResults();
+        assertThat(simulatorResults.noOfRejectedCreate).isEqualTo(1);
     }
 
     @Test
@@ -249,7 +267,7 @@ class ApplicationTest {
             new ConsumerEiJobInfo(jsonObject("{ \"XXstring\" : \"value\" }"), "owner", "targetUri");
         String body = gson.toJson(jobInfo);
 
-        testErrorCode(restClient().put(url, body), HttpStatus.NOT_FOUND, "Json validation failure");
+        testErrorCode(restClient().put(url, body), HttpStatus.CONFLICT, "Json validation failure");
     }
 
     @Test
@@ -413,6 +431,14 @@ class ApplicationTest {
         return new ProducerEiTypeRegistrationInfo(jsonSchemaObject(), typeId);
     }
 
+    ProducerRegistrationInfo producerEiRegistratioInfoRejecting(String typeId)
+        throws JsonMappingException, JsonProcessingException {
+        Collection<ProducerEiTypeRegistrationInfo> types = new ArrayList<>();
+        types.add(producerEiTypeRegistrationInfo(typeId));
+        return new ProducerRegistrationInfo(types, baseUrl() + ProducerSimulatorController.JOB_CREATED_ERROR_URL,
+            baseUrl() + ProducerSimulatorController.JOB_DELETED_ERROR_URL);
+    }
+
     ProducerRegistrationInfo producerEiRegistratioInfo(String typeId)
         throws JsonMappingException, JsonProcessingException {
         Collection<ProducerEiTypeRegistrationInfo> types = new ArrayList<>();
@@ -462,6 +488,15 @@ class ApplicationTest {
         restClient().putForEntity(url, body).block();
 
         return this.eiJobs.getJob(jobId);
+    }
+
+    private EiType putEiProducerWithOneTypeRejecting(String producerId, String eiTypeId)
+        throws JsonMappingException, JsonProcessingException, ServiceException {
+        String url = ProducerConsts.API_ROOT + "/eiproducers/" + producerId;
+        String body = gson.toJson(producerEiRegistratioInfoRejecting(eiTypeId));
+
+        restClient().putForEntity(url, body).block();
+        return this.eiTypes.getType(eiTypeId);
     }
 
     private EiType putEiProducerWithOneType(String producerId, String eiTypeId)

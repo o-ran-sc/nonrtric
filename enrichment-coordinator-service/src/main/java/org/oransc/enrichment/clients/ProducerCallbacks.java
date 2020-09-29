@@ -34,6 +34,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 /**
  * Callbacks to the EiProducer
  */
@@ -48,12 +51,6 @@ public class ProducerCallbacks {
     @Autowired
     ApplicationConfig applicationConfig;
 
-    public void notifyProducersJobCreated(EiJob eiJob) {
-        for (EiProducer producer : eiJob.type().getProducers()) {
-            notifyProducerJobStarted(producer, eiJob);
-        }
-    }
-
     public void notifyProducersJobDeleted(EiJob eiJob) {
         AsyncRestClient restClient = restClient(false);
         ProducerJobInfo request = new ProducerJobInfo(eiJob);
@@ -65,15 +62,24 @@ public class ProducerCallbacks {
         }
     }
 
-    public void notifyProducerJobStarted(EiProducer producer, EiJob eiJob) {
+    public Mono<Integer> notifyProducersJobStarted(EiJob eiJob) {
+        return Flux.fromIterable(eiJob.type().getProducers()) //
+            .flatMap(eiProducer -> notifyProducerJobStarted(eiProducer, eiJob)) //
+            .collectList() //
+            .flatMap(okResponses -> Mono.just(Integer.valueOf(okResponses.size()))); //
+    }
+
+    public Mono<String> notifyProducerJobStarted(EiProducer producer, EiJob eiJob) {
         AsyncRestClient restClient = restClient(false);
         ProducerJobInfo request = new ProducerJobInfo(eiJob);
         String body = gson.toJson(request);
 
-        restClient.post(producer.jobCreationCallbackUrl(), body) //
-            .subscribe(notUsed -> logger.debug("Job subscription started OK {}", producer.id()), //
-                throwable -> logger.warn("Job subscription failed {}", producer.id(), throwable.toString()), null);
-
+        return restClient.post(producer.jobCreationCallbackUrl(), body)
+            .doOnNext(resp -> logger.debug("Job subscription started OK {}", producer.id()))
+            .onErrorResume(throwable -> {
+                logger.warn("Job subscription failed {}", producer.id(), throwable.toString());
+                return Mono.empty();
+            });
     }
 
     private AsyncRestClient restClient(boolean useTrustValidation) {
