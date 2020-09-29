@@ -22,6 +22,30 @@
       "revId": "9ce8365529c1578e57db910ad41b302f687569fe",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48488563_56b5995b",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/clients/ProducerCallbacks.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-09-29T08:39:48Z",
+      "side": 1,
+      "message": "It is used in the ProducerController.\nWhen a new producer is registerred, it will get callbacks for jobs already existing (if any).",
+      "parentUuid": "b73135cb_f634255f",
+      "range": {
+        "startLine": 72,
+        "startChar": 4,
+        "endLine": 72,
+        "endChar": 11
+      },
+      "revId": "9ce8365529c1578e57db910ad41b302f687569fe",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
