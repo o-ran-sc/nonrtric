@@ -51,11 +51,15 @@ public class ProducerSimulatorController {
 
     public static final String JOB_CREATED_URL = "/producer_simulator/job_created";
     public static final String JOB_DELETED_URL = "/producer_simulator/job_deleted";
+    public static final String JOB_CREATED_ERROR_URL = "/producer_simulator/job_created_error";
+    public static final String JOB_DELETED_ERROR_URL = "/producer_simulator/job_deleted_error";
 
     public static class TestResults {
 
         public List<ProducerJobInfo> jobsStarted = Collections.synchronizedList(new ArrayList<ProducerJobInfo>());
         public List<ProducerJobInfo> jobsStopped = Collections.synchronizedList(new ArrayList<ProducerJobInfo>());
+        public int noOfRejectedCreate = 0;
+        public int noOfRejectedDelete = 0;
         public boolean errorFound = false;
 
         public TestResults() {
@@ -65,6 +69,8 @@ public class ProducerSimulatorController {
             jobsStarted.clear();
             jobsStopped.clear();
             this.errorFound = false;
+            this.noOfRejectedCreate = 0;
+            this.noOfRejectedDelete = 0;
         }
     }
 
@@ -107,6 +113,32 @@ public class ProducerSimulatorController {
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
         }
+    }
+
+    @PostMapping(path = JOB_CREATED_ERROR_URL, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Callback for EI job creation, returns error", notes = "")
+    @ApiResponses(
+        value = { //
+            @ApiResponse(code = 200, message = "OK", response = void.class)}//
+    )
+    public ResponseEntity<Object> jobCreatedCallbackReturnError( //
+        @RequestBody ProducerJobInfo request) {
+        logger.info("Job created (returning error) callback {}", request.id);
+        this.testResults.noOfRejectedCreate += 1;
+        return ErrorResponse.create("Producer returns error on create job", HttpStatus.NOT_FOUND);
+    }
+
+    @PostMapping(path = JOB_DELETED_ERROR_URL, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Callback for EI job creation, returns error", notes = "")
+    @ApiResponses(
+        value = { //
+            @ApiResponse(code = 200, message = "OK", response = void.class)}//
+    )
+    public ResponseEntity<Object> jobDeletedCallbackReturnError( //
+        @RequestBody ProducerJobInfo request) {
+        logger.info("Job created (returning error) callback {}", request.id);
+        this.testResults.noOfRejectedDelete += 1;
+        return ErrorResponse.create("Producer returns error on delete job", HttpStatus.NOT_FOUND);
     }
 
 }

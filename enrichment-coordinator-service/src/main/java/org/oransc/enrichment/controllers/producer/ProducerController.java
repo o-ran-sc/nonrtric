@@ -278,7 +278,11 @@ public class ProducerController {
 
         for (EiType type : types) {
             for (EiJob job : this.eiJobs.getJobsForType(type)) {
-                this.producerCallbacks.notifyProducerJobStarted(producer, job);
+                this.producerCallbacks.notifyProducerJobStarted(producer, job) //
+                    .subscribe(//
+                        response -> logger.debug("Producer notified OK"), //
+                        throwable -> logger.warn("Producer rejected job {}", throwable.getMessage()) //
+                    );
             }
             type.addProducer(producer);
         }
