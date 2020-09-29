@@ -29,22 +29,22 @@ import io.swagger.annotations.ApiModelProperty;
 import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
-@ApiModel(value = "ei_job_info", description = "Information for a Enrichment Information Job")
+@ApiModel(value = "EiJob", description = "Information for an Enrichment Information Job")
 public class ConsumerEiJobInfo {
 
     @ApiModelProperty(value = "Identity of the owner of the job", required = true)
-    @SerializedName("job_owner")
-    @JsonProperty(value = "job_owner", required = true)
+    @SerializedName("jobOwner")
+    @JsonProperty(value = "jobOwner", required = true)
     public String owner;
 
     @ApiModelProperty(value = "EI Type specific job data", required = true)
-    @SerializedName("job_data")
-    @JsonProperty(value = "job_data", required = true)
+    @SerializedName("jobParameters")
+    @JsonProperty(value = "jobParameters", required = true)
     public Object jobData;
 
     @ApiModelProperty(value = "The target of the EI data", required = true)
-    @SerializedName("target_uri")
-    @JsonProperty(value = "target_uri", required = true)
+    @SerializedName("targetUri")
+    @JsonProperty(value = "targetUri", required = true)
     public String targetUri;
 
     public ConsumerEiJobInfo() {

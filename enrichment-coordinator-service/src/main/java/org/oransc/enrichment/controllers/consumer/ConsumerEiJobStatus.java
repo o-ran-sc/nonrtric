@@ -29,11 +29,11 @@ import io.swagger.annotations.ApiModelProperty;
 import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
-@ApiModel(value = "ei_job_status", description = "Status for an EI Job")
+@ApiModel(value = "EiJobStatus", description = "Status for an EI Job")
 public class ConsumerEiJobStatus {
 
     @Gson.TypeAdapters
-    @ApiModel(value = "operational_state", description = "Represents the operational states for a EI Job")
+    @ApiModel(value = "OperationalState", description = "Represents the operational states for a EI Job")
     public enum OperationalState {
         ENABLED, DISABLED
     }
@@ -43,8 +43,8 @@ public class ConsumerEiJobStatus {
         + "DISABLED: TBD.";
 
     @ApiModelProperty(value = OPERATIONAL_STATE_DESCRIPTION, name = "operational_state", required = true)
-    @SerializedName("operational_state")
-    @JsonProperty(value = "operational_state", required = true)
+    @SerializedName("operationalState")
+    @JsonProperty(value = "operationalState", required = true)
     public final OperationalState state;
 
     public ConsumerEiJobStatus(OperationalState state) {

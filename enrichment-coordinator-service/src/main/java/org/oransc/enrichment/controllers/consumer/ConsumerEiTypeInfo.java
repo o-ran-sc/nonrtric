@@ -29,15 +29,15 @@ import io.swagger.annotations.ApiModelProperty;
 import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
-@ApiModel(value = "ei_type_info", description = "Information for an EI type")
+@ApiModel(value = "EiType", description = "Information for an EI type")
 public class ConsumerEiTypeInfo {
 
     @ApiModelProperty(value = "Json schema for the job data")
-    @SerializedName("job_data_schema")
-    @JsonProperty("job_data_schema")
-    public final Object jobDataSchema;
+    @SerializedName("eiJobParametersSchema")
+    @JsonProperty("eiJobParametersSchema")
+    public final Object jobParametersSchema;
 
-    ConsumerEiTypeInfo(Object jobDataSchema) {
-        this.jobDataSchema = jobDataSchema;
+    ConsumerEiTypeInfo(Object jobParametersSchema) {
+        this.jobParametersSchema = jobParametersSchema;
     }
 }

@@ -18,15 +18,28 @@
 
 package org.oransc.enrichment.exceptions;
 
+import lombok.Getter;
+
+import org.springframework.http.HttpStatus;
+
 public class ServiceException extends Exception {
 
     private static final long serialVersionUID = 1L;
+    @Getter
+    private final HttpStatus httpStatus;
 
     public ServiceException(String message) {
         super(message);
+        this.httpStatus = null;
     }
 
     public ServiceException(String message, Exception originalException) {
         super(message, originalException);
+        this.httpStatus = null;
+    }
+
+    public ServiceException(String message, HttpStatus httpStatus) {
+        super(message);
+        this.httpStatus = httpStatus;
     }
 }
