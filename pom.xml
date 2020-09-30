@@ -35,7 +35,7 @@
     <modules>
         <module>policy-agent</module>
         <module>sdnc-a1-controller</module>
-        <module>enrichment-coordinator-service</module>
+        <!-- <module>enrichment-coordinator-service</module> -->
     </modules>
     <build>
         <plugins>
