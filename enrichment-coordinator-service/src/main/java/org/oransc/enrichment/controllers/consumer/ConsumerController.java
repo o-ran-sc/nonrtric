@@ -30,7 +30,6 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
-import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,14 +39,13 @@ import org.json.JSONObject;
 import org.oransc.enrichment.clients.ProducerCallbacks;
 import org.oransc.enrichment.configuration.ApplicationConfig;
 import org.oransc.enrichment.controllers.ErrorResponse;
+import org.oransc.enrichment.controllers.VoidResponse;
 import org.oransc.enrichment.exceptions.ServiceException;
 import org.oransc.enrichment.repository.EiJob;
 import org.oransc.enrichment.repository.EiJobs;
 import org.oransc.enrichment.repository.EiType;
 import org.oransc.enrichment.repository.EiTypes;
 import org.oransc.enrichment.repository.ImmutableEiJob;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -64,8 +62,6 @@ import reactor.core.publisher.Mono;
 @RestController("ConsumerController")
 @Api(tags = {ConsumerConsts.CONSUMER_API_NAME})
 public class ConsumerController {
-
-    private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Autowired
     ApplicationConfig applicationConfig;
@@ -214,8 +210,8 @@ public class ConsumerController {
     @ApiOperation(value = "Individual EI Job", notes = "")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "Not used", response = void.class),
-            @ApiResponse(code = 204, message = "Job deleted", response = void.class),
+            @ApiResponse(code = 200, message = "Not used", response = VoidResponse.class),
+            @ApiResponse(code = 204, message = "Job deleted", response = VoidResponse.class),
             @ApiResponse(
                 code = 404,
                 message = "Enrichment Information type or job is not found",
@@ -240,8 +236,8 @@ public class ConsumerController {
     @ApiOperation(value = "Individual EI Job", notes = "")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 201, message = "Job created", response = void.class), //
-            @ApiResponse(code = 200, message = "Job updated", response = void.class), // ,
+            @ApiResponse(code = 201, message = "Job created", response = VoidResponse.class), //
+            @ApiResponse(code = 200, message = "Job updated", response = VoidResponse.class), // ,
             @ApiResponse(
                 code = 404,
                 message = "Enrichment Information type is not found",

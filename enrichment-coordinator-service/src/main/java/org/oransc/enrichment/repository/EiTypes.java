@@ -20,18 +20,23 @@
 
 package org.oransc.enrichment.repository;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
 import org.oransc.enrichment.exceptions.ServiceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Dynamic representation of all EI Types in the system.
  */
+@SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
 public class EiTypes {
-    Map<String, EiType> allEiTypes = new HashMap<>();
+    private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private final Map<String, EiType> allEiTypes = new HashMap<>();
 
     public synchronized void put(EiType type) {
         allEiTypes.put(type.getId(), type);
@@ -67,6 +72,14 @@ public class EiTypes {
 
     public synchronized void clear() {
         this.allEiTypes.clear();
+    }
+
+    public void deregisterType(EiType type, EiJobs eiJobs) {
+        this.remove(type);
+        for (EiJob job : eiJobs.getJobsForType(type.getId())) {
+            eiJobs.remove(job);
+            this.logger.warn("Deleted job {} because no producers left", job.id());
+        }
     }
 
 }

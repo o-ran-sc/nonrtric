@@ -20,21 +20,26 @@
 
 package org.oransc.enrichment.repository;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
 import org.oransc.enrichment.exceptions.ServiceException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Dynamic representation of all Rics in the system.
+ * Dynamic representation of all EiProducers.
  */
+@SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
 public class EiProducers {
+    private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private Map<String, EiProducer> allEiProducers = new HashMap<>();
 
     public synchronized void put(EiProducer producer) {
-        allEiProducers.put(producer.id(), producer);
+        allEiProducers.put(producer.getId(), producer);
 
     }
 
@@ -58,10 +63,6 @@ public class EiProducers {
         this.allEiProducers.remove(id);
     }
 
-    public synchronized void remove(EiProducer producer) {
-        this.allEiProducers.remove(producer.id());
-    }
-
     public synchronized int size() {
         return allEiProducers.size();
     }
@@ -69,4 +70,22 @@ public class EiProducers {
     public synchronized void clear() {
         this.allEiProducers.clear();
     }
+
+    public void deregisterProducer(EiProducer producer, EiTypes eiTypes, EiJobs eiJobs) {
+        this.remove(producer);
+        for (EiType type : producer.getEiTypes()) {
+            boolean removed = type.removeProducer(producer) != null;
+            if (!removed) {
+                this.logger.error("Bug, no producer found");
+            }
+            if (type.getProducerIds().isEmpty()) {
+                eiTypes.deregisterType(type, eiJobs);
+            }
+        }
+    }
+
+    private synchronized void remove(EiProducer producer) {
+        this.allEiProducers.remove(producer.getId());
+    }
+
 }
