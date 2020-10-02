@@ -50,10 +50,10 @@ public class EiType {
     }
 
     public synchronized void addProducer(EiProducer producer) {
-        this.producers.put(producer.id(), producer);
+        this.producers.put(producer.getId(), producer);
     }
 
     public synchronized EiProducer removeProducer(EiProducer producer) {
-        return this.producers.remove(producer.id());
+        return this.producers.remove(producer.getId());
     }
 }

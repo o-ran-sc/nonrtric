@@ -26,8 +26,6 @@ import com.google.gson.GsonBuilder;
 import java.lang.invoke.MethodHandles;
 
 import org.oransc.enrichment.configuration.ApplicationConfig;
-import org.oransc.enrichment.configuration.ImmutableWebClientConfig;
-import org.oransc.enrichment.configuration.WebClientConfig;
 import org.oransc.enrichment.repository.EiJob;
 import org.oransc.enrichment.repository.EiProducer;
 import org.slf4j.Logger;
@@ -52,16 +50,22 @@ public class ProducerCallbacks {
     ApplicationConfig applicationConfig;
 
     public void notifyProducersJobDeleted(EiJob eiJob) {
-        AsyncRestClient restClient = restClient(false);
+        AsyncRestClient restClient = restClient();
         ProducerJobInfo request = new ProducerJobInfo(eiJob);
         String body = gson.toJson(request);
         for (EiProducer producer : eiJob.type().getProducers()) {
-            restClient.post(producer.jobDeletionCallbackUrl(), body) //
-                .subscribe(notUsed -> logger.debug("Job subscription started OK {}", producer.id()), //
-                    throwable -> logger.warn("Job subscription failed {}", producer.id(), throwable.toString()), null);
+            restClient.post(producer.getJobDeletionCallbackUrl(), body) //
+                .subscribe(notUsed -> logger.debug("Job deleted OK {}", producer.getId()), //
+                    throwable -> logger.warn("Job delete failed {}", producer.getId(), throwable.toString()), null);
         }
     }
 
+    /**
+     * Calls all producers for an EiJob activation.
+     * 
+     * @param eiJob an EI job
+     * @return the number of producers that returned OK
+     */
     public Mono<Integer> notifyProducersJobStarted(EiJob eiJob) {
         return Flux.fromIterable(eiJob.type().getProducers()) //
             .flatMap(eiProducer -> notifyProducerJobStarted(eiProducer, eiJob)) //
@@ -69,32 +73,28 @@ public class ProducerCallbacks {
             .flatMap(okResponses -> Mono.just(Integer.valueOf(okResponses.size()))); //
     }
 
+    /**
+     * Calls one producer for an EiJob activation.
+     * 
+     * @param producer a producer
+     * @param eiJob an EI job
+     * @return the body of the response from the REST call
+     */
     public Mono<String> notifyProducerJobStarted(EiProducer producer, EiJob eiJob) {
-        AsyncRestClient restClient = restClient(false);
+        AsyncRestClient restClient = restClient();
         ProducerJobInfo request = new ProducerJobInfo(eiJob);
         String body = gson.toJson(request);
 
-        return restClient.post(producer.jobCreationCallbackUrl(), body)
-            .doOnNext(resp -> logger.debug("Job subscription started OK {}", producer.id()))
+        return restClient.post(producer.getJobCreationCallbackUrl(), body)
+            .doOnNext(resp -> logger.debug("Job subscription started OK {}", producer.getId()))
             .onErrorResume(throwable -> {
-                logger.warn("Job subscription failed {}", producer.id(), throwable.toString());
+                logger.warn("Job subscription failed {}", producer.getId(), throwable.toString());
                 return Mono.empty();
             });
     }
 
-    private AsyncRestClient restClient(boolean useTrustValidation) {
-        WebClientConfig config = this.applicationConfig.getWebClientConfig();
-        config = ImmutableWebClientConfig.builder() //
-            .keyStoreType(config.keyStoreType()) //
-            .keyStorePassword(config.keyStorePassword()) //
-            .keyStore(config.keyStore()) //
-            .keyPassword(config.keyPassword()) //
-            .isTrustStoreUsed(useTrustValidation) //
-            .trustStore(config.trustStore()) //
-            .trustStorePassword(config.trustStorePassword()) //
-            .build();
-
-        return new AsyncRestClient("", config);
+    private AsyncRestClient restClient() {
+        return new AsyncRestClient("", this.applicationConfig.getWebClientConfig());
     }
 
 }

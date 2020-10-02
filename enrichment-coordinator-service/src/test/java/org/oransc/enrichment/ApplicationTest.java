@@ -49,12 +49,14 @@ import org.oransc.enrichment.controllers.consumer.ConsumerEiTypeInfo;
 import org.oransc.enrichment.controllers.producer.ProducerConsts;
 import org.oransc.enrichment.controllers.producer.ProducerRegistrationInfo;
 import org.oransc.enrichment.controllers.producer.ProducerRegistrationInfo.ProducerEiTypeRegistrationInfo;
+import org.oransc.enrichment.controllers.producer.ProducerStatusInfo;
 import org.oransc.enrichment.exceptions.ServiceException;
 import org.oransc.enrichment.repository.EiJob;
 import org.oransc.enrichment.repository.EiJobs;
 import org.oransc.enrichment.repository.EiProducers;
 import org.oransc.enrichment.repository.EiType;
 import org.oransc.enrichment.repository.EiTypes;
+import org.oransc.enrichment.tasks.ProducerSupervision;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -102,6 +104,9 @@ class ApplicationTest {
 
     @Autowired
     ProducerSimulatorController producerSimulator;
+
+    @Autowired
+    ProducerSupervision producerSupervision;
 
     private static Gson gson = new GsonBuilder() //
         .serializeNulls() //
@@ -323,7 +328,7 @@ class ApplicationTest {
         EiType type = this.eiTypes.getType(EI_TYPE_ID);
         assertThat(type.getProducerIds()).contains("eiProducerId");
         assertThat(this.eiProducers.size()).isEqualTo(1);
-        assertThat(this.eiProducers.get("eiProducerId").eiTypes().iterator().next().getId()).isEqualTo(EI_TYPE_ID);
+        assertThat(this.eiProducers.get("eiProducerId").getEiTypes().iterator().next().getId()).isEqualTo(EI_TYPE_ID);
 
         resp = restClient().putForEntity(url, body).block();
         assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -426,6 +431,33 @@ class ApplicationTest {
         assertThat(resp.getBody()).contains(EI_PRODUCER_ID);
     }
 
+    private void assertProducerOpState(String producerId,
+        ProducerStatusInfo.OperationalState expectedOperationalState) {
+        String statusUrl = ProducerConsts.API_ROOT + "/eiproducers/" + producerId + "/status";
+        ResponseEntity<String> resp = restClient().getForEntity(statusUrl).block();
+        ProducerStatusInfo statusInfo = gson.fromJson(resp.getBody(), ProducerStatusInfo.class);
+        assertThat(statusInfo.opState).isEqualTo(expectedOperationalState);
+    }
+
+    @Test
+    void testProducerSupervision() throws JsonMappingException, JsonProcessingException, ServiceException {
+        putEiProducerWithOneTypeRejecting("simulateProducerError", EI_TYPE_ID);
+
+        assertThat(this.eiProducers.size()).isEqualTo(1);
+        assertThat(this.eiTypes.size()).isEqualTo(1);
+        assertProducerOpState("simulateProducerError", ProducerStatusInfo.OperationalState.ENABLED);
+
+        this.producerSupervision.createTask().blockLast();
+        this.producerSupervision.createTask().blockLast();
+        assertThat(this.eiProducers.size()).isEqualTo(1);
+        assertProducerOpState("simulateProducerError", ProducerStatusInfo.OperationalState.DISABLED);
+
+        // After 3 failed checks, the producer shall be deregisterred
+        this.producerSupervision.createTask().blockLast();
+        assertThat(this.eiProducers.size()).isEqualTo(0);
+        assertThat(this.eiTypes.size()).isEqualTo(0);
+    }
+
     ProducerEiTypeRegistrationInfo producerEiTypeRegistrationInfo(String typeId)
         throws JsonMappingException, JsonProcessingException {
         return new ProducerEiTypeRegistrationInfo(jsonSchemaObject(), typeId);
@@ -435,16 +467,20 @@ class ApplicationTest {
         throws JsonMappingException, JsonProcessingException {
         Collection<ProducerEiTypeRegistrationInfo> types = new ArrayList<>();
         types.add(producerEiTypeRegistrationInfo(typeId));
-        return new ProducerRegistrationInfo(types, baseUrl() + ProducerSimulatorController.JOB_CREATED_ERROR_URL,
-            baseUrl() + ProducerSimulatorController.JOB_DELETED_ERROR_URL);
+        return new ProducerRegistrationInfo(types, //
+            baseUrl() + ProducerSimulatorController.JOB_CREATED_ERROR_URL,
+            baseUrl() + ProducerSimulatorController.JOB_DELETED_ERROR_URL,
+            baseUrl() + ProducerSimulatorController.SUPERVISION_ERROR_URL);
     }
 
     ProducerRegistrationInfo producerEiRegistratioInfo(String typeId)
         throws JsonMappingException, JsonProcessingException {
         Collection<ProducerEiTypeRegistrationInfo> types = new ArrayList<>();
         types.add(producerEiTypeRegistrationInfo(typeId));
-        return new ProducerRegistrationInfo(types, baseUrl() + ProducerSimulatorController.JOB_CREATED_URL,
-            baseUrl() + ProducerSimulatorController.JOB_DELETED_URL);
+        return new ProducerRegistrationInfo(types, //
+            baseUrl() + ProducerSimulatorController.JOB_CREATED_URL,
+            baseUrl() + ProducerSimulatorController.JOB_DELETED_URL,
+            baseUrl() + ProducerSimulatorController.SUPERVISION_URL);
     }
 
     ConsumerEiJobInfo eiJobInfo() throws JsonMappingException, JsonProcessingException {

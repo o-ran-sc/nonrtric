@@ -34,11 +34,13 @@ import lombok.Getter;
 
 import org.oransc.enrichment.clients.ProducerJobInfo;
 import org.oransc.enrichment.controllers.ErrorResponse;
+import org.oransc.enrichment.controllers.VoidResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,6 +55,9 @@ public class ProducerSimulatorController {
     public static final String JOB_DELETED_URL = "/producer_simulator/job_deleted";
     public static final String JOB_CREATED_ERROR_URL = "/producer_simulator/job_created_error";
     public static final String JOB_DELETED_ERROR_URL = "/producer_simulator/job_deleted_error";
+
+    public static final String SUPERVISION_URL = "/producer_simulator/supervision";
+    public static final String SUPERVISION_ERROR_URL = "/producer_simulator/supervision_error";
 
     public static class TestResults {
 
@@ -81,7 +86,7 @@ public class ProducerSimulatorController {
     @ApiOperation(value = "Callback for EI job creation", notes = "")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "OK", response = void.class)}//
+            @ApiResponse(code = 200, message = "OK", response = VoidResponse.class)}//
     )
     public ResponseEntity<Object> jobCreatedCallback( //
         @RequestBody ProducerJobInfo request) {
@@ -102,7 +107,7 @@ public class ProducerSimulatorController {
     @ApiOperation(value = "Callback for EI job deletion", notes = "")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "OK", response = void.class)}//
+            @ApiResponse(code = 200, message = "OK", response = VoidResponse.class)}//
     )
     public ResponseEntity<Object> jobDeletedCallback( //
         @RequestBody ProducerJobInfo request) {
@@ -119,7 +124,7 @@ public class ProducerSimulatorController {
     @ApiOperation(value = "Callback for EI job creation, returns error", notes = "")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "OK", response = void.class)}//
+            @ApiResponse(code = 200, message = "OK", response = VoidResponse.class)}//
     )
     public ResponseEntity<Object> jobCreatedCallbackReturnError( //
         @RequestBody ProducerJobInfo request) {
@@ -132,13 +137,35 @@ public class ProducerSimulatorController {
     @ApiOperation(value = "Callback for EI job creation, returns error", notes = "")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "OK", response = void.class)}//
+            @ApiResponse(code = 200, message = "OK", response = VoidResponse.class)}//
     )
     public ResponseEntity<Object> jobDeletedCallbackReturnError( //
         @RequestBody ProducerJobInfo request) {
         logger.info("Job created (returning error) callback {}", request.id);
         this.testResults.noOfRejectedDelete += 1;
         return ErrorResponse.create("Producer returns error on delete job", HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping(path = SUPERVISION_URL, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Producer supervision", notes = "")
+    @ApiResponses(
+        value = { //
+            @ApiResponse(code = 200, message = "OK", response = String.class)}//
+    )
+    public ResponseEntity<Object> producerSupervision() {
+        logger.info("Producer supervision");
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping(path = SUPERVISION_ERROR_URL, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Producer supervision error", notes = "")
+    @ApiResponses(
+        value = { //
+            @ApiResponse(code = 200, message = "OK", response = String.class)}//
+    )
+    public ResponseEntity<Object> producerSupervisionError() {
+        logger.info("Producer supervision error");
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
 }

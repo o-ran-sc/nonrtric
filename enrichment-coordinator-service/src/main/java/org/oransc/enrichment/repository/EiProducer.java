@@ -22,18 +22,49 @@ package org.oransc.enrichment.repository;
 
 import java.util.Collection;
 
-import org.immutables.gson.Gson;
-import org.immutables.value.Value;
+import lombok.Getter;
 
-@Value.Immutable
-@Gson.TypeAdapters
-public interface EiProducer {
-    public String id();
+public class EiProducer {
+    @Getter
+    private final String id;
 
-    public Collection<EiType> eiTypes();
+    @Getter
+    private final Collection<EiType> eiTypes;
 
-    public String jobCreationCallbackUrl();
+    @Getter
+    private final String jobCreationCallbackUrl;
 
-    public String jobDeletionCallbackUrl();
+    @Getter
+    private final String jobDeletionCallbackUrl;
+
+    @Getter
+    private final String producerSupervisionCallbackUrl;
+
+    private int unresponsiveCounter = 0;
+
+    public EiProducer(String id, Collection<EiType> eiTypes, String jobCreationCallbackUrl,
+        String jobDeletionCallbackUrl, String producerSupervisionCallbackUrl) {
+        this.id = id;
+        this.eiTypes = eiTypes;
+        this.jobCreationCallbackUrl = jobCreationCallbackUrl;
+        this.jobDeletionCallbackUrl = jobDeletionCallbackUrl;
+        this.producerSupervisionCallbackUrl = producerSupervisionCallbackUrl;
+    }
+
+    public synchronized void setAliveStatus(boolean isAlive) {
+        if (isAlive) {
+            unresponsiveCounter = 0;
+        } else {
+            unresponsiveCounter++;
+        }
+    }
+
+    public synchronized boolean isDead() {
+        return this.unresponsiveCounter >= 3;
+    }
+
+    public synchronized boolean isAvailable() {
+        return this.unresponsiveCounter == 0;
+    }
 
 }

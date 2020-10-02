@@ -72,11 +72,17 @@ public class ProducerRegistrationInfo {
     @JsonProperty(value = "ei_job_deletion_callback_url", required = true)
     public String jobDeletionCallbackUrl;
 
+    @ApiModelProperty(value = "callback for producer supervision", required = true)
+    @SerializedName("ei_producer_supervision_callback_url")
+    @JsonProperty(value = "ei_producer_supervision_callback_url", required = true)
+    public String producerSupervisionCallbackUrl;
+
     public ProducerRegistrationInfo(Collection<ProducerEiTypeRegistrationInfo> types, String jobCreationCallbackUrl,
-        String jobDeletionCallbackUrl) {
+        String jobDeletionCallbackUrl, String producerSupervisionCallbackUrl) {
         this.types = types;
         this.jobCreationCallbackUrl = jobCreationCallbackUrl;
         this.jobDeletionCallbackUrl = jobDeletionCallbackUrl;
+        this.producerSupervisionCallbackUrl = producerSupervisionCallbackUrl;
     }
 
     public ProducerRegistrationInfo() {
