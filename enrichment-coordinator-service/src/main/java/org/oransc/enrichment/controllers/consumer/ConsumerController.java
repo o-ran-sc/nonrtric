@@ -55,6 +55,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
@@ -140,12 +141,20 @@ public class ConsumerController {
             name = ConsumerConsts.OWNER_PARAM,
             required = false, //
             value = ConsumerConsts.OWNER_PARAM_DESCRIPTION) //
-        String owner) {
+        @RequestParam(name = ConsumerConsts.OWNER_PARAM, required = false) String owner) {
         try {
             this.eiTypes.getType(eiTypeId); // Just to check that the type exists
             List<String> result = new ArrayList<>();
-            for (EiJob job : this.eiJobs.getJobsForType(eiTypeId)) {
-                result.add(job.id());
+            if (owner != null) {
+                for (EiJob job : this.eiJobs.getJobsForOwner(owner)) {
+                    if (eiTypeId == null || job.type().getId().equals(eiTypeId)) {
+                        result.add(job.id());
+                    }
+                }
+            } else {
+                for (EiJob job : this.eiJobs.getJobsForType(eiTypeId)) {
+                    result.add(job.id());
+                }
             }
             return new ResponseEntity<>(gson.toJson(result), HttpStatus.OK);
         } catch (Exception e) {

@@ -20,6 +20,9 @@
 
 package org.oransc.enrichment.controllers;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -31,16 +34,13 @@ import org.immutables.gson.Gson;
 import org.oransc.enrichment.repository.EiJobs;
 import org.oransc.enrichment.repository.EiProducers;
 import org.oransc.enrichment.repository.EiTypes;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.gson.annotations.SerializedName;
 
 @RestController("StatusController")
 @Api(tags = "Service status")
@@ -88,9 +88,10 @@ public class StatusController {
 
     @GetMapping(path = "/status", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Returns status and statistics of this service")
-    @ApiResponses(value = { //
+    @ApiResponses(
+        value = { //
             @ApiResponse(code = 200, message = "Service is living", response = StatusInfo.class) //
-    })
+        })
     public Mono<ResponseEntity<Object>> getStatus() {
         StatusInfo info = new StatusInfo("hunky dory", this.eiProducers, this.eiTypes, this.eiJobs);
         return Mono.just(new ResponseEntity<>(info, HttpStatus.OK));

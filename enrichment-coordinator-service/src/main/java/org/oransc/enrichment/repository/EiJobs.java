@@ -34,10 +34,12 @@ public class EiJobs {
     private Map<String, EiJob> allEiJobs = new HashMap<>();
 
     private MultiMap<EiJob> jobsByType = new MultiMap<>();
+    private MultiMap<EiJob> jobsByOwner = new MultiMap<>();
 
     public synchronized void put(EiJob job) {
         allEiJobs.put(job.id(), job);
         jobsByType.put(job.type().getId(), job.id(), job);
+        jobsByOwner.put(job.owner(), job.id(), job);
     }
 
     public synchronized Collection<EiJob> getJobs() {
@@ -60,6 +62,10 @@ public class EiJobs {
         return jobsByType.get(type.getId());
     }
 
+    public synchronized Collection<EiJob> getJobsForOwner(String owner) {
+        return jobsByOwner.get(owner);
+    }
+
     public synchronized EiJob get(String id) {
         return allEiJobs.get(id);
     }
@@ -75,6 +81,7 @@ public class EiJobs {
     public synchronized void remove(EiJob job) {
         this.allEiJobs.remove(job.id());
         jobsByType.remove(job.type().getId(), job.id());
+        jobsByOwner.remove(job.owner(), job.id());
     }
 
     public synchronized int size() {
@@ -84,6 +91,7 @@ public class EiJobs {
     public synchronized void clear() {
         this.allEiJobs.clear();
         this.jobsByType.clear();
+        jobsByOwner.clear();
     }
 
 }

@@ -68,10 +68,11 @@
                     "required": true
                 },
                 {
-                    "schema": {"type": "string"},
-                    "in": "body",
+                    "in": "query",
+                    "allowEmptyValue": false,
                     "name": "owner",
                     "description": "identifies the owner of the job",
+                    "type": "string",
                     "required": false
                 }
             ],
@@ -570,7 +571,7 @@
             "consumes": ["application/json"]
         }}
     },
-    "host": "localhost:40973",
+    "host": "localhost:45709",
     "definitions": {
         "EiType": {
             "description": "Information for an EI type",
