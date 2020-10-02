@@ -285,6 +285,22 @@
             }],
             "tags": ["Enrichment Data Producer API"]
         }},
+        "/status": {"get": {
+            "summary": "Returns status and statistics of this service",
+            "deprecated": false,
+            "produces": ["application/json"],
+            "operationId": "getStatusUsingGET",
+            "responses": {
+                "200": {
+                    "schema": {"$ref": "#/definitions/status_info"},
+                    "description": "Service is living"
+                },
+                "401": {"description": "Unauthorized"},
+                "403": {"description": "Forbidden"},
+                "404": {"description": "Not Found"}
+            },
+            "tags": ["Service status"]
+        }},
         "/producer_simulator/job_created_error": {"post": {
             "summary": "Callback for EI job creation, returns error",
             "deprecated": false,
@@ -554,7 +570,7 @@
             "consumes": ["application/json"]
         }}
     },
-    "host": "localhost:43453",
+    "host": "localhost:43263",
     "definitions": {
         "EiType": {
             "description": "Information for an EI type",
@@ -651,6 +667,14 @@
                     "type": "object"
                 }
             }
+        },
+        "status_info": {
+            "type": "object",
+            "title": "status_info",
+            "properties": {"status": {
+                "description": "status text",
+                "type": "string"
+            }}
         },
         "EiJobStatus": {
             "description": "Status for an EI Job",
@@ -749,6 +773,10 @@
         {
             "name": "Producer Simulator",
             "description": "Producer Simulator Controller"
+        },
+        {
+            "name": "Service status",
+            "description": "Status Controller"
         }
     ]
 }
