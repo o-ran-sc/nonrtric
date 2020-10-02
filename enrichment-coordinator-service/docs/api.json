@@ -285,6 +285,22 @@
             }],
             "tags": ["Enrichment Data Producer API"]
         }},
+        "/status": {"get": {
+            "summary": "Returns status and statistics of this service",
+            "deprecated": false,
+            "produces": ["application/json"],
+            "operationId": "getStatusUsingGET",
+            "responses": {
+                "200": {
+                    "schema": {"$ref": "#/definitions/status_info"},
+                    "description": "Service is living"
+                },
+                "401": {"description": "Unauthorized"},
+                "403": {"description": "Forbidden"},
+                "404": {"description": "Not Found"}
+            },
+            "tags": ["Service status"]
+        }},
         "/producer_simulator/job_created_error": {"post": {
             "summary": "Callback for EI job creation, returns error",
             "deprecated": false,
@@ -554,7 +570,7 @@
             "consumes": ["application/json"]
         }}
     },
-    "host": "localhost:43453",
+    "host": "localhost:40973",
     "definitions": {
         "EiType": {
             "description": "Information for an EI type",
@@ -649,6 +665,31 @@
                 "ei_job_data_schema": {
                     "description": "Json schema for the job data",
                     "type": "object"
+                }
+            }
+        },
+        "status_info": {
+            "type": "object",
+            "title": "status_info",
+            "properties": {
+                "no_of_producers": {
+                    "format": "int32",
+                    "description": "Number of EI producers",
+                    "type": "integer"
+                },
+                "no_of_jobs": {
+                    "format": "int32",
+                    "description": "Number of EI jobs",
+                    "type": "integer"
+                },
+                "no_of_types": {
+                    "format": "int32",
+                    "description": "Number of EI types",
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "status text",
+                    "type": "string"
                 }
             }
         },
@@ -749,6 +790,10 @@
         {
             "name": "Producer Simulator",
             "description": "Producer Simulator Controller"
+        },
+        {
+            "name": "Service status",
+            "description": "Status Controller"
         }
     ]
 }

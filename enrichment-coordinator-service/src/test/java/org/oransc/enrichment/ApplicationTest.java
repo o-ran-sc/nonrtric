@@ -82,10 +82,9 @@ import reactor.test.StepVerifier;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-@TestPropertySource(
-    properties = { //
+@TestPropertySource(properties = { //
         "server.ssl.key-store=./config/keystore.jks", //
-        "app.webclient.trust-store=./config/truststore.jks"})
+        "app.webclient.trust-store=./config/truststore.jks" })
 class ApplicationTest {
     private final String EI_TYPE_ID = "typeId";
     private final String EI_PRODUCER_ID = "producerId";
@@ -113,8 +112,8 @@ class ApplicationTest {
     ProducerSupervision producerSupervision;
 
     private static Gson gson = new GsonBuilder() //
-        .serializeNulls() //
-        .create(); //
+            .serializeNulls() //
+            .create(); //
 
     /**
      * Overrides the BeanFactory.
@@ -284,8 +283,8 @@ class ApplicationTest {
 
         String url = ConsumerConsts.API_ROOT + "/eitypes/typeId/eijobs/jobId";
         // The element with name "property1" is mandatory in the schema
-        ConsumerEiJobInfo jobInfo =
-            new ConsumerEiJobInfo(jsonObject("{ \"XXstring\" : \"value\" }"), "owner", "targetUri");
+        ConsumerEiJobInfo jobInfo = new ConsumerEiJobInfo(jsonObject("{ \"XXstring\" : \"value\" }"), "owner",
+                "targetUri");
         String body = gson.toJson(jobInfo);
 
         testErrorCode(restClient().put(url, body), HttpStatus.CONFLICT, "Json validation failure");
@@ -329,7 +328,7 @@ class ApplicationTest {
         String url = ConsumerConsts.API_ROOT + "/eitypes/typeId2/eijobs/jobId";
         String body = gson.toJson(eiJobInfo());
         testErrorCode(restClient().put(url, body), HttpStatus.CONFLICT,
-            "Not allowed to change type for existing EI job");
+                "Not allowed to change type for existing EI job");
     }
 
     @Test
@@ -448,7 +447,7 @@ class ApplicationTest {
     }
 
     private void assertProducerOpState(String producerId,
-        ProducerStatusInfo.OperationalState expectedOperationalState) {
+            ProducerStatusInfo.OperationalState expectedOperationalState) {
         String statusUrl = ProducerConsts.API_ROOT + "/eiproducers/" + producerId + "/status";
         ResponseEntity<String> resp = restClient().getForEntity(statusUrl).block();
         ProducerStatusInfo statusInfo = gson.fromJson(resp.getBody(), ProducerStatusInfo.class);
@@ -474,29 +473,39 @@ class ApplicationTest {
         assertThat(this.eiTypes.size()).isEqualTo(0);
     }
 
+    @Test
+    void testGetStatus() throws JsonMappingException, JsonProcessingException, ServiceException {
+        putEiProducerWithOneTypeRejecting("simulateProducerError", EI_TYPE_ID);
+        putEiProducerWithOneTypeRejecting("simulateProducerError2", EI_TYPE_ID);
+
+        String url = "/status";
+        ResponseEntity<String> resp = restClient().getForEntity(url).block();
+        assertThat(resp.getBody()).contains("hunky dory");
+    }
+
     ProducerEiTypeRegistrationInfo producerEiTypeRegistrationInfo(String typeId)
-        throws JsonMappingException, JsonProcessingException {
+            throws JsonMappingException, JsonProcessingException {
         return new ProducerEiTypeRegistrationInfo(jsonSchemaObject(), typeId);
     }
 
     ProducerRegistrationInfo producerEiRegistratioInfoRejecting(String typeId)
-        throws JsonMappingException, JsonProcessingException {
+            throws JsonMappingException, JsonProcessingException {
         Collection<ProducerEiTypeRegistrationInfo> types = new ArrayList<>();
         types.add(producerEiTypeRegistrationInfo(typeId));
         return new ProducerRegistrationInfo(types, //
-            baseUrl() + ProducerSimulatorController.JOB_CREATED_ERROR_URL,
-            baseUrl() + ProducerSimulatorController.JOB_DELETED_ERROR_URL,
-            baseUrl() + ProducerSimulatorController.SUPERVISION_ERROR_URL);
+                baseUrl() + ProducerSimulatorController.JOB_CREATED_ERROR_URL,
+                baseUrl() + ProducerSimulatorController.JOB_DELETED_ERROR_URL,
+                baseUrl() + ProducerSimulatorController.SUPERVISION_ERROR_URL);
     }
 
     ProducerRegistrationInfo producerEiRegistratioInfo(String typeId)
-        throws JsonMappingException, JsonProcessingException {
+            throws JsonMappingException, JsonProcessingException {
         Collection<ProducerEiTypeRegistrationInfo> types = new ArrayList<>();
         types.add(producerEiTypeRegistrationInfo(typeId));
         return new ProducerRegistrationInfo(types, //
-            baseUrl() + ProducerSimulatorController.JOB_CREATED_URL,
-            baseUrl() + ProducerSimulatorController.JOB_DELETED_URL,
-            baseUrl() + ProducerSimulatorController.SUPERVISION_URL);
+                baseUrl() + ProducerSimulatorController.JOB_CREATED_URL,
+                baseUrl() + ProducerSimulatorController.JOB_DELETED_URL,
+                baseUrl() + ProducerSimulatorController.SUPERVISION_URL);
     }
 
     ConsumerEiJobInfo eiJobInfo() throws JsonMappingException, JsonProcessingException {
@@ -514,17 +523,17 @@ class ApplicationTest {
     Object jsonSchemaObject() {
         // a json schema with one mandatory property named "string"
         String schemaStr = "{" //
-            + "\"$schema\": \"http://json-schema.org/draft-04/schema#\"," //
-            + "\"type\": \"object\"," //
-            + "\"properties\": {" //
-            + EI_JOB_PROPERTY + " : {" //
-            + "    \"type\": \"string\"" //
-            + "  }" //
-            + "}," //
-            + "\"required\": [" //
-            + EI_JOB_PROPERTY //
-            + "]" //
-            + "}"; //
+                + "\"$schema\": \"http://json-schema.org/draft-04/schema#\"," //
+                + "\"type\": \"object\"," //
+                + "\"properties\": {" //
+                + EI_JOB_PROPERTY + " : {" //
+                + "    \"type\": \"string\"" //
+                + "  }" //
+                + "}," //
+                + "\"required\": [" //
+                + EI_JOB_PROPERTY //
+                + "]" //
+                + "}"; //
         return jsonObject(schemaStr);
     }
 
@@ -533,7 +542,7 @@ class ApplicationTest {
     }
 
     private EiJob putEiJob(String eiTypeId, String jobId)
-        throws JsonMappingException, JsonProcessingException, ServiceException {
+            throws JsonMappingException, JsonProcessingException, ServiceException {
 
         String url = ConsumerConsts.API_ROOT + "/eitypes/" + eiTypeId + "/eijobs/" + jobId;
         String body = gson.toJson(eiJobInfo());
@@ -543,7 +552,7 @@ class ApplicationTest {
     }
 
     private EiType putEiProducerWithOneTypeRejecting(String producerId, String eiTypeId)
-        throws JsonMappingException, JsonProcessingException, ServiceException {
+            throws JsonMappingException, JsonProcessingException, ServiceException {
         String url = ProducerConsts.API_ROOT + "/eiproducers/" + producerId;
         String body = gson.toJson(producerEiRegistratioInfoRejecting(eiTypeId));
 
@@ -552,7 +561,7 @@ class ApplicationTest {
     }
 
     private EiType putEiProducerWithOneType(String producerId, String eiTypeId)
-        throws JsonMappingException, JsonProcessingException, ServiceException {
+            throws JsonMappingException, JsonProcessingException, ServiceException {
         String url = ProducerConsts.API_ROOT + "/eiproducers/" + producerId;
         String body = gson.toJson(producerEiRegistratioInfo(eiTypeId));
 
@@ -567,14 +576,14 @@ class ApplicationTest {
     private AsyncRestClient restClient(boolean useTrustValidation) {
         WebClientConfig config = this.applicationConfig.getWebClientConfig();
         config = ImmutableWebClientConfig.builder() //
-            .keyStoreType(config.keyStoreType()) //
-            .keyStorePassword(config.keyStorePassword()) //
-            .keyStore(config.keyStore()) //
-            .keyPassword(config.keyPassword()) //
-            .isTrustStoreUsed(useTrustValidation) //
-            .trustStore(config.trustStore()) //
-            .trustStorePassword(config.trustStorePassword()) //
-            .build();
+                .keyStoreType(config.keyStoreType()) //
+                .keyStorePassword(config.keyStorePassword()) //
+                .keyStore(config.keyStore()) //
+                .keyPassword(config.keyPassword()) //
+                .isTrustStoreUsed(useTrustValidation) //
+                .trustStore(config.trustStore()) //
+                .trustStorePassword(config.trustStorePassword()) //
+                .build();
 
         return new AsyncRestClient(baseUrl(), config);
     }
@@ -588,16 +597,16 @@ class ApplicationTest {
     }
 
     private void testErrorCode(Mono<?> request, HttpStatus expStatus, String responseContains,
-        boolean expectApplicationProblemJsonMediaType) {
+            boolean expectApplicationProblemJsonMediaType) {
         StepVerifier.create(request) //
-            .expectSubscription() //
-            .expectErrorMatches(
-                t -> checkWebClientError(t, expStatus, responseContains, expectApplicationProblemJsonMediaType)) //
-            .verify();
+                .expectSubscription() //
+                .expectErrorMatches(
+                        t -> checkWebClientError(t, expStatus, responseContains, expectApplicationProblemJsonMediaType)) //
+                .verify();
     }
 
     private boolean checkWebClientError(Throwable throwable, HttpStatus expStatus, String responseContains,
-        boolean expectApplicationProblemJsonMediaType) {
+            boolean expectApplicationProblemJsonMediaType) {
         assertTrue(throwable instanceof WebClientResponseException);
         WebClientResponseException responseException = (WebClientResponseException) throwable;
         assertThat(responseException.getStatusCode()).isEqualTo(expStatus);
