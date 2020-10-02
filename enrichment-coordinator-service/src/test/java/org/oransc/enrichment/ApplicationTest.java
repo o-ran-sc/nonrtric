@@ -30,9 +30,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParser;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -132,6 +136,18 @@ class ApplicationTest {
     @AfterEach
     void check() {
         assertThat(this.producerSimulator.getTestResults().errorFound).isFalse();
+    }
+
+    @Test
+    void createApiDoc() throws FileNotFoundException {
+        String url = "/v2/api-docs";
+        ResponseEntity<String> resp = restClient().getForEntity(url).block();
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        String indented = (new JSONObject(resp.getBody())).toString(4);
+        try (PrintStream out = new PrintStream(new FileOutputStream("docs/api.json"))) {
+            out.print(indented);
+        }
     }
 
     @Test
