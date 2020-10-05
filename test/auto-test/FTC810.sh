@@ -20,7 +20,7 @@
 TC_ONELINE_DESCR="Repeatedly create and delete policies in each RICs for 24h (or configured number of days). Via agent REST/DMAAP/DMAAP_BATCH and SDNC using http or https"
 
 #App names to exclude checking pulling images for, space separated list
-EXCLUDED_IMAGES="SDNC_ONAP"
+EXCLUDED_IMAGES="ECS"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh

@@ -21,6 +21,14 @@
 # Arg: local|remote|remote-remove [auto-clean] [--stop-at-error] [--ricsim-prefix <prefix> ] [ --env-file <environment-filename> ] [--use-local-image <app-nam> [<app-name>]*]
 
 
+# Create a test case id, ATC (Auto Test Case), from the name of the test case script.
+# FTC1.sh -> ATC == FTC1
+ATC=$(basename "${BASH_SOURCE[$i+1]}" .sh)
+
+#Create result file (containing '1' for error) for this test case
+#Will be replaced with a file containing '0' if all test cases pass
+echo "1" > "$PWD/.result$ATC.txt"
+
 #Formatting for 'echo' cmd
 BOLD="\033[1m"
 EBOLD="\033[0m"
@@ -60,7 +68,10 @@ echo "Test case started as: ${BASH_SOURCE[$i+1]} "$@
 #Localhost constant
 LOCALHOST="http://localhost:"
 
-# Make curl retries for http response codes set in this env var, space separated list of codes
+# Make curl retries towards ECS for http response codes set in this env var, space separated list of codes
+ECS_RETRY_CODES=""
+
+# Make curl retries towards the agent for http response codes set in this env var, space separated list of codes
 AGENT_RETRY_CODES=""
 
 # Var to contol if the agent runs in a container (normal = 0) or as application on the local machine ( = 1)
@@ -73,10 +84,16 @@ AUTO_CLEAN=""
 USE_LOCAL_IMAGES=""
 
 # List of available apps to override with local image
-AVAILABLE_LOCAL_IMAGES_OVERRIDE="PA CP SDNC RICSIM"
+AVAILABLE_LOCAL_IMAGES_OVERRIDE="PA ECS CP SDNC RICSIM"
 
 # Use this var (STOP_AT_ERROR=1 in the test script) for debugging/trouble shooting to take all logs and exit at first FAIL test case
 STOP_AT_ERROR=0
+
+# Function to indent cmd output with one space
+indent1() { sed 's/^/ /'; }
+
+# Function to indent cmd output with two spaces
+indent2() { sed 's/^/  /'; }
 
 # Set a description string for the test case
 if [ -z "$TC_ONELINE_DESCR" ]; then
@@ -91,10 +108,6 @@ if [ -f .tmp_tcsuite_ctr ]; then
 	echo $tmpval > .tmp_tcsuite_ctr
 fi
 
-# Create a test case id, ATC (Auto Test Case), from the name of the test case script.
-# FTC1.sh -> ATC == FTC1
-ATC=$(basename "${BASH_SOURCE[$i+1]}" .sh)
-
 # Create the logs dir if not already created in the current dir
 if [ ! -d "logs" ]; then
     mkdir logs
@@ -105,10 +118,6 @@ TESTLOGS=$PWD/logs
 HTTPLOG=$PWD"/.httplog_"$ATC".txt"
 echo "" > $HTTPLOG
 
-#Create result file (containing '1' for error) for this test case
-#Will be replaced with a file containing '0' if script is ok
-
-echo "1" > "$PWD/.result$ATC.txt"
 
 # Create a log dir for the test case
 mkdir -p $TESTLOGS/$ATC
@@ -243,7 +252,7 @@ if [ -f "$TEST_ENV_VAR_FILE" ]; then
 	echo -e $BOLD"Sourcing env vars from: "$TEST_ENV_VAR_FILE$EBOLD
 	. $TEST_ENV_VAR_FILE
 else
-	echo -e $RED"Selected env var fle does not exist: "$TEST_ENV_VAR_FILE$ERED
+	echo -e $RED"Selected env var file does not exist: "$TEST_ENV_VAR_FILE$ERED
 	exit 1
 fi
 
@@ -282,11 +291,17 @@ image_list_file=".image-list"
 echo -e " Container\tImage\ttag" > $image_list_file
 
 # Check if image env var is set and if so export the env var with image to use (used by docker compose files)
-# arg: <image name> <script start-arg> <target-variable-name> <image-variable-name> <image-tag-variable-name>
+# arg: <image name> <script start-arg> <target-variable-name> <image-variable-name> <image-tag-variable-name> <app-short-name>
 __check_image_var() {
-	if [ $# -ne 5 ]; then
-		echo "Expected arg: <image name> <script start-arg> <target-variable-name> <image-variable-name> <image-tag-variable-name>"
+	if [ $# -ne 6 ]; then
+		echo "Expected arg: <image name> <script start-arg> <target-variable-name> <image-variable-name> <image-tag-variable-name> <app-short-name>"
 		((IMAGE_ERR++))
+		return
+	fi
+	__check_excluded_image $6
+	if [ $? -ne 0 ]; then
+		echo -e "$1\t<image-excluded>\t<no-tag>"  >> $image_list_file
+		# Image is excluded since the corresponding app is not used in this test
 		return
 	fi
 	tmp=${1}"\t"
@@ -319,6 +334,7 @@ __check_image_var() {
 
 
 #Check if app local image shall override remote image
+# Possible IDs for local image override: PA, CP, SDNC, RICSIM, ECS
 __check_image_local_override() {
 	for im in $USE_LOCAL_IMAGES; do
 		if [ "$1" == "$im" ]; then
@@ -329,6 +345,7 @@ __check_image_local_override() {
 }
 
 #Check if app uses image excluded from this test run
+# Possible IDs for image exclusion: PA, CP, SDNC, RICSIM, MR, CR, CBS, CONSUL, ECS
 __check_excluded_image() {
 	for im in $EXCLUDED_IMAGES; do
 		if [ "$1" == "$im" ]; then
@@ -344,53 +361,62 @@ echo ""
 if [ $START_ARG == "local" ]; then
 
 	#Local agent image
-	__check_image_var " Policy Agent" $START_ARG "POLICY_AGENT_IMAGE" "POLICY_AGENT_LOCAL_IMAGE" "POLICY_AGENT_LOCAL_IMAGE_TAG"
+	__check_image_var " Policy Agent" $START_ARG "POLICY_AGENT_IMAGE" "POLICY_AGENT_LOCAL_IMAGE" "POLICY_AGENT_LOCAL_IMAGE_TAG" PA
 
 	#Local Control Panel image
-	__check_image_var " Control Panel" $START_ARG "CONTROL_PANEL_IMAGE" "CONTROL_PANEL_LOCAL_IMAGE" "CONTROL_PANEL_LOCAL_IMAGE_TAG"
+	__check_image_var " Control Panel" $START_ARG "CONTROL_PANEL_IMAGE" "CONTROL_PANEL_LOCAL_IMAGE" "CONTROL_PANEL_LOCAL_IMAGE_TAG" CP
 
 	#Local SNDC image
-	__check_image_var " SDNC A1 Controller" $START_ARG "SDNC_A1_CONTROLLER_IMAGE" "SDNC_A1_CONTROLLER_LOCAL_IMAGE" "SDNC_A1_CONTROLLER_LOCAL_IMAGE_TAG"
+	__check_image_var " SDNC A1 Controller" $START_ARG "SDNC_A1_CONTROLLER_IMAGE" "SDNC_A1_CONTROLLER_LOCAL_IMAGE" "SDNC_A1_CONTROLLER_LOCAL_IMAGE_TAG" SDNC
 
 	#Local ric sim image
-	__check_image_var " RIC Simulator" $START_ARG "RIC_SIM_IMAGE" "RIC_SIM_LOCAL_IMAGE" "RIC_SIM_LOCAL_IMAGE_TAG"
+	__check_image_var " RIC Simulator" $START_ARG "RIC_SIM_IMAGE" "RIC_SIM_LOCAL_IMAGE" "RIC_SIM_LOCAL_IMAGE_TAG" RICSIM
 
 elif [ $START_ARG == "remote" ] || [ $START_ARG == "remote-remove" ]; then
 
 	__check_image_local_override 'PA'
 	if [ $? -eq 0 ]; then
 		#Remote agent image
-		__check_image_var " Policy Agent" $START_ARG "POLICY_AGENT_IMAGE" "POLICY_AGENT_REMOTE_IMAGE" "POLICY_AGENT_REMOTE_IMAGE_TAG"
+		__check_image_var " Policy Agent" $START_ARG "POLICY_AGENT_IMAGE" "POLICY_AGENT_REMOTE_IMAGE" "POLICY_AGENT_REMOTE_IMAGE_TAG" PA
 	else
 		#Local agent image
-		__check_image_var " Policy Agent" $START_ARG "POLICY_AGENT_IMAGE" "POLICY_AGENT_LOCAL_IMAGE" "POLICY_AGENT_LOCAL_IMAGE_TAG"
+		__check_image_var " Policy Agent" $START_ARG "POLICY_AGENT_IMAGE" "POLICY_AGENT_LOCAL_IMAGE" "POLICY_AGENT_LOCAL_IMAGE_TAG" PA
 	fi
 
 	__check_image_local_override 'CP'
 	if [ $? -eq 0 ]; then
 		#Remote Control Panel image
-		__check_image_var " Control Panel" $START_ARG "CONTROL_PANEL_IMAGE" "CONTROL_PANEL_REMOTE_IMAGE" "CONTROL_PANEL_REMOTE_IMAGE_TAG"
+		__check_image_var " Control Panel" $START_ARG "CONTROL_PANEL_IMAGE" "CONTROL_PANEL_REMOTE_IMAGE" "CONTROL_PANEL_REMOTE_IMAGE_TAG" CP
 	else
 		#Local Control Panel image
-		__check_image_var " Control Panel" $START_ARG "CONTROL_PANEL_IMAGE" "CONTROL_PANEL_LOCAL_IMAGE" "CONTROL_PANEL_LOCAL_IMAGE_TAG"
+		__check_image_var " Control Panel" $START_ARG "CONTROL_PANEL_IMAGE" "CONTROL_PANEL_LOCAL_IMAGE" "CONTROL_PANEL_LOCAL_IMAGE_TAG" CP
 	fi
 
 	__check_image_local_override 'SDNC'
 	if [ $? -eq 0 ]; then
 		#Remote SDNC image
-		__check_image_var " SDNC A1 Controller" $START_ARG "SDNC_A1_CONTROLLER_IMAGE" "SDNC_A1_CONTROLLER_REMOTE_IMAGE" "SDNC_A1_CONTROLLER_REMOTE_IMAGE_TAG"
+		__check_image_var " SDNC A1 Controller" $START_ARG "SDNC_A1_CONTROLLER_IMAGE" "SDNC_A1_CONTROLLER_REMOTE_IMAGE" "SDNC_A1_CONTROLLER_REMOTE_IMAGE_TAG" SDNC
 	else
 		#Local SNDC image
-		__check_image_var " SDNC A1 Controller" $START_ARG "SDNC_A1_CONTROLLER_IMAGE" "SDNC_A1_CONTROLLER_LOCAL_IMAGE" "SDNC_A1_CONTROLLER_LOCAL_IMAGE_TAG"
+		__check_image_var " SDNC A1 Controller" $START_ARG "SDNC_A1_CONTROLLER_IMAGE" "SDNC_A1_CONTROLLER_LOCAL_IMAGE" "SDNC_A1_CONTROLLER_LOCAL_IMAGE_TAG" SDNC
 	fi
 
 	__check_image_local_override 'RICSIM'
 	if [ $? -eq 0 ]; then
 		#Remote ric sim image
-		__check_image_var " RIC Simulator" $START_ARG "RIC_SIM_IMAGE" "RIC_SIM_REMOTE_IMAGE" "RIC_SIM_REMOTE_IMAGE_TAG"
+		__check_image_var " RIC Simulator" $START_ARG "RIC_SIM_IMAGE" "RIC_SIM_REMOTE_IMAGE" "RIC_SIM_REMOTE_IMAGE_TAG" RICSIM
 	else
 		#Local ric sim image
-		__check_image_var " RIC Simulator" $START_ARG "RIC_SIM_IMAGE" "RIC_SIM_LOCAL_IMAGE" "RIC_SIM_LOCAL_IMAGE_TAG"
+		__check_image_var " RIC Simulator" $START_ARG "RIC_SIM_IMAGE" "RIC_SIM_LOCAL_IMAGE" "RIC_SIM_LOCAL_IMAGE_TAG" RICSIM
+	fi
+
+	__check_image_local_override 'ECS'
+	if [ $? -eq 0 ]; then
+		#Remote ecs image
+		__check_image_var " ECS" $START_ARG "ECS_IMAGE" "ECS_REMOTE_IMAGE" "ECS_REMOTE_IMAGE_TAG" ECS
+	else
+		#Local ecs image
+		__check_image_var " ECS" $START_ARG "ECS_IMAGE" "ECS_LOCAL_IMAGE" "ECS_LOCAL_IMAGE_TAG" ECS
 	fi
 
 else
@@ -401,16 +427,11 @@ fi
 
 
 # These images are not built as part of this project official images, just check that env vars are set correctly
-__check_image_var " Message Router" $START_ARG "MRSTUB_IMAGE" "MRSTUB_LOCAL_IMAGE" "MRSTUB_LOCAL_IMAGE_TAG"
-__check_image_var " Callback Receiver" $START_ARG "CR_IMAGE" "CR_LOCAL_IMAGE" "CR_LOCAL_IMAGE_TAG"
-__check_image_var " Consul" $START_ARG "CONSUL_IMAGE" "CONSUL_REMOTE_IMAGE" "CONSUL_REMOTE_IMAGE_TAG"
-__check_image_var " CBS" $START_ARG "CBS_IMAGE" "CBS_REMOTE_IMAGE" "CBS_REMOTE_IMAGE_TAG"
-__check_image_var " SDNC DB" $START_ARG "SDNC_DB_IMAGE" "SDNC_DB_REMOTE_IMAGE" "SDNC_DB_REMOTE_IMAGE_TAG"
-__check_excluded_image 'SDNC_ONAP'
-if [ $? -eq 0 ]; then
-	__check_image_var " SDNC ONAP A1 Adapter" $START_ARG "SDNC_ONAP_A1_ADAPTER_IMAGE" "SDNC_ONAP_A1_ADAPTER_REMOTE_IMAGE" "SDNC_ONAP_A1_ADAPTER_REMOTE_IMAGE_TAG"
-	__check_image_var " SDNC ONAP DB" $START_ARG "SDNC_ONAP_DB_IMAGE" "SDNC_ONAP_DB_REMOTE_IMAGE" "SDNC_ONAP_DB_REMOTE_IMAGE_TAG"
-fi
+__check_image_var " Message Router" $START_ARG "MRSTUB_IMAGE" "MRSTUB_LOCAL_IMAGE" "MRSTUB_LOCAL_IMAGE_TAG" MR
+__check_image_var " Callback Receiver" $START_ARG "CR_IMAGE" "CR_LOCAL_IMAGE" "CR_LOCAL_IMAGE_TAG" CR
+__check_image_var " Consul" $START_ARG "CONSUL_IMAGE" "CONSUL_REMOTE_IMAGE" "CONSUL_REMOTE_IMAGE_TAG" CONSUL
+__check_image_var " CBS" $START_ARG "CBS_IMAGE" "CBS_REMOTE_IMAGE" "CBS_REMOTE_IMAGE_TAG" CBS
+__check_image_var " SDNC DB" $START_ARG "SDNC_DB_IMAGE" "SDNC_DB_REMOTE_IMAGE" "SDNC_DB_REMOTE_IMAGE_TAG" SDNC #Uses sdnc app name
 
 #Errors in image setting - exit
 if [ $IMAGE_ERR -ne 0 ]; then
@@ -493,7 +514,7 @@ __check_and_pull_image() {
 			echo -ne "  Removing image - ${SAMELINE}"
 			tmp="$(docker images -q ${4})" &> /dev/null
 			if [ $? -eq 0 ] && [ ! -z "$tmp" ]; then
-				docker rmi $4 &> .dockererr
+				docker rmi --force $4 &> .dockererr
 				if [ $? -ne 0 ]; then
 					((IMAGE_ERR++))
 					echo ""
@@ -529,29 +550,69 @@ __check_and_pull_image() {
 
 echo -e $BOLD"Pulling configured images, if needed"$EBOLD
 
-START_ARG_MOD=$START_ARG
-__check_image_local_override 'PA'
-if [ $? -eq 1 ]; then
-	START_ARG_MOD="local"
+__check_excluded_image 'PA'
+if [ $? -eq 0 ]; then
+	START_ARG_MOD=$START_ARG
+	__check_image_local_override 'PA'
+	if [ $? -eq 1 ]; then
+		START_ARG_MOD="local"
+	fi
+	app="Policy Agent";             __check_and_pull_image $START_ARG_MOD "$app" $POLICY_AGENT_APP_NAME $POLICY_AGENT_IMAGE
+else
+	echo -e $YELLOW" Excluding PA image from image check/pull"$EYELLOW
 fi
-app="Policy Agent";             __check_and_pull_image $START_ARG_MOD "$app" $POLICY_AGENT_APP_NAME $POLICY_AGENT_IMAGE
 
-START_ARG_MOD=$START_ARG
-__check_image_local_override 'CP'
-if [ $? -eq 1 ]; then
-	START_ARG_MOD="local"
+__check_excluded_image 'ECS'
+if [ $? -eq 0 ]; then
+	START_ARG_MOD=$START_ARG
+	__check_image_local_override 'ECS'
+	if [ $? -eq 1 ]; then
+		START_ARG_MOD="local"
+	fi
+	app="ECS";             __check_and_pull_image $START_ARG_MOD "$app" $ECS_APP_NAME $ECS_IMAGE
+else
+	echo -e $YELLOW" Excluding ECS image from image check/pull"$EYELLOW
 fi
-app="Non-RT RIC Control Panel"; __check_and_pull_image $START_ARG_MOD "$app" $CONTROL_PANEL_APP_NAME $CONTROL_PANEL_IMAGE
 
-START_ARG_MOD=$START_ARG
-__check_image_local_override 'RICSIM'
-if [ $? -eq 1 ]; then
-	START_ARG_MOD="local"
+__check_excluded_image 'CP'
+if [ $? -eq 0 ]; then
+	START_ARG_MOD=$START_ARG
+	__check_image_local_override 'CP'
+	if [ $? -eq 1 ]; then
+		START_ARG_MOD="local"
+	fi
+	app="Non-RT RIC Control Panel"; __check_and_pull_image $START_ARG_MOD "$app" $CONTROL_PANEL_APP_NAME $CONTROL_PANEL_IMAGE
+else
+	echo -e $YELLOW" Excluding Non-RT RIC Control Panel image from image check/pull"$EYELLOW
 fi
-app="Near-RT RIC Simulator";    __check_and_pull_image $START_ARG_MOD "$app" $RIC_SIM_PREFIX"_"$RIC_SIM_BASE $RIC_SIM_IMAGE
 
-app="Consul";                   __check_and_pull_image $START_ARG "$app" $CONSUL_APP_NAME $CONSUL_IMAGE
-app="CBS";                      __check_and_pull_image $START_ARG "$app" $CBS_APP_NAME $CBS_IMAGE
+__check_excluded_image 'RICSIM'
+if [ $? -eq 0 ]; then
+	START_ARG_MOD=$START_ARG
+	__check_image_local_override 'RICSIM'
+	if [ $? -eq 1 ]; then
+		START_ARG_MOD="local"
+	fi
+	app="Near-RT RIC Simulator";    __check_and_pull_image $START_ARG_MOD "$app" $RIC_SIM_PREFIX"_"$RIC_SIM_BASE $RIC_SIM_IMAGE
+else
+	echo -e $YELLOW" Excluding Near-RT RIC Simulator image from image check/pull"$EYELLOW
+fi
+
+
+__check_excluded_image 'CONSUL'
+if [ $? -eq 0 ]; then
+	app="Consul";                   __check_and_pull_image $START_ARG "$app" $CONSUL_APP_NAME $CONSUL_IMAGE
+else
+	echo -e $YELLOW" Excluding Consul image from image check/pull"$EYELLOW
+fi
+
+__check_excluded_image 'CBS'
+if [ $? -eq 0 ]; then
+	app="CBS";                      __check_and_pull_image $START_ARG "$app" $CBS_APP_NAME $CBS_IMAGE
+else
+	echo -e $YELLOW" Excluding CBS image from image check/pull"$EYELLOW
+fi
+
 __check_excluded_image 'SDNC'
 if [ $? -eq 0 ]; then
 	START_ARG_MOD=$START_ARG
@@ -564,16 +625,6 @@ if [ $? -eq 0 ]; then
 else
 	echo -e $YELLOW" Excluding SDNC image and related DB image from image check/pull"$EYELLOW
 fi
-__check_excluded_image 'SDNC_ONAP'
-if [ $? -eq 0 ]; then
-	app="SDNC ONAP A1 Adapter";     __check_and_pull_image $START_ARG "$app" $SDNC_ONAP_APP_NAME $SDNC_ONAP_A1_ADAPTER_IMAGE
-	app="SDNC ONAP DB";             __check_and_pull_image $START_ARG "$app" $SDNC_ONAP_APP_NAME $SDNC_ONAP_DB_IMAGE
-else
-	echo -e $YELLOW" Excluding ONAP SDNC image and related DB image from image check/pull"$EYELLOW
-fi
-# MR stub image not checked, will be built by this script - only local image
-# CR stub image not checked, will be built by this script - only local image
-
 
 #Errors in image setting - exit
 if [ $IMAGE_ERR -ne 0 ]; then
@@ -591,30 +642,40 @@ echo ""
 echo -e $BOLD"Building images needed for test"$EBOLD
 
 curdir=$PWD
-cd $curdir
-cd ../mrstub
-echo " Building mrstub image: mrstub:latest"
-docker build -t mrstub . &> .dockererr
+__check_excluded_image 'MR'
 if [ $? -eq 0 ]; then
-	echo -e  $GREEN" Build Ok"$EGREEN
+	cd $curdir
+	cd ../mrstub
+	echo " Building mrstub image: mrstub:latest"
+	docker build -t mrstub . &> .dockererr
+	if [ $? -eq 0 ]; then
+		echo -e  $GREEN" Build Ok"$EGREEN
+	else
+		echo -e $RED" Build Failed"$ERED
+		((RES_CONF_FAIL++))
+		cat .dockererr
+	fi
+	cd $curdir
 else
-	echo -e $RED" Build Failed"$ERED
-	((RES_CONF_FAIL++))
-	cat .dockererr
+	echo -e $YELLOW" Excluding mrstub from image build"$EYELLOW
 fi
-cd $curdir
 
-cd ../cr
-echo " Building Callback Receiver image: callback-receiver:latest"
-docker build -t callback-receiver . &> .dockererr
+__check_excluded_image 'CR'
 if [ $? -eq 0 ]; then
-	echo -e  $GREEN" Build Ok"$EGREEN
+	cd ../cr
+	echo " Building Callback Receiver image: callback-receiver:latest"
+	docker build -t callback-receiver . &> .dockererr
+	if [ $? -eq 0 ]; then
+		echo -e  $GREEN" Build Ok"$EGREEN
+	else
+		echo -e $RED" Build Failed"$ERED
+		((RES_CONF_FAIL++))
+		cat .dockererr
+	fi
+	cd $curdir
 else
-	echo -e $RED" Build Failed"$ERED
-	((RES_CONF_FAIL++))
-	cat .dockererr
+	echo -e $YELLOW" Excluding Callback Receiver from image build"$EYELLOW
 fi
-cd $curdir
 
 echo ""
 
@@ -622,24 +683,44 @@ echo ""
 echo -e $BOLD"Local docker registry images used in the this test script"$EBOLD
 
 docker_tmp_file=.docker-images-table
-format_string="{{.Repository}}\\t{{.Tag}}\\t{{.CreatedSince}}\\t{{.Size}}"
-echo -e " Application\tRepository\tTag\tCreated Since\tSize" > $docker_tmp_file
-echo -e " Policy Agent\t$(docker images --format $format_string $POLICY_AGENT_IMAGE)" >>   $docker_tmp_file
-echo -e " Control Panel\t$(docker images --format $format_string $CONTROL_PANEL_IMAGE)" >>   $docker_tmp_file
-echo -e " RIC Simulator\t$(docker images --format $format_string $RIC_SIM_IMAGE)" >>   $docker_tmp_file
-echo -e " Message Router\t$(docker images --format $format_string $MRSTUB_IMAGE)" >>   $docker_tmp_file
-echo -e " Callback Receiver\t$(docker images --format $format_string $CR_IMAGE)" >>   $docker_tmp_file
-echo -e " Consul\t$(docker images --format $format_string $CONSUL_IMAGE)" >>   $docker_tmp_file
-echo -e " CBS\t$(docker images --format $format_string $CBS_IMAGE)" >>   $docker_tmp_file
+format_string="{{.Repository}}\\t{{.Tag}}\\t{{.CreatedSince}}\\t{{.Size}}\\t{{.CreatedAt}}"
+echo -e " Application\tRepository\tTag\tCreated since\tSize\tCreated at" > $docker_tmp_file
+__check_excluded_image 'PA'
+if [ $? -eq 0 ]; then
+	echo -e " Policy Agent\t$(docker images --format $format_string $POLICY_AGENT_IMAGE)" >>   $docker_tmp_file
+fi
+__check_excluded_image 'ECS'
+if [ $? -eq 0 ]; then
+	echo -e " ECS\t$(docker images --format $format_string $ECS_IMAGE)" >>   $docker_tmp_file
+fi
+__check_excluded_image 'CP'
+if [ $? -eq 0 ]; then
+	echo -e " Control Panel\t$(docker images --format $format_string $CONTROL_PANEL_IMAGE)" >>   $docker_tmp_file
+fi
+__check_excluded_image 'RICSIM'
+if [ $? -eq 0 ]; then
+	echo -e " RIC Simulator\t$(docker images --format $format_string $RIC_SIM_IMAGE)" >>   $docker_tmp_file
+fi
+__check_excluded_image 'MR'
+if [ $? -eq 0 ]; then
+	echo -e " Message Router\t$(docker images --format $format_string $MRSTUB_IMAGE)" >>   $docker_tmp_file
+fi
+__check_excluded_image 'CR'
+if [ $? -eq 0 ]; then
+	echo -e " Callback Receiver\t$(docker images --format $format_string $CR_IMAGE)" >>   $docker_tmp_file
+fi
+__check_excluded_image 'CONSUL'
+if [ $? -eq 0 ]; then
+	echo -e " Consul\t$(docker images --format $format_string $CONSUL_IMAGE)" >>   $docker_tmp_file
+fi
+__check_excluded_image 'CBS'
+if [ $? -eq 0 ]; then
+	echo -e " CBS\t$(docker images --format $format_string $CBS_IMAGE)" >>   $docker_tmp_file
+fi
 __check_excluded_image 'SDNC'
 if [ $? -eq 0 ]; then
 	echo -e " SDNC A1 Controller\t$(docker images --format $format_string $SDNC_A1_CONTROLLER_IMAGE)" >>   $docker_tmp_file
 	echo -e " SDNC DB\t$(docker images --format $format_string $SDNC_DB_IMAGE)" >>   $docker_tmp_file
-fi
-__check_excluded_image 'SDNC_ONAP'
-if [ $? -eq 0 ]; then
-	echo -e " SDNC ONAP A1 Adapter\t$(docker images --format $format_string $SDNC_ONAP_A1_ADAPTER_IMAGE)" >>   $docker_tmp_file
-	echo -e " SDNC ONAP DB\t$(docker images --format $format_string $SDNC_ONAP_DB_IMAGE)" >>   $docker_tmp_file
 fi
 
 column -t -s $'\t' $docker_tmp_file
@@ -832,6 +913,15 @@ __check_stop_at_error() {
 	return 0
 }
 
+# Check if app name var is set. If so return the app name otherwise return "NOTSET"
+__check_app_name() {
+	if [ $# -eq 1 ]; then
+		echo $1
+	else
+		echo "NOTSET"
+	fi
+}
+
 # Stop and remove all containers
 # args: -
 # (Function for test scripts)
@@ -839,20 +929,20 @@ clean_containers() {
 
 	echo -e $BOLD"Stopping and removing all running containers, by container name"$EBOLD
 
-	CONTAINTER_NAMES=("Policy Agent           " $POLICY_AGENT_APP_NAME\
-					  "Non-RT RIC Simulator(s)" $RIC_SIM_PREFIX\
-					  "Message Router         " $MR_APP_NAME\
-					  "Callback Receiver      " $CR_APP_NAME\
-					  "Control Panel          " $CONTROL_PANEL_APP_NAME\
-					  "SDNC A1 Controller     " $SDNC_APP_NAME\
-					  "SDNC DB                " $SDNC_DB_APP_NAME\
-					  "SDNC ONAP A1 Adapter   " $SDNC_ONAP_APP_NAME\
-					  "SDNC DB                " $SDNC_ONAP_DB_APP_NAME\
-					  "CBS                    " $CBS_APP_NAME\
-					  "Consul                 " $CONSUL_APP_NAME)
+	CONTAINTER_NAMES=("Policy Agent           " $(__check_app_name $POLICY_AGENT_APP_NAME)\
+					  "ECS                    " $(__check_app_name $ECS_APP_NAME)\
+					  "Non-RT RIC Simulator(s)" $(__check_app_name $RIC_SIM_PREFIX)\
+					  "Message Router         " $(__check_app_name $MR_APP_NAME)\
+					  "Callback Receiver      " $(__check_app_name $CR_APP_NAME)\
+					  "Control Panel          " $(__check_app_name $CONTROL_PANEL_APP_NAME)\
+					  "SDNC A1 Controller     " $(__check_app_name $SDNC_APP_NAME)\
+					  "SDNC DB                " $(__check_app_name $SDNC_DB_APP_NAME)\
+					  "CBS                    " $(__check_app_name $CBS_APP_NAME)\
+					  "Consul                 " $(__check_app_name $CONSUL_APP_NAME))
 
 	nw=0 # Calc max width of container name, to make a nice table
 	for (( i=1; i<${#CONTAINTER_NAMES[@]} ; i+=2 )) ; do
+
 		if [ ${#CONTAINTER_NAMES[i]} -gt $nw ]; then
 			nw=${#CONTAINTER_NAMES[i]}
 		fi
@@ -861,14 +951,16 @@ clean_containers() {
 	for (( i=0; i<${#CONTAINTER_NAMES[@]} ; i+=2 )) ; do
 		APP="${CONTAINTER_NAMES[i]}"
 		CONTR="${CONTAINTER_NAMES[i+1]}"
-		for((w=${#CONTR}; w<$nw; w=w+1)); do
-			CONTR="$CONTR "
-		done
-		echo -ne " $APP: $CONTR - ${GREEN}stopping${EGREEN}${SAMELINE}"
-		docker stop $(docker ps -qa --filter name=${CONTR}) &> /dev/null
-		echo -ne " $APP: $CONTR - ${GREEN}stopped${EGREEN}${SAMELINE}"
-		docker rm --force $(docker ps -qa --filter name=${CONTR}) &> /dev/null
-		echo -e  " $APP: $CONTR - ${GREEN}stopped removed${EGREEN}"
+		if [ $CONTR != "NOTSET" ]; then
+			for((w=${#CONTR}; w<$nw; w=w+1)); do
+				CONTR="$CONTR "
+			done
+			echo -ne " $APP: $CONTR - ${GREEN}stopping${EGREEN}${SAMELINE}"
+			docker stop $(docker ps -qa --filter name=${CONTR}) &> /dev/null
+			echo -ne " $APP: $CONTR - ${GREEN}stopped${EGREEN}${SAMELINE}"
+			docker rm --force $(docker ps -qa --filter name=${CONTR}) &> /dev/null
+			echo -e  " $APP: $CONTR - ${GREEN}stopped removed${EGREEN}"
+		fi
 	done
 
 	echo ""
@@ -876,21 +968,29 @@ clean_containers() {
 	echo -e $BOLD" Removing docker network"$EBOLD
 	TMP=$(docker network ls -q --filter name=$DOCKER_SIM_NWNAME)
 	if [ "$TMP" ==  $DOCKER_SIM_NWNAME ]; then
-		docker network rm $DOCKER_SIM_NWNAME
+		docker network rm $DOCKER_SIM_NWNAME | indent2
 		if [ $? -ne 0 ];  then
 			echo -e $RED" Cannot remove docker network. Manually remove or disconnect containers from $DOCKER_SIM_NWNAME"$ERED
 			exit 1
 		fi
 	fi
+	echo -e "$GREEN  Done$EGREEN"
+	echo ""
 
 	echo -e $BOLD" Removing all unused docker neworks"$EBOLD
-	docker network prune --force #&> /dev/null
+	docker network prune --force | indent2
+	echo -e "$GREEN  Done$EGREEN"
+	echo ""
 
 	echo -e $BOLD" Removing all unused docker volumes"$EBOLD
-	docker volume prune --force #&> /dev/null
+	docker volume prune --force | indent2
+	echo -e "$GREEN  Done$EGREEN"
+	echo ""
 
 	echo -e $BOLD" Removing all dangling/untagged docker images"$EBOLD
     docker rmi --force $(docker images -q -f dangling=true) &> /dev/null
+	echo ""
+	echo -e "$GREEN  Done$EGREEN"
 	echo ""
 
 	CONTRS=$(docker ps | awk '$1 != "CONTAINER" { n++ }; END { print n+0 }')
@@ -969,11 +1069,13 @@ __create_docker_network() {
 		return 1
 	fi
 	if [ "$tmp" != $DOCKER_SIM_NWNAME ]; then
-		echo -e "Creating docker network:$BOLD $DOCKER_SIM_NWNAME $EBOLD"
-		docker network create $DOCKER_SIM_NWNAME
+		echo -e " Creating docker network:$BOLD $DOCKER_SIM_NWNAME $EBOLD"
+		docker network create $DOCKER_SIM_NWNAME | indent2
 		if [ $? -ne 0 ]; then
 			echo -e $RED" Could not create docker network $DOCKER_SIM_NWNAME"$ERED
 			return 1
+		else
+			echo -e "$GREEN  Done$EGREEN"
 		fi
 	else
 		echo -e " Docker network $DOCKER_SIM_NWNAME already exists$GREEN OK $EGREEN"
@@ -1177,7 +1279,7 @@ consul_config_app() {
 }
 
 # Function to perpare the consul configuration according to the current simulator configuration
-# args: SDNC|SDNC_ONAP|NOSDNC <output-file>
+# args: SDNC|NOSDNC <output-file>
 # (Function for test scripts)
 prepare_consul_config() {
   	echo -e $BOLD"Prepare Consul config"$EBOLD
@@ -1186,19 +1288,17 @@ prepare_consul_config() {
 
 	if [ $# != 2 ];  then
 		((RES_CONF_FAIL++))
-    	__print_err "need two args,  SDNC|SDNC_ONAP|NOSDNC <output-file>" $@
+    	__print_err "need two args,  SDNC|NOSDNC <output-file>" $@
 		exit 1
 	fi
 
 	if [ $1 == "SDNC" ]; then
 		echo -e " Config$BOLD including SDNC$EBOLD configuration"
-	elif [ $1 == "SDNC_ONAP" ]; then
-		echo -e " Config$BOLD including SDNC ONAP$EBOLD configuration"
 	elif [ $1 == "NOSDNC" ];  then
-		echo -e " Config$BOLD excluding SDNC or SDNC ONAP$EBOLD configuration"
+		echo -e " Config$BOLD excluding SDNC$EBOLD configuration"
 	else
 		((RES_CONF_FAIL++))
-    	__print_err "need two args,  SDNC|SDNC_ONAP|NOSDNC <output-file>" $@
+    	__print_err "need two args,  SDNC|NOSDNC <output-file>" $@
 		exit 1
 	fi
 
@@ -1217,21 +1317,6 @@ prepare_consul_config() {
 		config_json=$config_json"\n                     }"
 		config_json=$config_json"\n   ],"
 	fi
-	if [ $1 == "SDNC_ONAP" ]; then
-		config_json=$config_json"\n   \"controller\": ["
-		config_json=$config_json"\n                     {"
-		config_json=$config_json"\n                       \"name\": \"$SDNC_ONAP_APP_NAME\","
-		if [ $AGENT_STAND_ALONE -eq 0 ]; then
-			config_json=$config_json"\n                       \"baseUrl\": \"http://$SDNC_ONAP_APP_NAME:$SDNC_ONAP_INTERNAL_PORT\","
-		else
-			config_json=$config_json"\n                       \"baseUrl\": \"http://localhost:$SDNC_ONAP_EXTERNAL_PORT\","
-		fi
-		config_json=$config_json"\n                       \"userName\": \"$SDNC_ONAP_USER\","
-		config_json=$config_json"\n                       \"password\": \"$SDNC_ONAP_PWD\""
-		config_json=$config_json"\n                     }"
-		config_json=$config_json"\n   ],"
-	fi
-
 
 	config_json=$config_json"\n   \"streams_publishes\": {"
 	config_json=$config_json"\n                            \"dmaap_publisher\": {"
@@ -1282,8 +1367,6 @@ prepare_consul_config() {
 		fi
 		if [ $1 == "SDNC" ]; then
 			config_json=$config_json"\n            \"controller\": \"$SDNC_APP_NAME\","
-		elif [ $1 == "SDNC_ONAP" ]; then
-			config_json=$config_json"\n            \"controller\": \"$SDNC_ONAP_APP_NAME\","
 		fi
 		config_json=$config_json"\n            \"managedElementIds\": ["
 		config_json=$config_json"\n              \"me1_$ric\","
@@ -1309,7 +1392,12 @@ prepare_consul_config() {
 start_consul_cbs() {
 
 	echo -e $BOLD"Starting Consul and CBS"$EBOLD
-
+	__check_excluded_image 'CONSUL'
+	if [ $? -eq 1 ]; then
+		echo -e $RED"The Consul image has not been checked for this test run due to arg to the test script"$ERED
+		echo -e $RED"Consul will not be started"$ERED
+		exit
+	fi
 	__start_container consul_cbs NODOCKERARGS  "$CONSUL_APP_NAME" "$CONSUL_EXTERNAL_PORT" "/ui/dc1/kv" "http" \
 	                                             "$CBS_APP_NAME" "$CBS_EXTERNAL_PORT" "/healthcheck" "http"
 }
@@ -1319,7 +1407,7 @@ start_consul_cbs() {
 ###########################
 
 use_simulator_http() {
-	echo -e "Using unsecure $BOLD http $EBOLD towards the simulators"
+	echo -e "Using $BOLD http $EBOLD towards the simulators"
 	export RIC_SIM_HTTPX="http"
 	export RIC_SIM_LOCALHOST=$RIC_SIM_HTTPX"://localhost:"
 	export RIC_SIM_PORT=$RIC_SIM_INTERNAL_PORT
@@ -1327,7 +1415,7 @@ use_simulator_http() {
 }
 
 use_simulator_https() {
-	echo -e "Using secure $BOLD https $EBOLD towards the simulators"
+	echo -e "Using $BOLD https $EBOLD towards the simulators"
 	export RIC_SIM_HTTPX="https"
 	export RIC_SIM_LOCALHOST=$RIC_SIM_HTTPX"://localhost:"
 	export RIC_SIM_PORT=$RIC_SIM_INTERNAL_SECURE_PORT
@@ -1341,6 +1429,13 @@ use_simulator_https() {
 start_ric_simulators() {
 
 	echo -e $BOLD"Starting RIC Simulators"$EBOLD
+
+	__check_excluded_image 'RICSIM'
+	if [ $? -eq 1 ]; then
+		echo -e $RED"The Near-RT RIC Simulator image has not been checked for this test run due to arg to the test script"$ERED
+		echo -e $RED"The Near-RT RIC Simulartor(s) will not be started"$ERED
+		exit
+	fi
 
 	RIC1=$RIC_SIM_PREFIX"_g1"
 	RIC2=$RIC_SIM_PREFIX"_g2"
@@ -1398,7 +1493,12 @@ start_ric_simulators() {
 start_control_panel() {
 
 	echo -e $BOLD"Starting Control Panel"$EBOLD
-
+	__check_excluded_image 'CP'
+	if [ $? -eq 1 ]; then
+		echo -e $RED"The Control Panel image has not been checked for this test run due to arg to the test script"$ERED
+		echo -e $RED"The Control Panel will not be started"$ERED
+		exit
+	fi
 	__start_container control_panel NODOCKERARGS $CONTROL_PANEL_APP_NAME $CONTROL_PANEL_EXTERNAL_PORT "/" "http"
 
 }
@@ -1426,7 +1526,7 @@ start_sdnc() {
 }
 
 use_sdnc_http() {
-	echo -e $BOLD"Using http between agent and SDNC"$EBOLD
+	echo -e "Using $BOLD http $EBOLD towards SDNC"
 	export SDNC_HTTPX="http"
 	export SDNC_PORT=$SDNC_INTERNAL_PORT
 	export SDNC_LOCAL_PORT=$SDNC_EXTERNAL_PORT
@@ -1434,67 +1534,11 @@ use_sdnc_http() {
 }
 
 use_sdnc_https() {
-	echo -e $BOLD"Using https between agent and SDNC"$EBOLD
+	echo -e "Using $BOLD https $EBOLD towards SDNC"
 	export SDNC_HTTPX="https"
 	export SDNC_PORT=$SDNC_INTERNAL_SECURE_PORT
 	export SDNC_LOCAL_PORT=$SDNC_EXTERNAL_SECURE_PORT
 	echo ""
-}
-
-#######################
-### SDNC ONAP functions
-#######################
-
-# Start the SDNC ONAP A1 Adapter
-# args: -
-# (Function for test scripts)
-start_sdnc_onap() {
-
-	echo -e $BOLD"Starting SDNC ONAP A1 Adapter"$EBOLD
-
-	__check_excluded_image 'SDNC_ONAP'
-	if [ $? -eq 1 ]; then
-		echo -e $RED"The image for SDNC ONAP and the related DB has not been checked for this test run due to arg to the test script"$ERED
-		echo -e $RED"SDNC ONAP will not be started"$ERED
-		exit
-	fi
-
-	__start_container sdnc_onap NODOCKERARGS $SDNC_ONAP_APP_NAME $SDNC_ONAP_EXTERNAL_PORT $SDNC_ONAP_ALIVE_URL "http"
-
-}
-
-# Configure the SDNC ONAP A1 Adapter
-# args: -
-# (Function for test scripts)
-config_sdnc_onap() {
-
-	echo -e $BOLD"Configuring SDNC ONAP A1 Adapter"$EBOLD
-
-	LOCALFILE=".sdnc_onap.prop"
-	REMOTEFILE="/tmp/.sdnc_onap.prop"
-
-	docker cp $SDNC_ONAP_APP_NAME:$SDNC_ONAP_PROPERTIES_FILE $LOCALFILE
-	if [ $? -ne 0 ]; then
-		echo -e $RED"Could not copy $SDNC_ONAP_PROPERTIES_FILE from $SDNC_ONAP_APP_NAME container"$ERED
-		exit 1
-	fi
-
-
-	#Config of the prop file shall be inserted here
-
-	#Copy file to /tmp and then to final destination, a trick to get correct permission of the file.
-
-	docker cp $LOCALFILE $SDNC_ONAP_APP_NAME:$REMOTEFILE
-	if [ $? -ne 0 ]; then
-		echo -e $RED"Could not copy local $LOCALFILE to $REMOTEFILE in $SDNC_ONAP_APP_NAME container"$ERED
-		exit 1
-	fi
-
-	docker exec -it $SDNC_ONAP_APP_NAME cp $REMOTEFILE $SDNC_ONAP_PROPERTIES_FILE
-	if [ $? -ne 0 ]; then
-		echo -e $RED"Could not copy $REMOTEFILE to $SDNC_ONAP_PROPERTIES_FILE in $SDNC_ONAP_APP_NAME container"$ERED
-		exit 1
-	fi
 }
 
 #####################
@@ -1507,12 +1551,18 @@ config_sdnc_onap() {
 start_mr() {
 
 	echo -e $BOLD"Starting Message Router 'mrstub'"$EBOLD
+	__check_excluded_image 'MR'
+	if [ $? -eq 1 ]; then
+		echo -e $RED"The Message Router image has not been checked for this test run due to arg to the test script"$ERED
+		echo -e $RED"The Message Router will not be started"$ERED
+		exit
+	fi
 	export MR_CERT_MOUNT_DIR="./cert"
 	__start_container mr NODOCKERARGS $MR_APP_NAME $MR_EXTERNAL_PORT "/" "http"
 }
 
 use_mr_http() {
-	echo -e $BOLD"Using http between agent and MR"$EBOLD
+	echo -e "Using $BOLD http $EBOLD towards MR"
 	export MR_HTTPX="http"
 	export MR_PORT=$MR_INTERNAL_PORT
 	export MR_LOCAL_PORT=$MR_EXTERNAL_PORT
@@ -1520,7 +1570,7 @@ use_mr_http() {
 }
 
 use_mr_https() {
-	echo -e $BOLD"Using https between agent and MR"$EBOLD
+	echo -e "Using $BOLD https $EBOLD towards MR"
 	export MR_HTTPX="https"
 	export MR_PORT=$MR_INTERNAL_SECURE_PORT
 	export MR_LOCAL_PORT=$MR_EXTERNAL_SECURE_PORT
@@ -1538,13 +1588,18 @@ use_mr_https() {
 start_cr() {
 
 	echo -e $BOLD"Starting Callback Receiver"$EBOLD
-
+	__check_excluded_image 'CR'
+	if [ $? -eq 1 ]; then
+		echo -e $RED"The Callback Receiver image has not been checked for this test run due to arg to the test script"$ERED
+		echo -e $RED"The Callback Receiver will not be started"$ERED
+		exit
+	fi
 	__start_container cr NODOCKERARGS $CR_APP_NAME $CR_EXTERNAL_PORT "/" "http"
 
 }
 
 use_cr_http() {
-	echo -e $BOLD"Using http between test script and CR"$EBOLD
+	echo -e "Using $BOLD http $EBOLD towards CR"
 	export CR_HTTPX="http"
 	export CR_PORT=$CR_INTERNAL_PORT
 	export CR_LOCAL_PORT=$CR_EXTERNAL_PORT
@@ -1552,7 +1607,7 @@ use_cr_http() {
 }
 
 use_cr_https() {
-	echo -e $BOLD"Using https between test script and CR"$EBOLD
+	echo -e "Using $BOLD https $EBOLD towards CR"
 	export CR_HTTPX="https"
 	export CR_PORT=$CR_INTERNAL_SECURE_PORT
 	export CR_LOCAL_PORT=$CR_EXTERNAL_SECURE_PORT
@@ -1576,12 +1631,18 @@ start_policy_agent() {
 	echo -e $BOLD"Starting Policy Agent"$EBOLD
 
 	if [ $AGENT_STAND_ALONE -eq 0 ]; then
+		__check_excluded_image 'PA'
+		if [ $? -eq 1 ]; then
+			echo -e $RED"The Policy Agent image has not been checked for this test run due to arg to the test script"$ERED
+			echo -e $RED"The Policy Agent will not be started"$ERED
+			exit
+		fi
 		__start_container policy_agent NODOCKERARGS $POLICY_AGENT_APP_NAME $POLICY_AGENT_EXTERNAL_PORT "/status" "http"
 	else
 		echo -e $RED"The consul config produced by this test script (filename '<fullpath-to-autotest-dir>.output<file-name>"$ERED
 		echo -e $RED"where the file name is the file in the consul_config_app command in this script) must be pointed out by the agent "$ERED
 		echo -e $RED"application.yaml"$ERED
-		echo -e $RED"The application jar may need to be built beforefor continuing"$ERED
+		echo -e $RED"The application jar may need to be built before continuing"$ERED
 		echo -e $RED"The agent shall now be running on port $POLICY_AGENT_EXTERNAL_PORT for http"$ERED
 
 		read -p "<press any key to continue>"
@@ -1594,7 +1655,7 @@ start_policy_agent() {
 # args: -
 # (Function for test scripts)
 use_agent_rest_http() {
-	echo -e $BOLD"Using agent REST interface with http"$EBOLD
+	echo -e "Using $BOLD http $EBOLD and $BOLD REST $EBOLD towards the agent"
 	export ADAPTER=$RESTBASE
 	echo ""
 }
@@ -1603,7 +1664,7 @@ use_agent_rest_http() {
 # args: -
 # (Function for test scripts)
 use_agent_rest_https() {
-	echo -e $BOLD"Using agent REST interface with https"$EBOLD
+	echo -e "Using $BOLD https $EBOLD and $BOLD REST $EBOLD towards the agent"
 	export ADAPTER=$RESTBASE_SECURE
 	echo ""
 	return 0
@@ -1613,7 +1674,7 @@ use_agent_rest_https() {
 # args: -
 # (Function for test scripts)
 use_agent_dmaap_http() {
-	echo -e $BOLD"Agent using DMAAP http interface"$EBOLD
+	echo -e "Using $BOLD http $EBOLD and $BOLD DMAAP $EBOLD towards the agent"
 	export ADAPTER=$DMAAPBASE
 	echo ""
 	return 0
@@ -1623,7 +1684,7 @@ use_agent_dmaap_http() {
 # args: -
 # (Function for test scripts)
 use_agent_dmaap_https() {
-	echo -e $BOLD"Agent using DMAAP https interface"$EBOLD
+	echo -e "Using $BOLD https $EBOLD and $BOLD REST $EBOLD towards the agent"
 	export ADAPTER=$DMAAPBASE_SECURE
 	echo ""
 	return 0
@@ -1667,6 +1728,103 @@ use_agent_retries() {
 	return
 }
 
+###########################
+### ECS functions
+###########################
+
+# Start the ECS
+# args: -
+# (Function for test scripts)
+start_ecs() {
+
+	echo -e $BOLD"Starting ECS"$EBOLD
+	__check_excluded_image 'ECS'
+	if [ $? -eq 1 ]; then
+		echo -e $RED"The ECS image has not been checked for this test run due to arg to the test script"$ERED
+		echo -e $RED"ECS will not be started"$ERED
+		exit
+	fi
+	export ECS_CERT_MOUNT_DIR="./cert"
+	__start_container ecs NODOCKERARGS $ECS_APP_NAME $ECS_EXTERNAL_PORT "/ei-producer/v1/eiproducers" "http"
+}
+
+# All calls to ECS will be directed to the ECS REST interface from now on
+# args: -
+# (Function for test scripts)
+use_ecs_rest_http() {
+	echo -e "Using $BOLD http $EBOLD and $BOLD REST $EBOLD towards ECS"
+	export ECS_ADAPTER=$ECS_RESTBASE
+	echo ""
+}
+
+# All calls to ECS will be directed to the ECS REST interface from now on
+# args: -
+# (Function for test scripts)
+use_ecs_rest_https() {
+	echo -e "Using $BOLD https $EBOLD and $BOLD REST $EBOLD towards ECS"
+	export ECS_ADAPTER=$ECS_RESTBASE_SECURE
+	echo ""
+	return 0
+}
+
+# All calls to ECS will be directed to the ECS dmaap interface over http from now on
+# args: -
+# (Function for test scripts)
+use_ecs_dmaap_http() {
+	echo -e "Using $BOLD http $EBOLD and $BOLD DMAAP $EBOLD towards ECS"
+	export ECS_ADAPTER=$ECS_DMAAPBASE
+	echo ""
+	return 0
+}
+
+# All calls to ECS will be directed to the ECS dmaap interface over https from now on
+# args: -
+# (Function for test scripts)
+use_ecs_dmaap_https() {
+	echo -e "Using $BOLD https $EBOLD and $BOLD REST $EBOLD towards ECS"
+	export ECS_ADAPTER=$ECS_DMAAPBASE_SECURE
+	echo ""
+	return 0
+}
+
+# Turn on debug level tracing in ECS
+# args: -
+# (Function for test scripts)
+set_ecs_debug() {
+	echo -e $BOLD"Setting ecs debug"$EBOLD
+	curl $LOCALHOST$ECS_EXTERNAL_PORT/actuator/loggers/org.oransc.enrichment -X POST  -H 'Content-Type: application/json' -d '{"configuredLevel":"debug"}' &> /dev/null
+	if [ $? -ne 0 ]; then
+		__print_err "could not set debug mode" $@
+		return 1
+	fi
+	echo ""
+	return 0
+}
+
+# Turn on trace level tracing in ECS
+# args: -
+# (Function for test scripts)
+set_ecs_trace() {
+	echo -e $BOLD"Setting agent trace"$EBOLD
+	curl $LOCALHOST$ECS_EXTERNAL_PORT/actuator/loggers/org.oransc.enrichment -X POST  -H 'Content-Type: application/json' -d '{"configuredLevel":"trace"}' &> /dev/null
+	if [ $? -ne 0 ]; then
+		__print_err "could not set trace mode" $@
+		return 1
+	fi
+	echo ""
+	return 0
+}
+
+# Perform curl retries when making direct call to ECS for the specified http response codes
+# Speace separated list of http response codes
+# args: [<response-code>]*
+use_agent_retries() {
+	echo -e $BOLD"Do curl retries to the ECS REST inteface for these response codes:$@"$EBOLD
+	ECS_AGENT_RETRY_CODES=$@
+	echo ""
+	return
+}
+
 #################
 ### Log functions
 #################
@@ -1677,6 +1835,10 @@ use_agent_retries() {
 
 check_policy_agent_logs() {
 	__check_container_logs "Policy Agent" $POLICY_AGENT_APP_NAME $POLICY_AGENT_LOGPATH
+}
+
+check_ecs_logs() {
+	__check_container_logs "ECS" $ECS_APP_NAME $ECS_LOGPATH
 }
 
 check_control_panel_logs() {
@@ -1695,7 +1857,7 @@ __check_container_logs() {
 		echo $dispname" is not running, no check made"
 		return
 	fi
-	foundentries="$(docker exec -it $tmp grep WARN $logpath | wc -l)"
+	foundentries="$(docker exec $tmp grep WARN $logpath | wc -l)"
 	if [ $? -ne  0 ];then
 		echo "  Problem to search $appname log $logpath"
 	else
@@ -1705,7 +1867,7 @@ __check_container_logs() {
 			echo -e "  Found \033[1m"$foundentries"\033[0m WARN entries in $appname log $logpath"
 		fi
 	fi
-	foundentries="$(docker exec -it $tmp grep ERR $logpath | wc -l)"
+	foundentries="$(docker exec $tmp grep ERR $logpath | wc -l)"
 	if [ $? -ne  0 ];then
 		echo "  Problem to search $appname log $logpath"
 	else
@@ -1728,20 +1890,19 @@ store_logs() {
     	__print_err "need one arg, <file-prefix>" $@
 		exit 1
 	fi
-	echo -e $BOLD"Storing all container logs, Policy Agent app log and consul config using prefix: "$1$EBOLD
+	echo -e $BOLD"Storing all container logs using prefix: "$1$EBOLD
 
 	docker stats --no-stream > $TESTLOGS/$ATC/$1_docker_stats.log 2>&1
 	docker logs $CONSUL_APP_NAME > $TESTLOGS/$ATC/$1_consul.log 2>&1
 	docker logs $CBS_APP_NAME > $TESTLOGS/$ATC/$1_cbs.log 2>&1
 	docker logs $POLICY_AGENT_APP_NAME > $TESTLOGS/$ATC/$1_policy-agent.log 2>&1
-	docker logs $CONSUL_APP_NAME > $TESTLOGS/$ATC/$1_control-panel.log 2>&1
+	docker logs $ECS_APP_NAME > $TESTLOGS/$ATC/$1_ecs.log 2>&1
+	docker logs $CONTROL_PANEL_APP_NAME > $TESTLOGS/$ATC/$1_control-panel.log 2>&1
 	docker logs $MR_APP_NAME > $TESTLOGS/$ATC/$1_mr.log 2>&1
 	docker logs $CR_APP_NAME > $TESTLOGS/$ATC/$1_cr.log 2>&1
 	cp .httplog_${ATC}.txt $TESTLOGS/$ATC/$1_httplog_${ATC}.txt 2>&1
 
-	docker exec -it $SDNC_APP_NAME cat $SDNC_KARAF_LOG> $TESTLOGS/$ATC/$1_SDNC_karaf.log 2>&1
-
-	docker exec -it $SDNC_ONAP_APP_NAME cat $SDNC_ONAP_KARAF_LOG > $TESTLOGS/$ATC/$1_SDNC_ONAP_karaf.log 2>&1
+	docker exec $SDNC_APP_NAME cat $SDNC_KARAF_LOG> $TESTLOGS/$ATC/$1_SDNC_karaf.log 2>&1
 
 	rics=$(docker ps -f "name=$RIC_SIM_PREFIX" --format "{{.Names}}")
 	for ric in $rics; do

@@ -159,7 +159,7 @@ Function to prepare a Consul config based on the previously configured (and star
 
 | parameter | description |
 | --------- | ----------- |
-| `SDNC|SDNC_ONAP|NOSDNC` | Configure based on a1-controller (SNDC), a1-adapter (SDNC_ONAP) or without a controller/adapter (NOSDNC) |
+| `SDNC|NOSDNC` | Configure based on a1-controller (SNDC) or without a controller/adapter (NOSDNC) |
 | `<output-file>` | The path to the json output file containing the prepared config. This file is used in 'consul_config_app'  |
 
 #### Function: start_consul_cbs ####
@@ -212,18 +212,6 @@ Use http for all API calls towards the SDNC A1 Controller. This is the default. 
 
 #### Function: use_sdnc_http ####
 Use https for all API calls towards the SDNC A1 Controller. Note that this function shall be called before preparing the config for Consul.
-| arg list |
-|--|
-| None |
-
-#### Function: start_sdnc_onap ####
-Start the SDNC A1 Adapter container and its database container
-| arg list |
-|--|
-| None |
-
-#### Function: config_sdnc_onap ####
-Configure the SDNC A1 adapter - Not implemented
 | arg list |
 |--|
 | None |

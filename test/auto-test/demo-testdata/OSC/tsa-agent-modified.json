@@ -1,0 +1,13 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "20008",
+    "description": "Traffic Steering - High prio traffic - policy type",
+    "type": "object",
+    "properties": {
+      "threshold": {
+        "type": "integer",
+        "default": 0
+      }
+    },
+    "additionalProperties": false
+  }

@@ -21,7 +21,7 @@
 TC_ONELINE_DESCR="Full agent API walk through using agent REST/DMAAP and with/without SDNC A1 Controller"
 
 #App names to exclude checking pulling images for, space separated list
-EXCLUDED_IMAGES="SDNC_ONAP"
+EXCLUDED_IMAGES="ECS"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
@@ -44,61 +44,48 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "#####################################################################"
         echo "#####################################################################"
 
-        #Local vars in test script
-        ##########################
-
         if [ $__httpx == "HTTPS" ]; then
-            # Path to callback receiver
             CR_PATH="https://$CR_APP_NAME:$CR_EXTERNAL_SECURE_PORT/callbacks"
             use_cr_https
+            use_simulator_https
+            use_mr_https
+            if [[ $interface = *"SDNC"* ]]; then
+                use_sdnc_https
+            fi
+            if [[ $interface = *"DMAAP"* ]]; then
+                use_agent_dmaap_https
+            else
+                use_agent_rest_https
+            fi
         else
-            # Path to callback receiver
             CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
             use_cr_http
+            use_simulator_http
+            use_mr_http
+            if [[ $interface = *"SDNC"* ]]; then
+                use_sdnc_http
+            fi
+            if [[ $interface = *"DMAAP"* ]]; then
+                use_agent_dmaap_http
+            else
+                use_agent_rest_http
+            fi
         fi
 
         # Clean container and start all needed containers #
         clean_containers
-
-        if [ $__httpx == "HTTPS" ]; then
-            #"Using secure ports towards simulators"
-            use_simulator_https
-        else
-            #"Using non-secure ports towards simulators"
-            use_simulator_http
-        fi
 
         start_ric_simulators ricsim_g1 1  OSC_2.1.0
         start_ric_simulators ricsim_g2 1  STD_1.1.3
 
         start_mr
 
-        if [ $__httpx == "HTTPS" ]; then
-            #echo "Using secure ports between agent and MR"
-            use_mr_https
-        else
-            #"Using non-secure ports between agent and MR"
-            use_mr_http
-        fi
-
         start_cr
-
-        if [ $interface == "REST+SDNC" ] || [ $interface == "DMAAP+SDNC" ]; then
-
-            start_sdnc
-
-            if [ $__httpx == "HTTPS" ]; then
-                # "Using secure ports towards SDNC"
-                use_sdnc_https
-            else
-                #"Using non-secure ports towards SDNC"
-                use_sdnc_http
-            fi
-        fi
 
         start_consul_cbs
 
-        if [ $interface == "REST+SDNC" ] || [ $interface == "DMAAP+SDNC" ]; then
+        if [[ $interface = *"SDNC"* ]]; then
+            start_sdnc
             prepare_consul_config      SDNC    ".consul_config.json"
         else
             prepare_consul_config      NOSDNC  ".consul_config.json"
@@ -111,25 +98,6 @@ for __httpx in $TESTED_PROTOCOLS ; do
         start_policy_agent
 
         set_agent_debug
-
-        if [ $interface == "DMAAP" ] || [ $interface == "DMAAP+SDNC" ]; then
-            if [ $__httpx == "HTTPS" ]; then
-                echo "Using secure ports towards dmaap"
-                use_agent_dmaap_https
-            else
-                echo "Using non-secure ports towards dmaap"
-                use_agent_dmaap_http
-            fi
-        else
-            if [ $__httpx == "HTTPS" ]; then
-                #"Using secure ports towards the agent"
-                use_agent_rest_https
-            else
-                #"Using non-secure ports towards the agent"
-                use_agent_rest_http
-            fi
-        fi
-
 
         cr_equal received_callbacks 0
         mr_equal requests_submitted 0
@@ -146,8 +114,6 @@ for __httpx in $TESTED_PROTOCOLS ; do
         api_equal json:policies 0
 
         api_equal json:policy_ids 0
-
-
 
 
         echo "############################################"
@@ -388,7 +354,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         cr_equal received_callbacks 0
 
-        if [ $interface == "DMAAP" ] || [ $interface == "DMAAP+SDNC" ]; then
+        if [[ $interface = *"DMAAP"* ]]; then
             mr_greater requests_submitted 0
             VAL=$(mr_read requests_submitted)
             mr_equal requests_fetched $VAL
@@ -400,7 +366,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
             mr_equal requests_submitted 0
         fi
 
-        if [ $interface == "REST+SDNC" ] || [ $interface == "DMAAP+SDNC" ]; then
+        if [[ $interface = *"SDNC"* ]]; then
             sim_contains_str ricsim_g1_1 remote_hosts "a1-controller"
             sim_contains_str ricsim_g2_1 remote_hosts "a1-controller"
         else
