@@ -28,12 +28,14 @@ import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -70,9 +72,31 @@ public class AsyncRestClient {
     private WebClient webClient = null;
     private final String baseUrl;
     private static final AtomicInteger sequenceNumber = new AtomicInteger();
-    private final WebClientConfig clientConfig;
+    private static WebClientConfig clientConfig = null;
     static KeyStore clientTrustStore = null;
     private boolean sslEnabled = true;
+    private static volatile SslContext SslContextInstance = null;
+
+    public static synchronized SslContext getSslContextInstance() {
+        try{
+            if (SslContextInstance == null) {
+                final KeyManagerFactory keyManager = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                final KeyStore keyStore = KeyStore.getInstance(AsyncRestClient.clientConfig.keyStoreType());
+                final String keyStoreFile = AsyncRestClient.clientConfig.keyStore();
+                final String keyStorePassword = AsyncRestClient.clientConfig.keyStorePassword();
+                final String keyPassword = AsyncRestClient.clientConfig.keyPassword();
+                try (final InputStream inputStream = new FileInputStream(keyStoreFile)) {
+                    keyStore.load(inputStream, keyStorePassword.toCharArray());
+                }
+                keyManager.init(keyStore, keyPassword.toCharArray());
+                SslContextInstance = createSslContext(keyManager);
+            }
+            return SslContextInstance;
+        } catch (Exception e) {
+            logger.error("Could not create SslContext instance {}", e.getMessage());
+            return null;
+        }
+    }
 
     public AsyncRestClient(String baseUrl) {
         this(baseUrl, null);
@@ -81,7 +105,7 @@ public class AsyncRestClient {
 
     public AsyncRestClient(String baseUrl, WebClientConfig config) {
         this.baseUrl = baseUrl;
-        this.clientConfig = config;
+        AsyncRestClient.clientConfig = config;
     }
 
     public Mono<ResponseEntity<String>> postForEntity(String uri, @Nullable String body) {
@@ -211,7 +235,7 @@ public class AsyncRestClient {
         }
     }
 
-    private boolean isCertificateEntry(KeyStore trustStore, String alias) {
+    private static boolean isCertificateEntry(KeyStore trustStore, String alias) {
         try {
             return trustStore.isCertificateEntry(alias);
         } catch (KeyStoreException e) {
@@ -220,7 +244,7 @@ public class AsyncRestClient {
         }
     }
 
-    private Certificate getCertificate(KeyStore trustStore, String alias) {
+    private static Certificate getCertificate(KeyStore trustStore, String alias) {
         try {
             return trustStore.getCertificate(alias);
         } catch (KeyStoreException e) {
@@ -239,7 +263,7 @@ public class AsyncRestClient {
         return clientTrustStore;
     }
 
-    private SslContext createSslContextRejectingUntrustedPeers(String trustStorePath, String trustStorePass,
+    private static SslContext createSslContextRejectingUntrustedPeers(String trustStorePath, String trustStorePass,
         KeyManagerFactory keyManager)
         throws NoSuchAlgorithmException, CertificateException, IOException, KeyStoreException {
 
@@ -256,11 +280,11 @@ public class AsyncRestClient {
             .build();
     }
 
-    private SslContext createSslContext(KeyManagerFactory keyManager)
+    private static SslContext createSslContext(KeyManagerFactory keyManager)
         throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException {
-        if (this.clientConfig.isTrustStoreUsed()) {
-            return createSslContextRejectingUntrustedPeers(this.clientConfig.trustStore(),
-                this.clientConfig.trustStorePassword(), keyManager);
+        if (AsyncRestClient.clientConfig.isTrustStoreUsed()) {
+            return createSslContextRejectingUntrustedPeers(AsyncRestClient.clientConfig.trustStore(),
+                AsyncRestClient.clientConfig.trustStorePassword(), keyManager);
         } else {
             // Trust anyone
             return SslContextBuilder.forClient() //
@@ -306,17 +330,7 @@ public class AsyncRestClient {
         if (this.webClient == null) {
             try {
                 if (this.sslEnabled) {
-                    final KeyManagerFactory keyManager =
-                        KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-                    final KeyStore keyStore = KeyStore.getInstance(this.clientConfig.keyStoreType());
-                    final String keyStoreFile = this.clientConfig.keyStore();
-                    final String keyStorePassword = this.clientConfig.keyStorePassword();
-                    final String keyPassword = this.clientConfig.keyPassword();
-                    try (final InputStream inputStream = new FileInputStream(keyStoreFile)) {
-                        keyStore.load(inputStream, keyStorePassword.toCharArray());
-                    }
-                    keyManager.init(keyStore, keyPassword.toCharArray());
-                    SslContext sslContext = createSslContext(keyManager);
+                    SslContext sslContext = getSslContextInstance();
                     TcpClient tcpClient = createTcpClientSecure(sslContext);
                     this.webClient = createWebClient(this.baseUrl, tcpClient);
                 } else {
