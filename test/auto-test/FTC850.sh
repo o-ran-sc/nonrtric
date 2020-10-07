@@ -20,7 +20,7 @@
 TC_ONELINE_DESCR="Create/delete policies in parallel over a number of ric using a number of child process"
 
 #App names to exclude checking pulling images for, space separated list
-EXCLUDED_IMAGES="SDNC_ONAP"
+EXCLUDED_IMAGES="ECS"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
@@ -51,31 +51,28 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "#####################################################################"
         echo "#####################################################################"
 
-        #Local vars in test script
-        ##########################
-
         if [ $__httpx == "HTTPS" ]; then
-            # Path to callback receiver
             CR_PATH="https://$CR_APP_NAME:$CR_EXTERNAL_SECURE_PORT/callbacks"
             use_cr_https
+            use_simulator_https
+            use_mr_https
+            if [[ $interface = *"SDNC"* ]]; then
+                use_sdnc_https
+            fi
+            use_agent_rest_https
         else
-            # Path to callback receiver
             CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
             use_cr_http
+            use_simulator_http
+            use_mr_http
+            if [[ $interface = *"SDNC"* ]]; then
+                use_sdnc_http
+            fi
+            use_agent_rest_http
         fi
 
         # Clean container and start all needed containers #
         clean_containers
-
-        if [ $__httpx == "HTTPS" ]; then
-            echo "Using secure ports towards simulators and sdnc"
-            use_simulator_https
-            use_sdnc_https
-        else
-            echo "Using non-secure ports towards simulators and sdnc"
-            use_simulator_http
-            use_sdnc_http
-        fi
 
         start_ric_simulators ricsim_g1 $NUM_RICS OSC_2.1.0
 
@@ -97,14 +94,6 @@ for __httpx in $TESTED_PROTOCOLS ; do
         start_policy_agent
 
         set_agent_debug
-
-        if [ $__httpx == "HTTPS" ]; then
-            echo "Using secure ports towards the agent"
-            use_agent_rest_https
-        else
-            echo "Using non-secure ports towards the agent"
-            use_agent_rest_http
-        fi
 
         api_get_status 200
 

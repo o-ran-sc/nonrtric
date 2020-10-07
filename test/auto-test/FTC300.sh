@@ -20,7 +20,7 @@
 TC_ONELINE_DESCR="Resync 10000 policies using OSC interface over REST"
 
 #App names to exclude checking pulling images for, space separated list
-EXCLUDED_IMAGES="SDNC_ONAP"
+EXCLUDED_IMAGES="ECS"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
@@ -43,33 +43,36 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "#####################################################################"
         echo "#####################################################################"
 
-        #Local vars in test script
-        ##########################
-
         if [ $__httpx == "HTTPS" ]; then
-            # Path to callback receiver
             CR_PATH="https://$CR_APP_NAME:$CR_EXTERNAL_SECURE_PORT/callbacks"
             use_cr_https
+            use_simulator_https
+            use_mr_https
+            if [[ $interface = *"SDNC"* ]]; then
+                use_sdnc_https
+            fi
+            if [[ $interface = *"DMAAP"* ]]; then
+                use_agent_dmaap_https
+            else
+                use_agent_rest_https
+            fi
         else
-            # Path to callback receiver
             CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
             use_cr_http
+            use_simulator_http
+            use_mr_http
+            if [[ $interface = *"SDNC"* ]]; then
+                use_sdnc_http
+            fi
+            if [[ $interface = *"DMAAP"* ]]; then
+                use_agent_dmaap_http
+            else
+                use_agent_rest_http
+            fi
         fi
 
         # Clean container and start all needed containers #
         clean_containers
-
-        if [ $__httpx == "HTTPS" ]; then
-            #echo "Using secure ports between agent and MR"
-            use_mr_https
-            echo "Using secure ports towards simulators"
-            use_simulator_https
-        else
-            #"Using non-secure ports between agent and MR"
-            use_mr_http
-            echo "Using non-secure ports towards simulators"
-            use_simulator_http
-        fi
 
         start_ric_simulators ricsim_g1 4 OSC_2.1.0
 
@@ -83,14 +86,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         if [[ $interface = *"SDNC"* ]]; then
             start_sdnc
-            if [ $__httpx == "HTTPS" ]; then
-                # "Using secure ports towards SDNC"
-                use_sdnc_https
-            else
-                #"Using non-secure ports towards SDNC"
-                use_sdnc_http
-            fi
-            prepare_consul_config      SDNC  ".consul_config.json"
+            prepare_consul_config      SDNC    ".consul_config.json"
         else
             prepare_consul_config      NOSDNC  ".consul_config.json"
         fi
@@ -102,24 +98,6 @@ for __httpx in $TESTED_PROTOCOLS ; do
         start_policy_agent
 
         set_agent_debug
-
-        if [[ $interface == *"DMAAP"* ]]; then
-            if [ $__httpx == "HTTPS" ]; then
-                echo "Using secure ports towards dmaap"
-                use_agent_dmaap_https
-            else
-                echo "Using non-secure ports towards dmaap"
-                use_agent_dmaap_http
-            fi
-        else
-            if [ $__httpx == "HTTPS" ]; then
-                echo "Using secure ports towards the agent"
-                use_agent_rest_https
-            else
-                echo "Using non-secure ports towards the agent"
-                use_agent_rest_http
-            fi
-        fi
 
         api_get_status 200
 

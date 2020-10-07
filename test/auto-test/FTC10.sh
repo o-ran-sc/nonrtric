@@ -20,7 +20,7 @@
 TC_ONELINE_DESCR="Basic use case, register service, create/update policy, delete policy, de-register service using both STD and OSC interface while mixing REST and Dmaap"
 
 #App names to exclude checking pulling images for, space separated list
-EXCLUDED_IMAGES="SDNC SDNC_ONAP"
+EXCLUDED_IMAGES="SDNC ECS"
 
 . ../common/testcase_common.sh $@
 . ../common/agent_api_functions.sh
@@ -34,7 +34,12 @@ generate_uuid
 ##########################
 # Path to callback receiver
 CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
+
 use_cr_http
+use_simulator_http
+use_mr_http
+use_agent_rest_http
+
 
 clean_containers
 

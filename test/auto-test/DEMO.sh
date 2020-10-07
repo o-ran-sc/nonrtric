@@ -17,10 +17,10 @@
 #  ============LICENSE_END=================================================
 #
 
-TC_ONELINE_DESCR="Preparation for test of the Control Panel and the Health Check app - populating a number of ric simulators with types and instances"
+TC_ONELINE_DESCR="Preparation demo setup  - populating a number of ric simulators with types and instances"
 
 #App names to exclude checking pulling images for, space separated list
-EXCLUDED_IMAGES="SDNC ECS"
+EXCLUDED_IMAGES="ECS"
 
 . ../common/testcase_common.sh $@
 . ../common/agent_api_functions.sh
@@ -33,6 +33,9 @@ EXCLUDED_IMAGES="SDNC ECS"
 # Path to callback receiver
 CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
 use_cr_http
+use_agent_rest_http
+use_sdnc_http
+use_simulator_http
 
 clean_containers
 
@@ -47,14 +50,17 @@ start_mr #Just to prevent errors in the agent log...
 
 start_control_panel
 
+CR_PATH="https://$CR_APP_NAME:$CR_EXTERNAL_SECURE_PORT/callbacks"
+use_cr_http
+
+start_sdnc
+
 start_consul_cbs
 
-prepare_consul_config      NOSDNC  ".consul_config.json"
+prepare_consul_config      SDNC  ".consul_config.json"
 consul_config_app                  ".consul_config.json"
 
 start_policy_agent
-
-use_agent_rest_http
 
 api_get_status 200
 
@@ -75,26 +81,24 @@ done
 # Load the polictypes in osc
 for ((i=1; i<=$OSC_NUM_RICS; i++))
 do
-    sim_put_policy_type 201 $RIC_SIM_PREFIX"_g1_"$i 2 testdata/OSC/sim_hw.json
-    sim_put_policy_type 201 $RIC_SIM_PREFIX"_g1_"$i 100 testdata/OSC/sim_qos.json
-    sim_put_policy_type 201 $RIC_SIM_PREFIX"_g1_"$i 20008 testdata/OSC/sim_tsa.json
+    sim_put_policy_type 201 $RIC_SIM_PREFIX"_g1_"$i 100 demo-testdata/OSC/sim_qos.json
+    sim_put_policy_type 201 $RIC_SIM_PREFIX"_g1_"$i 20008 demo-testdata/OSC/sim_tsa.json
 done
 
 
 #Check the number of schemas and the individual schemas in OSC
-api_equal json:policy_types 4 120
+api_equal json:policy_types 3 120
 
 for ((i=1; i<=$OSC_NUM_RICS; i++))
 do
-    api_equal json:policy_types?ric=$RIC_SIM_PREFIX"_g1_"$i 3 120
+    api_equal json:policy_types?ric=$RIC_SIM_PREFIX"_g1_"$i 2 120
 done
 
 # Check the schemas in OSC
 for ((i=1; i<=$OSC_NUM_RICS; i++))
 do
-    api_get_policy_schema 200 2 testdata/OSC/hw-agent-modified.json
-    api_get_policy_schema 200 100 testdata/OSC/qos-agent-modified.json
-    api_get_policy_schema 200 20008 testdata/OSC/tsa-agent-modified.json
+    api_get_policy_schema 200 100 demo-testdata/OSC/qos-agent-modified.json
+    api_get_policy_schema 200 20008 demo-testdata/OSC/tsa-agent-modified.json
 done
 
 
@@ -107,18 +111,16 @@ api_put_service 201 "Emergency-response-app" 0 "$CR_PATH/1"
 for ((i=1; i<=$OSC_NUM_RICS; i++))
 do
     generate_uuid
-    api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g1_"$i 2 $((2000+$i)) NOTRANSIENT testdata/OSC/pihw_template.json 1
+    api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g1_"$i 100 $((3000+$i)) NOTRANSIENT demo-testdata/OSC/piqos_template.json 1
     generate_uuid
-    api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g1_"$i 100 $((3000+$i)) NOTRANSIENT testdata/OSC/piqos_template.json 1
-    generate_uuid
-    api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g1_"$i 20008 $((4000+$i)) NOTRANSIENT testdata/OSC/pitsa_template.json 1
+    api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g1_"$i 20008 $((4000+$i)) NOTRANSIENT demo-testdata/OSC/pitsa_template.json 1
 done
 
 
 # Check the number of policies in OSC
 for ((i=1; i<=$OSC_NUM_RICS; i++))
 do
-    sim_equal $RIC_SIM_PREFIX"_g1_"$i num_instances 3
+    sim_equal $RIC_SIM_PREFIX"_g1_"$i num_instances 2
 done
 
 
@@ -126,7 +128,7 @@ done
 for ((i=1; i<=$STD_NUM_RICS; i++))
 do
     generate_uuid
-    api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g2_"$i NOTYPE $((2100+$i)) NOTRANSIENT testdata/STD/pi1_template.json 1
+    api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g2_"$i NOTYPE $((2100+$i)) NOTRANSIENT demo-testdata/STD/pi1_template.json 1
 done
 
 

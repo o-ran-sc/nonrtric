@@ -21,7 +21,7 @@
 TC_ONELINE_DESCR="Testing of service registration timeouts and keepalive"
 
 #App names to exclude checking pulling images for, space separated list
-EXCLUDED_IMAGES="SDMC SDNC_ONAP"
+EXCLUDED_IMAGES="SDNC ECS"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
@@ -33,7 +33,11 @@ generate_uuid
 ##########################
 # Path to callback receiver
 CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
+
 use_cr_http
+use_simulator_http
+use_mr_http
+use_agent_rest_http
 
 
 #### TEST BEGIN ####
@@ -56,8 +60,6 @@ start_control_panel
 start_policy_agent
 
 set_agent_debug
-
-use_agent_rest_http
 
 #Verify no callbacks or dmaap messages has been sent
 cr_equal received_callbacks 0
@@ -187,7 +189,7 @@ sim_equal ricsim_g1_1 num_instances 0
 api_get_service_ids 200
 
 deviation "TR18 Agents sends callback with empty body"
-cr_equal received_callbacks 0
+cr_equal received_callbacks 4
 mr_equal requests_submitted 0
 
 check_policy_agent_logs

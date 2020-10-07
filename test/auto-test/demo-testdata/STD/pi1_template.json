@@ -1,0 +1,9 @@
+{
+  "scope": {
+    "ueId": "ueXXX",
+    "qosId": "qosXXX"
+  },
+  "qosObjectives": {
+    "priorityLevel": XXX
+  }
+}

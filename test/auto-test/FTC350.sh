@@ -20,7 +20,7 @@
 TC_ONELINE_DESCR="Change supported policy types and reconfigure rics"
 
 #App names to exclude checking pulling images for, space separated list
-EXCLUDED_IMAGES="SDNC_ONAP"
+EXCLUDED_IMAGES="ECS"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
@@ -78,7 +78,6 @@ for interface in $TESTED_VARIANTS ; do
     start_ric_simulators ricsim_g1 $NUM_RICS OSC_2.1.0
 
     if [[ $interface = *"SDNC"* ]]; then
-        start_sdnc
         prepare_consul_config      SDNC  ".consul_config_all.json"
     else
         prepare_consul_config      NOSDNC  ".consul_config_all.json"
@@ -226,13 +225,13 @@ for interface in $TESTED_VARIANTS ; do
                              ricsim_g1_7:me1_ricsim_g1_7,me2_ricsim_g1_7:3,4,5:???? \
                              ricsim_g1_8:me1_ricsim_g1_8,me2_ricsim_g1_8:4,5:???? "
 
-    sleep 120
+    sleep_wait 120
 
     api_equal json:policy_ids 0
 
     api_get_policy_types 404 ricsim_g1_9
 
-    sim_equal ricsim_g1_9 num_instances 1
+    sim_equal ricsim_g1_9 num_instances 0
 
     api_delete_policy 404 2000
 
@@ -264,7 +263,7 @@ for interface in $TESTED_VARIANTS ; do
                              ricsim_g1_9:me1_ricsim_g1_9,me2_ricsim_g1_9:5:???? \
                              ricsim_g1_10:me1_ricsim_g1_10,me2_ricsim_g1_10:NOTYPE:???? "
 
-    sleep 120
+    sleep_wait 120
 
     api_equal json:policy_ids 0
 
@@ -276,7 +275,7 @@ for interface in $TESTED_VARIANTS ; do
     sim_delete_policy_type 204 ricsim_g1_6 4
     sim_delete_policy_type 204 ricsim_g1_7 4
 
-    sleep 120
+    sleep_wait 120
 
     api_equal json:policy_types?ric=ricsim_g1_1 1 120
     api_equal json:policy_types?ric=ricsim_g1_2 2 120
@@ -319,6 +318,7 @@ for interface in $TESTED_VARIANTS ; do
 
     check_policy_agent_logs
     store_logs          ${interface}
+
 done
 
 

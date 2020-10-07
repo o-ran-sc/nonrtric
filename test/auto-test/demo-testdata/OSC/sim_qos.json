@@ -1,0 +1,45 @@
+{
+  "name": "pt1",
+  "description": "pt1 policy type",
+  "policy_type_id": 100,
+  "create_schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "OSC_Type1_1.0.0",
+    "description": "Quality of Service policy type",
+    "type": "object",
+    "properties": {
+      "scope": {
+        "type": "object",
+        "properties": {
+          "ueId": {
+            "type": "string"
+          },
+          "qosId": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "ueId",
+          "qosId"
+        ]
+      },
+      "qosObjectives": {
+        "type": "object",
+        "properties": {
+          "priorityLevel": {
+            "type": "number"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "priorityLevel"
+        ]
+      }
+    },
+    "additionalProperties": false,
+    "required": [
+      "scope", "qosObjectives"
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+{
+    "scope": {
+      "ueId": "0x349d230330ea60XXX",
+      "qosId": "4"
+    },
+    "qosObjectives": {
+      "priorityLevel": 30
+    }
+  }

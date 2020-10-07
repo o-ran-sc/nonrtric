@@ -29,13 +29,8 @@ if [ $# -gt 0 ]; then
 		paramError=0
 	fi
 fi
-if [ $# -eq 2 ]; then
-    if [ $2 == "auto-clean" ]; then
-		paramError=0
-    fi
-fi
 if [ $paramError -ne 0 ]; then
-	echo "Expected arg: local|remote|remote-remove [ auto-clean ]"
+	echo "Expected arg: local|remote|remote-remove"
 	exit 1
 fi
 

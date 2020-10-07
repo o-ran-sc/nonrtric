@@ -30,6 +30,12 @@ POLICY_AGENT_LOCAL_IMAGE_TAG="2.1.0-SNAPSHOT"
 POLICY_AGENT_REMOTE_IMAGE="nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-policy-agent"
 POLICY_AGENT_REMOTE_IMAGE_TAG="2.1.0"
 
+# Local ECS image and tag
+ECS_LOCAL_IMAGE="o-ran-sc/nonrtric-enrichment-coordinator-service"
+ECS_LOCAL_IMAGE_TAG="1.0.0-SNAPSHOT"
+# Remote ECS image and tag
+ECS_REMOTE_IMAGE="nexus3.o-ran-sc.org:10003/o-ran-sc/nonrtric-enrichment-coordinator-service"
+ECS_REMOTE_IMAGE_TAG="1.0.0-SNAPSHOT"
 
 # Control Panel local image and tag
 CONTROL_PANEL_LOCAL_IMAGE="o-ran-sc/nonrtric-controlpanel"
@@ -53,17 +59,6 @@ SDNC_DB_REMOTE_IMAGE_TAG="5.6"
 #No local image for DB, remote image always used
 
 
-# SDNC ONAP A1 Adapte remote image and tag
-SDNC_ONAP_A1_ADAPTER_REMOTE_IMAGE="nexus3.onap.org:10003/onap/sdnc-image"
-SDNC_ONAP_A1_ADAPTER_REMOTE_IMAGE_TAG="1.8-STAGING-latest"
-#No local image for the A1 adapter, remote image always used
-
-#ONAP A1 Adatper remote image and tag
-SDNC_ONAP_DB_REMOTE_IMAGE="mysql/mysql-server"
-SDNC_ONAP_DB_REMOTE_IMAGE_TAG="5.6"
-#No local image for DB, remote image always used
-
-
 # Near RT RIC Simulator local image and tag
 RIC_SIM_LOCAL_IMAGE="nexus3.o-ran-sc.org:10004/o-ran-sc/a1-simulator"
 RIC_SIM_LOCAL_IMAGE_TAG="latest"
@@ -80,7 +75,6 @@ CONSUL_REMOTE_IMAGE_TAG="1.7.2"
 
 #CBS remote image and tag
 CBS_REMOTE_IMAGE="nexus3.onap.org:10001/onap/org.onap.dcaegen2.platform.configbinding.app-app"
-CBS_REMOTE_IMAGE="onap/org.onap.dcaegen2.platform.configbinding.app-app"
 CBS_REMOTE_IMAGE_TAG="2.3.0"
 #No local image for CBS, remote image always used
 
@@ -106,6 +100,15 @@ export POLICY_AGENT_INTERNAL_SECURE_PORT=8433                   # Policy Agent c
 export POLICY_AGENT_APP_NAME="policy-agent"                     # Name for Policy Agent container
 POLICY_AGENT_LOGPATH="/var/log/policy-agent/application.log"    # Path the application log in the Policy Agent container
 export POLICY_AGENT_APP_NAME_ALIAS="policy-agent-container"     # Alias name, name used by the control panel
+
+export ECS_EXTERNAL_PORT=8082                                   # ECS container external port (host -> container)
+export ECS_INTERNAL_PORT=8082                                   # ECS container internal port (container -> container)
+export ECS_EXTERNAL_SECURE_PORT=8434                            # ECS container external secure port (host -> container)
+export ECS_INTERNAL_SECURE_PORT=8434                            # ECS container internal secure port (container -> container)
+
+export ECS_APP_NAME="ecs"                                       # Name for ECS container
+ECS_LOGPATH="/var/log/ecs/application.log"                      # Path the application log in the ECS container
+export ECS_APP_NAME_ALIAS="ecs-container"                       # Alias name, name used by the control panel
 
 export MR_EXTERNAL_PORT=3905                                    # MR stub container external port (host -> container)
 export MR_INTERNAL_PORT=3905                                    # MR stub container internal port (container -> container)
@@ -153,30 +156,23 @@ SDNC_API_URL="/restconf/operations/A1-ADAPTER-API:"             # Base url path 
 SDNC_ALIVE_URL="/apidoc/explorer/"                              # Base url path for SNDC API docs (for alive check)
 SDNC_KARAF_LOG="/opt/opendaylight/data/log/karaf.log"           # Path to karaf log
 
-export SDNC_ONAP_APP_NAME="a1-adapter"                          # Name of the ONAP A1 Adapter container
-export SDNC_ONAP_EXTERNAL_PORT=8282                             # ONAP A1 Adapter container external port (host -> container)
-export SDNC_ONAP_INTERNAL_PORT=8181                             # ONAP A1 Adapter container internal port (container -> container)
-export SDNC_ONAP_EXTERNAL_SECURE_PORT=8443                      # SNDC A1 Adapter container external securee port (host -> container)
-export SDNC_ONAP_INTERNAL_SECURE_PORT=8343                      # SNDC A1 Adapter container internal secure port (container -> container)
-export SDNC_ONAP_DB_APP_NAME="sdnc-onap-db"                     # Name of the ONAP A1 Adapter DB container
-SDNC_ONAP_USER="admin"                                          # ONAP A1 Adapter username
-SDNC_ONAP_PWD="Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U"     # ONAP A1 Adapter PWD
-SDNC_ONAP_API_URL="/restconf/operations/A1-ADAPTER-API:"        # Base url path for ONAP A1 Adapter API
-SDNC_ONAP_ALIVE_URL="/apidoc/explorer/"                         # Base url path for ONAP A1 Adapter API docs (for alive check)
-SDNC_ONAP_PROPERTIES_FILE="/opt/onap/ccsdk/data/properties/a1-adapter-api-dg.properties"
-SDNC_ONAP_KARAF_LOG="/opt/opendaylight/data/log/karaf.log"      # Path to karaf log
-
 export CONTROL_PANEL_APP_NAME="control-panel"                   # Name of the Control Panel container
 export CONTROL_PANEL_EXTERNAL_PORT=8080                         # Control Panel container external port (host -> container)
 export CONTROL_PANEL_INTERNAL_PORT=8080                         # Control Panel container external port (host -> container)
 CONTROL_PANEL_LOGPATH="/logs/nonrtric-controlpanel.log"         # Path the application log in the Control Panel container
 
 UUID=""                                                         # UUID used as prefix to the policy id to simulate a real UUID
-                                                                # Testscript need to set the UUID to use other this empty prefix is used
+                                                                # Testscript need to set the UUID otherwise this empty prefix is used
 
 RESTBASE="http://localhost:"$POLICY_AGENT_EXTERNAL_PORT         # Base url to the Agent NB REST interface
 RESTBASE_SECURE="https://localhost:"$POLICY_AGENT_EXTERNAL_SECURE_PORT # Base url to the secure Agent NB REST interface
 DMAAPBASE="http://localhost:"$MR_EXTERNAL_PORT                  # Base url to the Dmaap adapter, http
 DMAAPBASE_SECURE="https://localhost:"$MR_EXTERNAL_SECURE_PORT   # Base url to the Dmaap adapter, https
 ADAPTER=$RESTBASE                                               # Adapter holds the address the agent R-APP interface (REST OR DMAAP)
-                                                                # The values of this var is swiched between the two base url when needed
+                                                                # The values of this var is swiched between the four base url when needed
+ECS_RESTBASE="http://localhost:"$ECS_EXTERNAL_PORT              # Base url to the ECS NB REST interface
+ECS_RESTBASE_SECURE="https://localhost:"$ECS_EXTERNAL_SECURE_PORT # Base url to the secure ECS NB REST interface
+ECS_DMAAPBASE="http://localhost:"$MR_EXTERNAL_PORT              # Base url to the Dmaap adapter, http
+ECS_DMAAPBASE_SECURE="https://localhost:"$MR_EXTERNAL_SECURE_PORT   # Base url to the Dmaap adapter, https
+ECS_ADAPTER=$ECS_RESTBASE                                       # Adapter holds the address the ECS R-APP interface (REST OR DMAAP)
+                                                                # The values of this var is swiched between the four base url when needed
