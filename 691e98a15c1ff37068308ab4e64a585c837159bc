@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b5395944_6aed7912",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/AsyncRestClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-10-08T09:55:05Z",
+      "side": 1,
+      "message": "I think getSslContextInstance is a better name.",
+      "range": {
+        "startLine": 80,
+        "startChar": 42,
+        "endLine": 80,
+        "endChar": 53
+      },
+      "revId": "691e98a15c1ff37068308ab4e64a585c837159bc",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8c6e85cd_2e81be80",
+        "filename": "policy-agent/src/main/java/org/oransc/policyagent/clients/AsyncRestClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-10-08T09:55:05Z",
+      "side": 1,
+      "message": "It can be like this for now. But this implementation destroys this class so that if you create one AsyncRestClient with configuration1 and another AsyncRestClient instance with configuration2, the second instance will use configuration1 anyway. That is not what one would expect.",
+      "range": {
+        "startLine": 106,
+        "startChar": 43,
+        "endLine": 106,
+        "endChar": 65
+      },
+      "revId": "691e98a15c1ff37068308ab4e64a585c837159bc",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
