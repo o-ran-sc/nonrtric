@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8cb581b2_9f0729a6",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/clients/AsyncRestClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-10-09T13:32:19Z",
+      "side": 1,
+      "message": "the same here.",
+      "revId": "fe55c26b2d704cd81462a17056cbb3186ebf27b4",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c7e3e95_42161e7c",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/clients/AsyncRestClientFactory.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000128
+      },
+      "writtenOn": "2020-10-09T13:32:19Z",
+      "side": 1,
+      "message": "Please fix the license to OSC, not ONAP.",
+      "revId": "fe55c26b2d704cd81462a17056cbb3186ebf27b4",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
