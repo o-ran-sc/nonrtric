@@ -1,9 +1,9 @@
 /*-
  * ========================LICENSE_START=================================
- * O-RAN-SC
- * %%
- * Copyright (C) 2019 Nordix Foundation
- * %%
+ * ONAP : ccsdk oran
+ * ======================================================================
+ * Copyright (C) 2020 Nordix Foundation. All rights reserved.
+ * ======================================================================
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -22,36 +22,18 @@ package org.oransc.enrichment.clients;
 
 import io.netty.channel.ChannelOption;
 import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.invoke.MethodHandles;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
-import javax.net.ssl.KeyManagerFactory;
-
-import org.oransc.enrichment.configuration.WebClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.lang.Nullable;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec;
@@ -66,22 +48,25 @@ import reactor.netty.tcp.TcpClient;
  * Generic reactive REST client.
  */
 public class AsyncRestClient {
+
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private WebClient webClient = null;
     private final String baseUrl;
     private static final AtomicInteger sequenceNumber = new AtomicInteger();
-    private final WebClientConfig clientConfig;
-    static KeyStore clientTrustStore = null;
-    private boolean sslEnabled = true;
+    private final SslContext sslContext;
 
+    /**
+     * Note that only http (not https) will work when this constructor is used.
+     * 
+     * @param baseUrl
+     */
     public AsyncRestClient(String baseUrl) {
         this(baseUrl, null);
-        this.sslEnabled = false;
     }
 
-    public AsyncRestClient(String baseUrl, WebClientConfig config) {
+    public AsyncRestClient(String baseUrl, SslContext sslContext) {
         this.baseUrl = baseUrl;
-        this.clientConfig = config;
+        this.sslContext = sslContext;
     }
 
     public Mono<ResponseEntity<String>> postForEntity(String uri, @Nullable String body) {
@@ -185,8 +170,12 @@ public class AsyncRestClient {
         final Class<String> clazz = String.class;
         return request.retrieve() //
             .toEntity(clazz) //
-            .doOnNext(entity -> logger.trace("{} Received: {}", traceTag, entity.getBody())) //
+            .doOnNext(entity -> logReceivedData(traceTag, entity)) //
             .doOnError(throwable -> onHttpError(traceTag, throwable));
+    }
+
+    private void logReceivedData(Object traceTag, ResponseEntity<String> entity) {
+        logger.trace("{} Received: {} {}", traceTag, entity.getBody(), entity.getHeaders().getContentType());
     }
 
     private static Object createTraceTag() {
@@ -208,65 +197,6 @@ public class AsyncRestClient {
             return Mono.just("");
         } else {
             return Mono.just(entity.getBody());
-        }
-    }
-
-    private boolean isCertificateEntry(KeyStore trustStore, String alias) {
-        try {
-            return trustStore.isCertificateEntry(alias);
-        } catch (KeyStoreException e) {
-            logger.error("Error reading truststore {}", e.getMessage());
-            return false;
-        }
-    }
-
-    private Certificate getCertificate(KeyStore trustStore, String alias) {
-        try {
-            return trustStore.getCertificate(alias);
-        } catch (KeyStoreException e) {
-            logger.error("Error reading truststore {}", e.getMessage());
-            return null;
-        }
-    }
-
-    private static synchronized KeyStore getTrustStore(String trustStorePath, String trustStorePass)
-        throws NoSuchAlgorithmException, CertificateException, IOException, KeyStoreException {
-        if (clientTrustStore == null) {
-            KeyStore store = KeyStore.getInstance(KeyStore.getDefaultType());
-            store.load(new FileInputStream(ResourceUtils.getFile(trustStorePath)), trustStorePass.toCharArray());
-            clientTrustStore = store;
-        }
-        return clientTrustStore;
-    }
-
-    private SslContext createSslContextRejectingUntrustedPeers(String trustStorePath, String trustStorePass,
-        KeyManagerFactory keyManager)
-        throws NoSuchAlgorithmException, CertificateException, IOException, KeyStoreException {
-
-        final KeyStore trustStore = getTrustStore(trustStorePath, trustStorePass);
-        List<Certificate> certificateList = Collections.list(trustStore.aliases()).stream() //
-            .filter(alias -> isCertificateEntry(trustStore, alias)) //
-            .map(alias -> getCertificate(trustStore, alias)) //
-            .collect(Collectors.toList());
-        final X509Certificate[] certificates = certificateList.toArray(new X509Certificate[certificateList.size()]);
-
-        return SslContextBuilder.forClient() //
-            .keyManager(keyManager) //
-            .trustManager(certificates) //
-            .build();
-    }
-
-    private SslContext createSslContext(KeyManagerFactory keyManager)
-        throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException {
-        if (this.clientConfig.isTrustStoreUsed()) {
-            return createSslContextRejectingUntrustedPeers(this.clientConfig.trustStore(),
-                this.clientConfig.trustStorePassword(), keyManager);
-        } else {
-            // Trust anyone
-            return SslContextBuilder.forClient() //
-                .keyManager(keyManager) //
-                .trustManager(InsecureTrustManagerFactory.INSTANCE) //
-                .build();
         }
     }
 
@@ -305,18 +235,7 @@ public class AsyncRestClient {
     private Mono<WebClient> getWebClient() {
         if (this.webClient == null) {
             try {
-                if (this.sslEnabled) {
-                    final KeyManagerFactory keyManager =
-                        KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-                    final KeyStore keyStore = KeyStore.getInstance(this.clientConfig.keyStoreType());
-                    final String keyStoreFile = this.clientConfig.keyStore();
-                    final String keyStorePassword = this.clientConfig.keyStorePassword();
-                    final String keyPassword = this.clientConfig.keyPassword();
-                    try (final InputStream inputStream = new FileInputStream(keyStoreFile)) {
-                        keyStore.load(inputStream, keyStorePassword.toCharArray());
-                    }
-                    keyManager.init(keyStore, keyPassword.toCharArray());
-                    SslContext sslContext = createSslContext(keyManager);
+                if (this.sslContext != null) {
                     TcpClient tcpClient = createTcpClientSecure(sslContext);
                     this.webClient = createWebClient(this.baseUrl, tcpClient);
                 } else {
