@@ -1,9 +1,9 @@
 /*-
  * ========================LICENSE_START=================================
- * ONAP : ccsdk oran
- * ======================================================================
- * Copyright (C) 2020 Nordix Foundation. All rights reserved.
- * ======================================================================
+ * O-RAN-SC
+ * %%
+ * Copyright (C) 2020 Nordix Foundation
+ * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,6 +21,7 @@
 package org.oransc.enrichment.tasks;
 
 import org.oransc.enrichment.clients.AsyncRestClient;
+import org.oransc.enrichment.clients.AsyncRestClientFactory;
 import org.oransc.enrichment.configuration.ApplicationConfig;
 import org.oransc.enrichment.repository.EiJobs;
 import org.oransc.enrichment.repository.EiProducer;
@@ -45,17 +46,20 @@ import reactor.core.publisher.Mono;
 public class ProducerSupervision {
     private static final Logger logger = LoggerFactory.getLogger(ProducerSupervision.class);
 
-    @Autowired
-    ApplicationConfig applicationConfig;
+    private final EiProducers eiProducers;
+    private final EiJobs eiJobs;
+    private final EiTypes eiTypes;
+    private final AsyncRestClient restClient;
 
     @Autowired
-    EiProducers eiProducers;
-
-    @Autowired
-    EiJobs eiJobs;
-
-    @Autowired
-    EiTypes eiTypes;
+    public ProducerSupervision(ApplicationConfig applicationConfig, EiProducers eiProducers, EiJobs eiJobs,
+        EiTypes eiTypes) {
+        AsyncRestClientFactory restClientFactory = new AsyncRestClientFactory(applicationConfig.getWebClientConfig());
+        this.restClient = restClientFactory.createRestClient("");
+        this.eiJobs = eiJobs;
+        this.eiProducers = eiProducers;
+        this.eiTypes = eiTypes;
+    }
 
     @Scheduled(fixedRate = 1000 * 60 * 5)
     public void checkAllProducers() {
@@ -69,7 +73,7 @@ public class ProducerSupervision {
     }
 
     private Mono<EiProducer> checkOneProducer(EiProducer producer) {
-        return restClient().get(producer.getProducerSupervisionCallbackUrl()) //
+        return restClient.get(producer.getProducerSupervisionCallbackUrl()) //
             .onErrorResume(throwable -> {
                 handleNonRespondingProducer(throwable, producer);
                 return Mono.empty();
@@ -89,10 +93,6 @@ public class ProducerSupervision {
     private void handleRespondingProducer(String response, EiProducer producer) {
         logger.debug("{}", response);
         producer.setAliveStatus(true);
-    }
-
-    private AsyncRestClient restClient() {
-        return new AsyncRestClient("", this.applicationConfig.getWebClientConfig());
     }
 
 }
