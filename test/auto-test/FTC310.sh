@@ -20,8 +20,8 @@
 
 TC_ONELINE_DESCR="Resync of RIC via changes in the consul config"
 
-#App names to exclude checking pulling images for, space separated list
-EXCLUDED_IMAGES="ECS"
+#App names to include in the test, space separated list
+INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh

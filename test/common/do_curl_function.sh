@@ -88,8 +88,8 @@ do_curl() {
             count=${RESULT:16:${#RESULT}}
             #Find dir of the common dir
             DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-            echo $body > .tmp.json
-            res=$(python ${DIR}/count_json_elements.py .tmp.json)
+            echo $body > ./tmp/.tmp.json
+            res=$(python ${DIR}/count_json_elements.py ./tmp/.tmp.json)
             if [ $res -eq $count ]; then
                 echo "  Body (array size) as expected"
             else

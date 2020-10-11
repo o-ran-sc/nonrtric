@@ -20,8 +20,8 @@
 
 TC_ONELINE_DESCR="Sample tests of the SDNC A1 controller restconf API using http/https (no agent)"
 
-#App names to exclude checking pulling images for, space separated list
-EXCLUDED_IMAGES="PA CP ECS"
+#App names to include in the test, space separated list
+INCLUDED_IMAGES="RICSIM SDNC"
 
 . ../common/testcase_common.sh  $@
 . ../common/controller_api_functions.sh
@@ -99,6 +99,8 @@ for __nb_httpx in $NB_TESTED_PROTOCOLS ; do
 
         controller_api_delete_A1_policy 202 OSC ricsim_g1_1 1 4000
         controller_api_delete_A1_policy 204 STD ricsim_g2_1 5000
+
+        check_sdnc_logs
 
         store_logs          "NB_"$__nb_httpx"_SB_"$__sb_httpx
 

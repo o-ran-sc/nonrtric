@@ -89,6 +89,11 @@ CR_LOCAL_IMAGE="callback-receiver"
 CR_LOCAL_IMAGE_TAG="latest"
 #No remote image for CR, local image always used
 
+#Producer stub image and tag
+PROD_STUB_LOCAL_IMAGE="producer-stub"
+PROD_STUB_LOCAL_IMAGE_TAG="latest"
+#No remote image for producer stub, local image always used
+
 # Common env var for auto-test. Vars used by docker-compose need to be exported
 export DOCKER_SIM_NWNAME="nonrtric-docker-net"                  # Name of docker private network
 
@@ -107,8 +112,8 @@ export ECS_EXTERNAL_SECURE_PORT=8434                            # ECS container 
 export ECS_INTERNAL_SECURE_PORT=8434                            # ECS container internal secure port (container -> container)
 
 export ECS_APP_NAME="ecs"                                       # Name for ECS container
-ECS_LOGPATH="/var/log/ecs/application.log"                      # Path the application log in the ECS container
-export ECS_APP_NAME_ALIAS="ecs-container"                       # Alias name, name used by the control panel
+ECS_LOGPATH="/var/log/enrichment-coordinator-service/application.log" # Path the application log in the ECS container
+export ECS_APP_NAME_ALIAS="enrichment-service-container"        # Alias name, name used by the control panel
 
 export MR_EXTERNAL_PORT=3905                                    # MR stub container external port (host -> container)
 export MR_INTERNAL_PORT=3905                                    # MR stub container internal port (container -> container)
@@ -123,6 +128,12 @@ export CR_INTERNAL_PORT=8090                                    # Callback recei
 export CR_EXTERNAL_SECURE_PORT=8091                             # Callback receiver container external secure port (host -> container)
 export CR_INTERNAL_SECURE_PORT=8091                             # Callback receiver container internal secure port (container -> container)
 export CR_APP_NAME="callback-receiver"                          # Name for the Callback receiver
+
+export PROD_STUB_EXTERNAL_PORT=8092                             # Producer stub container external port (host -> container)
+export PROD_STUB_INTERNAL_PORT=8092                             # Producer stub container internal port (container -> container)
+export PROD_STUB_EXTERNAL_SECURE_PORT=8093                      # Producer stub container external secure port (host -> container)
+export PROD_STUB_INTERNAL_SECURE_PORT=8093                      # Producer stub container internal secure port (container -> container)
+export PROD_STUB_APP_NAME="producer-stub"                       # Name for the Producer stub
 
 export CONSUL_HOST="consul-server"                              # Host name of consul
 export CONSUL_EXTERNAL_PORT=8500                                # Consul container external port (host -> container)

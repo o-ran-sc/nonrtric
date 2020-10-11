@@ -41,9 +41,10 @@ __do_curl_to_controller() {
         body=$(echo "$3" | sed 's/"/\\"/g')
         json='{"input":{"near-rt-ric-url":"'$2'","body":"'"$body"'"}}'
     fi
-    echo "$json" > .sdnc.payload.json
-    echo "  FILE: $json"  >> $HTTPLOG
-    curlString="curl -skw %{http_code} -X POST $SDNC_HTTPX://$SDNC_USER:$SDNC_PWD@localhost:$SDNC_LOCAL_PORT$SDNC_API_URL$1 -H accept:application/json -H Content-Type:application/json --data-binary @.sdnc.payload.json"
+	payload="./tmp/.sdnc.payload.json"
+    echo "$json" > $payload
+    echo "  FILE ($payload) : $json"  >> $HTTPLOG
+    curlString="curl -skw %{http_code} -X POST $SDNC_HTTPX://$SDNC_USER:$SDNC_PWD@localhost:$SDNC_LOCAL_PORT$SDNC_API_URL$1 -H accept:application/json -H Content-Type:application/json --data-binary @$payload"
     echo "  CMD: "$curlString >> $HTTPLOG
     res=$($curlString)
     retcode=$?
@@ -62,8 +63,9 @@ __do_curl_to_controller() {
     fi
     body=${res:0:${#res}-3}
 	echo "  JSON: "$body >> $HTTPLOG
-    echo "$body" > .sdnc-reply.json
-    res=$(python3 ../common/extract_sdnc_reply.py .sdnc-reply.json)
+	reply="./tmp/.sdnc-reply.json"
+    echo "$body" > $reply
+    res=$(python3 ../common/extract_sdnc_reply.py $reply)
     echo "  EXTRACED BODY+CODE: "$res >> $HTTPLOG
     echo "$res"
     return 0

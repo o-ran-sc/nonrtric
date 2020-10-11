@@ -22,13 +22,10 @@
 
 
 # Excute a curl cmd towards a ricsimulator and check the response code.
-# args: <expected-response-code> <curl-cmd-string> [<file>]
+# args: <expected-response-code> <curl-cmd-string>
 __execute_curl_to_sim() {
 	echo ${FUNCNAME[1]} "line: "${BASH_LINENO[1]} >> $HTTPLOG
 	echo " CMD: $2" >> $HTTPLOG
-	if [ $# -eq 3 ]; then
-		echo " FILE: $(<$3)"  >> $HTTPLOG
-	fi
 	res="$($2)"
 	echo " RESP: $res" >> $HTTPLOG
 	retcode=$?
@@ -118,7 +115,7 @@ sim_put_policy_type() {
 
     curlString="curl -X PUT -skw %{http_code} $RIC_SIM_LOCALHOST"$res"/policytype?id="$3" -H Content-Type:application/json --data-binary @"$4
 
-	__execute_curl_to_sim $1 "$curlString" $4
+	__execute_curl_to_sim $1 "$curlString"
 	return $?
 }
 
