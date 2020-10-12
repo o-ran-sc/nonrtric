@@ -78,7 +78,7 @@ class BeanFactory {
 
     @Bean
     public ProducerCallbacks getProducerCallbacks() {
-        return new ProducerCallbacks();
+        return new ProducerCallbacks(this.applicationConfig);
     }
 
     private static Connector getHttpConnector(int httpPort) {

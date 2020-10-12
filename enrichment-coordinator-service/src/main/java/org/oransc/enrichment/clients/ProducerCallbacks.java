@@ -30,7 +30,6 @@ import org.oransc.enrichment.repository.EiJob;
 import org.oransc.enrichment.repository.EiProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -46,11 +45,14 @@ public class ProducerCallbacks {
         .serializeNulls() //
         .create(); //
 
-    @Autowired
-    ApplicationConfig applicationConfig;
+    private final AsyncRestClient restClient;
+
+    public ProducerCallbacks(ApplicationConfig config) {
+        AsyncRestClientFactory restClientFactory = new AsyncRestClientFactory(config.getWebClientConfig());
+        this.restClient = restClientFactory.createRestClient("");
+    }
 
     public void notifyProducersJobDeleted(EiJob eiJob) {
-        AsyncRestClient restClient = restClient();
         ProducerJobInfo request = new ProducerJobInfo(eiJob);
         String body = gson.toJson(request);
         for (EiProducer producer : eiJob.type().getProducers()) {
@@ -81,7 +83,6 @@ public class ProducerCallbacks {
      * @return the body of the response from the REST call
      */
     public Mono<String> notifyProducerJobStarted(EiProducer producer, EiJob eiJob) {
-        AsyncRestClient restClient = restClient();
         ProducerJobInfo request = new ProducerJobInfo(eiJob);
         String body = gson.toJson(request);
 
@@ -91,10 +92,6 @@ public class ProducerCallbacks {
                 logger.warn("Job subscription failed {}", producer.getId(), throwable.toString());
                 return Mono.empty();
             });
-    }
-
-    private AsyncRestClient restClient() {
-        return new AsyncRestClient("", this.applicationConfig.getWebClientConfig());
     }
 
 }

@@ -1,9 +1,9 @@
 /*-
  * ========================LICENSE_START=================================
- * ONAP : ccsdk oran
- * ======================================================================
- * Copyright (C) 2019-2020 Nordix Foundation. All rights reserved.
- * ======================================================================
+ * O-RAN-SC
+ * %%
+ * Copyright (C) 2020 Nordix Foundation
+ * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -42,6 +42,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.oransc.enrichment.clients.AsyncRestClient;
+import org.oransc.enrichment.clients.AsyncRestClientFactory;
 import org.oransc.enrichment.clients.ProducerJobInfo;
 import org.oransc.enrichment.configuration.ApplicationConfig;
 import org.oransc.enrichment.configuration.ImmutableWebClientConfig;
@@ -601,7 +602,8 @@ class ApplicationTest {
             .trustStorePassword(config.trustStorePassword()) //
             .build();
 
-        return new AsyncRestClient(baseUrl(), config);
+        AsyncRestClientFactory restClientFactory = new AsyncRestClientFactory(config);
+        return restClientFactory.createRestClient(baseUrl());
     }
 
     private AsyncRestClient restClient() {
