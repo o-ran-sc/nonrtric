@@ -114,7 +114,7 @@ api_get_policies() {
 				else
 					targetJson=$targetJson"\"${arr[$i+3]}\","
 				fi
-				file=".p.json"
+				file="./tmp/.p.json"
 				sed 's/XXX/'${arr[$i]}'/g' ${arr[$i+4]} > $file
 				json=$(cat $file)
 				targetJson=$targetJson"\"json\":"$json"}"
@@ -166,7 +166,7 @@ api_get_policy() {
 	if [ $# -eq 3 ]; then
 		#Create a policy json to compare with
 		body=${res:0:${#res}-3}
-		file=".p.json"
+		file="./tmp/.p.json"
 		sed 's/XXX/'${2}'/g' $3 > $file
 		targetJson=$(< $file)
 		echo "TARGET JSON: $targetJson" >> $HTTPLOG
@@ -219,7 +219,7 @@ api_put_policy() {
 			query=$query"&transient=$6"
 		fi
 
-		file=".p.json"
+		file="./tmp/.p.json"
 		sed 's/XXX/'${pid}'/g' $7 > $file
     	res="$(__do_curl_to_api PA PUT $query $file)"
     	status=${res:${#res}-3}
@@ -278,7 +278,7 @@ api_put_policy_batch() {
 			query=$query"&transient=$6"
 		fi
 
-		file=".p.json"
+		file="./tmp/.p.json"
 		sed 's/XXX/'${pid}'/g' $7 > $file
     	res="$(__do_curl_to_api PA PUT_BATCH $query $file)"
     	status=${res:${#res}-3}
@@ -374,19 +374,19 @@ api_put_policy_parallel() {
 		if [ -z "$uuid" ]; then
 			uuid="NOUUID"
 		fi
-		echo "" > ".pid${i}.res.txt"
-		echo $resp_code $urlbase $ric_base $num_rics $uuid $start_id $template $count $pids $i > ".pid${i}.txt"
+		echo "" > "./tmp/.pid${i}.res.txt"
+		echo $resp_code $urlbase $ric_base $num_rics $uuid $start_id $template $count $pids $i > "./tmp/.pid${i}.txt"
 		echo $i
 	done  | xargs -n 1 -I{} -P $pids bash -c '{
 		arg=$(echo {})
 		echo " Parallel process $arg started"
-		tmp=$(< ".pid${arg}.txt")
-		python3 ../common/create_policies_process.py $tmp > .pid${arg}.res.txt
+		tmp=$(< "./tmp/.pid${arg}.txt")
+		python3 ../common/create_policies_process.py $tmp > ./tmp/.pid${arg}.res.txt
 	}'
 	msg=""
 	for ((i=1; i<=$pids; i++))
 	do
-		file=".pid${i}.res.txt"
+		file="./tmp/.pid${i}.res.txt"
 		tmp=$(< $file)
 		if [ -z "$tmp" ]; then
 			echo " Process $i : unknown result (result file empty"
@@ -561,19 +561,19 @@ api_delete_policy_parallel() {
 		if [ -z "$uuid" ]; then
 			uuid="NOUUID"
 		fi
-		echo "" > ".pid${i}.del.res.txt"
-		echo $resp_code $urlbase $num_rics $uuid $start_id $count $pids $i > ".pid${i}.del.txt"
+		echo "" > "./tmp/.pid${i}.del.res.txt"
+		echo $resp_code $urlbase $num_rics $uuid $start_id $count $pids $i > "./tmp/.pid${i}.del.txt"
 		echo $i
 	done  | xargs -n 1 -I{} -P $pids bash -c '{
 		arg=$(echo {})
 		echo " Parallel process $arg started"
-		tmp=$(< ".pid${arg}.del.txt")
-		python3 ../common/delete_policies_process.py $tmp > .pid${arg}.del.res.txt
+		tmp=$(< "./tmp/pid${arg}.del.txt")
+		python3 ../common/delete_policies_process.py $tmp > ./tmp/pid${arg}.del.res.txt
 	}'
 	msg=""
 	for ((i=1; i<=$pids; i++))
 	do
-		file=".pid${i}.del.res.txt"
+		file="./tmp/.pid${i}.del.res.txt"
 		tmp=$(< $file)
 		if [ -z "$tmp" ]; then
 			echo " Process $i : unknown result (result file empty"
@@ -1008,7 +1008,7 @@ api_get_rics() {
 
 	if [ $# -gt 2 ]; then
 		body=${res:0:${#res}-3}
-		res=$(python3 ../common/create_rics_json.py ".tmp_rics.json" "$3" )
+		res=$(python3 ../common/create_rics_json.py "./tmp/.tmp_rics.json" "$3" )
 		if [ $res -ne 0 ]; then
 			echo -e $RED" FAIL, could not create target ric info json"$ERED
 			((RES_FAIL++))
@@ -1016,7 +1016,7 @@ api_get_rics() {
 			return 1
 		fi
 
-		targetJson=$(<.tmp_rics.json)
+		targetJson=$(<./tmp/.tmp_rics.json)
     	echo "TARGET JSON: $targetJson" >> $HTTPLOG
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 		if [ $res -ne 0 ]; then
@@ -1050,7 +1050,7 @@ api_put_service() {
 
     query="/service"
     json="{\"callbackUrl\": \""$4"\",\"keepAliveIntervalSeconds\": \""$3"\",\"serviceName\": \""$2"\"}"
-    file=".tmp.json"
+    file="./tmp/.tmp.json"
 	echo "$json" > $file
 
     res="$(__do_curl_to_api PA PUT $query $file)"

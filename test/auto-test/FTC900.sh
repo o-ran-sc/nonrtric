@@ -19,8 +19,8 @@
 
 TC_ONELINE_DESCR="Preparation for test of the Control Panel and the Health Check app - populating a number of ric simulators with types and instances"
 
-#App names to exclude checking pulling images for, space separated list
-EXCLUDED_IMAGES="SDNC ECS"
+#App names to include in the test, space separated list
+INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM"
 
 . ../common/testcase_common.sh $@
 . ../common/agent_api_functions.sh

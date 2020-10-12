@@ -54,6 +54,7 @@ services:
       - db:sdnctldb02
     environment:
       - MYSQL_ROOT_PASSWORD=openECOMP1.0
+      - SDNC_DB_INIT=true
       - SDNC_CONFIG_DIR=/opt/onap/sdnc/data/properties
       - A1_TRUSTSTORE_PASSWORD=${SDNC_A1_TRUSTSTORE_PASSWORD}
     logging:

@@ -19,8 +19,8 @@
 
 TC_ONELINE_DESCR="Change supported policy types and reconfigure rics"
 
-#App names to exclude checking pulling images for, space separated list
-EXCLUDED_IMAGES="ECS"
+#App names to include in the test, space separated list
+INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
@@ -86,6 +86,7 @@ for interface in $TESTED_VARIANTS ; do
     start_policy_agent
 
     set_agent_debug
+    set_agent_trace
 
     api_get_status 200
 

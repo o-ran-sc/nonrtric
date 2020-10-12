@@ -20,8 +20,8 @@
 
 TC_ONELINE_DESCR="Sanity test, create service and then create,update and delete a policy using http/https and Agent REST/DMAAP with/without SDNC controller"
 
-#App names to exclude checking pulling images for, space separated list
-EXCLUDED_IMAGES="ECS"
+#App names to include in the test, space separated list
+INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
@@ -100,6 +100,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         start_policy_agent
 
         set_agent_debug
+        set_agent_trace
 
         cr_equal received_callbacks 0
         mr_equal requests_submitted 0

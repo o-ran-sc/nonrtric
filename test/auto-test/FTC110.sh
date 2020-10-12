@@ -20,8 +20,8 @@
 
 TC_ONELINE_DESCR="Testing of service registration timeouts and keepalive"
 
-#App names to exclude checking pulling images for, space separated list
-EXCLUDED_IMAGES="SDNC ECS"
+#App names to include in the test, space separated list
+INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh

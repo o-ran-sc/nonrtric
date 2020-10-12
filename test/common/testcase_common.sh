@@ -114,6 +114,12 @@ if [ ! -d "logs" ]; then
 fi
 TESTLOGS=$PWD/logs
 
+# Create the tmp dir for temporary files that is not needed after the test
+# hidden files for the test env is still stored in the current dir
+if [ ! -d "tmp" ]; then
+    mkdir tmp
+fi
+
 # Create a http message log for this testcase
 HTTPLOG=$PWD"/.httplog_"$ATC".txt"
 echo "" > $HTTPLOG
@@ -278,6 +284,11 @@ export CR_HTTPX="http"
 export CR_PORT=$CR_INTERNAL_PORT
 export CR_LOCAL_PORT=$CR_EXTERNAL_PORT #When CR is running outside the docker net
 
+export PROD_STUB_HTTPX="http"
+export PROD_STUB_PORT=$PROD_STUB_INTERNAL_PORT
+export PROD_STUB_LOCAL_PORT=$PROD_STUB_EXTERNAL_PORT #When CR is running outside the docker net
+export PROD_STUB_LOCALHOST=$PROD_STUB_HTTPX"://localhost:"$PROD_STUB_LOCAL_PORT
+
 export SDNC_HTTPX="http"
 export SDNC_PORT=$SDNC_INTERNAL_PORT
 export SDNC_LOCAL_PORT=$SDNC_EXTERNAL_PORT #When agent is running outside the docker net
@@ -287,7 +298,7 @@ echo -e $BOLD"Checking configured image setting for this test case"$EBOLD
 #Temp var to check for image variable name errors
 IMAGE_ERR=0
 #Create a file with image info for later printing as a table
-image_list_file=".image-list"
+image_list_file="./tmp/.image-list"
 echo -e " Container\tImage\ttag" > $image_list_file
 
 # Check if image env var is set and if so export the env var with image to use (used by docker compose files)
@@ -298,7 +309,7 @@ __check_image_var() {
 		((IMAGE_ERR++))
 		return
 	fi
-	__check_excluded_image $6
+	__check_included_image $6
 	if [ $? -ne 0 ]; then
 		echo -e "$1\t<image-excluded>\t<no-tag>"  >> $image_list_file
 		# Image is excluded since the corresponding app is not used in this test
@@ -344,15 +355,16 @@ __check_image_local_override() {
 	return 0
 }
 
-#Check if app uses image excluded from this test run
-# Possible IDs for image exclusion: PA, CP, SDNC, RICSIM, MR, CR, CBS, CONSUL, ECS
-__check_excluded_image() {
-	for im in $EXCLUDED_IMAGES; do
+# Check if app uses image included in this test run
+# Returns 0 if image is included, 1 if not
+# Possible IDs for image inclusion: CBS, CONSUL, CP, CR, ECS, MR, PA, PRODSTUB, RICSIM, SDNC
+__check_included_image() {
+	for im in $INCLUDED_IMAGES; do
 		if [ "$1" == "$im" ]; then
-			return 1
+			return 0
 		fi
 	done
-	return 0
+	return 1
 }
 
 # Check that image env setting are available
@@ -429,6 +441,7 @@ fi
 # These images are not built as part of this project official images, just check that env vars are set correctly
 __check_image_var " Message Router" $START_ARG "MRSTUB_IMAGE" "MRSTUB_LOCAL_IMAGE" "MRSTUB_LOCAL_IMAGE_TAG" MR
 __check_image_var " Callback Receiver" $START_ARG "CR_IMAGE" "CR_LOCAL_IMAGE" "CR_LOCAL_IMAGE_TAG" CR
+__check_image_var " Producer stub" $START_ARG "PROD_STUB_IMAGE" "PROD_STUB_LOCAL_IMAGE" "PROD_STUB_LOCAL_IMAGE_TAG" PRODSTUB
 __check_image_var " Consul" $START_ARG "CONSUL_IMAGE" "CONSUL_REMOTE_IMAGE" "CONSUL_REMOTE_IMAGE_TAG" CONSUL
 __check_image_var " CBS" $START_ARG "CBS_IMAGE" "CBS_REMOTE_IMAGE" "CBS_REMOTE_IMAGE_TAG" CBS
 __check_image_var " SDNC DB" $START_ARG "SDNC_DB_IMAGE" "SDNC_DB_REMOTE_IMAGE" "SDNC_DB_REMOTE_IMAGE_TAG" SDNC #Uses sdnc app name
@@ -489,24 +502,24 @@ __check_and_pull_image() {
 			echo -ne "  Attempt to stop and remove container(s), if running - ${SAMELINE}"
 			tmp="$(docker ps -aq --filter name=${3})"
 			if [ $? -eq 0 ] && [ ! -z "$tmp" ]; then
-				docker stop $tmp &> .dockererr
+				docker stop $tmp &> ./tmp/.dockererr
 				if [ $? -ne 0 ]; then
 					((IMAGE_ERR++))
 					echo ""
 					echo -e $RED"  Container(s) could not be stopped - try manual stopping the container(s)"$ERED
-					cat .dockererr
+					cat ./tmp/.dockererr
 					return 1
 				fi
 			fi
 			echo -ne "  Attempt to stop and remove container(s), if running - "$GREEN"stopped"$EGREEN"${SAMELINE}"
 			tmp="$(docker ps -aq --filter name=${3})" &> /dev/null
 			if [ $? -eq 0 ] && [ ! -z "$tmp" ]; then
-				docker rm $tmp &> .dockererr
+				docker rm $tmp &> ./tmp/.dockererr
 				if [ $? -ne 0 ]; then
 					((IMAGE_ERR++))
 					echo ""
 					echo -e $RED"  Container(s) could not be removed - try manual removal of the container(s)"$ERED
-					cat .dockererr
+					cat ./tmp/.dockererr
 					return 1
 				fi
 			fi
@@ -514,12 +527,12 @@ __check_and_pull_image() {
 			echo -ne "  Removing image - ${SAMELINE}"
 			tmp="$(docker images -q ${4})" &> /dev/null
 			if [ $? -eq 0 ] && [ ! -z "$tmp" ]; then
-				docker rmi --force $4 &> .dockererr
+				docker rmi --force $4 &> ./tmp/.dockererr
 				if [ $? -ne 0 ]; then
 					((IMAGE_ERR++))
 					echo ""
 					echo -e $RED"  Image could not be removed - try manual removal of the image"$ERED
-					cat .dockererr
+					cat ./tmp/.dockererr
 					return 1
 				fi
 				echo -e "  Removing image - "$GREEN"removed"$EGREEN
@@ -530,13 +543,13 @@ __check_and_pull_image() {
 		fi
 		if [ -z "$tmp_im" ]; then
 			echo -ne "  Pulling image${SAMELINE}"
-			docker pull $4	&> .dockererr
+			docker pull $4	&> ./tmp/.dockererr
 			tmp_im=$(docker images ${4} | grep -v REPOSITORY)
 			if [ -z "$tmp_im" ]; then
 				echo ""
 				echo -e "  Pulling image -$RED could not be pulled"$ERED
 				((IMAGE_ERR++))
-				cat .dockererr
+				cat ./tmp/.dockererr
 				return 1
 			fi
 			echo -e "  Pulling image -$GREEN Pulled $EGREEN"
@@ -550,7 +563,7 @@ __check_and_pull_image() {
 
 echo -e $BOLD"Pulling configured images, if needed"$EBOLD
 
-__check_excluded_image 'PA'
+__check_included_image 'PA'
 if [ $? -eq 0 ]; then
 	START_ARG_MOD=$START_ARG
 	__check_image_local_override 'PA'
@@ -562,7 +575,7 @@ else
 	echo -e $YELLOW" Excluding PA image from image check/pull"$EYELLOW
 fi
 
-__check_excluded_image 'ECS'
+__check_included_image 'ECS'
 if [ $? -eq 0 ]; then
 	START_ARG_MOD=$START_ARG
 	__check_image_local_override 'ECS'
@@ -574,7 +587,7 @@ else
 	echo -e $YELLOW" Excluding ECS image from image check/pull"$EYELLOW
 fi
 
-__check_excluded_image 'CP'
+__check_included_image 'CP'
 if [ $? -eq 0 ]; then
 	START_ARG_MOD=$START_ARG
 	__check_image_local_override 'CP'
@@ -586,7 +599,7 @@ else
 	echo -e $YELLOW" Excluding Non-RT RIC Control Panel image from image check/pull"$EYELLOW
 fi
 
-__check_excluded_image 'RICSIM'
+__check_included_image 'RICSIM'
 if [ $? -eq 0 ]; then
 	START_ARG_MOD=$START_ARG
 	__check_image_local_override 'RICSIM'
@@ -599,21 +612,21 @@ else
 fi
 
 
-__check_excluded_image 'CONSUL'
+__check_included_image 'CONSUL'
 if [ $? -eq 0 ]; then
 	app="Consul";                   __check_and_pull_image $START_ARG "$app" $CONSUL_APP_NAME $CONSUL_IMAGE
 else
 	echo -e $YELLOW" Excluding Consul image from image check/pull"$EYELLOW
 fi
 
-__check_excluded_image 'CBS'
+__check_included_image 'CBS'
 if [ $? -eq 0 ]; then
 	app="CBS";                      __check_and_pull_image $START_ARG "$app" $CBS_APP_NAME $CBS_IMAGE
 else
 	echo -e $YELLOW" Excluding CBS image from image check/pull"$EYELLOW
 fi
 
-__check_excluded_image 'SDNC'
+__check_included_image 'SDNC'
 if [ $? -eq 0 ]; then
 	START_ARG_MOD=$START_ARG
 	__check_image_local_override 'SDNC'
@@ -642,12 +655,12 @@ echo ""
 echo -e $BOLD"Building images needed for test"$EBOLD
 
 curdir=$PWD
-__check_excluded_image 'MR'
+__check_included_image 'MR'
 if [ $? -eq 0 ]; then
 	cd $curdir
 	cd ../mrstub
-	echo " Building mrstub image: mrstub:latest"
-	docker build -t mrstub . &> .dockererr
+	echo " Building mrstub image: $MRSTUB_LOCAL_IMAGE:$MRSTUB_LOCAL_IMAGE_TAG"
+	docker build -t $MRSTUB_LOCAL_IMAGE . &> .dockererr
 	if [ $? -eq 0 ]; then
 		echo -e  $GREEN" Build Ok"$EGREEN
 	else
@@ -660,11 +673,11 @@ else
 	echo -e $YELLOW" Excluding mrstub from image build"$EYELLOW
 fi
 
-__check_excluded_image 'CR'
+__check_included_image 'CR'
 if [ $? -eq 0 ]; then
 	cd ../cr
-	echo " Building Callback Receiver image: callback-receiver:latest"
-	docker build -t callback-receiver . &> .dockererr
+	echo " Building Callback Receiver image: $CR_LOCAL_IMAGE:$CR_IMAGE_TAG"
+	docker build -t $CR_LOCAL_IMAGE . &> .dockererr
 	if [ $? -eq 0 ]; then
 		echo -e  $GREEN" Build Ok"$EGREEN
 	else
@@ -677,47 +690,68 @@ else
 	echo -e $YELLOW" Excluding Callback Receiver from image build"$EYELLOW
 fi
 
+__check_included_image 'PRODSTUB'
+if [ $? -eq 0 ]; then
+	cd ../prodstub
+	echo " Building Producer stub image: $PROD_STUB_LOCAL_IMAGE:$PROD_STUB_LOCAL_IMAGE_TAG"
+	docker build -t $PROD_STUB_LOCAL_IMAGE . &> .dockererr
+	if [ $? -eq 0 ]; then
+		echo -e  $GREEN" Build Ok"$EGREEN
+	else
+		echo -e $RED" Build Failed"$ERED
+		((RES_CONF_FAIL++))
+		cat .dockererr
+	fi
+	cd $curdir
+else
+	echo -e $YELLOW" Excluding Producer stub from image build"$EYELLOW
+fi
+
 echo ""
 
 # Create a table of the images used in the script
 echo -e $BOLD"Local docker registry images used in the this test script"$EBOLD
 
-docker_tmp_file=.docker-images-table
+docker_tmp_file=./tmp/.docker-images-table
 format_string="{{.Repository}}\\t{{.Tag}}\\t{{.CreatedSince}}\\t{{.Size}}\\t{{.CreatedAt}}"
 echo -e " Application\tRepository\tTag\tCreated since\tSize\tCreated at" > $docker_tmp_file
-__check_excluded_image 'PA'
+__check_included_image 'PA'
 if [ $? -eq 0 ]; then
 	echo -e " Policy Agent\t$(docker images --format $format_string $POLICY_AGENT_IMAGE)" >>   $docker_tmp_file
 fi
-__check_excluded_image 'ECS'
+__check_included_image 'ECS'
 if [ $? -eq 0 ]; then
 	echo -e " ECS\t$(docker images --format $format_string $ECS_IMAGE)" >>   $docker_tmp_file
 fi
-__check_excluded_image 'CP'
+__check_included_image 'CP'
 if [ $? -eq 0 ]; then
 	echo -e " Control Panel\t$(docker images --format $format_string $CONTROL_PANEL_IMAGE)" >>   $docker_tmp_file
 fi
-__check_excluded_image 'RICSIM'
+__check_included_image 'RICSIM'
 if [ $? -eq 0 ]; then
 	echo -e " RIC Simulator\t$(docker images --format $format_string $RIC_SIM_IMAGE)" >>   $docker_tmp_file
 fi
-__check_excluded_image 'MR'
+__check_included_image 'MR'
 if [ $? -eq 0 ]; then
 	echo -e " Message Router\t$(docker images --format $format_string $MRSTUB_IMAGE)" >>   $docker_tmp_file
 fi
-__check_excluded_image 'CR'
+__check_included_image 'CR'
 if [ $? -eq 0 ]; then
 	echo -e " Callback Receiver\t$(docker images --format $format_string $CR_IMAGE)" >>   $docker_tmp_file
 fi
-__check_excluded_image 'CONSUL'
+__check_included_image 'PRODSTUB'
+if [ $? -eq 0 ]; then
+	echo -e " Produccer stub\t$(docker images --format $format_string $PROD_STUB_IMAGE)" >>   $docker_tmp_file
+fi
+__check_included_image 'CONSUL'
 if [ $? -eq 0 ]; then
 	echo -e " Consul\t$(docker images --format $format_string $CONSUL_IMAGE)" >>   $docker_tmp_file
 fi
-__check_excluded_image 'CBS'
+__check_included_image 'CBS'
 if [ $? -eq 0 ]; then
 	echo -e " CBS\t$(docker images --format $format_string $CBS_IMAGE)" >>   $docker_tmp_file
 fi
-__check_excluded_image 'SDNC'
+__check_included_image 'SDNC'
 if [ $? -eq 0 ]; then
 	echo -e " SDNC A1 Controller\t$(docker images --format $format_string $SDNC_A1_CONTROLLER_IMAGE)" >>   $docker_tmp_file
 	echo -e " SDNC DB\t$(docker images --format $format_string $SDNC_DB_IMAGE)" >>   $docker_tmp_file
@@ -934,6 +968,7 @@ clean_containers() {
 					  "Non-RT RIC Simulator(s)" $(__check_app_name $RIC_SIM_PREFIX)\
 					  "Message Router         " $(__check_app_name $MR_APP_NAME)\
 					  "Callback Receiver      " $(__check_app_name $CR_APP_NAME)\
+					  "Producer stub          " $(__check_app_name $PROD_STUB_APP_NAME)\
 					  "Control Panel          " $(__check_app_name $CONTROL_PANEL_APP_NAME)\
 					  "SDNC A1 Controller     " $(__check_app_name $SDNC_APP_NAME)\
 					  "SDNC DB                " $(__check_app_name $SDNC_DB_APP_NAME)\
@@ -975,21 +1010,17 @@ clean_containers() {
 		fi
 	fi
 	echo -e "$GREEN  Done$EGREEN"
-	echo ""
 
 	echo -e $BOLD" Removing all unused docker neworks"$EBOLD
 	docker network prune --force | indent2
 	echo -e "$GREEN  Done$EGREEN"
-	echo ""
 
 	echo -e $BOLD" Removing all unused docker volumes"$EBOLD
 	docker volume prune --force | indent2
 	echo -e "$GREEN  Done$EGREEN"
-	echo ""
 
 	echo -e $BOLD" Removing all dangling/untagged docker images"$EBOLD
     docker rmi --force $(docker images -q -f dangling=true) &> /dev/null
-	echo ""
 	echo -e "$GREEN  Done$EGREEN"
 	echo ""
 
@@ -1247,14 +1278,15 @@ consul_config_app() {
 
 	echo " Loading config for "$POLICY_AGENT_APP_NAME" from "$1
 
-	curl -s $LOCALHOST${CONSUL_EXTERNAL_PORT}/v1/kv/${POLICY_AGENT_APP_NAME}?dc=dc1 -X PUT -H 'Accept: application/json' -H 'Content-Type: application/json' -H 'X-Requested-With: XMLHttpRequest' --data-binary "@"$1 >/dev/null
+	curlString="$LOCALHOST${CONSUL_EXTERNAL_PORT}/v1/kv/${POLICY_AGENT_APP_NAME}?dc=dc1 -X PUT -H Accept:application/json -H Content-Type:application/json -H X-Requested-With:XMLHttpRequest --data-binary @"$1
+	result=$(__do_curl "$curlString")
 	if [ $? -ne 0 ]; then
 		echo -e $RED" FAIL - json config could not be loaded to consul" $ERED
 		((RES_CONF_FAIL++))
 		return 1
 	fi
 	body="$(__do_curl $LOCALHOST$CBS_EXTERNAL_PORT/service_component_all/$POLICY_AGENT_APP_NAME)"
-	echo $body > ".output"$1
+	echo $body > "./tmp/.output"$1
 
 	if [ $? -ne 0 ]; then
 		echo -e $RED" FAIL - json config could not be loaded from consul/cbs, contents cannot be checked." $ERED
@@ -1392,7 +1424,7 @@ prepare_consul_config() {
 start_consul_cbs() {
 
 	echo -e $BOLD"Starting Consul and CBS"$EBOLD
-	__check_excluded_image 'CONSUL'
+	__check_included_image 'CONSUL'
 	if [ $? -eq 1 ]; then
 		echo -e $RED"The Consul image has not been checked for this test run due to arg to the test script"$ERED
 		echo -e $RED"Consul will not be started"$ERED
@@ -1430,7 +1462,7 @@ start_ric_simulators() {
 
 	echo -e $BOLD"Starting RIC Simulators"$EBOLD
 
-	__check_excluded_image 'RICSIM'
+	__check_included_image 'RICSIM'
 	if [ $? -eq 1 ]; then
 		echo -e $RED"The Near-RT RIC Simulator image has not been checked for this test run due to arg to the test script"$ERED
 		echo -e $RED"The Near-RT RIC Simulartor(s) will not be started"$ERED
@@ -1493,7 +1525,7 @@ start_ric_simulators() {
 start_control_panel() {
 
 	echo -e $BOLD"Starting Control Panel"$EBOLD
-	__check_excluded_image 'CP'
+	__check_included_image 'CP'
 	if [ $? -eq 1 ]; then
 		echo -e $RED"The Control Panel image has not been checked for this test run due to arg to the test script"$ERED
 		echo -e $RED"The Control Panel will not be started"$ERED
@@ -1514,7 +1546,7 @@ start_sdnc() {
 
 	echo -e $BOLD"Starting SDNC A1 Controller"$EBOLD
 
-	__check_excluded_image 'SDNC'
+	__check_included_image 'SDNC'
 	if [ $? -eq 1 ]; then
 		echo -e $RED"The image for SDNC and the related DB has not been checked for this test run due to arg to the test script"$ERED
 		echo -e $RED"SDNC will not be started"$ERED
@@ -1551,7 +1583,7 @@ use_sdnc_https() {
 start_mr() {
 
 	echo -e $BOLD"Starting Message Router 'mrstub'"$EBOLD
-	__check_excluded_image 'MR'
+	__check_included_image 'MR'
 	if [ $? -eq 1 ]; then
 		echo -e $RED"The Message Router image has not been checked for this test run due to arg to the test script"$ERED
 		echo -e $RED"The Message Router will not be started"$ERED
@@ -1588,7 +1620,7 @@ use_mr_https() {
 start_cr() {
 
 	echo -e $BOLD"Starting Callback Receiver"$EBOLD
-	__check_excluded_image 'CR'
+	__check_included_image 'CR'
 	if [ $? -eq 1 ]; then
 		echo -e $RED"The Callback Receiver image has not been checked for this test run due to arg to the test script"$ERED
 		echo -e $RED"The Callback Receiver will not be started"$ERED
@@ -1615,6 +1647,44 @@ use_cr_https() {
 }
 
 ###########################
+### Producer stub functions
+###########################
+
+# Start the Producer stub in the simulator group
+# args: -
+# (Function for test scripts)
+start_prod_stub() {
+
+	echo -e $BOLD"Starting Producer stub"$EBOLD
+	__check_included_image 'PRODSTUB'
+	if [ $? -eq 1 ]; then
+		echo -e $RED"The Producer stub image has not been checked for this test run due to arg to the test script"$ERED
+		echo -e $RED"The Producer stub will not be started"$ERED
+		exit
+	fi
+	__start_container prodstub NODOCKERARGS $PROD_STUB_APP_NAME $PROD_STUB_EXTERNAL_PORT "/" "http"
+
+}
+
+use_prod_stub_http() {
+	echo -e "Using $BOLD http $EBOLD towards Producer stub"
+	export PROD_STUB_HTTPX="http"
+	export PROD_STUB_PORT=$PROD_STUB_INTERNAL_PORT
+	export PROD_STUB_LOCAL_PORT=$PROD_STUB_EXTERNAL_PORT
+	export PROD_STUB_LOCALHOST=$PROD_STUB_HTTPX"://localhost:"$PROD_STUB_LOCAL_PORT
+	echo ""
+}
+
+use_prod_stub_https() {
+	echo -e "Using $BOLD https $EBOLD towards Producer stub"
+	export PROD_STUB_HTTPX="https"
+	export PROD_STUB_PORT=$PROD_STUB_INTERNAL_SECURE_PORT
+	export PROD_STUB_LOCAL_PORT=$PROD_STUB_EXTERNAL_SECURE_PORT
+	export PROD_STUB_LOCALHOST=$PROD_STUB_HTTPX"://localhost:"$PROD_STUB_LOCAL_PORT
+	echo ""
+}
+
+###########################
 ### Policy Agents functions
 ###########################
 
@@ -1631,7 +1701,7 @@ start_policy_agent() {
 	echo -e $BOLD"Starting Policy Agent"$EBOLD
 
 	if [ $AGENT_STAND_ALONE -eq 0 ]; then
-		__check_excluded_image 'PA'
+		__check_included_image 'PA'
 		if [ $? -eq 1 ]; then
 			echo -e $RED"The Policy Agent image has not been checked for this test run due to arg to the test script"$ERED
 			echo -e $RED"The Policy Agent will not be started"$ERED
@@ -1695,9 +1765,11 @@ use_agent_dmaap_https() {
 # (Function for test scripts)
 set_agent_debug() {
 	echo -e $BOLD"Setting agent debug"$EBOLD
-	curl $LOCALHOST$POLICY_AGENT_EXTERNAL_PORT/actuator/loggers/org.oransc.policyagent -X POST  -H 'Content-Type: application/json' -d '{"configuredLevel":"debug"}' &> /dev/null
+	curlString="$LOCALHOST$POLICY_AGENT_EXTERNAL_PORT/actuator/loggers/org.oransc.policyagent -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"debug\"}"
+	result=$(__do_curl "$curlString")
 	if [ $? -ne 0 ]; then
 		__print_err "could not set debug mode" $@
+		((RES_CONF_FAIL++))
 		return 1
 	fi
 	echo ""
@@ -1709,9 +1781,11 @@ set_agent_debug() {
 # (Function for test scripts)
 set_agent_trace() {
 	echo -e $BOLD"Setting agent trace"$EBOLD
-	curl $LOCALHOST$POLICY_AGENT_EXTERNAL_PORT/actuator/loggers/org.oransc.policyagent -X POST  -H 'Content-Type: application/json' -d '{"configuredLevel":"trace"}' &> /dev/null
+	curlString="$LOCALHOST$POLICY_AGENT_EXTERNAL_PORT/actuator/loggers/org.oransc.policyagent -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"trace\"}"
+	result=$(__do_curl "$curlString")
 	if [ $? -ne 0 ]; then
 		__print_err "could not set trace mode" $@
+		((RES_CONF_FAIL++))
 		return 1
 	fi
 	echo ""
@@ -1738,14 +1812,14 @@ use_agent_retries() {
 start_ecs() {
 
 	echo -e $BOLD"Starting ECS"$EBOLD
-	__check_excluded_image 'ECS'
+	__check_included_image 'ECS'
 	if [ $? -eq 1 ]; then
 		echo -e $RED"The ECS image has not been checked for this test run due to arg to the test script"$ERED
 		echo -e $RED"ECS will not be started"$ERED
 		exit
 	fi
 	export ECS_CERT_MOUNT_DIR="./cert"
-	__start_container ecs NODOCKERARGS $ECS_APP_NAME $ECS_EXTERNAL_PORT "/ei-producer/v1/eiproducers" "http"
+	__start_container ecs NODOCKERARGS $ECS_APP_NAME $ECS_EXTERNAL_PORT "/status" "http"
 }
 
 # All calls to ECS will be directed to the ECS REST interface from now on
@@ -1792,9 +1866,11 @@ use_ecs_dmaap_https() {
 # (Function for test scripts)
 set_ecs_debug() {
 	echo -e $BOLD"Setting ecs debug"$EBOLD
-	curl $LOCALHOST$ECS_EXTERNAL_PORT/actuator/loggers/org.oransc.enrichment -X POST  -H 'Content-Type: application/json' -d '{"configuredLevel":"debug"}' &> /dev/null
+	curlString="$LOCALHOST$ECS_EXTERNAL_PORT/actuator/loggers/org.oransc.enrichment -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"debug\"}"
+	result=$(__do_curl "$curlString")
 	if [ $? -ne 0 ]; then
-		__print_err "could not set debug mode" $@
+		__print_err "Could not set debug mode" $@
+		((RES_CONF_FAIL++))
 		return 1
 	fi
 	echo ""
@@ -1805,10 +1881,12 @@ set_ecs_debug() {
 # args: -
 # (Function for test scripts)
 set_ecs_trace() {
-	echo -e $BOLD"Setting agent trace"$EBOLD
-	curl $LOCALHOST$ECS_EXTERNAL_PORT/actuator/loggers/org.oransc.enrichment -X POST  -H 'Content-Type: application/json' -d '{"configuredLevel":"trace"}' &> /dev/null
+	echo -e $BOLD"Setting ecs trace"$EBOLD
+	curlString="$LOCALHOST$ECS_EXTERNAL_PORT/actuator/loggers/org.oransc.enrichment -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"trace\"}"
+	result=$(__do_curl "$curlString")
 	if [ $? -ne 0 ]; then
-		__print_err "could not set trace mode" $@
+		__print_err "Could not set trace mode" $@
+		((RES_CONF_FAIL++))
 		return 1
 	fi
 	echo ""
@@ -1834,21 +1912,28 @@ use_agent_retries() {
 # (Function for test scripts)
 
 check_policy_agent_logs() {
-	__check_container_logs "Policy Agent" $POLICY_AGENT_APP_NAME $POLICY_AGENT_LOGPATH
+	__check_container_logs "Policy Agent" $POLICY_AGENT_APP_NAME $POLICY_AGENT_LOGPATH WARN ERR
 }
 
 check_ecs_logs() {
-	__check_container_logs "ECS" $ECS_APP_NAME $ECS_LOGPATH
+	__check_container_logs "ECS" $ECS_APP_NAME $ECS_LOGPATH WARN ERR
 }
 
 check_control_panel_logs() {
-	__check_container_logs "Control Panel" $CONTROL_PANEL_APP_NAME $CONTROL_PANEL_LOGPATH
+	__check_container_logs "Control Panel" $CONTROL_PANEL_APP_NAME $CONTROL_PANEL_LOGPATH WARN ERR
+}
+
+check_sdnc_logs() {
+	__check_container_logs "SDNC A1 Controller" $SDNC_APP_NAME $SDNC_KARAF_LOG WARN ERROR
 }
 
 __check_container_logs() {
 	dispname=$1
 	appname=$2
 	logpath=$3
+	warning=$4
+	error=$5
+
 	echo -e $BOLD"Checking $dispname container $appname log ($logpath) for WARNINGs and ERRORs"$EBOLD
 
 	#tmp=$(docker ps | grep $appname)
@@ -1857,7 +1942,7 @@ __check_container_logs() {
 		echo $dispname" is not running, no check made"
 		return
 	fi
-	foundentries="$(docker exec $tmp grep WARN $logpath | wc -l)"
+	foundentries="$(docker exec -t $tmp grep $warning $logpath | wc -l)"
 	if [ $? -ne  0 ];then
 		echo "  Problem to search $appname log $logpath"
 	else
@@ -1867,7 +1952,7 @@ __check_container_logs() {
 			echo -e "  Found \033[1m"$foundentries"\033[0m WARN entries in $appname log $logpath"
 		fi
 	fi
-	foundentries="$(docker exec $tmp grep ERR $logpath | wc -l)"
+	foundentries="$(docker exec -t $tmp grep $error $logpath | wc -l)"
 	if [ $? -ne  0 ];then
 		echo "  Problem to search $appname log $logpath"
 	else
@@ -1893,43 +1978,84 @@ store_logs() {
 	echo -e $BOLD"Storing all container logs using prefix: "$1$EBOLD
 
 	docker stats --no-stream > $TESTLOGS/$ATC/$1_docker_stats.log 2>&1
-	docker logs $CONSUL_APP_NAME > $TESTLOGS/$ATC/$1_consul.log 2>&1
-	docker logs $CBS_APP_NAME > $TESTLOGS/$ATC/$1_cbs.log 2>&1
-	docker logs $POLICY_AGENT_APP_NAME > $TESTLOGS/$ATC/$1_policy-agent.log 2>&1
-	docker logs $ECS_APP_NAME > $TESTLOGS/$ATC/$1_ecs.log 2>&1
-	docker logs $CONTROL_PANEL_APP_NAME > $TESTLOGS/$ATC/$1_control-panel.log 2>&1
-	docker logs $MR_APP_NAME > $TESTLOGS/$ATC/$1_mr.log 2>&1
-	docker logs $CR_APP_NAME > $TESTLOGS/$ATC/$1_cr.log 2>&1
+
+	__check_included_image 'CONSUL'
+	if [ $? -eq 0 ]; then
+		docker logs $CONSUL_APP_NAME > $TESTLOGS/$ATC/$1_consul.log 2>&1
+	fi
+
+	__check_included_image 'CBS'
+	if [ $? -eq 0 ]; then
+		docker logs $CBS_APP_NAME > $TESTLOGS/$ATC/$1_cbs.log 2>&1
+		body="$(__do_curl $LOCALHOST$CBS_EXTERNAL_PORT/service_component_all/$POLICY_AGENT_APP_NAME)"
+		echo "$body" > $TESTLOGS/$ATC/$1_consul_config.json 2>&1
+	fi
+
+	__check_included_image 'PA'
+	if [ $? -eq 0 ]; then
+		docker logs $POLICY_AGENT_APP_NAME > $TESTLOGS/$ATC/$1_policy-agent.log 2>&1
+	fi
+
+	__check_included_image 'ECS'
+	if [ $? -eq 0 ]; then
+		docker logs $ECS_APP_NAME > $TESTLOGS/$ATC/$1_ecs.log 2>&1
+	fi
+
+	__check_included_image 'CP'
+	if [ $? -eq 0 ]; then
+		docker logs $CONTROL_PANEL_APP_NAME > $TESTLOGS/$ATC/$1_control-panel.log 2>&1
+	fi
+
+	__check_included_image 'MR'
+	if [ $? -eq 0 ]; then
+		docker logs $MR_APP_NAME > $TESTLOGS/$ATC/$1_mr.log 2>&1
+	fi
+
+	__check_included_image 'CR'
+	if [ $? -eq 0 ]; then
+		docker logs $CR_APP_NAME > $TESTLOGS/$ATC/$1_cr.log 2>&1
+	fi
+
 	cp .httplog_${ATC}.txt $TESTLOGS/$ATC/$1_httplog_${ATC}.txt 2>&1
 
-	docker exec $SDNC_APP_NAME cat $SDNC_KARAF_LOG> $TESTLOGS/$ATC/$1_SDNC_karaf.log 2>&1
+	__check_included_image 'SDNC'
+	if [ $? -eq 0 ]; then
+		docker exec -t $SDNC_APP_NAME cat $SDNC_KARAF_LOG> $TESTLOGS/$ATC/$1_SDNC_karaf.log 2>&1
+	fi
 
-	rics=$(docker ps -f "name=$RIC_SIM_PREFIX" --format "{{.Names}}")
-	for ric in $rics; do
-		docker logs $ric > $TESTLOGS/$ATC/$1_$ric.log 2>&1
-	done
-	body="$(__do_curl $LOCALHOST$CBS_EXTERNAL_PORT/service_component_all/$POLICY_AGENT_APP_NAME)"
-	echo "$body" > $TESTLOGS/$ATC/$1_consul_config.json 2>&1
+	__check_included_image 'RICSIM'
+	if [ $? -eq 0 ]; then
+		rics=$(docker ps -f "name=$RIC_SIM_PREFIX" --format "{{.Names}}")
+		for ric in $rics; do
+			docker logs $ric > $TESTLOGS/$ATC/$1_$ric.log 2>&1
+		done
+	fi
+
 	echo ""
 }
 
 ###############
 ## Generic curl
 ###############
-# Generic curl function, assumed all 200-codes are ok
-# args: <url>
+# Generic curl function, assumes all 200-codes are ok
+# args: <valid-curl-args-including full url>
 # returns: <returned response (without respose code)>  or "<no-response-from-server>" or "<not found, <http-code>>""
 # returns: The return code is 0 for ok and 1 for not ok
 __do_curl() {
 	echo ${FUNCNAME[1]} "line: "${BASH_LINENO[1]} >> $HTTPLOG
-	curlString="curl -skw %{http_code} $1"
+	curlString="curl -skw %{http_code} $@"
 	echo " CMD: $curlString" >> $HTTPLOG
 	res=$($curlString)
 	echo " RESP: $res" >> $HTTPLOG
 	http_code="${res:${#res}-3}"
 	if [ ${#res} -eq 3 ]; then
-  		echo "<no-response-from-server>"
-		return 1
+		if [ $http_code -lt 200 ] || [ $http_code -gt 299 ]; then
+			echo "<no-response-from-server>"
+			return 1
+		else
+			echo "X2" >> $HTTPLOG
+			return 0
+		fi
 	else
 		if [ $http_code -lt 200 ] || [ $http_code -gt 299 ]; then
 			echo "<not found, resp:${http_code}>"
@@ -1978,8 +2104,8 @@ __var_test() {
 				path=${3:5}
 				result="$(__do_curl $2$path)"
 				retcode=$?
-				echo "$result" > .tmp.curl.json
-				result=$(python3 ../common/count_json_elements.py ".tmp.curl.json")
+				echo "$result" > ./tmp/.tmp.curl.json
+				result=$(python3 ../common/count_json_elements.py "./tmp/.tmp.curl.json")
 			fi
 			duration=$((SECONDS-start))
 			echo -ne " Result=${result} after ${duration} seconds${SAMELINE}"
@@ -2036,8 +2162,8 @@ __var_test() {
 			path=${3:5}
 			result="$(__do_curl $2$path)"
 			retcode=$?
-			echo "$result" > .tmp.curl.json
-			result=$(python3 ../common/count_json_elements.py ".tmp.curl.json")
+			echo "$result" > ./tmp/.tmp.curl.json
+			result=$(python3 ../common/count_json_elements.py "./tmp/.tmp.curl.json")
 		fi
 		if [ $retcode -ne 0 ]; then
 			((RES_FAIL++))
