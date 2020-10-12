@@ -25,7 +25,7 @@ WORKDIR /opt/app/enrichment-coordinator-service
 RUN mkdir -p /var/log/enrichment-coordinator-service
 RUN mkdir -p /opt/app/enrichment-coordinator-service/etc/cert/
 
-EXPOSE 8081 8433
+EXPOSE 8083 8434
 
 ADD /config/application.yaml /opt/app/enrichment-coordinator-service/config/application.yaml
 ADD target/${JAR} /opt/app/enrichment-coordinator-service/enrichment-coordinator-service.jar
