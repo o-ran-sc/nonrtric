@@ -106,8 +106,8 @@ export POLICY_AGENT_APP_NAME="policy-agent"                     # Name for Polic
 POLICY_AGENT_LOGPATH="/var/log/policy-agent/application.log"    # Path the application log in the Policy Agent container
 export POLICY_AGENT_APP_NAME_ALIAS="policy-agent-container"     # Alias name, name used by the control panel
 
-export ECS_EXTERNAL_PORT=8082                                   # ECS container external port (host -> container)
-export ECS_INTERNAL_PORT=8082                                   # ECS container internal port (container -> container)
+export ECS_EXTERNAL_PORT=8083                                   # ECS container external port (host -> container)
+export ECS_INTERNAL_PORT=8083                                   # ECS container internal port (container -> container)
 export ECS_EXTERNAL_SECURE_PORT=8434                            # ECS container external secure port (host -> container)
 export ECS_INTERNAL_SECURE_PORT=8434                            # ECS container internal secure port (container -> container)
 
