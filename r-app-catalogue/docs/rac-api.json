@@ -1,0 +1,242 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "rAPP Catalogue API",
+    "description": "The Non RT-RIC Service Catalogue provides a way for services to register themselves for other services to discover.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/services": {
+      "get": {
+        "summary": "Service names",
+        "deprecated": false,
+        "operationId": "getServiceNamesUsingGET",
+        "responses": {
+          "200": {
+            "description": "Service names",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "example": [
+                  "DroneIdentifier",
+                  "Collector"
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not used"
+          }
+        },
+        "tags": [
+          "rAPP Catalogue API"
+        ]
+      }
+    },
+    "/services/{serviceName}": {
+      "get": {
+        "summary": "Individual Service",
+        "deprecated": false,
+        "operationId": "getIndividualServiceUsingGET",
+        "responses": {
+          "200": {
+            "description": "EI Job",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/service"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Service is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error_information"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "in": "path",
+            "name": "serviceName",
+            "description": "serviceName",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "example": "DroneIdentifier"
+          }
+        ],
+        "tags": [
+          "rAPP Catalogue API"
+        ]
+      },
+      "put": {
+        "summary": "Create or update a Service",
+        "deprecated": false,
+        "operationId": "putIndividualServiceUsingPUT",
+        "responses": {
+          "200": {
+            "description": "Service updated"
+          },
+          "201": {
+            "description": "Service created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Service is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error_information"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "serviceName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "DroneIdentifier"
+          }
+        ],
+        "requestBody": {
+          "description": "Service to create/update",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/service"
+              }
+            }
+          }
+        },
+        "tags": [
+          "rAPP Catalogue API"
+        ]
+      },
+      "delete": {
+        "summary": "Remove a Service from the catalogue",
+        "deprecated": false,
+        "operationId": "deleteIndividualServiceUsingDELETE",
+        "responses": {
+          "200": {
+            "description": "Not used"
+          },
+          "204": {
+            "description": "Job deleted"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Service is not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error_information"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "serviceName",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "DroneIdentifier"
+          }
+        ],
+        "tags": [
+          "rAPP Catalogue API"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "service": {
+        "description": "A Service",
+        "type": "object",
+        "title": "service",
+        "required": [
+          "version"
+        ],
+        "properties": {
+          "version": {
+            "description": "Version of the Service",
+            "type": "string",
+            "example": "1.0.0"
+          },
+          "display_name": {
+            "description": "Display name for the Service",
+            "type": "string",
+            "example": "Drone Identifier"
+          },
+          "description": {
+            "description": "Description of the Service",
+            "type": "string",
+            "example": "Detects if a UE is a drone"
+          }
+        }
+      },
+      "error_information": {
+        "description": "Problem as defined in https://tools.ietf.org/html/rfc7807",
+        "type": "object",
+        "title": "error_information",
+        "properties": {
+          "detail": {
+            "description": "A human-readable explanation specific to this occurrence of the problem.",
+            "type": "string",
+            "example": "Service not found"
+          },
+          "status": {
+            "format": "int32",
+            "description": "The HTTP status code generated by the origin server for this occurrence of the problem.",
+            "type": "integer",
+            "example": 404
+          }
+        }
+      }
+    }
+  }
+}

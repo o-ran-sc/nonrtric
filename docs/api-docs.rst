@@ -15,9 +15,10 @@ This is the API-docs of Non-RT RIC.
    :depth: 3
    :local:
 
-The Non-RT RIC consists of two parts, described in the sections below:
+The Non-RT RIC consists of three parts, described in the sections below:
  * The Policy Agent
  * The SDNC A1 Controller
+ * The rAPP Catalogue
 
 
 Policy Agent
@@ -43,6 +44,14 @@ An ONAP SDNC Controller for the A1 interface.
 See :ref:`sdnc-a1-controller-api` for how to use the API.
 
 See the README.md file in the nonrtric/sdnc-a1-controller repo for info about how to use it.
+
+rAPP Catalogue
+==============
+
+The Non RT-RIC Service Catalogue provides a way for services to register themselves for other services to discover.
+
+See `RAC API <./rac-api.html>`_ for how to use the API.
+
 
 Complementary tools
 ===================
