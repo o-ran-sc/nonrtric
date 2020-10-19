@@ -766,7 +766,7 @@ Examples
 
   {
     "id": "Policy 1",
-    "json", {
+    "json": {
       "scope": {
         "ueId": "UE1 ",
         "cellId": "Cell 1"
