@@ -2,6 +2,9 @@
 .. http://creativecommons.org/licenses/by/4.0
 .. Copyright (C) 2020 Nordix
 
+.. _api_docs:
+
+
 ========
 API-Docs
 ========

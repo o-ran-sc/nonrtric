@@ -331,7 +331,7 @@ Get **a specific** policy from a Near |nbh| RT |nbsp| RIC that is using the OSC 
 
 Get **a specific** policy from a Near |nbh| RT |nbsp| RIC that is using the STD 1.1.3 version. ::
 
-    curl -X POST http://localhost:8282/restconf/operations/A1-ADAPTER-API:getA1PolicyType
+    curl -X POST http://localhost:8282/restconf/operations/A1-ADAPTER-API:getA1Policy
     -H Content-Type:application/json -d '{
       "input": {
         "near-rt-ric-url":"http://ricsim_g2_1:8085/A1-P/v1/policies/5000"
