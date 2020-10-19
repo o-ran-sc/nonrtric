@@ -14,7 +14,7 @@ Abstract
 
 This document describes how to install the Non-RT RIC SDNC A1 Controller, its dependencies and required system resources.
 
-This work is in progress. Please visit the `api-docs page`_ for more information about the SDNC A1 Controller and the Policy Agent.
+This work is in progress. Please visit :ref:`api_docs` for more information about the SDNC A1 Controller and the Policy Agent.
 
 .. _api-docs page: ./api-docs.html
 
