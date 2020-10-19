@@ -6,6 +6,8 @@ docs/_build/
 
 # Eclipse
 .checkstyle
+.classpath
+target/
 .sts4-cache
 .project
 .settings
