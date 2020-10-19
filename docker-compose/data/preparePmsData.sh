@@ -25,7 +25,7 @@
 # one policy in a1-sim-STD
 
 # Run command:
-# ./fill_data.sh [policy-agent port] [a1-sim-OSC port] [a1-sim-STD port] [http/https]
+# ./preparePmsData.sh [policy-agent port] [a1-sim-OSC port] [a1-sim-STD port] [http/https]
 
 policy_agent_port=${1:-8081}
 a1_sim_OSC_port=${2:-30001}
