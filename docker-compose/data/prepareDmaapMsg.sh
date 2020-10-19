@@ -25,7 +25,7 @@
 # one policy in a1-sim-STD
 
 # Run command:
-# ./dmaap-msg.sh [dmaap-mr port] [a1-sim-OSC port] [a1-sim-STD port] [http/https]
+# ./prepareDmaapMsg.sh [dmaap-mr port] [a1-sim-OSC port] [a1-sim-STD port] [http/https]
 
 dmaa_mr_port=${1:-3904}
 a1_sim_OSC_port=${2:-30001}
