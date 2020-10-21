@@ -28,7 +28,7 @@ import java.util.Vector;
 import org.oransc.enrichment.exceptions.ServiceException;
 
 /**
- * Dynamic representation of all EI Jobs in the system.
+ * Dynamic representation of all existing EI jobs.
  */
 public class EiJobs {
     private Map<String, EiJob> allEiJobs = new HashMap<>();

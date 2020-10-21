@@ -35,11 +35,12 @@ import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
 
 public class ErrorResponse {
-    private static Gson gson = new GsonBuilder() //
-        .create(); //
+    private static Gson gson = new GsonBuilder().create();
 
     // Returned as body for all failed REST calls
-    @ApiModel(value = "error_information", description = "Problem as defined in https://tools.ietf.org/html/rfc7807")
+    @ApiModel(
+        value = "ProblemDetails",
+        description = "A problem detail to carry details in a HTTP response according to RFC 7807")
     public static class ErrorInfo {
         @SerializedName("type")
         private String type = "about:blank";

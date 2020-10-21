@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Dynamic representation of all EI Types in the system.
+ * Dynamic representation of all EI types in the system.
  */
 @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
 public class EiTypes {

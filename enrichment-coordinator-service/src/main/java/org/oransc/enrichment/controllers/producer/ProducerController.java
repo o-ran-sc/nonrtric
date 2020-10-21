@@ -64,9 +64,7 @@ public class ProducerController {
 
     private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private static Gson gson = new GsonBuilder() //
-        .serializeNulls() //
-        .create(); //
+    private static Gson gson = new GsonBuilder().create();
 
     @Autowired
     private EiJobs eiJobs;
@@ -101,7 +99,7 @@ public class ProducerController {
     }
 
     @GetMapping(path = ProducerConsts.API_ROOT + "/eitypes/{eiTypeId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Individual EI Type", notes = "")
+    @ApiOperation(value = "Individual EI type", notes = "")
     @ApiResponses(
         value = { //
             @ApiResponse(code = 200, message = "EI type", response = ProducerEiTypeInfo.class), //
@@ -146,7 +144,7 @@ public class ProducerController {
     @ApiOperation(value = "Individual EI producer", notes = "")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "EI Jobs", response = ProducerRegistrationInfo.class), //
+            @ApiResponse(code = 200, message = "EI jobs", response = ProducerRegistrationInfo.class), //
             @ApiResponse(
                 code = 404,
                 message = "Enrichment Information producer is not found",
