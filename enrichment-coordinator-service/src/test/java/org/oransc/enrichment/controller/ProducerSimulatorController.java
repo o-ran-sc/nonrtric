@@ -46,7 +46,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController("ProducerSimulatorController")
-@Api(tags = {"Producer Simulator"})
+@Api(tags = {"Producer Callbacks"})
 public class ProducerSimulatorController {
 
     private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -121,7 +121,7 @@ public class ProducerSimulatorController {
     }
 
     @PostMapping(path = JOB_CREATED_ERROR_URL, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Callback for EI job creation, returns error", notes = "")
+    @ApiOperation(value = "Callback for EI job creation, returns error", notes = "", hidden = true)
     @ApiResponses(
         value = { //
             @ApiResponse(code = 200, message = "OK", response = VoidResponse.class)}//
@@ -134,7 +134,7 @@ public class ProducerSimulatorController {
     }
 
     @PostMapping(path = JOB_DELETED_ERROR_URL, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Callback for EI job creation, returns error", notes = "")
+    @ApiOperation(value = "Callback for EI job creation, returns error", notes = "", hidden = true)
     @ApiResponses(
         value = { //
             @ApiResponse(code = 200, message = "OK", response = VoidResponse.class)}//
@@ -158,7 +158,7 @@ public class ProducerSimulatorController {
     }
 
     @GetMapping(path = SUPERVISION_ERROR_URL, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Producer supervision error", notes = "")
+    @ApiOperation(value = "Producer supervision error", notes = "", hidden = true)
     @ApiResponses(
         value = { //
             @ApiResponse(code = 200, message = "OK", response = String.class)}//

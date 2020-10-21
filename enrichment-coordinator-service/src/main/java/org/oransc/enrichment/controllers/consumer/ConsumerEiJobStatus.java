@@ -29,25 +29,25 @@ import io.swagger.annotations.ApiModelProperty;
 import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
-@ApiModel(value = "EiJobStatus", description = "Status for an EI Job")
+@ApiModel(value = "EiJobStatusObject", description = "Status for an EI job")
 public class ConsumerEiJobStatus {
 
     @Gson.TypeAdapters
-    @ApiModel(value = "OperationalState", description = "Represents the operational states for a EI Job")
-    public enum OperationalState {
+    @ApiModel(value = "EiJobStatusValues", description = "Allowed values for EI job status")
+    public enum EiJobStatusValues {
         ENABLED, DISABLED
     }
 
-    private static final String OPERATIONAL_STATE_DESCRIPTION = "Operational state, values:\n" //
-        + "ENABLED: TBD\n" //
-        + "DISABLED: TBD.";
+    private static final String OPERATIONAL_STATE_DESCRIPTION = "values:\n" //
+        + "ENABLED: the A1-EI producer is able to deliver EI result for the EI job\n" //
+        + "DISABLED: the A1-EI producer is unable to deliver EI result for the EI job";
 
-    @ApiModelProperty(value = OPERATIONAL_STATE_DESCRIPTION, name = "operational_state", required = true)
-    @SerializedName("operationalState")
-    @JsonProperty(value = "operationalState", required = true)
-    public final OperationalState state;
+    @ApiModelProperty(value = OPERATIONAL_STATE_DESCRIPTION, name = "eiJobStatus", required = true)
+    @SerializedName("eiJobStatus")
+    @JsonProperty(value = "eiJobStatus", required = true)
+    public final EiJobStatusValues state;
 
-    public ConsumerEiJobStatus(OperationalState state) {
+    public ConsumerEiJobStatus(EiJobStatusValues state) {
         this.state = state;
     }
 

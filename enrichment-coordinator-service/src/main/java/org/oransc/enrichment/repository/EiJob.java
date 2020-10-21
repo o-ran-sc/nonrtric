@@ -24,7 +24,7 @@ import org.immutables.gson.Gson;
 import org.immutables.value.Value;
 
 /**
- * Represents the dynamic information about a EI Job
+ * Represents the dynamic information about a EI job
  */
 @Value.Immutable
 @Gson.TypeAdapters
