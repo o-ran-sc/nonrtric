@@ -29,28 +29,39 @@ import io.swagger.annotations.ApiModelProperty;
 import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
-@ApiModel(value = "EiJob", description = "Information for an Enrichment Information Job")
+@ApiModel(value = "EiJobObject", description = "Information for an Enrichment Information Job")
 public class ConsumerEiJobInfo {
+
+    @ApiModelProperty(value = "EI type Idenitifier of the EI job", required = true)
+    @SerializedName("eiTypeId")
+    @JsonProperty(value = "eiTypeId", required = true)
+    public String eiTypeId;
 
     @ApiModelProperty(value = "Identity of the owner of the job", required = true)
     @SerializedName("jobOwner")
     @JsonProperty(value = "jobOwner", required = true)
     public String owner;
 
-    @ApiModelProperty(value = "EI Type specific job data", required = true)
-    @SerializedName("jobParameters")
-    @JsonProperty(value = "jobParameters", required = true)
+    @ApiModelProperty(value = "EI type specific job data", required = true)
+    @SerializedName("jobDefinition")
+    @JsonProperty(value = "jobDefinition", required = true)
     public Object jobData;
 
-    @ApiModelProperty(value = "The target of the EI data", required = true)
-    @SerializedName("targetUri")
-    @JsonProperty(value = "targetUri", required = true)
+    @ApiModelProperty(value = "The target URI of the EI data", required = true)
+    @SerializedName("jobResultUri")
+    @JsonProperty(value = "jobResultUri", required = true)
     public String targetUri;
+
+    @ApiModelProperty(value = "The target of EI job status notifications", required = false)
+    @SerializedName("jobStatusNotificationUri")
+    @JsonProperty(value = "jobStatusNotificationUri", required = false)
+    public String statusNotificationUri;
 
     public ConsumerEiJobInfo() {
     }
 
-    public ConsumerEiJobInfo(Object jobData, String owner, String targetUri) {
+    public ConsumerEiJobInfo(String eiTypeId, Object jobData, String owner, String targetUri) {
+        this.eiTypeId = eiTypeId;
         this.jobData = jobData;
         this.owner = owner;
         this.targetUri = targetUri;

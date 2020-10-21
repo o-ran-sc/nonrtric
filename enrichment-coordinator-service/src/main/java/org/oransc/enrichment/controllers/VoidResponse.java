@@ -25,7 +25,7 @@ import io.swagger.annotations.ApiModel;
 import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
-@ApiModel(value = "void", description = "Void/empty")
+@ApiModel(value = "Void", description = "Void/empty")
 public class VoidResponse {
     private VoidResponse() {
     }
