@@ -143,16 +143,16 @@ ecs_api_a1_get_type() {
 	return 0
 }
 
-# API Test function: GET ​/A1-EI​/v1​/eitypes
-# args: <response-code> (EMPTY | [<type-id>]+)
+# API Test function: GET /A1-EI/v1/eitypes
+# args: <response-code> [ (EMPTY | [<type-id>]+) ]
 # (Function for test scripts)
 ecs_api_a1_get_type_ids() {
 	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
     echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
 	((RES_TEST++))
 
-    if [ $# -lt 2 ]; then
-		__print_err "<response-code> (EMPTY | [<type-id>]+)" $@
+    if [ $# -lt 1 ]; then
+		__print_err "<response-code> [ (EMPTY | [<type-id>]+) ]" $@
 		return 1
 	fi
 
@@ -166,25 +166,27 @@ ecs_api_a1_get_type_ids() {
 		__check_stop_at_error
 		return 1
 	fi
-	body=${res:0:${#res}-3}
-	targetJson="["
-	if [ $2 != "EMPTY" ]; then
-		for pid in ${@:2} ; do
-			if [ "$targetJson" != "[" ]; then
-				targetJson=$targetJson","
-			fi
-			targetJson=$targetJson"\"$pid\""
-		done
-	fi
-	targetJson=$targetJson"]"
-	echo " TARGET JSON: $targetJson" >> $HTTPLOG
-	res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+	if [ $# -gt 1 ]; then
+		body=${res:0:${#res}-3}
+		targetJson="["
+		if [ $2 != "EMPTY" ]; then
+			for pid in ${@:2} ; do
+				if [ "$targetJson" != "[" ]; then
+					targetJson=$targetJson","
+				fi
+				targetJson=$targetJson"\"$pid\""
+			done
+		fi
+		targetJson=$targetJson"]"
+		echo " TARGET JSON: $targetJson" >> $HTTPLOG
+		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
-	if [ $res -ne 0 ]; then
-		echo -e $RED" FAIL, returned body not correct"$ERED
-		((RES_FAIL++))
-		__check_stop_at_error
-		return 1
+		if [ $res -ne 0 ]; then
+			echo -e $RED" FAIL, returned body not correct"$ERED
+			((RES_FAIL++))
+			__check_stop_at_error
+			return 1
+		fi
 	fi
 
 	((RES_PASS++))
@@ -425,7 +427,7 @@ ecs_api_edp_get_producer_status() {
 	((RES_TEST++))
 
     if [ $# -lt 2 ] || [ $# -gt 3 ]; then
-		__print_err "<response-code> <producer-id> <status>" $@
+		__print_err "<response-code> <producer-id> [<status>]" $@
 		return 1
 	fi
 
@@ -514,7 +516,7 @@ ecs_api_edp_get_producer_ids() {
 }
 
 # API Test function: GET /ei-producer/v1/eitypes/{eiTypeId}
-# args: <response-code> <type-id> [<job-schema-file> (NOID | [<producer-id>]+)]
+# args: <response-code> <type-id> [<job-schema-file> (EMPTY | [<producer-id>]+)]
 # (Function for test scripts)
 ecs_api_edp_get_type() {
 	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
@@ -529,7 +531,7 @@ ecs_api_edp_get_type() {
 		paramError=0
 	fi
     if [ $paramError -ne 0 ]; then
-		__print_err "<response-code> <type-id> [<job-schema-file> NOID | ([<producer-id>]+)]" $@
+		__print_err "<response-code> <type-id> [<job-schema-file> 'EMPTY' | ([<producer-id>]+)]" $@
 		return 1
 	fi
 

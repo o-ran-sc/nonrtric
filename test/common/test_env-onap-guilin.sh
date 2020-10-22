@@ -23,34 +23,20 @@
 # This var will point to the local or remote var depending on how
 # the test script is started. The name format is <container-name>_IMAGE, ie with 'LOCAL' or 'REMOTE'.
 
-# Local Policy Agent image and tag
-POLICY_AGENT_LOCAL_IMAGE="o-ran-sc/nonrtric-policy-agent"
-POLICY_AGENT_LOCAL_IMAGE_TAG="2.1.0-SNAPSHOT"
+# Tag for guilin branch
 # Remote Policy Agent image and tag
-POLICY_AGENT_REMOTE_IMAGE="nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-policy-agent"
-POLICY_AGENT_REMOTE_IMAGE_TAG="2.1.0"
+POLICY_AGENT_REMOTE_IMAGE="nexus3.onap.org:10003/onap/ccsdk-oran-a1policymanagementservice"
+POLICY_AGENT_REMOTE_IMAGE_TAG="1.0.1-SNAPSHOT"
 
-# Local ECS image and tag
-ECS_LOCAL_IMAGE="o-ran-sc/nonrtric-enrichment-coordinator-service"
-ECS_LOCAL_IMAGE_TAG="1.0.0-SNAPSHOT"
-# Remote ECS image and tag
-ECS_REMOTE_IMAGE="nexus3.o-ran-sc.org:10003/o-ran-sc/nonrtric-enrichment-coordinator-service"
-ECS_REMOTE_IMAGE_TAG="1.0.0-SNAPSHOT"
 
-# Control Panel local image and tag
-CONTROL_PANEL_LOCAL_IMAGE="o-ran-sc/nonrtric-controlpanel"
-CONTROL_PANEL_LOCAL_IMAGE_TAG="2.0.0-SNAPSHOT"
 # Control Panel remote image and tag
 CONTROL_PANEL_REMOTE_IMAGE="nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-controlpanel"
 CONTROL_PANEL_REMOTE_IMAGE_TAG="2.0.0"
 
-
-# SDNC A1 Controller local image and tag
-SDNC_A1_CONTROLLER_LOCAL_IMAGE="o-ran-sc/nonrtric-a1-controller"
-SDNC_A1_CONTROLLER_LOCAL_IMAGE_TAG="2.1.0-SNAPSHOT"
+# Tag for guilin branch
 # SDNC A1 Controller remote image and tag
-SDNC_A1_CONTROLLER_REMOTE_IMAGE="nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-a1-controller"
-SDNC_A1_CONTROLLER_REMOTE_IMAGE_TAG="2.1.0"
+SDNC_A1_CONTROLLER_REMOTE_IMAGE="nexus3.onap.org:10003/onap/sdnc-image"
+SDNC_A1_CONTROLLER_REMOTE_IMAGE_TAG="2.0.2-STAGING-latest"
 
 
 #SDNC DB remote image and tag
@@ -59,9 +45,6 @@ SDNC_DB_REMOTE_IMAGE_TAG="5.6"
 #No local image for DB, remote image always used
 
 
-# Near RT RIC Simulator local image and tag
-RIC_SIM_LOCAL_IMAGE="nexus3.o-ran-sc.org:10004/o-ran-sc/a1-simulator"
-RIC_SIM_LOCAL_IMAGE_TAG="latest"
 # Near RT RIC Simulator remote image and tag
 RIC_SIM_REMOTE_IMAGE="nexus3.o-ran-sc.org:10004/o-ran-sc/a1-simulator"
 RIC_SIM_REMOTE_IMAGE_TAG="2.0.0"
@@ -89,11 +72,6 @@ CR_LOCAL_IMAGE="callback-receiver"
 CR_LOCAL_IMAGE_TAG="latest"
 #No remote image for CR, local image always used
 
-#Producer stub image and tag
-PROD_STUB_LOCAL_IMAGE="producer-stub"
-PROD_STUB_LOCAL_IMAGE_TAG="latest"
-#No remote image for producer stub, local image always used
-
 # Common env var for auto-test. Vars used by docker-compose need to be exported
 export DOCKER_SIM_NWNAME="nonrtric-docker-net"                  # Name of docker private network
 
@@ -105,15 +83,6 @@ export POLICY_AGENT_INTERNAL_SECURE_PORT=8433                   # Policy Agent c
 export POLICY_AGENT_APP_NAME="policy-agent"                     # Name for Policy Agent container
 POLICY_AGENT_LOGPATH="/var/log/policy-agent/application.log"    # Path the application log in the Policy Agent container
 export POLICY_AGENT_APP_NAME_ALIAS="policy-agent-container"     # Alias name, name used by the control panel
-
-export ECS_EXTERNAL_PORT=8083                                   # ECS container external port (host -> container)
-export ECS_INTERNAL_PORT=8083                                   # ECS container internal port (container -> container)
-export ECS_EXTERNAL_SECURE_PORT=8434                            # ECS container external secure port (host -> container)
-export ECS_INTERNAL_SECURE_PORT=8434                            # ECS container internal secure port (container -> container)
-
-export ECS_APP_NAME="ecs"                                       # Name for ECS container
-ECS_LOGPATH="/var/log/enrichment-coordinator-service/application.log" # Path the application log in the ECS container
-export ECS_APP_NAME_ALIAS="enrichment-service-container"        # Alias name, name used by the control panel
 
 export MR_EXTERNAL_PORT=3905                                    # MR stub container external port (host -> container)
 export MR_INTERNAL_PORT=3905                                    # MR stub container internal port (container -> container)
@@ -128,12 +97,6 @@ export CR_INTERNAL_PORT=8090                                    # Callback recei
 export CR_EXTERNAL_SECURE_PORT=8091                             # Callback receiver container external secure port (host -> container)
 export CR_INTERNAL_SECURE_PORT=8091                             # Callback receiver container internal secure port (container -> container)
 export CR_APP_NAME="callback-receiver"                          # Name for the Callback receiver
-
-export PROD_STUB_EXTERNAL_PORT=8092                             # Producer stub container external port (host -> container)
-export PROD_STUB_INTERNAL_PORT=8092                             # Producer stub container internal port (container -> container)
-export PROD_STUB_EXTERNAL_SECURE_PORT=8093                      # Producer stub container external secure port (host -> container)
-export PROD_STUB_INTERNAL_SECURE_PORT=8093                      # Producer stub container internal secure port (container -> container)
-export PROD_STUB_APP_NAME="producer-stub"                       # Name for the Producer stub
 
 export CONSUL_HOST="consul-server"                              # Host name of consul
 export CONSUL_EXTERNAL_PORT=8500                                # Consul container external port (host -> container)
@@ -160,12 +123,13 @@ export SDNC_INTERNAL_PORT=8181                                  # SNDC A1 Contro
 export SDNC_EXTERNAL_SECURE_PORT=8443                           # SNDC A1 Controller container external securee port (host -> container)
 export SDNC_INTERNAL_SECURE_PORT=8443                           # SNDC A1 Controller container internal secure port (container -> container)
 export SDNC_DB_APP_NAME="sdnc-db"                               # Name of the SDNC DB container
-export SDNC_A1_TRUSTSTORE_PASSWORD=""                           # SDNC truststore password
+export SDNC_A1_TRUSTSTORE_PASSWORD="a1adapter"                  # SDNC truststore password
 SDNC_USER="admin"                                               # SDNC username
 SDNC_PWD="Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U"          # SNDC PWD
 SDNC_API_URL="/restconf/operations/A1-ADAPTER-API:"             # Base url path for SNDC API
 SDNC_ALIVE_URL="/apidoc/explorer/"                              # Base url path for SNDC API docs (for alive check)
 SDNC_KARAF_LOG="/opt/opendaylight/data/log/karaf.log"           # Path to karaf log
+
 
 export CONTROL_PANEL_APP_NAME="control-panel"                   # Name of the Control Panel container
 export CONTROL_PANEL_EXTERNAL_PORT=8080                         # Control Panel container external port (host -> container)
@@ -173,17 +137,11 @@ export CONTROL_PANEL_INTERNAL_PORT=8080                         # Control Panel 
 CONTROL_PANEL_LOGPATH="/logs/nonrtric-controlpanel.log"         # Path the application log in the Control Panel container
 
 UUID=""                                                         # UUID used as prefix to the policy id to simulate a real UUID
-                                                                # Testscript need to set the UUID otherwise this empty prefix is used
+                                                                # Testscript need to set the UUID to use other this empty prefix is used
 
 RESTBASE="http://localhost:"$POLICY_AGENT_EXTERNAL_PORT         # Base url to the Agent NB REST interface
 RESTBASE_SECURE="https://localhost:"$POLICY_AGENT_EXTERNAL_SECURE_PORT # Base url to the secure Agent NB REST interface
 DMAAPBASE="http://localhost:"$MR_EXTERNAL_PORT                  # Base url to the Dmaap adapter, http
 DMAAPBASE_SECURE="https://localhost:"$MR_EXTERNAL_SECURE_PORT   # Base url to the Dmaap adapter, https
 ADAPTER=$RESTBASE                                               # Adapter holds the address the agent R-APP interface (REST OR DMAAP)
-                                                                # The values of this var is swiched between the four base url when needed
-ECS_RESTBASE="http://localhost:"$ECS_EXTERNAL_PORT              # Base url to the ECS NB REST interface
-ECS_RESTBASE_SECURE="https://localhost:"$ECS_EXTERNAL_SECURE_PORT # Base url to the secure ECS NB REST interface
-ECS_DMAAPBASE="http://localhost:"$MR_EXTERNAL_PORT              # Base url to the Dmaap adapter, http
-ECS_DMAAPBASE_SECURE="https://localhost:"$MR_EXTERNAL_SECURE_PORT   # Base url to the Dmaap adapter, https
-ECS_ADAPTER=$ECS_RESTBASE                                       # Adapter holds the address the ECS R-APP interface (REST OR DMAAP)
-                                                                # The values of this var is swiched between the four base url when needed
+                                                                # The values of this var is swiched between the two base url when needed
