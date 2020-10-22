@@ -24,6 +24,9 @@ var LOCALHOST="http://127.0.0.1:"
 var MRSTUB_PORT="3905"
 var AGENT_PORT="8081"
 var CR_PORT="8090"
+var ECS_PORT=8082
+var PRODSTUB_PORT=8092
+
 var http = require('http');
 
 var express = require('express');
@@ -37,11 +40,10 @@ app.get("/",function(req, res){
 	res.send("ok");
 })
 
-//Get parameter valuue from other server
+//Get parameter value from other server
 function getSimCtr(url, index, cb) {
     var data = '';
 
-    //console.log("URL: "+ url + " - ")
     try {
         http.get(url, (resp) => {
             // A chunk of data has been recieved.
@@ -162,6 +164,7 @@ var ag1=""
 var ag2=""
 var ag3=""
 var ag4=""
+var ag5=""
 
 //Status variables for callback receiver
 var cr1=""
@@ -179,21 +182,42 @@ var simvar2=[]
 var simvar3=[]
 var simvar4=[]
 var simvar5=[]
+var simvar6=[]
+
+//Status variables, for parameters values fetched from ecs
+var ecs1="", ecs2="", ecs3="", ecs4="", ecs_types="-", ecs_producers="-";
+var ecs_producer_arr=new Array(0)
+var ecs_producer_type_arr=new Array(0)
+var ecs_producer_jobs_arr=new Array(0)
+var ecs_producer_status_arr=new Array(0)
+
+//Status variables, for parameters values fetched from prodstub
+var ps2="", ps3="", ps4="", ps_types="-", ps_producers="-";
+var ps_producer_type_arr=new Array(0)
+var ps_producer_jobs_arr=new Array(0)
+var ps_producer_delivery_arr=new Array(0)
 
 //Counts the number of get request for the html page
 var getCtr=0
 
-var refreshInterval=4000
+var refreshCount_pol=-1
+
+var refreshCount_ecs=-1
 
 var ricbasename="ricsim"
 
-function fetchAllMetrics() {
+function fetchAllMetrics_pol() {
+
+    console.log("Fetching policy metrics " + refreshCount_pol)
+
+    if (refreshCount_pol < 0) {
+        refreshCount_pol = -1
+        return
+    } else {
+        refreshCount_pol = refreshCount_pol - 1
+    }
     setTimeout(() => {
 
-        console.log("Fetching all metics data")
-        if (refreshInterval < 20000) {
-            refreshInterval+=100
-        }
         if (getCtr%3 == 0) {
             //Extract the port numbers from the running simulators, for every 3 calls
             const { exec } = require('child_process');
@@ -248,6 +272,12 @@ function fetchAllMetrics() {
                 getSimCtr(LOCALHOST+simports[index]+"/counter/remote_hosts", index, function(data,index) {
                     simvar5[index] = data;
                     clearFlag("simvar5_"+index)
+                });
+            }
+            if (checkFunctionFlag("simvar6_"+index)) {
+                getSimCtr(LOCALHOST+simports[index]+"/counter/datadelivery", index, function(data,index) {
+                    simvar6[index] = data;
+                    clearFlag("simvar6_"+index)
                 });
             }
         }
@@ -352,9 +382,9 @@ function fetchAllMetrics() {
                 clearFlag("ag3")
             });
         }
+
         if (checkFunctionFlag("ag4")) {
             getSimCtr(LOCALHOST+AGENT_PORT+"/policy_ids", 0, function(data, index) {
-                ag4=""
                 try {
                     var jd=JSON.parse(data);
                     ag4=""+jd.length
@@ -366,18 +396,348 @@ function fetchAllMetrics() {
             });
         }
 
+        if (checkFunctionFlag("ag5")) {
+            getSimCtr(LOCALHOST+AGENT_PORT+"/rics", 0, function(data, index) {
+                try {
+                    var jd=JSON.parse(data);
+                    ag5=""+jd.length
+                }
+                catch (err) {
+                    ag5=""
+                }
+                clearFlag("ag5")
+            });
+        }
 
-        fetchAllMetrics();
-    }, refreshInterval)
+        fetchAllMetrics_pol();
+
+    }, 500)
 }
 
-fetchAllMetrics();
+function fetchAllMetrics_ecs() {
 
-setInterval(() => {
-    console.log("Setting interval "+refreshInterval+"ms")
-}, refreshInterval)
+    console.log("Fetching enrichment metrics - timer:" + refreshCount_ecs)
 
+    if (refreshCount_ecs < 0) {
+        refreshCount_ecs = -1
+        return
+    } else {
+        refreshCount_ecs = refreshCount_ecs - 1
+    }
+    setTimeout(() => {
+
+        if (checkFunctionFlag("ecs_stat")) {
+            getSimCtr(LOCALHOST+ECS_PORT+"/status", 0, function(data, index) {
+                ecs1=""
+                ecs2=""
+                ecs3=""
+                ecs4=""
+                try {
+                    var jd=JSON.parse(data);
+                    ecs1=jd["status"]
+                    ecs2=""+jd["no_of_producers"]
+                    ecs3=""+jd["no_of_types"]
+                    ecs4=""+jd["no_of_jobs"]
+                }
+                catch (err) {
+                    ecs1="error response"
+                    ecs2="error response"
+                    ecs3="error response"
+                    ecs4="error response"
+                }
+            });
+
+            getSimCtr(LOCALHOST+ECS_PORT+"/ei-producer/v1/eitypes", 0, function(data, index) {
+                ecs_types="-"
+                try {
+                    var jd=JSON.parse(data);
+                    for(var i=0;i<jd.length;i++) {
+                        if (ecs_types.length == 1) {
+                            ecs_types=""
+                        }
+                        ecs_types=""+ecs_types+jd[i]+" "
+                    }
+                }
+                catch (err) {
+                    ecs_types="error response"
+                }
+            });
+
+            getSimCtr(LOCALHOST+ECS_PORT+"/ei-producer/v1/eiproducers", 0, function(data, index) {
+                ecs_producers="-"
+                try {
+                    var jd=JSON.parse(data);
+                    var tmp_ecs_producer_arr=new Array(jd.length)
+                    for(var i=0;i<jd.length;i++) {
+                        if (ecs_producers.length == 1) {
+                            ecs_producers=""
+                        }
+                        ecs_producers=""+ecs_producers+jd[i]+" "
+                        tmp_ecs_producer_arr[i]=jd[i]
+                    }
+                    ecs_producer_arr = tmp_ecs_producer_arr
+                }
+                catch (err) {
+                    ecs_producers="error response"
+                    ecs_producer_arr=new Array(0)
+                }
+            });
+
+            ecs_producer_type_arr = JSON.parse(JSON.stringify(ecs_producer_arr))
+            for(var x=0;x<ecs_producer_type_arr.length;x++) {
+                getSimCtr(LOCALHOST+ECS_PORT+"/ei-producer/v1/eiproducers/"+ecs_producer_type_arr[x], x, function(data, x) {
+                    var row=""+ecs_producer_type_arr[x]+" : "
+                    try {
+                        var jd=JSON.parse(data);
+                        var jda=jd["supported_ei_types"]
+                        for(var j=0;j<jda.length;j++) {
+                            row=""+row+jda[j]["ei_type_identity"]+" "
+                        }
+                        ecs_producer_type_arr[x]=row
+                    }
+                    catch (err) {
+                        ecs_producer_type_arr=new Array(0)
+                    }
+                });
+            }
+
+            ecs_producer_jobs_arr = JSON.parse(JSON.stringify(ecs_producer_arr))
+            for(var x=0;x<ecs_producer_jobs_arr.length;x++) {
+                getSimCtr(LOCALHOST+ECS_PORT+"/ei-producer/v1/eiproducers/"+ecs_producer_jobs_arr[x]+"/eijobs", x, function(data, x) {
+                    var row=""+ecs_producer_jobs_arr[x]+" : "
+                    try {
+                        var jd=JSON.parse(data);
+                        for(var j=0;j<jd.length;j++) {
+                            var jda=jd[j]
+                            row=""+row+jda["ei_job_identity"]+"("+jda["ei_type_identity"]+") "
+                        }
+                        ecs_producer_jobs_arr[x]=row
+                    }
+                    catch (err) {
+                        ecs_producer_jobs_arr=new Array(0)
+                    }
+                });
+            }
+
+            ecs_producer_status_arr = JSON.parse(JSON.stringify(ecs_producer_arr))
+            for(var x=0;x<ecs_producer_status_arr.length;x++) {
+                getSimCtr(LOCALHOST+ECS_PORT+"/ei-producer/v1/eiproducers/"+ecs_producer_status_arr[x]+"/status", x, function(data, x) {
+                    var row=""+ecs_producer_status_arr[x]+" : "
+                    try {
+                        var jd=JSON.parse(data);
+                        row=""+row+jd["operational_state"]
+                        ecs_producer_status_arr[x]=row
+                    }
+                    catch (err) {
+                        ecs_producer_status_arr=new Array(0)
+                    }
+                });
+            }
+            clearFlag("ecs_stat")
+        }
+        if (checkFunctionFlag("prodstub_stat")) {
+            getSimCtr(LOCALHOST+PRODSTUB_PORT+"/status", x, function(data, x) {
+                var ctr2_map=new Map()
+                var ctr3_map=new Map()
+                var ctr2=0
+                var ctr4=0
+                ps_producers=""
+                ps_types=""
+                ps_producer_type_arr=new Array()
+                ps_producer_jobs_arr=new Array()
+                ps_producer_delivery_arr=new Array()
+                ps2=""
+                ps3=""
+                ps4=""
+                try {
+                    var jp=JSON.parse(data);
+                    for(var prod_name in jp) {
+                        ctr2_map.set(prod_name, prod_name)
+                        ctr2 += 1
+                        var jj=jp[prod_name]
+                        var row=""+prod_name+" : "
+                        var rowj=""+prod_name+" : "
+                        var rowd=""+prod_name+" : "
+                        ps_producers += prod_name + " "
+                        for(var ji in jj) {
+                            if (ji == "types") {
+                                var ta=jj[ji]
+                                for(var i=0;i<ta.length;i++) {
+                                    ctr3_map.set(ta[i], ta[i])
+                                    row += " "+ta[i]
+                                }
+                            } else if (ji == "supervision_response") {
+                            } else if (ji == "supervision_counter") {
+                            } else if (ji == "types") {
+                            } else {
+                                ctr4 += 1
+                                rowj += " "+ji
+                                rowd += " "+ji
+                                var job_data=jj[ji]["json"]
+                                if (job_data != undefined) {
+                                    rowj += "("+job_data["ei_type_identity"]+")"
+                                }
+                                rowd += "("+jj[ji]["delivery_attempts"]+")"
+                            }
+                        }
+                        ps_producer_type_arr[(ctr2-1)]=row
+                        ps_producer_jobs_arr[(ctr2-1)]=rowj
+                        ps_producer_delivery_arr[(ctr2-1)]=rowd
+                    }
+                    ps2=""+ctr2_map.size
+                    ps3=""+ctr3_map.size
+                    for(const [key, value] of ctr3_map.entries()) {
+                        ps_types += key + " "
+                    }
+                    ps4=""+ctr4
+                }
+                catch (err) {
+                    console.error(err);
+                    ps_producers="error response"
+                    ps_types="error response"
+                    ps_producer_type_arr=new Array()
+                    ps_producer_jobs_arr=new Array()
+                    ps_producer_delivery_arr=new Array()
+                    ps2="error response"
+                    ps3="error response"
+                    ps4="error response"
+                }
+            });
+            clearFlag("prodstub_stat")
+        }
+
+        fetchAllMetrics_ecs();
+
+    }, 500)
+}
+
+// Monitor for ECS
+app.get("/mon2",function(req, res){
+
+    console.log("Creating enrichment metrics - timer: " + refreshCount_ecs)
+
+    if (refreshCount_ecs < 0) {
+        refreshCount_ecs=5
+        fetchAllMetrics_ecs()
+    }
+    refreshCount_ecs=5
+
+    var summary=req.query.summary
+
+    if (summary == undefined) {
+        return res.redirect('/mon2?summary=false');
+    }
+
+  //Build web page
+	var htmlStr = "<!DOCTYPE html>" +
+          "<html>" +
+          "<head>" +
+            "<meta http-equiv=\"refresh\" content=\"2\">"+  //2 sec auto refresh
+            "<title>Enrichment coordinator service and producer stub</title>"+
+            "</head>" +
+            "<body>" +
+            "<font size=\"-3\" face=\"summary\">"
+            if (summary == "false") {
+                htmlStr=htmlStr+"<p>Set query param '?summary' to true to only show summary statistics</p>"
+            } else {
+                htmlStr=htmlStr+"<p>Set query param '?summary' to false to only show full statistics</p>"
+            }
+            htmlStr=htmlStr+"</font>" +
+            "<h3>Enrichment Coordinator Service</h3>" +
+            "<font face=\"monospace\">" +
+            "Status:..........." + formatDataRow(ecs1) + "<br>" +
+            "Producers:........" + formatDataRow(ecs2) + "<br>" +
+            "Types:............" + formatDataRow(ecs3) + "<br>" +
+            "Jobs:............." + formatDataRow(ecs4) + "<br>" +
+            "</font>"
+            if (summary == "false") {
+                htmlStr=htmlStr+
+                "<h4>Details</h4>" +
+                "<font face=\"monospace\">" +
+                "Producer ids:....." + formatDataRow(ecs_producers) + "<br>" +
+                "Type ids:........." + formatDataRow(ecs_types) + "<br>" +
+                "<br>";
+                for(var i=0;i<ecs_producer_type_arr.length;i++) {
+                    var tmp=ecs_producer_type_arr[i]
+                    if (tmp != undefined) {
+                        var s = "Producer types...." + formatDataRow(ecs_producer_type_arr[i]) + "<br>"
+                        htmlStr=htmlStr+s
+                    }
+                }
+                htmlStr=htmlStr+"<br>";
+                for(var i=0;i<ecs_producer_jobs_arr.length;i++) {
+                    var tmp=ecs_producer_jobs_arr[i]
+                    if (tmp != undefined) {
+                        var s = "Producer jobs....." + formatDataRow(ecs_producer_jobs_arr[i]) + "<br>"
+                        htmlStr=htmlStr+s
+                    }
+                }
+                htmlStr=htmlStr+"<br>";
+                for(var i=0;i<ecs_producer_status_arr.length;i++) {
+                    var tmp=ecs_producer_status_arr[i]
+                    if (tmp != undefined) {
+                        var s = "Producer status..." + formatDataRow(ecs_producer_status_arr[i]) + "<br>"
+                        htmlStr=htmlStr+s
+                    }
+                }
+                htmlStr=htmlStr+"<br>"+"<br>" +
+                "</font>"
+            }
+            htmlStr=htmlStr+
+            "<h3>Producer stub</h3>" +
+            "<font face=\"monospace\">" +
+            "Producers:........" + formatDataRow(ps2) + "<br>" +
+            "Types:............" + formatDataRow(ps3) + "<br>" +
+            "Jobs:............." + formatDataRow(ps4) + "<br>" +
+            "</font>"
+            if (summary == "false") {
+                htmlStr=htmlStr+
+                "<h4>Details</h4>" +
+                "<font face=\"monospace\">" +
+                "Producer ids:....." + formatDataRow(ps_producers) + "<br>" +
+                "Type ids:........." + formatDataRow(ps_types) + "<br>" +
+                "<br>";
+                for(var i=0;i<ps_producer_type_arr.length;i++) {
+                    var tmp=ps_producer_type_arr[i]
+                    if (tmp != undefined) {
+                        var s = "Producer types...." + formatDataRow(ps_producer_type_arr[i]) + "<br>"
+                        htmlStr=htmlStr+s
+                    }
+                }
+                htmlStr=htmlStr+"<br>";
+                for(var i=0;i<ps_producer_jobs_arr.length;i++) {
+                    var tmp=ps_producer_jobs_arr[i]
+                    if (tmp != undefined) {
+                        var s = "Producer jobs....." + formatDataRow(ps_producer_jobs_arr[i]) + "<br>"
+                        htmlStr=htmlStr+s
+                    }
+                }
+                htmlStr=htmlStr+"<br>";
+                for(var i=0;i<ps_producer_delivery_arr.length;i++) {
+                    var tmp=ps_producer_delivery_arr[i]
+                    if (tmp != undefined) {
+                        var s = "Producer delivery." + formatDataRow(ps_producer_delivery_arr[i]) + "<br>"
+                        htmlStr=htmlStr+s
+                    }
+                }
+            }
+            htmlStr=htmlStr+
+            "</font>" +
+           "</body>" +
+          "</html>";
+	res.send(htmlStr);
+})
+
+// Monitor for policy management
 app.get("/mon",function(req, res){
+
+    console.log("Creating policy metrics page " + refreshCount_pol)
+
+    if (refreshCount_pol < 0) {
+        refreshCount_pol=5
+        fetchAllMetrics_pol()
+    }
+    refreshCount_pol=5
 
     var bn=req.query.basename
 
@@ -388,9 +748,7 @@ app.get("/mon",function(req, res){
         ricbasename=bn
     }
 
-    refreshInterval=2000
-
-  //Build web page
+    //Build web page
 	var htmlStr = "<!DOCTYPE html>" +
           "<html>" +
           "<head>" +
@@ -407,6 +765,7 @@ app.get("/mon",function(req, res){
             "Services:............................." + formatIdRowCompact(ag2) + "<br>" +
             "Types:................................" + formatIdRowCompact(ag3) + "<br>" +
             "Number of instances:.................." + formatDataRow(ag4) + "<br>" +
+            "Near-RT RICs:........................." + formatDataRow(ag5) + "<br>" +
             "</font>" +
             "<h3>MR Stub interface</h3>" +
             "<font face=\"monospace\">"+
@@ -428,12 +787,14 @@ app.get("/mon",function(req, res){
 
             htmlStr=htmlStr+padding("Near-RT RIC Simulator name", 35,"&nbsp;")
             htmlStr=htmlStr+padding("Types", 10,"&nbsp;")
-            htmlStr=htmlStr+padding("Instances", 10,"&nbsp;")+"<br>"
-            htmlStr=htmlStr+padding("",55,"=")+"<br>"
+            htmlStr=htmlStr+padding("Instances", 12,"&nbsp;")
+            htmlStr=htmlStr+padding("Data delivery", 12,"&nbsp;")+"<br>"
+            htmlStr=htmlStr+padding("",70,"=")+"<br>"
             for(var simIndex=0;simIndex<simnames.length;simIndex++) {
                 htmlStr=htmlStr+padding(simnames[simIndex]+ " ("+simports[simIndex]+")",35,"&nbsp;");
                 htmlStr=htmlStr+padding(simvar2[simIndex],10,"&nbsp;")
-                htmlStr=htmlStr+padding(simvar1[simIndex],10,"&nbsp;")
+                htmlStr=htmlStr+padding(simvar1[simIndex],12    ,"&nbsp;")
+                htmlStr=htmlStr+padding(simvar6[simIndex],12,"&nbsp;")
                 htmlStr=htmlStr+"<br>";
             }
 
@@ -469,4 +830,5 @@ var httpServer = http.createServer(app);
 var httpPort=9999;
 httpServer.listen(httpPort);
 console.log("Simulator monitor listening (http) at "+httpPort);
-console.log("Open the web page on localhost:9999/mon to view the statistics page.")
+console.log("Open the web page on localhost:9999/mon to view the policy statistics page.")
+console.log("Open the web page on localhost:9999/mon2 to view the enrichment statistics page.")

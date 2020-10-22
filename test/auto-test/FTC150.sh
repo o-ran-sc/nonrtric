@@ -29,6 +29,11 @@ INCLUDED_IMAGES="RICSIM SDNC"
 
 #### TEST BEGIN ####
 
+FLAVOUR="ORAN"
+if [[ $SDNC_A1_CONTROLLER_IMAGE == *"onap"* ]]; then
+    FLAVOUR="ONAP"
+fi
+
 generate_uuid
 
 #Test agent and simulator protocol versions (others are http only)
@@ -83,9 +88,18 @@ for __nb_httpx in $NB_TESTED_PROTOCOLS ; do
         controller_api_get_A1_policy_type 200 OSC ricsim_g1_1 1 testdata/OSC/sim_1.json
         controller_api_get_A1_policy_type 404 OSC ricsim_g1_1 99
 
-        controller_api_put_A1_policy 202 OSC ricsim_g1_1 1 4000 testdata/OSC/pi1_template.json
+        RESP=202
+        if [ $FLAVOUR == "ONAP" ]; then
+            RESP=200
+        fi
+        controller_api_put_A1_policy $RESP OSC ricsim_g1_1 1 4000 testdata/OSC/pi1_template.json
         controller_api_put_A1_policy 404 OSC ricsim_g1_1 5 1001 testdata/OSC/pi1_template.json
-        controller_api_put_A1_policy 201 STD ricsim_g2_1   5000 testdata/STD/pi1_template.json
+
+        RESP=201
+        if [ $FLAVOUR == "ONAP" ]; then
+            RESP=200
+        fi
+        controller_api_put_A1_policy $RESP STD ricsim_g2_1   5000 testdata/STD/pi1_template.json
 
         controller_api_get_A1_policy_ids 200 OSC ricsim_g1_1 1 4000
         controller_api_get_A1_policy_ids 200 STD ricsim_g2_1 5000
@@ -97,8 +111,17 @@ for __nb_httpx in $NB_TESTED_PROTOCOLS ; do
         controller_api_get_A1_policy_status 200 OSC ricsim_g1_1 1 4000 "$VAL" "false"
         controller_api_get_A1_policy_status 200 STD ricsim_g2_1 5000 "UNDEFINED"
 
-        controller_api_delete_A1_policy 202 OSC ricsim_g1_1 1 4000
-        controller_api_delete_A1_policy 204 STD ricsim_g2_1 5000
+        RESP=202
+        if [ $FLAVOUR == "ONAP" ]; then
+            RESP=200
+        fi
+        controller_api_delete_A1_policy $RESP OSC ricsim_g1_1 1 4000
+
+        RESP=204
+        if [ $FLAVOUR == "ONAP" ]; then
+            RESP=200
+        fi
+        controller_api_delete_A1_policy $RESP STD ricsim_g2_1 5000
 
         check_sdnc_logs
 

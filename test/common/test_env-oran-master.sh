@@ -60,7 +60,7 @@ SDNC_DB_REMOTE_IMAGE_TAG="5.6"
 
 
 # Near RT RIC Simulator local image and tag
-RIC_SIM_LOCAL_IMAGE="nexus3.o-ran-sc.org:10004/o-ran-sc/a1-simulator"
+RIC_SIM_LOCAL_IMAGE="o-ran-sc/a1-simulator"
 RIC_SIM_LOCAL_IMAGE_TAG="latest"
 # Near RT RIC Simulator remote image and tag
 RIC_SIM_REMOTE_IMAGE="nexus3.o-ran-sc.org:10004/o-ran-sc/a1-simulator"
@@ -181,6 +181,7 @@ DMAAPBASE="http://localhost:"$MR_EXTERNAL_PORT                  # Base url to th
 DMAAPBASE_SECURE="https://localhost:"$MR_EXTERNAL_SECURE_PORT   # Base url to the Dmaap adapter, https
 ADAPTER=$RESTBASE                                               # Adapter holds the address the agent R-APP interface (REST OR DMAAP)
                                                                 # The values of this var is swiched between the four base url when needed
+
 ECS_RESTBASE="http://localhost:"$ECS_EXTERNAL_PORT              # Base url to the ECS NB REST interface
 ECS_RESTBASE_SECURE="https://localhost:"$ECS_EXTERNAL_SECURE_PORT # Base url to the secure ECS NB REST interface
 ECS_DMAAPBASE="http://localhost:"$MR_EXTERNAL_PORT              # Base url to the Dmaap adapter, http

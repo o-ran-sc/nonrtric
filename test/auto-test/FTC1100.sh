@@ -44,9 +44,13 @@ set_ecs_debug
 set_ecs_trace
 
 # Setup prodstub sim to accept calls for producers, types and jobs
-prodstub_arm_supervision 200 prod-a
-prodstub_arm_supervision 200 prod-b
-prodstub_arm_supervision 200 prod-c
+prodstub_arm_producer 200 prod-a
+prodstub_arm_producer 200 prod-b
+prodstub_arm_producer 200 prod-c
+
+prodstub_arm_producer 200 prod-d
+prodstub_arm_type 200 prod-d type4
+prodstub_arm_job_create 200 prod-d job8
 
 prodstub_arm_type 200 prod-a type1
 prodstub_arm_type 200 prod-b type2
@@ -56,22 +60,22 @@ prodstub_disarm_type 200 prod-b type3
 prodstub_arm_type 200 prod-b type1
 prodstub_disarm_type 200 prod-b type1
 
-prodstub_arm_create 200 prod-a job1
-prodstub_arm_create 200 prod-a job2
-prodstub_arm_create 200 prod-b job3
+prodstub_arm_job_create 200 prod-a job1
+prodstub_arm_job_create 200 prod-a job2
+prodstub_arm_job_create 200 prod-b job3
 
-prodstub_arm_delete 200 prod-a job1
-prodstub_arm_delete 200 prod-a job2
-prodstub_arm_delete 200 prod-b job3
+prodstub_arm_job_delete 200 prod-a job1
+prodstub_arm_job_delete 200 prod-a job2
+prodstub_arm_job_delete 200 prod-b job3
 
-prodstub_arm_create 200 prod-b job4
-prodstub_arm_create 200 prod-a job4
+prodstub_arm_job_create 200 prod-b job4
+prodstub_arm_job_create 200 prod-a job4
 
-prodstub_arm_create 200 prod-b job5
-prodstub_arm_create 200 prod-a job5
-prodstub_arm_delete 200 prod-a job5
+prodstub_arm_job_create 200 prod-b job5
+prodstub_arm_job_create 200 prod-a job5
+prodstub_arm_job_delete 200 prod-a job5
 
-prodstub_arm_create 200 prod-b job6
+prodstub_arm_job_create 200 prod-b job6
 
 # ecs status
 ecs_api_service_status 200
@@ -211,7 +215,28 @@ ecs_api_a1_delete_job 204 type2 job3
 ecs_api_edp_delete_producer 204 prod-b
 
 
-check_sndc_logs
+prodstub_equal create/prod-d/job8 0
+prodstub_equal delete/prod-d/job8 0
+
+ecs_api_edp_put_producer 201 prod-d http://producer-stub:8092/callbacks/create/prod-d http://producer-stub:8092/callbacks/delete/prod-d http://producer-stub:8092/callbacks/supervision/prod-d type4 testdata/ecs/ei-type-1.json
+
+ecs_api_a1_get_job_ids 200 type4 NOWNER EMPTY
+
+ecs_api_a1_put_job 201 type4 job8 http://localhost:80/target8 ric4 testdata/ecs/job-template.json
+
+prodstub_equal create/prod-d/job8 1
+prodstub_equal delete/prod-d/job8 0
+
+ecs_api_a1_get_job_ids 200 type4 NOWNER job8
+
+ecs_api_edp_put_producer 200 prod-d http://producer-stub:8092/callbacks/create/prod-d http://producer-stub:8092/callbacks/delete/prod-d http://producer-stub:8092/callbacks/supervision/prod-d NOTYPE
+
+ecs_api_a1_get_job_ids 404 type4 NOWNER
+
+prodstub_equal create/prod-d/job8 1
+prodstub_equal delete/prod-d/job8 0
+
+check_sdnc_logs
 
 check_ecs_logs
 

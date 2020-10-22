@@ -61,7 +61,7 @@ fi
 echo -ne $EBOLD
 
 # default test environment variables
-TEST_ENV_VAR_FILE="../common/test_env.sh"
+TEST_ENV_VAR_FILE=""
 
 echo "Test case started as: ${BASH_SOURCE[$i+1]} "$@
 
@@ -215,7 +215,7 @@ while [ $paramerror -eq 0 ] && [ $foundparm -eq 0 ]; do
 			if [ -z "$1" ]; then
 				paramerror=1
 			else
-				echo "Option set - Overriding test_env.sh with: "$1
+				echo "Option set - Reading test env from: "$1
 				shift;
 				foundparm=0
 			fi
@@ -259,6 +259,9 @@ if [ -f "$TEST_ENV_VAR_FILE" ]; then
 	. $TEST_ENV_VAR_FILE
 else
 	echo -e $RED"Selected env var file does not exist: "$TEST_ENV_VAR_FILE$ERED
+	echo " Select one of following env var file matching the intended target of the test"
+	echo " Restart the test using the flag '--env-file <path-to-env-file>"
+	ls ../common/test_env* | indent1
 	exit 1
 fi
 
@@ -321,7 +324,7 @@ __check_image_var() {
 	tag="${!5}"
 
 	if [ -z $image ]; then
-	 	echo -e $RED"\$"$4" not set in test_env"$ERED
+	 	echo -e $RED"\$"$4" not set in $TEST_ENV_VAR_FILE"$ERED
 	 	((IMAGE_ERR++))
 		echo ""
 		tmp=$tmp"<no-image>\t"
@@ -329,7 +332,7 @@ __check_image_var() {
 		tmp=$tmp$image"\t"
 	fi
 	if [ -z $tag ]; then
-	 	echo -e $RED"\$"$5" not set in test_env"$ERED
+	 	echo -e $RED"\$"$5" not set in $TEST_ENV_VAR_FILE"$ERED
 	 	((IMAGE_ERR++))
 		echo ""
 		tmp=$tmp"<no-tag>\t"
@@ -464,13 +467,13 @@ if [ -z "$SIM_GROUP" ]; then
 	SIM_GROUP=$PWD/../simulator-group
 	if [ ! -d  $SIM_GROUP ]; then
 		echo "Trying to set env var SIM_GROUP to dir 'simulator-group' in the nontrtric repo, but failed."
-		echo -e $RED"Please set the SIM_GROUP manually in the test_env.sh"$ERED
+		echo -e $RED"Please set the SIM_GROUP manually in the applicable $TEST_ENV_VAR_FILE"$ERED
 		exit 1
 	else
 		echo " SIM_GROUP auto set to: " $SIM_GROUP
 	fi
 elif [ $SIM_GROUP = *simulator_group ]; then
-	echo -e $RED"Env var SIM_GROUP does not seem to point to dir 'simulator-group' in the repo, check common/test_env.sh"$ERED
+	echo -e $RED"Env var SIM_GROUP does not seem to point to dir 'simulator-group' in the repo, check $TEST_ENV_VAR_FILE"$ERED
 	exit 1
 else
 	echo " SIM_GROUP env var already set to: " $SIM_GROUP
@@ -1765,7 +1768,11 @@ use_agent_dmaap_https() {
 # (Function for test scripts)
 set_agent_debug() {
 	echo -e $BOLD"Setting agent debug"$EBOLD
-	curlString="$LOCALHOST$POLICY_AGENT_EXTERNAL_PORT/actuator/loggers/org.oransc.policyagent -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"debug\"}"
+	actuator="/actuator/loggers/org.oransc.policyagent"
+	if [[ $POLICY_AGENT_IMAGE = *"onap"* ]]; then
+		actuator="/actuator/loggers/org.onap.ccsdk.oran.a1policymanagementservice"
+	fi
+	curlString="$LOCALHOST$POLICY_AGENT_EXTERNAL_PORT$actuator -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"debug\"}"
 	result=$(__do_curl "$curlString")
 	if [ $? -ne 0 ]; then
 		__print_err "could not set debug mode" $@
@@ -1781,7 +1788,11 @@ set_agent_debug() {
 # (Function for test scripts)
 set_agent_trace() {
 	echo -e $BOLD"Setting agent trace"$EBOLD
-	curlString="$LOCALHOST$POLICY_AGENT_EXTERNAL_PORT/actuator/loggers/org.oransc.policyagent -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"trace\"}"
+	actuator="/actuator/loggers/org.oransc.policyagent"
+	if [[ $POLICY_AGENT_IMAGE = *"onap"* ]]; then
+		actuator="/actuator/loggers/org.onap.ccsdk.oran.a1policymanagementservice"
+	fi
+	curlString="$LOCALHOST$POLICY_AGENT_EXTERNAL_PORT$actuator -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"trace\"}"
 	result=$(__do_curl "$curlString")
 	if [ $? -ne 0 ]; then
 		__print_err "could not set trace mode" $@
@@ -2029,6 +2040,11 @@ store_logs() {
 		for ric in $rics; do
 			docker logs $ric > $TESTLOGS/$ATC/$1_$ric.log 2>&1
 		done
+	fi
+
+	__check_included_image 'PRODSTUB'
+	if [ $? -eq 0 ]; then
+		docker logs $PROD_STUB_APP_NAME > $TESTLOGS/$ATC/$1_prodstub.log 2>&1
 	fi
 
 	echo ""
