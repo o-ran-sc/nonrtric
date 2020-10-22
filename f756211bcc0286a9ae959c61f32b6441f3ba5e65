@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5534ce0e_4c37bdd7",
+        "filename": "test/simulator-group/sim-monitor.js",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1000247
+      },
+      "writtenOn": "2020-10-22T08:30:15Z",
+      "side": 1,
+      "message": "8082 or 8083?",
+      "revId": "f756211bcc0286a9ae959c61f32b6441f3ba5e65",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
