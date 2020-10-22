@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7b7f8ee1_bcbf7fd8",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-10-22T09:54:02Z",
+      "side": 1,
+      "message": "This must be the same value the {eiTypeId} as in the @GetMapping. \nIt would not make any sense to have a constant here but not there. \n\nNow it looks like this:\npath \u003d \"/eitypes/{eiTypeId}\"\n\nWith a const it would look something like this: \n\n\"/eitypes/{\" + ConsumerConsts.EI_TYPE_ID_PARAM + \"}\n\nThere are both pros and cons, but it does not improve readability.",
+      "parentUuid": "3e01e273_2c3ccf44",
+      "range": {
+        "startLine": 115,
+        "startChar": 22,
+        "endLine": 115,
+        "endChar": 32
+      },
+      "revId": "b72b24a0a6b172a7dc69b897af1d98629f745092",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b8021c53_5fa1f6de",
         "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerController.java",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2020-10-22T08:45:55Z",
       "side": 1,
       "message": "Maybe declare a constant in ConsumerConsts for this and use here?",
+      "range": {
+        "startLine": 180,
+        "startChar": 22,
+        "endLine": 180,
+        "endChar": 32
+      },
+      "revId": "b72b24a0a6b172a7dc69b897af1d98629f745092",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe1fe524_b1474203",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-10-22T09:54:02Z",
+      "side": 1,
+      "message": "There are both pros and cons, but it does not improve readability. \nI think this gives a good summary of the path:\n\"/eijobs/{eiJobId}\"",
+      "parentUuid": "b8021c53_5fa1f6de",
       "range": {
         "startLine": 180,
         "startChar": 22,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "afdb6088_0d80f5d8",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-10-22T09:54:02Z",
+      "side": 1,
+      "message": "There are both pros and cons, but it does not improve readability. \n\n\"/eijobs/{eiJobId}/status\"\n\nvs \n\n\"/eijobs/{\" +  ConsumerConsts.EI_TYPE_ID_PARAM + \"}/status\"",
+      "parentUuid": "8ab4b56b_16084719",
+      "range": {
+        "startLine": 199,
+        "startChar": 22,
+        "endLine": 199,
+        "endChar": 31
+      },
+      "revId": "b72b24a0a6b172a7dc69b897af1d98629f745092",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fffc9a74_6f62c693",
         "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerController.java",
         "patchSetId": 1
@@ -82,6 +154,30 @@
       "writtenOn": "2020-10-22T08:45:55Z",
       "side": 1,
       "message": "Maybe declare a constant in ConsumerConsts for this and use here?",
+      "range": {
+        "startLine": 224,
+        "startChar": 22,
+        "endLine": 224,
+        "endChar": 31
+      },
+      "revId": "b72b24a0a6b172a7dc69b897af1d98629f745092",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b10559a_5a97d9fb",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-10-22T09:54:02Z",
+      "side": 1,
+      "message": "There are both pros and cons, but it does not improve readability.",
+      "parentUuid": "fffc9a74_6f62c693",
       "range": {
         "startLine": 224,
         "startChar": 22,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "2f27264f_8dc93d8d",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-10-22T09:54:02Z",
+      "side": 1,
+      "message": "There are both pros and cons, but it does not improve readability.",
+      "parentUuid": "b3c1afc4_d6a74341",
+      "range": {
+        "startLine": 249,
+        "startChar": 22,
+        "endLine": 249,
+        "endChar": 31
+      },
+      "revId": "b72b24a0a6b172a7dc69b897af1d98629f745092",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e1d80ab9_03c8b02b",
         "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerEiJobInfo.java",
         "patchSetId": 1
@@ -128,6 +248,30 @@
       "writtenOn": "2020-10-22T08:45:55Z",
       "side": 1,
       "message": "Could the ConsumerConsts.EI_TYPE_ID_PARAM constant be used here?",
+      "range": {
+        "startLine": 36,
+        "startChar": 20,
+        "endLine": 36,
+        "endChar": 30
+      },
+      "revId": "b72b24a0a6b172a7dc69b897af1d98629f745092",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a847477_ed58b43c",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerEiJobInfo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-10-22T09:54:02Z",
+      "side": 1,
+      "message": "There are both pros and cons, but it does not improve readability.",
+      "parentUuid": "e1d80ab9_03c8b02b",
       "range": {
         "startLine": 36,
         "startChar": 20,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "ffa71f40_38432f27",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerEiJobInfo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-10-22T09:54:02Z",
+      "side": 1,
+      "message": "There are both pros and cons, but it does not improve readability.",
+      "parentUuid": "2acf9fda_90cab0db",
+      "range": {
+        "startLine": 37,
+        "startChar": 26,
+        "endLine": 37,
+        "endChar": 36
+      },
+      "revId": "b72b24a0a6b172a7dc69b897af1d98629f745092",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8549c15c_d572b6b0",
         "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerEiJobInfo.java",
         "patchSetId": 1
@@ -174,6 +342,30 @@
       "writtenOn": "2020-10-22T08:45:55Z",
       "side": 1,
       "message": "Maybe declare a constant in ConsumerConsts for this and use here?",
+      "range": {
+        "startLine": 41,
+        "startChar": 20,
+        "endLine": 41,
+        "endChar": 30
+      },
+      "revId": "b72b24a0a6b172a7dc69b897af1d98629f745092",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b306c7f7_aa263e17",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerEiJobInfo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-10-22T09:54:02Z",
+      "side": 1,
+      "message": "There are both pros and cons, but it does not improve readability.",
+      "parentUuid": "8549c15c_d572b6b0",
       "range": {
         "startLine": 41,
         "startChar": 20,
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "c5ae2fe3_809e52fe",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerEiJobInfo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-10-22T09:54:02Z",
+      "side": 1,
+      "message": "There are both pros and cons, but it does not improve readability.",
+      "parentUuid": "4bc06e8b_2e097c19",
+      "range": {
+        "startLine": 46,
+        "startChar": 20,
+        "endLine": 46,
+        "endChar": 35
+      },
+      "revId": "b72b24a0a6b172a7dc69b897af1d98629f745092",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0ae4c7df_a4199932",
         "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerEiJobInfo.java",
         "patchSetId": 1
@@ -220,6 +436,30 @@
       "writtenOn": "2020-10-22T08:45:55Z",
       "side": 1,
       "message": "Maybe declare a constant in ConsumerConsts for this and use here?",
+      "range": {
+        "startLine": 51,
+        "startChar": 20,
+        "endLine": 51,
+        "endChar": 34
+      },
+      "revId": "b72b24a0a6b172a7dc69b897af1d98629f745092",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "509b59d1_aac2ef1d",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerEiJobInfo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-10-22T09:54:02Z",
+      "side": 1,
+      "message": "There are both pros and cons, but it does not improve readability.",
+      "parentUuid": "0ae4c7df_a4199932",
       "range": {
         "startLine": 51,
         "startChar": 20,
@@ -255,6 +495,30 @@
     },
     {
       "key": {
+        "uuid": "a67d9359_66a39d91",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerEiJobStatus.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-10-22T09:54:02Z",
+      "side": 1,
+      "message": "This is the externalized name. If there should be a const,it should be here (since the name is only relevant here). \nUnless sonar complains, I prefer it like this.",
+      "parentUuid": "6beb5c8f_7697f389",
+      "range": {
+        "startLine": 46,
+        "startChar": 20,
+        "endLine": 46,
+        "endChar": 33
+      },
+      "revId": "b72b24a0a6b172a7dc69b897af1d98629f745092",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6853b3d1_5d9068e8",
         "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerEiTypeInfo.java",
         "patchSetId": 1
@@ -266,6 +530,30 @@
       "writtenOn": "2020-10-22T08:45:55Z",
       "side": 1,
       "message": "Maybe declare a constant in ConsumerConsts for this and use here?",
+      "range": {
+        "startLine": 28,
+        "startChar": 18,
+        "endLine": 28,
+        "endChar": 32
+      },
+      "revId": "b72b24a0a6b172a7dc69b897af1d98629f745092",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "626aad0e_b09dfc4b",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerEiTypeInfo.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-10-22T09:54:02Z",
+      "side": 1,
+      "message": "This is the externalized name and is only relevant here.",
+      "parentUuid": "6853b3d1_5d9068e8",
       "range": {
         "startLine": 28,
         "startChar": 18,
@@ -301,6 +589,30 @@
     },
     {
       "key": {
+        "uuid": "d3121215_9465250e",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/producer/ProducerController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-10-22T09:54:02Z",
+      "side": 1,
+      "message": "Unless sonar complains, I prefer it like this.",
+      "parentUuid": "5c7299e3_ee1b1b73",
+      "range": {
+        "startLine": 113,
+        "startChar": 22,
+        "endLine": 113,
+        "endChar": 32
+      },
+      "revId": "b72b24a0a6b172a7dc69b897af1d98629f745092",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ca6b4c16_642df9e1",
         "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/producer/ProducerController.java",
         "patchSetId": 1
@@ -312,6 +624,30 @@
       "writtenOn": "2020-10-22T08:45:55Z",
       "side": 1,
       "message": "Maybe declare a constant in ConsumerConsts for this and use here?",
+      "range": {
+        "startLine": 155,
+        "startChar": 22,
+        "endLine": 155,
+        "endChar": 36
+      },
+      "revId": "b72b24a0a6b172a7dc69b897af1d98629f745092",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a0e93b9_3891f3e1",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/producer/ProducerController.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-10-22T09:54:02Z",
+      "side": 1,
+      "message": "Unless sonar complains, I prefer it like this.",
+      "parentUuid": "ca6b4c16_642df9e1",
       "range": {
         "startLine": 155,
         "startChar": 22,
