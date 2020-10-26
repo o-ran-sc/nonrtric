@@ -19,6 +19,11 @@
 
 #Builds the producer stub container and starts it in interactive mode
 
-docker build -t producer-stub .
+NAME="producer-stub-test"
+IMAGE_NAME="producer-stub-test-image"
 
-docker run -it -p 8092:8092 -p 8093:8093 --name producer-stub producer-stub
+docker build -t $IMAGE_NAME .
+
+docker stop $NAME
+docker rm -f $NAME
+docker run -it -p 8992:8092 -p 8993:8093 --name $NAME $IMAGE_NAME

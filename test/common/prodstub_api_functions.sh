@@ -61,7 +61,7 @@ __execute_curl_to_prodstub() {
 # Prodstub API: Set (or reset) response code for producer supervision
 # <response-code> <producer-id> [<forced_response_code>]
 # (Function for test scripts)
-prodstub_arm_supervision() {
+prodstub_arm_producer() {
 	echo -e $BOLD"CONF(${BASH_LINENO[0]}): "${FUNCNAME[0]} $@ $EBOLD
     echo "CONF(${BASH_LINENO[0]}): "${FUNCNAME[0]} $@  >> $HTTPLOG
 	if [ $# -ne 2 ] && [ $# -ne 3 ]; then
@@ -86,7 +86,7 @@ prodstub_arm_supervision() {
 # Prodstub API: Set (or reset) response code job create
 # <response-code> <producer-id> <job-id> [<forced_response_code>]
 # (Function for test scripts)
-prodstub_arm_create() {
+prodstub_arm_job_create() {
 	echo -e $BOLD"CONF(${BASH_LINENO[0]}): "${FUNCNAME[0]} $@ $EBOLD
     echo "CONF(${BASH_LINENO[0]}): "${FUNCNAME[0]} $@  >> $HTTPLOG
 	if [ $# -ne 3 ] && [ $# -ne 4 ]; then
@@ -111,7 +111,7 @@ prodstub_arm_create() {
 # Prodstub API: Set (or reset) response code job delete
 # <response-code> <producer-id> <job-id> [<forced_response_code>]
 # (Function for test scripts)
-prodstub_arm_delete() {
+prodstub_arm_job_delete() {
 	echo -e $BOLD"CONF(${BASH_LINENO[0]}): "${FUNCNAME[0]} $@ $EBOLD
     echo "CONF(${BASH_LINENO[0]}): "${FUNCNAME[0]} $@  >> $HTTPLOG
 	if [ $# -ne 3 ] && [ $# -ne 4 ]; then
@@ -207,4 +207,20 @@ prodstub_check_jobdata() {
         ((RES_FAIL++))
     fi
 	return $retcode
+}
+
+# Tests if a variable value in the prod stub is equal to a target value and and optional timeout.
+# Arg: <variable-name> <target-value> - This test set pass or fail depending on if the variable is
+# equal to the target or not.
+# Arg: <variable-name> <target-value> <timeout-in-sec>  - This test waits up to the timeout seconds
+# before setting pass or fail depending on if the variable value becomes equal to the target
+# value or not.
+# (Function for test scripts)
+prodstub_equal() {
+	if [ $# -eq 2 ] || [ $# -eq 3 ]; then
+		__var_test "PRODSTUB" "$LOCALHOST$PROD_STUB_EXTERNAL_PORT/counter/" $1 "=" $2 $3
+	else
+		((RES_CONF_FAIL++))
+		__print_err "Wrong args to prodstub_equal, needs two or three args: <sim-param> <target-value> [ timeout ]" $@
+	fi
 }
