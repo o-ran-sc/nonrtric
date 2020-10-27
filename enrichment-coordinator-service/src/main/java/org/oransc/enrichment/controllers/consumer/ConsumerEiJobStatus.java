@@ -45,7 +45,10 @@ public class ConsumerEiJobStatus {
     @ApiModelProperty(value = OPERATIONAL_STATE_DESCRIPTION, name = "eiJobStatus", required = true)
     @SerializedName("eiJobStatus")
     @JsonProperty(value = "eiJobStatus", required = true)
-    public final EiJobStatusValues state;
+    public EiJobStatusValues state;
+
+    public ConsumerEiJobStatus() {
+    }
 
     public ConsumerEiJobStatus(EiJobStatusValues state) {
         this.state = state;

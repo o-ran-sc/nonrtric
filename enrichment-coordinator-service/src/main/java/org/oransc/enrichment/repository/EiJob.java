@@ -32,11 +32,13 @@ public interface EiJob {
 
     String id();
 
-    EiType type();
+    String typeId();
 
     String owner();
 
     Object jobData();
 
-    String targetUri();
+    String targetUrl();
+
+    String jobStatusUrl();
 }

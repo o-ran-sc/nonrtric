@@ -23,6 +23,7 @@ package org.oransc.enrichment.tasks;
 import org.oransc.enrichment.clients.AsyncRestClient;
 import org.oransc.enrichment.clients.AsyncRestClientFactory;
 import org.oransc.enrichment.configuration.ApplicationConfig;
+import org.oransc.enrichment.controllers.consumer.ConsumerCallbacks;
 import org.oransc.enrichment.repository.EiJobs;
 import org.oransc.enrichment.repository.EiProducer;
 import org.oransc.enrichment.repository.EiProducers;
@@ -50,15 +51,17 @@ public class ProducerSupervision {
     private final EiJobs eiJobs;
     private final EiTypes eiTypes;
     private final AsyncRestClient restClient;
+    private final ConsumerCallbacks consumerCallbacks;
 
     @Autowired
     public ProducerSupervision(ApplicationConfig applicationConfig, EiProducers eiProducers, EiJobs eiJobs,
-        EiTypes eiTypes) {
+        EiTypes eiTypes, ConsumerCallbacks consumerCallbacks) {
         AsyncRestClientFactory restClientFactory = new AsyncRestClientFactory(applicationConfig.getWebClientConfig());
         this.restClient = restClientFactory.createRestClient("");
         this.eiJobs = eiJobs;
         this.eiProducers = eiProducers;
         this.eiTypes = eiTypes;
+        this.consumerCallbacks = consumerCallbacks;
     }
 
     @Scheduled(fixedRate = 1000 * 60 * 5)
@@ -87,6 +90,7 @@ public class ProducerSupervision {
         producer.setAliveStatus(false);
         if (producer.isDead()) {
             this.eiProducers.deregisterProducer(producer, this.eiTypes, this.eiJobs);
+            this.consumerCallbacks.notifyConsumersProducerDeleted(producer);
         }
     }
 

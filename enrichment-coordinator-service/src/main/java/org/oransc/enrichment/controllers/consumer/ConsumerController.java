@@ -31,18 +31,21 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Vector;
 
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.loader.SchemaLoader;
 import org.json.JSONObject;
-import org.oransc.enrichment.clients.ProducerCallbacks;
 import org.oransc.enrichment.configuration.ApplicationConfig;
 import org.oransc.enrichment.controllers.ErrorResponse;
 import org.oransc.enrichment.controllers.VoidResponse;
+import org.oransc.enrichment.controllers.producer.ProducerCallbacks;
 import org.oransc.enrichment.exceptions.ServiceException;
 import org.oransc.enrichment.repository.EiJob;
 import org.oransc.enrichment.repository.EiJobs;
+import org.oransc.enrichment.repository.EiProducer;
 import org.oransc.enrichment.repository.EiType;
 import org.oransc.enrichment.repository.EiTypes;
 import org.oransc.enrichment.repository.ImmutableEiJob;
@@ -78,8 +81,7 @@ public class ConsumerController {
     @Autowired
     ProducerCallbacks producerCallbacks;
 
-    private static Gson gson = new GsonBuilder() //
-        .create(); //
+    private static Gson gson = new GsonBuilder().create();
 
     @GetMapping(path = "/eitypes", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "EI type identifiers", notes = "")
@@ -149,7 +151,7 @@ public class ConsumerController {
             List<String> result = new ArrayList<>();
             if (owner != null) {
                 for (EiJob job : this.eiJobs.getJobsForOwner(owner)) {
-                    if (eiTypeId == null || job.type().getId().equals(eiTypeId)) {
+                    if (eiTypeId == null || job.typeId().equals(eiTypeId)) {
                         result.add(job.id());
                     }
                 }
@@ -204,9 +206,21 @@ public class ConsumerController {
         }
     }
 
+    private Collection<EiProducer> getProducers(EiJob eiJob) {
+        try {
+            return this.eiTypes.getType(eiJob.typeId()).getProducers();
+        } catch (Exception e) {
+            return new Vector<>();
+        }
+    }
+
     private ConsumerEiJobStatus toEiJobStatus(EiJob job) {
-        // TODO
-        return new ConsumerEiJobStatus(ConsumerEiJobStatus.EiJobStatusValues.ENABLED);
+        for (EiProducer producer : getProducers(job)) {
+            if (producer.isAvailable()) {
+                return new ConsumerEiJobStatus(ConsumerEiJobStatus.EiJobStatusValues.ENABLED);
+            }
+        }
+        return new ConsumerEiJobStatus(ConsumerEiJobStatus.EiJobStatusValues.DISABLED);
     }
 
     @DeleteMapping(path = "/eijobs/{eiJobId}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -274,7 +288,7 @@ public class ConsumerController {
             validateJsonObjectAgainstSchema(eiType.getJobDataSchema(), eiJobInfo.jobData);
             EiJob existingEiJob = this.eiJobs.get(eiJobId);
 
-            if (existingEiJob != null && !existingEiJob.type().getId().equals(eiJobInfo.eiTypeId)) {
+            if (existingEiJob != null && !existingEiJob.typeId().equals(eiJobInfo.eiTypeId)) {
                 throw new ServiceException("Not allowed to change type for existing EI job", HttpStatus.CONFLICT);
             }
             return Mono.just(toEiJob(eiJobInfo, eiJobId, eiType));
@@ -301,15 +315,14 @@ public class ConsumerController {
         }
     }
 
-    // Status TBD
-
     private EiJob toEiJob(ConsumerEiJobInfo info, String id, EiType type) {
         return ImmutableEiJob.builder() //
             .id(id) //
-            .type(type) //
+            .typeId(type.getId()) //
             .owner(info.owner) //
             .jobData(info.jobData) //
-            .targetUri(info.targetUri) //
+            .targetUrl(info.targetUri) //
+            .jobStatusUrl(info.statusNotificationUri == null ? "" : info.statusNotificationUri) //
             .build();
     }
 
@@ -318,6 +331,6 @@ public class ConsumerController {
     }
 
     private ConsumerEiJobInfo toEiJobInfo(EiJob s) {
-        return new ConsumerEiJobInfo(s.type().getId(), s.jobData(), s.owner(), s.targetUri());
+        return new ConsumerEiJobInfo(s.typeId(), s.jobData(), s.owner(), s.targetUrl(), s.jobStatusUrl());
     }
 }

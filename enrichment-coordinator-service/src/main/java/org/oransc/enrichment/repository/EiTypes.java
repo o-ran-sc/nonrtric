@@ -73,13 +73,4 @@ public class EiTypes {
     public synchronized void clear() {
         this.allEiTypes.clear();
     }
-
-    public void deregisterType(EiType type, EiJobs eiJobs) {
-        this.remove(type);
-        for (EiJob job : eiJobs.getJobsForType(type.getId())) {
-            eiJobs.remove(job);
-            this.logger.warn("Deleted job {} because no producers left", job.id());
-        }
-    }
-
 }
