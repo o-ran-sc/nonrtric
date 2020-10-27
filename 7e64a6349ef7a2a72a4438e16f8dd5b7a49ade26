@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9013a214_489d46ea",
+        "filename": "r-app-catalogue/docs/rac-api.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-10-27T14:46:55Z",
+      "side": 1,
+      "message": "Is both json and yaml format needed? Is not one a generate of the other?",
+      "range": {
+        "startLine": 1,
+        "startChar": 1,
+        "endLine": 1,
+        "endChar": 14
+      },
+      "revId": "7e64a6349ef7a2a72a4438e16f8dd5b7a49ade26",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
