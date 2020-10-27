@@ -55,6 +55,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
@@ -62,6 +63,7 @@ import reactor.core.publisher.Mono;
 @SuppressWarnings("java:S3457") // No need to call "toString()" method as formatting and string ..
 @RestController("ConsumerController")
 @Api(tags = {ConsumerConsts.CONSUMER_API_NAME})
+@RequestMapping(path = ConsumerConsts.API_ROOT, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ConsumerController {
 
     @Autowired
@@ -77,10 +79,9 @@ public class ConsumerController {
     ProducerCallbacks producerCallbacks;
 
     private static Gson gson = new GsonBuilder() //
-        .serializeNulls() //
         .create(); //
 
-    @GetMapping(path = ConsumerConsts.API_ROOT + "/eitypes", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/eitypes", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "EI type identifiers", notes = "")
     @ApiResponses(
         value = { //
@@ -100,7 +101,7 @@ public class ConsumerController {
         return new ResponseEntity<>(gson.toJson(result), HttpStatus.OK);
     }
 
-    @GetMapping(path = ConsumerConsts.API_ROOT + "/eitypes/{eiTypeId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/eitypes/{eiTypeId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Individual EI type", notes = "")
     @ApiResponses(
         value = { //
@@ -112,18 +113,16 @@ public class ConsumerController {
     public ResponseEntity<Object> getEiType( //
         @PathVariable("eiTypeId") String eiTypeId) {
         try {
-            EiType t = this.eiTypes.getType(eiTypeId);
-            ConsumerEiTypeInfo info = toEiTypeInfo(t);
+            this.eiTypes.getType(eiTypeId); // Make sure that the type exists
+            ConsumerEiTypeInfo info = toEiTypeInfo();
             return new ResponseEntity<>(gson.toJson(info), HttpStatus.OK);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
         }
     }
 
-    @GetMapping(
-        path = ConsumerConsts.API_ROOT + "/eitypes/{eiTypeId}/eijobs",
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "EI job identifiers", notes = "")
+    @GetMapping(path = "/eijobs", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "EI job identifiers", notes = "query for EI job identifiers")
     @ApiResponses(
         value = { //
             @ApiResponse(
@@ -136,14 +135,17 @@ public class ConsumerController {
                 message = "Enrichment Information type is not found",
                 response = ErrorResponse.ErrorInfo.class)})
     public ResponseEntity<Object> getEiJobIds( //
-        @PathVariable("eiTypeId") String eiTypeId, //
+        @ApiParam(
+            name = ConsumerConsts.EI_TYPE_ID_PARAM,
+            required = false, //
+            value = ConsumerConsts.EI_TYPE_ID_PARAM_DESCRIPTION) //
+        @RequestParam(name = ConsumerConsts.EI_TYPE_ID_PARAM, required = false) String eiTypeId,
         @ApiParam(
             name = ConsumerConsts.OWNER_PARAM,
             required = false, //
             value = ConsumerConsts.OWNER_PARAM_DESCRIPTION) //
         @RequestParam(name = ConsumerConsts.OWNER_PARAM, required = false) String owner) {
         try {
-            this.eiTypes.getType(eiTypeId); // Just to check that the type exists
             List<String> result = new ArrayList<>();
             if (owner != null) {
                 for (EiJob job : this.eiJobs.getJobsForOwner(owner)) {
@@ -151,33 +153,31 @@ public class ConsumerController {
                         result.add(job.id());
                     }
                 }
+            } else if (eiTypeId != null) {
+                this.eiJobs.getJobsForType(eiTypeId).forEach(job -> result.add(job.id()));
             } else {
-                for (EiJob job : this.eiJobs.getJobsForType(eiTypeId)) {
-                    result.add(job.id());
-                }
+                this.eiJobs.getJobs().forEach(job -> result.add(job.id()));
             }
             return new ResponseEntity<>(gson.toJson(result), HttpStatus.OK);
-        } catch (Exception e) {
+        } catch (
+
+        Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
         }
     }
 
-    @GetMapping(
-        path = ConsumerConsts.API_ROOT + "/eitypes/{eiTypeId}/eijobs/{eiJobId}",
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Individual EI Job", notes = "")
+    @GetMapping(path = "/eijobs/{eiJobId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Individual EI job", notes = "")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "EI Job", response = ConsumerEiJobInfo.class), //
+            @ApiResponse(code = 200, message = "EI job", response = ConsumerEiJobInfo.class), //
             @ApiResponse(
                 code = 404,
-                message = "Enrichment Information type or job is not found",
+                message = "Enrichment Information job is not found",
                 response = ErrorResponse.ErrorInfo.class)})
     public ResponseEntity<Object> getIndividualEiJob( //
-        @PathVariable("eiTypeId") String eiTypeId, //
         @PathVariable("eiJobId") String eiJobId) {
         try {
-            this.eiTypes.getType(eiTypeId); // Just to check that the type exists
             EiJob job = this.eiJobs.getJob(eiJobId);
             return new ResponseEntity<>(gson.toJson(toEiJobInfo(job)), HttpStatus.OK);
         } catch (Exception e) {
@@ -185,22 +185,18 @@ public class ConsumerController {
         }
     }
 
-    @GetMapping(
-        path = ConsumerConsts.API_ROOT + "/eitypes/{eiTypeId}/eijobs/{eiJobId}/status",
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "EI Job status", notes = "")
+    @GetMapping(path = "/eijobs/{eiJobId}/status", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "EI job status", notes = "")
     @ApiResponses(
         value = { //
-            @ApiResponse(code = 200, message = "EI Job status", response = ConsumerEiJobStatus.class), //
+            @ApiResponse(code = 200, message = "EI job status", response = ConsumerEiJobStatus.class), //
             @ApiResponse(
                 code = 404,
-                message = "Enrichment Information type or job is not found",
+                message = "Enrichment Information job is not found",
                 response = ErrorResponse.ErrorInfo.class)})
     public ResponseEntity<Object> getEiJobStatus( //
-        @PathVariable("eiTypeId") String eiTypeId, //
         @PathVariable("eiJobId") String eiJobId) {
         try {
-            this.eiTypes.getType(eiTypeId); // Just to check that the type exists
             EiJob job = this.eiJobs.getJob(eiJobId);
             return new ResponseEntity<>(gson.toJson(toEiJobStatus(job)), HttpStatus.OK);
         } catch (Exception e) {
@@ -210,23 +206,20 @@ public class ConsumerController {
 
     private ConsumerEiJobStatus toEiJobStatus(EiJob job) {
         // TODO
-        return new ConsumerEiJobStatus(ConsumerEiJobStatus.OperationalState.ENABLED);
+        return new ConsumerEiJobStatus(ConsumerEiJobStatus.EiJobStatusValues.ENABLED);
     }
 
-    @DeleteMapping(
-        path = ConsumerConsts.API_ROOT + "/eitypes/{eiTypeId}/eijobs/{eiJobId}",
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Individual EI Job", notes = "")
+    @DeleteMapping(path = "/eijobs/{eiJobId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Individual EI job", notes = "")
     @ApiResponses(
         value = { //
             @ApiResponse(code = 200, message = "Not used", response = VoidResponse.class),
             @ApiResponse(code = 204, message = "Job deleted", response = VoidResponse.class),
             @ApiResponse(
                 code = 404,
-                message = "Enrichment Information type or job is not found",
+                message = "Enrichment Information job is not found",
                 response = ErrorResponse.ErrorInfo.class)})
     public ResponseEntity<Object> deleteIndividualEiJob( //
-        @PathVariable("eiTypeId") String eiTypeId, //
         @PathVariable("eiJobId") String eiJobId) {
         try {
             EiJob job = this.eiJobs.getJob(eiJobId);
@@ -239,10 +232,10 @@ public class ConsumerController {
     }
 
     @PutMapping(
-        path = ConsumerConsts.API_ROOT + "/eitypes/{eiTypeId}/eijobs/{eiJobId}", //
+        path = "/eijobs/{eiJobId}", //
         produces = MediaType.APPLICATION_JSON_VALUE, //
         consumes = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Individual EI Job", notes = "")
+    @ApiOperation(value = "Individual EI job", notes = "")
     @ApiResponses(
         value = { //
             @ApiResponse(code = 201, message = "Job created", response = VoidResponse.class), //
@@ -252,13 +245,12 @@ public class ConsumerController {
                 message = "Enrichment Information type is not found",
                 response = ErrorResponse.ErrorInfo.class)})
     public Mono<ResponseEntity<Object>> putIndividualEiJob( //
-        @PathVariable("eiTypeId") String eiTypeId, //
         @PathVariable("eiJobId") String eiJobId, //
-        @RequestBody ConsumerEiJobInfo eiJobInfo) {
+        @RequestBody ConsumerEiJobInfo eiJobObject) {
 
         final boolean isNewJob = this.eiJobs.get(eiJobId) == null;
 
-        return validatePutEiJob(eiTypeId, eiJobId, eiJobInfo) //
+        return validatePutEiJob(eiJobId, eiJobObject) //
             .flatMap(this::notifyProducersNewJob) //
             .doOnNext(newEiJob -> this.eiJobs.put(newEiJob)) //
             .flatMap(newEiJob -> Mono.just(new ResponseEntity<>(isNewJob ? HttpStatus.CREATED : HttpStatus.OK)))
@@ -276,13 +268,13 @@ public class ConsumerController {
             });
     }
 
-    private Mono<EiJob> validatePutEiJob(String eiTypeId, String eiJobId, ConsumerEiJobInfo eiJobInfo) {
+    private Mono<EiJob> validatePutEiJob(String eiJobId, ConsumerEiJobInfo eiJobInfo) {
         try {
-            EiType eiType = this.eiTypes.getType(eiTypeId);
+            EiType eiType = this.eiTypes.getType(eiJobInfo.eiTypeId);
             validateJsonObjectAgainstSchema(eiType.getJobDataSchema(), eiJobInfo.jobData);
             EiJob existingEiJob = this.eiJobs.get(eiJobId);
 
-            if (existingEiJob != null && !existingEiJob.type().getId().equals(eiTypeId)) {
+            if (existingEiJob != null && !existingEiJob.type().getId().equals(eiJobInfo.eiTypeId)) {
                 throw new ServiceException("Not allowed to change type for existing EI job", HttpStatus.CONFLICT);
             }
             return Mono.just(toEiJob(eiJobInfo, eiJobId, eiType));
@@ -321,11 +313,11 @@ public class ConsumerController {
             .build();
     }
 
-    private ConsumerEiTypeInfo toEiTypeInfo(EiType t) {
-        return new ConsumerEiTypeInfo(t.getJobDataSchema());
+    private ConsumerEiTypeInfo toEiTypeInfo() {
+        return new ConsumerEiTypeInfo();
     }
 
     private ConsumerEiJobInfo toEiJobInfo(EiJob s) {
-        return new ConsumerEiJobInfo(s.jobData(), s.owner(), s.targetUri());
+        return new ConsumerEiJobInfo(s.type().getId(), s.jobData(), s.owner(), s.targetUri());
     }
 }

@@ -20,24 +20,12 @@
 
 package org.oransc.enrichment.controllers.consumer;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.gson.annotations.SerializedName;
-
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 
 import org.immutables.gson.Gson;
 
 @Gson.TypeAdapters
-@ApiModel(value = "EiType", description = "Information for an EI type")
+@ApiModel(value = "EiTypeObject", description = "Information for an EI type")
 public class ConsumerEiTypeInfo {
 
-    @ApiModelProperty(value = "Json schema for the job data")
-    @SerializedName("eiJobParametersSchema")
-    @JsonProperty("eiJobParametersSchema")
-    public final Object jobParametersSchema;
-
-    ConsumerEiTypeInfo(Object jobParametersSchema) {
-        this.jobParametersSchema = jobParametersSchema;
-    }
 }

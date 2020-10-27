@@ -41,9 +41,7 @@ import reactor.core.publisher.Mono;
 public class ProducerCallbacks {
 
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private static Gson gson = new GsonBuilder() //
-        .serializeNulls() //
-        .create(); //
+    private static Gson gson = new GsonBuilder().create();
 
     private final AsyncRestClient restClient;
 
