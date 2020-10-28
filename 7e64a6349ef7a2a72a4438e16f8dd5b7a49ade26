@@ -22,6 +22,30 @@
       "revId": "7e64a6349ef7a2a72a4438e16f8dd5b7a49ade26",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4bca532b_7a76be6a",
+        "filename": "r-app-catalogue/docs/rac-api.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-10-28T10:12:58Z",
+      "side": 1,
+      "message": "Now the yaml file is generated from the json file during compilation. The yaml file must still be checked in for the documentation to be able to see it. But a note that the json file is the original is added in the README file.",
+      "parentUuid": "9013a214_489d46ea",
+      "range": {
+        "startLine": 1,
+        "startChar": 1,
+        "endLine": 1,
+        "endChar": 14
+      },
+      "revId": "7e64a6349ef7a2a72a4438e16f8dd5b7a49ade26",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
