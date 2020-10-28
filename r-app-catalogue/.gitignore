@@ -1,0 +1,3 @@
+.swagger-codegen-ignore
+.swagger-codegen/
+api/README.md
