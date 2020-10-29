@@ -35,4 +35,5 @@ app:
     trust-store-used: false
     trust-store-password: policy_agent
     trust-store: /opt/app/enrichment-coordinator-service/etc/cert/truststore.jks
+  vardata-directory: /var/enrichment-coordinator-service
 

@@ -88,7 +88,8 @@ import reactor.test.StepVerifier;
 @TestPropertySource(
     properties = { //
         "server.ssl.key-store=./config/keystore.jks", //
-        "app.webclient.trust-store=./config/truststore.jks"})
+        "app.webclient.trust-store=./config/truststore.jks", //
+        "app.vardata-directory=./database"})
 class ApplicationTest {
     private final String EI_TYPE_ID = "typeId";
     private final String EI_PRODUCER_ID = "producerId";
@@ -527,6 +528,27 @@ class ApplicationTest {
         String url = "/status";
         ResponseEntity<String> resp = restClient().getForEntity(url).block();
         assertThat(resp.getBody()).contains("hunky dory");
+    }
+
+    @Test
+    void testEiJobDatabase() throws Exception {
+        putEiProducerWithOneType(EI_PRODUCER_ID, EI_TYPE_ID);
+        putEiJob(EI_TYPE_ID, "jobId1");
+        putEiJob(EI_TYPE_ID, "jobId2");
+
+        assertThat(this.eiJobs.size()).isEqualTo(2);
+
+        {
+            // Restore the jobs
+            EiJobs jobs = new EiJobs(this.applicationConfig);
+            jobs.restoreJobsFromDatabase();
+            assertThat(jobs.size()).isEqualTo(2);
+            jobs.remove("jobId1");
+            jobs.remove("jobId1");
+        }
+
+        this.eiJobs.remove("jobId1"); // removing a job when the db file is gone
+        assertThat(this.eiJobs.size()).isEqualTo(1);
     }
 
     private void deleteEiProducer(String eiProducerId) {
