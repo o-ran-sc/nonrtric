@@ -36,6 +36,10 @@ public class ApplicationConfig {
     @Value("${app.filepath}")
     private String localConfigurationFilePath;
 
+    @Getter
+    @Value("${app.vardata-directory}")
+    private String vardataDirectory;
+
     @Value("${server.ssl.key-store-type}")
     private String sslKeyStoreType = "";
 
