@@ -22,11 +22,16 @@ package org.oransc.enrichment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+
 import org.apache.catalina.connector.Connector;
 import org.oransc.enrichment.configuration.ApplicationConfig;
 import org.oransc.enrichment.repository.EiJobs;
 import org.oransc.enrichment.repository.EiProducers;
 import org.oransc.enrichment.repository.EiTypes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
@@ -40,6 +45,7 @@ class BeanFactory {
     private int httpPort = 0;
 
     private final ApplicationConfig applicationConfig = new ApplicationConfig();
+    private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     @Bean
     public ObjectMapper mapper() {
@@ -57,7 +63,13 @@ class BeanFactory {
 
     @Bean
     public EiJobs eiJobs() {
-        return new EiJobs();
+        EiJobs jobs = new EiJobs();
+        try {
+            jobs.restoreJobsFromDatabase();
+        } catch (IOException e) {
+            logger.error("Could not restorejobs from database: {}", e.getMessage());
+        }
+        return jobs;
     }
 
     @Bean
