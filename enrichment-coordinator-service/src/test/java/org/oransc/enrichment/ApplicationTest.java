@@ -529,6 +529,27 @@ class ApplicationTest {
         assertThat(resp.getBody()).contains("hunky dory");
     }
 
+    @Test
+    void testEiJobDatabase() throws Exception {
+        putEiProducerWithOneType(EI_PRODUCER_ID, EI_TYPE_ID);
+        putEiJob(EI_TYPE_ID, "jobId1");
+        putEiJob(EI_TYPE_ID, "jobId2");
+
+        assertThat(this.eiJobs.size()).isEqualTo(2);
+
+        {
+            // Restore the jobs
+            EiJobs jobs = new EiJobs();
+            jobs.restoreJobsFromDatabase();
+            assertThat(jobs.size()).isEqualTo(2);
+            jobs.remove("jobId1");
+            jobs.remove("jobId1");
+        }
+
+        this.eiJobs.remove("jobId1"); // removing a job when the db file is gone
+        assertThat(this.eiJobs.size()).isEqualTo(1);
+    }
+
     private void deleteEiProducer(String eiProducerId) {
         String url = ProducerConsts.API_ROOT + "/eiproducers/" + eiProducerId;
         restClient().deleteForEntity(url).block();
