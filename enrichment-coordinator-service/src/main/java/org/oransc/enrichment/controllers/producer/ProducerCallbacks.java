@@ -62,12 +62,13 @@ public class ProducerCallbacks {
     }
 
     public void notifyProducersJobDeleted(EiJob eiJob) {
-        ProducerJobInfo request = new ProducerJobInfo(eiJob);
-        String body = gson.toJson(request);
         for (EiProducer producer : getProducers(eiJob)) {
-            restClient.post(producer.getJobDeletionCallbackUrl(), body) //
-                .subscribe(notUsed -> logger.debug("Job deleted OK {}", producer.getId()), //
-                    throwable -> logger.warn("Job delete failed {}", producer.getId(), throwable.toString()), null);
+            String url = producer.getJobCallbackUrl() + "/" + eiJob.id();
+            restClient.delete(url) //
+                .subscribe(notUsed -> logger.debug("Producer job deleted OK {}", producer.getId()), //
+                    throwable -> logger.warn("Producer job delete failed {} {}", producer.getId(),
+                        throwable.getMessage()),
+                    null);
         }
     }
 
@@ -95,7 +96,7 @@ public class ProducerCallbacks {
         ProducerJobInfo request = new ProducerJobInfo(eiJob);
         String body = gson.toJson(request);
 
-        return restClient.post(producer.getJobCreationCallbackUrl(), body)
+        return restClient.post(producer.getJobCallbackUrl(), body)
             .doOnNext(resp -> logger.debug("Job subscription started OK {}", producer.getId()))
             .onErrorResume(throwable -> {
                 logger.warn("Job subscription failed {}", producer.getId(), throwable.toString());

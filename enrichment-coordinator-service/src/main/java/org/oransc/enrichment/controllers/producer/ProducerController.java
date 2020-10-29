@@ -290,8 +290,8 @@ public class ProducerController {
     }
 
     EiProducer createProducer(Collection<EiType> types, String producerId, ProducerRegistrationInfo registrationInfo) {
-        return new EiProducer(producerId, types, registrationInfo.jobCreationCallbackUrl,
-            registrationInfo.jobDeletionCallbackUrl, registrationInfo.producerSupervisionCallbackUrl);
+        return new EiProducer(producerId, types, registrationInfo.jobCallbackUrl,
+            registrationInfo.producerSupervisionCallbackUrl);
     }
 
     private EiProducer registerProducer(String producerId, ProducerRegistrationInfo registrationInfo) {
@@ -317,8 +317,7 @@ public class ProducerController {
         for (EiType type : p.getEiTypes()) {
             types.add(toEiTypeRegistrationInfo(type));
         }
-        return new ProducerRegistrationInfo(types, p.getJobCreationCallbackUrl(), p.getJobDeletionCallbackUrl(),
-            p.getProducerSupervisionCallbackUrl());
+        return new ProducerRegistrationInfo(types, p.getJobCallbackUrl(), p.getProducerSupervisionCallbackUrl());
     }
 
     private ProducerEiTypeRegistrationInfo toEiTypeRegistrationInfo(EiType type) {

@@ -32,22 +32,18 @@ public class EiProducer {
     private final Collection<EiType> eiTypes;
 
     @Getter
-    private final String jobCreationCallbackUrl;
-
-    @Getter
-    private final String jobDeletionCallbackUrl;
+    private final String jobCallbackUrl;
 
     @Getter
     private final String producerSupervisionCallbackUrl;
 
     private int unresponsiveCounter = 0;
 
-    public EiProducer(String id, Collection<EiType> eiTypes, String jobCreationCallbackUrl,
-        String jobDeletionCallbackUrl, String producerSupervisionCallbackUrl) {
+    public EiProducer(String id, Collection<EiType> eiTypes, String jobCallbackUrl,
+        String producerSupervisionCallbackUrl) {
         this.id = id;
         this.eiTypes = eiTypes;
-        this.jobCreationCallbackUrl = jobCreationCallbackUrl;
-        this.jobDeletionCallbackUrl = jobDeletionCallbackUrl;
+        this.jobCallbackUrl = jobCallbackUrl;
         this.producerSupervisionCallbackUrl = producerSupervisionCallbackUrl;
     }
 

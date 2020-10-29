@@ -258,7 +258,7 @@ class ApplicationTest {
 
         ProducerSimulatorController.TestResults simulatorResults = this.producerSimulator.getTestResults();
         await().untilAsserted(() -> assertThat(simulatorResults.jobsStopped.size()).isEqualTo(1));
-        assertThat(simulatorResults.jobsStopped.get(0).id).isEqualTo("jobId");
+        assertThat(simulatorResults.jobsStopped.get(0)).isEqualTo("jobId");
     }
 
     @Test
@@ -558,8 +558,7 @@ class ApplicationTest {
         Collection<ProducerEiTypeRegistrationInfo> types = new ArrayList<>();
         types.add(producerEiTypeRegistrationInfo(typeId));
         return new ProducerRegistrationInfo(types, //
-            baseUrl() + ProducerSimulatorController.JOB_CREATED_ERROR_URL,
-            baseUrl() + ProducerSimulatorController.JOB_DELETED_ERROR_URL,
+            baseUrl() + ProducerSimulatorController.JOB_ERROR_URL,
             baseUrl() + ProducerSimulatorController.SUPERVISION_ERROR_URL);
     }
 
@@ -568,9 +567,7 @@ class ApplicationTest {
         Collection<ProducerEiTypeRegistrationInfo> types = new ArrayList<>();
         types.add(producerEiTypeRegistrationInfo(typeId));
         return new ProducerRegistrationInfo(types, //
-            baseUrl() + ProducerSimulatorController.JOB_CREATED_URL,
-            baseUrl() + ProducerSimulatorController.JOB_DELETED_URL,
-            baseUrl() + ProducerSimulatorController.SUPERVISION_URL);
+            baseUrl() + ProducerSimulatorController.JOB_URL, baseUrl() + ProducerSimulatorController.SUPERVISION_URL);
     }
 
     private ConsumerEiJobInfo eiJobInfo() throws JsonMappingException, JsonProcessingException {
