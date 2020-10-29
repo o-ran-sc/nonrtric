@@ -33,10 +33,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.oransc.enrichment.clients.ProducerCallbacks;
-import org.oransc.enrichment.clients.ProducerJobInfo;
 import org.oransc.enrichment.controllers.ErrorResponse;
 import org.oransc.enrichment.controllers.VoidResponse;
+import org.oransc.enrichment.controllers.consumer.ConsumerCallbacks;
 import org.oransc.enrichment.controllers.producer.ProducerRegistrationInfo.ProducerEiTypeRegistrationInfo;
 import org.oransc.enrichment.repository.EiJob;
 import org.oransc.enrichment.repository.EiJobs;
@@ -77,6 +76,9 @@ public class ProducerController {
 
     @Autowired
     ProducerCallbacks producerCallbacks;
+
+    @Autowired
+    ConsumerCallbacks consumerCallbacks;
 
     @GetMapping(path = ProducerConsts.API_ROOT + "/eitypes", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "EI type identifiers", notes = "")
@@ -214,6 +216,7 @@ public class ProducerController {
         ProducerStatusInfo.OperationalState opState =
             producer.isAvailable() ? ProducerStatusInfo.OperationalState.ENABLED
                 : ProducerStatusInfo.OperationalState.DISABLED;
+        this.logger.debug("opState {}", opState);
         return new ProducerStatusInfo(opState);
     }
 
@@ -251,7 +254,7 @@ public class ProducerController {
     private void purgeTypes(Collection<EiType> types) {
         for (EiType type : types) {
             if (type.getProducerIds().isEmpty()) {
-                this.eiTypes.deregisterType(type, this.eiJobs);
+                this.eiTypes.remove(type);
             }
         }
     }
@@ -269,6 +272,7 @@ public class ProducerController {
         try {
             final EiProducer producer = this.eiProducers.getProducer(eiProducerId);
             this.eiProducers.deregisterProducer(producer, this.eiTypes, this.eiJobs);
+            this.consumerCallbacks.notifyConsumersProducerDeleted(producer);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
@@ -280,6 +284,7 @@ public class ProducerController {
         if (type == null) {
             type = new EiType(typeInfo.eiTypeId, typeInfo.jobDataSchema);
             this.eiTypes.put(type);
+            this.consumerCallbacks.notifyConsumersTypeAdded(type);
         }
         return type;
     }

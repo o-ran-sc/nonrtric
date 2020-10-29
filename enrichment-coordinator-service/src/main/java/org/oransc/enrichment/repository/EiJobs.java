@@ -38,7 +38,7 @@ public class EiJobs {
 
     public synchronized void put(EiJob job) {
         allEiJobs.put(job.id(), job);
-        jobsByType.put(job.type().getId(), job.id(), job);
+        jobsByType.put(job.typeId(), job.id(), job);
         jobsByOwner.put(job.owner(), job.id(), job);
     }
 
@@ -80,7 +80,7 @@ public class EiJobs {
 
     public synchronized void remove(EiJob job) {
         this.allEiJobs.remove(job.id());
-        jobsByType.remove(job.type().getId(), job.id());
+        jobsByType.remove(job.typeId(), job.id());
         jobsByOwner.remove(job.owner(), job.id());
     }
 

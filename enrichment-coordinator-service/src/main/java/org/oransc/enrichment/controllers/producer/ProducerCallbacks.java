@@ -18,18 +18,25 @@
  * ========================LICENSE_END===================================
  */
 
-package org.oransc.enrichment.clients;
+package org.oransc.enrichment.controllers.producer;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Collection;
+import java.util.Vector;
 
+import org.oransc.enrichment.clients.AsyncRestClient;
+import org.oransc.enrichment.clients.AsyncRestClientFactory;
 import org.oransc.enrichment.configuration.ApplicationConfig;
 import org.oransc.enrichment.repository.EiJob;
 import org.oransc.enrichment.repository.EiProducer;
+import org.oransc.enrichment.repository.EiTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -37,6 +44,7 @@ import reactor.core.publisher.Mono;
 /**
  * Callbacks to the EiProducer
  */
+@Component
 @SuppressWarnings("java:S3457") // No need to call "toString()" method as formatting and string ..
 public class ProducerCallbacks {
 
@@ -44,16 +52,19 @@ public class ProducerCallbacks {
     private static Gson gson = new GsonBuilder().create();
 
     private final AsyncRestClient restClient;
+    private final EiTypes eiTypes;
 
-    public ProducerCallbacks(ApplicationConfig config) {
+    @Autowired
+    public ProducerCallbacks(ApplicationConfig config, EiTypes eiTypes) {
         AsyncRestClientFactory restClientFactory = new AsyncRestClientFactory(config.getWebClientConfig());
         this.restClient = restClientFactory.createRestClient("");
+        this.eiTypes = eiTypes;
     }
 
     public void notifyProducersJobDeleted(EiJob eiJob) {
         ProducerJobInfo request = new ProducerJobInfo(eiJob);
         String body = gson.toJson(request);
-        for (EiProducer producer : eiJob.type().getProducers()) {
+        for (EiProducer producer : getProducers(eiJob)) {
             restClient.post(producer.getJobDeletionCallbackUrl(), body) //
                 .subscribe(notUsed -> logger.debug("Job deleted OK {}", producer.getId()), //
                     throwable -> logger.warn("Job delete failed {}", producer.getId(), throwable.toString()), null);
@@ -67,7 +78,7 @@ public class ProducerCallbacks {
      * @return the number of producers that returned OK
      */
     public Mono<Integer> notifyProducersJobStarted(EiJob eiJob) {
-        return Flux.fromIterable(eiJob.type().getProducers()) //
+        return Flux.fromIterable(getProducers(eiJob)) //
             .flatMap(eiProducer -> notifyProducerJobStarted(eiProducer, eiJob)) //
             .collectList() //
             .flatMap(okResponses -> Mono.just(Integer.valueOf(okResponses.size()))); //
@@ -90,6 +101,14 @@ public class ProducerCallbacks {
                 logger.warn("Job subscription failed {}", producer.getId(), throwable.toString());
                 return Mono.empty();
             });
+    }
+
+    private Collection<EiProducer> getProducers(EiJob eiJob) {
+        try {
+            return this.eiTypes.getType(eiJob.typeId()).getProducers();
+        } catch (Exception e) {
+            return new Vector<>();
+        }
     }
 
 }

@@ -60,10 +60,12 @@ public class ConsumerEiJobInfo {
     public ConsumerEiJobInfo() {
     }
 
-    public ConsumerEiJobInfo(String eiTypeId, Object jobData, String owner, String targetUri) {
+    public ConsumerEiJobInfo(String eiTypeId, Object jobData, String owner, String targetUri,
+        String statusNotificationUri) {
         this.eiTypeId = eiTypeId;
         this.jobData = jobData;
         this.owner = owner;
         this.targetUri = targetUri;
+        this.statusNotificationUri = statusNotificationUri;
     }
 }

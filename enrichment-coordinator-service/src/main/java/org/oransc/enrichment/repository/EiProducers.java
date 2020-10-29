@@ -36,11 +36,10 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
 public class EiProducers {
     private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    private Map<String, EiProducer> allEiProducers = new HashMap<>();
+    private final Map<String, EiProducer> allEiProducers = new HashMap<>();
 
     public synchronized void put(EiProducer producer) {
         allEiProducers.put(producer.getId(), producer);
-
     }
 
     public synchronized Collection<EiProducer> getAllProducers() {
@@ -79,7 +78,7 @@ public class EiProducers {
                 this.logger.error("Bug, no producer found");
             }
             if (type.getProducerIds().isEmpty()) {
-                eiTypes.deregisterType(type, eiJobs);
+                eiTypes.remove(type);
             }
         }
     }

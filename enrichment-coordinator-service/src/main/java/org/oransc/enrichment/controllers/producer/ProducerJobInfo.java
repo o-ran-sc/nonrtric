@@ -18,7 +18,7 @@
  * ========================LICENSE_END===================================
  */
 
-package org.oransc.enrichment.clients;
+package org.oransc.enrichment.controllers.producer;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
@@ -63,7 +63,7 @@ public class ProducerJobInfo {
     }
 
     public ProducerJobInfo(EiJob job) {
-        this(job.jobData(), job.id(), job.type().getId(), job.targetUri());
+        this(job.jobData(), job.id(), job.typeId(), job.targetUrl());
     }
 
     public ProducerJobInfo() {

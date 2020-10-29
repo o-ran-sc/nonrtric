@@ -32,9 +32,9 @@ import java.util.List;
 
 import lombok.Getter;
 
-import org.oransc.enrichment.clients.ProducerJobInfo;
 import org.oransc.enrichment.controllers.ErrorResponse;
 import org.oransc.enrichment.controllers.VoidResponse;
+import org.oransc.enrichment.controllers.producer.ProducerJobInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;

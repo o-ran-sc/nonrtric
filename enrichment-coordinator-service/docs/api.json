@@ -43,6 +43,37 @@
             }],
             "tags": ["A1-EI (enrichment information)"]
         }},
+        "/consumer_simulator/eijobs/{eiJobId}/status": {"post": {
+            "summary": "Callback for EI job status",
+            "deprecated": false,
+            "produces": ["application/json"],
+            "operationId": "jobStatusCallbackUsingPOST",
+            "responses": {
+                "200": {"description": "OK"},
+                "201": {"description": "Created"},
+                "401": {"description": "Unauthorized"},
+                "403": {"description": "Forbidden"},
+                "404": {"description": "Not Found"}
+            },
+            "parameters": [
+                {
+                    "in": "path",
+                    "name": "eiJobId",
+                    "description": "eiJobId",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "schema": {"$ref": "#/definitions/EiJobStatusObject"},
+                    "in": "body",
+                    "name": "status",
+                    "description": "status",
+                    "required": true
+                }
+            ],
+            "tags": ["Consumer Callbacks"],
+            "consumes": ["application/json"]
+        }},
         "/ei-producer/v1/eitypes": {"get": {
             "summary": "EI type identifiers",
             "deprecated": false,
@@ -479,7 +510,7 @@
             "consumes": ["application/json"]
         }}
     },
-    "host": "localhost:42127",
+    "host": "localhost:38499",
     "definitions": {
         "producer_ei_job_request": {
             "description": "The body of the EI producer callbacks for EI job creation and deletion",
@@ -696,6 +727,10 @@
         {
             "name": "A1-EI (enrichment information)",
             "description": "Consumer Controller"
+        },
+        {
+            "name": "Consumer Callbacks",
+            "description": "Consumer Simulator Controller"
         },
         {
             "name": "Enrichment Data Producer API",

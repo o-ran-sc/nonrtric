@@ -43,15 +43,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.oransc.enrichment.clients.AsyncRestClient;
 import org.oransc.enrichment.clients.AsyncRestClientFactory;
-import org.oransc.enrichment.clients.ProducerJobInfo;
 import org.oransc.enrichment.configuration.ApplicationConfig;
 import org.oransc.enrichment.configuration.ImmutableWebClientConfig;
 import org.oransc.enrichment.configuration.WebClientConfig;
+import org.oransc.enrichment.controller.ConsumerSimulatorController;
 import org.oransc.enrichment.controller.ProducerSimulatorController;
 import org.oransc.enrichment.controllers.consumer.ConsumerConsts;
 import org.oransc.enrichment.controllers.consumer.ConsumerEiJobInfo;
+import org.oransc.enrichment.controllers.consumer.ConsumerEiJobStatus;
 import org.oransc.enrichment.controllers.consumer.ConsumerEiTypeInfo;
 import org.oransc.enrichment.controllers.producer.ProducerConsts;
+import org.oransc.enrichment.controllers.producer.ProducerJobInfo;
 import org.oransc.enrichment.controllers.producer.ProducerRegistrationInfo;
 import org.oransc.enrichment.controllers.producer.ProducerRegistrationInfo.ProducerEiTypeRegistrationInfo;
 import org.oransc.enrichment.controllers.producer.ProducerStatusInfo;
@@ -91,6 +93,7 @@ class ApplicationTest {
     private final String EI_TYPE_ID = "typeId";
     private final String EI_PRODUCER_ID = "producerId";
     private final String EI_JOB_PROPERTY = "\"property1\"";
+    private final String EI_JOB_ID = "jobId";
 
     @Autowired
     ApplicationContext context;
@@ -109,6 +112,9 @@ class ApplicationTest {
 
     @Autowired
     ProducerSimulatorController producerSimulator;
+
+    @Autowired
+    ConsumerSimulatorController consumerSimulator;
 
     @Autowired
     ProducerSupervision producerSupervision;
@@ -135,6 +141,7 @@ class ApplicationTest {
         this.eiTypes.clear();
         this.eiProducers.clear();
         this.producerSimulator.getTestResults().reset();
+        this.consumerSimulator.getTestResults().reset();
     }
 
     @AfterEach
@@ -236,12 +243,9 @@ class ApplicationTest {
     void testGetEiJobStatus() throws Exception {
         putEiProducerWithOneType(EI_PRODUCER_ID, EI_TYPE_ID);
         putEiJob(EI_TYPE_ID, "jobId");
-        String url = ConsumerConsts.API_ROOT + "/eijobs/jobId/status";
-        String rsp = restClient().get(url).block();
-        assertThat(rsp).contains("ENABLED");
-    }
 
-    // Status TBD
+        verifyJobStatus("jobId", "ENABLED");
+    }
 
     @Test
     void testDeleteEiJob() throws Exception {
@@ -306,8 +310,8 @@ class ApplicationTest {
 
         String url = ConsumerConsts.API_ROOT + "/eijobs/jobId";
         // The element with name "property1" is mandatory in the schema
-        ConsumerEiJobInfo jobInfo =
-            new ConsumerEiJobInfo("typeId", jsonObject("{ \"XXstring\" : \"value\" }"), "owner", "targetUri");
+        ConsumerEiJobInfo jobInfo = new ConsumerEiJobInfo("typeId", jsonObject("{ \"XXstring\" : \"value\" }"), "owner",
+            "targetUri", "jobStatusUrl");
         String body = gson.toJson(jobInfo);
 
         testErrorCode(restClient().put(url, body), HttpStatus.CONFLICT, "Json validation failure");
@@ -349,7 +353,7 @@ class ApplicationTest {
         putEiJob("typeId1", "jobId");
 
         String url = ConsumerConsts.API_ROOT + "/eijobs/jobId";
-        String body = gson.toJson(eiJobInfo("typeId2"));
+        String body = gson.toJson(eiJobInfo("typeId2", "jobId"));
         testErrorCode(restClient().put(url, body), HttpStatus.CONFLICT,
             "Not allowed to change type for existing EI job");
     }
@@ -440,17 +444,32 @@ class ApplicationTest {
         putEiJob(EI_TYPE_ID, "jobId");
         assertThat(this.eiJobs.size()).isEqualTo(1);
 
-        String url = ProducerConsts.API_ROOT + "/eiproducers/eiProducerId";
-        restClient().deleteForEntity(url).block();
+        deleteEiProducer("eiProducerId");
         assertThat(this.eiProducers.size()).isEqualTo(1);
         assertThat(this.eiTypes.getType(EI_TYPE_ID).getProducerIds()).doesNotContain("eiProducerId");
-        assertThat(this.eiJobs.size()).isEqualTo(1);
+        verifyJobStatus("jobId", "ENABLED");
 
-        String url2 = ProducerConsts.API_ROOT + "/eiproducers/eiProducerId2";
-        restClient().deleteForEntity(url2).block();
+        deleteEiProducer("eiProducerId2");
         assertThat(this.eiProducers.size()).isZero();
         assertThat(this.eiTypes.size()).isZero();
-        assertThat(this.eiJobs.size()).isZero();
+        verifyJobStatus("jobId", "DISABLED");
+    }
+
+    @Test
+    void testJobStatusNotifications() throws JsonMappingException, JsonProcessingException, ServiceException {
+        putEiProducerWithOneType("eiProducerId", EI_TYPE_ID);
+        putEiJob(EI_TYPE_ID, "jobId");
+
+        deleteEiProducer("eiProducerId");
+        assertThat(this.eiTypes.size()).isZero(); // The type is gone
+        assertThat(this.eiJobs.size()).isEqualTo(1); // The job remains
+        ConsumerSimulatorController.TestResults consumerResults = this.consumerSimulator.getTestResults();
+        await().untilAsserted(() -> assertThat(consumerResults.status.size()).isEqualTo(1));
+        assertThat(consumerResults.status.get(0).state).isEqualTo(ConsumerEiJobStatus.EiJobStatusValues.DISABLED);
+
+        putEiProducerWithOneType("eiProducerId", EI_TYPE_ID);
+        await().untilAsserted(() -> assertThat(consumerResults.status.size()).isEqualTo(2));
+        assertThat(consumerResults.status.get(1).state).isEqualTo(ConsumerEiJobStatus.EiJobStatusValues.ENABLED);
     }
 
     @Test
@@ -469,17 +488,16 @@ class ApplicationTest {
         assertThat(resp.getBody()).contains(EI_PRODUCER_ID);
     }
 
-    private void assertProducerOpState(String producerId,
-        ProducerStatusInfo.OperationalState expectedOperationalState) {
-        String statusUrl = ProducerConsts.API_ROOT + "/eiproducers/" + producerId + "/status";
-        ResponseEntity<String> resp = restClient().getForEntity(statusUrl).block();
-        ProducerStatusInfo statusInfo = gson.fromJson(resp.getBody(), ProducerStatusInfo.class);
-        assertThat(statusInfo.opState).isEqualTo(expectedOperationalState);
-    }
-
     @Test
     void testProducerSupervision() throws JsonMappingException, JsonProcessingException, ServiceException {
         putEiProducerWithOneTypeRejecting("simulateProducerError", EI_TYPE_ID);
+
+        {
+            // Create a job
+            putEiProducerWithOneType(EI_PRODUCER_ID, EI_TYPE_ID);
+            putEiJob(EI_TYPE_ID, "jobId");
+            deleteEiProducer(EI_PRODUCER_ID);
+        }
 
         assertThat(this.eiProducers.size()).isEqualTo(1);
         assertThat(this.eiTypes.size()).isEqualTo(1);
@@ -490,10 +508,15 @@ class ApplicationTest {
         assertThat(this.eiProducers.size()).isEqualTo(1);
         assertProducerOpState("simulateProducerError", ProducerStatusInfo.OperationalState.DISABLED);
 
-        // After 3 failed checks, the producer shall be deregisterred
+        // After 3 failed checks, the producer and the type shall be deregisterred
         this.producerSupervision.createTask().blockLast();
         assertThat(this.eiProducers.size()).isEqualTo(0);
         assertThat(this.eiTypes.size()).isEqualTo(0);
+
+        // Job disabled status notification shall be received
+        ConsumerSimulatorController.TestResults consumerResults = this.consumerSimulator.getTestResults();
+        await().untilAsserted(() -> assertThat(consumerResults.status.size()).isEqualTo(1));
+        assertThat(consumerResults.status.get(0).state).isEqualTo(ConsumerEiJobStatus.EiJobStatusValues.DISABLED);
     }
 
     @Test
@@ -504,6 +527,25 @@ class ApplicationTest {
         String url = "/status";
         ResponseEntity<String> resp = restClient().getForEntity(url).block();
         assertThat(resp.getBody()).contains("hunky dory");
+    }
+
+    private void deleteEiProducer(String eiProducerId) {
+        String url = ProducerConsts.API_ROOT + "/eiproducers/" + eiProducerId;
+        restClient().deleteForEntity(url).block();
+    }
+
+    private void verifyJobStatus(String jobId, String expStatus) {
+        String url = ConsumerConsts.API_ROOT + "/eijobs/" + jobId + "/status";
+        String rsp = restClient().get(url).block();
+        assertThat(rsp).contains(expStatus);
+    }
+
+    private void assertProducerOpState(String producerId,
+        ProducerStatusInfo.OperationalState expectedOperationalState) {
+        String statusUrl = ProducerConsts.API_ROOT + "/eiproducers/" + producerId + "/status";
+        ResponseEntity<String> resp = restClient().getForEntity(statusUrl).block();
+        ProducerStatusInfo statusInfo = gson.fromJson(resp.getBody(), ProducerStatusInfo.class);
+        assertThat(statusInfo.opState).isEqualTo(expectedOperationalState);
     }
 
     ProducerEiTypeRegistrationInfo producerEiTypeRegistrationInfo(String typeId)
@@ -531,15 +573,16 @@ class ApplicationTest {
             baseUrl() + ProducerSimulatorController.SUPERVISION_URL);
     }
 
-    ConsumerEiJobInfo eiJobInfo() throws JsonMappingException, JsonProcessingException {
-        return eiJobInfo(EI_TYPE_ID);
+    private ConsumerEiJobInfo eiJobInfo() throws JsonMappingException, JsonProcessingException {
+        return eiJobInfo(EI_TYPE_ID, EI_JOB_ID);
     }
 
-    ConsumerEiJobInfo eiJobInfo(String typeId) throws JsonMappingException, JsonProcessingException {
-        return new ConsumerEiJobInfo(typeId, jsonObject(), "owner", "targetUri");
+    ConsumerEiJobInfo eiJobInfo(String typeId, String eiJobId) throws JsonMappingException, JsonProcessingException {
+        return new ConsumerEiJobInfo(typeId, jsonObject(), "owner", "targetUri",
+            baseUrl() + ConsumerSimulatorController.getJobStatusUrl(eiJobId));
     }
 
-    Object jsonObject(String json) {
+    private Object jsonObject(String json) {
         try {
             return JsonParser.parseString(json).getAsJsonObject();
         } catch (Exception e) {
@@ -547,7 +590,7 @@ class ApplicationTest {
         }
     }
 
-    Object jsonSchemaObject() {
+    private Object jsonSchemaObject() {
         // a json schema with one mandatory property named "string"
         String schemaStr = "{" //
             + "\"$schema\": \"http://json-schema.org/draft-04/schema#\"," //
@@ -564,7 +607,7 @@ class ApplicationTest {
         return jsonObject(schemaStr);
     }
 
-    Object jsonObject() {
+    private Object jsonObject() {
         return jsonObject("{ " + EI_JOB_PROPERTY + " : \"value\" }");
     }
 
@@ -572,7 +615,7 @@ class ApplicationTest {
         throws JsonMappingException, JsonProcessingException, ServiceException {
 
         String url = ConsumerConsts.API_ROOT + "/eijobs/" + jobId;
-        String body = gson.toJson(eiJobInfo(eiTypeId));
+        String body = gson.toJson(eiJobInfo(eiTypeId, jobId));
         restClient().putForEntity(url, body).block();
 
         return this.eiJobs.getJob(jobId);
