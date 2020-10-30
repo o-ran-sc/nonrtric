@@ -1,34 +1,130 @@
+/*-
+ * ========================LICENSE_START=================================
+ * Copyright (C) 2020 Nordix Foundation. All rights reserved.
+ * ======================================================================
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ========================LICENSE_END===================================
+ */
+
 package org.oransc.rappcatalogue.api;
 
-import java.util.Arrays;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.oransc.rappcatalogue.exception.HeaderException;
+import org.oransc.rappcatalogue.exception.InvalidServiceException;
+import org.oransc.rappcatalogue.exception.ServiceNotFoundException;
+import org.oransc.rappcatalogue.model.InputService;
+import org.oransc.rappcatalogue.model.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.context.request.NativeWebRequest;
 
 @org.springframework.stereotype.Service
 public class ServicesApiDelegateImpl implements ServicesApiDelegate {
 
-    @Override
-    public ResponseEntity<Void> deleteIndividualServiceUsingDELETE(String serviceName) {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+    private static final String LOCATION_HEADER = "Location";
+
+    @Autowired
+    private NativeWebRequest nativeWebRequest;
+
+    private HashMap<String, Service> registeredServices = new HashMap<>();
+
+    ServicesApiDelegateImpl(NativeWebRequest nativeWebRequest) {
+        this.nativeWebRequest = nativeWebRequest;
     }
 
-    // @Override
-    // public ResponseEntity<Service> getIndividualServiceUsingGET(String serviceName) {
-    //     return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-
-    // }
-
     @Override
-    public ResponseEntity<List<String>> getServiceNamesUsingGET() {
-        List<String> services = Arrays.asList("a", "b");
-        return ResponseEntity.ok(services);
+    public Optional<NativeWebRequest> getRequest() {
+        return Optional.of(nativeWebRequest);
     }
 
-    // @Override
-    // public ResponseEntity<Void> putIndividualServiceUsingPUT(String serviceName, Service service) {
-    //     return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+    @Override
+    public ResponseEntity<Service> getIndividualService(String serviceName) {
+        Service service = registeredServices.get(serviceName);
+        if (service != null) {
+            return ResponseEntity.ok(service);
+        } else {
+            throw new ServiceNotFoundException(serviceName);
+        }
+    }
 
-    // }
+    @Override
+    public ResponseEntity<List<Service>> getServices() {
+        return ResponseEntity.ok(new ArrayList<>(registeredServices.values()));
+    }
+
+    @Override
+    public ResponseEntity<Void> putIndividualService(String serviceName, InputService inputService) {
+        if (isServiceValid(inputService)) {
+            if (registeredServices.put(serviceName, createService(serviceName, inputService)) == null) {
+                getRequest().ifPresent(request -> addLocationHeaderToResponse(serviceName, request));
+                return new ResponseEntity<>(HttpStatus.CREATED);
+            } else {
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
+        } else {
+            throw new InvalidServiceException();
+        }
+    }
+
+    private void addLocationHeaderToResponse(String serviceName, NativeWebRequest request) {
+        try {
+            HttpServletRequest nativeRequest = request.getNativeRequest(HttpServletRequest.class);
+            HttpServletResponse nativeResponse = request.getNativeResponse(HttpServletResponse.class);
+        	if (nativeRequest != null && nativeResponse != null) {
+                StringBuffer requestURL = nativeRequest.getRequestURL();
+                nativeResponse.addHeader(LOCATION_HEADER, requestURL.toString());
+                nativeResponse.getWriter().print("");
+            } else {
+                registeredServices.remove(serviceName);
+                throw new HeaderException(LOCATION_HEADER, new Exception("Native Request or Response missing"));
+            }
+        } catch (IOException e) {
+            registeredServices.remove(serviceName);
+            throw new HeaderException(LOCATION_HEADER, e);
+        }
+    }
+
+    @Override
+    public ResponseEntity<Void> deleteIndividualService(String serviceName) {
+        registeredServices.remove(serviceName);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    /*
+     * java:S2589: Boolean expressions should not be gratuitous.
+     * Even though the version property is marked as @NotNull, it might be null coming from the client, hence the null
+     * check is needed.
+     */
+    @SuppressWarnings("java:S2589")
+    private boolean isServiceValid(InputService service) {
+        String version = service.getVersion();
+        return version != null && !version.isBlank();
+    }
+
+    private Service createService(String serviceName, InputService inputService) {
+        Service service = new Service();
+        service.setName(serviceName);
+        service.setDescription(inputService.getDescription());
+        service.setDisplayName(inputService.getDisplayName());
+        service.setVersion(inputService.getVersion());
+        return service;
+    }
 }
