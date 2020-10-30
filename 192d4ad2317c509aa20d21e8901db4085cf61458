@@ -45,6 +45,30 @@
       "revId": "192d4ad2317c509aa20d21e8901db4085cf61458",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7d1946e_e2f42e54",
+        "filename": "r-app-catalogue/src/main/java/org/oransc/rappcatalogue/api/ServicesApiDelegateImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-10-30T12:56:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26d2a19c_d618ee00",
+      "range": {
+        "startLine": 53,
+        "startChar": 12,
+        "endLine": 55,
+        "endChar": 38
+      },
+      "revId": "192d4ad2317c509aa20d21e8901db4085cf61458",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
