@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "25f18e85_3aae6d16",
+        "filename": "r-app-catalogue/src/main/java/org/oransc/rappcatalogue/api/GeneralRappCatalogueControllerAdvisor.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-10-30T12:31:23Z",
+      "side": 1,
+      "message": "Cool stuff, a shame though that all exceptions must be RuntimeExceptions.",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 17
+      },
+      "revId": "192d4ad2317c509aa20d21e8901db4085cf61458",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26d2a19c_d618ee00",
+        "filename": "r-app-catalogue/src/main/java/org/oransc/rappcatalogue/api/ServicesApiDelegateImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-10-30T12:31:23Z",
+      "side": 1,
+      "message": "These lines can be replaced by:                   \n            if (registeredServices.put(serviceName, service) \u003d\u003d null) {\n\nMap.put returns previous value or null.",
+      "range": {
+        "startLine": 53,
+        "startChar": 12,
+        "endLine": 55,
+        "endChar": 38
+      },
+      "revId": "192d4ad2317c509aa20d21e8901db4085cf61458",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
