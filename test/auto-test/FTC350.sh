@@ -138,17 +138,31 @@ for interface in $TESTED_VARIANTS ; do
     sim_put_policy_type 201 ricsim_g1_8 5 testdata/OSC/sim_5.json
     sim_put_policy_type 201 ricsim_g1_9 5 testdata/OSC/sim_5.json
 
-    api_equal json:policy_types 5 120
+    if [ "$PMS_VERSION" == "V2" ]; then
+        api_equal json:policy-types 5 120
 
-    echo "Check the number of types in the agent for each ric"
-    api_equal json:policy_types?ric=ricsim_g1_1 1 120
-    api_equal json:policy_types?ric=ricsim_g1_2 2 120
-    api_equal json:policy_types?ric=ricsim_g1_3 3 120
-    api_equal json:policy_types?ric=ricsim_g1_4 4 120
-    api_equal json:policy_types?ric=ricsim_g1_5 5 120
-    api_equal json:policy_types?ric=ricsim_g1_6 4 120
-    api_equal json:policy_types?ric=ricsim_g1_7 3 120
-    api_equal json:policy_types?ric=ricsim_g1_8 2 120
+        echo "Check the number of types in the agent for each ric"
+        api_equal json:policy-types?ric_id=ricsim_g1_1 1 120
+        api_equal json:policy-types?ric_id=ricsim_g1_2 2 120
+        api_equal json:policy-types?ric_id=ricsim_g1_3 3 120
+        api_equal json:policy-types?ric_id=ricsim_g1_4 4 120
+        api_equal json:policy-types?ric_id=ricsim_g1_5 5 120
+        api_equal json:policy-types?ric_id=ricsim_g1_6 4 120
+        api_equal json:policy-types?ric_id=ricsim_g1_7 3 120
+        api_equal json:policy-types?ric_id=ricsim_g1_8 2 120
+    else
+        api_equal json:policy_types 5 120
+
+        echo "Check the number of types in the agent for each ric"
+        api_equal json:policy_types?ric=ricsim_g1_1 1 120
+        api_equal json:policy_types?ric=ricsim_g1_2 2 120
+        api_equal json:policy_types?ric=ricsim_g1_3 3 120
+        api_equal json:policy_types?ric=ricsim_g1_4 4 120
+        api_equal json:policy_types?ric=ricsim_g1_5 5 120
+        api_equal json:policy_types?ric=ricsim_g1_6 4 120
+        api_equal json:policy_types?ric=ricsim_g1_7 3 120
+        api_equal json:policy_types?ric=ricsim_g1_8 2 120
+    fi
 
     api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1:???? \
                              ricsim_g1_2:me1_ricsim_g1_2,me2_ricsim_g1_2:1,2:???? \
@@ -165,17 +179,33 @@ for interface in $TESTED_VARIANTS ; do
 
     api_equal json:rics 10 120
 
-    echo "Check the number of types in the agent for each ric"
-    api_equal json:policy_types?ric=ricsim_g1_1 1 120
-    api_equal json:policy_types?ric=ricsim_g1_2 2 120
-    api_equal json:policy_types?ric=ricsim_g1_3 3 120
-    api_equal json:policy_types?ric=ricsim_g1_4 4 120
-    api_equal json:policy_types?ric=ricsim_g1_5 5 120
-    api_equal json:policy_types?ric=ricsim_g1_6 4 120
-    api_equal json:policy_types?ric=ricsim_g1_7 3 120
-    api_equal json:policy_types?ric=ricsim_g1_8 2 120
-    api_equal json:policy_types?ric=ricsim_g1_9 1 120
-    api_equal json:policy_types?ric=ricsim_g1_10 0 120
+    if [ "$PMS_VERSION" == "V2" ]; then
+
+        echo "Check the number of types in the agent for each ric"
+        api_equal json:policy-types?ric_id=ricsim_g1_1 1 120
+        api_equal json:policy-types?ric_id=ricsim_g1_2 2 120
+        api_equal json:policy-types?ric_id=ricsim_g1_3 3 120
+        api_equal json:policy-types?ric_id=ricsim_g1_4 4 120
+        api_equal json:policy-types?ric_id=ricsim_g1_5 5 120
+        api_equal json:policy-types?ric_id=ricsim_g1_6 4 120
+        api_equal json:policy-types?ric_id=ricsim_g1_7 3 120
+        api_equal json:policy-types?ric_id=ricsim_g1_8 2 120
+        api_equal json:policy-types?ric_id=ricsim_g1_9 1 120
+        api_equal json:policy-types?ric_id=ricsim_g1_10 0 120
+    else
+
+        echo "Check the number of types in the agent for each ric"
+        api_equal json:policy_types?ric=ricsim_g1_1 1 120
+        api_equal json:policy_types?ric=ricsim_g1_2 2 120
+        api_equal json:policy_types?ric=ricsim_g1_3 3 120
+        api_equal json:policy_types?ric=ricsim_g1_4 4 120
+        api_equal json:policy_types?ric=ricsim_g1_5 5 120
+        api_equal json:policy_types?ric=ricsim_g1_6 4 120
+        api_equal json:policy_types?ric=ricsim_g1_7 3 120
+        api_equal json:policy_types?ric=ricsim_g1_8 2 120
+        api_equal json:policy_types?ric=ricsim_g1_9 1 120
+        api_equal json:policy_types?ric=ricsim_g1_10 0 120
+    fi
 
     api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1:???? \
                              ricsim_g1_2:me1_ricsim_g1_2,me2_ricsim_g1_2:1,2:???? \
@@ -191,13 +221,27 @@ for interface in $TESTED_VARIANTS ; do
 
     #No policy type in sim #10
 
-    api_equal json:policy_types 5
+    if [ "$PMS_VERSION" == "V2" ]; then
+        api_equal json:policy-types 5
+    else
+        api_equal json:policy_types 5
+    fi
 
     api_put_service 201 "serv1" 3600 "$CR_PATH/serv1"
 
-    api_put_policy 201 "serv1" ricsim_g1_9 5 2000 NOTRANSIENT testdata/OSC/pi5_template.json 1
+    if [ "$PMS_VERSION" == "V2" ]; then
+        notificationurl="http://localhost:80"
+    else
+        notificationurl=""
+    fi
 
-    api_equal json:policy_ids 1
+    api_put_policy 201 "serv1" ricsim_g1_9 5 2000 NOTRANSIENT $notificationurl testdata/OSC/pi5_template.json 1
+
+    if [ "$PMS_VERSION" == "V2" ]; then
+         api_equal json:policy_instances 1
+    else
+        api_equal json:policy_ids 1
+    fi
 
     sim_equal ricsim_g1_9 num_instances 1
 
@@ -207,15 +251,27 @@ for interface in $TESTED_VARIANTS ; do
 
     api_equal json:rics 8 120
 
-    echo "Check the number of types in the agent for each ric"
-    api_equal json:policy_types?ric=ricsim_g1_1 1 120
-    api_equal json:policy_types?ric=ricsim_g1_2 2 120
-    api_equal json:policy_types?ric=ricsim_g1_3 3 120
-    api_equal json:policy_types?ric=ricsim_g1_4 4 120
-    api_equal json:policy_types?ric=ricsim_g1_5 5 120
-    api_equal json:policy_types?ric=ricsim_g1_6 4 120
-    api_equal json:policy_types?ric=ricsim_g1_7 3 120
-    api_equal json:policy_types?ric=ricsim_g1_8 2 120
+    if [ "$PMS_VERSION" == "V2" ]; then
+        echo "Check the number of types in the agent for each ric"
+        api_equal json:policy-types?ric_id=ricsim_g1_1 1 120
+        api_equal json:policy-types?ric_id=ricsim_g1_2 2 120
+        api_equal json:policy-types?ric_id=ricsim_g1_3 3 120
+        api_equal json:policy-types?ric_id=ricsim_g1_4 4 120
+        api_equal json:policy-types?ric_id=ricsim_g1_5 5 120
+        api_equal json:policy-types?ric_id=ricsim_g1_6 4 120
+        api_equal json:policy-types?ric_id=ricsim_g1_7 3 120
+        api_equal json:policy-types?ric_id=ricsim_g1_8 2 120
+    else
+        echo "Check the number of types in the agent for each ric"
+        api_equal json:policy_types?ric=ricsim_g1_1 1 120
+        api_equal json:policy_types?ric=ricsim_g1_2 2 120
+        api_equal json:policy_types?ric=ricsim_g1_3 3 120
+        api_equal json:policy_types?ric=ricsim_g1_4 4 120
+        api_equal json:policy_types?ric=ricsim_g1_5 5 120
+        api_equal json:policy_types?ric=ricsim_g1_6 4 120
+        api_equal json:policy_types?ric=ricsim_g1_7 3 120
+        api_equal json:policy_types?ric=ricsim_g1_8 2 120
+    fi
 
     api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1:???? \
                              ricsim_g1_2:me1_ricsim_g1_2,me2_ricsim_g1_2:1,2:???? \
@@ -228,7 +284,11 @@ for interface in $TESTED_VARIANTS ; do
 
     sleep_wait 120
 
-    api_equal json:policy_ids 0
+    if [ "$PMS_VERSION" == "V2" ]; then
+        api_equal json:policy_instances 0
+    else
+        api_equal json:policy_ids 0
+    fi
 
     api_get_policy_types 404 ricsim_g1_9
 
@@ -241,17 +301,31 @@ for interface in $TESTED_VARIANTS ; do
 
     api_equal json:rics 10 120
 
-    echo "Check the number of types in the agent for each ric"
-    api_equal json:policy_types?ric=ricsim_g1_1 1 120
-    api_equal json:policy_types?ric=ricsim_g1_2 2 120
-    api_equal json:policy_types?ric=ricsim_g1_3 3 120
-    api_equal json:policy_types?ric=ricsim_g1_4 4 120
-    api_equal json:policy_types?ric=ricsim_g1_5 5 120
-    api_equal json:policy_types?ric=ricsim_g1_6 4 120
-    api_equal json:policy_types?ric=ricsim_g1_7 3 120
-    api_equal json:policy_types?ric=ricsim_g1_8 2 120
-    api_equal json:policy_types?ric=ricsim_g1_9 1 120
-    api_equal json:policy_types?ric=ricsim_g1_10 0 120
+    if [ "$PMS_VERSION" == "V2" ]; then
+        echo "Check the number of types in the agent for each ric"
+        api_equal json:policy-types?ric_id=ricsim_g1_1 1 120
+        api_equal json:policy-types?ric_id=ricsim_g1_2 2 120
+        api_equal json:policy-types?ric_id=ricsim_g1_3 3 120
+        api_equal json:policy-types?ric_id=ricsim_g1_4 4 120
+        api_equal json:policy-types?ric_id=ricsim_g1_5 5 120
+        api_equal json:policy-types?ric_id=ricsim_g1_6 4 120
+        api_equal json:policy-types?ric_id=ricsim_g1_7 3 120
+        api_equal json:policy-types?ric_id=ricsim_g1_8 2 120
+        api_equal json:policy-types?ric_id=ricsim_g1_9 1 120
+        api_equal json:policy-types?ric_id=ricsim_g1_10 0 120
+    else
+        echo "Check the number of types in the agent for each ric"
+        api_equal json:policy_types?ric=ricsim_g1_1 1 120
+        api_equal json:policy_types?ric=ricsim_g1_2 2 120
+        api_equal json:policy_types?ric=ricsim_g1_3 3 120
+        api_equal json:policy_types?ric=ricsim_g1_4 4 120
+        api_equal json:policy_types?ric=ricsim_g1_5 5 120
+        api_equal json:policy_types?ric=ricsim_g1_6 4 120
+        api_equal json:policy_types?ric=ricsim_g1_7 3 120
+        api_equal json:policy_types?ric=ricsim_g1_8 2 120
+        api_equal json:policy_types?ric=ricsim_g1_9 1 120
+        api_equal json:policy_types?ric=ricsim_g1_10 0 120
+    fi
 
     api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1:???? \
                              ricsim_g1_2:me1_ricsim_g1_2,me2_ricsim_g1_2:1,2:???? \
@@ -266,7 +340,11 @@ for interface in $TESTED_VARIANTS ; do
 
     sleep_wait 120
 
-    api_equal json:policy_ids 0
+    if [ "$PMS_VERSION" == "V2" ]; then
+        api_equal json:policy_instances 0
+    else
+        api_equal json:policy_ids 0
+    fi
 
     sim_equal ricsim_g1_9 num_instances 0
 
@@ -278,16 +356,29 @@ for interface in $TESTED_VARIANTS ; do
 
     sleep_wait 120
 
-    api_equal json:policy_types?ric=ricsim_g1_1 1 120
-    api_equal json:policy_types?ric=ricsim_g1_2 2 120
-    api_equal json:policy_types?ric=ricsim_g1_3 3 120
-    api_equal json:policy_types?ric=ricsim_g1_4 3 120
-    api_equal json:policy_types?ric=ricsim_g1_5 4 120
-    api_equal json:policy_types?ric=ricsim_g1_6 3 120
-    api_equal json:policy_types?ric=ricsim_g1_7 2 120
-    api_equal json:policy_types?ric=ricsim_g1_8 2 120
-    api_equal json:policy_types?ric=ricsim_g1_9 1 120
-    api_equal json:policy_types?ric=ricsim_g1_10 0 120
+    if [ "$PMS_VERSION" == "V2" ]; then
+        api_equal json:policy-types?ric_id=ricsim_g1_1 1 120
+        api_equal json:policy-types?ric_id=ricsim_g1_2 2 120
+        api_equal json:policy-types?ric_id=ricsim_g1_3 3 120
+        api_equal json:policy-types?ric_id=ricsim_g1_4 3 120
+        api_equal json:policy-types?ric_id=ricsim_g1_5 4 120
+        api_equal json:policy-types?ric_id=ricsim_g1_6 3 120
+        api_equal json:policy-types?ric_id=ricsim_g1_7 2 120
+        api_equal json:policy-types?ric_id=ricsim_g1_8 2 120
+        api_equal json:policy-types?ric_id=ricsim_g1_9 1 120
+        api_equal json:policy-types?ric_id=ricsim_g1_10 0 120
+    else
+        api_equal json:policy_types?ric=ricsim_g1_1 1 120
+        api_equal json:policy_types?ric=ricsim_g1_2 2 120
+        api_equal json:policy_types?ric=ricsim_g1_3 3 120
+        api_equal json:policy_types?ric=ricsim_g1_4 3 120
+        api_equal json:policy_types?ric=ricsim_g1_5 4 120
+        api_equal json:policy_types?ric=ricsim_g1_6 3 120
+        api_equal json:policy_types?ric=ricsim_g1_7 2 120
+        api_equal json:policy_types?ric=ricsim_g1_8 2 120
+        api_equal json:policy_types?ric=ricsim_g1_9 1 120
+        api_equal json:policy_types?ric=ricsim_g1_10 0 120
+    fi
 
     api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1:???? \
                              ricsim_g1_2:me1_ricsim_g1_2,me2_ricsim_g1_2:1,2:???? \
@@ -302,7 +393,11 @@ for interface in $TESTED_VARIANTS ; do
 
     sim_delete_policy_type 204 ricsim_g1_8 4
 
-    api_equal json:policy_types?ric=ricsim_g1_8 1 120
+    if [ "$PMS_VERSION" == "V2" ]; then
+        api_equal json:policy-types?ric_id=ricsim_g1_8 1 120
+    else
+        api_equal json:policy_types?ric=ricsim_g1_8 1 120
+    fi
 
     api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1:???? \
                             ricsim_g1_2:me1_ricsim_g1_2,me2_ricsim_g1_2:1,2:???? \

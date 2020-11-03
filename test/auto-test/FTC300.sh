@@ -17,7 +17,7 @@
 #  ============LICENSE_END=================================================
 #
 
-TC_ONELINE_DESCR="Resync 10000 policies using OSC interface over REST"
+TC_ONELINE_DESCR="Resync 10000 policies using OSC and STD interface"
 
 #App names to include in the test, space separated list
 INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
@@ -78,6 +78,10 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         start_ric_simulators ricsim_g2 4 STD_1.1.3
 
+        if [ "$PMS_VERSION" == "V2" ]; then
+            start_ric_simulators ricsim_g3 4  STD_2.0.0
+        fi
+
         start_mr
 
         start_cr
@@ -105,65 +109,79 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         sim_print ricsim_g2_1 interface
 
+        if [ "$PMS_VERSION" == "V2" ]; then
+            sim_print ricsim_g3_1 interface
+        fi
+
         sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
 
-        api_equal json:policy_types 2 120  #Wait for the agent to refresh types from the simulator
+        if [ "$PMS_VERSION" == "V2" ]; then
+            api_equal json:policy-types 2 120  #Wait for the agent to refresh types from the simulator
+        else
+            api_equal json:policy_types 2 120  #Wait for the agent to refresh types from the simulator
+        fi
 
         api_put_service 201 "serv1" 3600 "$CR_PATH/1"
 
         START_ID=2000
         NUM_POLICIES=10000
 
-        if [[ $interface == *"BATCH"* ]]; then
-            api_put_policy_batch 201 "serv1" ricsim_g1_1 1 $START_ID NOTRANSIENT testdata/OSC/pi1_template.json $NUM_POLICIES
+        if [ "$PMS_VERSION" == "V2" ]; then
+            notificationurl="http://localhost:80"
         else
-            api_put_policy 201 "serv1" ricsim_g1_1 1 $START_ID NOTRANSIENT testdata/OSC/pi1_template.json $NUM_POLICIES
+            notificationurl=""
         fi
 
-        sim_equal ricsim_g1_1 num_instances 10000
+        if [[ $interface == *"BATCH"* ]]; then
+            api_put_policy_batch 201 "serv1" ricsim_g1_1 1 $START_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_POLICIES
+        else
+            api_put_policy 201 "serv1" ricsim_g1_1 1 $START_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_POLICIES
+        fi
+
+        sim_equal ricsim_g1_1 num_instances $NUM_POLICIES
 
         sim_post_delete_instances 200 ricsim_g1_1
 
         sim_equal ricsim_g1_1 num_instances 0
 
-        sim_equal ricsim_g1_1 num_instances 10000 300
+        sim_equal ricsim_g1_1 num_instances $NUM_POLICIES 300
 
-        START_ID=$(($START_ID+$NUM_POLICIES))
+        START_ID2=$(($START_ID+$NUM_POLICIES))
 
         if [[ $interface == *"BATCH"* ]]; then
-            api_put_policy_batch 201 "serv1" ricsim_g2_1 NOTYPE $START_ID NOTRANSIENT testdata/STD/pi1_template.json $NUM_POLICIES
+            api_put_policy_batch 201 "serv1" ricsim_g2_1 NOTYPE $START_ID2 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json $NUM_POLICIES
         else
-            api_put_policy 201 "serv1" ricsim_g2_1 NOTYPE $START_ID NOTRANSIENT testdata/STD/pi1_template.json $NUM_POLICIES
+            api_put_policy 201 "serv1" ricsim_g2_1 NOTYPE $START_ID2 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json $NUM_POLICIES
         fi
-        sim_equal ricsim_g2_1 num_instances 10000
+        sim_equal ricsim_g2_1 num_instances $NUM_POLICIES
 
         sim_post_delete_instances 200 ricsim_g2_1
 
         sim_equal ricsim_g2_1 num_instances 0
 
-        sim_equal ricsim_g2_1 num_instances 10000 300
+        sim_equal ricsim_g2_1 num_instances $NUM_POLICIES 300
 
-        api_delete_policy 204 2435
+        api_delete_policy 204 $(($START_ID+47))
 
-        api_delete_policy 204 8693
+        api_delete_policy 204 $(($START_ID+$NUM_POLICIES-39))
 
         sim_post_delete_instances 200 ricsim_g1_1
 
-        sim_equal ricsim_g1_1 num_instances 9998 300
+        sim_equal ricsim_g1_1 num_instances $(($NUM_POLICIES-2)) 300
 
-        api_delete_policy 204 12435
+        api_delete_policy 204 $(($START_ID2+37))
 
-        api_delete_policy 204 18693
+        api_delete_policy 204 $(($START_ID2+$NUM_POLICIES-93))
 
-        api_delete_policy 204 18697
+        api_delete_policy 204 $(($START_ID2+$NUM_POLICIES-91))
 
         sim_post_delete_instances 200 ricsim_g2_1
 
-        sim_equal ricsim_g1_1 num_instances 9998 300
+        sim_equal ricsim_g1_1 num_instances $(($NUM_POLICIES-2)) 300
 
-        sim_equal ricsim_g2_1 num_instances 9997 300
+        sim_equal ricsim_g2_1 num_instances $(($NUM_POLICIES-3)) 300
 
-        api_equal json:policies 19995
+        api_equal json:policies $(($NUM_POLICIES-2+$NUM_POLICIES-3))
 
         check_policy_agent_logs
 

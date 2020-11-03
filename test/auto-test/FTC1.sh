@@ -79,6 +79,9 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         start_ric_simulators ricsim_g1 1  OSC_2.1.0
         start_ric_simulators ricsim_g2 1  STD_1.1.3
+        if [ "$PMS_VERSION" == "V2" ]; then
+            start_ric_simulators ricsim_g3 1  STD_2.0.0
+        fi
 
         start_mr
 
@@ -107,15 +110,27 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
 
-        api_equal json:rics 2 60
+        if [ "$PMS_VERSION" == "V2" ]; then
+            api_equal json:rics 3 60
 
-        api_equal json:policy_schemas 2 120
+            #api_equal json:policy_schemas 2 120
 
-        api_equal json:policy_types 2
+            api_equal json:policy-types 2 120
 
-        api_equal json:policies 0
+            api_equal json:policies 0
 
-        api_equal json:policy_ids 0
+            api_equal json:policy_instances 0
+        else
+            api_equal json:rics 2 60
+
+            api_equal json:policy_schemas 2 120
+
+            api_equal json:policy_types 2
+
+            api_equal json:policies 0
+
+            api_equal json:policy_ids 0
+        fi
 
         echo "############################################"
         echo "############## Health check ################"
@@ -137,25 +152,40 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "############## RIC Repository ##############"
         echo "############################################"
 
-        api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1:AVAILABLE  ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:EMPTYTYPE:AVAILABLE"
+        if [ "$PMS_VERSION" == "V2" ]; then
+            api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1:AVAILABLE  ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:EMPTYTYPE:AVAILABLE ricsim_g3_1:me1_ricsim_g3_1,me2_ricsim_g3_1:NOTYPE:AVAILABLE"
+        else
+            api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1:AVAILABLE  ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:EMPTYTYPE:AVAILABLE"
+        fi
 
         echo "############################################"
         echo "########### A1 Policy Management ###########"
         echo "############################################"
 
-        api_put_policy 201 "serv1" ricsim_g1_1 1 5000 NOTRANSIENT testdata/OSC/pi1_template.json
-        api_put_policy 200 "serv1" ricsim_g1_1 1 5000 NOTRANSIENT testdata/OSC/pi1_template.json
+        if [ "$PMS_VERSION" == "V2" ]; then
+            notificationurl="http://localhost:80"
+        else
+            notificationurl=""
+        fi
+        api_put_policy 201 "serv1" ricsim_g1_1 1 5000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json
+        api_put_policy 200 "serv1" ricsim_g1_1 1 5000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json
 
-        api_put_policy 201 "serv1" ricsim_g2_1 NOTYPE 5100 NOTRANSIENT testdata/STD/pi1_template.json
-        api_put_policy 200 "serv1" ricsim_g2_1 NOTYPE 5100 NOTRANSIENT testdata/STD/pi1_template.json
+        api_put_policy 201 "serv1" ricsim_g2_1 NOTYPE 5100 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json
+        api_put_policy 200 "serv1" ricsim_g2_1 NOTYPE 5100 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json
 
         api_delete_policy 204 5000
 
         api_delete_policy 204 5100
 
-        api_equal json:policies 0
+        if [ "$PMS_VERSION" == "V2" ]; then
+            api_equal json:policies 0
 
-        api_equal json:policy_ids 0
+            api_equal json:policy_instances 0
+        else
+            api_equal json:policies 0
+
+            api_equal json:policy_ids 0
+        fi
 
         cr_equal received_callbacks 0
 
@@ -173,9 +203,15 @@ for __httpx in $TESTED_PROTOCOLS ; do
         if [[ $interface = *"SDNC"* ]]; then
             sim_contains_str ricsim_g1_1 remote_hosts "a1-controller"
             sim_contains_str ricsim_g2_1 remote_hosts "a1-controller"
+            if [ "$PMS_VERSION" == "V2" ]; then
+                sim_contains_str ricsim_g3_1 remote_hosts "a1-controller"
+            fi
         else
             sim_contains_str ricsim_g1_1 remote_hosts "policy-agent"
             sim_contains_str ricsim_g2_1 remote_hosts "policy-agent"
+            if [ "$PMS_VERSION" == "V2" ]; then
+                sim_contains_str ricsim_g3_1 remote_hosts "policy-agent"
+            fi
         fi
 
         check_policy_agent_logs

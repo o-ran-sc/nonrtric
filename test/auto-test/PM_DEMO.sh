@@ -32,6 +32,13 @@ INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 ##########################
 # Path to callback receiver
 CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
+
+if [ "$PMS_VERSION" == "V2" ]; then
+    notificationurl="http://localhost:80"
+else
+    notificationurl=""
+fi
+
 use_cr_http
 use_agent_rest_http
 use_sdnc_http
@@ -87,19 +94,35 @@ done
 
 
 #Check the number of schemas and the individual schemas in OSC
-api_equal json:policy_types 3 120
+if [ "$PMS_VERSION" == "V2" ]; then
+    api_equal json:policy-types 3 120
 
-for ((i=1; i<=$OSC_NUM_RICS; i++))
-do
-    api_equal json:policy_types?ric=$RIC_SIM_PREFIX"_g1_"$i 2 120
-done
+    for ((i=1; i<=$OSC_NUM_RICS; i++))
+    do
+        api_equal json:policy-types?ric_id=$RIC_SIM_PREFIX"_g1_"$i 2 120
+    done
 
-# Check the schemas in OSC
-for ((i=1; i<=$OSC_NUM_RICS; i++))
-do
-    api_get_policy_schema 200 100 demo-testdata/OSC/qos-agent-modified.json
-    api_get_policy_schema 200 20008 demo-testdata/OSC/tsa-agent-modified.json
-done
+    # Check the schemas in OSC
+    for ((i=1; i<=$OSC_NUM_RICS; i++))
+    do
+        api_get_policy_type 200 100 demo-testdata/OSC/qos-agent-modified.json
+        api_get_policy_type 200 20008 demo-testdata/OSC/tsa-agent-modified.json
+    done
+else
+    api_equal json:policy_types 3 120
+
+    for ((i=1; i<=$OSC_NUM_RICS; i++))
+    do
+        api_equal json:policy_types?ric=$RIC_SIM_PREFIX"_g1_"$i 2 120
+    done
+
+    # Check the schemas in OSC
+    for ((i=1; i<=$OSC_NUM_RICS; i++))
+    do
+        api_get_policy_schema 200 100 demo-testdata/OSC/qos-agent-modified.json
+        api_get_policy_schema 200 20008 demo-testdata/OSC/tsa-agent-modified.json
+    done
+fi
 
 
 # Create policies
@@ -111,9 +134,9 @@ api_put_service 201 "Emergency-response-app" 0 "$CR_PATH/1"
 for ((i=1; i<=$OSC_NUM_RICS; i++))
 do
     generate_uuid
-    api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g1_"$i 100 $((3000+$i)) NOTRANSIENT demo-testdata/OSC/piqos_template.json 1
+    api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g1_"$i 100 $((3000+$i)) NOTRANSIENT $notificationurl demo-testdata/OSC/piqos_template.json 1
     generate_uuid
-    api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g1_"$i 20008 $((4000+$i)) NOTRANSIENT demo-testdata/OSC/pitsa_template.json 1
+    api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g1_"$i 20008 $((4000+$i)) NOTRANSIENT $notificationurl demo-testdata/OSC/pitsa_template.json 1
 done
 
 
@@ -128,7 +151,7 @@ done
 for ((i=1; i<=$STD_NUM_RICS; i++))
 do
     generate_uuid
-    api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g2_"$i NOTYPE $((2100+$i)) NOTRANSIENT demo-testdata/STD/pi1_template.json 1
+    api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g2_"$i NOTYPE $((2100+$i)) NOTRANSIENT $notificationurl demo-testdata/STD/pi1_template.json 1
 done
 
 

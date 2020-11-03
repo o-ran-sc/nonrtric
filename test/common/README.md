@@ -510,12 +510,16 @@ Print out the overall result of the executed test cases.
 
 # Description of functions in agent_api_function.sh #
 
+## General ##
+Both PMS version 1 and 2 are supported. The version is controlled by the env variable `$PMS_VERSION` set in the test env file.
+
 ## Function: api_equal() ##
 
 Tests if the array length of a json array in the Policy Agent simulator is equal to a target value.
 Without the timeout, the test sets pass or fail immediately depending on if the array length is equal to the target or not.
 With the timeout, the test waits up to the timeout seconds before setting pass or fail depending on if the array length becomes equal to the target value or not.
 See the 'cr' dir for more details.
+
 | arg list |
 |--|
 | `<variable-name> <target-value> [ <timeout-in-sec> ]` |
@@ -527,12 +531,17 @@ See the 'cr' dir for more details.
 | `<timeout-in-sec>` | Max time to wait for the length to reach the target value  |
 
 ## Function: api_get_policies() ##
-Test of GET '/policies' and optional check of the array of returned policies.
+Test of GET '/policies' or V2 GET '/v2/policy_instances' and optional check of the array of returned policies.
 To test the response code only, provide the response code parameter as well as the following three parameters.
-To also test the response payload add the 'NOID' for an expected empty array or repeat the last five parameters for each expected policy.
+To also test the response payload add the 'NOID' for an expected empty array or repeat the last five/seven parameters for each expected policy.
+
 | arg list |
 |--|
 | `<response-code> <ric-id>|NORIC <service-id>|NOSERVICE <policy-type-id>|NOTYPE [ NOID | [<policy-id> <ric-id> <service-id> EMPTY|<policy-type-id> <template-file>]*]` |
+
+| arg list V2 |
+|--|
+| `<response-code> <ric-id>|NORIC <service-id>|NOSERVICE <policy-type-id>|NOTYPE [ NOID | [<policy-id> <ric-id> <service-id> EMPTY|<policy-type-id> <transient> <notification-url> <template-file>]*]` |
 
 | parameter | description |
 | --------- | ----------- |
@@ -546,30 +555,47 @@ To also test the response payload add the 'NOID' for an expected empty array or 
 | `NOID` |  Indicator that no policy id is provided - indicate empty list of policies|
 | `<policy-id>` |  Id of the policy |
 | `EMPTY` |  Indicate for the special empty policy type |
+| `transient` |  Transient, true or false |
+| `notification-url` |  Url for notifications |
 | `<template-file>` |  Path to the template file for the policy (same template used when creating the policy) |
 
 
 ## Function: api_get_policy() ##
-Test of GET /policy and optional check of the returned json payload.
+Test of GET '/policy' or V2 GET '/v2/policies/{policy_id}' and optional check of the returned json payload.
 To test the the response code only, provide the expected response code and policy id.
 To test the contents of the returned json payload, add a path to the template file used when creating the policy.
+
 | arg list |
 |--|
 | `<response-code>  <policy-id> [<template-file>]` |
+
+| arg list V2|
+|--|
+| `<response-code> <policy-id> [ <template-file> <service-name> <ric-id> <policytype-id>|NOTYPE <transient> <notification-url>|NOURL ]` |
 
 | parameter | description |
 | --------- | ----------- |
 | `<response-code>` | Expected http response code |
 | `<policy-id>` |  Id of the policy |
 | `<template-file>` |  Path to the template file for the policy (same template used when creating the policy) |
+| `<service-id>` | Id of the service  |
+| `<ric-id>` | Id of the ric  |
+| `<policy-type-id>` |  Id of the policy type |
+| `NOTYPE` | Indicator that no type id is provided  |
+| `transient` |  Transient, true or false |
+| `notification-url` |  Url for notifications |
 
 ## Function: api_put_policy() ##
-Test of PUT '/policy'.
-To test the response code only, provide the response code parameter as well as the following three parameters.
-To also test the response payload add the 'NOID' for an expected empty array or repeat the last five parameters for each expected policy.
+Test of PUT '/policy' or V2 PUT '/policies'.
+If more than one policy shall be created, add a count value to indicate the number of policies to create. Note that if more than one policy shall be created the provided policy-id must be numerical (will be used as the starting id).
+
 | arg list |
 |--|
 | `<response-code> <service-name> <ric-id> <policytype-id> <policy-id> <transient> <template-file> [<count>]` |
+
+| arg list V2 |
+|--|
+| `<response-code> <service-name> <ric-id> <policytype-id>|NOTYPE <policy-id> <transient>|NOTRANSIENT <notification-url>|NOURL <template-file> [<count>]` |
 
 | parameter | description |
 | --------- | ----------- |
@@ -579,6 +605,8 @@ To also test the response payload add the 'NOID' for an expected empty array or 
 | `<policy-type-id>` |  Id of the policy type |
 | `<policy-id>` |  Id of the policy. This value shall be a numeric value if more than one policy shall be created |
 | `transient>` |  Transient 'true' or 'false'. 'NOTRANSIENT' can be used to indicate using the default value (no transient value provided) |
+| `notification-url` |  Url for notifications |
+|`NOURL`| Indicator for no url |
 | `<template-file>` |  Path to the template file for the policy |
 | `<count>` |  An optional count (default is 1). If a value greater than 1 is given, the policy ids will use the given policy id as the first id and add 1 to that id for each new policy |
 
@@ -589,10 +617,17 @@ For arg list and parameters, see 'api_put_policy'.
 
 ## Function: api_put_policy_parallel() ##
 This tests the same as function 'api_put_policy' except that the policy create is spread out over a number of processes and it only uses the agent rest API. The total number of policies created is determined by the product of the parameters 'number-of-rics' and 'count'. The parameter 'number-of-threads' shall be selected to be not evenly divisible by the product of the parameters 'number-of-rics' and 'count' - this is to ensure that one process does not handle the creation of all the policies in one ric.
+
 | arg list |
 |--|
 | `<response-code> <service-name> <ric-id-base> <number-of-rics> <policytype-id> <policy-start-id> <transient> <template-file> <count-per-ric> <number-of-threads>`
 
+| arg list |
+|--|
+| `<response-code> <service-name> <ric-id-base> <number-of-rics> <policytype-id> <policy-start-id> <transient> <notification-url>|NOURL <template-file> <count-per-ric> <number-of-threads>`
+
+| parameter | description |
+| --------- | ----------- |
 | `<response-code>` | Expected http response code |
 | `<service-id>` | Id of the service  |
 | `<ric-id-base>` | The base id of the rics, ie ric id without the sequence number. The sequence number is added during processing  |
@@ -600,12 +635,14 @@ This tests the same as function 'api_put_policy' except that the policy create i
 | `<policy-type-id>` |  Id of the policy type |
 | `<policy-start-id>` |  Id of the policy. This value shall be a numeric value and will be the id of the first policy |
 | `transient>` |  Transient 'true' or 'false'. 'NOTRANSIENT' can be used to indicate using the default value (no transient value provide) |
+| `notification-url` |  Url for notifications |
 | `<template-file>` |  Path to the template file for the policy |
 | `<count-per-ric>` |  Number of policies per ric |
 | `<number-of-threads>` |  Number of threads (processes) to run in parallel |
 
 ## Function: api_delete_policy() ##
-This tests the DELETE /policy. Removes the indicated policy or a 'count' number of policies starting with 'policy-id' as the first id.
+This tests the DELETE '/policy' or V2 DELETE '/v2/policies/{policy_id}'. Removes the indicated policy or a 'count' number of policies starting with 'policy-id' as the first id.
+
 | arg list |
 |--|
 | `<response-code> <policy-id> [<count>]`
@@ -623,10 +660,13 @@ For arg list and parameters, see 'api_delete_policy'.
 
 ## Function: api_delete_policy_parallel() ##
 This tests the same as function 'api_delete_policy' except that the policy delete is spread out over a number of processes and it only uses the agent rest API. The total number of policies deleted is determined by the product of the parameters 'number-of-rics' and 'count'. The parameter 'number-of-threads' shall be selected to be not evenly divisible by the product of the parameters 'number-of-rics' and 'count' - this is to ensure that one process does not handle the deletion of all the policies in one ric.
+
 | arg list |
 |--|
 | `<response-code> <ric-id-base> <number-of-rics> <policy-start-id> <count-per-ric> <number-of-threads>`
 
+| parameter | description |
+| --------- | ----------- |
 | `<response-code>` | Expected http response code |
 | `<ric-id-base>` | The base id of the rics, ie ric id without the sequence number. The sequence number is added during processing  |
 | `<number-of-rics>` | The number of rics, assuming the first index is '1'  |
@@ -637,9 +677,10 @@ This tests the same as function 'api_delete_policy' except that the policy delet
 
 ## Function: api_get_policy_ids() ##
 
-Test of GET '/policy_ids'.
+Test of GET '/policy_ids' or V2 GET '/v2/policies'.
 To test response code only, provide the response code parameter as well as the following three parameters.
 To also test the response payload add the 'NOID' for an expected empty array or repeat the 'policy-instance-id' for each expected policy id.
+
 | arg list |
 |--|
 | `<response-code> <ric-id>|NORIC <service-id>|NOSERVICE <type-id>|NOTYPE ([<policy-instance-id]*|NOID)` |
@@ -657,9 +698,25 @@ To also test the response payload add the 'NOID' for an expected empty array or 
 | `<policy-instance-id>` |  Id of the policy |
 
 ## Function: api_get_policy_schema() ##
-Test of GET /policy_schema and optional check of the returned json schema.
+Test of V2 GET '/v2/policy-types/{policyTypeId}' and optional check of the returned json schema.
 To test the response code only, provide the expected response code and policy type id.
 To test the contents of the returned json schema, add a path to a schema file to compare with.
+
+| arg list |
+|--|
+| `<response-code> <policy-type-id> [<schema-file>]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<policy-type-id>` |  Id of the policy type |
+| `<schema-file>` |  Path to the schema file for the policy type |
+
+## Function: api_get_policy_schema() ##
+Test of GET '/policy_schema' and optional check of the returned json schema.
+To test the response code only, provide the expected response code and policy type id.
+To test the contents of the returned json schema, add a path to a schema file to compare with.
+
 | arg list |
 |--|
 | `<response-code> <policy-type-id> [<schema-file>]` |
@@ -671,9 +728,10 @@ To test the contents of the returned json schema, add a path to a schema file to
 | `<schema-file>` |  Path to the schema file for the policy type |
 
 ## Function: api_get_policy_schemas() ##
-Test of GET /policy_schemas and optional check of the returned json schemas.
+Test of GET '/policy_schemas' and optional check of the returned json schemas.
 To test the response code only, provide the expected response code and ric id (or NORIC if no ric is given).
 To test the contents of the returned json schema, add a path to a schema file to compare with (or NOFILE to represent an empty '{}' type)
+
 | arg list |
 |--|
 | `<response-code>  <ric-id>|NORIC [<schema-file>|NOFILE]*` |
@@ -687,7 +745,8 @@ To test the contents of the returned json schema, add a path to a schema file to
 | `NOFILE` |  Indicate the template for an empty type |
 
 ## Function: api_get_policy_status() ##
-Test of GET /policy_status.
+Test of GET '/policy_status' or V2 GET '/policies/{policy_id}/status'.
+
 | arg list |
 |--|
 | `<response-code> <policy-id> (STD <enforce-status> [<reason>])|(OSC <instance-status> <has-been-deleted>)` |
@@ -704,7 +763,7 @@ Test of GET /policy_status.
 | `<has-been-deleted>` |  Deleted status, true or false |
 
 ## Function: api_get_policy_types() ##
-Test of GET /policy_types and optional check of the returned ids.
+Test of GET '/policy_types' or  V2 GET '/v2/policy-types' and optional check of the returned ids.
 To test the response code only, provide the expected response code and ric id (or NORIC if no ric is given).
 To test the contents of the returned json payload, add the list of expected policy type id (or 'EMPTY' for the '{}' type)
 
@@ -721,7 +780,8 @@ To test the contents of the returned json payload, add the list of expected poli
 | `EMPTY` |  Indicate the empty type |
 
 ## Function: api_get_status() ##
-Test of GET /status
+Test of GET /status or V2 GET /status
+
 | arg list |
 |--|
 | `<response-code>` |
@@ -731,25 +791,34 @@ Test of GET /status
 | `<response-code>` | Expected http response code |
 
 ## Function: api_get_ric() ##
-Test of GET /ric
+Test of GET '/ric' or V2 GET '/v2/rics/ric'
 To test the response code only, provide the expected response code and managed element id.
 To test the returned ric id, provide the expected ric id.
+
 | arg list |
 |--|
 | `<reponse-code> <managed-element-id> [<ric-id>]` |
+
+| arg list V2 |
+|--|
+| `<reponse-code> <management-element-id>|NOME <ric-id>|<NORIC> [<string-of-ricinfo>]` |
 
 | parameter | description |
 | --------- | ----------- |
 | `<response-code>` | Expected http response code |
 | `<managed-element-id>` |  Id of the managed element |
-| `<ric-id>` |  Id of the ric |
+| `NOME` |  Indicator for no ME |
+| `ric-id` |  Id of the ric |
+| `NORIC` |  Indicator no RIC |
+| `string-of-ricinfo` |  String of ric info |
 
 ## Function: api_get_rics() ##
-Test of GET /rics and optional check of the returned json payload (ricinfo).
+Test of GET '/rics' or V2 GET '/v2/rics' and optional check of the returned json payload (ricinfo).
 To test the response code only, provide the expected response code and policy type id (or NOTYPE if no type is given).
 To test also the returned payload, add the formatted string of info in the returned payload.
 Format of ricinfo: '<ric-id>:<list-of-mes>:<list-of-policy-type-ids>'
 Example `<space-separate-string-of-ricinfo> = "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1,2,4 ricsim_g1_1:me2_........."`
+
 | arg list |
 |--|
 | `<reponse-code> <policy-type-id>|NOTYPE [<space-separate-string-of-ricinfo>]` |
@@ -762,7 +831,7 @@ Example `<space-separate-string-of-ricinfo> = "ricsim_g1_1:me1_ricsim_g1_1,me2_r
 | `<space-separate-string-of-ricinfo>` |  A space separated string of ric info - needs to be quoted |
 
 ## Function: api_put_service() ##
-Test of PUT /service
+Test of PUT '/service' or V2 PUT '/service'.
 | arg list |
 |--|
 | `<response-code>  <service-name> <keepalive-timeout> <callbackurl>` |
@@ -775,9 +844,10 @@ Test of PUT /service
 | `<callbackurl>` |  Callback url |
 
 ## Function: api_get_services() ##
-Test of GET /service and optional check of the returned json payload.
+Test of GET '/service' or V2 GET '/v2/services' and optional check of the returned json payload.
 To test only the response code, omit all parameters except the expected response code.
 To test the returned json, provide the parameters after the response code.
+
 | arg list |
 |--|
 | `<response-code> [ (<query-service-name> <target-service-name> <keepalive-timeout> <callbackurl>) | (NOSERVICE <target-service-name> <keepalive-timeout> <callbackurl> [<target-service-name> <keepalive-timeout> <callbackurl>]* )]` |
@@ -792,7 +862,8 @@ To test the returned json, provide the parameters after the response code.
 | `NOSERVICE` |  Indicator of no target service name |
 
 ## Function: api_get_service_ids() ##
-Test of GET /services
+Test of GET '/services' or V2 GET /'v2/services'. Only check of service ids.
+
 | arg list |
 |--|
 | `<response-code> [<service-name>]*` |
@@ -803,7 +874,8 @@ Test of GET /services
 | `<service-name>` |  Service name |
 
 ## Function: api_delete_services() ##
-Test of DELETE /services
+Test of DELETE '/services' or V2 DELETE '/v2/services/{serviceId}'
+
 | arg list |
 |--|
 | `<response-code> [<service-name>]*` |
@@ -814,7 +886,8 @@ Test of DELETE /services
 | `<service-name>` |  Service name |
 
 ## Function: api_put_services_keepalive() ##
-Test of PUT /services/keepalive
+Test of PUT '/services/keepalive' or V2 PUT '/v2/services/{service_id}/keepalive'
+
 | arg list |
 |--|
 | <response-code> <service-name>` |
@@ -832,6 +905,7 @@ Tests if a variable value in the RIC simulator is equal to a target value.
 Without the timeout, the test sets pass or fail immediately depending on if the variable is equal to the target or not.
 With the timeout, the test waits up to the timeout seconds before setting pass or fail depending on if the variable value becomes equal to the target value or not.
 See the 'a1-interface' repo for more details.
+
 | arg list |
 |--|
 | `<variable-name> <target-value> [ <timeout-in-sec> ]` |
@@ -845,6 +919,7 @@ See the 'a1-interface' repo for more details.
 ## Function: sim_print ##
 Prints the value of a variable in the RIC simulator.
 See the 'a1-interface' repo for more details.
+
 | arg list |
 |--|
 | `<variable-name>` |
@@ -859,6 +934,7 @@ Tests if a variable value in the RIC simulator contains a target string.
 Without the timeout, the test sets pass or fail immediately depending on if the variable contains the target string or not.
 With the timeout, the test waits up to the timeout seconds before setting pass or fail depending on if the variable value contains the target string or not.
 See the 'a1-interface' repo for more details.
+
 | arg list |
 |--|
 | `<variable-name> <target-value> [ <timeout-in-sec> ]` |
@@ -871,6 +947,7 @@ See the 'a1-interface' repo for more details.
 
 ## Function: sim_put_policy_type ##
 Loads a policy type to the simulator
+
 | arg list |
 |--|
 | `<response-code> <ric-id> <policy-type-id> <policy-type-file>` |
@@ -884,6 +961,7 @@ Loads a policy type to the simulator
 
 ## Function: sim_delete_policy_type ##
 Deletes a policy type from the simulator
+
 | arg list |
 |--|
 | `<response-code> <ric-id> <policy_type_id>` |
@@ -896,6 +974,7 @@ Deletes a policy type from the simulator
 
 ## Function: sim_post_delete_instances ##
 Deletes all instances (and status), for one ric
+
 | arg list |
 |--|
 | `<response-code> <ric-id>` |
@@ -908,6 +987,7 @@ Deletes all instances (and status), for one ric
 
 ## Function: sim_post_delete_all ##
 Deletes all types, instances (and status), for one ric
+
 | arg list |
 |--|
 | `<response-code> <ric-id>` |
@@ -920,6 +1000,7 @@ Deletes all types, instances (and status), for one ric
 ## Function: sim_post_forcedresponse ##
 Sets (or resets) response code for next (one) A1 message, for one ric.
 The intention is to simulate error response on the A1 interface.
+
 | arg list |
 |--|
 | `<response-code> <ric-id> [<forced_response_code>]`|
@@ -933,6 +1014,7 @@ The intention is to simulate error response on the A1 interface.
 ## Function: sim_post_forcedelay ##
 Sets (or resets) A1 response delay, for one ric
 The intention is to delay responses on the A1 interface. Setting remains until removed.
+
 | arg list |
 |--|
 | `<response-code> <ric-id> [<delay-in-seconds>]`|
@@ -951,6 +1033,7 @@ The file contains a selection of the possible API tests towards the a1-controlle
 Test of GET policy ids towards OSC or STD type simulator.
 To test response code only, provide the response code, 'OSC' + policy type or 'STD'
 To test the response payload, include the ids of the expexted response.
+
 | arg list |
 |--|
 | `<response-code> (OSC <ric-id> <policy-type-id> [ <policy-id> [<policy-id>]* ]) | ( STD <ric-id> [ <policy-id> [<policy-id>]* ]` |
@@ -967,6 +1050,7 @@ To test the response payload, include the ids of the expexted response.
 
 ## Function: controller_api_get_A1_policy_type ##
 Test of GET a policy type (OSC only)
+
 | arg list |
 |--|
 | `<response-code> OSC <ric-id> <policy-type-id> [<policy-type-file>]` |
@@ -981,6 +1065,7 @@ Test of GET a policy type (OSC only)
 
 ## Function: controller_api_delete_A1_policy ##
 Deletes a policy instance
+
 | arg list |
 |--|
 | `(STD <ric-id> <policy-id>) | (OSC <ric-id> <policy-type-id> <policy-id>)` |
@@ -997,6 +1082,7 @@ Deletes a policy instance
 
 ## Function: controller_api_put_A1_policy ##
 Creates a policy instance
+
 | arg list |
 |--|
 | `<response-code> (STD <ric-id> <policy-id> <template-file> ) | (OSC <ric-id> <policy-type-id> <policy-id> <template-file>)` |
@@ -1013,6 +1099,7 @@ Creates a policy instance
 
 ## Function: controller_api_get_A1_policy_status ##
 Checks the status of a policy
+
  arg list |
 |--|
 | `<response-code> (STD <ric-id> <policy-id> <enforce-status> [<reason>]) | (OSC <ric-id> <policy-type-id> <policy-id> <instance-status> <has-been-deleted>)` |
@@ -1039,6 +1126,7 @@ Checks the status of a policy
 Test of GET '/A1-EI​/v1​/eitypes​/{eiTypeId}​/eijobs' and optional check of the array of returned job ids.
 To test the response code only, provide the response code parameter as well as a type id and an owner id.
 To also test the response payload add the 'EMPTY' for an expected empty array or repeat the last parameter for each expected job id.
+
 | arg list |
 |--|
 | `<response-code> <type-id>  <owner-id>|NOOWNER [ EMPTY | <job-id>+ ]` |
@@ -1056,6 +1144,7 @@ To also test the response payload add the 'EMPTY' for an expected empty array or
 Test of GET '/A1-EI​/v1​/eitypes​/{eiTypeId}' and optional check of the returned schema.
 To test the response code only, provide the response code parameter as well as the type-id.
 To also test the response payload add a path to the expected schema file.
+
 | arg list |
 |--|
 | `<response-code> <type-id> [<schema-file>]` |
@@ -1070,6 +1159,7 @@ To also test the response payload add a path to the expected schema file.
 Test of GET '/A1-EI​/v1​/eitypes' and optional check of returned list of type ids.
 To test the response code only, provide the response only.
 To also test the response payload add the list of expected type ids (or EMPTY if the list is expected to be empty).
+
 | arg list |
 |--|
 | `<response-code> [ (EMPTY | [<type-id>]+) ]` |
@@ -1084,6 +1174,7 @@ To also test the response payload add the list of expected type ids (or EMPTY if
 Test of GET '/A1-EI​/v1​/eitypes​/{eiTypeId}​/eijobs​/{eiJobId}​/status' and optional check of the returned status.
 To test the response code only, provide the response code, type id and job id.
 To also test the response payload add the expected status.
+
 | arg list |
 |--|
 | `<response-code> <type-id> <job-id> [<status>]` |
@@ -1099,6 +1190,7 @@ To also test the response payload add the expected status.
 Test of GET '/A1-EI​/v1​/eitypes​/{eiTypeId}​/eijobs​/{eiJobId}' and optional check of the returned job.
 To test the response code only, provide the response code, type id and job id.
 To also test the response payload add the remaining parameters.
+
 | arg list |
 |--|
 | `<response-code> <type-id> <job-id> [<target-url> <owner-id> <template-job-file>]` |
@@ -1115,6 +1207,7 @@ To also test the response payload add the remaining parameters.
 ## Function: ecs_api_a1_delete_job() ##
 Test of DELETE '/A1-EI​/v1​/eitypes​/{eiTypeId}​/eijobs​/{eiJobId}'.
 To test, provide all the specified parameters.
+
 | arg list |
 |--|
 | `<response-code> <type-id> <job-id> |
@@ -1128,6 +1221,7 @@ To test, provide all the specified parameters.
 ## Function: ecs_api_a1_put_job() ##
 Test of PUT '/A1-EI​/v1​/eitypes​/{eiTypeId}​/eijobs​/{eiJobId}'.
 To test, provide all the specified parameters.
+
 | arg list |
 |--|
 | `<response-code> <type-id> <job-id> <target-url> <owner-id> <template-job-file>` |
@@ -1145,6 +1239,7 @@ To test, provide all the specified parameters.
 Test of GET '/ei-producer/v1/eitypes' and an optional check of the returned list of type ids.
 To test the response code only, provide the response code.
 To also test the response payload add list of expected type ids (or EMPTY if the list is expected to be empty).
+
 | arg list |
 |--|
 | `<response-code> [ EMPTY | <type-id>+]` |
@@ -1159,6 +1254,7 @@ To also test the response payload add list of expected type ids (or EMPTY if the
 Test of GET '/ei-producer/v1/eiproducers/{eiProducerId}/status' and optional check of the returned status.
 To test the response code only, provide the response code and producer id.
 To also test the response payload add the expected status.
+
 | arg list |
 |--|
 | `<response-code> <producer-id> [<status>]` |
@@ -1173,6 +1269,7 @@ To also test the response payload add the expected status.
 Test of GET '/ei-producer/v1/eiproducers' and optional check of the returned producer ids.
 To test the response code only, provide the response.
 To also test the response payload add the list of expected producer-ids (or EMPTY if the list of ids is expected to be empty).
+
 | arg list |
 |--|
 | `<response-code> [ EMPTY | <producer-id>+]` |
@@ -1187,6 +1284,7 @@ To also test the response payload add the list of expected producer-ids (or EMPT
 Test of GET '/ei-producer/v1/eitypes/{eiTypeId}' and optional check of the returned type.
 To test the response code only, provide the response and the type-id.
 To also test the response payload add a path to a job schema file and a list expected producer-id (or EMPTY if the list of ids is expected to be empty).
+
 | arg list |
 |--|
 | `<response-code> <type-id> [<job-schema-file> (EMPTY | [<producer-id>]+)]` |
@@ -1203,6 +1301,7 @@ To also test the response payload add a path to a job schema file and a list exp
 Test of GET '/ei-producer/v1/eiproducers/{eiProducerId}' and optional check of the returned producer.
 To test the response code only, provide the response and the producer-id.
 To also test the response payload add the remaining parameters defining thee producer.
+
 | arg list |
 |--|
 | `<response-code> <producer-id> [<create-callback> <delete-callback> <supervision-callback> (EMPTY | [<type-id> <schema-file>]+) ]` |
@@ -1221,6 +1320,7 @@ To also test the response payload add the remaining parameters defining thee pro
 ## Function: ecs_api_edp_delete_producer() ##
 Test of DELETE '/ei-producer/v1/eiproducers/{eiProducerId}'.
 To test, provide all parameters.
+
 | arg list |
 |--|
 | `<response-code> <producer-id>` |
@@ -1233,6 +1333,7 @@ To test, provide all parameters.
 ## Function: ecs_api_edp_put_producer() ##
 Test of PUT '/ei-producer/v1/eiproducers/{eiProducerId}'.
 To test, provide all parameters. The list of type/schema pair may be empty.
+
 | arg list |
 |--|
 | `<response-code> <producer-id> <create-callback> <delete-callback> <supervision-callback> (EMPTY | [<type-id> <schema-file>]+)` |
@@ -1252,6 +1353,7 @@ To test, provide all parameters. The list of type/schema pair may be empty.
 Test of GET '/ei-producer/v1/eiproducers/{eiProducerId}/eijobs' and optional check of the returned producer job.
 To test the response code only, provide the response and the producer-id.
 To also test the response payload add the remaining parameters.
+
 | arg list |
 |--|
 | `<response-code> <producer-id> (EMPTY | [<job-id> <type-id> <target-url> <template-job-file>]+)` |
@@ -1268,6 +1370,7 @@ To also test the response payload add the remaining parameters.
 
 ## Function: ecs_api_service_status() ##
 Test of GET '/status'.
+
 | arg list |
 |--|
 | `<response-code>` |
@@ -1281,6 +1384,7 @@ Test of GET '/status'.
 
 ## Function: prodstub_arm_producer() ##
 Preconfigure the prodstub with a producer. The producer supervision response code is optional, if not given the response code will be set to 200.
+
 | arg list |
 |--|
 | `<response-code> <producer-id> [<forced_response_code>]` |
@@ -1293,6 +1397,7 @@ Preconfigure the prodstub with a producer. The producer supervision response cod
 
 ## Function: prodstub_arm_job_create() ##
 Preconfigure the prodstub with a job or update an existing job. Optional create/update job response code, if not given the response code will be set to 200/201 depending on if the job has been previously created or not.
+
 | arg list |
 |--|
 | `<response-code> <job-id> [<forced_response_code>]` |
@@ -1305,6 +1410,7 @@ Preconfigure the prodstub with a job or update an existing job. Optional create/
 
 ## Function: prodstub_arm_job_delete() ##
 Preconfigure the prodstub with a job. Optional delete job response code, if not given the response code will be set to 204/404 depending on if the job exists or not.
+
 | arg list |
 |--|
 | `<response-code> <job-id> [<forced_response_code>]` |
@@ -1317,6 +1423,7 @@ Preconfigure the prodstub with a job. Optional delete job response code, if not 
 
 ## Function: prodstub_arm_type() ##
 Preconfigure the prodstub with a type for a producer. Can be called multiple times to add more types.
+
 | arg list |
 |--|
 | `<response-code> <producer-id> <type-id>` |
@@ -1329,6 +1436,7 @@ Preconfigure the prodstub with a type for a producer. Can be called multiple tim
 
 ## Function: prodstub_disarm_type() ##
 Remove a type for the producer in the rodstub. Can be called multiple times to remove more types.
+
 | arg list |
 |--|
 | `<response-code> <producer-id> <type-id>` |
@@ -1341,6 +1449,7 @@ Remove a type for the producer in the rodstub. Can be called multiple times to r
 
 ## Function: prodstub_check_jobdata() ##
 Check a job in the prodstub towards the list of provided parameters.
+
 | arg list |
 |--|
 | `<response-code> <producer-id> <job-id> <type-id> <target-url> <template-job-file>` |
@@ -1358,6 +1467,7 @@ Check a job in the prodstub towards the list of provided parameters.
 Tests if a variable value in the prodstub is equal to a target value.
 Without the timeout, the test sets pass or fail immediately depending on if the variable is equal to the target or not.
 With the timeout, the test waits up to the timeout seconds before setting pass or fail depending on if the variable value becomes equal to the target value or not.
+
 | arg list |
 |--|
 | `<variable-name> <target-value> [ <timeout-in-sec> ]` |

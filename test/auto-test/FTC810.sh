@@ -114,12 +114,20 @@ do
 done
 
 echo "Wait for the agent to refresh types from the simulator"
-api_equal json:policy_types 2 120
+if [ "$PMS_VERSION" == "V2" ]; then
+   api_equal json:policy-types 2 120
+else
+   api_equal json:policy_types 2 120
+fi
 
 echo "Check the number of types in the agent for each ric is 1"
 for ((i=1; i<=$NUM_RICS; i++))
 do
-   api_equal json:policy_types?ric=ricsim_g1_$i 1 120
+   if [ "$PMS_VERSION" == "V2" ]; then
+      api_equal json:policy-types?ric_id=ricsim_g1_$i 1 120
+   else
+      api_equal json:policy_types?ric=ricsim_g1_$i 1 120
+   fi
 done
 
 echo "Register a service"
@@ -131,6 +139,12 @@ TEST_START=$SECONDS
 AGENT_INTERFACES="REST REST_PARALLEL DMAAP DMAAP-BATCH"
 
 MR_MESSAGES=0
+
+if [ "$PMS_VERSION" == "V2" ]; then
+      notificationurl="http://localhost:80"
+else
+      notificationurl=""
+fi
 
 while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
 
@@ -166,14 +180,14 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
       INSTANCE_ID=200000
       INSTANCES=0
       if [ $interface == "REST_PARALLEL" ]; then
-         api_put_policy_parallel 201 "serv1" ricsim_g1_ $NUM_RICS 1 $INSTANCE_ID NOTRANSIENT testdata/OSC/pi1_template.json $NUM_INSTANCES 3
+         api_put_policy_parallel 201 "serv1" ricsim_g1_ $NUM_RICS 1 $INSTANCE_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_INSTANCES 3
       fi
       for ((i=1; i<=$NUM_RICS; i++))
       do
          if [ $interface == "DMAAP-BATCH" ]; then
-            api_put_policy_batch 201 "serv1" ricsim_g1_$i 1 $INSTANCE_ID NOTRANSIENT testdata/OSC/pi1_template.json $NUM_INSTANCES
+            api_put_policy_batch 201 "serv1" ricsim_g1_$i 1 $INSTANCE_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_INSTANCES
          elif [ $interface == "DMAAP" ] || [ $interface == "REST" ]; then
-            api_put_policy 201 "serv1" ricsim_g1_$i 1 $INSTANCE_ID NOTRANSIENT testdata/OSC/pi1_template.json $NUM_INSTANCES
+            api_put_policy 201 "serv1" ricsim_g1_$i 1 $INSTANCE_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_INSTANCES
          fi
          if [ $interface == "DMAAP" ] || [ $interface == "DMAAP-BATCH" ]; then
             MR_MESSAGES=$(($MR_MESSAGES+$NUM_INSTANCES))
@@ -183,18 +197,22 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
          INSTANCES=$(($INSTANCES+$NUM_INSTANCES))
       done
 
-      api_equal json:policy_ids $INSTANCES
+      if [ "$PMS_VERSION" == "V2" ]; then
+         api_equal json:policy_instances $INSTANCES
+      else
+         api_equal json:policy_ids $INSTANCES
+      fi
 
       echo "Create $NUM_INSTANCES instances in each STD RIC"
       if [ $interface == "REST_PARALLEL" ]; then
-         api_put_policy_parallel 201 "serv1" ricsim_g2_ $NUM_RICS NOTYPE $INSTANCE_ID NOTRANSIENT testdata/STD/pi1_template.json $NUM_INSTANCES 3
+         api_put_policy_parallel 201 "serv1" ricsim_g2_ $NUM_RICS NOTYPE $INSTANCE_ID NOTRANSIENT $notificationurl testdata/STD/pi1_template.json $NUM_INSTANCES 3
       fi
       for ((i=1; i<=$NUM_RICS; i++))
       do
          if [ $interface == "DMAAP-BATCH" ]; then
-            api_put_policy_batch 201 "serv1" ricsim_g2_$i NOTYPE $INSTANCE_ID NOTRANSIENT testdata/STD/pi1_template.json $NUM_INSTANCES
+            api_put_policy_batch 201 "serv1" ricsim_g2_$i NOTYPE $INSTANCE_ID NOTRANSIENT $notificationurl testdata/STD/pi1_template.json $NUM_INSTANCES
          elif [ $interface == "DMAAP" ] || [ $interface == "REST" ]; then
-            api_put_policy 201 "serv1" ricsim_g2_$i NOTYPE $INSTANCE_ID NOTRANSIENT testdata/STD/pi1_template.json $NUM_INSTANCES
+            api_put_policy 201 "serv1" ricsim_g2_$i NOTYPE $INSTANCE_ID NOTRANSIENT $notificationurl testdata/STD/pi1_template.json $NUM_INSTANCES
          fi
          if [ $interface == "DMAAP" ] || [ $interface == "DMAAP-BATCH" ]; then
             MR_MESSAGES=$(($MR_MESSAGES+$NUM_INSTANCES))
@@ -204,7 +222,11 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
          INSTANCES=$(($INSTANCES+$NUM_INSTANCES))
       done
 
-      api_equal json:policy_ids $INSTANCES
+      if [ "$PMS_VERSION" == "V2" ]; then
+         api_equal json:policy_instances $INSTANCES
+      else
+         api_equal json:policy_ids $INSTANCES
+      fi
 
 
       echo "Delete all instances in each OSC RIC"
@@ -228,7 +250,11 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
          INSTANCE_ID=$(($INSTANCE_ID+$NUM_INSTANCES))
       done
 
-      api_equal json:policy_ids $INSTANCES
+      if [ "$PMS_VERSION" == "V2" ]; then
+         api_equal json:policy_instances $INSTANCES
+      else
+         api_equal json:policy_ids $INSTANCES
+      fi
 
       echo "Delete all instances in each STD RIC"
 
@@ -250,7 +276,11 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
          INSTANCE_ID=$(($INSTANCE_ID+$NUM_INSTANCES))
       done
 
-      api_equal json:policy_ids 0
+      if [ "$PMS_VERSION" == "V2" ]; then
+         api_equal json:policy_instances $INSTANCES
+      else
+         api_equal json:policy_ids $INSTANCES
+      fi
 
       cr_equal received_callbacks 0
 

@@ -31,21 +31,44 @@ from requests.packages import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 #arg responsecode baseurl ric_base num_rics uuid startid templatepath count pids pid_id
+data_out=""
+url_out=""
 try:
-    if len(sys.argv) != 11:
-        print("1Expected 10 args, got "+str(len(sys.argv)-1)+ ". Args: responsecode baseurl ric_base num_rics uuid startid templatepath count pids pid_id")
-        sys.exit()
 
+    if len(sys.argv) < 11:
+        print("1Expected 11/14 args, got "+str(len(sys.argv)-1))
+        print (sys.argv[1:])
+        sys.exit()
     responsecode=int(sys.argv[1])
-    baseurl=sys.argv[2]
-    ric_base=sys.argv[3]
+    baseurl=str(sys.argv[2])
+    ric_base=str(sys.argv[3])
     num_rics=int(sys.argv[4])
-    uuid=sys.argv[5]
+    uuid=str(sys.argv[5])
     start=int(sys.argv[6])
-    templatepath=sys.argv[7]
-    count=int(sys.argv[8])
-    pids=int(sys.argv[9])
-    pid_id=int(sys.argv[10])
+    if ("/v2/" in baseurl):
+        if len(sys.argv) != 15:
+            print("1Expected 14 args, got "+str(len(sys.argv)-1)+ ". Args: responsecode baseurl ric_base num_rics uuid startid service type transient notification-url templatepath count pids pid_id")
+            print (sys.argv[1:])
+            sys.exit()
+
+        serv=str(sys.argv[7])
+        pt=str(sys.argv[8])
+        trans=str(sys.argv[9])
+        noti=str(sys.argv[10])
+        templatepath=str(sys.argv[11])
+        count=int(sys.argv[12])
+        pids=int(sys.argv[13])
+        pid_id=int(sys.argv[14])
+    else:
+        if len(sys.argv) != 11:
+            print("1Expected 10 args, got "+str(len(sys.argv)-1)+ ". Args: responsecode baseurl ric_base num_rics uuid startid templatepath count pids pid_id")
+            print (sys.argv[1:])
+            sys.exit()
+
+        templatepath=str(sys.argv[7])
+        count=int(sys.argv[8])
+        pids=int(sys.argv[9])
+        pid_id=int(sys.argv[10])
 
     if uuid == "NOUUID":
         uuid=""
@@ -61,18 +84,44 @@ try:
                 payload=template.replace("XXX",str(i))
                 ric_id=(i%num_rics)+1
                 ric=ric_base+str(ric_id)
-                url=baseurl+"&id="+uuid+str(i)+"&ric="+str(ric)
+
                 try:
                     headers = {'Content-type': 'application/json'}
-                    resp=requests.put(url, json.dumps(json.loads(payload)), headers=headers, verify=False, timeout=90)
+                    if ("/v2/" in baseurl):
+                        url=baseurl
+
+                        data={}
+                        data["ric_id"]=ric
+                        data["policy_id"]=uuid+str(i)
+                        data["service_id"]=serv
+                        if (trans != "NOTRANSIENT"):
+                            data["transient"]=trans
+                        if (pt != "NOTYPE"):
+                            data["policy_type_id"]=pt
+                        else:
+                            data["policy_type_id"]=""
+                        if (noti != "NOURL"):
+                            data["status_notification_uri"]=noti
+                        data["policy_data"]=json.loads(payload)
+
+                        url_out=url
+                        data_out=json.dumps(data)
+                        resp=requests.put(url, data_out, headers=headers, verify=False, timeout=90)
+                    else:
+                        url=baseurl+"&id="+uuid+str(i)+"&ric="+str(ric)
+                        url_out=url
+                        data_out=json.dumps(json.loads(payload))
+                        resp=requests.put(url, data_out, headers=headers, verify=False, timeout=90)
                 except Exception as e1:
                     print("1Put failed for id:"+uuid+str(i)+ ", "+str(e1) + " "+traceback.format_exc())
                     sys.exit()
                 if (resp.status_code == None):
-                    print("1Put failed for id:"+uuid+str(i)+ ", expected response code: "+responsecode+", got: None")
+                    print("1Put failed for id:"+uuid+str(i)+ ", expected response code: "+str(responsecode)+", got: None")
                     sys.exit()
                 if (resp.status_code != responsecode):
-                    print("1Put failed for id:"+uuid+str(i)+ ", expected response code: "+responsecode+", got: "+str(resp.status_code))
+                    print("1Put failed for id:"+uuid+str(i)+ ", expected response code: "+str(responsecode)+", got: "+str(resp.status_code))
+                    print(url_out)
+                    print(str(data_out))
                     sys.exit()
 
     print("0")
@@ -80,4 +129,6 @@ try:
 
 except Exception as e:
     print("1"+str(e))
+    traceback.print_exc()
+    print(str(data_out))
 sys.exit()

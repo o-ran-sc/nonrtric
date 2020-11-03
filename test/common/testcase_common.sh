@@ -269,9 +269,13 @@ fi
 G1_A1_VERSION=""
 G2_A1_VERSION=""
 G3_A1_VERSION=""
+G4_A1_VERSION=""
+G5_A1_VERSION=""
 G1_COUNT=0
 G2_COUNT=0
 G3_COUNT=0
+G4_COUNT=0
+G5_COUNT=0
 
 # Vars to switch between http and https. Extra curl flag needed for https
 export RIC_SIM_HTTPX="http"
@@ -1457,9 +1461,9 @@ use_simulator_https() {
 	echo ""
 }
 
-# Start one group (ricsim_g1, ricsim_g2 or ricsim_g3) with a number of RIC Simulators using a given A interface
+# Start one group (ricsim_g1, ricsim_g2 .. ricsim_g5) with a number of RIC Simulators using a given A interface
 # 'ricsim' may be set on command line to other prefix
-# args:  ricsim_g1|ricsim_g2|ricsim_g3 <count> <interface-id>
+# args:  ricsim_g1|ricsim_g2|ricsim_g3|ricsim_g4|ricsim_g5 <count> <interface-id>
 # (Function for test scripts)
 start_ric_simulators() {
 
@@ -1475,10 +1479,12 @@ start_ric_simulators() {
 	RIC1=$RIC_SIM_PREFIX"_g1"
 	RIC2=$RIC_SIM_PREFIX"_g2"
 	RIC3=$RIC_SIM_PREFIX"_g3"
+	RIC4=$RIC_SIM_PREFIX"_g4"
+	RIC5=$RIC_SIM_PREFIX"_g5"
 
 	if [ $# != 3 ]; then
 		((RES_CONF_FAIL++))
-    	__print_err "need three args,  $RIC1|$RIC2|$RIC3 <count> <interface-id>" $@
+    	__print_err "need three args,  $RIC1|$RIC2|$RIC3|$RIC4|$RIC5 <count> <interface-id>" $@
 		exit 1
 	fi
 	echo " $2 simulators using basename: $1 on interface: $3"
@@ -1492,9 +1498,15 @@ start_ric_simulators() {
 	elif [ $1 == "$RIC3" ]; then
 		G3_COUNT=$2
 		G3_A1_VERSION=$3
+	elif [ $1 == "$RIC4" ]; then
+		G4_COUNT=$2
+		G4_A1_VERSION=$3
+	elif [ $1 == "$RIC5" ]; then
+		G5_COUNT=$2
+		G5_A1_VERSION=$3
 	else
 		((RES_CONF_FAIL++))
-    	__print_err "need three args, $RIC1|$RIC2|$RIC3 <count> <interface-id>" $@
+    	__print_err "need three args, $RIC1|$RIC2|$RIC3|$RIC4|$RIC5 <count> <interface-id>" $@
 		exit 1
 	fi
 
@@ -1504,8 +1516,10 @@ start_ric_simulators() {
 	export G1_A1_VERSION
 	export G2_A1_VERSION
 	export G3_A1_VERSION
+	export G4_A1_VERSION
+	export G5_A1_VERSION
 
-	docker_args="--scale g1=$G1_COUNT --scale g2=$G2_COUNT --scale g3=$G3_COUNT"
+	docker_args="--scale g1=$G1_COUNT --scale g2=$G2_COUNT --scale g3=$G3_COUNT --scale g4=$G4_COUNT --scale g5=$G5_COUNT"
 	app_data=""
 	cntr=1
 	while [ $cntr -le $2 ]; do

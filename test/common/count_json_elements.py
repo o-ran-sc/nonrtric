@@ -20,16 +20,24 @@ import json
 import sys
 
 # Print the length of json array, -1 will be printed in any problem is encountered
+# Assumes the top level json is an array.
+# If not (and the number of keys on top level is 1) then assumes that key contains the array.
 
+arr_len=-1
 try:
     with open(sys.argv[1]) as json_file:
         jsonarray = json.load(json_file)
-
         if isinstance(jsonarray, list):
-            print(len(jsonarray))
-        else:
-            print(-1)
+            arr_len=len(jsonarray)
+        elif isinstance(jsonarray, dict) and len(jsonarray) == 1:
+            key=next(iter(jsonarray))
+            jsonarray=jsonarray[key]
+            if isinstance(jsonarray, list):
+                arr_len = len(jsonarray)
 
 except Exception as e:
-    print(-1)
+    print(arr_len)
+    sys.exit()
+
+print(arr_len)
 sys.exit()

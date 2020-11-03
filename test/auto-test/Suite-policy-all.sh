@@ -24,24 +24,17 @@ TS_ONELINE_DESCR="Test suite - all test cases except the stab test(s)"
 suite_setup
 
 ############# TEST CASES #################
-ARG1=$1
 
-./FTC1.sh $ARG1
-
-if [ $ARG1 == "remote-remove" ]; then
-    #Prevent image removal for every test case
-    ARG1="remote"
-fi
-
-./FTC10.sh $ARG1
-./FTC100.sh $ARG1
-./FTC110.sh $ARG1
-./FTC150.sh $ARG1
-./FTC300.sh $ARG1
-./FTC310.sh $ARG1
-./FTC350.sh $ARG1
-./FTC800.sh $ARG1
-./FTC850.sh $ARG1
+./FTC1.sh $@
+./FTC10.sh $@
+./FTC100.sh $@
+./FTC110.sh $@
+./FTC150.sh $@
+./FTC300.sh $@
+./FTC310.sh $@
+./FTC350.sh $@
+./FTC800.sh $@
+./FTC850.sh $@
 
 ##########################################
 

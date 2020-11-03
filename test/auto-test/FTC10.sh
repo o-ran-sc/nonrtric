@@ -47,6 +47,10 @@ start_ric_simulators  ricsim_g1 3 OSC_2.1.0
 
 start_ric_simulators  ricsim_g2 5 STD_1.1.3
 
+if [ "$PMS_VERSION" == "V2" ]; then
+    start_ric_simulators ricsim_g3 1  STD_2.0.0
+fi
+
 start_mr
 
 start_cr
@@ -70,38 +74,52 @@ sim_print ricsim_g1_1 interface
 
 sim_print ricsim_g2_1 interface
 
+if [ "$PMS_VERSION" == "V2" ]; then
+    sim_print ricsim_g3_1 interface
+fi
+
 sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
 
-api_equal json:policy_types 2 60
-
+if [ "$PMS_VERSION" == "V2" ]; then
+    api_equal json:policy-types 2 60
+else
+    api_equal json:policy_types 2 60
+fi
 
 # Create policies
+
+if [ "$PMS_VERSION" == "V2" ]; then
+    notificationurl="http://localhost:80"
+else
+    notificationurl=""
+fi
+
 use_agent_rest_http
 
 api_put_service 201 "service1" 3600 "$CR_PATH/1"
 
-api_put_policy 201 "service1" ricsim_g1_1 1 2000 NOTRANSIENT testdata/OSC/pi1_template.json 1
+api_put_policy 201 "service1" ricsim_g1_1 1 2000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json 1
 
 sim_equal ricsim_g1_1 num_instances 1
 
 
 use_agent_dmaap_http
 
-api_put_policy 201 "service1" ricsim_g1_1 1 3000 NOTRANSIENT testdata/OSC/pi1_template.json 1
+api_put_policy 201 "service1" ricsim_g1_1 1 3000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json 1
 
 sim_equal ricsim_g1_1 num_instances 2
 
 
 use_agent_rest_http
 
-api_put_policy 201 "service1" ricsim_g2_1 NOTYPE 2100 NOTRANSIENT testdata/STD/pi1_template.json 1
+api_put_policy 201 "service1" ricsim_g2_1 NOTYPE 2100 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json 1
 
 sim_equal ricsim_g2_1 num_instances 1
 
 
 use_agent_dmaap_http
 
-api_put_policy 201 "service1" ricsim_g2_1 NOTYPE 3100 NOTRANSIENT testdata/STD/pi1_template.json 1
+api_put_policy 201 "service1" ricsim_g2_1 NOTYPE 3100 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json 1
 
 sim_equal ricsim_g2_1 num_instances 2
 
@@ -111,14 +129,14 @@ use_agent_rest_http
 
 api_put_service 200 "service1" 3600 "$CR_PATH/1"
 
-api_put_policy 200 "service1" ricsim_g1_1 1 2000 NOTRANSIENT testdata/OSC/pi1_template.json 1
+api_put_policy 200 "service1" ricsim_g1_1 1 2000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json 1
 
 sim_equal ricsim_g1_1 num_instances 2
 
 
 use_agent_dmaap_http
 
-api_put_policy 200 "service1" ricsim_g1_1 1 3000 NOTRANSIENT testdata/OSC/pi1_template.json 1
+api_put_policy 200 "service1" ricsim_g1_1 1 3000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json 1
 
 sim_equal ricsim_g1_1 num_instances 2
 
@@ -126,22 +144,29 @@ sim_equal ricsim_g1_1 num_instances 2
 use_agent_rest_http
 
 
-api_put_policy 200 "service1" ricsim_g2_1 NOTYPE 2100 NOTRANSIENT testdata/STD/pi1_template.json 1
+api_put_policy 200 "service1" ricsim_g2_1 NOTYPE 2100 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json 1
 
 sim_equal ricsim_g2_1 num_instances 2
 
 
 use_agent_dmaap_http
 
-api_put_policy 200 "service1" ricsim_g2_1 NOTYPE 3100 NOTRANSIENT testdata/STD/pi1_template.json 1
+api_put_policy 200 "service1" ricsim_g2_1 NOTYPE 3100 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json 1
 
 sim_equal ricsim_g2_1 num_instances 2
 
 # Check policies
-api_get_policy 200 2000 testdata/OSC/pi1_template.json
-api_get_policy 200 3000 testdata/OSC/pi1_template.json
-api_get_policy 200 2100 testdata/STD/pi1_template.json
-api_get_policy 200 3100 testdata/STD/pi1_template.json
+if [ "$PMS_VERSION" == "V2" ]; then
+    api_get_policy 200 2000 testdata/OSC/pi1_template.json "service1" ricsim_g1_1 1 false $notificationurl
+    api_get_policy 200 3000 testdata/OSC/pi1_template.json "service1" ricsim_g1_1 1 false $notificationurl
+    api_get_policy 200 2100 testdata/STD/pi1_template.json "service1" ricsim_g2_1 NOTYPE false $notificationurl
+    api_get_policy 200 3100 testdata/STD/pi1_template.json "service1" ricsim_g2_1 NOTYPE false $notificationurl
+else
+    api_get_policy 200 2000 testdata/OSC/pi1_template.json
+    api_get_policy 200 3000 testdata/OSC/pi1_template.json
+    api_get_policy 200 2100 testdata/STD/pi1_template.json
+    api_get_policy 200 3100 testdata/STD/pi1_template.json
+fi
 
 # Remove policies
 
@@ -157,10 +182,17 @@ api_delete_policy 204 3100
 sim_equal ricsim_g1_1 num_instances 0
 sim_equal ricsim_g2_1 num_instances 0
 
+if [ "$PMS_VERSION" == "V2" ]; then
+    sim_equal ricsim_g3_1 num_instances 0
+fi
+
 # Check remote host access to simulator
 
 sim_contains_str ricsim_g1_1 remote_hosts "policy-agent"
 sim_contains_str ricsim_g2_1 remote_hosts "policy-agent"
+if [ "$PMS_VERSION" == "V2" ]; then
+    sim_contains_str ricsim_g3_1 remote_hosts "policy-agent"
+fi
 
 # Check policy removal
 use_agent_rest_http

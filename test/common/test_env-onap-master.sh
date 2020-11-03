@@ -60,7 +60,7 @@ RIC_SIM_LOCAL_IMAGE="o-ran-sc/a1-simulator"
 RIC_SIM_LOCAL_IMAGE_TAG="latest"
 # Near RT RIC Simulator remote image and tag
 RIC_SIM_REMOTE_IMAGE="nexus3.o-ran-sc.org:10004/o-ran-sc/a1-simulator"
-RIC_SIM_REMOTE_IMAGE_TAG="2.0.0"
+RIC_SIM_REMOTE_IMAGE_TAG="2.1.0"
 
 
 #Consul remote image and tag
@@ -97,6 +97,8 @@ export POLICY_AGENT_EXTERNAL_PORT=8081                          # Policy Agent c
 export POLICY_AGENT_INTERNAL_PORT=8081                          # Policy Agent container internal port (container -> container)
 export POLICY_AGENT_EXTERNAL_SECURE_PORT=8433                   # Policy Agent container external secure port (host -> container)
 export POLICY_AGENT_INTERNAL_SECURE_PORT=8433                   # Policy Agent container internal secure port (container -> container)
+export POLICY_AGENT_APIS="V1 V2"                                # Supported northbound api versions
+export PMS_VERSION="V2"
 
 export POLICY_AGENT_APP_NAME="policy-agent"                     # Name for Policy Agent container
 POLICY_AGENT_LOGPATH="/var/log/policy-agent/application.log"    # Path the application log in the Policy Agent container

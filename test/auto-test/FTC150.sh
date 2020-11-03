@@ -55,6 +55,9 @@ for __nb_httpx in $NB_TESTED_PROTOCOLS ; do
 
         start_ric_simulators ricsim_g1 1  OSC_2.1.0
         start_ric_simulators ricsim_g2 1  STD_1.1.3
+        if [ "$PMS_VERSION" == "V2" ]; then
+            start_ric_simulators ricsim_g3 1  STD_2.0.0
+        fi
 
         start_sdnc
 
