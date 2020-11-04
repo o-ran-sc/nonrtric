@@ -22,6 +22,69 @@
       "revId": "72fcec7c77bd0fb220c6dc7758558b53ee7e855a",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f23b716_010bca6a",
+        "filename": "r-app-catalogue/src/main/java/org/oransc/rappcatalogue/api/ServicesApiDelegateImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-11-04T15:39:42Z",
+      "side": 1,
+      "message": "The implementation is not thread safe, \nIf several clients will call PUT and GET at the same time, \nthere will be problems like ProcessingErrors. \n\nI think the simplest way to fix that is to use some SynchronizedMap instead. \nhttps://www.geeksforgeeks.org/collections-synchronizedmap-method-in-java-with-examples/\n\nThe alternative is to make all public methods synchronized.",
+      "revId": "72fcec7c77bd0fb220c6dc7758558b53ee7e855a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b62aa576_579f7ef3",
+        "filename": "r-app-catalogue/src/main/java/org/oransc/rappcatalogue/api/ServicesApiDelegateImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-11-04T15:39:42Z",
+      "side": 1,
+      "message": "To me it looks like a strange sideeffect that a service is removed by a function called \n\"addLocationHeaderToResponse\".",
+      "range": {
+        "startLine": 97,
+        "startChar": 16,
+        "endLine": 97,
+        "endChar": 56
+      },
+      "revId": "72fcec7c77bd0fb220c6dc7758558b53ee7e855a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "386854ba_c54197a9",
+        "filename": "r-app-catalogue/src/main/java/org/oransc/rappcatalogue/api/ServicesApiDelegateImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-11-04T15:39:42Z",
+      "side": 1,
+      "message": "same comment",
+      "range": {
+        "startLine": 101,
+        "startChar": 9,
+        "endLine": 101,
+        "endChar": 52
+      },
+      "revId": "72fcec7c77bd0fb220c6dc7758558b53ee7e855a",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
     }
   ]
 }
