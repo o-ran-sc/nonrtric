@@ -72,6 +72,9 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         start_ric_simulators ricsim_g1 1 OSC_2.1.0
         start_ric_simulators ricsim_g2 1 STD_1.1.3
+        if [ "$PMS_VERSION" == "V2" ]; then
+            start_ric_simulators ricsim_g3 1  STD_2.0.0
+        fi
 
         start_mr
 
@@ -105,13 +108,22 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
 
-
-        api_equal json:policy_types 2 120  #Wait for the agent to refresh types from the simulators
+        if [ "$PMS_VERSION" == "V2" ]; then
+            api_equal json:policy-types 2 120  #Wait for the agent to refresh types from the simulators
+        else
+            api_equal json:policy_types 2 120  #Wait for the agent to refresh types from the simulators
+        fi
 
         api_put_service 201 "serv1" 3600 "$CR_PATH/1"
 
+        if [ "$PMS_VERSION" == "V2" ]; then
+            notificationurl="http://localhost:80"
+        else
+            notificationurl=""
+        fi
+
         start_timer "Create polices in OSC via agent REST and $interface using "$__httpx
-        api_put_policy 201 "serv1" ricsim_g1_1 1 $START_ID NOTRANSIENT testdata/OSC/pi1_template.json $NUM_POLICIES
+        api_put_policy 201 "serv1" ricsim_g1_1 1 $START_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_POLICIES
         print_timer "Create polices in OSC via agent REST and $interface using "$__httpx
 
         sim_equal ricsim_g1_1 num_instances $NUM_POLICIES
@@ -119,7 +131,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         START_ID=$(($START_ID+$NUM_POLICIES))
 
         start_timer "Create polices in STD via agent REST and $interface using "$__httpx
-        api_put_policy 201 "serv1" ricsim_g2_1 NOTYPE $START_ID NOTRANSIENT testdata/STD/pi1_template.json $NUM_POLICIES
+        api_put_policy 201 "serv1" ricsim_g2_1 NOTYPE $START_ID NOTRANSIENT $notificationurl testdata/STD/pi1_template.json $NUM_POLICIES
         print_timer "Create polices in STD via agent REST and $interface using "$__httpx
 
         sim_equal ricsim_g2_1 num_instances $NUM_POLICIES
@@ -135,7 +147,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         START_ID=$(($START_ID+$NUM_POLICIES))
 
         start_timer "Create polices in OSC via agent DMAAP, one by one, and $interface using "$__httpx
-        api_put_policy 201 "serv1" ricsim_g1_1 1 $START_ID NOTRANSIENT testdata/OSC/pi1_template.json $NUM_POLICIES
+        api_put_policy 201 "serv1" ricsim_g1_1 1 $START_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_POLICIES
         print_timer "Create polices in OSC via agent DMAAP, one by one, and $interface using "$__httpx
 
         sim_equal ricsim_g1_1 num_instances $((2*$NUM_POLICIES))
@@ -143,7 +155,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         START_ID=$(($START_ID+$NUM_POLICIES))
 
         start_timer "Create polices in STD via agent DMAAP, one by one, and $interface using "$__httpx
-        api_put_policy 201 "serv1" ricsim_g2_1 NOTYPE $START_ID NOTRANSIENT testdata/STD/pi1_template.json $NUM_POLICIES
+        api_put_policy 201 "serv1" ricsim_g2_1 NOTYPE $START_ID NOTRANSIENT $notificationurl testdata/STD/pi1_template.json $NUM_POLICIES
         print_timer "Create polices in STD via agent DMAAP, one by one, and $interface using "$__httpx
 
         sim_equal ricsim_g2_1 num_instances $((2*$NUM_POLICIES))
@@ -151,7 +163,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         START_ID=$(($START_ID+$NUM_POLICIES))
 
         start_timer "Create polices in OSC via agent DMAAP in batch and $interface using "$__httpx
-        api_put_policy_batch 201 "serv1" ricsim_g1_1 1 $START_ID NOTRANSIENT testdata/OSC/pi1_template.json $NUM_POLICIES
+        api_put_policy_batch 201 "serv1" ricsim_g1_1 1 $START_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_POLICIES
         print_timer "Create polices in OSC via agent DMAAP in batch and $interface using "$__httpx
 
         sim_equal ricsim_g1_1 num_instances $((3*$NUM_POLICIES))
@@ -159,7 +171,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         START_ID=$(($START_ID+$NUM_POLICIES))
 
         start_timer "Create polices in STD via agent DMAAP in batch and $interface using "$__httpx
-        api_put_policy_batch 201 "serv1" ricsim_g2_1 NOTYPE $START_ID NOTRANSIENT testdata/STD/pi1_template.json $NUM_POLICIES
+        api_put_policy_batch 201 "serv1" ricsim_g2_1 NOTYPE $START_ID NOTRANSIENT $notificationurl testdata/STD/pi1_template.json $NUM_POLICIES
         print_timer "Create polices in STD via agent DMAAP in batch and $interface using "$__httpx
 
         sim_equal ricsim_g2_1 num_instances $((3*$NUM_POLICIES))
@@ -167,9 +179,15 @@ for __httpx in $TESTED_PROTOCOLS ; do
         if [ $interface == "SDNC" ]; then
             sim_contains_str ricsim_g1_1 remote_hosts "a1-controller"
             sim_contains_str ricsim_g2_1 remote_hosts "a1-controller"
+            if [ "$PMS_VERSION" == "V2" ]; then
+                sim_contains_str ricsim_g3_1 remote_hosts "a1-controller"
+            fi
         else
             sim_contains_str ricsim_g1_1 remote_hosts "policy-agent"
             sim_contains_str ricsim_g2_1 remote_hosts "policy-agent"
+            if [ "$PMS_VERSION" == "V2" ]; then
+                sim_contains_str ricsim_g3_1 remote_hosts "policy-agent"
+            fi
         fi
 
         check_policy_agent_logs

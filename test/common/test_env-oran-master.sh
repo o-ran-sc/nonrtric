@@ -101,6 +101,7 @@ export POLICY_AGENT_EXTERNAL_PORT=8081                          # Policy Agent c
 export POLICY_AGENT_INTERNAL_PORT=8081                          # Policy Agent container internal port (container -> container)
 export POLICY_AGENT_EXTERNAL_SECURE_PORT=8433                   # Policy Agent container external secure port (host -> container)
 export POLICY_AGENT_INTERNAL_SECURE_PORT=8433                   # Policy Agent container internal secure port (container -> container)
+export POLICY_AGENT_APIS="V1"                                   # Supported northbound api versions
 
 export POLICY_AGENT_APP_NAME="policy-agent"                     # Name for Policy Agent container
 POLICY_AGENT_LOGPATH="/var/log/policy-agent/application.log"    # Path the application log in the Policy Agent container

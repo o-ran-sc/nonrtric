@@ -34,23 +34,44 @@
 
 # API Test function: GET /A1-EI​/v1​/eitypes​/{eiTypeId}​/eijobs
 # args: <response-code> <type-id>  <owner-id>|NOOWNER [ EMPTY | <job-id>+ ]
+# args (flat uri structure): <response-code> <type-id>|NOTYPE  <owner-id>|NOOWNER [ EMPTY | <job-id>+ ]
 # (Function for test scripts)
 ecs_api_a1_get_job_ids() {
 	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
     echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
 	((RES_TEST++))
 
-	# Valid number of parameters 3,4,5,6 etc
-    if [ $# -lt 1 ]; then
-		__print_err "<response-code> <type-id>  <owner-id>|NOOWNER [ EMPTY | <job-id>+ ]" $@
-		return 1
+	if [ -z "$FLAT_A1_EI" ]; then
+		# Valid number of parameters 4,5,6 etc
+    	if [ $# -lt 3 ]; then
+			__print_err "<response-code> <type-id>  <owner-id>|NOOWNER [ EMPTY | <job-id>+ ]" $@
+			return 1
+		fi
+	else
+		echo -e $YELLOW"USING NOT CONFIRMED INTERFACE - FLAT URI STRUCTURE"$EYELLOW
+		# Valid number of parameters 4,5,6 etc
+    	if [ $# -lt 3 ]; then
+			__print_err "<response-code> <type-id>|NOTYPE  <owner-id>|NOOWNER [ EMPTY | <job-id>+ ]" $@
+			return 1
+		fi
 	fi
-	owner=""
+	search=""
 	if [ $3 != "NOWNER" ]; then
-		owner="?owner="$3
+		search="?owner="$3
 	fi
 
-	query="/A1-EI/v1/eitypes/$2/eijobs$owner"
+	if [  -z "$FLAT_A1_EI" ]; then
+		query="/A1-EI/v1/eitypes/$2/eijobs$search"
+	else
+		if [ $2 != "NOTYPE" ]; then
+			if [ -z "$search" ]; then
+				search="?eiTypeId="$2
+			else
+				search=$search"&eiTypeId="$2
+			fi
+		fi
+		query="/A1-EI/v1/eijobs$search"
+	fi
     res="$(__do_curl_to_api ECS GET $query)"
     status=${res:${#res}-3}
 
@@ -125,7 +146,11 @@ ecs_api_a1_get_type() {
 			__check_stop_at_error
 			return 1
 		fi
-		targetJson="{\"eiJobParametersSchema\":$schema}"
+		if [ -z "$FLAT_A1_EI" ]; then
+			targetJson="{\"eiJobParametersSchema\":$schema}"
+		else
+			targetJson=$schema
+		fi
 		echo " TARGET JSON: $targetJson" >> $HTTPLOG
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
@@ -136,7 +161,6 @@ ecs_api_a1_get_type() {
 			return 1
 		fi
 	fi
-
 
 	((RES_PASS++))
 	echo -e $GREEN" PASS"$EGREEN
@@ -196,38 +220,73 @@ ecs_api_a1_get_type_ids() {
 
 # API Test function: GET ​/A1-EI​/v1​/eitypes​/{eiTypeId}​/eijobs​/{eiJobId}​/status
 # args: <response-code> <type-id> <job-id> [<status>]
+# args (flat uri structure): <response-code> <job-id> [<status>]
 # (Function for test scripts)
 ecs_api_a1_get_job_status() {
 	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
     echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
 	((RES_TEST++))
 
-    if [ $# -ne 3 ] && [ $# -ne 4 ]; then
-		__print_err "<response-code> <type-id> <job-id>" $@
-		return 1
-	fi
+	if [ -z "$FLAT_A1_EI" ]; then
+		if [ $# -ne 3 ] && [ $# -ne 4 ]; then
+			__print_err "<response-code> <type-id> <job-id> [<status>]" $@
+			return 1
+		fi
 
-	query="/A1-EI/v1/eitypes/$2/eijobs/$3/status"
-    res="$(__do_curl_to_api ECS GET $query)"
-    status=${res:${#res}-3}
+		query="/A1-EI/v1/eitypes/$2/eijobs/$3/status"
 
-	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
-		return 1
-	fi
-	if [ $# -eq 4 ]; then
-		body=${res:0:${#res}-3}
-		targetJson="{\"operationalState\": \"$4\"}"
-		echo " TARGET JSON: $targetJson" >> $HTTPLOG
-		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+		res="$(__do_curl_to_api ECS GET $query)"
+		status=${res:${#res}-3}
 
-		if [ $res -ne 0 ]; then
-			echo -e $RED" FAIL, returned body not correct"$ERED
+		if [ $status -ne $1 ]; then
+			echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
 			((RES_FAIL++))
 			__check_stop_at_error
 			return 1
+		fi
+		if [ $# -eq 4 ]; then
+			body=${res:0:${#res}-3}
+			targetJson="{\"operationalState\": \"$4\"}"
+			echo " TARGET JSON: $targetJson" >> $HTTPLOG
+			res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+
+			if [ $res -ne 0 ]; then
+				echo -e $RED" FAIL, returned body not correct"$ERED
+				((RES_FAIL++))
+				__check_stop_at_error
+				return 1
+			fi
+		fi
+	else
+		echo -e $YELLOW"USING NOT CONFIRMED INTERFACE - FLAT URI STRUCTURE"$EYELLOW
+		if [ $# -ne 2 ] && [ $# -ne 3 ]; then
+			__print_err "<response-code> <job-id> [<status>]" $@
+			return 1
+		fi
+
+		query="/A1-EI/v1/eijobs/$2/status"
+
+		res="$(__do_curl_to_api ECS GET $query)"
+		status=${res:${#res}-3}
+
+		if [ $status -ne $1 ]; then
+			echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
+			((RES_FAIL++))
+			__check_stop_at_error
+			return 1
+		fi
+		if [ $# -eq 3 ]; then
+			body=${res:0:${#res}-3}
+			targetJson="{\"eiJobStatus\": \"$3\"}"
+			echo " TARGET JSON: $targetJson" >> $HTTPLOG
+			res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+
+			if [ $res -ne 0 ]; then
+				echo -e $RED" FAIL, returned body not correct"$ERED
+				((RES_FAIL++))
+				__check_stop_at_error
+				return 1
+			fi
 		fi
 	fi
 
@@ -238,18 +297,27 @@ ecs_api_a1_get_job_status() {
 
 # API Test function: GET ​/A1-EI​/v1​/eitypes​/{eiTypeId}​/eijobs​/{eiJobId}
 # args: <response-code> <type-id> <job-id> [<target-url> <owner-id> <template-job-file>]
+# args (flat uri structure): <response-code> <job-id> [<type-id> <target-url> <owner-id> <template-job-file>]
 # (Function for test scripts)
 ecs_api_a1_get_job() {
 	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
     echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
 	((RES_TEST++))
 
-    if [ $# -ne 3 ] && [ $# -ne 6 ]; then
-		__print_err "<response-code> <type-id> <job-id> [<target-url> <owner-id> <template-job-file>]" $@
-		return 1
+	if [  -z "$FLAT_A1_EI" ]; then
+		if [ $# -ne 3 ] && [ $# -ne 6 ]; then
+			__print_err "<response-code> <type-id> <job-id> [<target-url> <owner-id> <template-job-file>]" $@
+			return 1
+		fi
+		query="/A1-EI/v1/eitypes/$2/eijobs/$3"
+	else
+		echo -e $YELLOW"USING NOT CONFIRMED INTERFACE - FLAT URI STRUCTURE"$EYELLOW
+		if [ $# -ne 2 ] && [ $# -ne 7 ]; then
+			__print_err "<response-code> <job-id> [<type-id> <target-url> <owner-id> <notification-url> <template-job-file>]" $@
+			return 1
+		fi
+		query="/A1-EI/v1/eijobs/$2"
 	fi
-
-	query="/A1-EI/v1/eitypes/$2/eijobs/$3"
     res="$(__do_curl_to_api ECS GET $query)"
     status=${res:${#res}-3}
 
@@ -260,27 +328,53 @@ ecs_api_a1_get_job() {
 		return 1
 	fi
 
-	if [ $# -eq 6 ]; then
-		body=${res:0:${#res}-3}
+	if [  -z "$FLAT_A1_EI" ]; then
+		if [ $# -eq 6 ]; then
+			body=${res:0:${#res}-3}
 
-		if [ -f $6 ]; then
-			jobfile=$(cat $6)
-			jobfile=$(echo "$jobfile" | sed "s/XXXX/$3/g")
-		else
-			echo -e $RED" FAIL. Job template file "$6", does not exist"$ERED
-			((RES_FAIL++))
-			__check_stop_at_error
-			return 1
+			if [ -f $6 ]; then
+				jobfile=$(cat $6)
+				jobfile=$(echo "$jobfile" | sed "s/XXXX/$3/g")
+			else
+				echo -e $RED" FAIL. Job template file "$6", does not exist"$ERED
+				((RES_FAIL++))
+				__check_stop_at_error
+				return 1
+			fi
+			targetJson="{\"targetUri\": \"$4\",\"jobOwner\": \"$5\",\"jobParameters\": $jobfile}"
+			echo " TARGET JSON: $targetJson" >> $HTTPLOG
+			res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+
+			if [ $res -ne 0 ]; then
+				echo -e $RED" FAIL, returned body not correct"$ERED
+				((RES_FAIL++))
+				__check_stop_at_error
+				return 1
+			fi
 		fi
-		targetJson="{\"targetUri\": \"$4\",\"jobOwner\": \"$5\",\"jobParameters\": $jobfile}"
-		echo " TARGET JSON: $targetJson" >> $HTTPLOG
-		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+	else
+		if [ $# -eq 7 ]; then
+			body=${res:0:${#res}-3}
 
-		if [ $res -ne 0 ]; then
-			echo -e $RED" FAIL, returned body not correct"$ERED
-			((RES_FAIL++))
-			__check_stop_at_error
-			return 1
+			if [ -f $7 ]; then
+				jobfile=$(cat $7)
+				jobfile=$(echo "$jobfile" | sed "s/XXXX/$2/g")
+			else
+				echo -e $RED" FAIL. Job template file "$6", does not exist"$ERED
+				((RES_FAIL++))
+				__check_stop_at_error
+				return 1
+			fi
+			targetJson="{\"eiTypeId\": \"$3\", \"targetUri\": \"$4\",\"jobOwner\": \"$5\",\"jobStatusNotificationUri\": \"$6\",\"jobDefinition\": $jobfile}"
+			echo " TARGET JSON: $targetJson" >> $HTTPLOG
+			res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+
+			if [ $res -ne 0 ]; then
+				echo -e $RED" FAIL, returned body not correct"$ERED
+				((RES_FAIL++))
+				__check_stop_at_error
+				return 1
+			fi
 		fi
 	fi
 
@@ -291,18 +385,28 @@ ecs_api_a1_get_job() {
 
 # API Test function: DELETE ​/A1-EI​/v1​/eitypes​/{eiTypeId}​/eijobs​/{eiJobId}
 # args: <response-code> <type-id> <job-id>
+# args (flat uri structure): <response-code> <job-id>
 # (Function for test scripts)
 ecs_api_a1_delete_job() {
 	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
     echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
 	((RES_TEST++))
 
-    if [ $# -lt 3 ]; then
-		__print_err "<response-code> <type-id> <job-id>" $@
-		return 1
-	fi
+	if [  -z "$FLAT_A1_EI" ]; then
+		if [ $# -ne 3 ]; then
+			__print_err "<response-code> <type-id> <job-id>" $@
+			return 1
+		fi
 
-	query="/A1-EI/v1/eitypes/$2/eijobs/$3"
+		query="/A1-EI/v1/eitypes/$2/eijobs/$3"
+	else
+		echo -e $YELLOW"USING NOT CONFIRMED INTERFACE - FLAT URI STRUCTURE"$EYELLOW
+		if [ $# -ne 2 ]; then
+			__print_err "<response-code> <job-id>" $@
+			return 1
+		fi
+		query="/A1-EI/v1/eijobs/$2"
+	fi
     res="$(__do_curl_to_api ECS DELETE $query)"
     status=${res:${#res}-3}
 
@@ -320,31 +424,56 @@ ecs_api_a1_delete_job() {
 
 # API Test function: PUT ​/A1-EI​/v1​/eitypes​/{eiTypeId}​/eijobs​/{eiJobId}
 # args: <response-code> <type-id> <job-id> <target-url> <owner-id> <template-job-file>
+# args (flat uri structure): <response-code> <job-id> <type-id> <target-url> <owner-id> <notification-url> <template-job-file>
 # (Function for test scripts)
 ecs_api_a1_put_job() {
 	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
     echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
 	((RES_TEST++))
 
-    if [ $# -lt 6 ]; then
-		__print_err "<response-code> <type-id> <job-id> <target-url> <owner-id> <template-job-file>" $@
-		return 1
-	fi
-	if [ -f $6 ]; then
-		jobfile=$(cat $6)
-		jobfile=$(echo "$jobfile" | sed "s/XXXX/$3/g")
+	if [  -z "$FLAT_A1_EI" ]; then
+		if [ $# -lt 6 ]; then
+			__print_err "<response-code> <type-id> <job-id> <target-url> <owner-id> <template-job-file>" $@
+			return 1
+		fi
+		if [ -f $6 ]; then
+			jobfile=$(cat $6)
+			jobfile=$(echo "$jobfile" | sed "s/XXXX/$3/g")
+		else
+			echo -e $RED" FAIL. Job template file "$6", does not exist"$ERED
+			((RES_FAIL++))
+			__check_stop_at_error
+			return 1
+		fi
+
+		inputJson="{\"targetUri\": \"$4\",\"jobOwner\": \"$5\",\"jobParameters\": $jobfile}"
+		file="./tmp/.p.json"
+		echo "$inputJson" > $file
+
+		query="/A1-EI/v1/eitypes/$2/eijobs/$3"
 	else
-		echo -e $RED" FAIL. Job template file "$6", does not exist"$ERED
-		((RES_FAIL++))
-		__check_stop_at_error
-		return 1
+		echo -e $YELLOW"USING NOT CONFIRMED INTERFACE - FLAT URI STRUCTURE"$EYELLOW
+		if [ $# -lt 7 ]; then
+			__print_err "<response-code> <job-id> <type-id> <target-url> <owner-id> <notification-url> <template-job-file>" $@
+			return 1
+		fi
+		if [ -f $7 ]; then
+			jobfile=$(cat $7)
+			jobfile=$(echo "$jobfile" | sed "s/XXXX/$2/g")
+		else
+			echo -e $RED" FAIL. Job template file "$7", does not exist"$ERED
+			((RES_FAIL++))
+			__check_stop_at_error
+			return 1
+		fi
+
+		inputJson="{\"eiTypeId\": \"$3\", \"jobResultUri\": \"$4\",\"jobOwner\": \"$5\",\"jobStatusNotificationUri\": \"$6\",\"jobDefinition\": $jobfile}"
+		file="./tmp/.p.json"
+		echo "$inputJson" > $file
+
+		query="/A1-EI/v1/eijobs/$2"
 	fi
 
-	inputJson="{\"targetUri\": \"$4\",\"jobOwner\": \"$5\",\"jobParameters\": $jobfile}"
-	file="./tmp/.p.json"
-	echo "$inputJson" > $file
-
-	query="/A1-EI/v1/eitypes/$2/eijobs/$3"
     res="$(__do_curl_to_api ECS PUT $query $file)"
     status=${res:${#res}-3}
 

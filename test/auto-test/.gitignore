@@ -14,3 +14,4 @@ logs
 .timer*
 .pid*
 .result*
+tmp

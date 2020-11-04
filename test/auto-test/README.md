@@ -4,7 +4,7 @@ A few of the bash scripts are so called 'suites', These suite scripts calls a se
 
 ## Automated test scripts
 There are two types of scripts, filenames in the format FTCXXX.sh test one or more components of the Non-RT RIC. Filenames in the format SuiteZZZZ.sh tests a number of FTCXXX.sh script as one suite. (XXX is an integer selected from the categories described further below).
-FTC is short for Function Test Case.
+FTC is short for Function Test Case. In addition, there are also other test scripts with other naming format used for demo setup etc (e.g PM_DEMO.sh).
 
 The requirements, in terms of the execution enviroment, to run a script or a suite is to have docker, docker-compose and python3 installed (the scripts warns if not installed).
 The scripts have been tested to work on both MacOS and Ubuntu. They should work also in git bash on windows but not yet verified.
@@ -24,7 +24,7 @@ Each test script prints out the overall result of the tests in the end of the ex
 The test scripts produce quite a number of logs; all container logs, a log of all http/htps calls from the test scripts including the payload, some configuration created during test and also a test case log (same as what is printed on the screen during execution). All these logs are stored in `logs/FTCXXX/`. So each test script is using its own log directory.
 
 ## Test case categories
-The test script are number using these basic categories.
+The test script are number using these basic categories where 0-999 are releated to the policy managment and 1000-1999 are related to enrichment management.
 
 1-99 - Basic sanity tests
 

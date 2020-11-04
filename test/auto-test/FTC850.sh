@@ -20,7 +20,7 @@
 TC_ONELINE_DESCR="Create/delete policies in parallel over a number of ric using a number of child process"
 
 #App names to include in the test, space separated list
-INCLUDED_IMAGES="CBS CONSUL, CP, CR, MR, PA, RICSIM, SDNC"
+INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
@@ -41,6 +41,12 @@ NUM_RICS=20
 NUM_POLICIES_PER_RIC=500
 
 generate_uuid
+
+if [ "$PMS_VERSION" == "V2" ]; then
+    notificationurl="http://localhost:80"
+else
+    notificationurl=""
+fi
 
 for __httpx in $TESTED_PROTOCOLS ; do
     for interface in $TESTED_VARIANTS ; do
@@ -108,22 +114,29 @@ for __httpx in $TESTED_PROTOCOLS ; do
             sim_put_policy_type 201 ricsim_g1_$i 1 testdata/OSC/sim_1.json
         done
 
-
-        api_equal json:policy_types 1 120  #Wait for the agent to refresh types from the simulator
+        if [ "$PMS_VERSION" == "V2" ]; then
+            api_equal json:policy-types 1 120  #Wait for the agent to refresh types from the simulator
+        else
+            api_equal json:policy_types 1 120  #Wait for the agent to refresh types from the simulator
+        fi
 
         api_put_service 201 "serv1" 600 "$CR_PATH/1"
 
         echo "Check the number of types in the agent for each ric is 1"
         for ((i=1; i<=$NUM_RICS; i++))
         do
-            api_equal json:policy_types?ric=ricsim_g1_$i 1 120
+            if [ "$PMS_VERSION" == "V2" ]; then
+                api_equal json:policy-types?ric_id=ricsim_g1_$i 1 120
+            else
+                api_equal json:policy_types?ric=ricsim_g1_$i 1 120
+            fi
         done
 
         START_ID=2000
 
         start_timer "Create $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices over $interface using "$__httpx
 
-        api_put_policy_parallel 201 "serv1" ricsim_g1_ $NUM_RICS 1 $START_ID NOTRANSIENT testdata/OSC/pi1_template.json $NUM_POLICIES_PER_RIC 7
+        api_put_policy_parallel 201 "serv1" ricsim_g1_ $NUM_RICS 1 $START_ID NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json $NUM_POLICIES_PER_RIC 7
 
         print_timer "Create $((NUM_POLICIES_PER_RIC*$NUM_RICS)) polices over $interface using "$__httpx
 

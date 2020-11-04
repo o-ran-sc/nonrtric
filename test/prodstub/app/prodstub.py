@@ -537,7 +537,7 @@ def datadelivery() :
                     data["job"]=""+key
                     data["sequence_no"]=""+str(job['delivery_attempts'])
                     data["value"]=str(100)
-                    print("Sending "+json.dumps(data))
+                    print("Sending to "+url+" payload:"+json.dumps(data))
 
                     requests.post(url, json=data, verify=False, timeout=2) #NOSONAR
                     job['delivery_attempts'] += 1

@@ -45,6 +45,10 @@ use_agent_rest_http
 clean_containers
 
 start_ric_simulators ricsim_g1 1  OSC_2.1.0
+start_ric_simulators ricsim_g2 1  STD_1.1.3
+if [ "$PMS_VERSION" == "V2" ]; then
+    start_ric_simulators ricsim_g3 1  STD_2.0.0
+fi
 
 start_mr
 
@@ -70,6 +74,10 @@ api_get_status 200
 
 #Print simulator interface version
 sim_print ricsim_g1_1 interface
+sim_print ricsim_g2_1 interface
+if [ "$PMS_VERSION" == "V2" ]; then
+    sim_print ricsim_g3_1 interface
+fi
 
 api_put_service 201 "service1" 15 "$CR_PATH/service1"
 
@@ -151,32 +159,54 @@ api_put_service 201 "service10" 600 "$CR_PATH/service10"
 
 sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
 
-api_equal json:rics 1 60
+if [ "$PMS_VERSION" == "V2" ]; then
+    api_equal json:rics 3 60
 
-api_equal json:policy_schemas 1 120
+    #api_equal json:policy_schemas 2 120
 
-api_equal json:policy_types 1
+    api_equal json:policy-types 2 120
 
-api_equal json:policies 0
+    api_equal json:policies 0
+else
+    api_equal json:rics 2 60
 
-api_put_policy 201 "service10" ricsim_g1_1 1 5000 NOTRANSIENT testdata/OSC/pi1_template.json
+    api_equal json:policy_schemas 2 120
 
-api_equal json:policies 1
+    api_equal json:policy_types 2
 
-sim_equal ricsim_g1_1 num_instances 1
+    api_equal json:policies 0
+fi
 
-api_put_policy 201 "service10" ricsim_g1_1 1 5001 true testdata/OSC/pi1_template.json
+if [ "$PMS_VERSION" == "V2" ]; then
+    notificationurl="http://localhost:80"
+else
+    notificationurl=""
+fi
+
+api_put_policy 201 "service10" ricsim_g1_1 1 5000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json
+api_put_policy 201 "service10" ricsim_g2_1 NOTYPE 5100 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json
 
 api_equal json:policies 2
 
+sim_equal ricsim_g1_1 num_instances 1
+sim_equal ricsim_g2_1 num_instances 1
+
+api_put_policy 201 "service10" ricsim_g1_1 1 5001 true $notificationurl testdata/OSC/pi1_template.json
+api_put_policy 201 "service10" ricsim_g2_1 NOTYPE 5101 true $notificationurl testdata/STD/pi1_template.json
+
+api_equal json:policies 4
+
 sim_equal ricsim_g1_1 num_instances 2
+sim_equal ricsim_g2_1 num_instances 2
 
 sim_post_delete_instances 200 ricsim_g1_1
+sim_post_delete_instances 200 ricsim_g2_1
 
 #Wait for recreate of non transient policy
-api_equal json:policies 1 180
+api_equal json:policies 2 180
 
 sim_equal ricsim_g1_1 num_instances 1
+sim_equal ricsim_g2_1 num_instances 1
 
 api_put_service 200 "service10" 10 "$CR_PATH/service10"
 
@@ -184,12 +214,13 @@ api_put_service 200 "service10" 10 "$CR_PATH/service10"
 api_equal json:policies 0 120
 
 sim_equal ricsim_g1_1 num_instances 0
-
+sim_equal ricsim_g2_1 num_instances 0
 
 api_get_service_ids 200
 
 deviation "TR18 Agents sends callback with empty body"
-cr_equal received_callbacks 4
+deviation "TR18 Unclear when callbacks are sent...."
+#cr_equal received_callbacks 8
 mr_equal requests_submitted 0
 
 check_policy_agent_logs

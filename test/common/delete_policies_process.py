@@ -38,9 +38,9 @@ try:
         sys.exit()
 
     responsecode=int(sys.argv[1])
-    baseurl=sys.argv[2]
+    baseurl=str(sys.argv[2])
     num_rics=int(sys.argv[3])
-    uuid=sys.argv[4]
+    uuid=str(sys.argv[4])
     start=int(sys.argv[5])
     count=int(sys.argv[6])
     pids=int(sys.argv[7])
@@ -52,17 +52,20 @@ try:
     stop=count*num_rics+start
     for i in range(start,stop):
         if (i%pids == (pid_id-1)):
-            url=str(baseurl+"?id="+uuid+str(i))
+            if ("/v2/policies/" in baseurl):
+                url=str(baseurl+uuid+str(i))
+            else:
+                url=str(baseurl+"?id="+uuid+str(i))
             try:
                 resp=requests.delete(url, verify=False, timeout=90)
             except Exception as e1:
                 print("1Delete failed for id:"+uuid+str(i)+ ", "+str(e1) + " "+traceback.format_exc())
                 sys.exit()
             if (resp.status_code == None):
-                print("1Delete failed for id:"+uuid+str(i)+ ", expected response code: "+responsecode+", got: None")
+                print("1Delete failed for id:"+uuid+str(i)+ ", expected response code: "+str(responsecode)+", got: None")
                 sys.exit()
             if (resp.status_code != responsecode):
-                print("1Delete failed for id:"+uuid+str(i)+ ", expected response code: "+responsecode+", got: "+str(resp.status_code))
+                print("1Delete failed for id:"+uuid+str(i)+ ", expected response code: "+str(responsecode)+", got: "+str(resp.status_code))
                 sys.exit()
 
     print("0")
@@ -70,4 +73,5 @@ try:
 
 except Exception as e:
     print("1"+str(e))
+    traceback.print_exc()
 sys.exit()

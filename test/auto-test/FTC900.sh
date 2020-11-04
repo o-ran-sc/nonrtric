@@ -43,6 +43,10 @@ start_ric_simulators  $RIC_SIM_PREFIX"_g1" $OSC_NUM_RICS OSC_2.1.0
 
 start_ric_simulators  $RIC_SIM_PREFIX"_g2" $STD_NUM_RICS STD_1.1.3
 
+if [ "$PMS_VERSION" == "V2" ]; then
+    start_ric_simulators  $RIC_SIM_PREFIX"_g3" $STD_NUM_RICS STD_2.0.0
+fi
+
 start_mr #Just to prevent errors in the agent log...
 
 start_control_panel
@@ -82,36 +86,58 @@ done
 
 
 #Check the number of schemas and the individual schemas in OSC
-api_equal json:policy_types 4 120
+if [ "$PMS_VERSION" == "V2" ]; then
+    api_equal json:policy-types 4 120
 
-for ((i=1; i<=$OSC_NUM_RICS; i++))
-do
-    api_equal json:policy_types?ric=$RIC_SIM_PREFIX"_g1_"$i 3 120
-done
+    for ((i=1; i<=$OSC_NUM_RICS; i++))
+    do
+        api_equal json:policy-types?ric_id=$RIC_SIM_PREFIX"_g1_"$i 3 120
+    done
 
-# Check the schemas in OSC
-for ((i=1; i<=$OSC_NUM_RICS; i++))
-do
-    api_get_policy_schema 200 2 testdata/OSC/hw-agent-modified.json
-    api_get_policy_schema 200 100 testdata/OSC/qos-agent-modified.json
-    api_get_policy_schema 200 20008 testdata/OSC/tsa-agent-modified.json
-done
+    # Check the schemas in OSC
+    for ((i=1; i<=$OSC_NUM_RICS; i++))
+    do
+        api_get_policy_type 200 2 testdata/OSC/hw-agent-modified.json
+        api_get_policy_type 200 100 testdata/OSC/qos-agent-modified.json
+        api_get_policy_type 200 20008 testdata/OSC/tsa-agent-modified.json
+    done
+else
+    api_equal json:policy_types 4 120
 
+    for ((i=1; i<=$OSC_NUM_RICS; i++))
+    do
+        api_equal json:policy_types?ric=$RIC_SIM_PREFIX"_g1_"$i 3 120
+    done
+
+    # Check the schemas in OSC
+    for ((i=1; i<=$OSC_NUM_RICS; i++))
+    do
+        api_get_policy_schema 200 2 testdata/OSC/hw-agent-modified.json
+        api_get_policy_schema 200 100 testdata/OSC/qos-agent-modified.json
+        api_get_policy_schema 200 20008 testdata/OSC/tsa-agent-modified.json
+    done
+fi
 
 # Create policies
 use_agent_rest_http
 
 api_put_service 201 "Emergency-response-app" 0 "$CR_PATH/1"
 
+if [ "$PMS_VERSION" == "V2" ]; then
+    notificationurl="http://localhost:80"
+else
+    notificationurl=""
+fi
+
 # Create policies in OSC
 for ((i=1; i<=$OSC_NUM_RICS; i++))
 do
     generate_uuid
-    api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g1_"$i 2 $((2000+$i)) NOTRANSIENT testdata/OSC/pihw_template.json 1
+    api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g1_"$i 2 $((2000+$i)) NOTRANSIENT $notificationurl testdata/OSC/pihw_template.json 1
     generate_uuid
-    api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g1_"$i 100 $((3000+$i)) NOTRANSIENT testdata/OSC/piqos_template.json 1
+    api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g1_"$i 100 $((3000+$i)) NOTRANSIENT $notificationurl testdata/OSC/piqos_template.json 1
     generate_uuid
-    api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g1_"$i 20008 $((4000+$i)) NOTRANSIENT testdata/OSC/pitsa_template.json 1
+    api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g1_"$i 20008 $((4000+$i)) NOTRANSIENT $notificationurl testdata/OSC/pitsa_template.json 1
 done
 
 
@@ -126,7 +152,7 @@ done
 for ((i=1; i<=$STD_NUM_RICS; i++))
 do
     generate_uuid
-    api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g2_"$i NOTYPE $((2100+$i)) NOTRANSIENT testdata/STD/pi1_template.json 1
+    api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g2_"$i NOTYPE $((2100+$i)) NOTRANSIENT $notificationurl testdata/STD/pi1_template.json 1
 done
 
 

@@ -38,6 +38,9 @@ clean_containers
 # Start one RIC of each type
 start_ric_simulators ricsim_g1 1  OSC_2.1.0
 start_ric_simulators ricsim_g2 1  STD_1.1.3
+if [ "$PMS_VERSION" == "V2" ]; then
+    start_ric_simulators ricsim_g3 1  STD_2.0.0
+fi
 
 start_mr
 
@@ -53,29 +56,41 @@ start_control_panel
 
 start_policy_agent
 
-api_equal json:rics 2 120
+if [ "$PMS_VERSION" == "V2" ]; then
+    api_equal json:rics 3 120
+else
+    api_equal json:rics 2 120
+fi
 
 
-# Add an OSC RIC and check
+# Add an STD RIC and check
 start_ric_simulators ricsim_g2 2  STD_1.1.3
 
 prepare_consul_config      NOSDNC  ".consul_config.json"
 
 consul_config_app                  ".consul_config.json"
 
-api_equal json:rics 3 120
+if [ "$PMS_VERSION" == "V2" ]; then
+    api_equal json:rics 4 120
+else
+    api_equal json:rics 3 120
+fi
 
 check_policy_agent_logs
 check_control_panel_logs
 
-# Remove one OSC RIC and check
+# Remove one RIC RIC and check
 start_ric_simulators ricsim_g2 1  STD_1.1.3
 
 prepare_consul_config      NOSDNC  ".consul_config.json"
 
 consul_config_app                  ".consul_config.json"
 
-api_equal json:rics 2 120
+if [ "$PMS_VERSION" == "V2" ]; then
+    api_equal json:rics 3 120
+else
+    api_equal json:rics 2 120
+fi
 
 check_policy_agent_logs
 check_control_panel_logs

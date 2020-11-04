@@ -28,28 +28,41 @@ import re
 #To indicate that special STD zero length name type, use 'EMPTYTYPE'. Ex. ricsim_g1_1:kista_ricsim_g1_1,stockholm_ricsim_g1_1:EMPTYTYPE
 #Save in indicated file
 
+#arg: <file-name-for-result> <api-version> <list-ric-info>
 try:
     file_name = sys.argv[1]
-    ric_string = sys.argv[2]
+    api_version=sys.argv[2]
+    ric_string = sys.argv[3]
     ric_string=ric_string.strip()
     ric_string = re.sub(' +',' ',ric_string)
     ric_arr=[]
     rics=ric_string.split(' ')
+    if (api_version == "V2"):
+        param_ric='ric_id'
+        param_me='managed_element_ids'
+        param_policy_type='policy_type_ids'
+        param_state='state'
+    else:
+        param_ric='ricName'
+        param_me='managedElementIds'
+        param_policy_type='policyTypes'
+        param_state='state'
+
     for i in range(len(rics)):
         ricDict={}
         items=rics[i].split(':')
-        ricDict['ricName']=items[0]
-        ricDict['managedElementIds']=items[1].split(',')
+        ricDict[param_ric]=items[0]
+        ricDict[param_me]=items[1].split(',')
         if (items[2] == "EMPTYTYPE"):
             empty_arr=[]
             empty_arr.append("")
-            ricDict['policyTypes']=empty_arr
+            ricDict[param_policy_type]=empty_arr
         elif (items[2] == "NOTYPE"):
             empty_arr=[]
-            ricDict['policyTypes']=empty_arr
+            ricDict[param_policy_type]=empty_arr
         else:
-            ricDict['policyTypes']=items[2].split(',')
-        ricDict['state']=items[3]
+            ricDict[param_policy_type]=items[2].split(',')
+        ricDict[param_state]=items[3]
         ric_arr.append(ricDict)
 
     with open(file_name, 'w') as f:
