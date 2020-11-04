@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "de7cc948_5eb6e901",
+        "filename": "enrichment-coordinator-service/Dockerfile",
+        "patchSetId": 5
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-11-04T10:14:29Z",
+      "side": 1,
+      "message": "The code creates (and deletes) the database directory. \n\n  Files.createDirectories(Paths.get(getDatabaseDirectory()));",
+      "parentUuid": "dfb6eea6_35c15455",
+      "revId": "768cb9522bcb458171eddd5cc6213fb8e8797be3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "02a0ff30_ad07813d",
         "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/repository/EiJobs.java",
         "patchSetId": 5
