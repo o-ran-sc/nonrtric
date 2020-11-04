@@ -16,6 +16,24 @@
       "revId": "0984e0580e9d72ab8a4d5a827b137433f559d0a3",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a48c827_41f9ac0e",
+        "filename": "r-app-catalogue/src/main/java/org/oransc/rappcatalogue/api/GeneralRappCatalogueControllerAdvisor.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-11-04T10:01:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "64e4db2e_1e1bd03f",
+      "revId": "0984e0580e9d72ab8a4d5a827b137433f559d0a3",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": false
     }
   ]
 }
