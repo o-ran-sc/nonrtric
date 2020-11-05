@@ -24,6 +24,8 @@ ARG JAR
 WORKDIR /opt/app/enrichment-coordinator-service
 RUN mkdir -p /var/log/enrichment-coordinator-service
 RUN mkdir -p /opt/app/enrichment-coordinator-service/etc/cert/
+RUN mkdir -p /var/enrichment-coordinator-service
+RUN chmod -R 777 /var/enrichment-coordinator-service
 
 EXPOSE 8083 8434
 
