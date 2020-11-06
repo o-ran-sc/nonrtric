@@ -45,6 +45,7 @@
         <jackson-databind-nullable.version>0.2.1</jackson-databind-nullable.version>
         <openapi-generator-maven-plugin.version>4.3.1</openapi-generator-maven-plugin.version>
         <swagger-codegen-maven-plugin.version>3.0.11</swagger-codegen-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.6</jacoco-maven-plugin.version>
         <docker-maven-plugin.version>0.30.0</docker-maven-plugin.version>
     </properties>
 
@@ -196,6 +197,26 @@
                                 <outputFile>rac-api.yaml</outputFile>
                             </configOptions>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>default-prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default-report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
