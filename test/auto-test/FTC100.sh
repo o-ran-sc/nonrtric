@@ -23,9 +23,14 @@ TC_ONELINE_DESCR="Full agent API walk through using agent REST/DMAAP and with/wi
 #App names to include in the test, space separated list
 INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
+
+#SUPPORTED TEST ENV FILE
+SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN"
+
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
+. ../common/cr_api_functions.sh
 
 #### TEST BEGIN ####
 
@@ -46,8 +51,25 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "#####################################################################"
         echo "#####################################################################"
 
+        # Clean container and start all needed containers #
+        clean_containers
+
         if [ $__httpx == "HTTPS" ]; then
-            CR_PATH="https://$CR_APP_NAME:$CR_EXTERNAL_SECURE_PORT/callbacks"
+            use_agent_rest_https
+        else
+            use_agent_rest_http
+        fi
+
+        start_policy_agent
+
+        set_agent_trace
+
+        # Create service to be able to receive events when rics becomes available
+        # Must use rest towards the agent since dmaap is not configured yet
+        api_put_service 201 "ric-registration" 0 "$CR_PATH/ric-registration"
+
+
+        if [ $__httpx == "HTTPS" ]; then
             use_cr_https
             use_simulator_https
             use_mr_https
@@ -60,7 +82,6 @@ for __httpx in $TESTED_PROTOCOLS ; do
                 use_agent_rest_https
             fi
         else
-            CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
             use_cr_http
             use_simulator_http
             use_mr_http
@@ -74,9 +95,6 @@ for __httpx in $TESTED_PROTOCOLS ; do
             fi
         fi
 
-        # Clean container and start all needed containers #
-        clean_containers
-
         start_ric_simulators ricsim_g1 1  OSC_2.1.0
         start_ric_simulators ricsim_g2 1  STD_1.1.3
         if [ "$PMS_VERSION" == "V2" ]; then
@@ -86,6 +104,8 @@ for __httpx in $TESTED_PROTOCOLS ; do
         start_mr
 
         start_cr
+
+        start_control_panel
 
         start_consul_cbs
 
@@ -98,28 +118,17 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         consul_config_app                      ".consul_config.json"
 
-        start_control_panel
-
-        start_policy_agent
-
-        set_agent_debug
-
-        cr_equal received_callbacks 0
-        mr_equal requests_submitted 0
-
         sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
         sim_put_policy_type 201 ricsim_g1_1 2 testdata/OSC/sim_2.json
 
         if [ "$PMS_VERSION" == "V2" ]; then
             api_equal json:rics 3 60
 
-            #api_equal json:policy-schemas 3 120
-
             api_equal json:policy-types 3 120
 
             api_equal json:policies 0
 
-            api_equal json:policy_instances 0
+            api_equal json:policy-instances 0
         else
             api_equal json:rics 2 60
 
@@ -131,6 +140,12 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
             api_equal json:policy_ids 0
         fi
+
+        if [ "$PMS_VERSION" == "V2" ]; then
+            cr_equal received_callbacks 3 120
+            cr_api_check_all_sync_events 200 ric-registration ricsim_g1_1 ricsim_g2_1 ricsim_g3_1
+        fi
+        mr_equal requests_submitted 0
 
 
         echo "############################################"
@@ -162,18 +177,18 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         api_get_services 200 "service1" "service1" 2000 "$CR_PATH/1"
 
-        api_get_service_ids 200 "service1" "service2"
+        api_get_service_ids 200 "service1" "service2" "ric-registration"
 
 
         api_put_service 201 "service3" 5000 "$CR_PATH/3"
 
 
-        api_get_service_ids 200 "service1" "service2" "service3"
+        api_get_service_ids 200 "service1" "service2" "service3" "ric-registration"
 
 
         api_get_services 200 "service1" "service1" 2000 "$CR_PATH/1"
 
-        api_get_services 200 NOSERVICE "service1" 2000 "$CR_PATH/1" "service2" 300 "ftp://localhost:80/test" "service3" 5000 "$CR_PATH/3"
+        api_get_services 200 NOSERVICE "service1" 2000 "$CR_PATH/1" "service2" 300 "ftp://localhost:80/test" "service3" 5000 "$CR_PATH/3"  "ric-registration" 0 "$CR_PATH/ric-registration"
 
         api_get_services 200
 
@@ -195,26 +210,26 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         api_put_services_keepalive 404 "service5"
 
-        api_get_service_ids 200 "service1" "service2" "service3"
+        api_get_service_ids 200 "service1" "service2" "service3"  "ric-registration"
 
         api_delete_services 204 "service1"
 
-        api_get_service_ids 200 "service2" "service3"
+        api_get_service_ids 200 "service2" "service3" "ric-registration"
 
 
         api_put_service 201 "service1" 50 "$CR_PATH/1"
 
-        api_get_service_ids 200 "service1" "service2" "service3"
+        api_get_service_ids 200 "service1" "service2" "service3"  "ric-registration"
 
 
         api_delete_services 204 "service1"
         api_delete_services 204 "service3"
 
-        api_equal json:services 1
+        api_equal json:services 2
 
         api_delete_services 204 "service2"
 
-        api_equal json:services 0
+        api_equal json:services 1
 
 
         echo "############################################"
@@ -321,7 +336,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         api_put_service 201 "service10" 3600 "$CR_PATH/1"
 
         if [ "$PMS_VERSION" == "V2" ]; then
-            notificationurl="http://localhost:80"
+            notificationurl=$CR_PATH"/test"
         else
             notificationurl=""
         fi
@@ -359,7 +374,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         #api_equal json:policy_ids 2
         #Allow 3 for now
         if [ "$PMS_VERSION" == "V2" ]; then
-            api_equal json:policy_instances 3
+            api_equal json:policy-instances 3
         else
             api_equal json:policy_ids 3
         fi
@@ -419,7 +434,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         api_equal json:policies 1
 
         if [ "$PMS_VERSION" == "V2" ]; then
-            api_equal json:policy_instances 1
+            api_equal json:policy-instances 1
         else
             api_equal json:policy_ids 1
         fi
@@ -429,12 +444,14 @@ for __httpx in $TESTED_PROTOCOLS ; do
         api_equal json:policies 0
 
         if [ "$PMS_VERSION" == "V2" ]; then
-            api_equal json:policy_instances 0
+            api_equal json:policy-instances 0
         else
             api_equal json:policy_ids 0
         fi
 
-        cr_equal received_callbacks 0
+        if [ "$PMS_VERSION" == "V2" ]; then
+            cr_equal received_callbacks 3
+        fi
 
         if [[ $interface = *"DMAAP"* ]]; then
             mr_greater requests_submitted 0
@@ -464,6 +481,10 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         check_policy_agent_logs
         check_control_panel_logs
+
+        if [[ $interface = *"SDNC"* ]]; then
+            check_sdnc_logs
+        fi
 
         store_logs          "${__httpx}__${interface}"
 

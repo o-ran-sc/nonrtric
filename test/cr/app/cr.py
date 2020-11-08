@@ -16,13 +16,11 @@
 #  ============LICENSE_END=================================================
 #
 
-from flask import Flask, request
+from flask import Flask, request, Response
 from time import sleep
 import time
 import datetime
 import json
-from flask import Flask
-from flask import Response
 import traceback
 
 app = Flask(__name__)
@@ -37,10 +35,13 @@ HOST_PORT = 2222
 # Metrics vars
 cntr_msg_callbacks=0
 cntr_msg_fetched=0
+cntr_callbacks={}
 
 # Request and response constants
 CALLBACK_URL="/callbacks/<string:id>"
 APP_READ_URL="/get-event/<string:id>"
+APP_READ_ALL_URL="/get-all-events/<string:id>"
+DUMP_ALL_URL="/db"
 
 MIME_TEXT="text/plain"
 MIME_JSON="application/json"
@@ -57,7 +58,7 @@ def index():
 
 # Fetch the oldest callback message for an id
 # URI and parameter, (GET): /get-event/<id>
-# response: message + 200 or 204
+# response: message + 200 or just 204 or just 500(error)
 @app.route(APP_READ_URL,
     methods=['GET'])
 def receiveresponse(id):
@@ -67,19 +68,47 @@ def receiveresponse(id):
     try:
         if ((id in msg_callbacks.keys()) and (len(msg_callbacks[id]) > 0)):
             cntr_msg_fetched+=1
-            msg=str(msg_callbacks[id][0])
-            print("Fetching msg for id: "+id+", msg="+msg)
+            cntr_callbacks[id][1]+=1
+            msg=msg_callbacks[id][0]
+            print("Fetching msg for id: "+id+", msg="+str(msg))
             del msg_callbacks[id][0]
-            return msg,200
+            return json.dumps(msg),200
         print("No messages for id: "+id)
     except Exception as e:
         print(CAUGHT_EXCEPTION+str(e))
+        traceback.print_exc()
+        return "",500
 
     return "",204
 
+# Fetch all callback message for an id in an array
+# URI and parameter, (GET): /get-all-events/<id>
+# response: message + 200 or just 500(error)
+@app.route(APP_READ_ALL_URL,
+    methods=['GET'])
+def receiveresponse_all(id):
+    global msg_callbacks
+    global cntr_msg_fetched
+
+    try:
+        if ((id in msg_callbacks.keys()) and (len(msg_callbacks[id]) > 0)):
+            cntr_msg_fetched+=len(msg_callbacks[id])
+            cntr_callbacks[id][1]+=len(msg_callbacks[id])
+            msg=msg_callbacks[id]
+            print("Fetching all msgs for id: "+id+", msg="+str(msg))
+            del msg_callbacks[id]
+            return json.dumps(msg),200
+        print("No messages for id: "+id)
+    except Exception as e:
+        print(CAUGHT_EXCEPTION+str(e))
+        traceback.print_exc()
+        return "",500
+
+    msg=[]
+    return json.dumps(msg),200
 
 # Receive a callback message
-# URI and payload, (PUT or POST): /callbacks/<id> <json array of response messages>
+# URI and payload, (PUT or POST): /callbacks/<id> <json messages>
 # response: OK 200 or 500 for other errors
 @app.route(CALLBACK_URL,
     methods=['PUT','POST'])
@@ -91,17 +120,16 @@ def events_write(id):
         print("Received callback for id: "+id +", content-type="+request.content_type)
         try:
             if (request.content_type == MIME_JSON):
-                msg = request.json
+                data = request.data
+                msg = json.loads(data)
                 print("Payload(json): "+str(msg))
-            elif (request.content_type == MIME_TEXT):
-                msg= request.form
-                print("Payload(text): "+str(msg))
             else:
-                msg="\"\""
-                print("Payload(content-type="+request.content_type+"). Setting data to empty, quoted, string")
-        except:
-            msg="\"\""
-            print("(Exception) Payload does not contain any json or text data, setting empty string as payload")
+                msg={}
+                print("Payload(content-type="+request.content_type+"). Setting empty json as payload")
+        except Exception as e:
+            msg={}
+            print("(Exception) Payload does not contain any json, setting empty json as payload")
+            traceback.print_exc()
 
         cntr_msg_callbacks += 1
         if (id in msg_callbacks.keys()):
@@ -109,30 +137,68 @@ def events_write(id):
         else:
             msg_callbacks[id]=[]
             msg_callbacks[id].append(msg)
+
+        if (id in cntr_callbacks.keys()):
+            cntr_callbacks[id][0] += 1
+        else:
+            cntr_callbacks[id]=[]
+            cntr_callbacks[id].append(1)
+            cntr_callbacks[id].append(0)
+
     except Exception as e:
         print(CAUGHT_EXCEPTION+str(e))
-        return 'OK',500
+        traceback.print_exc()
+        return 'NOTOK',500
 
     return 'OK',200
 
+### Functions for test ###
+
+# Dump the whole db of current callbacks
+# URI and parameter, (GET): /db
+# response: message + 200
+@app.route(DUMP_ALL_URL,
+    methods=['GET'])
+def dump_db():
+    return json.dumps(msg_callbacks),200
 
 ### Functions for metrics read out ###
 
 @app.route('/counter/received_callbacks',
     methods=['GET'])
 def requests_submitted():
-    return Response(str(cntr_msg_callbacks), status=200, mimetype=MIME_TEXT)
+    req_id = request.args.get('id')
+    if (req_id is None):
+        return Response(str(cntr_msg_callbacks), status=200, mimetype=MIME_TEXT)
+
+    if (req_id in cntr_callbacks.keys()):
+        return Response(str(cntr_callbacks[req_id][0]), status=200, mimetype=MIME_TEXT)
+    else:
+        return Response(str("0"), status=200, mimetype=MIME_TEXT)
 
 @app.route('/counter/fetched_callbacks',
     methods=['GET'])
 def requests_fetched():
-    return Response(str(cntr_msg_fetched), status=200, mimetype=MIME_TEXT)
+    req_id = request.args.get('id')
+    if (req_id is None):
+        return Response(str(cntr_msg_fetched), status=200, mimetype=MIME_TEXT)
+
+    if (req_id in cntr_callbacks.keys()):
+        return Response(str(cntr_callbacks[req_id][1]), status=200, mimetype=MIME_TEXT)
+    else:
+        return Response(str("0"), status=200, mimetype=MIME_TEXT)
 
 @app.route('/counter/current_messages',
     methods=['GET'])
 def current_messages():
-    return Response(str(cntr_msg_callbacks-cntr_msg_fetched), status=200, mimetype=MIME_TEXT)
+    req_id = request.args.get('id')
+    if (req_id is None):
+        return Response(str(cntr_msg_callbacks-cntr_msg_fetched), status=200, mimetype=MIME_TEXT)
 
+    if (req_id in cntr_callbacks.keys()):
+        return Response(str(cntr_callbacks[req_id][0]-cntr_callbacks[req_id][1]), status=200, mimetype=MIME_TEXT)
+    else:
+        return Response(str("0"), status=200, mimetype=MIME_TEXT)
 
 
 ### Admin ###

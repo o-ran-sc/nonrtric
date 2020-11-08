@@ -22,6 +22,9 @@ TC_ONELINE_DESCR="Preparation demo setup  - populating a number of ric simulator
 #App names to include in the test, space separated list
 INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
+#SUPPORTED TEST ENV FILE
+SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN"
+
 . ../common/testcase_common.sh $@
 . ../common/agent_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
@@ -30,19 +33,16 @@ INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
 #Local vars in test script
 ##########################
-# Path to callback receiver
-CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
 
 if [ "$PMS_VERSION" == "V2" ]; then
-    notificationurl="http://localhost:80"
+    notificationurl=$CR_PATH"/test"
 else
     notificationurl=""
 fi
 
-use_cr_http
-use_agent_rest_http
-use_sdnc_http
-use_simulator_http
+use_agent_rest_https
+use_sdnc_https
+use_simulator_https
 
 clean_containers
 
@@ -53,12 +53,15 @@ start_ric_simulators  $RIC_SIM_PREFIX"_g1" $OSC_NUM_RICS OSC_2.1.0
 
 start_ric_simulators  $RIC_SIM_PREFIX"_g2" $STD_NUM_RICS STD_1.1.3
 
+if [ "$PMS_VERSION" == "V2" ]; then
+    start_ric_simulators $RIC_SIM_PREFIX"_g3" $STD_NUM_RICS STD_2.0.0
+fi
+
 start_mr #Just to prevent errors in the agent log...
 
 start_control_panel
 
-CR_PATH="https://$CR_APP_NAME:$CR_EXTERNAL_SECURE_PORT/callbacks"
-use_cr_http
+start_control_panel
 
 start_sdnc
 
@@ -69,6 +72,8 @@ consul_config_app                  ".consul_config.json"
 
 start_policy_agent
 
+set_agent_trace
+
 api_get_status 200
 
 # Print the A1 version for OSC
@@ -78,11 +83,19 @@ do
 done
 
 
-# Print the A1 version for STD
+# Print the A1 version for STD 1.X
 for ((i=1; i<=$STD_NUM_RICS; i++))
 do
     sim_print $RIC_SIM_PREFIX"_g2_"$i interface
 done
+
+if [ "$PMS_VERSION" == "V2" ]; then
+    # Print the A1 version for STD 2.X
+    for ((i=1; i<=$STD_NUM_RICS; i++))
+    do
+        sim_print $RIC_SIM_PREFIX"_g3_"$i interface
+    done
+fi
 
 
 # Load the polictypes in osc
@@ -95,6 +108,7 @@ done
 
 #Check the number of schemas and the individual schemas in OSC
 if [ "$PMS_VERSION" == "V2" ]; then
+
     api_equal json:policy-types 3 120
 
     for ((i=1; i<=$OSC_NUM_RICS; i++))
@@ -125,6 +139,41 @@ else
 fi
 
 
+
+
+if [ "$PMS_VERSION" == "V2" ]; then
+
+    # Load the polictypes in std
+    for ((i=1; i<=$STD_NUM_RICS; i++))
+    do
+        sim_put_policy_type 201 $RIC_SIM_PREFIX"_g3_"$i STD_QOS_0_2_0 demo-testdata/STD2/sim_qos.json
+        sim_put_policy_type 201 $RIC_SIM_PREFIX"_g3_"$i STD_QOS2_0.1.0 demo-testdata/STD2/sim_qos2.json
+    done
+
+    #Check the number of schemas and the individual schemas in STD
+    api_equal json:policy-types 5 120
+
+    for ((i=1; i<=$STD_NUM_RICS; i++))
+    do
+        api_equal json:policy-types?ric_id=$RIC_SIM_PREFIX"_g3_"$i 2 120
+    done
+
+    # Check the schemas in STD
+    for ((i=1; i<=$STD_NUM_RICS; i++))
+    do
+        api_get_policy_type 200 STD_QOS_0_2_0 demo-testdata/STD2/qos-agent-modified.json
+        api_get_policy_type 200 'STD_QOS2_0.1.0' demo-testdata/STD2/qos2-agent-modified.json
+    done
+fi
+
+#Check the number of schemas and the individual schemas in OSC
+if [ "$PMS_VERSION" == "V2" ]; then
+    api_equal json:policy-types 5 120
+else
+    api_equal json:policy_types 3 120
+fi
+
+
 # Create policies
 use_agent_rest_http
 
@@ -152,6 +201,12 @@ for ((i=1; i<=$STD_NUM_RICS; i++))
 do
     generate_uuid
     api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g2_"$i NOTYPE $((2100+$i)) NOTRANSIENT $notificationurl demo-testdata/STD/pi1_template.json 1
+    if [ "$PMS_VERSION" == "V2" ]; then
+        generate_uuid
+        api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g3_"$i STD_QOS_0_2_0 $((2300+$i)) NOTRANSIENT $notificationurl demo-testdata/STD2/pi1_template.json 1
+        generate_uuid
+        api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g3_"$i 'STD_QOS2_0.1.0' $((2400+$i)) NOTRANSIENT $notificationurl demo-testdata/STD2/pi1_template.json 1
+    fi
 done
 
 
@@ -159,9 +214,13 @@ done
 for ((i=1; i<=$STD_NUM_RICS; i++))
 do
     sim_equal $RIC_SIM_PREFIX"_g2_"$i num_instances 1
+    if [ "$PMS_VERSION" == "V2" ]; then
+        sim_equal $RIC_SIM_PREFIX"_g3_"$i num_instances 2
+    fi
 done
 
 check_policy_agent_logs
+check_sdnc_logs
 
 #### TEST COMPLETE ####
 

@@ -22,18 +22,18 @@ TC_ONELINE_DESCR="Change supported policy types and reconfigure rics"
 #App names to include in the test, space separated list
 INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
+#SUPPORTED TEST ENV FILE
+SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN"
+
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
+. ../common/cr_api_functions.sh
 
 #### TEST BEGIN ####
 
 generate_uuid
 
-#Local vars in test script
-##########################
-# Path to callback receiver
-CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
 use_cr_http
 
 NUM_RICS=10
@@ -64,15 +64,13 @@ for interface in $TESTED_VARIANTS ; do
 
     start_consul_cbs
 
+    # Create first config
     if [[ $interface = *"SDNC"* ]]; then
         start_sdnc
-        prepare_consul_config      SDNC  ".consul_config_2.json"
+        prepare_consul_config      SDNC  ".consul_config_initial.json"
     else
-        prepare_consul_config      NOSDNC  ".consul_config_2.json"
+        prepare_consul_config      NOSDNC  ".consul_config_initial.json"
     fi
-
-    consul_config_app                  ".consul_config_2.json"
-
 
     # Create 2nd config and save for later
     start_ric_simulators ricsim_g1 $NUM_RICS OSC_2.1.0
@@ -85,10 +83,16 @@ for interface in $TESTED_VARIANTS ; do
 
     start_policy_agent
 
-    set_agent_debug
     set_agent_trace
 
     api_get_status 200
+
+    # Create service to be able to receive events when rics becomes available
+    # Must use rest towards the agent since dmaap is not configured yet
+    api_put_service 201 "ric-registration" 0 "$CR_PATH/ric-registration"
+
+    #Load first config
+    consul_config_app                  ".consul_config_initial.json"
 
     for ((i=1; i<=${NUM_RICS}; i++))
     do
@@ -97,6 +101,11 @@ for interface in $TESTED_VARIANTS ; do
 
     # All sims running but 2 are not configured in consul
     api_equal json:rics 8 120
+
+    if [ "$PMS_VERSION" == "V2" ]; then
+        cr_equal received_callbacks?id=ric-registration 8 120
+        cr_api_check_all_sync_events 200 ric-registration ricsim_g1_1 ricsim_g1_2  ricsim_g1_3 ricsim_g1_4 ricsim_g1_5 ricsim_g1_6  ricsim_g1_7  ricsim_g1_8
+    fi
 
     api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:NOTYPE:???? \
                              ricsim_g1_2:me1_ricsim_g1_2,me2_ricsim_g1_2:NOTYPE:???? \
@@ -136,7 +145,6 @@ for interface in $TESTED_VARIANTS ; do
     sim_put_policy_type 201 ricsim_g1_6 5 testdata/OSC/sim_5.json
     sim_put_policy_type 201 ricsim_g1_7 5 testdata/OSC/sim_5.json
     sim_put_policy_type 201 ricsim_g1_8 5 testdata/OSC/sim_5.json
-    sim_put_policy_type 201 ricsim_g1_9 5 testdata/OSC/sim_5.json
 
     if [ "$PMS_VERSION" == "V2" ]; then
         api_equal json:policy-types 5 120
@@ -173,11 +181,22 @@ for interface in $TESTED_VARIANTS ; do
                              ricsim_g1_7:me1_ricsim_g1_7,me2_ricsim_g1_7:3,4,5:???? \
                              ricsim_g1_8:me1_ricsim_g1_8,me2_ricsim_g1_8:4,5:???? "
 
+    if [ "$PMS_VERSION" == "V2" ]; then
+        cr_equal received_callbacks?id=ric-registration 16 120
+        cr_api_check_all_sync_events 200 ric-registration ricsim_g1_1 ricsim_g1_2  ricsim_g1_3 ricsim_g1_4 ricsim_g1_5 ricsim_g1_6  ricsim_g1_7  ricsim_g1_8
+    fi
 
     #Load config with all rics
     consul_config_app                  ".consul_config_all.json"
 
     api_equal json:rics 10 120
+
+    if [ "$PMS_VERSION" == "V2" ]; then
+        cr_equal received_callbacks?id=ric-registration 18 120
+        cr_api_check_all_sync_events 200 ric-registration ricsim_g1_9  ricsim_g1_10
+    fi
+
+    sim_put_policy_type 201 ricsim_g1_9 5 testdata/OSC/sim_5.json
 
     if [ "$PMS_VERSION" == "V2" ]; then
 
@@ -218,6 +237,10 @@ for interface in $TESTED_VARIANTS ; do
                              ricsim_g1_9:me1_ricsim_g1_9,me2_ricsim_g1_9:5:???? \
                              ricsim_g1_10:me1_ricsim_g1_10,me2_ricsim_g1_10:NOTYPE:???? "
 
+    if [ "$PMS_VERSION" == "V2" ]; then
+        cr_equal received_callbacks?id=ric-registration 19 120
+        cr_api_check_all_sync_events 200 ric-registration ricsim_g1_9
+    fi
 
     #No policy type in sim #10
 
@@ -230,26 +253,20 @@ for interface in $TESTED_VARIANTS ; do
     api_put_service 201 "serv1" 3600 "$CR_PATH/serv1"
 
     if [ "$PMS_VERSION" == "V2" ]; then
-        notificationurl="http://localhost:80"
+        notificationurl=$CR_PATH"/test"
     else
         notificationurl=""
     fi
 
-    api_put_policy 201 "serv1" ricsim_g1_9 5 2000 NOTRANSIENT $notificationurl testdata/OSC/pi5_template.json 1
-
-    if [ "$PMS_VERSION" == "V2" ]; then
-         api_equal json:policy_instances 1
-    else
-        api_equal json:policy_ids 1
-    fi
-
-    sim_equal ricsim_g1_9 num_instances 1
-
-
     # Load config with reduced number of rics
-    consul_config_app                  ".consul_config_2.json"
+    consul_config_app                  ".consul_config_initial.json"
 
     api_equal json:rics 8 120
+
+    if [ "$PMS_VERSION" == "V2" ]; then
+        cr_equal received_callbacks?id=ric-registration 19 120
+        cr_api_check_all_sync_events 200 ric-registration EMPTY
+    fi
 
     if [ "$PMS_VERSION" == "V2" ]; then
         echo "Check the number of types in the agent for each ric"
@@ -285,16 +302,12 @@ for interface in $TESTED_VARIANTS ; do
     sleep_wait 120
 
     if [ "$PMS_VERSION" == "V2" ]; then
-        api_equal json:policy_instances 0
+        api_equal json:policy-instances 0
     else
         api_equal json:policy_ids 0
     fi
 
     api_get_policy_types 404 ricsim_g1_9
-
-    sim_equal ricsim_g1_9 num_instances 0
-
-    api_delete_policy 404 2000
 
     # Load config with all rics
     consul_config_app                  ".consul_config_all.json"
@@ -341,7 +354,7 @@ for interface in $TESTED_VARIANTS ; do
     sleep_wait 120
 
     if [ "$PMS_VERSION" == "V2" ]; then
-        api_equal json:policy_instances 0
+        api_equal json:policy-instances 0
     else
         api_equal json:policy_ids 0
     fi
@@ -413,12 +426,13 @@ for interface in $TESTED_VARIANTS ; do
 
 
     check_policy_agent_logs
+    if [[ $interface = *"SDNC"* ]]; then
+        check_sdnc_logs
+    fi
+
     store_logs          ${interface}
 
 done
-
-
-
 
 
 #### TEST COMPLETE ####

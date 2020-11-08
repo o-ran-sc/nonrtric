@@ -30,6 +30,7 @@ var PRODSTUB_PORT="8092"
 var http = require('http');
 
 var express = require('express');
+const { POINT_CONVERSION_HYBRID } = require('constants')
 var app = express();
 var fieldSize=32;
 
@@ -197,12 +198,17 @@ var ps_producer_type_arr=new Array(0)
 var ps_producer_jobs_arr=new Array(0)
 var ps_producer_delivery_arr=new Array(0)
 
+//Full CR DB
+var cr_db={}
+
 //Counts the number of get request for the html page
 var getCtr=0
 
 var refreshCount_pol=-1
 
 var refreshCount_ecs=-1
+
+var refreshCount_cr=-1
 
 var ricbasename="ricsim"
 
@@ -611,6 +617,58 @@ function fetchAllMetrics_ecs() {
     }, 500)
 }
 
+function fetchAllMetrics_cr() {
+
+    console.log("Fetching CR DB - timer:" + refreshCount_ecs)
+
+    if (refreshCount_cr < 0) {
+        refreshCount_cr = -1
+        return
+    } else {
+        refreshCount_cr = refreshCount_cr - 1
+    }
+    setTimeout(() => {
+
+        if (checkFunctionFlag("cr_stat")) {
+            getSimCtr(LOCALHOST+CR_PORT+"/db", 0, function(data, index) {
+                ecs4=""
+                try {
+                    cr_db=JSON.parse(data);
+                }
+                catch (err) {
+                    cr_db={}
+                }
+            });
+            clearFlag("cr_stat")
+        }
+        fetchAllMetrics_cr();
+    }, 500)
+}
+
+// Monitor for CR db
+app.get("/mon3",function(req, res){
+
+    console.log("Creating CR DB page - timer: " + refreshCount_ecs)
+
+    if (refreshCount_cr < 0) {
+        refreshCount_cr=5
+        fetchAllMetrics_cr()
+    }
+    refreshCount_cr=5
+    var json_str=JSON.stringify(cr_db, null, 1)
+    var htmlStr = "<!DOCTYPE html>" +
+    "<html>" +
+    "<head>" +
+      "<meta http-equiv=\"refresh\" content=\"2\">"+  //2 sec auto refresh
+      "<title>CR DB dump</title>"+
+      "</head>" +
+      "<body style=\"white-space: pre-wrap\">" +
+      json_str +
+      "</body>" +
+      "</html>";
+    res.send(htmlStr);
+})
+
 // Monitor for ECS
 app.get("/mon2",function(req, res){
 
@@ -832,3 +890,4 @@ httpServer.listen(httpPort);
 console.log("Simulator monitor listening (http) at "+httpPort);
 console.log("Open the web page on localhost:9999/mon to view the policy statistics page.")
 console.log("Open the web page on localhost:9999/mon2 to view the enrichment statistics page.")
+console.log("Open the web page on localhost:9999/mon3 to view CR DB in json.")

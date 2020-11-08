@@ -17,6 +17,10 @@
 
 FROM python:3.8-slim-buster
 
+#install nginx
+RUN apt-get update
+RUN apt-get install -y nginx=1.14.*
+
 COPY app/ /usr/src/app/
 COPY cert/ /usr/src/app/cert/
 
@@ -25,9 +29,5 @@ WORKDIR /usr/src/app
 RUN pip install -r requirements.txt
 
 RUN chmod +x start.sh
-
-#install nginx
-RUN apt-get update
-RUN apt-get install -y nginx=1.14.*
 
 CMD [ "./start.sh" ]

@@ -49,6 +49,9 @@ echo "=== CR hello world ==="
 RESULT="OK"
 do_curl GET / 200
 
+echo "=== Reset ==="
+RESULT="*"
+do_curl POST /reset 200
 
 echo "=== Get counter - callbacks ==="
 RESULT="0"
@@ -62,11 +65,16 @@ echo "=== Get counter - current events ==="
 RESULT="0"
 do_curl GET /counter/current_messages 200
 
+echo "=== Send a request non json ==="
+RESULT="*"
+#create payload
+echo "DATA" > .tmp.json
+do_curl POST '/callbacks/test' 200 .tmp.json
 
 echo "=== Send a request ==="
 RESULT="*"
 #create payload
-echo "\"DATA-MSG\"" > .tmp.json
+echo "{\"DATA-MSG\":\"msg\"}" > .tmp.json
 do_curl POST '/callbacks/test' 200 .tmp.json
 
 
@@ -74,9 +82,9 @@ echo "=== Fetch an event, wrong id==="
 RESULT="*"
 do_curl GET '/get-event/wrongid' 204
 
-
+# Test counters for all ids
 echo "=== Get counter - callbacks ==="
-RESULT="1"
+RESULT="2"
 do_curl GET /counter/received_callbacks 200
 
 echo "=== Get counter - fetched events ==="
@@ -84,12 +92,42 @@ RESULT="0"
 do_curl GET /counter/fetched_callbacks 200
 
 echo "=== Get counter - current events ==="
-RESULT="1"
+RESULT="2"
 do_curl GET /counter/current_messages 200
+
+# Test counter for one id
+echo "=== Get counter - callbacks ==="
+RESULT="2"
+do_curl GET /counter/received_callbacks?id=test 200
+
+echo "=== Get counter - fetched events ==="
+RESULT="0"
+do_curl GET /counter/fetched_callbacks?id=test 200
+
+echo "=== Get counter - current events ==="
+RESULT="2"
+do_curl GET /counter/current_messages?id=test 200
+
+# Test counter for dummy id
+echo "=== Get counter - callbacks ==="
+RESULT="0"
+do_curl GET /counter/received_callbacks?id=dummy 200
+
+echo "=== Get counter - fetched events ==="
+RESULT="0"
+do_curl GET /counter/fetched_callbacks?id=dummy 200
+
+echo "=== Get counter - current events ==="
+RESULT="0"
+do_curl GET /counter/current_messages?id=dummy 200
 
 
 echo "=== Fetch an event ==="
-RESULT="DATA-MSG"
+RESULT="json:{}"
+do_curl GET '/get-event/test' 200
+
+echo "=== Fetch an event ==="
+RESULT="json:{\"DATA-MSG\":\"msg\"}"
 do_curl GET '/get-event/test' 200
 
 echo "=== Fetch an event again ==="
@@ -97,15 +135,87 @@ RESULT="*"
 do_curl GET '/get-event/test' 204
 
 echo "=== Get counter - callbacks ==="
-RESULT="1"
+RESULT="2"
 do_curl GET /counter/received_callbacks 200
 
 echo "=== Get counter - fetched events ==="
-RESULT="1"
+RESULT="2"
 do_curl GET /counter/fetched_callbacks 200
 
 echo "=== Get counter - current events ==="
 RESULT="0"
+do_curl GET /counter/current_messages 200
+
+# Test counter for one id
+echo "=== Get counter - callbacks ==="
+RESULT="2"
+do_curl GET /counter/received_callbacks?id=test 200
+
+echo "=== Get counter - fetched events ==="
+RESULT="2"
+do_curl GET /counter/fetched_callbacks?id=test 200
+
+echo "=== Get counter - current events ==="
+RESULT="0"
+do_curl GET /counter/current_messages?id=test 200
+
+echo "=== Send a request ==="
+RESULT="*"
+#create payload
+echo "{\"DATA-MSG\":\"msg\"}" > .tmp.json
+do_curl POST '/callbacks/test' 200 .tmp.json
+
+echo "=== Send a request ==="
+RESULT="*"
+#create payload
+echo "{\"DATA-MSG2\":\"msg2\"}" > .tmp.json
+do_curl POST '/callbacks/test' 200 .tmp.json
+
+echo "=== Send a request ==="
+RESULT="*"
+#create payload
+echo "{\"DATA-MSG3\":\"msg3\"}" > .tmp.json
+do_curl POST '/callbacks/test1' 200 .tmp.json
+
+echo "=== Get counter - callbacks ==="
+RESULT="5"
+do_curl GET /counter/received_callbacks 200
+
+echo "=== Get counter - fetched events ==="
+RESULT="2"
+do_curl GET /counter/fetched_callbacks 200
+
+echo "=== Get counter - current events ==="
+RESULT="3"
+do_curl GET /counter/current_messages 200
+
+# Test counter for one id, test1
+echo "=== Get counter - callbacks ==="
+RESULT="1"
+do_curl GET /counter/received_callbacks?id=test1 200
+
+echo "=== Get counter - fetched events ==="
+RESULT="0"
+do_curl GET /counter/fetched_callbacks?id=test1 200
+
+echo "=== Get counter - current events ==="
+RESULT="1"
+do_curl GET /counter/current_messages?id=test1 200
+
+echo "=== Fetch all events ==="
+RESULT="json:[{\"DATA-MSG2\":\"msg2\"},{\"DATA-MSG\":\"msg\"}]"
+do_curl GET '/get-all-events/test' 200
+
+echo "=== Get counter - callbacks ==="
+RESULT="5"
+do_curl GET /counter/received_callbacks 200
+
+echo "=== Get counter - fetched events ==="
+RESULT="4"
+do_curl GET /counter/fetched_callbacks 200
+
+echo "=== Get counter - current events ==="
+RESULT="1"
 do_curl GET /counter/current_messages 200
 
 echo "=== CR reset ==="

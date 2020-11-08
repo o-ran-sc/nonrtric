@@ -17,6 +17,8 @@
 #  ============LICENSE_END=================================================
 #
 
+TEST_ENV_PROFILE="ONAP-GUILIN"
+
 # Set up the image and tags for the test. Do not add the image tag to the image names.
 
 # NOTE: A env var for each container is created by the test script.

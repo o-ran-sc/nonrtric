@@ -17,6 +17,8 @@
 #  ============LICENSE_END=================================================
 #
 
+TEST_ENV_PROFILE="ORAN-MASTER"
+
 # Set up the image and tags for the test. Do not add the image tag to the image names.
 
 # NOTE: A env var for each container is created by the test script.
@@ -115,6 +117,8 @@ export ECS_INTERNAL_SECURE_PORT=8434                            # ECS container 
 export ECS_APP_NAME="ecs"                                       # Name for ECS container
 ECS_LOGPATH="/var/log/enrichment-coordinator-service/application.log" # Path the application log in the ECS container
 export ECS_APP_NAME_ALIAS="enrichment-service-container"        # Alias name, name used by the control panel
+export ECS_HOST_MNT_DIR="./mnt"                                 # Mounted dir, relative to compose file, on the host
+export ECS_CONTAINER_MNT_DIR="/var/enrichment-coordinator-service" # Mounted dir in the container
 
 export MR_EXTERNAL_PORT=3905                                    # MR stub container external port (host -> container)
 export MR_INTERNAL_PORT=3905                                    # MR stub container internal port (container -> container)
@@ -129,6 +133,7 @@ export CR_INTERNAL_PORT=8090                                    # Callback recei
 export CR_EXTERNAL_SECURE_PORT=8091                             # Callback receiver container external secure port (host -> container)
 export CR_INTERNAL_SECURE_PORT=8091                             # Callback receiver container internal secure port (container -> container)
 export CR_APP_NAME="callback-receiver"                          # Name for the Callback receiver
+export CR_APP_CALLBACK="/callbacks"                             # Url for callbacks
 
 export PROD_STUB_EXTERNAL_PORT=8092                             # Producer stub container external port (host -> container)
 export PROD_STUB_INTERNAL_PORT=8092                             # Producer stub container internal port (container -> container)
@@ -189,3 +194,8 @@ ECS_DMAAPBASE="http://localhost:"$MR_EXTERNAL_PORT              # Base url to th
 ECS_DMAAPBASE_SECURE="https://localhost:"$MR_EXTERNAL_SECURE_PORT   # Base url to the Dmaap adapter, https
 ECS_ADAPTER=$ECS_RESTBASE                                       # Adapter holds the address the ECS R-APP interface (REST OR DMAAP)
                                                                 # The values of this var is swiched between the four base url when needed
+
+CR_RESTBASE="http://localhost:"$CR_EXTERNAL_PORT                # Base url to the Callback receiver REST interface
+CR_RESTBASE_SECURE="https://localhost:"$CR_EXTERNAL_SECURE_PORT # Base url to the secure Callback receiver REST interface
+CR_ADAPTER=$CR_RESTBASE                                         # Adapter holds the address the CR admin interface (REST only)
+                                                                # The values of this var is swiched between the two base url when needed
