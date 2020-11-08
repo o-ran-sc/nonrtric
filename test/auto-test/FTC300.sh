@@ -22,6 +22,9 @@ TC_ONELINE_DESCR="Resync 10000 policies using OSC and STD interface"
 #App names to include in the test, space separated list
 INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
+#SUPPORTED TEST ENV FILE
+SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN"
+
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
@@ -44,7 +47,6 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "#####################################################################"
 
         if [ $__httpx == "HTTPS" ]; then
-            CR_PATH="https://$CR_APP_NAME:$CR_EXTERNAL_SECURE_PORT/callbacks"
             use_cr_https
             use_simulator_https
             use_mr_https
@@ -57,7 +59,6 @@ for __httpx in $TESTED_PROTOCOLS ; do
                 use_agent_rest_https
             fi
         else
-            CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
             use_cr_http
             use_simulator_http
             use_mr_http
@@ -124,10 +125,10 @@ for __httpx in $TESTED_PROTOCOLS ; do
         api_put_service 201 "serv1" 3600 "$CR_PATH/1"
 
         START_ID=2000
-        NUM_POLICIES=10000
+        NUM_POLICIES=10000  # Must be at least 100
 
         if [ "$PMS_VERSION" == "V2" ]; then
-            notificationurl="http://localhost:80"
+            notificationurl=$CR_PATH"/test"
         else
             notificationurl=""
         fi
@@ -184,6 +185,9 @@ for __httpx in $TESTED_PROTOCOLS ; do
         api_equal json:policies $(($NUM_POLICIES-2+$NUM_POLICIES-3))
 
         check_policy_agent_logs
+        if [[ $interface = *"SDNC"* ]]; then
+            check_sdnc_logs
+        fi
 
         store_logs          "${__httpx}__${interface}"
 

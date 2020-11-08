@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "STD QOS2 policy type",
+  "title": "STD_QOS2_0.1.0",
+  "type": "object",
+  "properties": {
+    "qosObjectives": {
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "priorityLevel": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "priorityLevel"
+      ]
+    },
+    "scope": {
+      "additionalProperties": false,
+      "type": "object",
+      "properties": {
+        "qosId": {
+          "type": "string"
+        },
+        "ueId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "ueId",
+        "qosId"
+      ]
+    }
+  }
+}

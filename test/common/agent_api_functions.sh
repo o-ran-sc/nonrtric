@@ -49,7 +49,7 @@ api_equal() {
 	return 1
 }
 
-# API Test function: GET /policies and V2 GET /v2/policy_instances
+# API Test function: GET /policies and V2 GET /v2/policy-instances
 # args: <response-code> <ric-id>|NORIC <service-id>|NOSERVICE <policy-type-id>|NOTYPE [ NOID | [<policy-id> <ric-id> <service-id> EMPTY|<policy-type-id> <template-file>]*]
 # args(V2): <response-code> <ric-id>|NORIC <service-id>|NOSERVICE <policy-type-id>|NOTYPE [ NOID | [<policy-id> <ric-id> <service-id> EMPTY|<policy-type-id> <transient> <notification-url> <template-file>]*]
 # (Function for test scripts)
@@ -110,7 +110,7 @@ api_get_policies() {
 			fi
 		fi
 
-		query="/v2/policy_instances"$queryparams
+		query="/v2/policy-instances"$queryparams
 		res="$(__do_curl_to_api PA GET $query)"
 		status=${res:${#res}-3}
 
@@ -134,7 +134,7 @@ api_get_policies() {
 					if [ "$targetJson" != "[" ]; then
 						targetJson=$targetJson","
 					fi
-					targetJson=$targetJson"{\"policy_id\":\"$UUID${arr[$i]}\",\"ric_id\":\"${arr[$i+1]}\",\"service_id\":\"${arr[$i+2]}\",\"policy_type_id\":"
+					targetJson=$targetJson"{\"policy_id\":\"$UUID${arr[$i]}\",\"ric_id\":\"${arr[$i+1]}\",\"service_id\":\"${arr[$i+2]}\",\"policytype_id\":"
 					if [ "${arr[$i+3]}" == "EMPTY" ]; then
 						targetJson=$targetJson"\"\","
 					else
@@ -282,9 +282,9 @@ api_get_policy() {
 				targetJson=$targetJson", \"transient\":$7"
 			fi
 			if [ $6 != "NOTYPE" ]; then
-				targetJson=$targetJson", \"policy_type_id\":\"$6\""
+				targetJson=$targetJson", \"policytype_id\":\"$6\""
 			else
-				targetJson=$targetJson", \"policy_type_id\":\"\""
+				targetJson=$targetJson", \"policytype_id\":\"\""
 			fi
 			if [ $8 != "NOURL" ]; then
 				targetJson=$targetJson", \"status_notification_uri\":\"$8\""
@@ -378,9 +378,9 @@ api_put_policy() {
 				inputJson=$inputJson", \"transient\":$trans"
 			fi
 			if [ $pt != "NOTYPE" ]; then
-				inputJson=$inputJson", \"policy_type_id\":$pt"
+				inputJson=$inputJson", \"policytype_id\":\"$pt\""
 			else
-				inputJson=$inputJson", \"policy_type_id\":\"\""
+				inputJson=$inputJson", \"policytype_id\":\"\""
 			fi
 			if [ $noti != "NOURL" ]; then
 				inputJson=$inputJson", \"status_notification_uri\":\"$noti\""
@@ -478,9 +478,9 @@ api_put_policy_batch() {
 				inputJson=$inputJson", \"transient\":$trans"
 			fi
 			if [ $pt != "NOTYPE" ]; then
-				inputJson=$inputJson", \"policy_type_id\":$pt"
+				inputJson=$inputJson", \"policytype_id\":$pt"
 			else
-				inputJson=$inputJson", \"policy_type_id\":\"\""
+				inputJson=$inputJson", \"policytype_id\":\"\""
 			fi
 			if [ $noti != "NOURL" ]; then
 				inputJson=$inputJson", \"status_notification_uri\":\"$noti\""
@@ -640,7 +640,7 @@ api_put_policy_parallel() {
 		else
 			res=${tmp:0:1}
 			if [ $res == "0" ]; then
-				echo " Process $i : OK"
+				echo " Process $i : OK - "${tmp:1}
 			else
 				echo " Process $i : failed - "${tmp:1}
 				msg="failed"
@@ -841,7 +841,7 @@ api_delete_policy_parallel() {
 		else
 			res=${tmp:0:1}
 			if [ $res == "0" ]; then
-				echo " Process $i : OK"
+				echo " Process $i : OK - "${tmp:1}
 			else
 				echo " Process $i : failed - "${tmp:1}
 				msg="failed"
@@ -1264,7 +1264,7 @@ api_get_policy_types() {
 
 		targetJson=$targetJson"]"
 		if [ "$PMS_VERSION" == "V2" ]; then
-			targetJson="{\"policy_type_ids\": $targetJson }"
+			targetJson="{\"policytype_ids\": $targetJson }"
 		fi
 		echo "TARGET JSON: $targetJson" >> $HTTPLOG
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")

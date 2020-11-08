@@ -40,6 +40,11 @@ __do_curl_to_api() {
             __RESTBASE=$ECS_RESTBASE
             __RESTBASE_SECURE=$ECS_RESTBASE_SECURE
             __RETRY_CODES=$ECS_RETRY_CODES
+		elif [ $1 == "CR" ]; then
+		    __ADAPTER=$CR_ADAPTER
+            __RESTBASE=$CR_RESTBASE
+            __RESTBASE_SECURE=$CR_RESTBASE_SECURE
+            __RETRY_CODES=""
         else
             paramError=1
         fi
@@ -97,7 +102,7 @@ __do_curl_to_api() {
 
     if [ $paramError -eq 1 ]; then
 		((RES_CONF_FAIL++))
-        echo "-Incorrect number of parameters to __do_curl_agent " $@ >> $HTTPLOG
+        echo "-Incorrect number of parameters to __do_curl_to_api " $@ >> $HTTPLOG
         echo "-Expected: (PA|ECS GET|PUT|POST|DELETE|GET_BATCH|PUT_BATCH|POST_BATCH|DELETE_BATCH <url> [<file>]) | (PA|ECS RESPONSE <correlation-id>)" >> $HTTPLOG
         echo "-Returning response 000" >> $HTTPLOG
         echo "-000"

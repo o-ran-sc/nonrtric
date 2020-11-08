@@ -16,7 +16,7 @@ The included functions are described in detail further below.
 Common functions for running two or more auto test scripts as a suite.
 
 `api_curl.sh` \
-A common curl based function for the agent and ecs apis.
+A common curl based function for the agent and ecs apis. Also partly used for the Callback receiver api.
 
 `agent_api_functions.sh` \
 Contains functions for adapting towards the Policy Agent API, also via dmaap (using a message-router stub interface)
@@ -54,6 +54,8 @@ A python script to extract the information from an sdnc (A1 Controller) reply js
 `do_curl_function.sh`
 A script for executing a curl call with a specific url and optional payload. It also compare the response with an expected result in terms of response code and optional returned payload. Intended to be used by test script (for example basic test scripts of other components)
 
+`cr_api_functions.sh` \
+Contains functions for adapting towards the Callback receiver for checking received callback event.
 
 
 # Description of functions in testcase_common.sh #
@@ -344,6 +346,12 @@ Start the ECS container.
 |--|
 | None |
 
+## Function: restart_ecs ##
+Restart the ECS container.
+| arg list |
+|--|
+| None |
+
 ## Function: use_ecs_rest_http ##
 Use http for all API calls to the ECS. This is the default protocol.
 | arg list |
@@ -414,21 +422,6 @@ Take a snap-shot of all logs for all running containers and stores them in `./lo
 | --------- | ----------- |
 | `<logfile-prefix>` | Log file prefix  |
 
-
-## Function: cr_equal ##
-Tests if a variable value in the Callback Receiver (CR) simulator is equal to a target value.
-Without the timeout, the test sets pass or fail immediately depending on if the variable is equal to the target or not.
-With the timeout, the test waits up to the timeout seconds before setting pass or fail depending on if the variable value becomes equal to the target value or not.
-See the 'cr' dir for more details.
-| arg list |
-|--|
-| `<variable-name> <target-value> [ <timeout-in-sec> ]` |
-
-| parameter | description |
-| --------- | ----------- |
-| `<variable-name>` | Variable name in the CR  |
-| `<target-value>` | Target value for the variable  |
-| `<timeout-in-sec>` | Max time to wait for the variable to reach the target value  |
 
 ## Function: mr_equal ##
 Tests if a variable value in the Message Router (MR) simulator is equal to a target value.
@@ -531,7 +524,7 @@ See the 'cr' dir for more details.
 | `<timeout-in-sec>` | Max time to wait for the length to reach the target value  |
 
 ## Function: api_get_policies() ##
-Test of GET '/policies' or V2 GET '/v2/policy_instances' and optional check of the array of returned policies.
+Test of GET '/policies' or V2 GET '/v2/policy-instances' and optional check of the array of returned policies.
 To test the response code only, provide the response code parameter as well as the following three parameters.
 To also test the response payload add the 'NOID' for an expected empty array or repeat the last five/seven parameters for each expected policy.
 
@@ -1477,6 +1470,39 @@ With the timeout, the test waits up to the timeout seconds before setting pass o
 | `<variable-name>` | Variable name in the prostub  |
 | `<target-value>` | Target value for the variable  |
 | `<timeout-in-sec>` | Max time to wait for the variable to reach the target value  |
+
+# Description of functions in cr_api_function.sh #
+
+
+
+## Function: cr_equal ##
+Tests if a variable value in the Callback Receiver (CR) simulator is equal to a target value.
+Without the timeout, the test sets pass or fail immediately depending on if the variable is equal to the target or not.
+With the timeout, the test waits up to the timeout seconds before setting pass or fail depending on if the variable value becomes equal to the target value or not.
+See the 'cr' dir for more details.
+| arg list |
+|--|
+| `<variable-name> <target-value> [ <timeout-in-sec> ]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<variable-name>` | Variable name in the CR  |
+| `<target-value>` | Target value for the variable  |
+| `<timeout-in-sec>` | Max time to wait for the variable to reach the target value  |
+
+## Function: cr_api_check_all_sync_events() ##
+Check the contents of all ric events received for a callback id.
+
+| arg list |
+|--|
+| `<response-code> <id> [ EMPTY | ( <ric-id> )+ ]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<id>` | Id of the callback destination  |
+| `EMPTY` | Indicator for an empty list  |
+| `<ric-id>` | Id of the ric  |
 
 
 ## License

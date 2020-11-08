@@ -22,6 +22,9 @@ TC_ONELINE_DESCR="Create/delete policies in parallel over a number of ric using 
 #App names to include in the test, space separated list
 INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
+#SUPPORTED TEST ENV FILE
+SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN"
+
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
@@ -43,7 +46,7 @@ NUM_POLICIES_PER_RIC=500
 generate_uuid
 
 if [ "$PMS_VERSION" == "V2" ]; then
-    notificationurl="http://localhost:80"
+    notificationurl=$CR_PATH"/test"
 else
     notificationurl=""
 fi
@@ -58,7 +61,6 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "#####################################################################"
 
         if [ $__httpx == "HTTPS" ]; then
-            CR_PATH="https://$CR_APP_NAME:$CR_EXTERNAL_SECURE_PORT/callbacks"
             use_cr_https
             use_simulator_https
             use_mr_https
@@ -67,7 +69,6 @@ for __httpx in $TESTED_PROTOCOLS ; do
             fi
             use_agent_rest_https
         else
-            CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
             use_cr_http
             use_simulator_http
             use_mr_http
@@ -94,6 +95,8 @@ for __httpx in $TESTED_PROTOCOLS ; do
         consul_config_app                  ".consul_config.json"
 
         start_mr # Not used, but removes error messages from the agent log
+
+        start_cr
 
         start_control_panel
 
@@ -171,6 +174,9 @@ for __httpx in $TESTED_PROTOCOLS ; do
         done
 
         check_policy_agent_logs
+        if [[ $interface = *"SDNC"* ]]; then
+            check_sdnc_logs
+        fi
 
         store_logs          "${__httpx}__${interface}"
 

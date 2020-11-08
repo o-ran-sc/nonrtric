@@ -23,16 +23,15 @@ TC_ONELINE_DESCR="Testing of service registration timeouts and keepalive"
 #App names to include in the test, space separated list
 INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM"
 
+#SUPPORTED TEST ENV FILE
+SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN"
+
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
+. ../common/cr_api_functions.sh
 
 generate_uuid
-
-#Local vars in test script
-##########################
-# Path to callback receiver
-CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
 
 use_cr_http
 use_simulator_http
@@ -65,8 +64,6 @@ start_policy_agent
 
 set_agent_debug
 
-#Verify no callbacks or dmaap messages has been sent
-cr_equal received_callbacks 0
 mr_equal requests_submitted 0
 
 #Check agent alive
@@ -178,7 +175,7 @@ else
 fi
 
 if [ "$PMS_VERSION" == "V2" ]; then
-    notificationurl="http://localhost:80"
+    notificationurl=$CR_PATH"/test"
 else
     notificationurl=""
 fi
@@ -218,9 +215,6 @@ sim_equal ricsim_g2_1 num_instances 0
 
 api_get_service_ids 200
 
-deviation "TR18 Agents sends callback with empty body"
-deviation "TR18 Unclear when callbacks are sent...."
-#cr_equal received_callbacks 8
 mr_equal requests_submitted 0
 
 check_policy_agent_logs

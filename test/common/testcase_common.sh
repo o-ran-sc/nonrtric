@@ -128,6 +128,17 @@ echo "" > $HTTPLOG
 # Create a log dir for the test case
 mkdir -p $TESTLOGS/$ATC
 
+# Save create for current logs
+mkdir -p $TESTLOGS/$ATC/previous
+
+rm $TESTLOGS/$ATC/previous/*.log &> /dev/null
+rm $TESTLOGS/$ATC/previous/*.txt &> /dev/null
+rm $TESTLOGS/$ATC/previous/*.json &> /dev/null
+
+mv  $TESTLOGS/$ATC/*.log $TESTLOGS/$ATC/previous &> /dev/null
+mv  $TESTLOGS/$ATC/*.txt $TESTLOGS/$ATC/previous &> /dev/null
+mv  $TESTLOGS/$ATC/*.txt $TESTLOGS/$ATC/previous &> /dev/null
+
 # Clear the log dir for the test case
 rm $TESTLOGS/$ATC/*.log &> /dev/null
 rm $TESTLOGS/$ATC/*.txt &> /dev/null
@@ -257,6 +268,18 @@ fi
 if [ -f "$TEST_ENV_VAR_FILE" ]; then
 	echo -e $BOLD"Sourcing env vars from: "$TEST_ENV_VAR_FILE$EBOLD
 	. $TEST_ENV_VAR_FILE
+
+	if [ -z "$TEST_ENV_PROFILE" ] || [ -z "$SUPPORTED_PROFILES" ]; then
+		echo -e $YELLOW"This test case may no work with selected test env file. TEST_ENV_PROFILE is missing in test_env file or SUPPORTED_PROFILES is missing in test case file"$EYELLOW
+	else
+		if [[ "$SUPPORTED_PROFILES" == *"$TEST_ENV_PROFILE"* ]]; then
+			echo -e $GREEN"Test case support the selected test env file"$EGREEN
+		else
+			echo -e $RED"Test case does not support the selected test env file"$ERED
+			echo -e $RED"Exiting...."$ERED
+			exit 1
+		fi
+	fi
 else
 	echo -e $RED"Selected env var file does not exist: "$TEST_ENV_VAR_FILE$ERED
 	echo " Select one of following env var file matching the intended target of the test"
@@ -290,6 +313,7 @@ export MR_LOCAL_PORT=$MR_EXTERNAL_PORT #When agent is running outside the docker
 export CR_HTTPX="http"
 export CR_PORT=$CR_INTERNAL_PORT
 export CR_LOCAL_PORT=$CR_EXTERNAL_PORT #When CR is running outside the docker net
+export CR_PATH="$CR_HTTPX://$CR_APP_NAME:$CR_PORT$CR_APP_CALLBACK"
 
 export PROD_STUB_HTTPX="http"
 export PROD_STUB_PORT=$PROD_STUB_INTERNAL_PORT
@@ -1154,7 +1178,8 @@ __check_container_start() {
 			((RES_CONF_FAIL++))
 			echo ""
 			echo -e $RED" Container $BOLD${appname}$EBOLD could not be started"$ERED
-			return 1
+			echo -e $RED" Stopping script..."$ERED
+			exit 1
 		fi
 		if [ $localport -eq 0 ]; then
 			while [ $localport -eq 0 ]; do
@@ -1189,7 +1214,7 @@ __check_container_start() {
 	 	else
 		 	TS_TMP=$SECONDS
 			while [ $(($TS_TMP+$i)) -gt $SECONDS ]; do
-				echo -ne " Waiting for container ${appname} service status...retrying in $(($TS_TMP+$i-$SECONDS)) seconds   ${SAMELINE}"
+				echo -ne " Waiting for container ${appname} service status...$(($SECONDS-$TSTART)) seconds, retrying in $(($TS_TMP+$i-$SECONDS)) seconds   ${SAMELINE}"
 				sleep 1
 			done
 	 	fi
@@ -1197,7 +1222,7 @@ __check_container_start() {
 
 	if [ "$pa_st" = "false"  ]; then
 		((RES_CONF_FAIL++))
-		echo -e $RED" Container ${appname} did not respond to service status"$ERED
+		echo -e $RED" Container ${appname} did not respond to service status in $(($SECONDS-$TSTART)) seconds"$ERED
 		return 0
 	fi
 
@@ -1228,6 +1253,8 @@ __start_container() {
 		if [ $? -ne 0 ]; then
 			echo -e $RED"Problem to launch container(s) with docker-compose"$ERED
 			cat .dockererr
+			echo -e $RED"Stopping script...."$ERED
+			exit 1
 		fi
 	elif [ "$2" == "STANDALONE" ]; then
 		echo "Skipping docker-compose"
@@ -1236,6 +1263,8 @@ __start_container() {
 		if [ $? -ne 0 ]; then
 			echo -e $RED"Problem to launch container(s) with docker-compose"$ERED
 			cat .dockererr
+			echo -e $RED"Stopping script...."$ERED
+			exit 1
 		fi
 	fi
 	app_prefix=""
@@ -1652,6 +1681,7 @@ use_cr_http() {
 	export CR_HTTPX="http"
 	export CR_PORT=$CR_INTERNAL_PORT
 	export CR_LOCAL_PORT=$CR_EXTERNAL_PORT
+	export CR_PATH="$CR_HTTPX://$CR_APP_NAME:$CR_PORT$CR_APP_CALLBACK"
 	echo ""
 }
 
@@ -1660,6 +1690,7 @@ use_cr_https() {
 	export CR_HTTPX="https"
 	export CR_PORT=$CR_INTERNAL_SECURE_PORT
 	export CR_LOCAL_PORT=$CR_EXTERNAL_SECURE_PORT
+	export CR_PATH="$CR_HTTPX://$CR_APP_NAME:$CR_PORT$CR_APP_CALLBACK"
 	echo ""
 }
 
@@ -1771,7 +1802,7 @@ use_agent_dmaap_http() {
 # args: -
 # (Function for test scripts)
 use_agent_dmaap_https() {
-	echo -e "Using $BOLD https $EBOLD and $BOLD REST $EBOLD towards the agent"
+	echo -e "Using $BOLD https $EBOLD and $BOLD DMAAP $EBOLD towards the agent"
 	export ADAPTER=$DMAAPBASE_SECURE
 	echo ""
 	return 0
@@ -1845,6 +1876,23 @@ start_ecs() {
 	fi
 	export ECS_CERT_MOUNT_DIR="./cert"
 	__start_container ecs NODOCKERARGS $ECS_APP_NAME $ECS_EXTERNAL_PORT "/status" "http"
+}
+
+# Restart ECS
+# args: -
+# (Function for test scripts)
+restart_ecs() {
+	docker restart $ECS_APP_NAME &> ./tmp/.dockererr
+	if [ $? -ne 0 ]; then
+		__print_err "Could restart $ECS_APP_NAME" $@
+		cat ./tmp/.dockererr
+		((RES_CONF_FAIL++))
+		return 1
+	fi
+
+	__check_container_start $ECS_APP_NAME $ECS_EXTERNAL_PORT "/status" "http"
+	echo ""
+	return 0
 }
 
 # All calls to ECS will be directed to the ECS REST interface from now on
@@ -2000,7 +2048,7 @@ store_logs() {
     	__print_err "need one arg, <file-prefix>" $@
 		exit 1
 	fi
-	echo -e $BOLD"Storing all container logs using prefix: "$1$EBOLD
+	echo -e $BOLD"Storing all container logs in $TESTLOGS/$ATC using prefix: "$1$EBOLD
 
 	docker stats --no-stream > $TESTLOGS/$ATC/$1_docker_stats.log 2>&1
 
@@ -2225,22 +2273,6 @@ __var_test() {
 
 
 ### Generic test cases for varaible checking
-
-# Tests if a variable value in the CR is equal to a target value and and optional timeout.
-# Arg: <variable-name> <target-value> - This test set pass or fail depending on if the variable is
-# equal to the target or not.
-# Arg: <variable-name> <target-value> <timeout-in-sec>  - This test waits up to the timeout seconds
-# before setting pass or fail depending on if the variable value becomes equal to the target
-# value or not.
-# (Function for test scripts)
-cr_equal() {
-	if [ $# -eq 2 ] || [ $# -eq 3 ]; then
-		__var_test "CR" "$LOCALHOST$CR_EXTERNAL_PORT/counter/" $1 "=" $2 $3
-	else
-		((RES_CONF_FAIL++))
-		__print_err "Wrong args to cr_equal, needs two or three args: <sim-param> <target-value> [ timeout ]" $@
-	fi
-}
 
 # Tests if a variable value in the MR stub is equal to a target value and and optional timeout.
 # Arg: <variable-name> <target-value> - This test set pass or fail depending on if the variable is

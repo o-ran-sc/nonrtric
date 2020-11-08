@@ -21,12 +21,15 @@
 TC_ONELINE_DESCR="Resync of RIC via changes in the consul config"
 
 #App names to include in the test, space separated list
-INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
+INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM"
+
+#SUPPORTED TEST ENV FILE
+SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
-. ../common/controller_api_functions.sh
+. ../common/cr_api_functions.sh
 
 #### TEST BEGIN ####
 
@@ -34,6 +37,14 @@ generate_uuid
 
 # Clean container and start all needed containers #
 clean_containers
+
+start_policy_agent
+
+set_agent_trace
+
+# Create service to be able to receive events when rics becomes available
+# Must use rest towards the agent since dmaap is not configured yet
+api_put_service 201 "ric-registration" 0 "$CR_PATH/ric-registration"
 
 # Start one RIC of each type
 start_ric_simulators ricsim_g1 1  OSC_2.1.0
@@ -48,20 +59,21 @@ start_cr
 
 start_consul_cbs
 
+start_control_panel
+
 prepare_consul_config      NOSDNC  ".consul_config.json"
 
 consul_config_app                  ".consul_config.json"
 
-start_control_panel
-
-start_policy_agent
-
 if [ "$PMS_VERSION" == "V2" ]; then
     api_equal json:rics 3 120
+
+    cr_equal received_callbacks 3 120
+
+    cr_api_check_all_sync_events 200 ric-registration ricsim_g1_1 ricsim_g2_1 ricsim_g3_1
 else
     api_equal json:rics 2 120
 fi
-
 
 # Add an STD RIC and check
 start_ric_simulators ricsim_g2 2  STD_1.1.3
@@ -72,6 +84,10 @@ consul_config_app                  ".consul_config.json"
 
 if [ "$PMS_VERSION" == "V2" ]; then
     api_equal json:rics 4 120
+
+    cr_equal received_callbacks 4 120
+
+    cr_api_check_all_sync_events 200 ric-registration ricsim_g2_2
 else
     api_equal json:rics 3 120
 fi
@@ -88,6 +104,8 @@ consul_config_app                  ".consul_config.json"
 
 if [ "$PMS_VERSION" == "V2" ]; then
     api_equal json:rics 3 120
+
+    cr_equal received_callbacks 4 120
 else
     api_equal json:rics 2 120
 fi

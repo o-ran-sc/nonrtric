@@ -22,17 +22,14 @@ TC_ONELINE_DESCR="Preparation for test of the Control Panel and the Health Check
 #App names to include in the test, space separated list
 INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM"
 
+#SUPPORTED TEST ENV FILE
+SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN"
+
 . ../common/testcase_common.sh $@
 . ../common/agent_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
 
 #### TEST BEGIN ####
-
-#Local vars in test script
-##########################
-# Path to callback receiver
-CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
-use_cr_http
 
 clean_containers
 
@@ -124,7 +121,7 @@ use_agent_rest_http
 api_put_service 201 "Emergency-response-app" 0 "$CR_PATH/1"
 
 if [ "$PMS_VERSION" == "V2" ]; then
-    notificationurl="http://localhost:80"
+    notificationurl=$CR_PATH"/test"
 else
     notificationurl=""
 fi
