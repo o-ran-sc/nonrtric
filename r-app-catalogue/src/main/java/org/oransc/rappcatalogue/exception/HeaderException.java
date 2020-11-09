@@ -22,8 +22,9 @@ public class HeaderException extends RuntimeException {
 
     private static final long serialVersionUID = -7798178963078284655L;
 
-    public HeaderException(String header, Exception cause) {
-        super(String.format("Unable to set header %s in response. Cause: %s", header, cause.getMessage()));
+    public HeaderException(String header, String serviceName, Exception cause) {
+        super(String.format("Unable to set header %s in put response for service %s. Cause: %s", header, serviceName,
+            cause.getMessage()));
     }
 
 }

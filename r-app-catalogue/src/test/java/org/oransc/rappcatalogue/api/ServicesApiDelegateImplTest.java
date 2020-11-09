@@ -155,7 +155,7 @@ class ServicesApiDelegateImplTest {
     }
 
     @Test
-    void putServiceWhenIoException_shouldThrowExceptionAndNoServiceCreated() throws Exception {
+    void putServiceWhenIoExceptionAddingHeader_shouldThrowExceptionAndNoServiceCreated() throws Exception {
         ServicesApiDelegateImpl delegateUnderTest = new ServicesApiDelegateImpl(webRequestMock);
 
         whenGetRequestUrlThenReturnUrl();
@@ -172,7 +172,8 @@ class ServicesApiDelegateImplTest {
             delegateUnderTest.putIndividualService(SERVICE_NAME, service);
         });
 
-        assertThat(exception.getMessage()).isEqualTo("Unable to set header Location in response. Cause: Error");
+        assertThat(exception.getMessage())
+            .isEqualTo("Unable to set header Location in put response for service " + SERVICE_NAME + ". Cause: Error");
 
         ResponseEntity<List<Service>> response = delegateUnderTest.getServices();
         assertThat(response.getBody()).isEmpty();
@@ -206,7 +207,7 @@ class ServicesApiDelegateImplTest {
         assertThat(services).hasSize(2);
         List<String> expectedServiceNames = Arrays.asList(serviceName1, serviceName2);
         assertThat(expectedServiceNames).contains(services.get(0).getName()) //
-                                        .contains(services.get(1).getName());
+            .contains(services.get(1).getName());
     }
 
     @Test

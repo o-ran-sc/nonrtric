@@ -98,10 +98,11 @@ public class ServicesApiDelegateImpl implements ServicesApiDelegate {
                 nativeResponse.addHeader(LOCATION_HEADER, requestURL.toString());
                 nativeResponse.getWriter().print("");
             } else {
-                throw new HeaderException(LOCATION_HEADER, new Exception("Native Request or Response missing"));
+                throw new HeaderException(LOCATION_HEADER, serviceName,
+                    new Exception("Native Request or Response missing"));
             }
         } catch (IOException e) {
-            throw new HeaderException(LOCATION_HEADER, e);
+            throw new HeaderException(LOCATION_HEADER, serviceName, e);
         }
     }
 

@@ -64,13 +64,15 @@ class GeneralRappCatalogueControllerAdvisorTest {
     void handleHeaderException_shouldReturnInternalServerErrorWithMessage() {
         GeneralRappCatalogueControllerAdvisor advisorUnderTest = new GeneralRappCatalogueControllerAdvisor();
 
-        HeaderException exception = new HeaderException("Header", new Exception("Cause"));
+        String serviceName = "Service";
+        HeaderException exception = new HeaderException("Header", serviceName, new Exception("Cause"));
 
         ResponseEntity<Object> response = advisorUnderTest.handleHeaderException(exception);
 
         assertThat(response.getStatusCode()).isEqualTo(INTERNAL_SERVER_ERROR);
         ErrorInformation body = (ErrorInformation) response.getBody();
         assertThat(body.getStatus()).isEqualTo(INTERNAL_SERVER_ERROR.value());
-        assertThat(body.getDetail()).isEqualTo("Unable to set header Header in response. Cause: Cause");
+        assertThat(body.getDetail())
+            .isEqualTo("Unable to set header Header in put response for service " + serviceName + ". Cause: Cause");
     }
 }
