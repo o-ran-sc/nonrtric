@@ -22,7 +22,7 @@ networks:
 
 services:
   policy-agent:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-policy-agent:2.1.0
+    image: nexus3.onap.org:10003/onap/ccsdk-oran-a1policymanagementservice:1.1.0-SNAPSHOT
     container_name: policy-agent
     networks:
       default:
@@ -40,7 +40,7 @@ services:
     #  - ./config/application-policyagent.yaml:/opt/app/policy-agent/config/application.yaml:ro
 
   a1-sim-OSC:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/a1-simulator:2.0.0
+    image: nexus3.o-ran-sc.org:10004/o-ran-sc/a1-simulator:2.1.0
     container_name: a1-sim-OSC
     networks:
       - default
@@ -53,7 +53,7 @@ services:
       - ALLOW_HTTP=true
 
   a1-sim-STD:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/a1-simulator:2.0.0
+    image: nexus3.o-ran-sc.org:10004/o-ran-sc/a1-simulator:2.1.0
     container_name: a1-sim-STD
     networks:
       - default
@@ -65,8 +65,21 @@ services:
       - REMOTE_HOSTS_LOGGING=1
       - ALLOW_HTTP=true
 
+  a1-sim-STD-v2:
+    image: nexus3.o-ran-sc.org:10004/o-ran-sc/a1-simulator:2.1.0
+    container_name: a1-sim-STD-v2
+    networks:
+      - default
+    ports:
+      - 30005:8085
+      - 30006:8185
+    environment:
+      - A1_VERSION=STD_2.0.0
+      - REMOTE_HOSTS_LOGGING=1
+      - ALLOW_HTTP=true
+
   policy-control-panel:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-controlpanel:2.0.0
+    image: o-ran-sc/nonrtric-controlpanel:2.0.0-SNAPSHOT
     container_name: policy-control-panel
     networks:
       - default
