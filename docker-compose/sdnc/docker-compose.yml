@@ -38,7 +38,7 @@ services:
         max-file: "5"
 
   a1-controller:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-a1-controller:2.1.0
+    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-a1-controller:2.0.1
     depends_on :
       - db
     container_name: a1-controller
@@ -54,7 +54,9 @@ services:
       - db:sdnctldb02
     environment:
       - MYSQL_ROOT_PASSWORD=openECOMP1.0
+      - SDNC_DB_INIT=true
       - SDNC_CONFIG_DIR=/opt/onap/sdnc/data/properties
+      - A1_TRUSTSTORE_PASSWORD=a1adapter
     # For using own certs instead of the default ones (built into the container),
     # place them in config/ directory, update the https-props-a1controller.properties file, and uncomment the following lines
     #volumes:
