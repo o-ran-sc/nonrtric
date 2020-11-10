@@ -22,7 +22,7 @@ networks:
 
 services:
   policy-agent:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-policy-agent:2.2.0
+    image: nexus3.onap.org:10003/onap/ccsdk-oran-a1policymanagementservice:1.1.1-SNAPSHOT
     container_name: policy-agent
     networks:
       default:

@@ -1,0 +1,5 @@
+{
+    "callback_url": "http://callback-receiver:8090/callbacks/ric-registration",
+    "keep_alive_interval_seconds": "0",
+    "service_id": "ric-registration"
+}
