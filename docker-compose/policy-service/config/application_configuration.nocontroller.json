@@ -1,6 +1,5 @@
 {
     "config":{
-       "//description":"Application configuration",
        "ric":[
           {
              "name":"ric1",
@@ -11,12 +10,20 @@
              ]
           },
           {
-             "name":"ric2",
-             "baseUrl":"https://a1-sim-STD:8185/",
-             "managedElementIds":[
-                "kista_1",
-                "kista_2"
-             ]
+            "name":"ric2",
+            "baseUrl":"https://a1-sim-STD:8185/",
+            "managedElementIds":[
+               "kista_1",
+               "kista_2"
+            ]
+          },
+          {
+            "name":"ric3",
+            "baseUrl":"https://a1-sim-STD-v2:8185/",
+            "managedElementIds":[
+               "kista_1",
+               "kista_2"
+            ]
           }
        ],
        "streams_publishes":{

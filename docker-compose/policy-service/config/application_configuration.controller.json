@@ -1,13 +1,12 @@
 {
     "config":{
-       "//description":"Application configuration",
-       "controller": [
-         {
-           "name": "controller1",
-           "baseUrl": "",
-           "userName": "",
-           "password": ""
-         }
+        "controller": [
+            {
+              "name": "controller1",
+              "baseUrl": "https://a1-controller:8443",
+              "userName": "admin",
+              "password": "Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U"
+            }
        ],
        "ric":[
           {
@@ -20,8 +19,17 @@
              ]
           },
           {
-             "name":"ric2",
-             "baseUrl":"https://a1-sim-STD:8185/",
+            "name":"ric2",
+            "baseUrl":"https://a1-sim-STD:8185/",
+            "controller": "controller1",
+            "managedElementIds":[
+               "kista_1",
+               "kista_2"
+            ]
+          },
+          {
+             "name":"ric3",
+             "baseUrl":"https://a1-sim-STD-v2:8185/",
              "controller": "controller1",
              "managedElementIds":[
                 "kista_1",
