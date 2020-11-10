@@ -25,18 +25,16 @@
 # one policy in a1-sim-STD
 
 # Run command:
-# ./preparePmsData.sh [policy-agent port] [a1-sim-OSC port] [a1-sim-STD port] [a1-sim-STD-v2 port] [http/https]
+# ./fill_data.sh [policy-agent port] [a1-sim-OSC port] [a1-sim-STD port] [http/https]
 
 policy_agent_port=${1:-8081}
 a1_sim_OSC_port=${2:-30001}
-a1_sim_STD_port=${3:-30003}
-a1_sim_STD_v2_port=${4:-30005}
-httpx=${5:-"http"}
+a1_sim_STD_port=${3:-30005}
+httpx=${4:-"http"}
 
 echo "using policy_agent port: "$policy_agent_port
 echo "using a1-sim-OSC port: "$a1_sim_OSC_port
 echo "using a1-sim-STD port: "$a1_sim_STD_port
-echo "using a1-sim-STD-v2 port: "$a1_sim_STD_v2_port
 echo "using protocol: "$httpx
 echo -e "\n"
 
@@ -52,24 +50,20 @@ echo "ric2 version:"
 curl -skw " %{http_code}" $httpx://localhost:$a1_sim_STD_port/counter/interface
 echo -e "\n"
 
-echo "ric3 version:"
-curl -skw " %{http_code}" $httpx://localhost:$a1_sim_STD_v2_port/counter/interface
-echo -e "\n"
-
 echo "create policy type 1 to ric1:"
 curl -X PUT -skw " %{http_code}" $httpx://localhost:$a1_sim_OSC_port/policytype?id=1 -H Content-Type:application/json --data-binary @testdata/OSC/policy_type.json
 echo -e "\n"
 
-echo "create policy type 2 to ric3:"
-curl -skw " %{http_code}" $httpx://localhost:$a1_sim_STD_v2_port/policytype?id=2 -X PUT -H Accept:application/json -H Content-Type:application/json -H X-Requested-With:XMLHttpRequest --data-binary @testdata/v2/policy_type.json
+echo "create policy type 2 to ric2:"
+curl -skw " %{http_code}" $httpx://localhost:$a1_sim_STD_port/policytype?id=2 -X PUT -H Accept:application/json -H Content-Type:application/json -H X-Requested-With:XMLHttpRequest --data-binary @testdata/v2/policy_type.json
 echo -e "\n"
 
 for i in {1..12}; do
 	echo "policy types from policy agent:"
-    curlString="curl -skw %{http_code} $httpx://localhost:$policy_agent_port/policy_types"
+    curlString="curl -skw %{http_code} $httpx://localhost:$policy_agent_port/v2/policy-types"
     res=$($curlString)
     echo "$res"
-    expect="[\"\",\"1\",\"2\"]200"
+    expect="{\"policytype_ids\":[\"1\",\"2\"]}200"
     if [ "$res" == "$expect" ]; then
         echo -e "\n"
         break;
@@ -78,35 +72,6 @@ for i in {1..12}; do
     fi
 done
 
-echo "create service 1 to policy agent:"
-curl -k -X PUT -sw " %{http_code}" -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$policy_agent_port/service" --data-binary @testdata/service.json
-echo -e "\n"
-
-echo "create policy 2000 to ric1 with type1 and service1 via policy agent:"
-curl -k -X PUT -sw " %{http_code}" -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$policy_agent_port/policy?id=2000&ric=ric1&service=service1&type=1" --data-binary @testdata/policy.json
-echo -e "\n"
-
-echo "policy numbers from ric1:"
-curl -skw " %{http_code}" $httpx://localhost:$a1_sim_OSC_port/counter/num_instances
-echo -e "\n"
-
-echo "create policy 2100 to ric2 with service1 via policy agent, no type:"
-curl -k -X PUT -sw " %{http_code}" -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$policy_agent_port/policy?id=2100&ric=ric2&service=service1" --data-binary @testdata/policy.json
-echo -e "\n"
-
-echo "policy numbers from ric2:"
-curl -skw " %{http_code}" $httpx://localhost:$a1_sim_STD_port/counter/num_instances
-echo -e "\n"
-
-echo "policy id 2000 from policy agent:"
-curl -k -X GET -sw " %{http_code}" $httpx://localhost:$policy_agent_port/policy?id=2000
-echo -e "\n"
-
-echo "policy id 2100 from policy agent:"
-curl -k -X GET -sw " %{http_code}" $httpx://localhost:$policy_agent_port/policy?id=2100
-echo -e "\n"
-
-#####
 echo "create service ric-registration to policy agent:"
 curl -k -X PUT -sw " %{http_code}" -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$policy_agent_port/v2/services" --data-binary @testdata/v2/service.json
 echo -e "\n"
@@ -119,12 +84,12 @@ echo "policy numbers from ric1:"
 curl -skw " %{http_code}" $httpx://localhost:$a1_sim_OSC_port/counter/num_instances
 echo -e "\n"
 
-echo "create policy aa8feaa88d944d919ef0e83f2172a5100 to ric3 with type 2 and service ric-registration via policy agent:"
+echo "create policy aa8feaa88d944d919ef0e83f2172a5100 to ric2 with service1 via policy agent, no type:"
 curl -k -X PUT -sw " %{http_code}" -H accept:application/json -H Content-Type:application/json "$httpx://localhost:$policy_agent_port/v2/policies" --data-binary @testdata/v2/policy_std_v2.json
 echo -e "\n"
 
-echo "policy numbers from ric3:"
-curl -skw " %{http_code}" $httpx://localhost:$a1_sim_STD_v2_port/counter/num_instances
+echo "policy numbers from ric2:"
+curl -skw " %{http_code}" $httpx://localhost:$a1_sim_STD_port/counter/num_instances
 echo -e "\n"
 
 echo "policy id aa8feaa88d944d919ef0e83f2172a5000 from policy agent:"
