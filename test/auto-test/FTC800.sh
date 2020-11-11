@@ -22,9 +22,13 @@ TC_ONELINE_DESCR="Create 10000 policies in sequence using http/https and Agent R
 #App names to include in the test, space separated list
 INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
+#SUPPORTED TEST ENV FILE
+SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN"
+
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
+. ../common/cr_api_functions.sh
 
 #### TEST BEGIN ####
 
@@ -50,15 +54,11 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "#####################################################################"
 
         if [ $__httpx == "HTTPS" ]; then
-            # Path to callback receiver
-            CR_PATH="https://$CR_APP_NAME:$CR_EXTERNAL_SECURE_PORT/callbacks"
             use_cr_https
             use_simulator_https
             use_mr_https
             use_agent_rest_https
         else
-            # Path to callback receiver
-            CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
             use_cr_http
             use_simulator_http
             use_mr_http
@@ -97,7 +97,6 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         set_agent_debug
 
-        cr_equal received_callbacks 0
         mr_equal requests_submitted 0
 
 
@@ -117,7 +116,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         api_put_service 201 "serv1" 3600 "$CR_PATH/1"
 
         if [ "$PMS_VERSION" == "V2" ]; then
-            notificationurl="http://localhost:80"
+            notificationurl=$CR_PATH"/test"
         else
             notificationurl=""
         fi
@@ -191,6 +190,9 @@ for __httpx in $TESTED_PROTOCOLS ; do
         fi
 
         check_policy_agent_logs
+        if [[ $interface = *"SDNC"* ]]; then
+            check_sdnc_logs
+        fi
 
         store_logs          "${__httpx}__${interface}"
     done

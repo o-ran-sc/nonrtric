@@ -24,6 +24,7 @@ import json
 import sys
 import requests
 import traceback
+from time import sleep
 
 # disable warning about unverified https requests
 from requests.packages import urllib3
@@ -79,52 +80,68 @@ try:
         start=start
         stop=count*num_rics+start
 
+        total_retry_count=0
+
         for i in range(start,stop):
             if (i%pids == (pid_id-1)):
                 payload=template.replace("XXX",str(i))
                 ric_id=(i%num_rics)+1
                 ric=ric_base+str(ric_id)
 
-                try:
-                    headers = {'Content-type': 'application/json'}
-                    if ("/v2/" in baseurl):
-                        url=baseurl
+                retry_cnt=5
+                while(retry_cnt>0):
+                    try:
+                        headers = {'Content-type': 'application/json'}
+                        if ("/v2/" in baseurl):
+                            url=baseurl
 
-                        data={}
-                        data["ric_id"]=ric
-                        data["policy_id"]=uuid+str(i)
-                        data["service_id"]=serv
-                        if (trans != "NOTRANSIENT"):
-                            data["transient"]=trans
-                        if (pt != "NOTYPE"):
-                            data["policy_type_id"]=pt
+                            data={}
+                            data["ric_id"]=ric
+                            data["policy_id"]=uuid+str(i)
+                            data["service_id"]=serv
+                            if (trans != "NOTRANSIENT"):
+                                data["transient"]=trans
+                            if (pt != "NOTYPE"):
+                                data["policytype_id"]=pt
+                            else:
+                                data["policytype_id"]=""
+                            if (noti != "NOURL"):
+                                data["status_notification_uri"]=noti
+                            data["policy_data"]=json.loads(payload)
+
+                            url_out=url
+                            data_out=json.dumps(data)
                         else:
-                            data["policy_type_id"]=""
-                        if (noti != "NOURL"):
-                            data["status_notification_uri"]=noti
-                        data["policy_data"]=json.loads(payload)
+                            url=baseurl+"&id="+uuid+str(i)+"&ric="+str(ric)
+                            url_out=url
+                            data_out=json.dumps(json.loads(payload))
 
-                        url_out=url
-                        data_out=json.dumps(data)
                         resp=requests.put(url, data_out, headers=headers, verify=False, timeout=90)
+                    except Exception as e1:
+                        print("1Put failed for id:"+uuid+str(i)+ ", "+str(e1) + " "+traceback.format_exc())
+                        sys.exit()
+
+                    if (resp.status_code == None):
+                        print("1Put failed for id:"+uuid+str(i)+ ", expected response code: "+str(responsecode)+", got: None")
+                        sys.exit()
+
+                    if (resp.status_code != responsecode):
+                        if (resp.status_code == 503 ) and (retry_cnt > 1):
+                            sleep(0.1)
+                            retry_cnt -= 1
+                            total_retry_count += 1
+                        else:
+                            print("1Put failed for id:"+uuid+str(i)+ ", expected response code: "+str(responsecode)+", got: "+str(resp.status_code))
+                            print(url_out)
+                            print(str(data_out))
+                            sys.exit()
                     else:
-                        url=baseurl+"&id="+uuid+str(i)+"&ric="+str(ric)
-                        url_out=url
-                        data_out=json.dumps(json.loads(payload))
-                        resp=requests.put(url, data_out, headers=headers, verify=False, timeout=90)
-                except Exception as e1:
-                    print("1Put failed for id:"+uuid+str(i)+ ", "+str(e1) + " "+traceback.format_exc())
-                    sys.exit()
-                if (resp.status_code == None):
-                    print("1Put failed for id:"+uuid+str(i)+ ", expected response code: "+str(responsecode)+", got: None")
-                    sys.exit()
-                if (resp.status_code != responsecode):
-                    print("1Put failed for id:"+uuid+str(i)+ ", expected response code: "+str(responsecode)+", got: "+str(resp.status_code))
-                    print(url_out)
-                    print(str(data_out))
-                    sys.exit()
+                        retry_cnt=-1
 
-    print("0")
+    if (total_retry_count > 0):
+        print("0 retries:"+str(total_retry_count))
+    else:
+        print("0")
     sys.exit()
 
 except Exception as e:

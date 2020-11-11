@@ -23,9 +23,13 @@ TC_ONELINE_DESCR="Sanity test, create service and then create,update and delete 
 #App names to include in the test, space separated list
 INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
+#SUPPORTED TEST ENV FILE
+SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN"
+
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
+. ../common/cr_api_functions.sh
 
 #### TEST BEGIN ####
 
@@ -45,9 +49,24 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "#####################################################################"
         echo "#####################################################################"
 
+        # Clean container and start all needed containers #
+        clean_containers
 
         if [ $__httpx == "HTTPS" ]; then
-            CR_PATH="https://$CR_APP_NAME:$CR_EXTERNAL_SECURE_PORT/callbacks"
+            use_agent_rest_https
+        else
+            use_agent_rest_http
+        fi
+
+        start_policy_agent
+
+        set_agent_trace
+
+        # Create service to be able to receive events when rics becomes available
+        # Must use rest towards the agent since dmaap is not configured yet
+        api_put_service 201 "ric-registration" 0 "$CR_PATH/ric-registration"
+
+        if [ $__httpx == "HTTPS" ]; then
             use_cr_https
             use_simulator_https
             use_mr_https
@@ -60,7 +79,6 @@ for __httpx in $TESTED_PROTOCOLS ; do
                 use_agent_rest_https
             fi
         else
-            CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
             use_cr_http
             use_simulator_http
             use_mr_http
@@ -74,9 +92,6 @@ for __httpx in $TESTED_PROTOCOLS ; do
             fi
         fi
 
-        # Clean container and start all needed containers #
-        clean_containers
-
         start_ric_simulators ricsim_g1 1  OSC_2.1.0
         start_ric_simulators ricsim_g2 1  STD_1.1.3
         if [ "$PMS_VERSION" == "V2" ]; then
@@ -86,6 +101,8 @@ for __httpx in $TESTED_PROTOCOLS ; do
         start_mr
 
         start_cr
+
+        start_control_panel
 
         start_consul_cbs
 
@@ -98,14 +115,6 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         consul_config_app                      ".consul_config.json"
 
-        start_control_panel
-
-        start_policy_agent
-
-        set_agent_debug
-        set_agent_trace
-
-        cr_equal received_callbacks 0
         mr_equal requests_submitted 0
 
         sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
@@ -113,13 +122,16 @@ for __httpx in $TESTED_PROTOCOLS ; do
         if [ "$PMS_VERSION" == "V2" ]; then
             api_equal json:rics 3 60
 
-            #api_equal json:policy_schemas 2 120
-
             api_equal json:policy-types 2 120
 
             api_equal json:policies 0
 
-            api_equal json:policy_instances 0
+            api_equal json:policy-instances 0
+
+            cr_equal received_callbacks 3 120
+
+            cr_api_check_all_sync_events 200 ric-registration ricsim_g1_1 ricsim_g2_1 ricsim_g3_1
+
         else
             api_equal json:rics 2 60
 
@@ -144,7 +156,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         api_put_service 201 "serv1" 1000 "$CR_PATH/1"
 
-        api_get_service_ids 200 "serv1"
+        api_get_service_ids 200 "serv1" "ric-registration"
 
         api_put_services_keepalive 200 "serv1"
 
@@ -163,7 +175,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "############################################"
 
         if [ "$PMS_VERSION" == "V2" ]; then
-            notificationurl="http://localhost:80"
+            notificationurl=$CR_PATH"/test"
         else
             notificationurl=""
         fi
@@ -180,14 +192,16 @@ for __httpx in $TESTED_PROTOCOLS ; do
         if [ "$PMS_VERSION" == "V2" ]; then
             api_equal json:policies 0
 
-            api_equal json:policy_instances 0
+            api_equal json:policy-instances 0
         else
             api_equal json:policies 0
 
             api_equal json:policy_ids 0
         fi
 
-        cr_equal received_callbacks 0
+        if [ "$PMS_VERSION" == "V2" ]; then
+            cr_equal received_callbacks 3
+        fi
 
         if [[ $interface = *"DMAAP"* ]]; then
             VAL=11 # Number of Agent API calls over DMAAP
@@ -216,6 +230,10 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         check_policy_agent_logs
         check_control_panel_logs
+
+        if [[ $interface = *"SDNC"* ]]; then
+            check_sdnc_logs
+        fi
 
         store_logs          "${__httpx}__${interface}"
 

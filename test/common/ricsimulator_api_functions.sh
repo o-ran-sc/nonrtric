@@ -30,6 +30,7 @@ __execute_curl_to_sim() {
 	echo " RESP: $res" >> $HTTPLOG
 	retcode=$?
     if [ $retcode -ne 0 ]; then
+		((RES_CONF_FAIL++))
 		echo " RETCODE: "$retcode
         echo -e $RED" FAIL - fatal error when executing curl."$ERED
         return 1
@@ -40,6 +41,7 @@ __execute_curl_to_sim() {
         return 0
     fi
     echo -e $RED" FAIL - expected http response: "$1" but got http response: "$status $ERED
+	((RES_CONF_FAIL++))
     return 1
 }
 
@@ -119,7 +121,7 @@ sim_put_policy_type() {
 	return $?
 }
 
-# DSimulator API: Delete a policy type in a ric
+# Simulator API: Delete a policy type in a ric
 # <response-code> <ric-id> <policy-type-id>
 # (Function for test scripts)
 sim_delete_policy_type() {

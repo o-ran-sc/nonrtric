@@ -22,6 +22,9 @@ TC_ONELINE_DESCR="Basic use case, register service, create/update policy, delete
 #App names to include in the test, space separated list
 INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM"
 
+#SUPPORTED TEST ENV FILE
+SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN ORAN-MASTER"
+
 . ../common/testcase_common.sh $@
 . ../common/agent_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
@@ -30,12 +33,6 @@ INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM"
 
 generate_uuid
 
-#Local vars in test script
-##########################
-# Path to callback receiver
-CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
-
-use_cr_http
 use_simulator_http
 use_mr_http
 use_agent_rest_http
@@ -52,8 +49,6 @@ if [ "$PMS_VERSION" == "V2" ]; then
 fi
 
 start_mr
-
-start_cr
 
 start_consul_cbs
 
@@ -89,7 +84,7 @@ fi
 # Create policies
 
 if [ "$PMS_VERSION" == "V2" ]; then
-    notificationurl="http://localhost:80"
+    notificationurl=$CR_PATH"/test"
 else
     notificationurl=""
 fi
@@ -206,8 +201,6 @@ use_agent_dmaap_http
 api_delete_services 204 "service1"
 
 api_get_services 404 "service1"
-
-
 
 check_policy_agent_logs
 

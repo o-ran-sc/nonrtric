@@ -2,7 +2,7 @@
 
 The callback receiver is intended for function tests to simulate a RAPP.
 The callback receiver exposes the read and write urls, used by the agent, as configured in service.
-The callback receiver receives notifications from PMS when synchronization happens between PMS and RICs.
+The callback receiver receives notifications from PMS when synchronization happens between PMS and RICs. However, the callback receiver can be uses to receive any json payload from any source.
 
 # Ports and certificates
 
@@ -24,14 +24,30 @@ The following REST operations are available:
 
 >Send a message to CR<br>
 This method puts a request message from PMS to notify that sychronization between PMS and certain RIC happens.<br>
-```URI and payload, (PUT or POST): /callbacks/<id> <json array of response messages>```<br><br>
+```URI and payload, (PUT or POST): /callbacks/<id> <json messages>```<br>
 ```response: OK 200 or 500 for other errors```
+
+>Fetch one message for an id from CR<br>
+This method fetches the oldes message for an id, and removes the message.<br>
+```URI and payload, (GET): /get-event/<id>```<br>
+```response:  <json messages> 200 or 500 for other errors```
+
+>Fetch all messages for an id from CR<br>
+This method fetches all message in an array for an id, and removes all messages.<br>
+```URI and payload, (GET): /get-all-events/<id>```<br>
+```response:  <json array of json messages> 200 or 500 for other errors```
+
+>Dump all currently wating callback messages in CR<br>
+This method fetches all message in an array for an id. Messages are left intact in the CR.<br>
+```URI and payload, (GET): /db```<br>
+```response:  <json> 200```
 
 >Metrics - counters<br>
 There are a number of counters that can be read to monitor the message processing. Do a http GET on any of the current counters and an integer value will be returned with http response code 200.
 ```/counter/received_callbacks``` - The total number of received callbacks<br>
 ```/counter/fetched_callbacks``` - The total number of fetched callbacks<br>
 ```/counter/current_messages``` - The current number of callback messages waiting to be fetched<br>
+All counters also support the query parameter "id" to fetch counter for one individual id, eg ```/counter/current_messages?id=my-id```
 
 
 ### Build and start ###

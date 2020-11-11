@@ -22,9 +22,13 @@ TC_ONELINE_DESCR="Repeatedly create and delete policies in each RICs for 24h (or
 #App names to include in the test, space separated list
 INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
+#SUPPORTED TEST ENV FILE
+SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN"
+
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
+. ../common/cr_api_functions.sh
 
 #### TEST BEGIN ####
 
@@ -46,15 +50,11 @@ clean_containers
 HTTPX=HTTPS
 
 if [ $HTTPX == "HTTP" ]; then
-   # Path to callback receiver
-   CR_PATH="http://$CR_APP_NAME:$CR_EXTERNAL_PORT/callbacks"
    use_cr_http
    use_agent_rest_http
    use_sdnc_http
    use_simulator_http
 else
-   # Path to callback receiver
-   CR_PATH="https://$CR_APP_NAME:$CR_EXTERNAL_SECURE_PORT/callbacks"
    use_cr_https
    use_agent_rest_https
    use_sdnc_https
@@ -141,7 +141,7 @@ AGENT_INTERFACES="REST REST_PARALLEL DMAAP DMAAP-BATCH"
 MR_MESSAGES=0
 
 if [ "$PMS_VERSION" == "V2" ]; then
-      notificationurl="http://localhost:80"
+      notificationurl=$CR_PATH"/test"
 else
       notificationurl=""
 fi
@@ -198,7 +198,7 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
       done
 
       if [ "$PMS_VERSION" == "V2" ]; then
-         api_equal json:policy_instances $INSTANCES
+         api_equal json:policy-instances $INSTANCES
       else
          api_equal json:policy_ids $INSTANCES
       fi
@@ -223,7 +223,7 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
       done
 
       if [ "$PMS_VERSION" == "V2" ]; then
-         api_equal json:policy_instances $INSTANCES
+         api_equal json:policy-instances $INSTANCES
       else
          api_equal json:policy_ids $INSTANCES
       fi
@@ -251,7 +251,7 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
       done
 
       if [ "$PMS_VERSION" == "V2" ]; then
-         api_equal json:policy_instances $INSTANCES
+         api_equal json:policy-instances $INSTANCES
       else
          api_equal json:policy_ids $INSTANCES
       fi
@@ -277,12 +277,10 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
       done
 
       if [ "$PMS_VERSION" == "V2" ]; then
-         api_equal json:policy_instances $INSTANCES
+         api_equal json:policy-instances $INSTANCES
       else
          api_equal json:policy_ids $INSTANCES
       fi
-
-      cr_equal received_callbacks 0
 
       mr_equal requests_submitted $MR_MESSAGES
       mr_equal requests_fetched $MR_MESSAGES
@@ -303,6 +301,7 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
 done
 
 check_policy_agent_logs
+check_sdnc_logs
 
 #### TEST COMPLETE ####
 

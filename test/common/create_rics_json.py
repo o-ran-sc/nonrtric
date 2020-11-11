@@ -40,7 +40,7 @@ try:
     if (api_version == "V2"):
         param_ric='ric_id'
         param_me='managed_element_ids'
-        param_policy_type='policy_type_ids'
+        param_policy_type='policytype_ids'
         param_state='state'
     else:
         param_ric='ricName'
