@@ -19,25 +19,30 @@
 #
 FROM openjdk:11-jre-slim
 
-ARG JAR
+#install vim editor
+RUN apt-get update
+RUN apt-get install -y vim
 
+#install curl
+RUN apt-get install -y curl
+
+EXPOSE 8081 8433
+
+
+ARG JAR
 WORKDIR /opt/app/policy-agent
 RUN mkdir -p /var/log/policy-agent
 RUN mkdir -p /opt/app/policy-agent/etc/cert/
-
 EXPOSE 8081 8433
 
 ADD /config/application.yaml /opt/app/policy-agent/config/application.yaml
 ADD /config/application_configuration.json /opt/app/policy-agent/data/application_configuration.json_example
-ADD target/${JAR} /opt/app/policy-agent/policy-agent.jar
 ADD /config/keystore.jks /opt/app/policy-agent/etc/cert/keystore.jks
 ADD /config/truststore.jks /opt/app/policy-agent/etc/cert/truststore.jks
 
-
 RUN chmod -R 777 /opt/app/policy-agent/config/
+RUN chmod -R 777 /opt/app/policy-agent/data/
 
+ADD target/${JAR} /opt/app/policy-agent/policy-agent.jar
 CMD ["java", "-jar", "/opt/app/policy-agent/policy-agent.jar"]
-
-
-
 

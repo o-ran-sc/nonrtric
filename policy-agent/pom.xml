@@ -61,7 +61,6 @@
         <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
         <sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
-        <exec.skip>true</exec.skip>
     </properties>
     <dependencies>
         <dependency>
@@ -358,20 +357,61 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>git submodule update</id>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <executable>git</executable>
+                            <arguments>
+                                <argument>submodule</argument>
+                                <argument>update</argument>
+                                <argument>--init</argument>
+                                <argument>--recursive</argument>
+                            </arguments>
+                        </configuration>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>Print working directory</id>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <executable>pwd</executable>
+                        </configuration>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>copy configuration</id>
+                        <phase>initialize</phase>
+                        <configuration>
+                            <executable>cp</executable>
+                            <arguments>
+                                <argument>-r</argument>
+                                <argument>../onap/oran/a1-policy-management/config</argument>
+                                <argument>.</argument>
+                            </arguments>
+                        </configuration>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                    <execution>
                         <id>run-test-script</id>
                         <phase>verify</phase>
+                        <configuration>
+                            <executable>bash</executable>
+                            <arguments>
+                                <argument>run_test.sh</argument>
+                            </arguments>
+                            <workingDirectory>../test/jenkins/</workingDirectory>
+                        </configuration>
                         <goals>
                             <goal>exec</goal>
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <executable>bash</executable>
-                    <arguments>
-                        <argument>run_test.sh</argument>
-                    </arguments>
-                    <workingDirectory>../test/jenkins/</workingDirectory>
-                </configuration>
             </plugin>
         </plugins>
     </build>
