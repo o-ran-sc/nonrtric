@@ -44,6 +44,7 @@ TESTED_VARIANTS="NOSDNC   SDNC"
 
 #Test agent and simulator protocol versions (others are http only)
 TESTED_PROTOCOLS="HTTP HTTPS"
+
 for __httpx in $TESTED_PROTOCOLS ; do
     for interface in $TESTED_VARIANTS ; do
 
@@ -104,11 +105,16 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         sim_print ricsim_g1_1 interface
         sim_print ricsim_g2_1 interface
+        if [ "$PMS_VERSION" == "V2" ]; then
+            sim_print ricsim_g3_1 interface
+        fi
 
         sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
 
         if [ "$PMS_VERSION" == "V2" ]; then
-            api_equal json:policy-types 2 120  #Wait for the agent to refresh types from the simulators
+            sim_put_policy_type 201 ricsim_g3_1 STD_QOS2_0.1.0 testdata/STD2/sim_qos2.json
+
+            api_equal json:policy-types 3 120  #Wait for the agent to refresh types from the simulators
         else
             api_equal json:policy_types 2 120  #Wait for the agent to refresh types from the simulators
         fi
@@ -135,6 +141,17 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         sim_equal ricsim_g2_1 num_instances $NUM_POLICIES
 
+        if [ "$PMS_VERSION" == "V2" ]; then
+
+            START_ID=$(($START_ID+$NUM_POLICIES))
+
+            start_timer "Create polices in STD 2 via agent REST and $interface using "$__httpx
+            api_put_policy 201 "serv1" ricsim_g3_1 STD_QOS2_0.1.0 $START_ID NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json $NUM_POLICIES
+            print_timer "Create polices in STD via agent REST and $interface using "$__httpx
+
+            sim_equal ricsim_g3_1 num_instances $NUM_POLICIES
+        fi
+
         if [ $__httpx == "HTTPS" ]; then
             echo "Using secure ports towards dmaap"
             use_agent_dmaap_https
@@ -159,6 +176,17 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         sim_equal ricsim_g2_1 num_instances $((2*$NUM_POLICIES))
 
+        if [ "$PMS_VERSION" == "V2" ]; then
+
+            START_ID=$(($START_ID+$NUM_POLICIES))
+
+            start_timer "Create polices in STD 2 via agent DMAAP, one by one, and $interface using "$__httpx
+            api_put_policy 201 "serv1" ricsim_g3_1 STD_QOS2_0.1.0 $START_ID NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json $NUM_POLICIES
+            print_timer "Create polices in STD via agent DMAAP, one by one, and $interface using "$__httpx
+
+            sim_equal ricsim_g3_1 num_instances $((2*$NUM_POLICIES))
+        fi
+
         START_ID=$(($START_ID+$NUM_POLICIES))
 
         start_timer "Create polices in OSC via agent DMAAP in batch and $interface using "$__httpx
@@ -174,6 +202,17 @@ for __httpx in $TESTED_PROTOCOLS ; do
         print_timer "Create polices in STD via agent DMAAP in batch and $interface using "$__httpx
 
         sim_equal ricsim_g2_1 num_instances $((3*$NUM_POLICIES))
+
+        if [ "$PMS_VERSION" == "V2" ]; then
+
+            START_ID=$(($START_ID+$NUM_POLICIES))
+
+            start_timer "Create polices in STD via agent DMAAP in batch and $interface using "$__httpx
+            api_put_policy_batch 201 "serv1" ricsim_g3_1 STD_QOS2_0.1.0 $START_ID NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json $NUM_POLICIES
+            print_timer "Create polices in STD via agent DMAAP in batch and $interface using "$__httpx
+
+            sim_equal ricsim_g3_1 num_instances $((3*$NUM_POLICIES))
+        fi
 
         if [ $interface == "SDNC" ]; then
             sim_contains_str ricsim_g1_1 remote_hosts "a1-controller"

@@ -157,11 +157,14 @@ api_put_service 201 "service10" 600 "$CR_PATH/service10"
 sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
 
 if [ "$PMS_VERSION" == "V2" ]; then
+
+    sim_put_policy_type 201 ricsim_g3_1 STD_QOS2_0.1.0 testdata/STD2/sim_qos2.json
+
     api_equal json:rics 3 60
 
     #api_equal json:policy_schemas 2 120
 
-    api_equal json:policy-types 2 120
+    api_equal json:policy-types 3 120
 
     api_equal json:policies 0
 else
@@ -183,7 +186,12 @@ fi
 api_put_policy 201 "service10" ricsim_g1_1 1 5000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json
 api_put_policy 201 "service10" ricsim_g2_1 NOTYPE 5100 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json
 
-api_equal json:policies 2
+if [ "$PMS_VERSION" == "V2" ]; then
+    api_put_policy 201 "service10" ricsim_g3_1 STD_QOS2_0.1.0 5200 NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json
+    api_equal json:policies 3
+else
+    api_equal json:policies 2
+fi
 
 sim_equal ricsim_g1_1 num_instances 1
 sim_equal ricsim_g2_1 num_instances 1
@@ -191,19 +199,38 @@ sim_equal ricsim_g2_1 num_instances 1
 api_put_policy 201 "service10" ricsim_g1_1 1 5001 true $notificationurl testdata/OSC/pi1_template.json
 api_put_policy 201 "service10" ricsim_g2_1 NOTYPE 5101 true $notificationurl testdata/STD/pi1_template.json
 
-api_equal json:policies 4
+if [ "$PMS_VERSION" == "V2" ]; then
+    api_put_policy 201 "service10" ricsim_g3_1 STD_QOS2_0.1.0 5201 true $notificationurl testdata/STD2/pi_qos2_template.json
+    api_equal json:policies 6
+else
+    api_equal json:policies 4
+fi
 
 sim_equal ricsim_g1_1 num_instances 2
 sim_equal ricsim_g2_1 num_instances 2
+if [ "$PMS_VERSION" == "V2" ]; then
+    sim_equal ricsim_g3_1 num_instances 2
+fi
 
 sim_post_delete_instances 200 ricsim_g1_1
 sim_post_delete_instances 200 ricsim_g2_1
 
+if [ "$PMS_VERSION" == "V2" ]; then
+    sim_post_delete_instances 200 ricsim_g3_1
+fi
+
 #Wait for recreate of non transient policy
-api_equal json:policies 2 180
+if [ "$PMS_VERSION" == "V2" ]; then
+    api_equal json:policies 3 180
+else
+    api_equal json:policies 2 180
+fi
 
 sim_equal ricsim_g1_1 num_instances 1
 sim_equal ricsim_g2_1 num_instances 1
+if [ "$PMS_VERSION" == "V2" ]; then
+    sim_equal ricsim_g3_1 num_instances 1
+fi
 
 api_put_service 200 "service10" 10 "$CR_PATH/service10"
 
@@ -212,6 +239,9 @@ api_equal json:policies 0 120
 
 sim_equal ricsim_g1_1 num_instances 0
 sim_equal ricsim_g2_1 num_instances 0
+if [ "$PMS_VERSION" == "V2" ]; then
+    sim_equal ricsim_g3_1 num_instances 0
+fi
 
 api_get_service_ids 200
 

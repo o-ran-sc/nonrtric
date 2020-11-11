@@ -166,7 +166,7 @@ if [ "$PMS_VERSION" == "V2" ]; then
     done
 fi
 
-#Check the number of schemas and the individual schemas in OSC
+#Check the number of types
 if [ "$PMS_VERSION" == "V2" ]; then
     api_equal json:policy-types 5 120
 else

@@ -76,7 +76,8 @@ fi
 sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
 
 if [ "$PMS_VERSION" == "V2" ]; then
-    api_equal json:policy-types 2 60
+    sim_put_policy_type 201 ricsim_g3_1 STD_QOS_0_2_0 testdata/STD2/sim_qos.json
+    api_equal json:policy-types 3 60
 else
     api_equal json:policy_types 2 60
 fi
@@ -118,6 +119,20 @@ api_put_policy 201 "service1" ricsim_g2_1 NOTYPE 3100 NOTRANSIENT $notificationu
 
 sim_equal ricsim_g2_1 num_instances 2
 
+if [ "$PMS_VERSION" == "V2" ]; then
+    use_agent_rest_http
+
+    api_put_policy 201 "service1" ricsim_g3_1 STD_QOS_0_2_0 2200 true $notificationurl testdata/STD2/pi_qos_template.json 1
+
+    sim_equal ricsim_g3_1 num_instances 1
+
+    use_agent_dmaap_http
+
+    api_put_policy 201 "service1" ricsim_g3_1 STD_QOS_0_2_0 3200 NOTRANSIENT $notificationurl testdata/STD2/pi_qos_template.json 1
+
+    sim_equal ricsim_g3_1 num_instances 2
+
+fi
 
 #Update policies
 use_agent_rest_http
@@ -150,17 +165,41 @@ api_put_policy 200 "service1" ricsim_g2_1 NOTYPE 3100 NOTRANSIENT $notificationu
 
 sim_equal ricsim_g2_1 num_instances 2
 
+if [ "$PMS_VERSION" == "V2" ]; then
+    use_agent_rest_http
+
+    api_put_policy 200 "service1" ricsim_g3_1 STD_QOS_0_2_0 2200 true $notificationurl testdata/STD2/pi_qos_template.json 1
+
+    sim_equal ricsim_g3_1 num_instances 2
+
+
+    use_agent_dmaap_http
+
+    api_put_policy 200 "service1" ricsim_g3_1 STD_QOS_0_2_0 3200 true $notificationurl testdata/STD2/pi_qos_template.json 1
+
+    sim_equal ricsim_g3_1 num_instances 2
+fi
+
 # Check policies
 if [ "$PMS_VERSION" == "V2" ]; then
     api_get_policy 200 2000 testdata/OSC/pi1_template.json "service1" ricsim_g1_1 1 false $notificationurl
     api_get_policy 200 3000 testdata/OSC/pi1_template.json "service1" ricsim_g1_1 1 false $notificationurl
     api_get_policy 200 2100 testdata/STD/pi1_template.json "service1" ricsim_g2_1 NOTYPE false $notificationurl
     api_get_policy 200 3100 testdata/STD/pi1_template.json "service1" ricsim_g2_1 NOTYPE false $notificationurl
+    api_get_policy 200 2200 testdata/STD2/pi_qos_template.json "service1" ricsim_g3_1 STD_QOS_0_2_0 true $notificationurl
+    api_get_policy 200 3200 testdata/STD2/pi_qos_template.json "service1" ricsim_g3_1 STD_QOS_0_2_0 true $notificationurl
 else
     api_get_policy 200 2000 testdata/OSC/pi1_template.json
     api_get_policy 200 3000 testdata/OSC/pi1_template.json
     api_get_policy 200 2100 testdata/STD/pi1_template.json
     api_get_policy 200 3100 testdata/STD/pi1_template.json
+fi
+
+sim_equal ricsim_g1_1 num_instances 2
+sim_equal ricsim_g2_1 num_instances 2
+
+if [ "$PMS_VERSION" == "V2" ]; then
+    sim_equal ricsim_g3_1 num_instances 2
 fi
 
 # Remove policies
@@ -173,6 +212,12 @@ use_agent_dmaap_http
 api_delete_policy 204 2100
 use_agent_rest_http
 api_delete_policy 204 3100
+if [ "$PMS_VERSION" == "V2" ]; then
+    use_agent_dmaap_http
+    api_delete_policy 204 2200
+    use_agent_rest_http
+    api_delete_policy 204 3200
+fi
 
 sim_equal ricsim_g1_1 num_instances 0
 sim_equal ricsim_g2_1 num_instances 0
@@ -195,6 +240,11 @@ api_get_policy 404 2000
 api_get_policy 404 3000
 api_get_policy 404 2100
 api_get_policy 404 3100
+
+if [ "$PMS_VERSION" == "V2" ]; then
+    api_get_policy 404 2200
+    api_get_policy 404 3200
+fi
 
 # Remove the service
 use_agent_dmaap_http

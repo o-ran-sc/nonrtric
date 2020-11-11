@@ -120,6 +120,9 @@ for __httpx in $TESTED_PROTOCOLS ; do
         sim_put_policy_type 201 ricsim_g1_1 1 testdata/OSC/sim_1.json
 
         if [ "$PMS_VERSION" == "V2" ]; then
+
+            sim_put_policy_type 201 ricsim_g3_1 STD_QOS_0_2_0 testdata/STD2/sim_qos.json
+
             api_equal json:rics 3 60
 
             api_equal json:policy-types 2 120
@@ -165,7 +168,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "############################################"
 
         if [ "$PMS_VERSION" == "V2" ]; then
-            api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1:AVAILABLE  ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:EMPTYTYPE:AVAILABLE ricsim_g3_1:me1_ricsim_g3_1,me2_ricsim_g3_1:NOTYPE:AVAILABLE"
+            api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1:AVAILABLE  ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:EMPTYTYPE:AVAILABLE ricsim_g3_1:me1_ricsim_g3_1,me2_ricsim_g3_1:STD_QOS_0_2_0:AVAILABLE"
         else
             api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1:AVAILABLE  ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:EMPTYTYPE:AVAILABLE"
         fi
@@ -181,13 +184,27 @@ for __httpx in $TESTED_PROTOCOLS ; do
         fi
         api_put_policy 201 "serv1" ricsim_g1_1 1 5000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json
         api_put_policy 200 "serv1" ricsim_g1_1 1 5000 NOTRANSIENT $notificationurl testdata/OSC/pi1_template.json
+        if [ "$PMS_VERSION" == "V2" ]; then
+            api_put_policy 201 "serv1" ricsim_g3_1 STD_QOS_0_2_0 5200 true $notificationurl testdata/STD2/pi_qos_template.json
+            api_put_policy 200 "serv1" ricsim_g3_1 STD_QOS_0_2_0 5200 true $notificationurl testdata/STD2/pi_qos_template.json
+        fi
 
         api_put_policy 201 "serv1" ricsim_g2_1 NOTYPE 5100 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json
         api_put_policy 200 "serv1" ricsim_g2_1 NOTYPE 5100 NOTRANSIENT $notificationurl testdata/STD/pi1_template.json
 
+        if [ "$PMS_VERSION" == "V2" ]; then
+            api_equal json:policies 3
+        else
+            api_equal json:policies 2
+        fi
+
         api_delete_policy 204 5000
 
         api_delete_policy 204 5100
+
+        if [ "$PMS_VERSION" == "V2" ]; then
+            api_delete_policy 204 5200
+        fi
 
         if [ "$PMS_VERSION" == "V2" ]; then
             api_equal json:policies 0
@@ -204,7 +221,12 @@ for __httpx in $TESTED_PROTOCOLS ; do
         fi
 
         if [[ $interface = *"DMAAP"* ]]; then
-            VAL=11 # Number of Agent API calls over DMAAP
+
+            if [ "$PMS_VERSION" == "V2" ]; then
+                VAL=14 # Number of Agent API calls over DMAAP
+            else
+                VAL=11 # Number of Agent API calls over DMAAP
+            fi
             mr_equal requests_fetched $VAL
             mr_equal responses_submitted $VAL
             mr_equal responses_fetched $VAL
