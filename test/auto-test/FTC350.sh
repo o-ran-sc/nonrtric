@@ -258,6 +258,8 @@ for interface in $TESTED_VARIANTS ; do
         notificationurl=""
     fi
 
+    sleep_wait 120
+
     # Load config with reduced number of rics
     consul_config_app                  ".consul_config_initial.json"
 
