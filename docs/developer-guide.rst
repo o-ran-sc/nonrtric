@@ -90,7 +90,7 @@ The O-RAN Non-RT RIC Policy Agent provides a REST API for management of policice
    * Maps O1 resources (ManagedElement) as defined in O1 to the controlling RIC.
 
 | The Policy Agent can be accessed over the REST API or through the DMaaP Interface. The REST API is documented in the
-| *nonrtric/policy-agent/docs/api.yaml* file. Please refer to the README file of Policy Agent to know more about the API's.
+| *nonrtric/onap/oran/docs/offeredapis/swagger/pms-api.yaml* file. Please refer to the README file of Policy Agent to know more about the API's.
 
 Configuration of certs
 ----------------------

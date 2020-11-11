@@ -1,0 +1,3 @@
+[submodule "onap/oran"]
+	path = onap/oran
+	url = https://gerrit.onap.org/r/ccsdk/oran

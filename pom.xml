@@ -34,7 +34,6 @@
     </properties>
     <modules>
         <module>policy-agent</module>
-        <module>sdnc-a1-controller</module>
         <module>enrichment-coordinator-service</module>
         <module>r-app-catalogue</module>
     </modules>
