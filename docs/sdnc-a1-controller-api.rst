@@ -2,13 +2,14 @@
 .. http://creativecommons.org/licenses/by/4.0
 .. Copyright (C) 2020 Nordix
 
-.. _sdnc-a1-controller-api:
-
 .. |nbsp| unicode:: 0xA0
    :trim:
 
 .. |nbh| unicode:: 0x2011
    :trim:
+
+.. _sdnc-a1-controller-api:
+
 
 ######################
 SDNC A1 Controller API

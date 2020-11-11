@@ -33,8 +33,7 @@
     <sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
     </properties>
     <modules>
-        <module>policy-agent</module>
-        <module>sdnc-a1-controller</module>
+        <module>policy-agent</module>       
         <module>enrichment-coordinator-service</module>
         <module>r-app-catalogue</module>
     </modules>
