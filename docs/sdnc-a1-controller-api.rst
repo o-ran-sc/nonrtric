@@ -2,7 +2,7 @@
 .. http://creativecommons.org/licenses/by/4.0
 .. Copyright (C) 2020 Nordix
 
-.. _sdnc-a1-controller-api:
+.. sdnc-a1-controller-api:
 
 .. |nbsp| unicode:: 0xA0
    :trim:

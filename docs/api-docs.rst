@@ -34,7 +34,7 @@ See the README.md file in the nonrtric/policy-agent repo for info about how to u
 
 API Functions
 -------------
-See the following document for the Policy Agent API: nonrtric/policy-agent/docs/api.yaml
+See the following document for the Policy Agent API: nonrtric/onap/oran/docs/offeredapis/swagger/pms-api.yaml
 
 SDNC A1 Controller
 ==================
