@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ee188b8_9065a43a",
+        "filename": "docker-compose/data/fill_data_v2.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2020-11-13T08:36:32Z",
+      "side": 1,
+      "message": "Add STD v1 version sim",
+      "revId": "5f8200807ab194924e1800c3db72dd2916dd6103",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d734cce_ef7826ba",
+        "filename": "docker-compose/nosdnc/config/application_configuration.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1000261
+      },
+      "writtenOn": "2020-11-13T08:36:32Z",
+      "side": 1,
+      "message": "Perhaps add the v2 sim as well so 1 OSC and 2 STD sims. The docker compose starts both STD sims.",
+      "revId": "5f8200807ab194924e1800c3db72dd2916dd6103",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
