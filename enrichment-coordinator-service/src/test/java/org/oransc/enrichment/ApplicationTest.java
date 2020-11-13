@@ -33,6 +33,7 @@ import com.google.gson.JsonParser;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -64,6 +65,8 @@ import org.oransc.enrichment.repository.EiProducers;
 import org.oransc.enrichment.repository.EiType;
 import org.oransc.enrichment.repository.EiTypes;
 import org.oransc.enrichment.tasks.ProducerSupervision;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -91,6 +94,8 @@ import reactor.test.StepVerifier;
         "app.webclient.trust-store=./config/truststore.jks", //
         "app.vardata-directory=./target"})
 class ApplicationTest {
+    private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+
     private final String EI_TYPE_ID = "typeId";
     private final String EI_PRODUCER_ID = "producerId";
     private final String EI_JOB_PROPERTY = "\"property1\"";
@@ -291,7 +296,7 @@ class ApplicationTest {
         resp = restClient().putForEntity(url, body).block();
         assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
         EiJob job = this.eiJobs.getJob("jobId");
-        assertThat(job.owner()).isEqualTo("owner");
+        assertThat(job.getOwner()).isEqualTo("owner");
     }
 
     @Test
@@ -552,8 +557,8 @@ class ApplicationTest {
             jobs.restoreJobsFromDatabase();
             assertThat(jobs.size()).isEqualTo(0);
         }
-
-        this.eiJobs.remove("jobId1"); // removing a job when the db file is gone
+        logger.warn("Test removing a job when the db file is gone");
+        this.eiJobs.remove("jobId1");
         assertThat(this.eiJobs.size()).isEqualTo(1);
     }
 

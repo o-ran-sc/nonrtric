@@ -216,7 +216,6 @@ public class ProducerController {
         ProducerStatusInfo.OperationalState opState =
             producer.isAvailable() ? ProducerStatusInfo.OperationalState.ENABLED
                 : ProducerStatusInfo.OperationalState.DISABLED;
-        this.logger.debug("opState {}", opState);
         return new ProducerStatusInfo(opState);
     }
 

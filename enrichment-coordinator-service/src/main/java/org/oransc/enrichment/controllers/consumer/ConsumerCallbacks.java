@@ -64,7 +64,10 @@ public class ConsumerCallbacks {
         for (EiType type : eiProducer.getEiTypes()) {
             if (this.eiTypes.get(type.getId()) == null) {
                 for (EiJob job : this.eiJobs.getJobsForType(type)) {
-                    noifyJobOwner(job, new ConsumerEiJobStatus(ConsumerEiJobStatus.EiJobStatusValues.DISABLED));
+                    if (job.isEnabled()) {
+                        noifyJobOwner(job, new ConsumerEiJobStatus(ConsumerEiJobStatus.EiJobStatusValues.DISABLED));
+                        job.setEnabled(false);
+                    }
                 }
             }
         }
@@ -72,16 +75,20 @@ public class ConsumerCallbacks {
 
     public void notifyConsumersTypeAdded(EiType eiType) {
         for (EiJob job : this.eiJobs.getJobsForType(eiType)) {
-            noifyJobOwner(job, new ConsumerEiJobStatus(ConsumerEiJobStatus.EiJobStatusValues.ENABLED));
+            if (!job.isEnabled()) {
+                noifyJobOwner(job, new ConsumerEiJobStatus(ConsumerEiJobStatus.EiJobStatusValues.ENABLED));
+                job.setEnabled(true);
+            }
         }
     }
 
     private void noifyJobOwner(EiJob job, ConsumerEiJobStatus status) {
-        if (!job.jobStatusUrl().isEmpty()) {
+        if (!job.getJobStatusUrl().isEmpty()) {
             String body = gson.toJson(status);
-            this.restClient.post(job.jobStatusUrl(), body) //
-                .subscribe(notUsed -> logger.debug("Consumer notified OK {}", job.id()), //
-                    throwable -> logger.warn("Consumer notify failed {} {}", job.jobStatusUrl(), throwable.toString()), //
+            this.restClient.post(job.getJobStatusUrl(), body) //
+                .subscribe(notUsed -> logger.debug("Consumer notified OK {}", job.getId()), //
+                    throwable -> logger.warn("Consumer notify failed {} {}", job.getJobStatusUrl(),
+                        throwable.toString()), //
                     null);
         }
     }

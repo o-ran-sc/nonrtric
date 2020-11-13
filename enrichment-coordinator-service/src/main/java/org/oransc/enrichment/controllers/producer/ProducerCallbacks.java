@@ -63,7 +63,7 @@ public class ProducerCallbacks {
 
     public void notifyProducersJobDeleted(EiJob eiJob) {
         for (EiProducer producer : getProducers(eiJob)) {
-            String url = producer.getJobCallbackUrl() + "/" + eiJob.id();
+            String url = producer.getJobCallbackUrl() + "/" + eiJob.getId();
             restClient.delete(url) //
                 .subscribe(notUsed -> logger.debug("Producer job deleted OK {}", producer.getId()), //
                     throwable -> logger.warn("Producer job delete failed {} {}", producer.getId(),
@@ -106,7 +106,7 @@ public class ProducerCallbacks {
 
     private Collection<EiProducer> getProducers(EiJob eiJob) {
         try {
-            return this.eiTypes.getType(eiJob.typeId()).getProducers();
+            return this.eiTypes.getType(eiJob.getTypeId()).getProducers();
         } catch (Exception e) {
             return new Vector<>();
         }

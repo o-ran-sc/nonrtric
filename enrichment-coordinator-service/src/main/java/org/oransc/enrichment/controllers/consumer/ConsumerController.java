@@ -48,7 +48,6 @@ import org.oransc.enrichment.repository.EiJobs;
 import org.oransc.enrichment.repository.EiProducer;
 import org.oransc.enrichment.repository.EiType;
 import org.oransc.enrichment.repository.EiTypes;
-import org.oransc.enrichment.repository.ImmutableEiJob;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -151,14 +150,14 @@ public class ConsumerController {
             List<String> result = new ArrayList<>();
             if (owner != null) {
                 for (EiJob job : this.eiJobs.getJobsForOwner(owner)) {
-                    if (eiTypeId == null || job.typeId().equals(eiTypeId)) {
-                        result.add(job.id());
+                    if (eiTypeId == null || job.getTypeId().equals(eiTypeId)) {
+                        result.add(job.getId());
                     }
                 }
             } else if (eiTypeId != null) {
-                this.eiJobs.getJobsForType(eiTypeId).forEach(job -> result.add(job.id()));
+                this.eiJobs.getJobsForType(eiTypeId).forEach(job -> result.add(job.getId()));
             } else {
-                this.eiJobs.getJobs().forEach(job -> result.add(job.id()));
+                this.eiJobs.getJobs().forEach(job -> result.add(job.getId()));
             }
             return new ResponseEntity<>(gson.toJson(result), HttpStatus.OK);
         } catch (
@@ -208,7 +207,7 @@ public class ConsumerController {
 
     private Collection<EiProducer> getProducers(EiJob eiJob) {
         try {
-            return this.eiTypes.getType(eiJob.typeId()).getProducers();
+            return this.eiTypes.getType(eiJob.getTypeId()).getProducers();
         } catch (Exception e) {
             return new Vector<>();
         }
@@ -288,7 +287,7 @@ public class ConsumerController {
             validateJsonObjectAgainstSchema(eiType.getJobDataSchema(), eiJobInfo.jobData);
             EiJob existingEiJob = this.eiJobs.get(eiJobId);
 
-            if (existingEiJob != null && !existingEiJob.typeId().equals(eiJobInfo.eiTypeId)) {
+            if (existingEiJob != null && !existingEiJob.getTypeId().equals(eiJobInfo.eiTypeId)) {
                 throw new ServiceException("Not allowed to change type for existing EI job", HttpStatus.CONFLICT);
             }
             return Mono.just(toEiJob(eiJobInfo, eiJobId, eiType));
@@ -316,14 +315,12 @@ public class ConsumerController {
     }
 
     private EiJob toEiJob(ConsumerEiJobInfo info, String id, EiType type) {
-        return ImmutableEiJob.builder() //
-            .id(id) //
-            .typeId(type.getId()) //
-            .owner(info.owner) //
-            .jobData(info.jobData) //
-            .targetUrl(info.targetUri) //
-            .jobStatusUrl(info.statusNotificationUri == null ? "" : info.statusNotificationUri) //
-            .build();
+        return new EiJob(id, //
+            type.getId(), //
+            info.owner, //
+            info.jobData, //
+            info.targetUri, //
+            info.statusNotificationUri == null ? "" : info.statusNotificationUri);
     }
 
     private ConsumerEiTypeInfo toEiTypeInfo() {
@@ -331,6 +328,7 @@ public class ConsumerController {
     }
 
     private ConsumerEiJobInfo toEiJobInfo(EiJob s) {
-        return new ConsumerEiJobInfo(s.typeId(), s.jobData(), s.owner(), s.targetUrl(), s.jobStatusUrl());
+        return new ConsumerEiJobInfo(s.getTypeId(), s.getJobData(), s.getOwner(), s.getTargetUrl(),
+            s.getJobStatusUrl());
     }
 }
