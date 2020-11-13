@@ -122,9 +122,12 @@ for __httpx in $TESTED_PROTOCOLS ; do
         sim_put_policy_type 201 ricsim_g1_1 2 testdata/OSC/sim_2.json
 
         if [ "$PMS_VERSION" == "V2" ]; then
+            sim_put_policy_type 201 ricsim_g3_1 STD_QOS_0_2_0 testdata/STD2/sim_qos.json
+            sim_put_policy_type 201 ricsim_g3_1 STD_QOS2_0.1.0 testdata/STD2/sim_qos2.json
+
             api_equal json:rics 3 60
 
-            api_equal json:policy-types 3 120
+            api_equal json:policy-types 5 120
 
             api_equal json:policies 0
 
@@ -237,7 +240,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "############################################"
 
         if [ "$PMS_VERSION" == "V2" ]; then
-            api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1,2:AVAILABLE  ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:EMPTYTYPE:AVAILABLE ricsim_g3_1:me1_ricsim_g3_1,me2_ricsim_g3_1:NOTYPE:AVAILABLE"
+            api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1,2:AVAILABLE  ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:EMPTYTYPE:AVAILABLE ricsim_g3_1:me1_ricsim_g3_1,me2_ricsim_g3_1:STD_QOS_0_2_0,STD_QOS2_0.1.0:AVAILABLE"
         else
             api_get_rics 200 NOTYPE "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1,2:AVAILABLE  ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:EMPTYTYPE:AVAILABLE"
         fi
@@ -256,9 +259,15 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
             api_get_ric 200 me2_ricsim_g2_1 NORIC "ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:EMPTYTYPE:AVAILABLE"
 
+            api_get_ric 200 me1_ricsim_g3_1 NORIC "ricsim_g3_1:me1_ricsim_g3_1,me2_ricsim_g3_1:STD_QOS_0_2_0,STD_QOS2_0.1.0:AVAILABLE"
+
+            api_get_ric 200 me2_ricsim_g3_1 NORIC "ricsim_g3_1:me1_ricsim_g3_1,me2_ricsim_g3_1:STD_QOS_0_2_0,STD_QOS2_0.1.0:AVAILABLE"
+
             api_get_ric 200 NOME      ricsim_g1_1 "ricsim_g1_1:me1_ricsim_g1_1,me2_ricsim_g1_1:1,2:AVAILABLE"
 
             api_get_ric 200 NOME      ricsim_g2_1 "ricsim_g2_1:me1_ricsim_g2_1,me2_ricsim_g2_1:EMPTYTYPE:AVAILABLE"
+
+            api_get_ric 200 NOME      ricsim_g3_1 "ricsim_g3_1:me1_ricsim_g3_1,me2_ricsim_g3_1:STD_QOS_0_2_0,STD_QOS2_0.1.0:AVAILABLE"
 
             api_get_ric 404 NOME test1
 
@@ -293,6 +302,12 @@ for __httpx in $TESTED_PROTOCOLS ; do
             deviation "TR9 - agent modify the type with type id - test combo $interface and $__httpx"
             #Behaviour accepted for now
             api_get_policy_type 200 2 testdata/OSC/2-agent-modified.json
+            deviation "TR9 - agent modify the type with type id - test combo $interface and $__httpx"
+            #Behaviour accepted for now
+            api_get_policy_type 200 STD_QOS_0_2_0 testdata/STD2/qos-agent-modified.json
+            deviation "TR9 - agent modify the type with type id - test combo $interface and $__httpx"
+            #Behaviour accepted for now
+            api_get_policy_type 200 STD_QOS2_0.1.0 testdata/STD2/qos2-agent-modified.json
 
             api_get_policy_type 404 3
         else
@@ -322,12 +337,19 @@ for __httpx in $TESTED_PROTOCOLS ; do
         fi
 
 
-
-        api_get_policy_types 200 NORIC 1 2 EMPTY
+        if [ "$PMS_VERSION" == "V2" ]; then
+            api_get_policy_types 200 NORIC 1 2 EMPTY STD_QOS_0_2_0 STD_QOS2_0.1.0
+        else
+            api_get_policy_types 200 NORIC 1 2 EMPTY
+        fi
 
         api_get_policy_types 200 ricsim_g1_1 1 2
 
         api_get_policy_types 200 ricsim_g2_1 EMPTY
+
+        if [ "$PMS_VERSION" == "V2" ]; then
+            api_get_policy_types 200 ricsim_g3_1 STD_QOS_0_2_0 STD_QOS2_0.1.0
+        fi
 
         api_get_policy_types 404 dummy-ric
 
@@ -358,23 +380,38 @@ for __httpx in $TESTED_PROTOCOLS ; do
         api_put_policy 200 "service10" ricsim_g2_1 NOTYPE 5100 true $notificationurl testdata/STD/pi1_template.json
         api_put_policy 200 "service10" ricsim_g2_1 NOTYPE 5100 false $notificationurl testdata/STD/pi1_template.json
 
+        if [ "$PMS_VERSION" == "V2" ]; then
+            api_put_policy 201 "service10" ricsim_g3_1 STD_QOS2_0.1.0 5200 NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json
+            api_put_policy 200 "service10" ricsim_g3_1 STD_QOS2_0.1.0 5200 NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json
+
+            api_put_policy 200 "service10" ricsim_g3_1 STD_QOS2_0.1.0 5200 true $notificationurl testdata/STD2/pi_qos2_template.json
+            api_put_policy 200 "service10" ricsim_g3_1 STD_QOS2_0.1.0 5200 false $notificationurl testdata/STD2/pi_qos2_template.json
+        fi
+
         VAL='NOT IN EFFECT'
         api_get_policy_status 200 5000 OSC "$VAL" "false"
         api_get_policy_status 200 5100 STD "UNDEFINED"
+        if [ "$PMS_VERSION" == "V2" ]; then
+            api_get_policy_status 200 5200 STD "UNDEFINED"
+        fi
 
 
         deviation "TR10 - agent allows policy creation on unregistered service (side effect of orig. problem)- test combo $interface and $__httpx"
         #kept until decision
         #api_equal json:policies 2
         #Allow 3 for now
-        api_equal json:policies 3
+        if [ "$PMS_VERSION" == "V2" ]; then
+            api_equal json:policies 4
+        else
+            api_equal json:policies 3
+        fi
 
         deviation "TR10 - agent allows policy creation on unregistered service (side effect of orig. problem)- test combo $interface and $__httpx"
         #kept until decision
         #api_equal json:policy_ids 2
         #Allow 3 for now
         if [ "$PMS_VERSION" == "V2" ]; then
-            api_equal json:policy-instances 3
+            api_equal json:policy-instances 4
         else
             api_equal json:policy_ids 3
         fi
@@ -383,27 +420,45 @@ for __httpx in $TESTED_PROTOCOLS ; do
         #kept until decision
         #api_get_policy_ids 200 NORIC NOSERVICE NOTYPE 5000 5100
         #Allow policy create with unregistered service for now
-        api_get_policy_ids 200 NORIC NOSERVICE NOTYPE 5000 5100 2000
-
+        if [ "$PMS_VERSION" == "V2" ]; then
+            api_get_policy_ids 200 NORIC NOSERVICE NOTYPE 5000 5100 2000 5200
+        else
+            api_get_policy_ids 200 NORIC NOSERVICE NOTYPE 5000 5100 2000
+        fi
 
         deviation "TR10 - agent allows policy creation on unregistered service (side effect of orig. problem)- test combo $interface and $__httpx"
         #kept until decision
         #api_get_policy_ids 200 ricsim_g1_1 NOSERVICE NOTYPE 5000
         #Allow policy create with unregistered service for now
-        api_get_policy_ids 200 ricsim_g1_1 NOSERVICE NOTYPE 5000 2000
+        if [ "$PMS_VERSION" == "V2" ]; then
+            api_get_policy_ids 200 ricsim_g1_1 NOSERVICE NOTYPE 5000 2000
 
-        api_get_policy_ids 200 ricsim_g2_1 NOSERVICE NOTYPE 5100
+            api_get_policy_ids 200 ricsim_g2_1 NOSERVICE NOTYPE 5100
+
+            api_get_policy_ids 200 ricsim_g3_1 NOSERVICE NOTYPE 5200
+
+            api_get_policy_ids 200 NORIC "service10" NOTYPE 5000 5100 5200
+        else
+            api_get_policy_ids 200 ricsim_g1_1 NOSERVICE NOTYPE 5000 2000
+
+            api_get_policy_ids 200 ricsim_g2_1 NOSERVICE NOTYPE 5100
 
 
-        api_get_policy_ids 200 NORIC "service10" NOTYPE 5000 5100
+            api_get_policy_ids 200 NORIC "service10" NOTYPE 5000 5100
+        fi
 
         deviation "TR10 - agent allows policy creation on unregistered service (side effect of orig. problem)- test combo $interface and $__httpx"
         #kept until decision
         #api_get_policy_ids 200 NORIC NOSERVICE 1 5000
         #Allow policy create with unregistered service for now
+
         api_get_policy_ids 200 NORIC NOSERVICE 1 5000 2000
 
         api_get_policy_ids 200 NORIC NOSERVICE 2 NOID
+
+        if [ "$PMS_VERSION" == "V2" ]; then
+            api_get_policy_ids 200 NORIC NOSERVICE STD_QOS2_0.1.0 5200
+        fi
 
         api_get_policy_ids 200 ricsim_g2_1 NOSERVICE 1 NOID
 
@@ -412,7 +467,9 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
             api_get_policy 200 5100 testdata/STD/pi1_template.json "service10" ricsim_g2_1 NOTYPE false $notificationurl
 
-            api_get_policies 200 ricsim_g1_1 "service10" 1 5000 ricsim_g1_1 "service10" 1 false $notificationurl testdata/OSC/pi1_template.json
+            api_get_policy 200 5200 testdata/STD2/pi_qos2_template.json "service10" ricsim_g3_1 NOTYPE false $notificationurl
+
+            api_get_policies 200 ricsim_g1_1 "service10" 1 5000 ricsim_g1_1 "service10" STD_QOS2_0 true $notificationurl testdata/OSC/pi1_template.json
         else
             api_get_policy 200 5000 testdata/OSC/pi1_template.json
 
@@ -431,7 +488,13 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         api_delete_policy 204 5000
 
+        if [ "$PMS_VERSION" == "V2" ]; then
+
+            api_delete_policy 204 5200
+        fi
+
         api_equal json:policies 1
+
 
         if [ "$PMS_VERSION" == "V2" ]; then
             api_equal json:policy-instances 1

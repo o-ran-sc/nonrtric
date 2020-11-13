@@ -72,6 +72,13 @@ do
     sim_print $RIC_SIM_PREFIX"_g2_"$i interface
 done
 
+if [ "$PMS_VERSION" == "V2" ]; then
+    # Print the A1 version for STD 2.X
+    for ((i=1; i<=$STD_NUM_RICS; i++))
+    do
+        sim_print $RIC_SIM_PREFIX"_g3_"$i interface
+    done
+fi
 
 # Load the polictypes in osc
 for ((i=1; i<=$OSC_NUM_RICS; i++))
@@ -115,6 +122,31 @@ else
     done
 fi
 
+if [ "$PMS_VERSION" == "V2" ]; then
+
+    # Load the polictypes in std
+    for ((i=1; i<=$STD_NUM_RICS; i++))
+    do
+        sim_put_policy_type 201 $RIC_SIM_PREFIX"_g3_"$i STD_QOS_0_2_0 demo-testdata/STD2/sim_qos.json
+        sim_put_policy_type 201 $RIC_SIM_PREFIX"_g3_"$i STD_QOS2_0.1.0 demo-testdata/STD2/sim_qos2.json
+    done
+
+    #Check the number of schemas and the individual schemas in STD
+    api_equal json:policy-types 6 120
+
+    for ((i=1; i<=$STD_NUM_RICS; i++))
+    do
+        api_equal json:policy-types?ric_id=$RIC_SIM_PREFIX"_g3_"$i 2 120
+    done
+
+    # Check the schemas in STD
+    for ((i=1; i<=$STD_NUM_RICS; i++))
+    do
+        api_get_policy_type 200 STD_QOS_0_2_0 demo-testdata/STD2/qos-agent-modified.json
+        api_get_policy_type 200 'STD_QOS2_0.1.0' demo-testdata/STD2/qos2-agent-modified.json
+    done
+fi
+
 # Create policies
 use_agent_rest_http
 
@@ -150,6 +182,12 @@ for ((i=1; i<=$STD_NUM_RICS; i++))
 do
     generate_uuid
     api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g2_"$i NOTYPE $((2100+$i)) NOTRANSIENT $notificationurl testdata/STD/pi1_template.json 1
+    if [ "$PMS_VERSION" == "V2" ]; then
+        generate_uuid
+        api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g3_"$i STD_QOS_0_2_0 $((2300+$i)) NOTRANSIENT $notificationurl demo-testdata/STD2/pi1_template.json 1
+        generate_uuid
+        api_put_policy 201 "Emergency-response-app" $RIC_SIM_PREFIX"_g3_"$i 'STD_QOS2_0.1.0' $((2400+$i)) NOTRANSIENT $notificationurl demo-testdata/STD2/pi1_template.json 1
+    fi
 done
 
 
@@ -157,6 +195,9 @@ done
 for ((i=1; i<=$STD_NUM_RICS; i++))
 do
     sim_equal $RIC_SIM_PREFIX"_g2_"$i num_instances 1
+    if [ "$PMS_VERSION" == "V2" ]; then
+        sim_equal $RIC_SIM_PREFIX"_g3_"$i num_instances 2
+    fi
 done
 
 check_policy_agent_logs

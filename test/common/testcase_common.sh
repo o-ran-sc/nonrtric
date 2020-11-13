@@ -698,6 +698,8 @@ if [ $? -eq 0 ]; then
 		echo -e $RED" Build Failed"$ERED
 		((RES_CONF_FAIL++))
 		cat .dockererr
+		echo -e $RED"Exiting...."$ERED
+		exit 1
 	fi
 	cd $curdir
 else
@@ -715,6 +717,8 @@ if [ $? -eq 0 ]; then
 		echo -e $RED" Build Failed"$ERED
 		((RES_CONF_FAIL++))
 		cat .dockererr
+		echo -e $RED"Exiting...."$ERED
+		exit 1
 	fi
 	cd $curdir
 else
@@ -732,6 +736,8 @@ if [ $? -eq 0 ]; then
 		echo -e $RED" Build Failed"$ERED
 		((RES_CONF_FAIL++))
 		cat .dockererr
+		echo -e $RED"Exiting...."$ERED
+		exit 1
 	fi
 	cd $curdir
 else
@@ -811,6 +817,7 @@ print_result() {
 	echo "-------------------------------------------------------------------------------------------------"
 	echo "-- Description: "$TC_ONELINE_DESCR
 	echo "-- Execution time: " $duration " seconds"
+	echo "-- Used env file: "$TEST_ENV_VAR_FILE
 	echo "-------------------------------------------------------------------------------------------------"
 	echo "-------------------------------------     RESULTS"
 	echo ""
@@ -1868,6 +1875,23 @@ use_agent_retries() {
 start_ecs() {
 
 	echo -e $BOLD"Starting ECS"$EBOLD
+
+	curdir=$PWD
+	cd $SIM_GROUP
+	cd ecs
+	cd $ECS_HOST_MNT_DIR
+	if [ -d database ]; then
+		echo -e $BOLD" Cleaning files in mounted dir: $PWD/database"$EBOLD
+		rm database/* > /dev/null
+		if [ $? -ne 0 ]; then
+			echo -e $RED" Cannot remove database files in: $PWD"$ERED
+			exit 1
+		fi
+	else
+		echo " No files in mounted dir or dir does not exists"
+	fi
+	cd $curdir
+
 	__check_included_image 'ECS'
 	if [ $? -eq 1 ]; then
 		echo -e $RED"The ECS image has not been checked for this test run due to arg to the test script"$ERED

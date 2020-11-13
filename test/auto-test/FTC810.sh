@@ -39,6 +39,10 @@ generate_uuid
 
 # Number of RICs per interface type (OSC and STD)
 NUM_RICS=30
+if [ "$PMS_VERSION" == "V2" ]; then
+   NUM_RICS=20 # 3 A1 interfaces test, less sims per interface. total sims will be same
+fi
+
 # Number of policy instances per RIC
 NUM_INSTANCES=5
 
@@ -64,6 +68,10 @@ fi
 start_ric_simulators ricsim_g1 $NUM_RICS OSC_2.1.0
 
 start_ric_simulators ricsim_g2 $NUM_RICS STD_1.1.3
+
+if [ "$PMS_VERSION" == "V2" ]; then
+   start_ric_simulators ricsim_g3 $NUM_RICS  STD_2.0.0
+fi
 
 start_mr
 
@@ -95,11 +103,27 @@ do
    sim_print ricsim_g2_$i interface
 done
 
+if [ "$PMS_VERSION" == "V2" ]; then
+   echo "Print the interface for group 2 simulators, shall be STD 2"
+   for ((i=1; i<=$NUM_RICS; i++))
+   do
+      sim_print ricsim_g3_$i interface
+   done
+fi
+
 echo "Load policy type in group 1 simulators"
 for ((i=1; i<=$NUM_RICS; i++))
 do
    sim_put_policy_type 201 ricsim_g1_$i 1 testdata/OSC/sim_1.json
 done
+
+if [ "$PMS_VERSION" == "V2" ]; then
+   echo "Load policy type in group 3 simulators"
+   for ((i=1; i<=$NUM_RICS; i++))
+   do
+      sim_put_policy_type 201 ricsim_g3_$i STD_QOS2_0.1.0 testdata/STD2/sim_qos2.json
+   done
+fi
 
 echo "Check the number of instances in  group 1 simulators, shall be 0"
 for ((i=1; i<=$NUM_RICS; i++))
@@ -113,9 +137,17 @@ do
    sim_equal ricsim_g2_$i num_instances 0
 done
 
+if [ "$PMS_VERSION" == "V2" ]; then
+   echo "Check the number of instances in group 3 simulators, shall be 0"
+   for ((i=1; i<=$NUM_RICS; i++))
+   do
+      sim_equal ricsim_g3_$i num_instances 0
+   done
+fi
+
 echo "Wait for the agent to refresh types from the simulator"
 if [ "$PMS_VERSION" == "V2" ]; then
-   api_equal json:policy-types 2 120
+   api_equal json:policy-types 3 120
 else
    api_equal json:policy_types 2 120
 fi
@@ -125,6 +157,7 @@ for ((i=1; i<=$NUM_RICS; i++))
 do
    if [ "$PMS_VERSION" == "V2" ]; then
       api_equal json:policy-types?ric_id=ricsim_g1_$i 1 120
+      api_equal json:policy-types?ric_id=ricsim_g3_$i 1 120
    else
       api_equal json:policy_types?ric=ricsim_g1_$i 1 120
    fi
@@ -228,6 +261,33 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
          api_equal json:policy_ids $INSTANCES
       fi
 
+      if [ "$PMS_VERSION" == "V2" ]; then
+         echo "Create $NUM_INSTANCES instances in each STD 2 RIC"
+         if [ $interface == "REST_PARALLEL" ]; then
+            api_put_policy_parallel 201 "serv1" ricsim_g3_ $NUM_RICS STD_QOS2_0.1.0 $INSTANCE_ID NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json $NUM_INSTANCES 3
+         fi
+         for ((i=1; i<=$NUM_RICS; i++))
+         do
+            if [ $interface == "DMAAP-BATCH" ]; then
+               api_put_policy_batch 201 "serv1" ricsim_g3_$i STD_QOS2_0.1.0 $INSTANCE_ID NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json $NUM_INSTANCES
+            elif [ $interface == "DMAAP" ] || [ $interface == "REST" ]; then
+               api_put_policy 201 "serv1" ricsim_g3_$i STD_QOS2_0.1.0 $INSTANCE_ID NOTRANSIENT $notificationurl testdata/STD2/pi_qos2_template.json $NUM_INSTANCES
+            fi
+            if [ $interface == "DMAAP" ] || [ $interface == "DMAAP-BATCH" ]; then
+               MR_MESSAGES=$(($MR_MESSAGES+$NUM_INSTANCES))
+            fi
+            sim_equal ricsim_g3_$i num_instances $NUM_INSTANCES
+            INSTANCE_ID=$(($INSTANCE_ID+$NUM_INSTANCES))
+            INSTANCES=$(($INSTANCES+$NUM_INSTANCES))
+         done
+
+         if [ "$PMS_VERSION" == "V2" ]; then
+            api_equal json:policy-instances $INSTANCES
+         else
+            api_equal json:policy_ids $INSTANCES
+         fi
+      fi
+
 
       echo "Delete all instances in each OSC RIC"
 
@@ -282,6 +342,34 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
          api_equal json:policy_ids $INSTANCES
       fi
 
+      if [ "$PMS_VERSION" == "V2" ]; then
+         echo "Delete all instances in each STD 2 RIC"
+
+         if [ $interface == "REST_PARALLEL" ]; then
+            api_delete_policy_parallel 204 $NUM_RICS $INSTANCE_ID $NUM_INSTANCES 3
+         fi
+         for ((i=1; i<=$NUM_RICS; i++))
+         do
+            if [ $interface == "DMAAP-BATCH" ]; then
+               api_delete_policy_batch 204 $INSTANCE_ID $NUM_INSTANCES
+            elif [ $interface == "DMAAP" ] || [ $interface == "REST" ]; then
+               api_delete_policy 204 $INSTANCE_ID $NUM_INSTANCES
+            fi
+            if [ $interface == "DMAAP" ] || [ $interface == "DMAAP-BATCH" ]; then
+               MR_MESSAGES=$(($MR_MESSAGES+$NUM_INSTANCES))
+            fi
+            INSTANCES=$(($INSTANCES-$NUM_INSTANCES))
+            sim_equal ricsim_g3_$i num_instances 0
+            INSTANCE_ID=$(($INSTANCE_ID+$NUM_INSTANCES))
+         done
+
+         if [ "$PMS_VERSION" == "V2" ]; then
+            api_equal json:policy-instances $INSTANCES
+         else
+            api_equal json:policy_ids $INSTANCES
+         fi
+      fi
+
       mr_equal requests_submitted $MR_MESSAGES
       mr_equal requests_fetched $MR_MESSAGES
       mr_equal responses_submitted $MR_MESSAGES
@@ -294,6 +382,10 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
       do
          sim_contains_str ricsim_g1_$i remote_hosts "a1-controller"
          sim_contains_str ricsim_g2_$i remote_hosts "a1-controller"
+
+         if [ "$PMS_VERSION" == "V2" ]; then
+            sim_contains_str ricsim_g3_$i remote_hosts "a1-controller"
+         fi
       done
 
    done
