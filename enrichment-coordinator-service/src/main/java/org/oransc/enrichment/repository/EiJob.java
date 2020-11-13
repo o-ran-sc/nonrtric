@@ -20,25 +20,53 @@
 
 package org.oransc.enrichment.repository;
 
-import org.immutables.gson.Gson;
-import org.immutables.value.Value;
+import java.lang.invoke.MethodHandles;
+
+import lombok.Getter;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents the dynamic information about a EI job
  */
-@Value.Immutable
-@Gson.TypeAdapters
-public interface EiJob {
 
-    String id();
+public class EiJob {
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    String typeId();
+    @Getter
+    private final String id;
 
-    String owner();
+    @Getter
+    private final String typeId;
 
-    Object jobData();
+    @Getter
+    private final String owner;
 
-    String targetUrl();
+    @Getter
+    private final Object jobData;
 
-    String jobStatusUrl();
+    @Getter
+    private final String targetUrl;
+
+    @Getter
+    private final String jobStatusUrl;
+
+    @Getter
+    private boolean isEnabled = true;
+
+    public EiJob(String id, String typeId, String owner, Object jobData, String targetUrl, String jobStatusUrl) {
+        this.id = id;
+        this.typeId = typeId;
+        this.owner = owner;
+        this.jobData = jobData;
+        this.targetUrl = targetUrl;
+        this.jobStatusUrl = jobStatusUrl;
+    }
+
+    public void setEnabled(boolean isIt) {
+        this.isEnabled = isIt;
+        logger.debug("Job status id: {}, enabled: {}", this.isEnabled, isIt);
+    }
+
 }

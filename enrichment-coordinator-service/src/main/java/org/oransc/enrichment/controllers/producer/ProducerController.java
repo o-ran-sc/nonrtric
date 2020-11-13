@@ -216,7 +216,6 @@ public class ProducerController {
         ProducerStatusInfo.OperationalState opState =
             producer.isAvailable() ? ProducerStatusInfo.OperationalState.ENABLED
                 : ProducerStatusInfo.OperationalState.DISABLED;
-        this.logger.debug("opState {}", opState);
         return new ProducerStatusInfo(opState);
     }
 
@@ -240,10 +239,12 @@ public class ProducerController {
                 }
             }
 
-            registerProducer(eiProducerId, registrationInfo);
+            EiProducer producer = registerProducer(eiProducerId, registrationInfo);
             if (previousDefinition != null) {
                 purgeTypes(previousDefinition.getEiTypes());
+                this.consumerCallbacks.notifyConsumersProducerDeleted(previousDefinition);
             }
+            this.consumerCallbacks.notifyConsumersProducerAdded(producer);
 
             return new ResponseEntity<>(previousDefinition == null ? HttpStatus.CREATED : HttpStatus.OK);
         } catch (Exception e) {

@@ -65,12 +65,15 @@ public class EiJobs {
     }
 
     public synchronized void restoreJobsFromDatabase() throws IOException {
+        Files.createDirectories(Paths.get(getDatabaseDirectory()));
         File dbDir = new File(getDatabaseDirectory());
+
         for (File file : dbDir.listFiles()) {
             String json = Files.readString(file.toPath());
             EiJob job = gson.fromJson(json, EiJob.class);
             this.put(job, false);
         }
+
     }
 
     public synchronized void put(EiJob job) {
@@ -114,9 +117,9 @@ public class EiJobs {
     }
 
     public synchronized void remove(EiJob job) {
-        this.allEiJobs.remove(job.id());
-        jobsByType.remove(job.typeId(), job.id());
-        jobsByOwner.remove(job.owner(), job.id());
+        this.allEiJobs.remove(job.getId());
+        jobsByType.remove(job.getTypeId(), job.getId());
+        jobsByOwner.remove(job.getOwner(), job.getId());
 
         try {
             Files.delete(getPath(job));
@@ -136,15 +139,16 @@ public class EiJobs {
         jobsByOwner.clear();
         try {
             FileSystemUtils.deleteRecursively(Path.of(getDatabaseDirectory()));
+            Files.createDirectories(Paths.get(getDatabaseDirectory()));
         } catch (IOException e) {
             logger.warn("Could not delete database : {}", e.getMessage());
         }
     }
 
     private void put(EiJob job, boolean storePersistently) {
-        allEiJobs.put(job.id(), job);
-        jobsByType.put(job.typeId(), job.id(), job);
-        jobsByOwner.put(job.owner(), job.id(), job);
+        allEiJobs.put(job.getId(), job);
+        jobsByType.put(job.getTypeId(), job.getId(), job);
+        jobsByOwner.put(job.getOwner(), job.getId(), job);
         if (storePersistently) {
             storeJobInFile(job);
         }
@@ -152,12 +156,11 @@ public class EiJobs {
 
     private void storeJobInFile(EiJob job) {
         try {
-            Files.createDirectories(Paths.get(getDatabaseDirectory()));
             try (PrintStream out = new PrintStream(new FileOutputStream(getFile(job)))) {
                 out.print(gson.toJson(job));
             }
         } catch (Exception e) {
-            logger.warn("Could not save job: {} {}", job.id(), e.getMessage());
+            logger.warn("Could not save job: {} {}", job.getId(), e.getMessage());
         }
     }
 
@@ -166,7 +169,7 @@ public class EiJobs {
     }
 
     private Path getPath(EiJob job) {
-        return Path.of(getDatabaseDirectory(), job.id());
+        return Path.of(getDatabaseDirectory(), job.getId());
     }
 
     private String getDatabaseDirectory() {
