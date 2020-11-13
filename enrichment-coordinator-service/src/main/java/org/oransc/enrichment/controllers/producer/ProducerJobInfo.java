@@ -63,7 +63,7 @@ public class ProducerJobInfo {
     }
 
     public ProducerJobInfo(EiJob job) {
-        this(job.jobData(), job.id(), job.typeId(), job.targetUrl());
+        this(job.getJobData(), job.getId(), job.getTypeId(), job.getTargetUrl());
     }
 
     public ProducerJobInfo() {

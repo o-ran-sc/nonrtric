@@ -29,6 +29,7 @@ import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
 import java.lang.invoke.MethodHandles;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -55,6 +56,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import reactor.core.publisher.Flux;
+import reactor.util.retry.Retry;
 
 @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
 @RestController("ProducerController")
@@ -216,7 +220,6 @@ public class ProducerController {
         ProducerStatusInfo.OperationalState opState =
             producer.isAvailable() ? ProducerStatusInfo.OperationalState.ENABLED
                 : ProducerStatusInfo.OperationalState.DISABLED;
-        this.logger.debug("opState {}", opState);
         return new ProducerStatusInfo(opState);
     }
 
@@ -240,10 +243,12 @@ public class ProducerController {
                 }
             }
 
-            registerProducer(eiProducerId, registrationInfo);
+            EiProducer producer = registerProducer(eiProducerId, registrationInfo);
             if (previousDefinition != null) {
                 purgeTypes(previousDefinition.getEiTypes());
+                this.consumerCallbacks.notifyConsumersProducerDeleted(previousDefinition);
             }
+            this.consumerCallbacks.notifyConsumersProducerAdded(producer);
 
             return new ResponseEntity<>(previousDefinition == null ? HttpStatus.CREATED : HttpStatus.OK);
         } catch (Exception e) {
@@ -295,21 +300,35 @@ public class ProducerController {
     }
 
     private EiProducer registerProducer(String producerId, ProducerRegistrationInfo registrationInfo) {
-        ArrayList<EiType> types = new ArrayList<>();
+        ArrayList<EiType> typesForProducer = new ArrayList<>();
+        EiProducer producer = createProducer(typesForProducer, producerId, registrationInfo);
         for (ProducerEiTypeRegistrationInfo typeInfo : registrationInfo.types) {
-            types.add(registerType(typeInfo));
+            EiType type = registerType(typeInfo);
+            typesForProducer.add(type);
+            type.addProducer(producer); //
         }
-        EiProducer producer = createProducer(types, producerId, registrationInfo);
         this.eiProducers.put(producer);
 
-        for (EiType type : types) {
-            for (EiJob job : this.eiJobs.getJobsForType(type)) {
-                this.producerCallbacks.notifyProducerJobStarted(producer, job) //
-                    .subscribe();
-            }
-            type.addProducer(producer);
-        }
+        restartJobs(producer);
+
         return producer;
+    }
+
+    private void restartJobs(EiProducer producer) {
+        final int maxNoOfParalellRequests = 10;
+        final long maxRetryAttempts = 3;
+        final Duration minRetryDelay = Duration.ofSeconds(1);
+        Flux.fromIterable(producer.getEiTypes()) //
+            .flatMap(type -> Flux.fromIterable(this.eiJobs.getJobsForType(type))) //
+            .doOnNext(job -> logger.debug("Restarting job: {} for producer: {}", job.getId(), producer.getId())) //
+            .flatMap(job -> this.producerCallbacks.notifyProducerJobStarted(producer, job), maxNoOfParalellRequests) //
+            .retryWhen(Retry.backoff(maxRetryAttempts, minRetryDelay)) //
+            .onErrorResume(t -> {
+                this.logger.error("Could not restart EI Job for producer: {}, reason :{}", producer.getId(),
+                    t.getMessage());
+                return Flux.empty();
+            }) //
+            .subscribe();
     }
 
     ProducerRegistrationInfo toEiProducerRegistrationInfo(EiProducer p) {
