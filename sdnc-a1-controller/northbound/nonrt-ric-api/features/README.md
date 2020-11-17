@@ -1,4 +1,4 @@
-This module builds the sdnc-a1-northbound which inturn creates the nonrt-ric-api-provider & nonrt-ric-api-model bundles.
+This module builds the two submodules sdnc-nonrt-ric-api & features-nonrt-ric-api which creates the A1 northbound feature.
 
 To compile, run "mvn clean install".
 

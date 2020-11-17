@@ -1,10 +1,4 @@
-This source repository contains the code for SDNC-A1 Controller operations, administration and maintenance utilities.
-
-It adds the features from northbound directory and creates the docker image for SDNC-A1 controller.
-
-It also contains the keystore, the script to start OpenDaylight, and the healthcheck script.
-
-The docker-compose file is also included in this directory.
+This module builds the submodule sdnc-a1 which inturn creates the SDNC A1 docker image
 
 To compile, run "mvn clean install".
 

@@ -1,4 +1,4 @@
-This module builds the sdnc-a1-northbound which inturn creates the nonrt-ric-api-provider & nonrt-ric-api-model bundles.
+This module is responsible for creating Docker images. The feature installers are added into the docker images so that it can be installed in karaf server.
 
 To compile, run "mvn clean install".
 
@@ -18,4 +18,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 For more information about license please see the [LICENSE](LICENSE.txt) file for details.
+
 

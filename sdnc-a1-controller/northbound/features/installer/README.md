@@ -1,4 +1,4 @@
-This module builds the sdnc-a1-northbound which inturn creates the nonrt-ric-api-provider & nonrt-ric-api-model bundles.
+This module is responsible for creating sdnc-a1-northbound-features-installer installer which contains sdnc-a1-northbound-all feature. This is then installed into Karaf Server when deployed.
 
 To compile, run "mvn clean install".
 
