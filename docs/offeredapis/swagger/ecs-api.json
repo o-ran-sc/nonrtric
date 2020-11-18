@@ -508,7 +508,7 @@
             "tags": ["A1-EI (enrichment information)"]
         }}
     },
-    "host": "localhost:41549",
+    "host": "localhost:38411",
     "definitions": {
         "producer_ei_job_request": {
             "description": "The body of the EI producer callbacks for EI job creation and deletion",
