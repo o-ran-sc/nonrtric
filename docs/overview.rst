@@ -3,7 +3,7 @@
 .. Copyright (C) 2020 Nordix
 
 Requirements for the Non-RT RIC project
-==========================================
+=======================================
 
 Find detailed description of what Non-RT RIC is on this `page`_.
 
@@ -30,59 +30,3 @@ Moreover, there are functional requirements regarding the A1 interface:
 #. A1 interface shall support communication of enrichment information from Non-RT RIC to Near-RT RIC.
 #. A1 interface shall support feedback from Near-RT RIC for monitoring AI/ML model performance.
 #. A1 interface shall support the policy/intents feedback from Near-RT RIC to Non-RT RIC.
-
-A1 policy procedure
--------------------
-
-As for A-release, the methods are as follows:
-
-+---------------------+--------------------------+--------------------------+
-| A1 policy procedure | Single policy method     | Multiple policies method |
-+---------------------+--------------------------+--------------------------+
-| Create policy       | PUT                      |                          |
-+---------------------+--------------------------+--------------------------+
-| Query policy        | GET                      | GET (sequence of \*)     |
-+---------------------+--------------------------+--------------------------+
-| Update policy       | PUT                      |                          |
-+---------------------+--------------------------+--------------------------+
-| Delete policy       | DELETE                   |                          |
-+---------------------+--------------------------+--------------------------+
-| Notify policy       | POST                     | POST                     |
-+---------------------+--------------------------+--------------------------+
-
-Policy Agent Overview
-=======================
-
-The Policy Agent maintains a transient repository of the following items to support R-Apps:
-
- * All Near-RT RICs in the network. This information is configured using the ONAP CDS database (which is using the Cloudify Consul database).
- * All Policy types for all Near-RT RICs
- * All configured Policy instances in the network
-
-It provides an NBI for the R-Apps (and for the Control Panel) for policy management. This is a REST API.
-As an option, policy management can also be done via asynchronous messages through ONAP/Dmaap.
-The NBI provides support for an R-APP to locate the correct Near-RT RIC based on identifiers as defined in O1.
-
-The agent monitors all Near-RT RICs and recovers from data inconsistencies, which may happen when (for instance) an Near-RT RIC restarts.
-
-The R-Apps can be monitored so that their Policies can be automatically removed when an R-App is stopped/removed.
-
-On its southbound side the agent can connect to a number of different A1 providers:
-
- * Directly to the Non-RT RIC:
-
-      - OSC API, which is influenced by the A1 standard
-      - The Non-RT RIC simulator, which supports the A1 standard with a number of not yet CRs included.
- * To an ONAP style controller.
-
-Amber release Policy Agent architecture
------------------------------------------
-
-.. image:: ./images/NonRtRicComponents.png
-   :scale: 50 %
-
-Non-RT RIC components:
-
- #. Policy Agent
- #. SDNC A1 Controller
-

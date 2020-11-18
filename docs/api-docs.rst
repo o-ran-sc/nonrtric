@@ -11,39 +11,19 @@ API-Docs
 
 This is the API-docs of Non-RT RIC.
 
-.. contents::
-   :depth: 3
-   :local:
-
 The Non-RT RIC consists of three parts, described in the sections below:
  * The Policy Agent
- * The SDNC A1 Controller
+ * The A1 Controller
  * The rAPP Catalogue
 
 
-Policy Agent
-============
+Policy Agent & A1 Controller
+============================
 
-The Policy Agent provides common functionality useful for R-Apps, for instance:
- * A repository of available Near-RT RICs, their policy types and policy instances.
- * An A1 connection to the Near-RT RICs.
+For information about the The Policy Agent and A1 Controller that are implemented in ONAP, see `readthedocs`_ and `wiki`_.
 
-See :ref:`policy-agent-api` for how to use the API.
-
-See the README.md file in the nonrtric/policy-agent repo for info about how to use it.
-
-API Functions
--------------
-See the following document for the Policy Agent API: nonrtric/onap/oran/docs/offeredapis/swagger/pms-api.yaml
-
-SDNC A1 Controller
-==================
-
-An ONAP SDNC Controller for the A1 interface.
-
-See :ref:`sdnc-a1-controller-api` for how to use the API.
-
-See the README.md file in the nonrtric/sdnc-a1-controller repo for info about how to use it.
+.. _readthedocs: https://docs.onap.org/projects/onap-ccsdk-oran/en/latest/index.html
+.. _wiki: https://wiki.onap.org/pages/viewpage.action?pageId=84644984
 
 rAPP Catalogue
 ==============
