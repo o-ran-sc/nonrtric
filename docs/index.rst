@@ -9,12 +9,9 @@ Non-RT RIC
    :maxdepth: 2
    :caption: Contents:
 
-   ./api-docs.rst
-   ./policy-agent-api.rst
-   ./sdnc-a1-controller-api.rst
-   ./developer-guide.rst
-   ./installation-guide.rst
    ./overview.rst
+   ./developer-guide.rst
+   ./api-docs.rst
    ./use-cases.rst
    ./release-notes.rst
 
