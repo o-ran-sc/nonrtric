@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "efc64fdc_0e39fe21",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerCallbacks.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-11-19T10:39:43Z",
+      "side": 1,
+      "message": "It is not needed because the notification will only be sent if the type is added. \nIf the type was not added then the job status is already enabled and no notification will be sent.",
+      "parentUuid": "bb726213_41067885",
+      "range": {
+        "startLine": 79,
+        "startChar": 12,
+        "endLine": 79,
+        "endChar": 36
+      },
+      "revId": "3ac4de0524650cea3d17f9ad5ff7e9cf5dffbe83",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f4696a09_58a345fc",
         "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/repository/EiJob.java",
         "patchSetId": 5
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "66c5a596_a856ae62",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/repository/EiJob.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-11-19T10:39:43Z",
+      "side": 1,
+      "message": "This is more visual.\nIf a non obvious side effect @RequiredArgsConstructor is that if someone would change the order of the attributes it will be bugs.",
+      "parentUuid": "f4696a09_58a345fc",
+      "range": {
+        "startLine": 58,
+        "startChar": 10,
+        "endLine": 58,
+        "endChar": 16
+      },
+      "revId": "3ac4de0524650cea3d17f9ad5ff7e9cf5dffbe83",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c1f9901c_07fbf41a",
         "filename": "enrichment-coordinator-service/src/test/java/org/oransc/enrichment/ApplicationTest.java",
         "patchSetId": 5
@@ -59,6 +107,30 @@
       "writtenOn": "2020-11-19T09:39:29Z",
       "side": 1,
       "message": "What is the purpose of this log warning? It seems odd to have to look in the log for an entry produced by the test case.",
+      "range": {
+        "startLine": 596,
+        "startChar": 8,
+        "endLine": 596,
+        "endChar": 68
+      },
+      "revId": "3ac4de0524650cea3d17f9ad5ff7e9cf5dffbe83",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40d9f2ec_f1dd82bc",
+        "filename": "enrichment-coordinator-service/src/test/java/org/oransc/enrichment/ApplicationTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-11-19T10:39:43Z",
+      "side": 1,
+      "message": "The purpose is to make the job make sense. This is a case that should not happen and the log will contain an error about it. Then it is good if the log contains this, so the person running the test does not have to start trouble shooting.",
+      "parentUuid": "c1f9901c_07fbf41a",
       "range": {
         "startLine": 596,
         "startChar": 8,
