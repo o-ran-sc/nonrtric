@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "bb726213_41067885",
+        "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/controllers/consumer/ConsumerCallbacks.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-11-19T09:39:29Z",
+      "side": 1,
+      "message": "Is a type unique to a producer, so that multiple producers cannot provide the same type? If not, shouldn\u0027t there be a check here if the type already exists? Otherwise consumers will be notified of a type they already know of.",
+      "range": {
+        "startLine": 79,
+        "startChar": 12,
+        "endLine": 79,
+        "endChar": 36
+      },
+      "revId": "3ac4de0524650cea3d17f9ad5ff7e9cf5dffbe83",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f4696a09_58a345fc",
         "filename": "enrichment-coordinator-service/src/main/java/org/oransc/enrichment/repository/EiJob.java",
         "patchSetId": 5
@@ -18,6 +41,29 @@
         "startChar": 10,
         "endLine": 58,
         "endChar": 16
+      },
+      "revId": "3ac4de0524650cea3d17f9ad5ff7e9cf5dffbe83",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1f9901c_07fbf41a",
+        "filename": "enrichment-coordinator-service/src/test/java/org/oransc/enrichment/ApplicationTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 1000201
+      },
+      "writtenOn": "2020-11-19T09:39:29Z",
+      "side": 1,
+      "message": "What is the purpose of this log warning? It seems odd to have to look in the log for an entry produced by the test case.",
+      "range": {
+        "startLine": 596,
+        "startChar": 8,
+        "endLine": 596,
+        "endChar": 68
       },
       "revId": "3ac4de0524650cea3d17f9ad5ff7e9cf5dffbe83",
       "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
