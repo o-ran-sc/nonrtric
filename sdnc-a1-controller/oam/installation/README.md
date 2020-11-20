@@ -1,4 +1,10 @@
-This module builds the sdnc-a1-northbound which inturn creates the nonrt-ric-api-provider & nonrt-ric-api-model bundles.
+This source repository contains the code for SDNC-A1 Controller operations, administration and maintenance utilities.
+
+It adds the features from northbound directory and creates the docker image for SDNC-A1 controller.
+
+It also contains the keystore, the script to start OpenDaylight, and the healthcheck script.
+
+The docker-compose file is also included in this directory.
 
 To compile, run "mvn clean install".
 
@@ -18,4 +24,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 For more information about license please see the [LICENSE](LICENSE.txt) file for details.
+
 
