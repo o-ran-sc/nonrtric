@@ -24,15 +24,14 @@
 # Excute a curl cmd towards the prodstub simulator and check the response code.
 # args: TEST|CONF <expected-response-code> <curl-cmd-string> [<json-file-to-compare-output>]
 __execute_curl_to_prodstub() {
-	#echo ${FUNCNAME[1]} "line: "${BASH_LINENO[1]} >> $HTTPLOG
-    echo "(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
+    TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
+    echo "(${BASH_LINENO[0]}) - ${TIMESTAMP}: ${FUNCNAME[0]}" $@ >> $HTTPLOG
 	echo " CMD: $3" >> $HTTPLOG
 	res="$($3)"
 	echo " RESP: $res" >> $HTTPLOG
 	retcode=$?
     if [ $retcode -ne 0 ]; then
-		echo " RETCODE: "$retcode
-        echo -e $RED" FAIL - fatal error when executing curl."$ERED
+        __log_conf_fail_general " Fatal error when executing curl, response: "$retcode
         return 1
     fi
     status=${res:${#res}-3}
@@ -43,18 +42,26 @@ __execute_curl_to_prodstub() {
             echo " TARGET JSON: $jobfile" >> $HTTPLOG
 		    res=$(python3 ../common/compare_json.py "$jobfile" "$body")
             if [ $res -ne 0 ]; then
-                echo -e $RED" FAIL, returned body not correct"$ERED
-		        return 1
+                if [ $1 == "TEST" ]; then
+                    __log_test_fail_body
+                 else
+                    __log_conf_fail_body
+                fi
+                return 1
             fi
         fi
         if [ $1 == "TEST" ]; then
-            echo -e $GREEN" PASS"$EGREEN
+            __log_test_pass
         else
-            echo -e $GREEN" OK"$EGREEN
+            __log_conf_ok
         fi
         return 0
     fi
-    echo -e $RED" FAIL - expected http response: "$2" but got http response: "$status $ERED
+    if [ $1 == "TEST" ]; then
+        __log_test_fail_status_code $2 $status
+        else
+        __log_conf_fail_status_code $2 $status
+    fi
     return 1
 }
 
@@ -62,10 +69,8 @@ __execute_curl_to_prodstub() {
 # <response-code> <producer-id> [<forced_response_code>]
 # (Function for test scripts)
 prodstub_arm_producer() {
-	echo -e $BOLD"CONF(${BASH_LINENO[0]}): "${FUNCNAME[0]} $@ $EBOLD
-    echo "CONF(${BASH_LINENO[0]}): "${FUNCNAME[0]} $@  >> $HTTPLOG
+	__log_conf_start $@
 	if [ $# -ne 2 ] && [ $# -ne 3 ]; then
-		((RES_CONF_FAIL++))
 		__print_err "<response-code> <producer-id> [<forced_response_code>]" $@
 		return 1
 	fi
@@ -76,21 +81,15 @@ prodstub_arm_producer() {
 	fi
 
     __execute_curl_to_prodstub CONF $1 "$curlString"
-    retcode=$?
-    if [ $? -ne 0 ]; then
-        ((RES_CONF_FAIL++))
-    fi
-	return $retcode
+    return $?
 }
 
 # Prodstub API: Set (or reset) response code job create
 # <response-code> <producer-id> <job-id> [<forced_response_code>]
 # (Function for test scripts)
 prodstub_arm_job_create() {
-	echo -e $BOLD"CONF(${BASH_LINENO[0]}): "${FUNCNAME[0]} $@ $EBOLD
-    echo "CONF(${BASH_LINENO[0]}): "${FUNCNAME[0]} $@  >> $HTTPLOG
+	__log_conf_start $@
 	if [ $# -ne 3 ] && [ $# -ne 4 ]; then
-		((RES_CONF_FAIL++))
 		__print_err "<response-code> <producer-id> <job-id> [<forced_response_code>]" $@
 		return 1
 	fi
@@ -101,21 +100,15 @@ prodstub_arm_job_create() {
 	fi
 
     __execute_curl_to_prodstub CONF $1 "$curlString"
-    retcode=$?
-    if [ $? -ne 0 ]; then
-        ((RES_CONF_FAIL++))
-    fi
-	return $retcode
+    return $?
 }
 
 # Prodstub API: Set (or reset) response code job delete
 # <response-code> <producer-id> <job-id> [<forced_response_code>]
 # (Function for test scripts)
 prodstub_arm_job_delete() {
-	echo -e $BOLD"CONF(${BASH_LINENO[0]}): "${FUNCNAME[0]} $@ $EBOLD
-    echo "CONF(${BASH_LINENO[0]}): "${FUNCNAME[0]} $@  >> $HTTPLOG
+	__log_conf_start $@
 	if [ $# -ne 3 ] && [ $# -ne 4 ]; then
-		((RES_CONF_FAIL++))
 		__print_err "<response-code> <producer-id> <job-id> [<forced_response_code>]" $@
 		return 1
 	fi
@@ -126,21 +119,15 @@ prodstub_arm_job_delete() {
 	fi
 
     __execute_curl_to_prodstub CONF $1 "$curlString"
-    retcode=$?
-    if [ $? -ne 0 ]; then
-        ((RES_CONF_FAIL++))
-    fi
-	return $retcode
+    return $?
 }
 
 # Prodstub API: Arm a type of a producer
 # <response-code> <producer-id> <type-id>
 # (Function for test scripts)
 prodstub_arm_type() {
-	echo -e $BOLD"CONF(${BASH_LINENO[0]}): "${FUNCNAME[0]} $@ $EBOLD
-    echo "CONF(${BASH_LINENO[0]}): "${FUNCNAME[0]} $@  >> $HTTPLOG
+	__log_conf_start $@
 	if [ $# -ne 3 ]; then
-		((RES_CONF_FAIL++))
 		__print_err "<response-code> <producer-id> <type-id>" $@
 		return 1
 	fi
@@ -148,21 +135,15 @@ prodstub_arm_type() {
     curlString="curl -X PUT -skw %{http_code} $PROD_STUB_LOCALHOST/arm/type/$2/$3"
 
     __execute_curl_to_prodstub CONF $1 "$curlString"
-    retcode=$?
-    if [ $? -ne 0 ]; then
-        ((RES_CONF_FAIL++))
-    fi
-	return $retcode
+    return $?
 }
 
 # Prodstub API: Disarm a type in a producer
 # <response-code> <producer-id> <type-id>
 # (Function for test scripts)
 prodstub_disarm_type() {
-	echo -e $BOLD"CONF(${BASH_LINENO[0]}): "${FUNCNAME[0]} $@ $EBOLD
-    echo "CONF(${BASH_LINENO[0]}): "${FUNCNAME[0]} $@  >> $HTTPLOG
+	__log_conf_start $@
 	if [ $# -ne 3 ]; then
-		((RES_CONF_FAIL++))
 		__print_err "<response-code> <producer-id> <type-id>" $@
 		return 1
 	fi
@@ -170,21 +151,15 @@ prodstub_disarm_type() {
     curlString="curl -X DELETE -skw %{http_code} $PROD_STUB_LOCALHOST/arm/type/$2/$3"
 
     __execute_curl_to_prodstub CONF $1 "$curlString"
-    retcode=$?
-    if [ $? -ne 0 ]; then
-        ((RES_CONF_FAIL++))
-    fi
-	return $retcode
+    return $?
 }
 
 # Prodstub API: Get job data for a job and compare with a target job json
 # <response-code> <producer-id> <job-id> <type-id> <target-url> <template-job-file>
 # (Function for test scripts)
 prodstub_check_jobdata() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): "${FUNCNAME[0]} $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): "${FUNCNAME[0]} $@  >> $HTTPLOG
+	__log_test_start $@
 	if [ $# -ne 6 ]; then
-		((RES_FAIL++))
 		__print_err "<response-code> <producer-id> <job-id> <type-id> <target-url> <template-job-file>" $@
 		return 1
 	fi
@@ -192,7 +167,7 @@ prodstub_check_jobdata() {
         jobfile=$(cat $6)
         jobfile=$(echo "$jobfile" | sed "s/XXXX/$3/g")
     else
-        echo -e $RED" FAIL.  Template file "$6" for jobdata, does not exist"$ERED
+        _log_test_fail_general "Template file "$6" for jobdata, does not exist"
         return 1
     fi
     targetJson="{\"ei_job_identity\":\"$3\",\"ei_type_identity\":\"$4\",\"target_uri\":\"$5\",\"ei_job_data\":$jobfile}"
@@ -202,11 +177,22 @@ prodstub_check_jobdata() {
     curlString="curl -X GET -skw %{http_code} $PROD_STUB_LOCALHOST/jobdata/$2/$3"
 
     __execute_curl_to_prodstub TEST $1 "$curlString" $file
-    retcode=$?
-    if [ $? -ne 0 ]; then
-        ((RES_FAIL++))
-    fi
-	return $retcode
+    return $?
+}
+
+# Prodstub API: Delete the job data
+# <response-code> <producer-id> <job-id>
+# (Function for test scripts)
+prodstub_delete_jobdata() {
+	__log_conf_start
+	if [ $# -ne 3 ]; then
+		__print_err "<response-code> <producer-id> <job-id> " $@
+		return 1
+	fi
+    curlString="curl -X DELETE -skw %{http_code} $PROD_STUB_LOCALHOST/jobdata/$2/$3"
+
+    __execute_curl_to_prodstub CONF $1 "$curlString"
+    return $?
 }
 
 # Tests if a variable value in the prod stub is equal to a target value and and optional timeout.
@@ -220,7 +206,6 @@ prodstub_equal() {
 	if [ $# -eq 2 ] || [ $# -eq 3 ]; then
 		__var_test "PRODSTUB" "$LOCALHOST$PROD_STUB_EXTERNAL_PORT/counter/" $1 "=" $2 $3
 	else
-		((RES_CONF_FAIL++))
 		__print_err "Wrong args to prodstub_equal, needs two or three args: <sim-param> <target-value> [ timeout ]" $@
 	fi
 }

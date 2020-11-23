@@ -69,7 +69,7 @@ function getSimCtr(url, index, cb) {
     } catch(err) {
         cb("no response", index);
     }
-};
+}
 
 
 //Format a comma separated list of data to a html-safe string with fixed fieldsizes
@@ -121,9 +121,9 @@ function formatIdRowCompact(commaList) {
 }
 
 //Pad a string upto a certain size using a pad string
-function padding(val, fieldSize, pad) {
+function padding(val, size, pad) {
 	var s=""+val;
-	for(var i=s.length;i<fieldSize;i++) {
+	for(var i=s.length;i<size;i++) {
 		s=s+pad
 	}
 	return s;
@@ -191,6 +191,8 @@ var ecs_producer_arr=new Array(0)
 var ecs_producer_type_arr=new Array(0)
 var ecs_producer_jobs_arr=new Array(0)
 var ecs_producer_status_arr=new Array(0)
+var ecs_jobs=new Array(0)
+var ecs_job_status=new Array(0)
 
 //Status variables, for parameters values fetched from prodstub
 var ps2="", ps3="", ps4="", ps_types="-", ps_producers="-";
@@ -235,7 +237,7 @@ function fetchAllMetrics_pol() {
                 var sims=simulators.split(" ")
                 simnames=[]
                 simports=[]
-                for(i=0;i<sims.length;i=i+2) {
+                for(var i=0;i<sims.length;i=i+2) {
                     simnames[i/2]=sims[i]
                     simports[i/2]=sims[i+1]
                 }
@@ -247,80 +249,80 @@ function fetchAllMetrics_pol() {
         for(var index=0;index<simnames.length;index++) {
 
             if (checkFunctionFlag("simvar1_"+index)) {
-                getSimCtr(LOCALHOST+simports[index]+"/counter/num_instances", index, function(data, index) {
-                    simvar1[index] = data;
-                    clearFlag("simvar1_"+index)
+                getSimCtr(LOCALHOST+simports[index]+"/counter/num_instances", index, function(data, idx) {
+                    simvar1[idx] = data;
+                    clearFlag("simvar1_"+idx)
                 });
             }
             if (checkFunctionFlag("simvar2_"+index)) {
-                getSimCtr(LOCALHOST+simports[index]+"/counter/num_types", index, function(data,index) {
-                    simvar2[index] = data;
-                    clearFlag("simvar2_"+index)
+                getSimCtr(LOCALHOST+simports[index]+"/counter/num_types", index, function(data,idx) {
+                    simvar2[idx] = data;
+                    clearFlag("simvar2_"+idx)
                 });
             }
             if (checkFunctionFlag("simvar3_"+index)) {
-                getSimCtr(LOCALHOST+simports[index]+"/policytypes", index, function(data,index) {
+                getSimCtr(LOCALHOST+simports[index]+"/policytypes", index, function(data,idx) {
                     data=data.replace(/\[/g,'');
                     data=data.replace(/\]/g,'');
                     data=data.replace(/ /g,'');
                     data=data.replace(/\"/g,'');
-                    simvar3[index] = data;
-                    clearFlag("simvar3_"+index)
+                    simvar3[idx] = data;
+                    clearFlag("simvar3_"+idx)
                 });
             }
             if (checkFunctionFlag("simvar4_"+index)) {
-                getSimCtr(LOCALHOST+simports[index]+"/counter/interface", index, function(data,index) {
-                    simvar4[index] = data;
-                    clearFlag("simvar4_"+index)
+                getSimCtr(LOCALHOST+simports[index]+"/counter/interface", index, function(data,idx) {
+                    simvar4[idx] = data;
+                    clearFlag("simvar4_"+idx)
                 });
             }
             if (checkFunctionFlag("simvar5_"+index)) {
-                getSimCtr(LOCALHOST+simports[index]+"/counter/remote_hosts", index, function(data,index) {
-                    simvar5[index] = data;
-                    clearFlag("simvar5_"+index)
+                getSimCtr(LOCALHOST+simports[index]+"/counter/remote_hosts", index, function(data,idx) {
+                    simvar5[idx] = data;
+                    clearFlag("simvar5_"+idx)
                 });
             }
             if (checkFunctionFlag("simvar6_"+index)) {
-                getSimCtr(LOCALHOST+simports[index]+"/counter/datadelivery", index, function(data,index) {
-                    simvar6[index] = data;
-                    clearFlag("simvar6_"+index)
+                getSimCtr(LOCALHOST+simports[index]+"/counter/datadelivery", index, function(data,idx) {
+                    simvar6[idx] = data;
+                    clearFlag("simvar6_"+idx)
                 });
             }
         }
 
         //MR - get metrics values from the MR stub
         if (checkFunctionFlag("mr1")) {
-            getSimCtr(LOCALHOST+MRSTUB_PORT+"/counter/requests_submitted", 0, function(data, index) {
+            getSimCtr(LOCALHOST+MRSTUB_PORT+"/counter/requests_submitted", 0, function(data, idx) {
                 mr1 = data;
                 clearFlag("mr1")
             });
         }
         if (checkFunctionFlag("mr2")) {
-            getSimCtr(LOCALHOST+MRSTUB_PORT+"/counter/requests_fetched", 0, function(data, index) {
+            getSimCtr(LOCALHOST+MRSTUB_PORT+"/counter/requests_fetched", 0, function(data, idx) {
                 mr2 = data;
                 clearFlag("mr2")
             });
         }
         if (checkFunctionFlag("mr3")) {
-            getSimCtr(LOCALHOST+MRSTUB_PORT+"/counter/current_requests", 0, function(data, index) {
+            getSimCtr(LOCALHOST+MRSTUB_PORT+"/counter/current_requests", 0, function(data, idx) {
                 mr3 = data;
                 clearFlag("mr3")
             });
         }
         if (checkFunctionFlag("mr4")) {
-            getSimCtr(LOCALHOST+MRSTUB_PORT+"/counter/responses_submitted", 0, function(data, index) {
+            getSimCtr(LOCALHOST+MRSTUB_PORT+"/counter/responses_submitted", 0, function(data, idx) {
                 mr4 = data;
                 clearFlag("mr4")
             });
         }
         if (checkFunctionFlag("mr5")) {
-            getSimCtr(LOCALHOST+MRSTUB_PORT+"/counter/responses_fetched", 0, function(data, index) {
+            getSimCtr(LOCALHOST+MRSTUB_PORT+"/counter/responses_fetched", 0, function(data, idx) {
                 mr5 = data;
                 clearFlag("mr5")
             });
         }
         if (checkFunctionFlag("mr6")) {
-            getSimCtr(LOCALHOST+MRSTUB_PORT+"/counter/current_responses", 0, function(data, index) {
+            getSimCtr(LOCALHOST+MRSTUB_PORT+"/counter/current_responses", 0, function(data, idx) {
                 mr6 = data;
                 clearFlag("mr6")
             });
@@ -328,32 +330,32 @@ function fetchAllMetrics_pol() {
 
         //CR - get metrics values from the callbackreceiver
         if (checkFunctionFlag("cr1")) {
-            getSimCtr(LOCALHOST+CR_PORT+"/counter/received_callbacks", 0, function(data, index) {
+            getSimCtr(LOCALHOST+CR_PORT+"/counter/received_callbacks", 0, function(data, idx) {
                 cr1 = data;
                 clearFlag("cr1")
             });
         }
         if (checkFunctionFlag("cr2")) {
-            getSimCtr(LOCALHOST+CR_PORT+"/counter/fetched_callbacks", 0, function(data, index) {
+            getSimCtr(LOCALHOST+CR_PORT+"/counter/fetched_callbacks", 0, function(data, idx) {
                 cr2 = data;
                 clearFlag("cr2")
             });
         }
         if (checkFunctionFlag("cr3")) {
-            getSimCtr(LOCALHOST+CR_PORT+"/counter/current_messages", 0, function(data, index) {
+            getSimCtr(LOCALHOST+CR_PORT+"/counter/current_messages", 0, function(data, idx) {
                 cr3 = data;
                 clearFlag("cr3")
             });
         }
         //Agent - more get metrics from the agent
         if (checkFunctionFlag("ag1")) {
-            getSimCtr(LOCALHOST+AGENT_PORT+"/status", 0, function(data, index) {
+            getSimCtr(LOCALHOST+AGENT_PORT+"/status", 0, function(data, idx) {
                 ag1 = data;
                 clearFlag("ag1")
             });
         }
         if (checkFunctionFlag("ag2")) {
-            getSimCtr(LOCALHOST+AGENT_PORT+"/services", 0, function(data, index) {
+            getSimCtr(LOCALHOST+AGENT_PORT+"/services", 0, function(data, idx) {
                 ag2="";
                 try {
                     var jd=JSON.parse(data);
@@ -371,7 +373,7 @@ function fetchAllMetrics_pol() {
             });
         }
         if (checkFunctionFlag("ag3")) {
-            getSimCtr(LOCALHOST+AGENT_PORT+"/policy_types", 0, function(data, index) {
+            getSimCtr(LOCALHOST+AGENT_PORT+"/policy_types", 0, function(data, idx) {
                 ag3="";
                 try {
                     var jd=JSON.parse(data);
@@ -390,7 +392,7 @@ function fetchAllMetrics_pol() {
         }
 
         if (checkFunctionFlag("ag4")) {
-            getSimCtr(LOCALHOST+AGENT_PORT+"/policy_ids", 0, function(data, index) {
+            getSimCtr(LOCALHOST+AGENT_PORT+"/policy_ids", 0, function(data, idx) {
                 try {
                     var jd=JSON.parse(data);
                     ag4=""+jd.length
@@ -403,7 +405,7 @@ function fetchAllMetrics_pol() {
         }
 
         if (checkFunctionFlag("ag5")) {
-            getSimCtr(LOCALHOST+AGENT_PORT+"/rics", 0, function(data, index) {
+            getSimCtr(LOCALHOST+AGENT_PORT+"/rics", 0, function(data, idx) {
                 try {
                     var jd=JSON.parse(data);
                     ag5=""+jd.length
@@ -434,10 +436,6 @@ function fetchAllMetrics_ecs() {
 
         if (checkFunctionFlag("ecs_stat")) {
             getSimCtr(LOCALHOST+ECS_PORT+"/status", 0, function(data, index) {
-                ecs1=""
-                ecs2=""
-                ecs3=""
-                ecs4=""
                 try {
                     var jd=JSON.parse(data);
                     ecs1=jd["status"]
@@ -452,109 +450,167 @@ function fetchAllMetrics_ecs() {
                     ecs4="error response"
                 }
             });
-
+            clearFlag("ecs_stat")
+        }
+        if (checkFunctionFlag("ecs_types")) {
             getSimCtr(LOCALHOST+ECS_PORT+"/ei-producer/v1/eitypes", 0, function(data, index) {
-                ecs_types="-"
+                var tmp_ecs_types="-"
                 try {
                     var jd=JSON.parse(data);
                     for(var i=0;i<jd.length;i++) {
-                        if (ecs_types.length == 1) {
-                            ecs_types=""
+                        if (tmp_ecs_types.length == 1) {
+                            tmp_ecs_types=""
                         }
-                        ecs_types=""+ecs_types+jd[i]+" "
+                        tmp_ecs_types=""+tmp_ecs_types+jd[i]+" "
                     }
                 }
                 catch (err) {
-                    ecs_types="error response"
+                    tmp_ecs_types="error response"
                 }
+                ecs_types = tmp_ecs_types
             });
-
+            clearFlag("ecs_types")
+        }
+        if (checkFunctionFlag("ecs_producers")) {
             getSimCtr(LOCALHOST+ECS_PORT+"/ei-producer/v1/eiproducers", 0, function(data, index) {
-                ecs_producers="-"
+                var tmp_ecs_producers="-"
                 try {
                     var jd=JSON.parse(data);
                     var tmp_ecs_producer_arr=new Array(jd.length)
                     for(var i=0;i<jd.length;i++) {
-                        if (ecs_producers.length == 1) {
-                            ecs_producers=""
+                        if (tmp_ecs_producers.length == 1) {
+                            tmp_ecs_producers=""
                         }
-                        ecs_producers=""+ecs_producers+jd[i]+" "
+                        tmp_ecs_producers=""+tmp_ecs_producers+jd[i]+" "
                         tmp_ecs_producer_arr[i]=jd[i]
                     }
                     ecs_producer_arr = tmp_ecs_producer_arr
+                    ecs_producers = tmp_ecs_producers
                 }
                 catch (err) {
                     ecs_producers="error response"
                     ecs_producer_arr=new Array(0)
                 }
             });
-
-            ecs_producer_type_arr = JSON.parse(JSON.stringify(ecs_producer_arr))
-            for(var x=0;x<ecs_producer_type_arr.length;x++) {
-                getSimCtr(LOCALHOST+ECS_PORT+"/ei-producer/v1/eiproducers/"+ecs_producer_type_arr[x], x, function(data, x) {
-                    var row=""+ecs_producer_type_arr[x]+" : "
-                    try {
-                        var jd=JSON.parse(data);
-                        var jda=jd["supported_ei_types"]
-                        for(var j=0;j<jda.length;j++) {
-                            row=""+row+jda[j]["ei_type_identity"]+" "
+            clearFlag("ecs_producers")
+        }
+        if (checkFunctionFlag("ecs_data")) {
+            try {
+                var tmp_ecs_producer_type_arr = JSON.parse(JSON.stringify(ecs_producer_arr))
+                for(var x=0;x<tmp_ecs_producer_type_arr.length;x++) {
+                    getSimCtr(LOCALHOST+ECS_PORT+"/ei-producer/v1/eiproducers/"+tmp_ecs_producer_type_arr[x], x, function(data, idx) {
+                        var row=""+tmp_ecs_producer_type_arr[idx]+" : "
+                        try {
+                            var jd=JSON.parse(data);
+                            var jda=jd["supported_ei_types"]
+                            for(var j=0;j<jda.length;j++) {
+                                row=""+row+jda[j]["ei_type_identity"]+" "
+                            }
+                            tmp_ecs_producer_type_arr[idx]=row
                         }
-                        ecs_producer_type_arr[x]=row
-                    }
-                    catch (err) {
-                        ecs_producer_type_arr=new Array(0)
-                    }
-                });
-            }
-
-            ecs_producer_jobs_arr = JSON.parse(JSON.stringify(ecs_producer_arr))
-            for(var x=0;x<ecs_producer_jobs_arr.length;x++) {
-                getSimCtr(LOCALHOST+ECS_PORT+"/ei-producer/v1/eiproducers/"+ecs_producer_jobs_arr[x]+"/eijobs", x, function(data, x) {
-                    var row=""+ecs_producer_jobs_arr[x]+" : "
-                    try {
-                        var jd=JSON.parse(data);
-                        for(var j=0;j<jd.length;j++) {
-                            var jda=jd[j]
-                            row=""+row+jda["ei_job_identity"]+"("+jda["ei_type_identity"]+") "
+                        catch (err) {
+                            tmp_ecs_producer_type_arr=new Array(0)
                         }
-                        ecs_producer_jobs_arr[x]=row
-                    }
-                    catch (err) {
-                        ecs_producer_jobs_arr=new Array(0)
-                    }
-                });
+                    });
+                }
+                ecs_producer_type_arr = tmp_ecs_producer_type_arr
+            } catch (err) {
+                ecs_producer_type_arr=new Array(0)
+            }
+            try {
+                var tmp_ecs_producer_jobs_arr = JSON.parse(JSON.stringify(ecs_producer_arr))
+                for(x=0;x<tmp_ecs_producer_jobs_arr.length;x++) {
+                    getSimCtr(LOCALHOST+ECS_PORT+"/ei-producer/v1/eiproducers/"+tmp_ecs_producer_jobs_arr[x]+"/eijobs", x, function(data, idx) {
+                        var row=""+tmp_ecs_producer_jobs_arr[idx]+" : "
+                        try {
+                            var jd=JSON.parse(data);
+                            for(var j=0;j<jd.length;j++) {
+                                var jda=jd[j]
+                                row=""+row+jda["ei_job_identity"]+"("+jda["ei_type_identity"]+") "
+                            }
+                            tmp_ecs_producer_jobs_arr[idx]=row
+                        }
+                        catch (err) {
+                            tmp_ecs_producer_jobs_arr=new Array(0)
+                        }
+                    });
+                }
+                ecs_producer_jobs_arr = tmp_ecs_producer_jobs_arr
+            } catch (err) {
+                ecs_producer_jobs_arr=new Array(0)
             }
 
-            ecs_producer_status_arr = JSON.parse(JSON.stringify(ecs_producer_arr))
-            for(var x=0;x<ecs_producer_status_arr.length;x++) {
-                getSimCtr(LOCALHOST+ECS_PORT+"/ei-producer/v1/eiproducers/"+ecs_producer_status_arr[x]+"/status", x, function(data, x) {
-                    var row=""+ecs_producer_status_arr[x]+" : "
-                    try {
-                        var jd=JSON.parse(data);
-                        row=""+row+jd["operational_state"]
-                        ecs_producer_status_arr[x]=row
-                    }
-                    catch (err) {
-                        ecs_producer_status_arr=new Array(0)
-                    }
-                });
+            try {
+                var tmp_ecs_producer_status_arr = JSON.parse(JSON.stringify(ecs_producer_arr))
+                for(x=0;x<tmp_ecs_producer_status_arr.length;x++) {
+                    getSimCtr(LOCALHOST+ECS_PORT+"/ei-producer/v1/eiproducers/"+tmp_ecs_producer_status_arr[x]+"/status", x, function(data, idx) {
+                        var row=""+tmp_ecs_producer_status_arr[idx]+" : "
+                        try {
+                            var jd=JSON.parse(data);
+                            row=""+row+jd["operational_state"]
+                            tmp_ecs_producer_status_arr[idx]=row
+                        }
+                        catch (err) {
+                            tmp_ecs_producer_status_arr=new Array(0)
+                        }
+                    });
+                }
+                ecs_producer_status_arr = tmp_ecs_producer_status_arr
+            } catch (err) {
+                ecs_producer_status_arr=new Array(0)
             }
-            clearFlag("ecs_stat")
+            clearFlag("ecs_data")
+        }
+        if (checkFunctionFlag("ecs_jobs")) {
+            getSimCtr(LOCALHOST+ECS_PORT+"/A1-EI/v1/eijobs", 0, function(data, index) {
+                try {
+                    var jd=JSON.parse(data);
+                    var tmpArr=new Array(jd.length)
+                    for(var i=0;i<jd.length;i++) {
+                        tmpArr[i]=jd[i]
+                    }
+                    ecs_jobs=tmpArr
+                }
+                catch (err) {
+                    ecs_jobs=new Array(0)
+                }
+            });
+            clearFlag("ecs_jobs")
+        }
+        if (checkFunctionFlag("ecs_job_status")) {
+            try {
+                var tmp_ecs_job_status= JSON.parse(JSON.stringify(ecs_jobs))
+                for(x=0;x<tmp_ecs_job_status.length;x++) {
+                    getSimCtr(LOCALHOST+ECS_PORT+"/A1-EI/v1/eijobs/"+tmp_ecs_job_status[x]+"/status", x, function(data, idx) {
+                        try {
+                            var jd=JSON.parse(data);
+                            tmp_ecs_job_status[idx]=""+tmp_ecs_job_status[idx]+":"+jd["eiJobStatus"]
+                        }
+                        catch (err) {
+                            tmp_ecs_job_status="-"
+                        }
+                    });
+                }
+                ecs_job_status = tmp_ecs_job_status
+            } catch (err) {
+                ecs_job_status="-"
+            }
+            clearFlag("ecs_job_status")
         }
         if (checkFunctionFlag("prodstub_stat")) {
-            getSimCtr(LOCALHOST+PRODSTUB_PORT+"/status", x, function(data, x) {
+            getSimCtr(LOCALHOST+PRODSTUB_PORT+"/status", x, function(data, idx) {
                 var ctr2_map=new Map()
                 var ctr3_map=new Map()
                 var ctr2=0
                 var ctr4=0
-                ps_producers=""
-                ps_types=""
-                ps_producer_type_arr=new Array()
-                ps_producer_jobs_arr=new Array()
-                ps_producer_delivery_arr=new Array()
-                ps2=""
-                ps3=""
-                ps4=""
+                var tmp_ps_producers=""
+                var tmp_ps_types=""
+                var tmp_ps_producer_type_arr=new Array()
+                var tmp_ps_producer_jobs_arr=new Array()
+                var tmp_ps_producer_delivery_arr=new Array()
+                var tmp_ps2=""
+                var tmp_ps3=""
+                var tmp_ps4=""
                 try {
                     var jp=JSON.parse(data);
                     for(var prod_name in jp) {
@@ -564,7 +620,7 @@ function fetchAllMetrics_ecs() {
                         var row=""+prod_name+" : "
                         var rowj=""+prod_name+" : "
                         var rowd=""+prod_name+" : "
-                        ps_producers += prod_name + " "
+                        tmp_ps_producers += prod_name + " "
                         for(var ji in jj) {
                             if (ji == "types") {
                                 var ta=jj[ji]
@@ -573,8 +629,11 @@ function fetchAllMetrics_ecs() {
                                     row += " "+ta[i]
                                 }
                             } else if (ji == "supervision_response") {
+                                //Do nothing
                             } else if (ji == "supervision_counter") {
+                                //Do nothing
                             } else if (ji == "types") {
+                                //Do nothing
                             } else {
                                 ctr4 += 1
                                 rowj += " "+ji
@@ -586,19 +645,27 @@ function fetchAllMetrics_ecs() {
                                 rowd += "("+jj[ji]["delivery_attempts"]+")"
                             }
                         }
-                        ps_producer_type_arr[(ctr2-1)]=row
-                        ps_producer_jobs_arr[(ctr2-1)]=rowj
-                        ps_producer_delivery_arr[(ctr2-1)]=rowd
+                        tmp_ps_producer_type_arr[(ctr2-1)]=row
+                        tmp_ps_producer_jobs_arr[(ctr2-1)]=rowj
+                        tmp_ps_producer_delivery_arr[(ctr2-1)]=rowd
                     }
-                    ps2=""+ctr2_map.size
-                    ps3=""+ctr3_map.size
+                    tmp_ps2=""+ctr2_map.size
+                    tmp_ps3=""+ctr3_map.size
                     for(const [key, value] of ctr3_map.entries()) {
-                        ps_types += key + " "
+                        tmp_ps_types += key + " "
                     }
-                    ps4=""+ctr4
+                    tmp_ps4=""+ctr4
+
+                    ps_producers=tmp_ps_producers
+                    ps_types=tmp_ps_types
+                    ps_producer_type_arr=tmp_ps_producer_type_arr
+                    ps_producer_jobs_arr=tmp_ps_producer_jobs_arr
+                    ps_producer_delivery_arr=tmp_ps_producer_delivery_arr
+                    ps2=tmp_ps2
+                    ps3=tmp_ps3
+                    ps4=tmp_ps4
                 }
                 catch (err) {
-                    console.error(err);
                     ps_producers="error response"
                     ps_types="error response"
                     ps_producer_type_arr=new Array()
@@ -631,7 +698,6 @@ function fetchAllMetrics_cr() {
 
         if (checkFunctionFlag("cr_stat")) {
             getSimCtr(LOCALHOST+CR_PORT+"/db", 0, function(data, index) {
-                ecs4=""
                 try {
                     cr_db=JSON.parse(data);
                 }
@@ -696,9 +762,12 @@ app.get("/mon2",function(req, res){
             "<body>" +
             "<font size=\"-3\" face=\"summary\">"
             if (summary == "false") {
-                htmlStr=htmlStr+"<p>Set query param '?summary' to true to only show summary statistics</p>"
+                htmlStr=htmlStr+"<p>Set query param '?summary' to true to only show summary statistics.</p>"
             } else {
                 htmlStr=htmlStr+"<p>Set query param '?summary' to false to only show full statistics</p>"
+            }
+            if (ecs_job_status.length > 10) {
+                htmlStr=htmlStr+"<div style=\"color:red\"> Avoid running the server for large number of producers and/or jobs</div>"
             }
             htmlStr=htmlStr+"</font>" +
             "<h3>Enrichment Coordinator Service</h3>" +
@@ -723,24 +792,34 @@ app.get("/mon2",function(req, res){
                     }
                 }
                 htmlStr=htmlStr+"<br>";
-                for(var i=0;i<ecs_producer_jobs_arr.length;i++) {
-                    var tmp=ecs_producer_jobs_arr[i]
+                for(i=0;i<ecs_producer_jobs_arr.length;i++) {
+                    tmp=ecs_producer_jobs_arr[i]
                     if (tmp != undefined) {
-                        var s = "Producer jobs....." + formatDataRow(ecs_producer_jobs_arr[i]) + "<br>"
+                        s = "Producer jobs....." + formatDataRow(ecs_producer_jobs_arr[i]) + "<br>"
                         htmlStr=htmlStr+s
                     }
                 }
                 htmlStr=htmlStr+"<br>";
-                for(var i=0;i<ecs_producer_status_arr.length;i++) {
-                    var tmp=ecs_producer_status_arr[i]
+                for(i=0;i<ecs_producer_status_arr.length;i++) {
+                    tmp=ecs_producer_status_arr[i]
                     if (tmp != undefined) {
-                        var s = "Producer status..." + formatDataRow(ecs_producer_status_arr[i]) + "<br>"
+                        s = "Producer status..." + formatDataRow(tmp) + "<br>"
+                        htmlStr=htmlStr+s
+                    }
+                }
+                htmlStr=htmlStr+"<br>";
+                for(i=0;i<ecs_job_status.length;i++) {
+                    tmp=ecs_job_status[i]
+                    console.log("tmp")
+                    if (tmp != undefined) {
+                        s = padding("Job", 18, ".") + formatDataRow(tmp) + "<br>"
                         htmlStr=htmlStr+s
                     }
                 }
                 htmlStr=htmlStr+"<br>"+"<br>" +
                 "</font>"
             }
+
             htmlStr=htmlStr+
             "<h3>Producer stub</h3>" +
             "<font face=\"monospace\">" +
@@ -755,26 +834,26 @@ app.get("/mon2",function(req, res){
                 "Producer ids:....." + formatDataRow(ps_producers) + "<br>" +
                 "Type ids:........." + formatDataRow(ps_types) + "<br>" +
                 "<br>";
-                for(var i=0;i<ps_producer_type_arr.length;i++) {
-                    var tmp=ps_producer_type_arr[i]
+                for(i=0;i<ps_producer_type_arr.length;i++) {
+                    tmp=ps_producer_type_arr[i]
                     if (tmp != undefined) {
-                        var s = "Producer types...." + formatDataRow(ps_producer_type_arr[i]) + "<br>"
+                        s = "Producer types...." + formatDataRow(ps_producer_type_arr[i]) + "<br>"
                         htmlStr=htmlStr+s
                     }
                 }
                 htmlStr=htmlStr+"<br>";
-                for(var i=0;i<ps_producer_jobs_arr.length;i++) {
-                    var tmp=ps_producer_jobs_arr[i]
+                for(i=0;i<ps_producer_jobs_arr.length;i++) {
+                    tmp=ps_producer_jobs_arr[i]
                     if (tmp != undefined) {
-                        var s = "Producer jobs....." + formatDataRow(ps_producer_jobs_arr[i]) + "<br>"
+                        s = "Producer jobs....." + formatDataRow(ps_producer_jobs_arr[i]) + "<br>"
                         htmlStr=htmlStr+s
                     }
                 }
                 htmlStr=htmlStr+"<br>";
-                for(var i=0;i<ps_producer_delivery_arr.length;i++) {
-                    var tmp=ps_producer_delivery_arr[i]
+                for(i=0;i<ps_producer_delivery_arr.length;i++) {
+                    tmp=ps_producer_delivery_arr[i]
                     if (tmp != undefined) {
-                        var s = "Producer delivery." + formatDataRow(ps_producer_delivery_arr[i]) + "<br>"
+                        s = "Producer delivery." + formatDataRow(ps_producer_delivery_arr[i]) + "<br>"
                         htmlStr=htmlStr+s
                     }
                 }

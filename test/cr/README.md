@@ -53,10 +53,10 @@ All counters also support the query parameter "id" to fetch counter for one indi
 ### Build and start ###
 
 >Build image<br>
-```docker build -t callback-receiver .```
+```docker build --build-arg NEXUS_PROXY_REPO=nexus3.onap.org:10001/ -t callback-receiver .```
 
 >Start the image on both http and https<br>
-```docker run -it -p 8090:8090 -p 8091:8091 callback-receiver```
+```docker run --rm -it -p 8090:8090 -p 8091:8091 callback-receiver```
 
 It will listen to http 8090 port and https 8091 port(using default certificates) at the same time.
 
@@ -69,16 +69,16 @@ file "pass" stores the password when you run the shell script
 This certificates/key can be overriden by mounting a volume when using "docker run" or "docker-compose"
 In 'docker run', use field:
 --volume "$PWD/certificate:/usr/src/app/cert" a1test
-```docker run -it -p 8090:8090 -p 8091:8091 -v "/PATH_TO_CERT/cert:/usr/src/app/cert" callback-receiver```
+```docker run --rm -it -p 8090:8090 -p 8091:8091 -v "/PATH_TO_CERT/cert:/usr/src/app/cert" callback-receiver```
 In 'docker-compose.yml', use field:
 volumes:
       - ./certificate:/usr/src/app/cert:ro
 
-The script ```crstub-build-start.sh``` do the above two steps in one go. This starts the callback-receiver container in stand-alone mode for basic test.<br>If the callback-receiver should be executed manually with the agent, replace docker run with this command to connect to the docker network with the correct service name (--name shall be aligned with the other components, i.e. the host named given in all callback urls).
-```docker run -it -p 8090:8090 -p 8091:8091 --network nonrtric-docker-net --name callback-receiver callback-receiver```
+The script ```cr-build-start.sh``` do the above two steps in one go. This starts the callback-receiver container in stand-alone mode for basic test.<br>If the callback-receiver should be executed manually with the agent, replace docker run with this command to connect to the docker network with the correct service name (--name shall be aligned with the other components, i.e. the host named given in all callback urls).
+```docker run --rm -it -p 8090:8090 -p 8091:8091 --network nonrtric-docker-net --name callback-receiver callback-receiver```
 
 >Start the image on http only<br>
-```docker run -it -p 8090:8090 callback-receiver```
+```docker run --rm -it -p 8090:8090 callback-receiver```
 
 ### Basic test ###
 

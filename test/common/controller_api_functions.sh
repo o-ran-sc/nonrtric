@@ -75,9 +75,7 @@ __do_curl_to_controller() {
 # arg: <response-code> (OSC <ric-id> <policy-type-id> [ <policy-id> [<policy-id>]* ]) | ( STD <ric-id> [ <policy-id> [<policy-id>]* ] )
 # (Function for test scripts)
 controller_api_get_A1_policy_ids() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
     paramError=1
     if [ $# -gt 3 ] && [ $2 == "OSC" ]; then
@@ -97,17 +95,13 @@ controller_api_get_A1_policy_ids() {
     retcode=$?
     status=${res:${#res}-3}
 
-    if [ $? -ne 0 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status "(likely remote server error)"$ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+    if [ $retcode -ne 0 ]; then
+		__log_test_fail_status_code $1 $retcode "(likely remote server error)"
 		return 1
 	fi
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
     body=${res:0:${#res}-3}
@@ -130,14 +124,11 @@ controller_api_get_A1_policy_ids() {
 	res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 	if [ $res -ne 0 ]; then
-		echo -e $RED" FAIL, returned body not correct"$ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_body
 		return 1
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -146,9 +137,7 @@ controller_api_get_A1_policy_ids() {
 # arg: <response-code> OSC <ric-id> <policy-type-id> [<policy-type-file>]
 # (Function for test scripts)
 controller_api_get_A1_policy_type() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
     paramError=1
     if [ $# -gt 3 ] && [ $2 == "OSC" ]; then
@@ -165,17 +154,13 @@ controller_api_get_A1_policy_type() {
     retcode=$?
     status=${res:${#res}-3}
 
-    if [ $? -ne 0 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status "(likely remote server error)"$ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+    if [ $retcode -ne 0 ]; then
+		__log_test_fail_status_code $1 $retcode "(likely remote server error)"
 		return 1
 	fi
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
     body=${res:0:${#res}-3}
@@ -189,15 +174,12 @@ controller_api_get_A1_policy_type() {
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 		if [ $res -ne 0 ]; then
-			echo -e $RED" FAIL, returned body not correct"$ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_body
 			return 1
 		fi
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -205,9 +187,7 @@ controller_api_get_A1_policy_type() {
 # arg: <response-code> (STD <ric-id> <policy-id>) | (OSC <ric-id> <policy-type-id> <policy-id>)
 # (Function for test scripts)
 controller_api_delete_A1_policy() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
     paramError=1
     if [ $# -eq 5 ] && [ $2 == "OSC" ]; then
@@ -227,22 +207,17 @@ controller_api_delete_A1_policy() {
     retcode=$?
     status=${res:${#res}-3}
 
-    if [ $? -ne 0 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status "(likely remote server error)"$ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+    if [ $retcode -ne 0 ]; then
+		__log_test_fail_status_code $1 $retcode "(likely remote server error)"
 		return 1
 	fi
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -250,9 +225,7 @@ controller_api_delete_A1_policy() {
 # arg: <response-code> (STD <ric-id> <policy-id> <template-file> ) | (OSC <ric-id> <policy-type-id> <policy-id> <template-file>)
 # (Function for test scripts)
 controller_api_put_A1_policy() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
     paramError=1
     if [ $# -eq 6 ] && [ $2 == "OSC" ]; then
@@ -275,22 +248,17 @@ controller_api_put_A1_policy() {
     retcode=$?
     status=${res:${#res}-3}
 
-    if [ $? -ne 0 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status "(likely remote server error)"$ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+    if [ $retcode -ne 0 ]; then
+		__log_test_fail_status_code $1 $retcode "(likely remote server error)"
 		return 1
 	fi
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -299,9 +267,7 @@ controller_api_put_A1_policy() {
 # arg: <response-code> (STD <ric-id> <policy-id> <enforce-status> [<reason>]) | (OSC <ric-id> <policy-type-id> <policy-id> <instance-status> <has-been-deleted>)
 # (Function for test scripts)
 controller_api_get_A1_policy_status() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
     targetJson=""
     paramError=1
@@ -334,17 +300,13 @@ controller_api_get_A1_policy_status() {
     retcode=$?
     status=${res:${#res}-3}
 
-    if [ $? -ne 0 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status "(likely remote server error)"$ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+    if [ $retcode -ne 0 ]; then
+		__log_test_fail_status_code $1 $retcode "(likely remote server error)"
 		return 1
 	fi
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
@@ -355,14 +317,11 @@ controller_api_get_A1_policy_status() {
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 		if [ $res -ne 0 ]; then
-			echo -e $RED" FAIL, returned body not correct"$ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_body
 			return 1
 		fi
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }

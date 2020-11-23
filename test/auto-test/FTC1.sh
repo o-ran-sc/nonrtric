@@ -24,7 +24,7 @@ TC_ONELINE_DESCR="Sanity test, create service and then create,update and delete 
 INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
 #SUPPORTED TEST ENV FILE
-SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN"
+SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN ORAN-MASTER"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
@@ -125,7 +125,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
             api_equal json:rics 3 60
 
-            api_equal json:policy-types 2 120
+            api_equal json:policy-types 3 120
 
             api_equal json:policies 0
 

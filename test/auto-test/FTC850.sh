@@ -17,13 +17,13 @@
 #  ============LICENSE_END=================================================
 #
 
-TC_ONELINE_DESCR="Create/delete policies in parallel over a number of ric using a number of child process"
+TC_ONELINE_DESCR="Create/delete policies in parallel over a number of rics using a number of child process"
 
 #App names to include in the test, space separated list
 INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
 #SUPPORTED TEST ENV FILE
-SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN"
+SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN ORAN-MASTER"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh

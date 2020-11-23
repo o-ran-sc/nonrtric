@@ -157,7 +157,7 @@ do_curl PUT /arm/create/prod-x/job-y?response=405 200
 ## check the db
 
 echo "=== status ==="
-RESULT="json:{\"prod-x\": {\"supervision_response\": 400, \"supervision_counter\": 2, \"types\": [\"10\", \"15\"], \"job-y\": {\"create_response\": 405, \"delete_response\": 404, \"json\": null, \"create_counter\": 0, \"delete_counter\": 0, \"delivering\": false, \"delivery_attempts\": 0}}}"
+RESULT="json:{\"prod-x\": {\"supervision_response\": 400, \"supervision_counter\": 2, \"types\": [\"10\", \"15\"], \"job-y\": {\"create_response\": 405, \"delete_response\": 404, \"json\": null, \"create_counter\": 0, \"delete_counter\": 0, \"delivering\": \"stopped\", \"delivery_attempts\": 0}}}"
 do_curl GET /status 200
 
 ## add delete response for job
@@ -169,7 +169,7 @@ do_curl PUT /arm/delete/prod-x/job-y?response=407 200
 ## check the db
 
 echo "=== status ==="
-RESULT="json:{\"prod-x\": {\"supervision_response\": 400, \"supervision_counter\": 2, \"types\": [\"10\", \"15\"], \"job-y\": {\"create_response\": 405, \"delete_response\": 407, \"json\": null, \"create_counter\": 0, \"delete_counter\": 0, \"delivering\": false, \"delivery_attempts\": 0}}}"
+RESULT="json:{\"prod-x\": {\"supervision_response\": 400, \"supervision_counter\": 2, \"types\": [\"10\", \"15\"], \"job-y\": {\"create_response\": 405, \"delete_response\": 407, \"json\": null, \"create_counter\": 0, \"delete_counter\": 0, \"delivering\": \"stopped\", \"delivery_attempts\": 0}}}"
 do_curl GET /status 200
 
 ## Get jobdata
@@ -188,12 +188,12 @@ do_curl PUT /arm/delete/prod-x/job-1 200
 echo "===  callback create job ==="
 RESULT=""
 echo "{\"ei_job_identity\": \"job-1\", \"ei_job_data\": {}, \"target_uri\": \"http://localhost:80\",\"ei_type_identity\": \"10\"}" > .p.json
-do_curl POST /callbacks/create/prod-x 201 .p.json
+do_curl POST /callbacks/job/prod-x 201 .p.json
 
 echo "===  callback create job -update ==="
 RESULT=""
 echo "{\"ei_job_identity\": \"job-1\", \"ei_job_data\": {}, \"target_uri\": \"http://localhost:80\",\"ei_type_identity\": \"10\"}" > .p.json
-do_curl POST /callbacks/create/prod-x 200 .p.json
+do_curl POST /callbacks/job/prod-x 200 .p.json
 
 ## Get jobdata
 echo "=== job data ==="
@@ -203,7 +203,7 @@ do_curl GET /jobdata/prod-x/job-1 200
 ## check the db
 
 echo "=== status ==="
-RESULT="json:{\"prod-x\": {\"supervision_response\": 400, \"supervision_counter\": 2, \"types\": [\"10\", \"15\"], \"job-y\": {\"create_response\": 405, \"delete_response\": 407, \"json\": null, \"create_counter\": 0, \"delete_counter\": 0, \"delivering\": false, \"delivery_attempts\": 0}, \"job-1\": {\"create_response\": 200, \"delete_response\": 204, \"json\": {\"ei_job_identity\": \"job-1\", \"ei_job_data\": {}, \"target_uri\": \"http://localhost:80\", \"ei_type_identity\": \"10\"}, \"create_counter\": 2, \"delete_counter\": 0, \"delivering\": false, \"delivery_attempts\": 0}}}"
+RESULT="json:{\"prod-x\": {\"supervision_response\": 400, \"supervision_counter\": 2, \"types\": [\"10\", \"15\"], \"job-y\": {\"create_response\": 405, \"delete_response\": 407, \"json\": null, \"create_counter\": 0, \"delete_counter\": 0, \"delivering\": \"stopped\", \"delivery_attempts\": 0}, \"job-1\": {\"create_response\": 200, \"delete_response\": 204, \"json\": {\"ei_job_identity\": \"job-1\", \"ei_job_data\": {}, \"target_uri\": \"http://localhost:80\", \"ei_type_identity\": \"10\"}, \"create_counter\": 2, \"delete_counter\": 0, \"delivering\": \"delivering\", \"delivery_attempts\": 0}}}"
 do_curl GET /status 200
 
 # create and delete job tests
@@ -214,7 +214,7 @@ do_curl PUT /arm/create/prod-x/job-1?response=404 200
 echo "===  callback create job -update ==="
 RESULT="returning configured response code"
 echo "{\"ei_job_identity\": \"job-1\", \"ei_job_data\": {}, \"target_uri\": \"http://localhost:80\",\"ei_type_identity\": \"10\"}" > .p.json
-do_curl POST /callbacks/create/prod-x 404 .p.json
+do_curl POST /callbacks/job/prod-x 404 .p.json
 
 echo "===  set job delete response ==="
 RESULT=""
@@ -223,7 +223,7 @@ do_curl PUT /arm/delete/prod-x/job-1?response=404 200
 echo "===  callback delete job==="
 RESULT="returning configured response code"
 echo "{\"ei_job_identity\": \"job-1\", \"ei_job_data\": {}, \"target_uri\": \"http://localhost:80\",\"ei_type_identity\": \"10\"}" > .p.json
-do_curl POST /callbacks/delete/prod-x 404 .p.json
+do_curl DELETE /callbacks/job/prod-x/job-1 404 .p.json
 
 echo "===  set job delete response ==="
 RESULT=""
@@ -232,12 +232,12 @@ do_curl PUT /arm/delete/prod-x/job-1 200
 echo "===  callback delete job==="
 RESULT=""
 echo "{\"ei_job_identity\": \"job-1\", \"ei_job_data\": {}, \"target_uri\": \"http://localhost:80\",\"ei_type_identity\": \"10\"}" > .p.json
-do_curl POST /callbacks/delete/prod-x 204 .p.json
+do_curl DELETE /callbacks/job/prod-x/job-1 204 .p.json
 
 ## check the db
 
 echo "=== status ==="
-RESULT="json:{\"prod-x\": {\"supervision_response\": 400, \"supervision_counter\": 2, \"types\": [\"10\", \"15\"], \"job-y\": {\"create_response\": 405, \"delete_response\": 407, \"json\": null, \"create_counter\": 0, \"delete_counter\": 0, \"delivering\": false, \"delivery_attempts\": 0}, \"job-1\": {\"create_response\": 404, \"delete_response\": 404, \"json\": null, \"create_counter\": 3, \"delete_counter\": 2, \"delivering\": false, \"delivery_attempts\": 0}}}"
+RESULT="json:{\"prod-x\": {\"supervision_response\": 400, \"supervision_counter\": 2, \"types\": [\"10\", \"15\"], \"job-y\": {\"create_response\": 405, \"delete_response\": 407, \"json\": null, \"create_counter\": 0, \"delete_counter\": 0, \"delivering\": \"stopped\", \"delivery_attempts\": 0}, \"job-1\": {\"create_response\": 404, \"delete_response\": 404, \"json\": null, \"create_counter\": 3, \"delete_counter\": 2, \"delivering\": \"stopped\", \"delivery_attempts\": 0}}}"
 do_curl GET /status 200
 
 
@@ -250,7 +250,7 @@ do_curl PUT /arm/create/prod-x/job-1 200
 echo "===  callback create job ==="
 RESULT=""
 echo "{\"ei_job_identity\": \"job-1\", \"ei_job_data\": {}, \"target_uri\": \"http://localhost:80\",\"ei_type_identity\": \"10\"}" > .p.json
-do_curl POST /callbacks/create/prod-x 201 .p.json
+do_curl POST /callbacks/job/prod-x 201 .p.json
 
 echo "=== data delivery start ==="
 RESULT="job not found"

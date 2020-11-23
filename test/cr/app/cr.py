@@ -19,9 +19,18 @@
 from flask import Flask, request, Response
 from time import sleep
 import time
-import datetime
+from datetime import datetime
 import json
 import traceback
+import logging
+
+# Disable all logging of GET on reading counters and db
+class AjaxFilter(logging.Filter):
+    def filter(self, record):
+        return ("/counter/" not in record.getMessage()) and ("/db" not in record.getMessage())
+
+log = logging.getLogger('werkzeug')
+log.addFilter(AjaxFilter())
 
 app = Flask(__name__)
 
@@ -47,6 +56,7 @@ MIME_TEXT="text/plain"
 MIME_JSON="application/json"
 CAUGHT_EXCEPTION="Caught exception: "
 SERVER_ERROR="Server error :"
+TIME_STAMP="cr-timestamp"
 
 #I'm alive function
 @app.route('/',
@@ -71,6 +81,7 @@ def receiveresponse(id):
             cntr_callbacks[id][1]+=1
             msg=msg_callbacks[id][0]
             print("Fetching msg for id: "+id+", msg="+str(msg))
+            del msg[TIME_STAMP]
             del msg_callbacks[id][0]
             return json.dumps(msg),200
         print("No messages for id: "+id)
@@ -96,6 +107,8 @@ def receiveresponse_all(id):
             cntr_callbacks[id][1]+=len(msg_callbacks[id])
             msg=msg_callbacks[id]
             print("Fetching all msgs for id: "+id+", msg="+str(msg))
+            for sub_msg in msg:
+                del sub_msg[TIME_STAMP]
             del msg_callbacks[id]
             return json.dumps(msg),200
         print("No messages for id: "+id)
@@ -132,6 +145,7 @@ def events_write(id):
             traceback.print_exc()
 
         cntr_msg_callbacks += 1
+        msg[TIME_STAMP]=str(datetime.now())
         if (id in msg_callbacks.keys()):
             msg_callbacks[id].append(msg)
         else:
@@ -210,10 +224,12 @@ def reset():
     global msg_callbacks
     global cntr_msg_fetched
     global cntr_msg_callbacks
+    global cntr_callbacks
 
     msg_callbacks={}
     cntr_msg_fetched=0
     cntr_msg_callbacks=0
+    cntr_callbacks={}
 
     return Response('OK', status=200, mimetype=MIME_TEXT)
 

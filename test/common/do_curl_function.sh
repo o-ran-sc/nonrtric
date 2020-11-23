@@ -33,6 +33,7 @@
 # Env BODY contains the response body after the call
 # Any error will stop script execution
 # How to use in a test script:  source this file into your bash test script to the make the function available.
+# The function may create a dir 'tmp' for temporary files.
 
 do_curl() {
     echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
@@ -88,6 +89,7 @@ do_curl() {
             count=${RESULT:16:${#RESULT}}
             #Find dir of the common dir
             DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+            mkdir -p tmp
             echo $body > ./tmp/.tmp.json
             res=$(python ${DIR}/count_json_elements.py ./tmp/.tmp.json)
             if [ $res -eq $count ]; then
