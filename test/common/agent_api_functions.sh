@@ -43,8 +43,6 @@ api_equal() {
 			return 0
 		fi
 	fi
-
-	((RES_CONF_FAIL++))
 	__print_err "needs two or three args: json:<json-array-param> <target-value> [ timeout ]" $@
 	return 1
 }
@@ -54,9 +52,7 @@ api_equal() {
 # args(V2): <response-code> <ric-id>|NORIC <service-id>|NOSERVICE <policy-type-id>|NOTYPE [ NOID | [<policy-id> <ric-id> <service-id> EMPTY|<policy-type-id> <transient> <notification-url> <template-file>]*]
 # (Function for test scripts)
 api_get_policies() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
 	if [ "$PMS_VERSION" == "V2" ]; then
 		paramError=0
@@ -115,9 +111,7 @@ api_get_policies() {
 		status=${res:${#res}-3}
 
 		if [ $status -ne $1 ]; then
-			echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_status_code $1 $status
 			return 1
 		fi
 
@@ -154,9 +148,7 @@ api_get_policies() {
 			res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 			if [ $res -ne 0 ]; then
-				echo -e $RED" FAIL, returned body not correct"$ERED
-				((RES_FAIL++))
-				__check_stop_at_error
+				__log_test_fail_body
 				return 1
 			fi
 		fi
@@ -184,9 +176,7 @@ api_get_policies() {
 		status=${res:${#res}-3}
 
 		if [ $status -ne $1 ]; then
-			echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_status_code $1 $status
 			return 1
 		fi
 
@@ -221,16 +211,13 @@ api_get_policies() {
 			res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 			if [ $res -ne 0 ]; then
-				echo -e $RED" FAIL, returned body not correct"$ERED
-				((RES_FAIL++))
-				__check_stop_at_error
+				__log_test_fail_body
 				return 1
 			fi
 		fi
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 
 }
@@ -242,9 +229,7 @@ api_get_policies() {
 
 # (Function for test scripts)
 api_get_policy() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
 
 	if [ "$PMS_VERSION" == "V2" ]; then
@@ -264,9 +249,7 @@ api_get_policy() {
 	status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
@@ -275,7 +258,7 @@ api_get_policy() {
 
 			#Create a policy json to compare with
 			body=${res:0:${#res}-3}
-			file="./tmp/.p.json"
+			#file="./tmp/.p.json"
 
 			targetJson="\"ric_id\":\"$5\",\"policy_id\":\"$UUID$2\",\"service_id\":\"$4\""
 			if [ $7 != "NOTRANSIENT" ]; then
@@ -290,16 +273,14 @@ api_get_policy() {
 				targetJson=$targetJson", \"status_notification_uri\":\"$8\""
 			fi
 
-			data=$(sed 's/XXX/'${2}'/g' $temp)
+			data=$(sed 's/XXX/'${2}'/g' $3)
 			targetJson=$targetJson", \"policy_data\":$data"
 			targetJson="{$targetJson}"
 
 			echo "TARGET JSON: $targetJson" >> $HTTPLOG
 			res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 			if [ $res -ne 0 ]; then
-				echo -e $RED" FAIL, returned body not correct"$ERED
-				((RES_FAIL++))
-				__check_stop_at_error
+				__log_test_fail_body
 				return 1
 			fi
 		fi
@@ -313,16 +294,12 @@ api_get_policy() {
 			echo "TARGET JSON: $targetJson" >> $HTTPLOG
 			res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 			if [ $res -ne 0 ]; then
-				echo -e $RED" FAIL, returned body not correct"$ERED
-				((RES_FAIL++))
-				__check_stop_at_error
-				return 1
+				__log_test_fail_body
 			fi
 		fi
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -331,9 +308,7 @@ api_get_policy() {
 # args(V2): <response-code> <service-name> <ric-id> <policytype-id>|NOTYPE <policy-id> <transient>|NOTRANSIENT <notification-url>|NOURL <template-file> [<count>]
 # (Function for test scripts)
 api_put_policy() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
 	if [ "$PMS_VERSION" == "V2" ]; then
 		if [ $# -lt 8 ] || [ $# -gt 9 ]; then
@@ -409,9 +384,7 @@ api_put_policy() {
 		echo -ne " Executing "$count"("$max")${SAMELINE}"
 		if [ $status -ne $1 ]; then
 			echo " Executed "$count"?("$max")"
-			echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_status_code $1 $status
 			return 1
 		fi
 
@@ -421,8 +394,7 @@ api_put_policy() {
 	done
 	echo ""
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -432,9 +404,7 @@ api_put_policy() {
 # (Function for test scripts)
 
 api_put_policy_batch() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
 	if [ "$PMS_VERSION" == "V2" ]; then
 		if [ $# -lt 8 ] || [ $# -gt 9 ]; then
@@ -509,9 +479,7 @@ api_put_policy_batch() {
 
 		if [ $status -ne 200 ]; then
 			echo " Requested(batch) "$count"?("$max")"
-			echo -e $RED" FAIL. Exepected status 200 (in request), got "$status $ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_status_code 200 $status
 			return 1
 		fi
 		cid=${res:0:${#res}-3}
@@ -531,9 +499,7 @@ api_put_policy_batch() {
 
 		if [ $status -ne $1 ]; then
 			echo " Accepted(batch) "$count"?("$max")"
-			echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_status_code $1 $status
 			return 1
 		fi
 
@@ -543,8 +509,7 @@ api_put_policy_batch() {
 
 	echo ""
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -553,9 +518,7 @@ api_put_policy_batch() {
 # args(V2): <response-code> <service-name> <ric-id-base> <number-of-rics> <policytype-id> <policy-start-id> <transient> <notification-url>|NOURL <template-file> <count-per-ric> <number-of-threads>
 # (Function for test scripts)
 api_put_policy_parallel() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
 	if [ "$PMS_VERSION" == "V2" ]; then
 		if [ $# -ne 11 ]; then
@@ -648,15 +611,11 @@ api_put_policy_parallel() {
 		fi
 	done
 	if [ -z $msg ]; then
-		echo " $(($count*$num_rics)) policy request(s) executed"
-		((RES_PASS++))
-		echo -e $GREEN" PASS"$EGREEN
+		__log_test_pass " $(($count*$num_rics)) policy request(s) executed"
 		return 0
 	fi
 
-	echo -e $RED" FAIL. One of more processes failed to execute" $ERED
-	((RES_FAIL++))
-	__check_stop_at_error
+	__log_test_fail_general "One of more processes failed to execute"
 	return 1
 }
 
@@ -664,9 +623,7 @@ api_put_policy_parallel() {
 # args: <response-code> <policy-id> [count]
 # (Function for test scripts)
 api_delete_policy() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
     if [ $# -lt 2 ] || [ $# -gt 3 ]; then
         __print_err "<response-code> <policy-id> [count]" $@
@@ -694,9 +651,7 @@ api_delete_policy() {
 
 		if [ $status -ne $1 ]; then
 			echo " Executed "$count"?("$max")"
-			echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_status_code $1 $status
 			return 1
 		fi
 		let pid=$pid+1
@@ -705,8 +660,7 @@ api_delete_policy() {
 	done
 	echo ""
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -714,9 +668,7 @@ api_delete_policy() {
 # args: <response-code> <policy-id> [count]
 # (Function for test scripts)
 api_delete_policy_batch() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
     if [ $# -lt 2 ] || [ $# -gt 3 ]; then
         __print_err "<response-code> <policy-id> [count]" $@
@@ -744,9 +696,7 @@ api_delete_policy_batch() {
 
 		if [ $status -ne 200 ]; then
 			echo " Requested(batch) "$count"?("$max")"
-			echo -e $RED" FAIL. Exepected status 200 (in request), got "$status $ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_status_code 200 $status
 			return 1
 		fi
 		cid=${res:0:${#res}-3}
@@ -767,9 +717,7 @@ api_delete_policy_batch() {
 
 		if [ $status -ne $1 ]; then
 			echo " Deleted(batch) "$count"?("$max")"
-			echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_status_code $1 $status
 			return 1
 		fi
 
@@ -779,8 +727,7 @@ api_delete_policy_batch() {
 
 	echo ""
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -788,9 +735,7 @@ api_delete_policy_batch() {
 # args: <response-code> <number-of-rics> <policy-start-id> <count-per-ric> <number-of-threads>
 # (Function for test scripts)
 api_delete_policy_parallel() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
     if [ $# -ne 5 ]; then
         __print_err " <response-code> <ric-id-base> <number-of-rics> <policy-start-id> <count-per-ric> <number-of-threads>" $@
@@ -849,15 +794,11 @@ api_delete_policy_parallel() {
 		fi
 	done
 	if [ -z $msg ]; then
-		echo " $(($count*$num_rics)) policy request(s) executed"
-		((RES_PASS++))
-		echo -e $GREEN" PASS"$EGREEN
+		__log_test_pass " $(($count*$num_rics)) policy request(s) executed"
 		return 0
 	fi
 
-	echo -e $RED" FAIL. One of more processes failed to execute" $ERED
-	((RES_FAIL++))
-	__check_stop_at_error
+	__log_test_fail_general "One of more processes failed to execute"
 	return 1
 }
 
@@ -865,9 +806,7 @@ api_delete_policy_parallel() {
 # args: <response-code> <ric-id>|NORIC <service-id>|NOSERVICE <type-id>|NOTYPE ([<policy-instance-id]*|NOID)
 # (Function for test scripts)
 api_get_policy_ids() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
     if [ $# -lt 4 ]; then
 		__print_err "<response-code> <ric-id>|NORIC <service-id>|NOSERVICE <type-id>|NOTYPE ([<policy-instance-id]*|NOID)" $@
@@ -924,9 +863,7 @@ api_get_policy_ids() {
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
@@ -951,15 +888,12 @@ api_get_policy_ids() {
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 		if [ $res -ne 0 ]; then
-			echo -e $RED" FAIL, returned body not correct"$ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_body
 			return 1
 		fi
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -967,14 +901,10 @@ api_get_policy_ids() {
 # args(V2): <response-code> <policy-type-id> [<schema-file>]
 # (Function for test scripts)
 api_get_policy_type() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
 	if [ "$PMS_VERSION" != "V2" ]; then
-		echo -e $RED" FAIL, function not supported"$ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_not_supported
 		return 1
 	fi
 
@@ -988,9 +918,7 @@ api_get_policy_type() {
 	status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
@@ -1004,15 +932,12 @@ api_get_policy_type() {
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 		if [ $res -ne 0 ]; then
-			echo -e $RED" FAIL, returned body not correct"$ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_body
 			return 1
 		fi
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -1020,14 +945,10 @@ api_get_policy_type() {
 # args: <response-code> <policy-type-id> [<schema-file>]
 # (Function for test scripts)
 api_get_policy_schema() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
 	if [ "$PMS_VERSION" == "V2" ]; then
-		echo -e $RED" FAIL, function not supported"$ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_not_supported
 		return 1
 	fi
 
@@ -1040,9 +961,7 @@ api_get_policy_schema() {
 	status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
@@ -1056,15 +975,12 @@ api_get_policy_schema() {
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 		if [ $res -ne 0 ]; then
-			echo -e $RED" FAIL, returned body not correct"$ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_body
 			return 1
 		fi
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -1073,9 +989,7 @@ api_get_policy_schema() {
 # args(V2): <response-code>
 # (Function for test scripts)
 api_get_policy_schemas() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
 	if [ "$PMS_VERSION" == "V2" ]; then
 		if [ $# -ne 1 ]; then
@@ -1101,9 +1015,7 @@ api_get_policy_schemas() {
 	status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
@@ -1130,28 +1042,23 @@ api_get_policy_schemas() {
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 		if [ $res -ne 0 ]; then
-			echo -e $RED" FAIL, returned body not correct"$ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_body
 			return 1
 		fi
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
 # API Test function: GET /policy_status and V2 GET /policies/{policy_id}/status
-# arg: <response-code> <policy-id> (STD <enforce-status> [<reason>])|(OSC <instance-status> <has-been-deleted>)
+# arg: <response-code> <policy-id> (STD|STD2 <enforce-status>|EMPTY [<reason>|EMPTY])|(OSC <instance-status> <has-been-deleted>)
 # (Function for test scripts)
 api_get_policy_status() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
     if [ $# -lt 4 ] || [ $# -gt 5 ]; then
-		__print_err "<response-code> <policy-id> (STD <enforce-status> [<reason>])|(OSC <instance-status> <has-been-deleted>)" $@
+		__print_err "<response-code> <policy-id> (STD <enforce-status>|EMPTY [<reason>|EMPTY])|(OSC <instance-status> <has-been-deleted>)" $@
 		return 1
 	fi
 
@@ -1161,6 +1068,20 @@ api_get_policy_status() {
 		targetJson="{\"enforceStatus\":\"$4\""
 		if [ $# -eq 5 ]; then
 			targetJson=$targetJson",\"reason\":\"$5\""
+		fi
+		targetJson=$targetJson"}"
+	elif [ $3 == "STD2" ]; then
+		if [ $4 == "EMPTY" ]; then
+			targetJson="{\"enforceStatus\":\"\""
+		else
+			targetJson="{\"enforceStatus\":\"$4\""
+		fi
+		if [ $# -eq 5 ]; then
+			if [ $5 == "EMPTY" ]; then
+				targetJson=$targetJson",\"enforceReason\":\"\""
+			else
+				targetJson=$targetJson",\"enforceReason\":\"$5\""
+			fi
 		fi
 		targetJson=$targetJson"}"
 	elif [ $3 == "OSC" ]; then
@@ -1185,9 +1106,7 @@ api_get_policy_status() {
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
@@ -1196,14 +1115,11 @@ api_get_policy_status() {
 	res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 	if [ $res -ne 0 ]; then
-		echo -e $RED" FAIL, returned body not correct"$ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_body
 		return 1
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -1211,9 +1127,7 @@ api_get_policy_status() {
 # args: <response-code> [<ric-id>|NORIC [<policy-type-id>|EMPTY [<policy-type-id>]*]]
 # (Function for test scripts)
 api_get_policy_types() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
     if [ $# -lt 1 ]; then
 		__print_err "<response-code> [<ric-id>|NORIC [<policy-type-id>|EMPTY [<policy-type-id>]*]]" $@
@@ -1242,9 +1156,7 @@ api_get_policy_types() {
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
@@ -1270,15 +1182,12 @@ api_get_policy_types() {
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 		if [ $res -ne 0 ]; then
-			echo -e $RED" FAIL, returned body not correct"$ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_body
 			return 1
 		fi
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -1290,9 +1199,7 @@ api_get_policy_types() {
 # args: <response-code>
 # (Function for test scripts)
 api_get_status() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
     if [ $# -ne 1 ]; then
 		__print_err "<response-code>" $@
 		return 1
@@ -1306,14 +1213,11 @@ api_get_status() {
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -1330,9 +1234,7 @@ api_get_status() {
 
 # (Function for test scripts)
 api_get_ric() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
 	if [ "$PMS_VERSION" == "V2" ]; then
 		if [ $# -lt 3 ]; then
@@ -1356,9 +1258,7 @@ api_get_ric() {
 		status=${res:${#res}-3}
 
 		if [ $status -ne $1 ]; then
-			echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_status_code $1 $status
 			return 1
 		fi
 
@@ -1366,9 +1266,7 @@ api_get_ric() {
 			body=${res:0:${#res}-3}
 			res=$(python3 ../common/create_rics_json.py "./tmp/.tmp_rics.json" "V2" "$4" )
 			if [ $res -ne 0 ]; then
-				echo -e $RED" FAIL, could not create target ric info json"$ERED
-				((RES_FAIL++))
-				__check_stop_at_error
+				__log_test_fail_general "Could not create target ric info json"
 				return 1
 			fi
 
@@ -1377,9 +1275,7 @@ api_get_ric() {
 			echo " TARGET JSON: $targetJson" >> $HTTPLOG
 			res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 			if [ $res -ne 0 ]; then
-				echo -e $RED" FAIL, returned body not correct"$ERED
-				((RES_FAIL++))
-				__check_stop_at_error
+				__log_test_fail_body
 				return 1
 			fi
 		fi
@@ -1395,24 +1291,19 @@ api_get_ric() {
 		status=${res:${#res}-3}
 
 		if [ $status -ne $1 ]; then
-			echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_status_code $1 $status
 			return 1
 		fi
 
 		if [ $# -eq 3 ]; then
 			body=${res:0:${#res}-3}
 			if [ "$body" != "$3" ]; then
-				echo -e $RED" FAIL, returned body not correct"$ERED
-				((RES_FAIL++))
-				__check_stop_at_error
+				__log_test_fail_body
 				return 1
 			fi
 		fi
 	fi
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -1422,9 +1313,7 @@ api_get_ric() {
 # format of ric-info:  <ric-id>:<list-of-mes>:<list-of-policy-type-ids>
 # (Function for test scripts)
 api_get_rics() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
     if [ $# -lt 2 ]; then
 		__print_err "<reponse-code> <policy-type-id>|NOTYPE [<space-separate-string-of-ricinfo>]" $@
@@ -1447,9 +1336,7 @@ api_get_rics() {
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
@@ -1461,9 +1348,7 @@ api_get_rics() {
 			res=$(python3 ../common/create_rics_json.py "./tmp/.tmp_rics.json" "V1" "$3" )
 		fi
 		if [ $res -ne 0 ]; then
-			echo -e $RED" FAIL, could not create target ric info json"$ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_general "Could not create target ric info json"
 			return 1
 		fi
 
@@ -1474,15 +1359,12 @@ api_get_rics() {
     	echo "TARGET JSON: $targetJson" >> $HTTPLOG
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 		if [ $res -ne 0 ]; then
-			echo -e $RED" FAIL, returned body not correct"$ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_body
 			return 1
 		fi
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -1494,9 +1376,7 @@ api_get_rics() {
 # args: <response-code>  <service-name> <keepalive-timeout> <callbackurl>
 # (Function for test scripts)
 api_put_service() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
     if [ $# -ne 4 ]; then
         __print_err "<response-code>  <service-name> <keepalive-timeout> <callbackurl>" $@
         return 1
@@ -1516,14 +1396,11 @@ api_put_service() {
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -1531,9 +1408,7 @@ api_put_service() {
 #args: <response-code> [ (<query-service-name> <target-service-name> <keepalive-timeout> <callbackurl>) | (NOSERVICE <target-service-name> <keepalive-timeout> <callbackurl> [<target-service-name> <keepalive-timeout> <callbackurl>]* )]
 # (Function for test scripts)
 api_get_services() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 	#Number of accepted parameters: 1, 2, 4, 7, 10, 13,...
 	paramError=1
 	if [ $# -eq 1 ]; then
@@ -1571,9 +1446,7 @@ api_get_services() {
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
@@ -1605,15 +1478,12 @@ api_get_services() {
 		echo "TARGET JSON: $targetJson" >> $HTTPLOG
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 		if [ $res -ne 0 ]; then
-			echo -e $RED" FAIL, returned body not correct"$ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_body
 			return 1
 		fi
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -1621,9 +1491,7 @@ api_get_services() {
 # args: <response-code> [<service-name>]*"
 # (Function for test scripts)
 api_get_service_ids() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
     if [ $# -lt 1 ]; then
 		__print_err "<response-code> [<service-name>]*" $@
@@ -1639,9 +1507,7 @@ api_get_service_ids() {
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
@@ -1666,14 +1532,11 @@ api_get_service_ids() {
 	res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 	if [ $res -ne 0 ]; then
-		echo -e $RED" FAIL, returned body not correct"$ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_body
 		return 1
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -1681,9 +1544,7 @@ api_get_service_ids() {
 # args: <response-code> <service-name>
 # (Function for test scripts)
 api_delete_services() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
     if [ $# -ne 2 ]; then
 		__print_err "<response-code> <service-name>" $@
@@ -1698,14 +1559,11 @@ api_delete_services() {
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -1713,9 +1571,7 @@ api_delete_services() {
 # args: <response-code> <service-name>
 # (Function for test scripts)
 api_put_services_keepalive() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
     if [ $# -ne 2 ]; then
 		__print_err "<response-code> <service-name>" $@
@@ -1731,14 +1587,50 @@ api_put_services_keepalive() {
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
+##################################################################
+#### API Test case functions Configuration                    ####
+##################################################################
+
+# API Test function: PUT /v2/configuration
+# args: <response-code> <config-file>
+# (Function for test scripts)
+api_put_configuration() {
+	__log_test_start $@
+
+	if [ "$PMS_VERSION" != "V2" ]; then
+		__log_test_fail_not_supported
+		return 1
+	fi
+
+    if [ $# -ne 2 ]; then
+        __print_err "<response-code> <config-file>" $@
+        return 1
+    fi
+	if [ ! -f $2 ]; then
+		_log_test_fail_general "Config file "$2", does not exist"
+		return 1
+	fi
+	inputJson=$(< $2)
+	inputJson="{\"config\":"$inputJson"}"
+	file="./tmp/.config.json"
+	echo $inputJson > $file
+	query="/v2/configuration"
+	res="$(__do_curl_to_api PA PUT $query $file)"
+	status=${res:${#res}-3}
+
+	if [ $status -ne $1 ]; then
+		__log_test_fail_status_code $1 $status
+		return 1
+	fi
+
+	__log_test_pass
+	return 0
+}

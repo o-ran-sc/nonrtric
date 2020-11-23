@@ -15,7 +15,9 @@
 #  ============LICENSE_END=================================================
 #
 
-FROM python:3.8-slim-buster
+ARG NEXUS_PROXY_REPO
+
+FROM ${NEXUS_PROXY_REPO}python:3.8-slim-buster
 
 #install nginx
 RUN apt-get update

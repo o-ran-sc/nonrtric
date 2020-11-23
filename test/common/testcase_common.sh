@@ -159,6 +159,94 @@ RES_DEVIATION=0
 DEVIATION_FILE=".tmp_deviations"
 rm $DEVIATION_FILE &> /dev/null
 
+
+# Trap "command not found" and make the script fail
+trap_fnc() {
+
+	if [ $? -eq 127 ]; then
+		echo -e $RED"Function not found, set script to FAIL"$ERED
+		((RES_CONF_FAIL++))
+	fi
+}
+trap trap_fnc ERR
+
+# Counter for tests
+TEST_SEQUENCE_NR=1
+
+__log_test_start() {
+	TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
+	echo -e $BOLD"TEST $TEST_SEQUENCE_NR (${BASH_LINENO[1]}): ${FUNCNAME[1]}" $@ $EBOLD
+    echo "TEST $TEST_SEQUENCE_NR - ${TIMESTAMP}: (${BASH_LINENO[1]}): ${FUNCNAME[1]}" $@ >> $HTTPLOG
+	((RES_TEST++))
+	((TEST_SEQUENCE_NR++))
+}
+
+__log_test_fail_general() {
+	echo -e $RED" FAIL."$1 $ERED
+	((RES_FAIL++))
+	__check_stop_at_error
+}
+
+__log_test_fail_status_code() {
+	echo -e $RED" FAIL. Exepected status "$1", got "$2 $3 $ERED
+	((RES_FAIL++))
+	__check_stop_at_error
+}
+
+__log_test_fail_body() {
+	echo -e $RED" FAIL, returned body not correct"$ERED
+	((RES_FAIL++))
+	__check_stop_at_error
+}
+
+__log_test_fail_not_supported() {
+	echo -e $RED" FAIL, function not supported"$ERED
+	((RES_FAIL++))
+	__check_stop_at_error
+}
+
+__log_test_pass() {
+	if [ $# -gt 0 ]; then
+		echo $@
+	fi
+	((RES_PASS++))
+	echo -e $GREEN" PASS"$EGREEN
+}
+
+#Counter for configurations
+CONF_SEQUENCE_NR=1
+__log_conf_start() {
+	TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
+	echo -e $BOLD"CONF $CONF_SEQUENCE_NR (${BASH_LINENO[1]}): "${FUNCNAME[1]} $@ $EBOLD
+	echo "CONF $CONF_SEQUENCE_NR - ${TIMESTAMP}: (${BASH_LINENO[1]}): "${FUNCNAME[1]} $@  >> $HTTPLOG
+	((CONF_SEQUENCE_NR++))
+}
+
+__log_conf_fail_general() {
+	echo -e $RED" FAIL."$1 $ERED
+	((RES_CONF_FAIL++))
+	__check_stop_at_error
+}
+
+__log_conf_fail_status_code() {
+	echo -e $RED" FAIL. Exepected status "$1", got "$2 $3 $ERED
+	((RES_CONF_FAIL++))
+	__check_stop_at_error
+}
+
+__log_conf_fail_body() {
+	echo -e $RED" FAIL, returned body not correct"$ERED
+	((RES_CONF_FAIL++))
+	__check_stop_at_error
+}
+
+__log_conf_ok() {
+	if [ $# -gt 0 ]; then
+		echo $@
+	fi
+	echo -e $GREEN" OK"$EGREEN
+}
+
 #Var for measuring execution time
 TCTEST_START=$SECONDS
 
@@ -691,7 +779,7 @@ if [ $? -eq 0 ]; then
 	cd $curdir
 	cd ../mrstub
 	echo " Building mrstub image: $MRSTUB_LOCAL_IMAGE:$MRSTUB_LOCAL_IMAGE_TAG"
-	docker build -t $MRSTUB_LOCAL_IMAGE . &> .dockererr
+	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $MRSTUB_LOCAL_IMAGE . &> .dockererr
 	if [ $? -eq 0 ]; then
 		echo -e  $GREEN" Build Ok"$EGREEN
 	else
@@ -710,7 +798,7 @@ __check_included_image 'CR'
 if [ $? -eq 0 ]; then
 	cd ../cr
 	echo " Building Callback Receiver image: $CR_LOCAL_IMAGE:$CR_IMAGE_TAG"
-	docker build -t $CR_LOCAL_IMAGE . &> .dockererr
+	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $CR_LOCAL_IMAGE . &> .dockererr
 	if [ $? -eq 0 ]; then
 		echo -e  $GREEN" Build Ok"$EGREEN
 	else
@@ -729,7 +817,7 @@ __check_included_image 'PRODSTUB'
 if [ $? -eq 0 ]; then
 	cd ../prodstub
 	echo " Building Producer stub image: $PROD_STUB_LOCAL_IMAGE:$PROD_STUB_LOCAL_IMAGE_TAG"
-	docker build -t $PROD_STUB_LOCAL_IMAGE . &> .dockererr
+	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $PROD_STUB_LOCAL_IMAGE . &> .dockererr
 	if [ $? -eq 0 ]; then
 		echo -e  $GREEN" Build Ok"$EGREEN
 	else
@@ -1066,7 +1154,8 @@ clean_containers() {
 	if [ $? -eq 0 ]; then
 		if [ $CONTRS -ne 0 ]; then
 			echo -e $RED"Containers running, may cause distubance to the test case"$ERED
-			docker ps -a
+			docker ps -a | indent1
+			echo ""
 		fi
 	fi
 }
@@ -1112,6 +1201,7 @@ __print_err() {
 	if [ $# -gt 1 ]; then
 		echo -e $RED" Got: "${FUNCNAME[1]} ${@:2} $ERED
 	fi
+	((RES_CONF_FAIL++))
 }
 
 
@@ -1482,7 +1572,8 @@ start_consul_cbs() {
 ###########################
 
 use_simulator_http() {
-	echo -e "Using $BOLD http $EBOLD towards the simulators"
+	echo -e $BOLD"RICSIM protocol setting"$EBOLD
+	echo -e " Using $BOLD http $EBOLD towards the simulators"
 	export RIC_SIM_HTTPX="http"
 	export RIC_SIM_LOCALHOST=$RIC_SIM_HTTPX"://localhost:"
 	export RIC_SIM_PORT=$RIC_SIM_INTERNAL_PORT
@@ -1490,7 +1581,8 @@ use_simulator_http() {
 }
 
 use_simulator_https() {
-	echo -e "Using $BOLD https $EBOLD towards the simulators"
+	echo -e $BOLD"RICSIM protocol setting"$EBOLD
+	echo -e " Using $BOLD https $EBOLD towards the simulators"
 	export RIC_SIM_HTTPX="https"
 	export RIC_SIM_LOCALHOST=$RIC_SIM_HTTPX"://localhost:"
 	export RIC_SIM_PORT=$RIC_SIM_INTERNAL_SECURE_PORT
@@ -1611,7 +1703,8 @@ start_sdnc() {
 }
 
 use_sdnc_http() {
-	echo -e "Using $BOLD http $EBOLD towards SDNC"
+	echo -e $BOLD"SDNC protocol setting"$EBOLD
+	echo -e " Using $BOLD http $EBOLD towards SDNC"
 	export SDNC_HTTPX="http"
 	export SDNC_PORT=$SDNC_INTERNAL_PORT
 	export SDNC_LOCAL_PORT=$SDNC_EXTERNAL_PORT
@@ -1619,7 +1712,8 @@ use_sdnc_http() {
 }
 
 use_sdnc_https() {
-	echo -e "Using $BOLD https $EBOLD towards SDNC"
+	echo -e $BOLD"SDNC protocol setting"$EBOLD
+	echo -e " Using $BOLD https $EBOLD towards SDNC"
 	export SDNC_HTTPX="https"
 	export SDNC_PORT=$SDNC_INTERNAL_SECURE_PORT
 	export SDNC_LOCAL_PORT=$SDNC_EXTERNAL_SECURE_PORT
@@ -1647,7 +1741,8 @@ start_mr() {
 }
 
 use_mr_http() {
-	echo -e "Using $BOLD http $EBOLD towards MR"
+	echo -e $BOLD"MR protocol setting"$EBOLD
+	echo -e " Using $BOLD http $EBOLD towards MR"
 	export MR_HTTPX="http"
 	export MR_PORT=$MR_INTERNAL_PORT
 	export MR_LOCAL_PORT=$MR_EXTERNAL_PORT
@@ -1655,7 +1750,8 @@ use_mr_http() {
 }
 
 use_mr_https() {
-	echo -e "Using $BOLD https $EBOLD towards MR"
+	echo -e $BOLD"MR protocol setting"$EBOLD
+	echo -e " Using $BOLD https $EBOLD towards MR"
 	export MR_HTTPX="https"
 	export MR_PORT=$MR_INTERNAL_SECURE_PORT
 	export MR_LOCAL_PORT=$MR_EXTERNAL_SECURE_PORT
@@ -1684,7 +1780,8 @@ start_cr() {
 }
 
 use_cr_http() {
-	echo -e "Using $BOLD http $EBOLD towards CR"
+	echo -e $BOLD"CR protocol setting"$EBOLD
+	echo -e " Using $BOLD http $EBOLD towards CR"
 	export CR_HTTPX="http"
 	export CR_PORT=$CR_INTERNAL_PORT
 	export CR_LOCAL_PORT=$CR_EXTERNAL_PORT
@@ -1693,7 +1790,8 @@ use_cr_http() {
 }
 
 use_cr_https() {
-	echo -e "Using $BOLD https $EBOLD towards CR"
+	echo -e $BOLD"CR protocol setting"$EBOLD
+	echo -e " Using $BOLD https $EBOLD towards CR"
 	export CR_HTTPX="https"
 	export CR_PORT=$CR_INTERNAL_SECURE_PORT
 	export CR_LOCAL_PORT=$CR_EXTERNAL_SECURE_PORT
@@ -1722,7 +1820,8 @@ start_prod_stub() {
 }
 
 use_prod_stub_http() {
-	echo -e "Using $BOLD http $EBOLD towards Producer stub"
+	echo -e $BOLD"Producer stub protocol setting"$EBOLD
+	echo -e " Using $BOLD http $EBOLD towards Producer stub"
 	export PROD_STUB_HTTPX="http"
 	export PROD_STUB_PORT=$PROD_STUB_INTERNAL_PORT
 	export PROD_STUB_LOCAL_PORT=$PROD_STUB_EXTERNAL_PORT
@@ -1731,7 +1830,8 @@ use_prod_stub_http() {
 }
 
 use_prod_stub_https() {
-	echo -e "Using $BOLD https $EBOLD towards Producer stub"
+	echo -e $BOLD"Producer stub protocol setting"$EBOLD
+	echo -e " Using $BOLD https $EBOLD towards Producer stub"
 	export PROD_STUB_HTTPX="https"
 	export PROD_STUB_PORT=$PROD_STUB_INTERNAL_SECURE_PORT
 	export PROD_STUB_LOCAL_PORT=$PROD_STUB_EXTERNAL_SECURE_PORT
@@ -1780,7 +1880,8 @@ start_policy_agent() {
 # args: -
 # (Function for test scripts)
 use_agent_rest_http() {
-	echo -e "Using $BOLD http $EBOLD and $BOLD REST $EBOLD towards the agent"
+	echo -e $BOLD"Agent protocol setting"$EBOLD
+	echo -e " Using $BOLD http $EBOLD and $BOLD REST $EBOLD towards the agent"
 	export ADAPTER=$RESTBASE
 	echo ""
 }
@@ -1789,7 +1890,8 @@ use_agent_rest_http() {
 # args: -
 # (Function for test scripts)
 use_agent_rest_https() {
-	echo -e "Using $BOLD https $EBOLD and $BOLD REST $EBOLD towards the agent"
+	echo -e $BOLD"Agent protocol setting"$EBOLD
+	echo -e " Using $BOLD https $EBOLD and $BOLD REST $EBOLD towards the agent"
 	export ADAPTER=$RESTBASE_SECURE
 	echo ""
 	return 0
@@ -1799,7 +1901,8 @@ use_agent_rest_https() {
 # args: -
 # (Function for test scripts)
 use_agent_dmaap_http() {
-	echo -e "Using $BOLD http $EBOLD and $BOLD DMAAP $EBOLD towards the agent"
+	echo -e $BOLD"Agent dmaap protocol setting"$EBOLD
+	echo -e " Using $BOLD http $EBOLD and $BOLD DMAAP $EBOLD towards the agent"
 	export ADAPTER=$DMAAPBASE
 	echo ""
 	return 0
@@ -1809,7 +1912,8 @@ use_agent_dmaap_http() {
 # args: -
 # (Function for test scripts)
 use_agent_dmaap_https() {
-	echo -e "Using $BOLD https $EBOLD and $BOLD DMAAP $EBOLD towards the agent"
+	echo -e $BOLD"Agent dmaap protocol setting"$EBOLD
+	echo -e " Using $BOLD https $EBOLD and $BOLD DMAAP $EBOLD towards the agent"
 	export ADAPTER=$DMAAPBASE_SECURE
 	echo ""
 	return 0
@@ -1819,7 +1923,7 @@ use_agent_dmaap_https() {
 # args: -
 # (Function for test scripts)
 set_agent_debug() {
-	echo -e $BOLD"Setting agent debug"$EBOLD
+	echo -e $BOLD"Setting agent debug logging"$EBOLD
 	actuator="/actuator/loggers/org.oransc.policyagent"
 	if [[ $POLICY_AGENT_IMAGE = *"onap"* ]]; then
 		actuator="/actuator/loggers/org.onap.ccsdk.oran.a1policymanagementservice"
@@ -1839,7 +1943,7 @@ set_agent_debug() {
 # args: -
 # (Function for test scripts)
 set_agent_trace() {
-	echo -e $BOLD"Setting agent trace"$EBOLD
+	echo -e $BOLD"Setting agent trace logging"$EBOLD
 	actuator="/actuator/loggers/org.oransc.policyagent"
 	if [[ $POLICY_AGENT_IMAGE = *"onap"* ]]; then
 		actuator="/actuator/loggers/org.onap.ccsdk.oran.a1policymanagementservice"
@@ -1881,11 +1985,13 @@ start_ecs() {
 	cd ecs
 	cd $ECS_HOST_MNT_DIR
 	if [ -d database ]; then
-		echo -e $BOLD" Cleaning files in mounted dir: $PWD/database"$EBOLD
-		rm database/* > /dev/null
-		if [ $? -ne 0 ]; then
-			echo -e $RED" Cannot remove database files in: $PWD"$ERED
-			exit 1
+		if [ "$(ls -A $DIR)" ]; then
+			echo -e $BOLD" Cleaning files in mounted dir: $PWD/database"$EBOLD
+			rm -rf database/*  &> /dev/null
+			if [ $? -ne 0 ]; then
+				echo -e $RED" Cannot remove database files in: $PWD"$ERED
+				exit 1
+			fi
 		fi
 	else
 		echo " No files in mounted dir or dir does not exists"
@@ -1906,6 +2012,7 @@ start_ecs() {
 # args: -
 # (Function for test scripts)
 restart_ecs() {
+	echo -e $BOLD"Re-starting ECS"$EBOLD
 	docker restart $ECS_APP_NAME &> ./tmp/.dockererr
 	if [ $? -ne 0 ]; then
 		__print_err "Could restart $ECS_APP_NAME" $@
@@ -1923,7 +2030,8 @@ restart_ecs() {
 # args: -
 # (Function for test scripts)
 use_ecs_rest_http() {
-	echo -e "Using $BOLD http $EBOLD and $BOLD REST $EBOLD towards ECS"
+	echo -e $BOLD"ECS protocol setting"$EBOLD
+	echo -e " Using $BOLD http $EBOLD and $BOLD REST $EBOLD towards ECS"
 	export ECS_ADAPTER=$ECS_RESTBASE
 	echo ""
 }
@@ -1932,7 +2040,8 @@ use_ecs_rest_http() {
 # args: -
 # (Function for test scripts)
 use_ecs_rest_https() {
-	echo -e "Using $BOLD https $EBOLD and $BOLD REST $EBOLD towards ECS"
+	echo -e $BOLD"ECS protocol setting"$EBOLD
+	echo -e " Using $BOLD https $EBOLD and $BOLD REST $EBOLD towards ECS"
 	export ECS_ADAPTER=$ECS_RESTBASE_SECURE
 	echo ""
 	return 0
@@ -1942,7 +2051,9 @@ use_ecs_rest_https() {
 # args: -
 # (Function for test scripts)
 use_ecs_dmaap_http() {
-	echo -e "Using $BOLD http $EBOLD and $BOLD DMAAP $EBOLD towards ECS"
+	echo -e $BOLD"ECS dmaap protocol setting"$EBOLD
+	echo -e $RED" - NOT SUPPORTED - "$ERED
+	echo -e " Using $BOLD http $EBOLD and $BOLD DMAAP $EBOLD towards ECS"
 	export ECS_ADAPTER=$ECS_DMAAPBASE
 	echo ""
 	return 0
@@ -1952,7 +2063,9 @@ use_ecs_dmaap_http() {
 # args: -
 # (Function for test scripts)
 use_ecs_dmaap_https() {
-	echo -e "Using $BOLD https $EBOLD and $BOLD REST $EBOLD towards ECS"
+	echo -e $BOLD"RICSIM protocol setting"$EBOLD
+	echo -e $RED" - NOT SUPPORTED - "$ERED
+	echo -e " Using $BOLD https $EBOLD and $BOLD REST $EBOLD towards ECS"
 	export ECS_ADAPTER=$ECS_DMAAPBASE_SECURE
 	echo ""
 	return 0
@@ -1962,7 +2075,7 @@ use_ecs_dmaap_https() {
 # args: -
 # (Function for test scripts)
 set_ecs_debug() {
-	echo -e $BOLD"Setting ecs debug"$EBOLD
+	echo -e $BOLD"Setting ecs debug logging"$EBOLD
 	curlString="$LOCALHOST$ECS_EXTERNAL_PORT/actuator/loggers/org.oransc.enrichment -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"debug\"}"
 	result=$(__do_curl "$curlString")
 	if [ $? -ne 0 ]; then
@@ -1978,7 +2091,7 @@ set_ecs_debug() {
 # args: -
 # (Function for test scripts)
 set_ecs_trace() {
-	echo -e $BOLD"Setting ecs trace"$EBOLD
+	echo -e $BOLD"Setting ecs trace logging"$EBOLD
 	curlString="$LOCALHOST$ECS_EXTERNAL_PORT/actuator/loggers/org.oransc.enrichment -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"trace\"}"
 	result=$(__do_curl "$curlString")
 	if [ $? -ne 0 ]; then
@@ -2155,7 +2268,6 @@ __do_curl() {
 			echo "<no-response-from-server>"
 			return 1
 		else
-			echo "X2" >> $HTTPLOG
 			return 0
 		fi
 	else
@@ -2193,8 +2305,9 @@ __var_test() {
 			checkjsonarraycount=1
 		fi
 
-		echo -e $BOLD"TEST(${BASH_LINENO[1]}): ${1}, ${3} ${4} ${5} within ${6} seconds"$EBOLD
+		echo -e $BOLD"TEST $TEST_SEQUENCE_NR (${BASH_LINENO[1]}): ${1}, ${3} ${4} ${5} within ${6} seconds"$EBOLD
 		((RES_TEST++))
+		((TEST_SEQUENCE_NR++))
 		start=$SECONDS
 		ctr=0
 		for (( ; ; )); do
@@ -2254,8 +2367,9 @@ __var_test() {
 			checkjsonarraycount=1
 		fi
 
-		echo -e $BOLD"TEST(${BASH_LINENO[1]}): ${1}, ${3} ${4} ${5}"$EBOLD
+		echo -e $BOLD"TEST $TEST_SEQUENCE_NR (${BASH_LINENO[1]}): ${1}, ${3} ${4} ${5}"$EBOLD
 		((RES_TEST++))
+		((TEST_SEQUENCE_NR++))
 		if [ $checkjsonarraycount -eq 0 ]; then
 			result="$(__do_curl $2$3)"
 			retcode=$?

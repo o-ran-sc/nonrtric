@@ -26,7 +26,8 @@
 # arg: (PA|ECS GET|PUT|POST|DELETE|GET_BATCH|PUT_BATCH|POST_BATCH|DELETE_BATCH <url> [<file>]) | (PA|ECS RESPONSE <correlation-id>)
 # (Not for test scripts)
 __do_curl_to_api() {
-    echo "(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
+	TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
+    echo " (${BASH_LINENO[0]}) - ${TIMESTAMP}: ${FUNCNAME[0]}" $@ >> $HTTPLOG
 	paramError=0
 
     if [ $# -gt 0 ]; then

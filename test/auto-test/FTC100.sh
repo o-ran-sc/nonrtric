@@ -18,14 +18,14 @@
 #
 
 
-TC_ONELINE_DESCR="Full agent API walk through using agent REST/DMAAP and with/without SDNC A1 Controller"
+TC_ONELINE_DESCR="Full agent API walkthrough using agent REST/DMAAP and with/without SDNC A1 Controller"
 
 #App names to include in the test, space separated list
 INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
 
 #SUPPORTED TEST ENV FILE
-SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN"
+SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN ORAN-MASTER"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
@@ -55,9 +55,11 @@ for __httpx in $TESTED_PROTOCOLS ; do
         clean_containers
 
         if [ $__httpx == "HTTPS" ]; then
+            use_cr_https
             use_agent_rest_https
         else
             use_agent_rest_http
+            use_cr_http
         fi
 
         start_policy_agent
@@ -70,7 +72,6 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
 
         if [ $__httpx == "HTTPS" ]; then
-            use_cr_https
             use_simulator_https
             use_mr_https
             if [[ $interface = *"SDNC"* ]]; then
@@ -82,7 +83,6 @@ for __httpx in $TESTED_PROTOCOLS ; do
                 use_agent_rest_https
             fi
         else
-            use_cr_http
             use_simulator_http
             use_mr_http
             if [[ $interface = *"SDNC"* ]]; then
@@ -392,7 +392,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         api_get_policy_status 200 5000 OSC "$VAL" "false"
         api_get_policy_status 200 5100 STD "UNDEFINED"
         if [ "$PMS_VERSION" == "V2" ]; then
-            api_get_policy_status 200 5200 STD "UNDEFINED"
+            api_get_policy_status 200 5200 STD2 EMPTY EMPTY
         fi
 
 
@@ -467,9 +467,9 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
             api_get_policy 200 5100 testdata/STD/pi1_template.json "service10" ricsim_g2_1 NOTYPE false $notificationurl
 
-            api_get_policy 200 5200 testdata/STD2/pi_qos2_template.json "service10" ricsim_g3_1 NOTYPE false $notificationurl
+            api_get_policy 200 5200 testdata/STD2/pi_qos2_template.json "service10" ricsim_g3_1 STD_QOS2_0.1.0 false $notificationurl
 
-            api_get_policies 200 ricsim_g1_1 "service10" 1 5000 ricsim_g1_1 "service10" STD_QOS2_0 true $notificationurl testdata/OSC/pi1_template.json
+            api_get_policies 200 ricsim_g1_1 "service10" 1 5000 ricsim_g1_1 "service10" 1 false $notificationurl testdata/OSC/pi1_template.json
         else
             api_get_policy 200 5000 testdata/OSC/pi1_template.json
 

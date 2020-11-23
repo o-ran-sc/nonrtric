@@ -16,8 +16,9 @@
 #  limitations under the License.
 #  ============LICENSE_END=================================================
 #
-
+#Profile for ORAN master
 TEST_ENV_PROFILE="ORAN-MASTER"
+NEXUS_PROXY_REPO="nexus3.onap.org:10001/"
 
 # Set up the image and tags for the test. Do not add the image tag to the image names.
 
@@ -56,7 +57,7 @@ SDNC_A1_CONTROLLER_REMOTE_IMAGE_TAG="2.1.0"
 
 
 #SDNC DB remote image and tag
-SDNC_DB_REMOTE_IMAGE="mysql/mysql-server"
+SDNC_DB_REMOTE_IMAGE=$NEXUS_PROXY_REPO"mysql/mysql-server"
 SDNC_DB_REMOTE_IMAGE_TAG="5.6"
 #No local image for DB, remote image always used
 
@@ -66,11 +67,11 @@ RIC_SIM_LOCAL_IMAGE="o-ran-sc/a1-simulator"
 RIC_SIM_LOCAL_IMAGE_TAG="latest"
 # Near RT RIC Simulator remote image and tag
 RIC_SIM_REMOTE_IMAGE="nexus3.o-ran-sc.org:10004/o-ran-sc/a1-simulator"
-RIC_SIM_REMOTE_IMAGE_TAG="2.0.0"
+RIC_SIM_REMOTE_IMAGE_TAG="2.1.0"
 
 
 #Consul remote image and tag
-CONSUL_REMOTE_IMAGE="consul"
+CONSUL_REMOTE_IMAGE=$NEXUS_PROXY_REPO"consul"
 CONSUL_REMOTE_IMAGE_TAG="1.7.2"
 #No local image for Consul, remote image always used
 
@@ -103,7 +104,8 @@ export POLICY_AGENT_EXTERNAL_PORT=8081                          # Policy Agent c
 export POLICY_AGENT_INTERNAL_PORT=8081                          # Policy Agent container internal port (container -> container)
 export POLICY_AGENT_EXTERNAL_SECURE_PORT=8433                   # Policy Agent container external secure port (host -> container)
 export POLICY_AGENT_INTERNAL_SECURE_PORT=8433                   # Policy Agent container internal secure port (container -> container)
-export POLICY_AGENT_APIS="V1"                                   # Supported northbound api versions
+export POLICY_AGENT_APIS="V1 V2"                                # Supported northbound api versions
+export PMS_VERSION="V1"                                         # Tested version of northbound API
 
 export POLICY_AGENT_APP_NAME="policy-agent"                     # Name for Policy Agent container
 POLICY_AGENT_LOGPATH="/var/log/policy-agent/application.log"    # Path the application log in the Policy Agent container
