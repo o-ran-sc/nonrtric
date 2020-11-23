@@ -314,12 +314,14 @@ public class ConsumerController {
     }
 
     private EiJob toEiJob(ConsumerEiJobInfo info, String id, EiType type) {
-        return new EiJob(id, //
-            type.getId(), //
-            info.owner, //
-            info.jobData, //
-            info.targetUri, //
-            info.statusNotificationUri == null ? "" : info.statusNotificationUri);
+        return EiJob.builder() //
+            .id(id) //
+            .typeId(type.getId()) //
+            .owner(info.owner) //
+            .jobData(info.jobData) //
+            .targetUrl(info.targetUri) //
+            .jobStatusUrl(info.statusNotificationUri == null ? "" : info.statusNotificationUri) //
+            .build();
     }
 
     private ConsumerEiTypeInfo toEiTypeInfo() {

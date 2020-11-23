@@ -21,7 +21,7 @@
 package org.oransc.enrichment.repository;
 
 import java.lang.invoke.MethodHandles;
-
+import lombok.Builder;
 import lombok.Getter;
 
 import org.slf4j.Logger;
@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Represents the dynamic information about a EI job
  */
-
+@Builder
 public class EiJob {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
@@ -53,16 +53,8 @@ public class EiJob {
     private final String jobStatusUrl;
 
     @Getter
+    @Builder.Default
     private boolean isLastStatusReportedEnabled = true;
-
-    public EiJob(String id, String typeId, String owner, Object jobData, String targetUrl, String jobStatusUrl) {
-        this.id = id;
-        this.typeId = typeId;
-        this.owner = owner;
-        this.jobData = jobData;
-        this.targetUrl = targetUrl;
-        this.jobStatusUrl = jobStatusUrl;
-    }
 
     public void setLastReportedStatus(boolean isEnabled) {
         this.isLastStatusReportedEnabled = isEnabled;
