@@ -25,6 +25,15 @@ from flask import Flask
 from flask import Response
 import traceback
 from threading import RLock
+import logging
+
+# Disable all logging of GET on reading counters
+class AjaxFilter(logging.Filter):
+    def filter(self, record):
+        return ("/counter/" not in record.getMessage())
+
+log = logging.getLogger('werkzeug')
+log.addFilter(AjaxFilter())
 
 app = Flask(__name__)
 lock = RLock()

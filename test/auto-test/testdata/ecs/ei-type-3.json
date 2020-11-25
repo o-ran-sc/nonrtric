@@ -1,0 +1,6 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "STD_Type3_1.0.0",
+    "description": "EI-Type 3",
+    "type": "object"
+}

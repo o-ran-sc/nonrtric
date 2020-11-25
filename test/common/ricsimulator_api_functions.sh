@@ -55,12 +55,10 @@ __execute_curl_to_sim() {
 sim_equal() {
 
 	if [ $# -eq 3 ] || [ $# -eq 4 ]; then
-		app=$1
-		port=$(__find_sim_port $app)
-		__var_test $app "$RIC_SIM_LOCALHOST$port/counter/" $2 "=" $3 $4
+		port=$(__find_sim_port $1)
+		__var_test $1 "$RIC_SIM_LOCALHOST$port/counter/" $2 "=" $3 $4
 		return 0
 	else
-		((RES_CONF_FAIL++))
 		__print_err "needs three or four args: <ric-id> <sim-param> <target-value> [ timeout ]"
 		return 1
 	fi
@@ -72,13 +70,11 @@ sim_equal() {
 sim_print() {
 
 	if [ $# != 2 ]; then
-		((RES_CONF_FAIL++))
     	__print_err "need two args, <ric-id> <sim-param>" $@
 		exit 1
 	fi
-	app=$1
-	port=$(__find_sim_port $app)
-	echo -e $BOLD"INFO(${BASH_LINENO[0]}): $app, $2 = $(__do_curl $RIC_SIM_LOCALHOST$port/counter/$2)"$EBOLD
+	port=$(__find_sim_port $1)
+	echo -e $BOLD"INFO(${BASH_LINENO[0]}): $1, $2 = $(__do_curl $RIC_SIM_LOCALHOST$port/counter/$2)"$EBOLD
 }
 
 # Tests if a variable value in the RIC simulator contains the target string and and optional timeout
@@ -91,12 +87,10 @@ sim_print() {
 sim_contains_str() {
 
 	if [ $# -eq 3 ] || [ $# -eq 4 ]; then
-		app=$1
-		port=$(__find_sim_port $app)
-		__var_test $app "$RIC_SIM_LOCALHOST$port/counter/" $2 "contain_str" $3 $4
+		port=$(__find_sim_port $1)
+		__var_test $1 "$RIC_SIM_LOCALHOST$port/counter/" $2 "contain_str" $3 $4
 		return 0
 	else
-		((RES_CONF_FAIL++))
 		__print_err "needs three or four args: <ric-id> <sim-param> <target-value> [ timeout ]"
 		return 1
 	fi
@@ -106,17 +100,13 @@ sim_contains_str() {
 # args: <response-code> <ric-id> <policy-type-id> <policy-type-file>
 # (Function for test scripts)
 sim_put_policy_type() {
-	echo -e $BOLD"CONF(${BASH_LINENO[0]}): "${FUNCNAME[0]} $@ $EBOLD
+	__log_conf_start $@
 	if [ $# -ne 4 ]; then
-		((RES_CONF_FAIL++))
 		__print_err "<response-code> <ric-id> <policy-type-id> <policy-type-file>" $@
 		return 1
 	fi
-	app=$2
-	res=$(__find_sim_port $app)
-
+	res=$(__find_sim_port $2)
     curlString="curl -X PUT -skw %{http_code} $RIC_SIM_LOCALHOST"$res"/policytype?id="$3" -H Content-Type:application/json --data-binary @"$4
-
 	__execute_curl_to_sim $1 "$curlString"
 	return $?
 }
@@ -125,17 +115,13 @@ sim_put_policy_type() {
 # <response-code> <ric-id> <policy-type-id>
 # (Function for test scripts)
 sim_delete_policy_type() {
-	echo -e $BOLD"CONF(${BASH_LINENO[0]}): "${FUNCNAME[0]} $@ $EBOLD
+	__log_conf_start $@
 	if [ $# -ne 3 ]; then
-		((RES_CONF_FAIL++))
 		__print_err "<response-code> <ric-id> <policy_type_id>" $@
 		return 1
 	fi
-	app=$2
-	res=$(__find_sim_port $app)
-
+	res=$(__find_sim_port $2)
     curlString="curl -X DELETE -skw %{http_code} $RIC_SIM_LOCALHOST"$res"/policytype?id="$3
-
     __execute_curl_to_sim $1 "$curlString"
 	return $?
 }
@@ -144,17 +130,13 @@ sim_delete_policy_type() {
 # <response-code> <ric-id>
 # (Function for test scripts)
 sim_post_delete_instances() {
-	echo -e $BOLD"CONF(${BASH_LINENO[0]}): "${FUNCNAME[0]} $@ $EBOLD
+	__log_conf_start $@
 	if [ $# -ne 2 ]; then
-		((RES_CONF_FAIL++))
 		__print_err "<response-code> <ric-id>" $@
 		return 1
 	fi
-	app=$2
-	res=$(__find_sim_port $app)
-
+	res=$(__find_sim_port $2)
     curlString="curl -X POST -skw %{http_code} $RIC_SIM_LOCALHOST"$res"/deleteinstances"
-
     __execute_curl_to_sim $1 "$curlString"
 	return $?
 }
@@ -163,17 +145,13 @@ sim_post_delete_instances() {
 # <response-code> <ric-id>
 # (Function for test scripts)
 sim_post_delete_all() {
-	echo -e $BOLD"CONF(${BASH_LINENO[0]}): "${FUNCNAME[0]} $@ $EBOLD
+	__log_conf_start $@
 	if [ $# -ne 3 ]; then
-		((RES_CONF_FAIL++))
 		__print_err "<response-code> <numericic-id>" $@
 		return 1
 	fi
-	app=$2
-	res=$(__find_sim_port $app)
-
+	res=$(__find_sim_port $2)
     curlString="curl -X POST -skw %{http_code} $RIC_SIM_LOCALHOST"$res"/deleteall"
-
     __execute_curl_to_sim $1 "$curlString"
 	return $?
 }
@@ -182,20 +160,16 @@ sim_post_delete_all() {
 # <response-code> <ric-id> [<forced_response_code>]
 # (Function for test scripts)
 sim_post_forcedresponse() {
-	echo -e $BOLD"CONF(${BASH_LINENO[0]}): "${FUNCNAME[0]} $@ $EBOLD
+	__log_conf_start $@
 	if [ $# -ne 3 ]; then
-		((RES_CONF_FAIL++))
 		__print_err "<response-code> <ric-id> <forced_response_code>" $@
 		return 1
 	fi
-	app=$2
-	res=$(__find_sim_port $app)
-
+	res=$(__find_sim_port $2)
     curlString="curl -X POST -skw %{http_code} $RIC_SIM_LOCALHOST"$res"/forceresponse"
 	if [ $# -eq 3 ]; then
 		curlString=$curlString"?code="$3
 	fi
-
     __execute_curl_to_sim $1 "$curlString"
 	return $?
 }
@@ -204,20 +178,16 @@ sim_post_forcedresponse() {
 # <response-code> <ric-id> [<delay-in-seconds>]
 # (Function for test scripts)
 sim_post_forcedelay() {
-	echo -e $BOLD"CONF(${BASH_LINENO[0]}): "${FUNCNAME[0]} $@ $EBOLD
+	__log_conf_start $@
 	if [ $# -ne 3 ]; then
-		((RES_CONF_FAIL++))
 		__print_err "<response-code> <ric-id> [<delay-in-seconds>]" $@
 		return 1
 	fi
-	app=$2
-	res=$(__find_sim_port $app)
-
+	res=$(__find_sim_port $2)
     curlString="curl -X POST -skw %{http_code} $RIC_SIM_LOCALHOST$res/forcedelay"
 	if [ $# -eq 3 ]; then
 		curlString=$curlString"?delay="$3
 	fi
-
     __execute_curl_to_sim $1 "$curlString"
 	return $?
 }

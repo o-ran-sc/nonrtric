@@ -742,15 +742,17 @@ Test of GET '/policy_status' or V2 GET '/policies/{policy_id}/status'.
 
 | arg list |
 |--|
-| `<response-code> <policy-id> (STD <enforce-status> [<reason>])|(OSC <instance-status> <has-been-deleted>)` |
+| `<response-code> <policy-id> (STD|STD2 <enforce-status>|EMPTY [<reason>|EMPTY])|(OSC <instance-status> <has-been-deleted>)` |
 
 | parameter | description |
 | --------- | ----------- |
 | `<response-code>` | Expected http response code |
 | `<policy-id>` |  Id of the policy |
 | `STD` |  Indicator of status of Standarized A1 |
+| `STD2` |  Indicator of status of Standarized A1 version 2 |
 | `<enforce-status>` |  Enforcement status |
 | `<reason>` |  Optional reason |
+| `EMPTY` |  Indicator of empty string status or reason |
 | `OSC` |  Indicator of status of Non-Standarized OSC A1 |
 | `<instance-status>` |  Instance status |
 | `<has-been-deleted>` |  Deleted status, true or false |
@@ -889,6 +891,30 @@ Test of PUT '/services/keepalive' or V2 PUT '/v2/services/{service_id}/keepalive
 | --------- | ----------- |
 | `<response-code>` | Expected http response code |
 | `<service-name>` |  Service name |
+
+## Function: api_put_configuration() ##
+Test of PUT '/v2/configuration'
+
+| arg list |
+|--|
+| <response-code> <config-file>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<config-file>` |  Path json config file |
+
+## Function: api_get_configuration() ##
+Test of GET '/v2/configuration'
+
+| arg list |
+|--|
+| <response-code> [<config-file>]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<config-file>` |  Path json config file to compare the retrieved config with |
 
 # Description of functions in ricsimulator_api_functions.sh #
 The functions below only use the admin interface of the simulator, no usage of the A1 interface.
@@ -1115,6 +1141,22 @@ Checks the status of a policy
 
 # Description of functions in ecs_api_function.sh #
 
+## Function: ecs_equal ##
+Tests if a variable value in the ECS is equal to a target value.
+Without the timeout, the test sets pass or fail immediately depending on if the variable is equal to the target or not.
+With the timeout, the test waits up to the timeout seconds before setting pass or fail depending on if the variable value becomes equal to the target value or not.
+See the 'a1-interface' repo for more details.
+
+| arg list |
+|--|
+| `<variable-name> <target-value> [ <timeout-in-sec> ]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<variable-name>` | Variable name in ecs  |
+| `<target-value>` | Target value for the variable  |
+| `<timeout-in-sec>` | Max time to wait for the variable to reach the target value  |
+
 ## Function: ecs_api_a1_get_job_ids() ##
 Test of GET '/A1-EI​/v1​/eitypes​/{eiTypeId}​/eijobs' and optional check of the array of returned job ids.
 To test the response code only, provide the response code parameter as well as a type id and an owner id.
@@ -1329,14 +1371,13 @@ To test, provide all parameters. The list of type/schema pair may be empty.
 
 | arg list |
 |--|
-| `<response-code> <producer-id> <create-callback> <delete-callback> <supervision-callback> (EMPTY | [<type-id> <schema-file>]+)` |
+| `<response-code> <producer-id> <job-callback> <supervision-callback> (EMPTY | [<type-id> <schema-file>]+)` |
 
 | parameter | description |
 | --------- | ----------- |
 | `<response-code>` | Expected http response code |
 | `<producer-id>` | Id of the producer  |
-| `<create-callback>` | Callback for create job  |
-| `<delete-callback>` | Callback for delete job  |
+| `<job-callback>` | Callback for create/delete job  |
 | `<supervision-callback>` | Callback for producer supervision  |
 | `<type-id>` | Id of the EI type  |
 | `<schema-file>` | Path to a schema file  |
@@ -1455,6 +1496,20 @@ Check a job in the prodstub towards the list of provided parameters.
 | `<type-id>` | Id of the type  |
 | `<target-url>` | Target url for data delivery  |
 | `<template-job-file>` | Path to a job template file  |
+
+## Function: prodstub_delete_jobdata() ##
+Delete the job parameters, job data, for a job.
+
+| arg list |
+|--|
+| `<response-code> <producer-id> <job-id>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<producer-id>` | Id of the producer  |
+| `<job-id>` | Id of the job  |
+
 
 ## Function: prodstub_equal ##
 Tests if a variable value in the prodstub is equal to a target value.

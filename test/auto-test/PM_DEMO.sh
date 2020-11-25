@@ -23,7 +23,7 @@ TC_ONELINE_DESCR="Preparation demo setup  - populating a number of ric simulator
 INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
 #SUPPORTED TEST ENV FILE
-SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN"
+SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN ORAN-MASTER"
 
 . ../common/testcase_common.sh $@
 . ../common/agent_api_functions.sh
@@ -34,15 +34,16 @@ SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN"
 #Local vars in test script
 ##########################
 
+use_cr_https
+use_agent_rest_https
+use_sdnc_https
+use_simulator_https
+
 if [ "$PMS_VERSION" == "V2" ]; then
     notificationurl=$CR_PATH"/test"
 else
     notificationurl=""
 fi
-
-use_agent_rest_https
-use_sdnc_https
-use_simulator_https
 
 clean_containers
 
@@ -58,8 +59,6 @@ if [ "$PMS_VERSION" == "V2" ]; then
 fi
 
 start_mr #Just to prevent errors in the agent log...
-
-start_control_panel
 
 start_control_panel
 

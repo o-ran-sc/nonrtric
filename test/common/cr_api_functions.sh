@@ -57,23 +57,18 @@ cr_equal() {
 	if [ $# -eq 2 ] || [ $# -eq 3 ]; then
 		__var_test "CR" "$LOCALHOST$CR_EXTERNAL_PORT/counter/" $1 "=" $2 $3
 	else
-		((RES_CONF_FAIL++))
 		__print_err "Wrong args to cr_equal, needs two or three args: <sim-param> <target-value> [ timeout ]" $@
 	fi
 }
 
-# CR API: Check the contents of all current ric sync events from PMS
+# CR API: Check the contents of all current ric sync events for one id from PMS
 # <response-code> <id> [ EMPTY | ( <ric-id> )+ ]
 # (Function for test scripts)
 cr_api_check_all_sync_events() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
 	if [ "$PMS_VERSION" != "V2" ]; then
-		echo -e $RED" FAIL, function not supported"$ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_not_supported
 		return 1
 	fi
 
@@ -87,9 +82,7 @@ cr_api_check_all_sync_events() {
 	status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
@@ -115,13 +108,60 @@ cr_api_check_all_sync_events() {
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 		if [ $res -ne 0 ]; then
-			echo -e $RED" FAIL, returned body not correct"$ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_body
 			return 1
 		fi
 	fi
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
+	return 0
+}
+
+# CR API: Check the contents of all current status events for one id from ECS
+# <response-code> <id> [ EMPTY | ( <status> )+ ]
+# (Function for test scripts)
+cr_api_check_all_ecs_events() {
+	__log_test_start $@
+
+    if [ $# -lt 2 ]; then
+        __print_err "<response-code> <id> [ EMPTY | ( <status> )+ ]" $@
+        return 1
+    fi
+
+	query="/get-all-events/"$2
+	res="$(__do_curl_to_api CR GET $query)"
+	status=${res:${#res}-3}
+
+	if [ $status -ne $1 ]; then
+		__log_test_fail_status_code $1 $status
+		return 1
+	fi
+
+	if [ $# -gt 2 ]; then
+		body=${res:0:${#res}-3}
+		if [ $# -eq 3 ] && [ $3 == "EMPTY" ]; then
+			targetJson="["
+		else
+			targetJson="["
+			arr=(${@:3})
+
+			for ((i=0; i<$(($#-2)); i=i+1)); do
+
+				if [ "$targetJson" != "[" ]; then
+					targetJson=$targetJson","
+				fi
+				targetJson=$targetJson"{\"eiJobStatus\":\"${arr[$i]}\"}"
+			done
+		fi
+
+		targetJson=$targetJson"]"
+		echo "TARGET JSON: $targetJson" >> $HTTPLOG
+		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+
+		if [ $res -ne 0 ]; then
+			__log_test_fail_body
+			return 1
+		fi
+	fi
+	__log_test_pass
 	return 0
 }

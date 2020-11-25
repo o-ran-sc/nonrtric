@@ -21,14 +21,24 @@
 
 . ../common/api_curl.sh
 
-############### EXPERIMENTAL #############
+# Tests if a variable value in the ECS is equal to a target value and and optional timeout.
+# Arg: <variable-name> <target-value> - This test set pass or fail depending on if the variable is
+# equal to the target or not.
+# Arg: <variable-name> <target-value> <timeout-in-sec>  - This test waits up to the timeout seconds
+# before setting pass or fail depending on if the variable value becomes equal to the target
+# value or not.
+# (Function for test scripts)
+ecs_equal() {
+	if [ $# -eq 2 ] || [ $# -eq 3 ]; then
+		__var_test ECS "$LOCALHOST$ECS_EXTERNAL_PORT/" $1 "=" $2 $3
+	else
+		__print_err "Wrong args to ecs_equal, needs two or three args: <sim-param> <target-value> [ timeout ]" $@
+	fi
+}
+
 
 ##########################################
-###### Mainly only function skeletons ####
-##########################################
-
-##########################################
-### A1-E Enrichment Data Consumer API ####
+######### A1-E Enrichment  API ##########
 ##########################################
 #Function prefix: ecs_api_a1
 
@@ -37,9 +47,7 @@
 # args (flat uri structure): <response-code> <type-id>|NOTYPE  <owner-id>|NOOWNER [ EMPTY | <job-id>+ ]
 # (Function for test scripts)
 ecs_api_a1_get_job_ids() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
 	if [ -z "$FLAT_A1_EI" ]; then
 		# Valid number of parameters 4,5,6 etc
@@ -76,9 +84,7 @@ ecs_api_a1_get_job_ids() {
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
@@ -100,15 +106,12 @@ ecs_api_a1_get_job_ids() {
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 		if [ $res -ne 0 ]; then
-			echo -e $RED" FAIL, returned body not correct"$ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_body
 			return 1
 		fi
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -116,9 +119,7 @@ ecs_api_a1_get_job_ids() {
 # args: <response-code> <type-id> [<schema-file>]
 # (Function for test scripts)
 ecs_api_a1_get_type() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
     if [ $# -lt 2 ] || [ $# -gt 3 ]; then
 		__print_err "<response-code> <type-id> [<schema-file>]" $@
@@ -130,9 +131,7 @@ ecs_api_a1_get_type() {
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
@@ -141,9 +140,7 @@ ecs_api_a1_get_type() {
 		if [ -f $3 ]; then
 			schema=$(cat $3)
 		else
-			echo -e $RED" FAIL. Schema file "$3", does not exist"$ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_general "Schema file "$3", does not exist"
 			return 1
 		fi
 		if [ -z "$FLAT_A1_EI" ]; then
@@ -155,15 +152,12 @@ ecs_api_a1_get_type() {
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 		if [ $res -ne 0 ]; then
-			echo -e $RED" FAIL, returned body not correct"$ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_body
 			return 1
 		fi
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -171,9 +165,7 @@ ecs_api_a1_get_type() {
 # args: <response-code> [ (EMPTY | [<type-id>]+) ]
 # (Function for test scripts)
 ecs_api_a1_get_type_ids() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
     if [ $# -lt 1 ]; then
 		__print_err "<response-code> [ (EMPTY | [<type-id>]+) ]" $@
@@ -185,9 +177,7 @@ ecs_api_a1_get_type_ids() {
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 	if [ $# -gt 1 ]; then
@@ -206,15 +196,12 @@ ecs_api_a1_get_type_ids() {
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 		if [ $res -ne 0 ]; then
-			echo -e $RED" FAIL, returned body not correct"$ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_body
 			return 1
 		fi
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -223,9 +210,7 @@ ecs_api_a1_get_type_ids() {
 # args (flat uri structure): <response-code> <job-id> [<status>]
 # (Function for test scripts)
 ecs_api_a1_get_job_status() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
 	if [ -z "$FLAT_A1_EI" ]; then
 		if [ $# -ne 3 ] && [ $# -ne 4 ]; then
@@ -239,9 +224,7 @@ ecs_api_a1_get_job_status() {
 		status=${res:${#res}-3}
 
 		if [ $status -ne $1 ]; then
-			echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_status_code $1 $status
 			return 1
 		fi
 		if [ $# -eq 4 ]; then
@@ -251,9 +234,7 @@ ecs_api_a1_get_job_status() {
 			res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 			if [ $res -ne 0 ]; then
-				echo -e $RED" FAIL, returned body not correct"$ERED
-				((RES_FAIL++))
-				__check_stop_at_error
+				__log_test_fail_body
 				return 1
 			fi
 		fi
@@ -270,9 +251,7 @@ ecs_api_a1_get_job_status() {
 		status=${res:${#res}-3}
 
 		if [ $status -ne $1 ]; then
-			echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_status_code $1 $status
 			return 1
 		fi
 		if [ $# -eq 3 ]; then
@@ -282,16 +261,13 @@ ecs_api_a1_get_job_status() {
 			res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 			if [ $res -ne 0 ]; then
-				echo -e $RED" FAIL, returned body not correct"$ERED
-				((RES_FAIL++))
-				__check_stop_at_error
+				__log_test_fail_body
 				return 1
 			fi
 		fi
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -300,9 +276,7 @@ ecs_api_a1_get_job_status() {
 # args (flat uri structure): <response-code> <job-id> [<type-id> <target-url> <owner-id> <template-job-file>]
 # (Function for test scripts)
 ecs_api_a1_get_job() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
 	if [  -z "$FLAT_A1_EI" ]; then
 		if [ $# -ne 3 ] && [ $# -ne 6 ]; then
@@ -322,9 +296,7 @@ ecs_api_a1_get_job() {
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
@@ -336,9 +308,7 @@ ecs_api_a1_get_job() {
 				jobfile=$(cat $6)
 				jobfile=$(echo "$jobfile" | sed "s/XXXX/$3/g")
 			else
-				echo -e $RED" FAIL. Job template file "$6", does not exist"$ERED
-				((RES_FAIL++))
-				__check_stop_at_error
+				_log_test_fail_general "Job template file "$6", does not exist"
 				return 1
 			fi
 			targetJson="{\"targetUri\": \"$4\",\"jobOwner\": \"$5\",\"jobParameters\": $jobfile}"
@@ -346,9 +316,7 @@ ecs_api_a1_get_job() {
 			res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 			if [ $res -ne 0 ]; then
-				echo -e $RED" FAIL, returned body not correct"$ERED
-				((RES_FAIL++))
-				__check_stop_at_error
+				__log_test_fail_body
 				return 1
 			fi
 		fi
@@ -360,26 +328,21 @@ ecs_api_a1_get_job() {
 				jobfile=$(cat $7)
 				jobfile=$(echo "$jobfile" | sed "s/XXXX/$2/g")
 			else
-				echo -e $RED" FAIL. Job template file "$6", does not exist"$ERED
-				((RES_FAIL++))
-				__check_stop_at_error
+				_log_test_fail_general "Job template file "$6", does not exist"
 				return 1
 			fi
-			targetJson="{\"eiTypeId\": \"$3\", \"targetUri\": \"$4\",\"jobOwner\": \"$5\",\"jobStatusNotificationUri\": \"$6\",\"jobDefinition\": $jobfile}"
+			targetJson="{\"eiTypeId\": \"$3\", \"jobResultUri\": \"$4\",\"jobOwner\": \"$5\",\"jobStatusNotificationUri\": \"$6\",\"jobDefinition\": $jobfile}"
 			echo " TARGET JSON: $targetJson" >> $HTTPLOG
 			res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 			if [ $res -ne 0 ]; then
-				echo -e $RED" FAIL, returned body not correct"$ERED
-				((RES_FAIL++))
-				__check_stop_at_error
+				__log_test_fail_body
 				return 1
 			fi
 		fi
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -388,9 +351,7 @@ ecs_api_a1_get_job() {
 # args (flat uri structure): <response-code> <job-id>
 # (Function for test scripts)
 ecs_api_a1_delete_job() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
 	if [  -z "$FLAT_A1_EI" ]; then
 		if [ $# -ne 3 ]; then
@@ -411,14 +372,11 @@ ecs_api_a1_delete_job() {
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -427,9 +385,7 @@ ecs_api_a1_delete_job() {
 # args (flat uri structure): <response-code> <job-id> <type-id> <target-url> <owner-id> <notification-url> <template-job-file>
 # (Function for test scripts)
 ecs_api_a1_put_job() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
 	if [  -z "$FLAT_A1_EI" ]; then
 		if [ $# -lt 6 ]; then
@@ -440,9 +396,7 @@ ecs_api_a1_put_job() {
 			jobfile=$(cat $6)
 			jobfile=$(echo "$jobfile" | sed "s/XXXX/$3/g")
 		else
-			echo -e $RED" FAIL. Job template file "$6", does not exist"$ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			_log_test_fail_general "Job template file "$6", does not exist"
 			return 1
 		fi
 
@@ -461,9 +415,7 @@ ecs_api_a1_put_job() {
 			jobfile=$(cat $7)
 			jobfile=$(echo "$jobfile" | sed "s/XXXX/$2/g")
 		else
-			echo -e $RED" FAIL. Job template file "$7", does not exist"$ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			_log_test_fail_general "Job template file "$7", does not exist"
 			return 1
 		fi
 
@@ -478,14 +430,11 @@ ecs_api_a1_put_job() {
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -499,9 +448,7 @@ ecs_api_a1_put_job() {
 # args: <response-code> [ EMPTY | <type-id>+]
 # (Function for test scripts)
 ecs_api_edp_get_type_ids() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
     if [ $# -lt 1 ]; then
 		__print_err "<response-code> [ EMPTY | <type-id>+]" $@
@@ -513,9 +460,7 @@ ecs_api_edp_get_type_ids() {
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
@@ -535,58 +480,74 @@ ecs_api_edp_get_type_ids() {
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 		if [ $res -ne 0 ]; then
-			echo -e $RED" FAIL, returned body not correct"$ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_body
 			return 1
 		fi
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
 # API Test function: GET /ei-producer/v1/eiproducers/{eiProducerId}/status
-# args: <response-code> <producer-id> [<status>]
+# args: <response-code> <producer-id> [<status> [<timeout>]]
 # (Function for test scripts)
 ecs_api_edp_get_producer_status() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
-    if [ $# -lt 2 ] || [ $# -gt 3 ]; then
-		__print_err "<response-code> <producer-id> [<status>]" $@
+    if [ $# -lt 2 ] || [ $# -gt 4 ]; then
+		__print_err "<response-code> <producer-id> [<status> [<timeout>]]" $@
 		return 1
 	fi
 
 	query="/ei-producer/v1/eiproducers/$2/status"
-    res="$(__do_curl_to_api ECS GET $query)"
-    status=${res:${#res}-3}
+	start=$SECONDS
+	for (( ; ; )); do
+		res="$(__do_curl_to_api ECS GET $query)"
+		status=${res:${#res}-3}
 
-	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
-		return 1
-	fi
-	if [ $# -eq 3 ]; then
-		body=${res:0:${#res}-3}
-		targetJson="{\"operational_state\": \"$3\"}"
-		echo " TARGET JSON: $targetJson" >> $HTTPLOG
-		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
-
-		if [ $res -ne 0 ]; then
-			echo -e $RED" FAIL, returned body not correct"$ERED
-			((RES_FAIL++))
-			__check_stop_at_error
-			return 1
+		if [ $# -eq 4 ]; then
+			duration=$((SECONDS-start))
+			echo -ne " Response=${status} after ${duration} seconds, waiting for ${3} ${SAMELINE}"
+			if [ $duration -gt $4 ]; then
+				echo ""
+				duration=-1  #Last iteration
+			fi
+		else
+			duration=-1 #single test, no wait
 		fi
-	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
-	return 0
+		if [ $status -ne $1 ]; then
+			if [ $duration -eq -1 ]; then
+				__log_test_fail_status_code $1 $status
+				return 1
+			fi
+		fi
+		if [ $# -ge 3 ] && [ $status -eq $1 ]; then
+			body=${res:0:${#res}-3}
+			targetJson="{\"operational_state\": \"$3\"}"
+			echo " TARGET JSON: $targetJson" >> $HTTPLOG
+			res=$(python3 ../common/compare_json.py "$targetJson" "$body")
+
+			if [ $res -ne 0 ]; then
+				if [ $duration -eq -1 ]; then
+					__log_test_fail_body
+					return 1
+				fi
+			else
+				duration=-1  #Goto pass
+			fi
+		fi
+		if [ $duration -eq -1 ]; then
+			if [ $# -eq 4 ]; then
+				echo ""
+			fi
+			__log_test_pass
+			return 0
+		else
+			sleep 1
+		fi
+	done
 }
 
 
@@ -594,9 +555,7 @@ ecs_api_edp_get_producer_status() {
 # args: <response-code> [ EMPTY | <producer-id>+]
 # (Function for test scripts)
 ecs_api_edp_get_producer_ids() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
     if [ $# -lt 1 ]; then
 		__print_err "<response-code> [ EMPTY | <producer-id>+]" $@
@@ -608,9 +567,7 @@ ecs_api_edp_get_producer_ids() {
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
@@ -632,15 +589,12 @@ ecs_api_edp_get_producer_ids() {
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 		if [ $res -ne 0 ]; then
-			echo -e $RED" FAIL, returned body not correct"$ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_body
 			return 1
 		fi
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -648,9 +602,7 @@ ecs_api_edp_get_producer_ids() {
 # args: <response-code> <type-id> [<job-schema-file> (EMPTY | [<producer-id>]+)]
 # (Function for test scripts)
 ecs_api_edp_get_type() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
 	paramError=1
 	if [ $# -eq 2 ]; then
@@ -669,9 +621,7 @@ ecs_api_edp_get_type() {
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 	if [ $# -gt 3 ]; then
@@ -680,9 +630,7 @@ ecs_api_edp_get_type() {
 		if [ -f $3 ]; then
 			schema=$(cat $3)
 		else
-			echo -e $RED" FAIL. Job template file "$3", does not exist"$ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_general "Job template file "$3", does not exist"
 			return 1
 		fi
 
@@ -701,40 +649,35 @@ ecs_api_edp_get_type() {
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 		if [ $res -ne 0 ]; then
-			echo -e $RED" FAIL, returned body not correct"$ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_body
 			return 1
 		fi
 	fi
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
 # API Test function: GET /ei-producer/v1/eiproducers/{eiProducerId}
-# args: <response-code> <producer-id> [<create-callback> <delete-callback> <supervision-callback> (EMPTY | [<type-id> <schema-file>]+) ]
+# args: <response-code> <producer-id> [<job-callback> <supervision-callback> (EMPTY | [<type-id> <schema-file>]+) ]
 # (Function for test scripts)
 ecs_api_edp_get_producer() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
-	#Possible arg count: 2, 6 7, 9, 11 etc
+	#Possible arg count: 2, 5 6, 8, 10 etc
 	paramError=1
 	if [ $# -eq 2 ]; then
 		paramError=0
 	fi
-	if [ $# -eq 6 ] && [ "$6" == "EMPTY" ]; then
+	if [ $# -eq 5 ] && [ "$5" == "EMPTY" ]; then
 		paramError=0
 	fi
-	variablecount=$(($#-5))
+	variablecount=$(($#-4))
 	if [ $# -gt 5 ] && [ $(($variablecount%2)) -eq 0 ]; then
 		paramError=0
 	fi
 
     if [ $paramError -ne 0 ]; then
-		__print_err "<response-code> <producer-id> [<create-callback> <delete-callback> <supervision-callback> (NOID | [<type-id> <schema-file>]+) ]" $@
+		__print_err "<response-code> <producer-id> [<job-callback> <supervision-callback> (NOID | [<type-id> <schema-file>]+) ]" $@
 		return 1
 	fi
 
@@ -743,27 +686,23 @@ ecs_api_edp_get_producer() {
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
 	if [ $# -gt 2 ]; then
 		body=${res:0:${#res}-3}
 		targetJson="["
-		if [ $# -gt 6 ]; then
-			arr=(${@:6})
-			for ((i=0; i<$(($#-6)); i=i+2)); do
+		if [ $# -gt 5 ]; then
+			arr=(${@:5})
+			for ((i=0; i<$(($#-5)); i=i+2)); do
 				if [ "$targetJson" != "[" ]; then
 					targetJson=$targetJson","
 				fi
 				if [ -f ${arr[$i+1]} ]; then
 					schema=$(cat ${arr[$i+1]})
 				else
-					echo -e $RED" FAIL. Schema file "${arr[$i+1]}", does not exist"$ERED
-					((RES_FAIL++))
-					__check_stop_at_error
+					_log_test_fail_general "Schema file "${arr[$i+1]}", does not exist"
 					return 1
 				fi
 
@@ -772,21 +711,18 @@ ecs_api_edp_get_producer() {
 		fi
 		targetJson=$targetJson"]"
 		if [ $# -gt 4 ]; then
-			targetJson="{\"supported_ei_types\":$targetJson,\"ei_job_creation_callback_url\": \"$3\",\"ei_job_deletion_callback_url\": \"$4\",\"ei_producer_supervision_callback_url\": \"$5\"}"
+			targetJson="{\"supported_ei_types\":$targetJson,\"ei_job_callback_url\": \"$3\",\"ei_producer_supervision_callback_url\": \"$4\"}"
 		fi
 		echo " TARGET JSON: $targetJson" >> $HTTPLOG
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 		if [ $res -ne 0 ]; then
-			echo -e $RED" FAIL, returned body not correct"$ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_body
 			return 1
 		fi
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -794,9 +730,7 @@ ecs_api_edp_get_producer() {
 # args: <response-code> <producer-id>
 # (Function for test scripts)
 ecs_api_edp_delete_producer() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
     if [ $# -lt 2 ]; then
 		__print_err "<response-code> <producer-id>" $@
@@ -808,50 +742,43 @@ ecs_api_edp_delete_producer() {
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
 # API Test function: PUT /ei-producer/v1/eiproducers/{eiProducerId}
-# args: <response-code> <producer-id> <create-callback> <delete-callback> <supervision-callback> NOTYPE|[<type-id> <schema-file>]+
+# args: <response-code> <producer-id> <job-callback> <supervision-callback> NOTYPE|[<type-id> <schema-file>]+
 # (Function for test scripts)
 ecs_api_edp_put_producer() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
-	#Valid number of parametrer 6,7,9,11,
+	#Valid number of parametrer 5,6,8,10,
 	paramError=1
-	if  [ $# -eq 6 ] && [ "$6" == "NOTYPE" ]; then
+	if  [ $# -eq 5 ] && [ "$5" == "NOTYPE" ]; then
 		paramError=0
-	elif [ $# -gt 6 ] && [ $(($#%2)) -eq 1 ]; then
+	elif [ $# -gt 5 ] && [ $(($#%2)) -eq 0 ]; then
 		paramError=0
 	fi
 	if [ $paramError -ne 0 ]; then
-		__print_err "<response-code> <producer-id> <create-callback> <delete-callback> <supervision-callback> [<type-id> <schema-file>]+" $@
+		__print_err "<response-code> <producer-id> <job-callback> <supervision-callback> NOTYPE|[<type-id> <schema-file>]+" $@
 		return 1
 	fi
 
 	inputJson="["
-	if [ $# -gt 6 ]; then
-		arr=(${@:6})
-		for ((i=0; i<$(($#-6)); i=i+2)); do
+	if [ $# -gt 5 ]; then
+		arr=(${@:5})
+		for ((i=0; i<$(($#-5)); i=i+2)); do
 			if [ "$inputJson" != "[" ]; then
 				inputJson=$inputJson","
 			fi
 			if [ -f ${arr[$i+1]} ]; then
 				schema=$(cat ${arr[$i+1]})
 			else
-				echo -e $RED" FAIL. Schema file "${arr[$i+1]}", does not exist"$ERED
-				((RES_FAIL++))
-				__check_stop_at_error
+				_log_test_fail_general "Schema file "${arr[$i+1]}", does not exist"
 				return 1
 			fi
 			inputJson=$inputJson"{\"ei_type_identity\":\"${arr[$i]}\",\"ei_job_data_schema\":$schema}"
@@ -859,7 +786,7 @@ ecs_api_edp_put_producer() {
 	fi
 	inputJson="\"supported_ei_types\":"$inputJson"]"
 
-	inputJson=$inputJson",\"ei_job_creation_callback_url\": \"$3\",\"ei_job_deletion_callback_url\": \"$4\",\"ei_producer_supervision_callback_url\": \"$5\""
+	inputJson=$inputJson",\"ei_job_callback_url\": \"$3\",\"ei_producer_supervision_callback_url\": \"$4\""
 
 	inputJson="{"$inputJson"}"
 
@@ -870,14 +797,11 @@ ecs_api_edp_put_producer() {
     status=${res:${#res}-3}
 
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -885,9 +809,7 @@ ecs_api_edp_put_producer() {
 # args: <response-code> <producer-id> (EMPTY | [<job-id> <type-id> <target-url> <template-job-file>]+)
 # (Function for test scripts)
 ecs_api_edp_get_producer_jobs() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
 	#Valid number of parameter 2,3,6,10
 	paramError=1
@@ -910,9 +832,7 @@ ecs_api_edp_get_producer_jobs() {
     res="$(__do_curl_to_api ECS GET $query)"
     status=${res:${#res}-3}
 	if [ $status -ne $1 ]; then
-		echo -e $RED" FAIL. Exepected status "$1", got "$status $ERED
-		((RES_FAIL++))
-		__check_stop_at_error
+		__log_test_fail_status_code $1 $status
 		return 1
 	fi
 	if [ $# -gt 2 ]; then
@@ -928,9 +848,7 @@ ecs_api_edp_get_producer_jobs() {
 					jobfile=$(cat ${arr[$i+3]})
 					jobfile=$(echo "$jobfile" | sed "s/XXXX/${arr[$i]}/g")
 				else
-					echo -e $RED" FAIL. Job template file "${arr[$i+3]}", does not exist"$ERED
-					((RES_FAIL++))
-					__check_stop_at_error
+					_log_test_fail_general "Job template file "${arr[$i+3]}", does not exist"
 					return 1
 				fi
 				targetJson=$targetJson"{\"ei_job_identity\":\"${arr[$i]}\",\"ei_type_identity\":\"${arr[$i+1]}\",\"target_uri\":\"${arr[$i+2]}\",\"ei_job_data\":$jobfile}"
@@ -942,15 +860,12 @@ ecs_api_edp_get_producer_jobs() {
 		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
 
 		if [ $res -ne 0 ]; then
-			echo -e $RED" FAIL, returned body not correct"$ERED
-			((RES_FAIL++))
-			__check_stop_at_error
+			__log_test_fail_body
 			return 1
 		fi
 	fi
 
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	__log_test_pass
 	return 0
 }
 
@@ -964,16 +879,18 @@ ecs_api_edp_get_producer_jobs() {
 # args: <response-code>
 # (Function for test scripts)
 ecs_api_service_status() {
-	echo -e $BOLD"TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ $EBOLD
-    echo "TEST(${BASH_LINENO[0]}): ${FUNCNAME[0]}" $@ >> $HTTPLOG
-	((RES_TEST++))
+	__log_test_start $@
 
     if [ $# -lt 1 ]; then
 		__print_err "<response-code> [<producer-id>]*|NOID" $@
 		return 1
 	fi
-
-	((RES_PASS++))
-	echo -e $GREEN" PASS"$EGREEN
+	res="$(__do_curl_to_api ECS GET /status)"
+    status=${res:${#res}-3}
+	if [ $status -ne $1 ]; then
+		__log_test_fail_status_code $1 $status
+		return 1
+	fi
+	__log_test_pass
 	return 0
 }

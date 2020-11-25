@@ -23,7 +23,7 @@ TC_ONELINE_DESCR="Preparation for test of the Control Panel and the Health Check
 INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM"
 
 #SUPPORTED TEST ENV FILE
-SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN"
+SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN ORAN-MASTER"
 
 . ../common/testcase_common.sh $@
 . ../common/agent_api_functions.sh

@@ -59,10 +59,10 @@ There are a number of counters that can be read to monitor the message processin
 ### Build and start ###
 
 >Build image<br>
-```docker build -t mrstub .```
+```docker build --build-arg NEXUS_PROXY_REPO=nexus3.onap.org:10001/ -t mrstub .```
 
 >Start the image on http only<br>
-```docker run -it -p 3905:3905 mrstub```
+```docker run --rm -it -p 3905:3905 mrstub```
 
 >Start the image on http and https<br>
 By default, this image has default certificates under /usr/src/app/cert
@@ -72,20 +72,20 @@ file "generate_cert_and_key.sh" is a shell script to generate certificate and ke
 file "pass" stores the password when you run the shell script
 
 Start the a1-interface container without specifing external certificates:
-```docker run -it -p 3905:3905 -p 3906:3906 mrstub```
+```docker run --rm -it -p 3905:3905 -p 3906:3906 mrstub```
 
 It will listen to http 3905 port and https 3906 port(using default certificates) at the same time.
 
 This certificates/key can be overriden by mounting a volume when using "docker run" or "docker-compose"
 In 'docker run', use field:
 --volume "$PWD/certificate:/usr/src/app/cert" a1test
-```docker run -it -p 3905:3905 -p 3906:3906 -v "/PATH_TO_CERT/cert:/usr/src/app/cert" mrstub```
+```docker run --rm -it -p 3905:3905 -p 3906:3906 -v "/PATH_TO_CERT/cert:/usr/src/app/cert" mrstub```
 In 'docker-compose.yml', use field:
 volumes:
       - ./certificate:/usr/src/app/cert:ro
 
 The script ```mrstub-build-start.sh``` do the build and docker run in one go. This starts the stub container in stand-alone mode for basic test.<br>If the mrstub should be executed manually with the agent, replace docker run with this command to connect to the docker network with the correct service name (--name shall be the same as configured in consul for the read and write streams).
-```docker run -it -p 3905:3905 --network nonrtric-docker-net --name message-router mrstub```
+```docker run --rm -it -p 3905:3905 --network nonrtric-docker-net --name message-router mrstub```
 
 
 ### Basic test ###

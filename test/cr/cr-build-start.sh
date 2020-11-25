@@ -19,6 +19,6 @@
 
 #Builds the callback receiver container and starts it in interactive mode
 
-docker build -t callback-receiver .
+docker build --build-arg NEXUS_PROXY_REPO=nexus3.onap.org:10001/ -t callback-receiver .
 
-docker run --rm -it -p 8090:8090 -p 8091:8091 callback-receiver
+docker run --rm -it -p 8090:8090 -p 8091:8091 --name cr callback-receiver
