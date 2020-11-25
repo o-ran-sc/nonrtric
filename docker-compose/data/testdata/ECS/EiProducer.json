@@ -1,0 +1,9 @@
+{
+    "ei_job_creation_callback_url": "http://example.com",
+    "ei_job_deletion_callback_url": "http://example.com",
+    "ei_producer_supervision_callback_url": "http://example.com",
+    "supported_ei_types": [{
+        "ei_job_data_schema": {},
+        "ei_type_identity": "type1"
+    }]
+}

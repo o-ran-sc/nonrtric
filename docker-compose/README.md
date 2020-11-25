@@ -29,12 +29,21 @@ one policy in a1-sim-STD
 
 Run command:
 cd data/
-./fill_data.sh [policy-agent-port] [a1-sim-OSC-port] [a1-sim-STD-port] [http/https]
+./preparePmsData.sh [policy-agent-port] [a1-sim-OSC-port] [a1-sim-STD-port] [http/https]
 
 Open link:
 http://localhost:[control-panel-port]/
 
 All the generated data is shown on the web page
+
+By default, if the containers are started up and running by docker-compose file in the same directory, just run commands:
+./preparePmsData.sh
+
+prepareEcsData.sh
+This is to generate some data into the ECS microservice
+
+prepareDmaapMsg.sh
+This is to generate some data into the Dmaap MR, so that PMS reads message from MR
 
 ## License
 
