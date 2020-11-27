@@ -160,6 +160,10 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
                 <version>${openapi-generator-maven-plugin.version}</version>
@@ -173,6 +177,7 @@
                             <generatorName>spring</generatorName>
                             <apiPackage>org.oransc.rappcatalogue.api</apiPackage>
                             <modelPackage>org.oransc.rappcatalogue.model</modelPackage>
+                            <invokerPackage>org.oransc.rappcatalogue</invokerPackage>
                             <configOptions>
                                 <delegatePattern>true</delegatePattern>
                             </configOptions>
