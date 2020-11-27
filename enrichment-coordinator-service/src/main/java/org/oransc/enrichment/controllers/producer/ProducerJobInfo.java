@@ -55,15 +55,21 @@ public class ProducerJobInfo {
     @JsonProperty("target_uri")
     public String targetUri;
 
-    public ProducerJobInfo(Object jobData, String id, String typeId, String targetUri) {
+    @ApiModelProperty(value = "The owner of the job")
+    @SerializedName("owner")
+    @JsonProperty("owner")
+    public String owner;
+
+    public ProducerJobInfo(Object jobData, String id, String typeId, String targetUri, String owner) {
         this.id = id;
         this.jobData = jobData;
         this.typeId = typeId;
         this.targetUri = targetUri;
+        this.owner = owner;
     }
 
     public ProducerJobInfo(EiJob job) {
-        this(job.getJobData(), job.getId(), job.getTypeId(), job.getTargetUrl());
+        this(job.getJobData(), job.getId(), job.getTypeId(), job.getTargetUrl(), job.getOwner());
     }
 
     public ProducerJobInfo() {

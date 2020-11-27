@@ -508,7 +508,7 @@
             "tags": ["A1-EI (enrichment information)"]
         }}
     },
-    "host": "localhost:38411",
+    "host": "localhost:34053",
     "definitions": {
         "producer_ei_job_request": {
             "description": "The body of the EI producer callbacks for EI job creation and deletion",
@@ -516,6 +516,10 @@
             "title": "producer_ei_job_request",
             "required": ["ei_job_identity"],
             "properties": {
+                "owner": {
+                    "description": "The owner of the job",
+                    "type": "string"
+                },
                 "ei_job_identity": {
                     "description": "Idenitity of the EI job",
                     "type": "string"
