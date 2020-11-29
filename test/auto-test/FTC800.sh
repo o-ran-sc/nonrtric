@@ -23,7 +23,7 @@ TC_ONELINE_DESCR="Create 10000 policies in sequence using http/https and Agent R
 INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
 #SUPPORTED TEST ENV FILE
-SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN ORAN-MASTER"
+SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN ORAN-CHERRY"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh

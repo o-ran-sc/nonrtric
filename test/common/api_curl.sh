@@ -23,7 +23,7 @@
 # one for sending the requests and one for receiving the response
 # but only when using the DMAAP interface
 # REST or DMAAP is controlled of the base url of $ADAPTER
-# arg: (PA|ECS GET|PUT|POST|DELETE|GET_BATCH|PUT_BATCH|POST_BATCH|DELETE_BATCH <url> [<file>]) | (PA|ECS RESPONSE <correlation-id>)
+# arg: (PA|ECS|CR|RC GET|PUT|POST|DELETE|GET_BATCH|PUT_BATCH|POST_BATCH|DELETE_BATCH <url> [<file>]) | (PA|ECS RESPONSE <correlation-id>)
 # (Not for test scripts)
 __do_curl_to_api() {
 	TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
@@ -45,6 +45,11 @@ __do_curl_to_api() {
 		    __ADAPTER=$CR_ADAPTER
             __RESTBASE=$CR_RESTBASE
             __RESTBASE_SECURE=$CR_RESTBASE_SECURE
+            __RETRY_CODES=""
+		elif [ $1 == "RC" ]; then
+		    __ADAPTER=$RC_ADAPTER
+            __RESTBASE=$RC_RESTBASE
+            __RESTBASE_SECURE=$RC_RESTBASE_SECURE
             __RETRY_CODES=""
         else
             paramError=1

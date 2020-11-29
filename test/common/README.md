@@ -16,7 +16,7 @@ The included functions are described in detail further below.
 Common functions for running two or more auto test scripts as a suite.
 
 `api_curl.sh` \
-A common curl based function for the agent and ecs apis. Also partly used for the Callback receiver api.
+A common curl based function for the agent and ecs apis. Also partly used for the Callback receiver and RAPP Catalogue apis.
 
 `agent_api_functions.sh` \
 Contains functions for adapting towards the Policy Agent API, also via dmaap (using a message-router stub interface)
@@ -32,6 +32,9 @@ Contains functions for adapting towards the RIC (A1) simulator admin API.
 
 `prodstub_api_functions.sh` \
 Contains functions for adapting towards the Producer stub interface - simulates a producer.
+
+`rapp_catalogue_api_functions.sh` \
+Contains functions for adapting towards the RAPP Catalogue.
 
 `compare_json.py` \
 A python script to compare two json obects for equality. Note that the comparsion always sort json-arrays before comparing (that is, it does not care about the order of items within the array). In addition, the target json object may specify individual parameter values where equality is 'dont care'.
@@ -76,7 +79,7 @@ The script can be started with these arguments
 | `--stop-at-error` | intended for debugging and make the script stop at first 'FAIL' and save all logs with a prefix 'STOP_AT_ERROR' |
 | `--ricsim-prefix <prefix>` | use another prefix for the ric simulator container name than the standard 'ricsim'. Note that the testscript has to read and use the env var `$RIC_SIM_PREFIX` instead of a hardcoded name of the ric(s). |
 | `--env-file` | point to a file with environment variables (the previous default, test_env.sh, replaced with one env file for each branch in test/common) |
-| `--use-local-image <app-nam> [<app-name>]*` | nnly applicable when running as 'remote' or 'remote-remove'. Mainly for debugging when a locally built image shall be used together with other remote images from nexus.Accepts a space separated list of PA, CP, RICSIM, SDNC for Policy Agent, Control Panel, A1-controller and the Ric simulator |
+| `--use-local-image <app-nam> [<app-name>]*` | only applicable when running as 'remote' or 'remote-remove'. Mainly for debugging when a locally built image shall be used together with other remote images from nexus.Accepts a space separated list of PA, CP, RICSIM, SDNC, RC for Policy Agent, Control Panel, A1-controller, Ric simulator, RAPP Catalogue |
 
 
 ## Function: print_result ##
@@ -1528,8 +1531,6 @@ With the timeout, the test waits up to the timeout seconds before setting pass o
 
 # Description of functions in cr_api_function.sh #
 
-
-
 ## Function: cr_equal ##
 Tests if a variable value in the Callback Receiver (CR) simulator is equal to a target value.
 Without the timeout, the test sets pass or fail immediately depending on if the variable is equal to the target or not.
@@ -1558,6 +1559,81 @@ Check the contents of all ric events received for a callback id.
 | `<id>` | Id of the callback destination  |
 | `EMPTY` | Indicator for an empty list  |
 | `<ric-id>` | Id of the ric  |
+
+# Description of functions in rapp_catalogue_api_function.sh #
+
+## Function: rc_equal ##
+Tests if a variable value in the RAPP Catalogue is equal to a target value.
+Without the timeout, the test sets pass or fail immediately depending on if the variable is equal to the target or not.
+With the timeout, the test waits up to the timeout seconds before setting pass or fail depending on if the variable value becomes equal to the target value or not.
+See the 'cr' dir for more details.
+| arg list |
+|--|
+| `<variable-name> <target-value> [ <timeout-in-sec> ]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<variable-name>` | Variable name in the RC  |
+| `<target-value>` | Target value for the variable  |
+| `<timeout-in-sec>` | Max time to wait for the variable to reach the target value  |
+
+## Function: rapp_cat_api_get_services() ##
+Check all registered services.
+
+| arg list |
+|--|
+| `<response-code> [(<service-id> <version> <display-name> <description>)+ | EMPTY ]` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<service-id>` | Id of the service  |
+| `<version>` | Version of the service  |
+| `<display-name>` | Dislay name of the service  |
+| `<description>` | Description of the service  |
+| `EMPTY` | Indicator for an empty list  |
+
+## Function: rapp_cat_api_put_service() ##
+Register a services.
+
+| arg list |
+|--|
+| `<response-code> <service-id> <version> <display-name> <description>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<service-id>` | Id of the service  |
+| `<version>` | Version of the service  |
+| `<display-name>` | Dislay name of the service  |
+| `<description>` | Description of the service  |
+
+## Function: rapp_cat_api_get_service() ##
+Check a registered service.
+
+| arg list |
+|--|
+| `<response-code> <service-id> <version> <display-name> <description>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<service-id>` | Id of the service  |
+| `<version>` | Version of the service  |
+| `<display-name>` | Dislay name of the service  |
+| `<description>` | Description of the service  |
+
+## Function: rapp_cat_api_delete_service() ##
+Check a registered service.
+
+| arg list |
+|--|
+| `<response-code> <service-id>` |
+
+| parameter | description |
+| --------- | ----------- |
+| `<response-code>` | Expected http response code |
+| `<service-id>` | Id of the service  |
 
 
 ## License

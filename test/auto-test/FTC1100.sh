@@ -24,7 +24,7 @@ TC_ONELINE_DESCR="ECS full intefaces walkthrough"
 INCLUDED_IMAGES="ECS PRODSTUB CR RICSIM CP"
 
 #SUPPORTED TEST ENV FILE
-SUPPORTED_PROFILES="ONAP-MASTER ORAN-MASTER"
+SUPPORTED_PROFILES="ONAP-MASTER ORAN-CHERRY"
 
 . ../common/testcase_common.sh  $@
 . ../common/ecs_api_functions.sh

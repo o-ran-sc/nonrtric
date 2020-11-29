@@ -15,7 +15,7 @@ The test scripts uses configuration from a single file, found in `../common/test
 ## How to run
 A test script, for example FTC1, is executed from the cmd line using the script filename and one or more parameters:
 
- ./FTC1.sh remote.
+ ./FTC1.sh remote --env-file ../common/test_env-oran-cherry
 
 See the README.md in  `../common/` for all details about available parameters and their meaning.
 
@@ -52,6 +52,10 @@ It is strongly suggested to look at the existing test scripts, it is probably ea
 #!/bin/bash
 
 TC_ONELINE_DESCR="<test case description>"
+
+INCLUDED_IMAGES=<list of used app in this test case>
+
+SUPPORTED_PROFILES=<list of supported profile names>
 
 . ../common/testcase_common.sh  $@
 < other scripts need to be sourced for specific interfaces>
