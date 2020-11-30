@@ -1393,7 +1393,7 @@ To also test the response payload add the remaining parameters.
 
 | arg list |
 |--|
-| `<response-code> <producer-id> (EMPTY | [<job-id> <type-id> <target-url> <template-job-file>]+)` |
+| `<response-code> <producer-id> (EMPTY | [<job-id> <type-id> <target-url> <job-owner> <template-job-file>]+)` |
 
 | parameter | description |
 | --------- | ----------- |
@@ -1402,6 +1402,7 @@ To also test the response payload add the remaining parameters.
 | `<job-id>` | Id of the job  |
 | `<type-id>` | Id of the EI type  |
 | `<target-url>` | Target url for data delivery  |
+| `<job-owner>` | Id of the job owner  |
 | `<template-job-file>` | Path to a job template file  |
 | `EMPTY` | The list of job/type/target/job-file tuples is empty  |
 
@@ -1489,7 +1490,7 @@ Check a job in the prodstub towards the list of provided parameters.
 
 | arg list |
 |--|
-| `<response-code> <producer-id> <job-id> <type-id> <target-url> <template-job-file>` |
+| `<response-code> <producer-id> <job-id> <type-id> <target-url> <job-owner> <template-job-file>` |
 
 | parameter | description |
 | --------- | ----------- |
@@ -1498,6 +1499,7 @@ Check a job in the prodstub towards the list of provided parameters.
 | `<job-id>` | Id of the job  |
 | `<type-id>` | Id of the type  |
 | `<target-url>` | Target url for data delivery  |
+| `<job-owner>` | Id of the job owner  |
 | `<template-job-file>` | Path to a job template file  |
 
 ## Function: prodstub_delete_jobdata() ##

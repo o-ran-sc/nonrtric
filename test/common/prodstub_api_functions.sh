@@ -155,22 +155,22 @@ prodstub_disarm_type() {
 }
 
 # Prodstub API: Get job data for a job and compare with a target job json
-# <response-code> <producer-id> <job-id> <type-id> <target-url> <template-job-file>
+# <response-code> <producer-id> <job-id> <type-id> <target-url> <job-owner> <template-job-file>
 # (Function for test scripts)
 prodstub_check_jobdata() {
 	__log_test_start $@
-	if [ $# -ne 6 ]; then
-		__print_err "<response-code> <producer-id> <job-id> <type-id> <target-url> <template-job-file>" $@
+	if [ $# -ne 7 ]; then
+		__print_err "<response-code> <producer-id> <job-id> <type-id> <target-url> <job-owner> <template-job-file>" $@
 		return 1
 	fi
-    if [ -f $6 ]; then
-        jobfile=$(cat $6)
+    if [ -f $7 ]; then
+        jobfile=$(cat $7)
         jobfile=$(echo "$jobfile" | sed "s/XXXX/$3/g")
     else
-        _log_test_fail_general "Template file "$6" for jobdata, does not exist"
+        _log_test_fail_general "Template file "$7" for jobdata, does not exist"
         return 1
     fi
-    targetJson="{\"ei_job_identity\":\"$3\",\"ei_type_identity\":\"$4\",\"target_uri\":\"$5\",\"ei_job_data\":$jobfile}"
+    targetJson="{\"ei_job_identity\":\"$3\",\"ei_type_identity\":\"$4\",\"target_uri\":\"$5\",\"owner\":\"$6\", \"ei_job_data\":$jobfile}"
     file="./tmp/.p.json"
 	echo "$targetJson" > $file
 

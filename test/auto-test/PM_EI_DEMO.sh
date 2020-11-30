@@ -183,7 +183,7 @@ else
 fi
 
 # Check the job data in the producer
-prodstub_check_jobdata 200 prod-a job1 type1 $TARGET1 testdata/ecs/job-template.json
+prodstub_check_jobdata 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
 
 
 ## Create a second job for prod-a
@@ -195,7 +195,7 @@ else
 fi
 
 # Check the job data in the producer
-prodstub_check_jobdata 200 prod-a job2 type1 $TARGET2 testdata/ecs/job-template.json
+prodstub_check_jobdata 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
 
 
 

@@ -806,12 +806,12 @@ ecs_api_edp_put_producer() {
 }
 
 # API Test function: GET /ei-producer/v1/eiproducers/{eiProducerId}/eijobs
-# args: <response-code> <producer-id> (EMPTY | [<job-id> <type-id> <target-url> <template-job-file>]+)
+# args: <response-code> <producer-id> (EMPTY | [<job-id> <type-id> <target-url> <job-owner> <template-job-file>]+)
 # (Function for test scripts)
 ecs_api_edp_get_producer_jobs() {
 	__log_test_start $@
 
-	#Valid number of parameter 2,3,6,10
+	#Valid number of parameter 2,3,7,11
 	paramError=1
 	if [ $# -eq 2 ]; then
 		paramError=0
@@ -820,11 +820,11 @@ ecs_api_edp_get_producer_jobs() {
 		paramError=0
 	fi
 	variablecount=$(($#-2))
-	if [ $# -gt 3 ] && [ $(($variablecount%4)) -eq 0 ]; then
+	if [ $# -gt 3 ] && [ $(($variablecount%5)) -eq 0 ]; then
 		paramError=0
 	fi
 	if [ $paramError -eq 1 ]; then
-		__print_err "<response-code> <producer-id> (EMPTY | [<job-id> <type-id> <target-url> <template-job-file>]+)" $@
+		__print_err "<response-code> <producer-id> (EMPTY | [<job-id> <type-id> <target-url> <job-owner> <template-job-file>]+)" $@
 		return 1
 	fi
 
@@ -840,18 +840,18 @@ ecs_api_edp_get_producer_jobs() {
 		targetJson="["
 		if [ $# -gt 3 ]; then
 			arr=(${@:3})
-			for ((i=0; i<$(($#-3)); i=i+4)); do
+			for ((i=0; i<$(($#-3)); i=i+5)); do
 				if [ "$targetJson" != "[" ]; then
 					targetJson=$targetJson","
 				fi
-				if [ -f ${arr[$i+3]} ]; then
-					jobfile=$(cat ${arr[$i+3]})
+				if [ -f ${arr[$i+4]} ]; then
+					jobfile=$(cat ${arr[$i+4]})
 					jobfile=$(echo "$jobfile" | sed "s/XXXX/${arr[$i]}/g")
 				else
-					_log_test_fail_general "Job template file "${arr[$i+3]}", does not exist"
+					_log_test_fail_general "Job template file "${arr[$i+4]}", does not exist"
 					return 1
 				fi
-				targetJson=$targetJson"{\"ei_job_identity\":\"${arr[$i]}\",\"ei_type_identity\":\"${arr[$i+1]}\",\"target_uri\":\"${arr[$i+2]}\",\"ei_job_data\":$jobfile}"
+				targetJson=$targetJson"{\"ei_job_identity\":\"${arr[$i]}\",\"ei_type_identity\":\"${arr[$i+1]}\",\"target_uri\":\"${arr[$i+2]}\",\"owner\":\"${arr[$i+3]}\",\"ei_job_data\":$jobfile}"
 			done
 		fi
 		targetJson=$targetJson"]"

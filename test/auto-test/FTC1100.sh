@@ -219,7 +219,7 @@ else
 fi
 
 # Check the job data in the producer
-prodstub_check_jobdata 200 prod-a job1 type1 $TARGET1 testdata/ecs/job-template.json
+prodstub_check_jobdata 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
 
 ecs_api_a1_get_job_ids 200 type1 NOWNER job1
 ecs_api_a1_get_job_ids 200 type1 ricsim_g3_1 job1
@@ -240,7 +240,7 @@ fi
 
 prodstub_equal create/prod-a/job1 1
 
-ecs_api_edp_get_producer_jobs 200 prod-a job1 type1 $TARGET1 testdata/ecs/job-template.json
+ecs_api_edp_get_producer_jobs 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json
 
 ## Create a second job for prod-a
 ## job2 - prod-a
@@ -251,7 +251,7 @@ else
 fi
 
 # Check the job data in the producer
-prodstub_check_jobdata 200 prod-a job2 type1 $TARGET2 testdata/ecs/job-template.json
+prodstub_check_jobdata 200 prod-a job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
 
 ecs_api_a1_get_job_ids 200 type1 NOWNER job1 job2
 ecs_api_a1_get_job_ids 200 type1 ricsim_g3_1 job1
@@ -272,7 +272,7 @@ fi
 
 prodstub_equal create/prod-a/job2 1
 
-ecs_api_edp_get_producer_jobs 200 prod-a job1 type1 $TARGET1 testdata/ecs/job-template.json job2 type1 $TARGET2 testdata/ecs/job-template.json
+ecs_api_edp_get_producer_jobs 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
 
 ## Setup prod-b
 ecs_api_edp_put_producer 201 prod-b $CB_JOB/prod-b $CB_SV/prod-b type2 testdata/ecs/ei-type-2.json
@@ -309,7 +309,7 @@ fi
 prodstub_equal create/prod-b/job3 1
 
 # Check the job data in the producer
-prodstub_check_jobdata 200 prod-b job3 type2 $TARGET3 testdata/ecs/job-template.json
+prodstub_check_jobdata 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template.json
 
 ecs_api_a1_get_job_ids 200 type1 NOWNER job1 job2
 ecs_api_a1_get_job_ids 200 type2 NOWNER job3
@@ -327,8 +327,8 @@ else
     ecs_api_a1_get_job_status 200 job3 ENABLED
 fi
 
-ecs_api_edp_get_producer_jobs 200 prod-a job1 type1 $TARGET1 testdata/ecs/job-template.json job2 type1 $TARGET2 testdata/ecs/job-template.json
-ecs_api_edp_get_producer_jobs 200 prod-b job3 type2 $TARGET3 testdata/ecs/job-template.json
+ecs_api_edp_get_producer_jobs 200 prod-a job1 type1 $TARGET1 ricsim_g3_1 testdata/ecs/job-template.json job2 type1 $TARGET2 ricsim_g3_2 testdata/ecs/job-template.json
+ecs_api_edp_get_producer_jobs 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template.json
 
 
 ## Setup prod-c (no types)
@@ -387,7 +387,7 @@ else
     ecs_api_a1_get_job_status 200 job3 ENABLED
 fi
 
-prodstub_check_jobdata 200 prod-b job3 type2 $TARGET3 testdata/ecs/job-template2.json
+prodstub_check_jobdata 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template2.json
 
 ecs_api_a1_get_job_ids 200 NOTYPE NOWNER job1 job2 job3
 ecs_api_edp_get_producer_ids 200 prod-a prod-b prod-c
@@ -428,7 +428,7 @@ cr_equal received_callbacks 2 30
 cr_equal received_callbacks?id=job3-status 2
 cr_api_check_all_ecs_events 200 job3-status ENABLED
 
-prodstub_check_jobdata 200 prod-b job3 type2 $TARGET3 testdata/ecs/job-template2.json
+prodstub_check_jobdata 200 prod-b job3 type2 $TARGET3 ricsim_g3_3 testdata/ecs/job-template2.json
 
 
 ## Setup prod-d
@@ -442,7 +442,7 @@ else
     ecs_api_a1_put_job 201 job8 type4 $TARGET8 ricsim_g3_4 $STATUS8 testdata/ecs/job-template.json
 fi
 
-prodstub_check_jobdata 200 prod-d job8 type4 $TARGET8 testdata/ecs/job-template.json
+prodstub_check_jobdata 200 prod-d job8 type4 $TARGET8 ricsim_g3_4 testdata/ecs/job-template.json
 
 prodstub_equal create/prod-d/job8 1
 prodstub_equal delete/prod-d/job8 0
@@ -518,7 +518,7 @@ else
     ecs_api_a1_put_job 201 job10 type6 $TARGET10 ricsim_g3_4 $STATUS10 testdata/ecs/job-template.json
 fi
 
-prodstub_check_jobdata 200 prod-e job10 type6 $TARGET10 testdata/ecs/job-template.json
+prodstub_check_jobdata 200 prod-e job10 type6 $TARGET10 ricsim_g3_4 testdata/ecs/job-template.json
 
 prodstub_equal create/prod-e/job10 1
 prodstub_equal delete/prod-e/job10 0
@@ -536,7 +536,7 @@ ecs_api_edp_put_producer 201 prod-f $CB_JOB/prod-f $CB_SV/prod-f type6 testdata/
 
 ecs_api_a1_get_job_ids 200 type6 NOWNER job10
 
-prodstub_check_jobdata 200 prod-f job10 type6 $TARGET10 testdata/ecs/job-template.json
+prodstub_check_jobdata 200 prod-f job10 type6 $TARGET10 ricsim_g3_4 testdata/ecs/job-template.json
 
 prodstub_equal create/prod-f/job10 1
 prodstub_equal delete/prod-f/job10 0
@@ -729,8 +729,8 @@ ecs_api_edp_get_producer_ids 200 prod-b prod-c prod-d prod-e prod-f
 
 #Job 10 should be updated when the producer goes enabled
 deviation "Job 10 should be updated when the producer prod-e goes enabled"
-prodstub_check_jobdata 200 prod-e job10 type6 $TARGET10 testdata/ecs/job-template2.json
-prodstub_check_jobdata 200 prod-f job10 type6 $TARGET10 testdata/ecs/job-template2.json
+prodstub_check_jobdata 200 prod-e job10 type6 $TARGET10 ricsim_g3_4 testdata/ecs/job-template2.json
+prodstub_check_jobdata 200 prod-f job10 type6 $TARGET10 ricsim_g3_4 testdata/ecs/job-template2.json
 
 prodstub_arm_producer 200 prod-f 400
 
