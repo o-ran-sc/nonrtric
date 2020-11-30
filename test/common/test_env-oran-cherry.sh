@@ -16,8 +16,8 @@
 #  limitations under the License.
 #  ============LICENSE_END=================================================
 #
-#Profile for ORAN master
-TEST_ENV_PROFILE="ORAN-MASTER"
+#Profile for ORAN Cherry
+TEST_ENV_PROFILE="ORAN-CHERRY"
 NEXUS_PROXY_REPO="nexus3.onap.org:10001/"
 
 # Set up the image and tags for the test. Do not add the image tag to the image names.
@@ -37,8 +37,8 @@ POLICY_AGENT_REMOTE_IMAGE_TAG="2.1.0"
 ECS_LOCAL_IMAGE="o-ran-sc/nonrtric-enrichment-coordinator-service"
 ECS_LOCAL_IMAGE_TAG="1.0.0-SNAPSHOT"
 # Remote ECS image and tag
-ECS_REMOTE_IMAGE="nexus3.o-ran-sc.org:10003/o-ran-sc/nonrtric-enrichment-coordinator-service"
-ECS_REMOTE_IMAGE_TAG="1.0.0-SNAPSHOT"
+ECS_REMOTE_IMAGE="nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-enrichment-coordinator-service"
+ECS_REMOTE_IMAGE_TAG="1.0.0"
 
 # Control Panel local image and tag
 CONTROL_PANEL_LOCAL_IMAGE="o-ran-sc/nonrtric-controlpanel"
@@ -54,6 +54,14 @@ SDNC_A1_CONTROLLER_LOCAL_IMAGE_TAG="2.1.0-SNAPSHOT"
 # SDNC A1 Controller remote image and tag
 SDNC_A1_CONTROLLER_REMOTE_IMAGE="nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-a1-controller"
 SDNC_A1_CONTROLLER_REMOTE_IMAGE_TAG="2.1.0"
+
+
+# RAPP Catalogue local image and tag
+RAPP_CAT_LOCAL_IMAGE="o-ran-sc/nonrtric-r-app-catalogue"
+RAPP_CAT_LOCAL_IMAGE_TAG="1.0.0-SNAPSHOT"
+# RAPP Catalogue remote image and tag
+RAPP_CAT_REMOTE_IMAGE="nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-r-app-catalogue"
+RAPP_CAT_REMOTE_IMAGE_TAG="1.0.0"
 
 
 #SDNC DB remote image and tag
@@ -175,6 +183,13 @@ SDNC_API_URL="/restconf/operations/A1-ADAPTER-API:"             # Base url path 
 SDNC_ALIVE_URL="/apidoc/explorer/"                              # Base url path for SNDC API docs (for alive check)
 SDNC_KARAF_LOG="/opt/opendaylight/data/log/karaf.log"           # Path to karaf log
 
+export RAPP_CAT_EXTERNAL_PORT=8680                             # RAPP Catalogue container external port (host -> container)
+export RAPP_CAT_INTERNAL_PORT=8080                             # RAPP Catalogue container internal port (container -> container)
+export RAPP_CAT_EXTERNAL_SECURE_PORT=8633                      # RAPP Catalogue container external secure port (host -> container)
+export RAPP_CAT_INTERNAL_SECURE_PORT=8433                      # RAPP Catalogue container internal secure port (container -> container)
+export RAPP_CAT_APP_NAME="rapp-catalogue"                      # Name for the RAPP Catalogue
+
+
 export CONTROL_PANEL_APP_NAME="control-panel"                   # Name of the Control Panel container
 export CONTROL_PANEL_EXTERNAL_PORT=8080                         # Control Panel container external port (host -> container)
 export CONTROL_PANEL_INTERNAL_PORT=8080                         # Control Panel container external port (host -> container)
@@ -201,3 +216,7 @@ CR_RESTBASE="http://localhost:"$CR_EXTERNAL_PORT                # Base url to th
 CR_RESTBASE_SECURE="https://localhost:"$CR_EXTERNAL_SECURE_PORT # Base url to the secure Callback receiver REST interface
 CR_ADAPTER=$CR_RESTBASE                                         # Adapter holds the address the CR admin interface (REST only)
                                                                 # The values of this var is swiched between the two base url when needed
+
+RC_RESTBASE="http://localhost:"$RAPP_CAT_EXTERNAL_PORT          # Base url to the RAPP Catalogue REST interface
+RC_RESTBASE_SECURE="https://localhost:"$RAPP_CAT_EXTERNAL_SECURE_PORT # Base url to the secure RAPP Catalogue REST interface
+RC_ADAPTER=$RC_RESTBASE                                         # Adapter holds the address the RAPP Catalogue interface

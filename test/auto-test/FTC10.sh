@@ -23,7 +23,7 @@ TC_ONELINE_DESCR="Basic use case, register service, create/update policy, delete
 INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM"
 
 #SUPPORTED TEST ENV FILE
-SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN ORAN-MASTER"
+SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN ORAN-CHERRY"
 
 . ../common/testcase_common.sh $@
 . ../common/agent_api_functions.sh

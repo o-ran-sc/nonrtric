@@ -24,7 +24,7 @@ TC_ONELINE_DESCR="ECS Create 10000 jobs and restart, test job persisency"
 INCLUDED_IMAGES="ECS PRODSTUB CR CP"
 
 #SUPPORTED TEST ENV FILE
-SUPPORTED_PROFILES="ONAP-MASTER ORAN-MASTER"
+SUPPORTED_PROFILES="ONAP-MASTER ORAN-CHERRY"
 
 . ../common/testcase_common.sh  $@
 . ../common/ecs_api_functions.sh

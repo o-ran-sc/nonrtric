@@ -20,10 +20,10 @@
 TC_ONELINE_DESCR="Preparation demo setup  - policy management and enrichment information"
 
 #App names to include in the test, space separated list
-INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC ECS PRODSTUB"
+INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC ECS PRODSTUB RC"
 
 #SUPPORTED TEST ENV FILE
-SUPPORTED_PROFILES="ONAP-MASTER ORAN-MASTER"
+SUPPORTED_PROFILES="ONAP-MASTER ORAN-CHERRY"
 
 . ../common/testcase_common.sh $@
 . ../common/agent_api_functions.sh
@@ -31,6 +31,7 @@ SUPPORTED_PROFILES="ONAP-MASTER ORAN-MASTER"
 . ../common/ecs_api_functions.sh
 . ../common/prodstub_api_functions.sh
 . ../common/cr_api_functions.sh
+. ../common/rapp_catalogue_api_functions.sh
 
 #### TEST BEGIN ####
 
@@ -43,6 +44,7 @@ use_sdnc_https
 use_simulator_https
 use_ecs_rest_https
 use_prod_stub_https
+use_rapp_catalogue_http # https not yet supported
 
 if [ "$PMS_VERSION" == "V2" ]; then
     notificationurl=$CR_PATH"/test"
@@ -70,15 +72,26 @@ consul_config_app                  ".consul_config.json"
 
 start_policy_agent
 
+start_rapp_catalogue
+
 start_cr
 
 start_prod_stub
 
 start_ecs
 
+start_rapp_catalogue
+
 set_agent_trace
 
 set_ecs_trace
+
+
+rapp_cat_api_get_services 200 EMPTY
+
+rapp_cat_api_put_service 201 "Emergency-response-app" v1 "Emergency-response-app" "Emergency-response-app"
+
+rapp_cat_api_get_services 200 "Emergency-response-app" v1 "Emergency-response-app" "Emergency-response-app"
 
 api_get_status 200
 

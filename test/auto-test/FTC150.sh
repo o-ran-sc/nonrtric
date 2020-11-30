@@ -24,7 +24,7 @@ TC_ONELINE_DESCR="Sample tests of the SDNC A1 controller restconf API using http
 INCLUDED_IMAGES="RICSIM SDNC"
 
 #SUPPORTED TEST ENV FILE
-SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN ORAN-MASTER"
+SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN ORAN-CHERRY"
 
 . ../common/testcase_common.sh  $@
 . ../common/controller_api_functions.sh

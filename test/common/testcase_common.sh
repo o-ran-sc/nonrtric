@@ -84,7 +84,7 @@ AUTO_CLEAN=""
 USE_LOCAL_IMAGES=""
 
 # List of available apps to override with local image
-AVAILABLE_LOCAL_IMAGES_OVERRIDE="PA ECS CP SDNC RICSIM"
+AVAILABLE_LOCAL_IMAGES_OVERRIDE="PA ECS CP SDNC RICSIM RC"
 
 # Use this var (STOP_AT_ERROR=1 in the test script) for debugging/trouble shooting to take all logs and exit at first FAIL test case
 STOP_AT_ERROR=0
@@ -164,7 +164,7 @@ rm $DEVIATION_FILE &> /dev/null
 trap_fnc() {
 
 	if [ $? -eq 127 ]; then
-		echo -e $RED"Function not found, set script to FAIL"$ERED
+		echo -e $RED"Function not found, setting script to FAIL"$ERED
 		((RES_CONF_FAIL++))
 	fi
 }
@@ -405,12 +405,16 @@ export CR_PATH="$CR_HTTPX://$CR_APP_NAME:$CR_PORT$CR_APP_CALLBACK"
 
 export PROD_STUB_HTTPX="http"
 export PROD_STUB_PORT=$PROD_STUB_INTERNAL_PORT
-export PROD_STUB_LOCAL_PORT=$PROD_STUB_EXTERNAL_PORT #When CR is running outside the docker net
+export PROD_STUB_LOCAL_PORT=$PROD_STUB_EXTERNAL_PORT #When Prodstub is running outside the docker net
 export PROD_STUB_LOCALHOST=$PROD_STUB_HTTPX"://localhost:"$PROD_STUB_LOCAL_PORT
 
 export SDNC_HTTPX="http"
 export SDNC_PORT=$SDNC_INTERNAL_PORT
 export SDNC_LOCAL_PORT=$SDNC_EXTERNAL_PORT #When agent is running outside the docker net
+
+export RAPP_CAT_HTTPX="http"
+export RAPP_CAT_PORT=$RAPP_CAT_INTERNAL_PORT
+export RAPP_CAT_LOCAL_PORT=$RAPP_CAT_EXTERNAL_PORT #When Rapp catalogue is running outside the docker net
 
 echo -e $BOLD"Checking configured image setting for this test case"$EBOLD
 
@@ -548,6 +552,15 @@ elif [ $START_ARG == "remote" ] || [ $START_ARG == "remote-remove" ]; then
 	else
 		#Local ecs image
 		__check_image_var " ECS" $START_ARG "ECS_IMAGE" "ECS_LOCAL_IMAGE" "ECS_LOCAL_IMAGE_TAG" ECS
+	fi
+
+		__check_image_local_override 'RC'
+	if [ $? -eq 0 ]; then
+		#Remote ecs image
+		__check_image_var " RC" $START_ARG "RAPP_CAT_IMAGE" "RAPP_CAT_REMOTE_IMAGE" "RAPP_CAT_REMOTE_IMAGE_TAG" RC
+	else
+		#Local ecs image
+		__check_image_var " RC" $START_ARG "RAPP_CAT_IMAGE" "RAPP_CAT_LOCAL_IMAGE" "RAPP_CAT_LOCAL_IMAGE_TAG" RC
 	fi
 
 else
@@ -718,6 +731,18 @@ else
 	echo -e $YELLOW" Excluding Non-RT RIC Control Panel image from image check/pull"$EYELLOW
 fi
 
+__check_included_image 'RC'
+if [ $? -eq 0 ]; then
+	START_ARG_MOD=$START_ARG
+	__check_image_local_override 'RC'
+	if [ $? -eq 1 ]; then
+		START_ARG_MOD="local"
+	fi
+	app="RAPP Catalogue"; __check_and_pull_image $START_ARG_MOD "$app" $RAPP_CAT_APP_NAME $RAPP_CAT_IMAGE
+else
+	echo -e $YELLOW" Excluding RAPP Catalogue image from image check/pull"$EYELLOW
+fi
+
 __check_included_image 'RICSIM'
 if [ $? -eq 0 ]; then
 	START_ARG_MOD=$START_ARG
@@ -855,6 +880,10 @@ fi
 __check_included_image 'RICSIM'
 if [ $? -eq 0 ]; then
 	echo -e " RIC Simulator\t$(docker images --format $format_string $RIC_SIM_IMAGE)" >>   $docker_tmp_file
+fi
+__check_included_image 'RC'
+if [ $? -eq 0 ]; then
+	echo -e " RAPP Catalogue\t$(docker images --format $format_string $RAPP_CAT_IMAGE)" >>   $docker_tmp_file
 fi
 __check_included_image 'MR'
 if [ $? -eq 0 ]; then
@@ -1091,6 +1120,7 @@ clean_containers() {
 
 	CONTAINTER_NAMES=("Policy Agent           " $(__check_app_name $POLICY_AGENT_APP_NAME)\
 					  "ECS                    " $(__check_app_name $ECS_APP_NAME)\
+					  "RAPP Catalogue         " $(__check_app_name $RAPP_CAT_APP_NAME)\
 					  "Non-RT RIC Simulator(s)" $(__check_app_name $RIC_SIM_PREFIX)\
 					  "Message Router         " $(__check_app_name $MR_APP_NAME)\
 					  "Callback Receiver      " $(__check_app_name $CR_APP_NAME)\
@@ -1678,6 +1708,44 @@ start_control_panel() {
 	fi
 	__start_container control_panel NODOCKERARGS $CONTROL_PANEL_APP_NAME $CONTROL_PANEL_EXTERNAL_PORT "/" "http"
 
+}
+
+###########################
+### RAPP Catalogue
+###########################
+
+# Start the RAPP Catalogue container
+# args: -
+# (Function for test scripts)
+start_rapp_catalogue() {
+
+	echo -e $BOLD"Starting RAPP Catalogue"$EBOLD
+
+	__check_included_image 'RC'
+	if [ $? -eq 1 ]; then
+		echo -e $RED"The RAPP Catalogue image has not been checked for this test run due to arg to the test script"$ERED
+		echo -e $RED"The RAPP Catalogue will not be started"$ERED
+		exit
+	fi
+	__start_container rapp_catalogue NODOCKERARGS $RAPP_CAT_APP_NAME $RAPP_CAT_EXTERNAL_PORT "/services" "http"
+}
+
+use_rapp_catalogue_http() {
+	echo -e $BOLD"RAPP Catalogue protocol setting"$EBOLD
+	echo -e " Using $BOLD http $EBOLD towards the RAPP Catalogue"
+	export RAPP_CAT_HTTPX="http"
+	export RAPP_CAT_PORT=$RAPP_CAT_INTERNAL_PORT
+	export RAPP_CAT_LOCAL_PORT=$RAPP_CAT_EXTERNAL_PORT
+	echo ""
+}
+
+use_rapp_catalogue_https() {
+	echo -e $BOLD"RAPP Catalogue protocol setting"$EBOLD
+	echo -e " Using $BOLD https $EBOLD towards the RAPP Catalogue"
+	export RAPP_CAT_HTTPX="https"
+	export RAPP_CAT_PORT=$RAPP_CAT_INTERNAL_PORT
+	export RAPP_CAT_LOCAL_PORT=$RAPP_CAT_EXTERNAL_PORT
+	echo ""
 }
 
 ##################

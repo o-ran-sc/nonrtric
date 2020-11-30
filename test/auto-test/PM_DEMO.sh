@@ -23,7 +23,7 @@ TC_ONELINE_DESCR="Preparation demo setup  - populating a number of ric simulator
 INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
 #SUPPORTED TEST ENV FILE
-SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN ORAN-MASTER"
+SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN ORAN-CHERRY"
 
 . ../common/testcase_common.sh $@
 . ../common/agent_api_functions.sh

@@ -26,6 +26,7 @@ var AGENT_PORT="8081"
 var CR_PORT="8090"
 var ECS_PORT="8083"
 var PRODSTUB_PORT="8092"
+var RC_PORT="8680"
 
 var http = require('http');
 
@@ -212,7 +213,11 @@ var refreshCount_ecs=-1
 
 var refreshCount_cr=-1
 
+var refreshCount_rc=-1
+
 var ricbasename="ricsim"
+
+var rc_services=""
 
 function fetchAllMetrics_pol() {
 
@@ -711,6 +716,42 @@ function fetchAllMetrics_cr() {
     }, 500)
 }
 
+function fetchAllMetrics_rc() {
+
+    console.log("Fetching RC services - timer:" + refreshCount_ecs)
+
+    if (refreshCount_rc < 0) {
+        refreshCount_rc = -1
+        return
+    } else {
+        refreshCount_rc = refreshCount_rc - 1
+    }
+    setTimeout(() => {
+
+        if (checkFunctionFlag("rc_stat")) {
+            getSimCtr(LOCALHOST+RC_PORT+"/services", 0, function(data, index) {
+                var tmp_serv=""
+                try {
+                    var jd=JSON.parse(data);
+                    for(var i=0;i<jd.length;i++) {
+                        if (tmp_serv.length > 0) {
+                            tmp_serv=tmp_serv+","
+                        }
+                        tmp_serv=tmp_serv+jd[i]["name"]
+                    }
+
+                }
+                catch (err) {
+                    tmp_serv="no_response"
+                }
+                rc_services=tmp_serv
+            });
+            clearFlag("rc_stat")
+        }
+        fetchAllMetrics_rc();
+    }, 500)
+}
+
 // Monitor for CR db
 app.get("/mon3",function(req, res){
 
@@ -810,7 +851,6 @@ app.get("/mon2",function(req, res){
                 htmlStr=htmlStr+"<br>";
                 for(i=0;i<ecs_job_status.length;i++) {
                     tmp=ecs_job_status[i]
-                    console.log("tmp")
                     if (tmp != undefined) {
                         s = padding("Job", 18, ".") + formatDataRow(tmp) + "<br>"
                         htmlStr=htmlStr+s
@@ -876,6 +916,12 @@ app.get("/mon",function(req, res){
     }
     refreshCount_pol=5
 
+    if (refreshCount_rc < 0) {
+        refreshCount_rc=5
+        fetchAllMetrics_rc()
+    }
+    refreshCount_rc=5
+
     var bn=req.query.basename
 
     if (bn == undefined) {
@@ -918,6 +964,10 @@ app.get("/mon",function(req, res){
             "Callbacks received:..................." + formatDataRow(cr1) + "<br>" +
             "Callbacks fetched:...................." + formatDataRow(cr2) + "<br>" +
             "Number of waiting callback messages:.." + formatDataRow(cr3) + "<br>" +
+            "</font>" +
+            "<h3>R-APP Catalogue</h3>" +
+            "<font face=\"monospace\">" +
+            "Services:............................." + formatIdRowCompact(rc_services) + "<br>" +
             "</font>" +
             "<h3>Near-RT RIC Simulators</h3>" +
             "<font face=\"monospace\">"
