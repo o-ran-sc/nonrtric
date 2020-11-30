@@ -21,6 +21,7 @@
 package org.oransc.enrichment.repository;
 
 import java.lang.invoke.MethodHandles;
+
 import lombok.Builder;
 import lombok.Getter;
 
