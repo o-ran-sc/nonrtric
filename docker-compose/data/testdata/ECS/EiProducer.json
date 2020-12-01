@@ -3,7 +3,19 @@
     "ei_job_deletion_callback_url": "http://example.com",
     "ei_producer_supervision_callback_url": "http://example.com",
     "supported_ei_types": [{
-        "ei_job_data_schema": {},
+        "ei_job_data_schema": {
+            "eiTypeId": "string",
+            "jobResultUri": "string",
+            "jobStatusNotificationUri": "string",
+            "jobDefinition": {
+                "jobparam1": "string",
+                "jobparam2": "string",
+                "jobparam3": "string"
+            },
+            "targetUri": "string",
+            "jobOwner": "string",
+            "jobParameters": {}
+        },
         "ei_type_identity": "type1"
     }]
 }

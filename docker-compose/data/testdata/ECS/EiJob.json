@@ -1,5 +1,13 @@
 {
+    "eiTypeId":"type1",
+    "jobResultUri":"https://ricsim_g3_1:8185/datadelivery",
+    "jobStatusNotificationUri":"https://callback-receiver:8091/callbacks/job1-status",
+    "jobDefinition":{
+       "jobparam1":"value1_job1",
+       "jobparam2":"value2_job1",
+       "jobparam3":"value3_job1"
+    },
+    "targetUri": "http://example.com",
     "jobOwner": "1",
-    "jobParameters": {},
-    "targetUri": "http://example.com"
-  }
+    "jobParameters": {}
+ }
