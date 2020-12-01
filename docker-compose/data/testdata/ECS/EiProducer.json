@@ -1,9 +1,13 @@
 {
-    "ei_job_creation_callback_url": "http://example.com",
-    "ei_job_deletion_callback_url": "http://example.com",
-    "ei_producer_supervision_callback_url": "http://example.com",
     "supported_ei_types": [{
-        "ei_job_data_schema": {},
-        "ei_type_identity": "type1"
-    }]
+        "ei_type_identity": "type1",
+        "ei_job_data_schema": {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "title": "STD_Type1_1.0.0",
+            "description": "EI-Type 1",
+            "type": "object"
+        }
+    }],
+    "ei_job_callback_url": "https://producer-stub:8093/callbacks/job/prod-a",
+    "ei_producer_supervision_callback_url": "https://producer-stub:8093/callbacks/supervision/prod-a"
 }
