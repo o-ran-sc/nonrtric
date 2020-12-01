@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "62b64fb2_3be98f3f",
+        "filename": "docker-compose/data/testdata/ECS/EiJob.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-12-01T11:30:57Z",
+      "side": 1,
+      "message": "This should be removed. The parameter name has been changed to jobDefinition.",
+      "range": {
+        "startLine": 12,
+        "startChar": 4,
+        "endLine": 12,
+        "endChar": 23
+      },
+      "revId": "8d4cbddb3f9fb18289af9e172e88f347becfa8a8",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06cf5e31_808ee9e9",
+        "filename": "docker-compose/data/testdata/ECS/EiProducer.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1000262
+      },
+      "writtenOn": "2020-12-01T11:30:57Z",
+      "side": 1,
+      "message": "This is not right. The schema is for validating the jobDefinition. In your case, the job definition looks like this (example):\n\n             {\n                \"jobparam1\": \"string\",\n                \"jobparam2\": \"string\",\n                \"jobparam3\": \"string\"\n            }\n\n\nA json schema for validating that could look like this: \n\n\n{\n  \"$schema\": \"http://json-schema.org/draft-04/schema#\",\n  \"type\": \"object\",\n  \"properties\": {\n    \"jobparam1\": {\n      \"type\": \"string\"\n    },\n    \"jobparam2\": {\n      \"type\": \"string\"\n    },\n    \"jobparam3\": {\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\n    \"jobparam1\",\n    \"jobparam2\",\n    \"jobparam3\"\n  ]\n}",
+      "range": {
+        "startLine": 7,
+        "startChar": 9,
+        "endLine": 17,
+        "endChar": 31
+      },
+      "revId": "8d4cbddb3f9fb18289af9e172e88f347becfa8a8",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
