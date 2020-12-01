@@ -19,33 +19,3 @@ networks:
   default:
     driver: bridge
     name: nonrtric-docker-net
-
-services:
-  ecs:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-enrichment-coordinator-service:1.1.0
-    container_name: ecs
-    networks:
-      default:
-        aliases:
-          - enrichment-service-container
-    ports:
-      - 8083:8083
-      - 8434:8434
-
-  policy-control-panel:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-controlpanel:2.2.0
-    container_name: policy-control-panel
-    networks:
-      - default
-    ports:
-      - 8080:8080
-      - 8082:8082
-
-  producer:
-    image: eexit/mirror-http-server
-    container_name: producer
-    networks:
-      - default
-    ports:
-      - 8088:80
-

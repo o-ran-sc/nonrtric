@@ -21,15 +21,11 @@ networks:
     name: nonrtric-docker-net
 
 services:
-  r-app:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-r-app-catalogue:1.1.0
-    container_name: r-app
+  policy-control-panel:
+    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-controlpanel:2.0.0
+    container_name: policy-control-panel
     networks:
-      default:
-        aliases:
-          - r-app-catalogue
+      - default
     ports:
       - 8080:8080
-      - 8433:8433
-
-
+      - 8082:8082

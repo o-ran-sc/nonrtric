@@ -21,59 +21,6 @@ networks:
     name: nonrtric-docker-net
 
 services:
-  policy-agent:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-policy-agent:2.2.0
-    container_name: policy-agent
-    networks:
-      default:
-        aliases:
-          - policy-agent-container
-    ports:
-      - 8081:8081
-      - 8433:8433
-    volumes:
-      - ./config/application_configuration.json:/opt/app/policy-agent/data/application_configuration.json:ro
-    # For using own certs instead of the default ones (built into the container),
-    # place them in config/ directory, update the application-policyagent.yaml file, and uncomment the following lines
-    #  - ./config/keystore-policyagent.jks:/opt/app/policy-agent/etc/cert/keystore.jks:ro
-    #  - ./config/truststore-policyagent.jks:/opt/app/policy-agent/etc/cert/truststore.jks:ro
-    #  - ./config/application-policyagent.yaml:/opt/app/policy-agent/config/application.yaml:ro
-
-  a1-sim-OSC:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/a1-simulator:2.1.0
-    container_name: a1-sim-OSC
-    networks:
-      - default
-    ports:
-      - 30001:8085
-      - 30002:8185
-    environment:
-      - A1_VERSION=OSC_2.1.0
-      - REMOTE_HOSTS_LOGGING=1
-      - ALLOW_HTTP=true
-
-  a1-sim-STD:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/a1-simulator:2.1.0
-    container_name: a1-sim-STD
-    networks:
-      - default
-    ports:
-      - 30003:8085
-      - 30004:8185
-    environment:
-      - A1_VERSION=STD_1.1.3
-      - REMOTE_HOSTS_LOGGING=1
-      - ALLOW_HTTP=true
-
-  policy-control-panel:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-controlpanel:2.2.0
-    container_name: policy-control-panel
-    networks:
-      - default
-    ports:
-      - 8080:8080
-      - 8082:8082
-
   db:
     image: mysql/mysql-server:5.6
     container_name: sdnc-db
