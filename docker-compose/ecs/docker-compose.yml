@@ -41,3 +41,11 @@ services:
       - 8080:8080
       - 8082:8082
 
+  producer:
+    image: eexit/mirror-http-server
+    container_name: producer
+    networks:
+      - default
+    ports:
+      - 8088:80
+

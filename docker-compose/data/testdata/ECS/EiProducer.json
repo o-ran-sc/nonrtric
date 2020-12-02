@@ -8,6 +8,6 @@
             "type": "object"
         }
     }],
-    "ei_job_callback_url": "https://producer-stub:8093/callbacks/job/prod-a",
-    "ei_producer_supervision_callback_url": "https://producer-stub:8093/callbacks/supervision/prod-a"
+    "ei_job_callback_url": "http://producer:80/",
+    "ei_producer_supervision_callback_url": "http://producer:80/"
 }
