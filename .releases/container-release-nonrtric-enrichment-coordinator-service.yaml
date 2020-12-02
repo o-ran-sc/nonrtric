@@ -1,0 +1,10 @@
+---
+distribution_type: container
+container_release_tag: 1.0.0
+container_pull_registry: nexus3.o-ran-sc.org:10004
+container_push_registry: nexus3.o-ran-sc.org:10002
+project: nonrtric
+ref: b83e54c2bdab21d7f6ff5c9a4c340e801c93e1c2
+containers:
+    - name: enrichment-coordinator-service
+      version: 1.0.0
