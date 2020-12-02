@@ -1,0 +1,10 @@
+---
+distribution_type: container
+container_release_tag: 1.0.0
+container_pull_registry: nexus3.o-ran-sc.org:10004
+container_push_registry: nexus3.o-ran-sc.org:10002
+project: nonrtric
+ref: 90ce16238dd6970153e1c0fbddb15e32c68c504f
+containers:
+    - name: nonrtric-r-app-catalogue
+      version: 1.0.0
