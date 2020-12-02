@@ -1,10 +1,10 @@
 ---
 distribution_type: container
-container_release_tag: 2.0.0
+container_release_tag: 2.1.0
 container_pull_registry: nexus3.o-ran-sc.org:10004
 container_push_registry: nexus3.o-ran-sc.org:10002
 project: nonrtric
-ref: 2466f9d370214b578efedd1d3e38b1de17e6ca1c
+ref: 90ce16238dd6970153e1c0fbddb15e32c68c504f
 containers:
     - name: nonrtric-a1-controller
-      version: 2.0.0
+      version: 2.1.0
