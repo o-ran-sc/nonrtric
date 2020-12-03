@@ -1,0 +1,5 @@
+---
+distribution_type: maven
+version: 1.0.0
+project: nonrtric-r-app-catalogue
+log_dir: nonrtric-r-app-catalogue-maven-stage-master/2/
