@@ -162,7 +162,7 @@ class ApplicationTest {
         assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         String indented = (new JSONObject(resp.getBody())).toString(4);
-        try (PrintStream out = new PrintStream(new FileOutputStream("../docs/offeredapis/swagger/ecs-api.json"))) {
+        try (PrintStream out = new PrintStream(new FileOutputStream("api/ecs-api.json"))) {
             out.print(indented);
         }
     }
