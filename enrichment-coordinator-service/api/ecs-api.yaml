@@ -4,7 +4,7 @@ info:
   description: This page lists all the rest apis for the service.
   version: "1.0"
 servers:
-- url: //localhost:38585/
+- url: /
 tags:
 - name: A1-EI (enrichment information)
   description: Consumer Controller

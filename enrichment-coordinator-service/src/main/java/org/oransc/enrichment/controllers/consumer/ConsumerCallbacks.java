@@ -55,7 +55,7 @@ public class ConsumerCallbacks {
     @Autowired
     public ConsumerCallbacks(ApplicationConfig config, EiTypes eiTypes, EiJobs eiJobs) {
         AsyncRestClientFactory restClientFactory = new AsyncRestClientFactory(config.getWebClientConfig());
-        this.restClient = restClientFactory.createRestClient("");
+        this.restClient = restClientFactory.createRestClientUseHttpProxy("");
         this.eiTypes = eiTypes;
         this.eiJobs = eiJobs;
     }

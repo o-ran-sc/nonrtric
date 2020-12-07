@@ -60,7 +60,7 @@ public class ProducerCallbacks {
     @Autowired
     public ProducerCallbacks(ApplicationConfig config, EiTypes eiTypes) {
         AsyncRestClientFactory restClientFactory = new AsyncRestClientFactory(config.getWebClientConfig());
-        this.restClient = restClientFactory.createRestClient("");
+        this.restClient = restClientFactory.createRestClientNoHttpProxy("");
         this.eiTypes = eiTypes;
     }
 
