@@ -20,10 +20,9 @@
 
 package org.oransc.enrichment.configuration;
 
-import javax.validation.constraints.NotEmpty;
-
 import lombok.Getter;
 
+import org.oransc.enrichment.configuration.WebClientConfig.HttpProxyConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -31,10 +30,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @EnableConfigurationProperties
 @ConfigurationProperties()
 public class ApplicationConfig {
-    @NotEmpty
-    @Getter
-    @Value("${app.filepath}")
-    private String localConfigurationFilePath;
 
     @Getter
     @Value("${app.vardata-directory}")
@@ -61,7 +56,17 @@ public class ApplicationConfig {
     @Value("${app.webclient.trust-store}")
     private String sslTrustStore = "";
 
+    @Value("${app.webclient.http.proxy-host:\"\"}")
+    private String httpProxyHost = "";
+
+    @Value("${app.webclient.http.proxy-port:0}")
+    private int httpProxyPort = 0;
+
     public WebClientConfig getWebClientConfig() {
+        HttpProxyConfig httpProxyConfig = ImmutableHttpProxyConfig.builder() //
+            .httpProxyHost(this.httpProxyHost) //
+            .httpProxyPort(this.httpProxyPort) //
+            .build();
         return ImmutableWebClientConfig.builder() //
             .keyStoreType(this.sslKeyStoreType) //
             .keyStorePassword(this.sslKeyStorePassword) //
@@ -70,6 +75,7 @@ public class ApplicationConfig {
             .isTrustStoreUsed(this.sslTrustStoreUsed) //
             .trustStore(this.sslTrustStore) //
             .trustStorePassword(this.sslTrustStorePassword) //
+            .httpProxyConfig(httpProxyConfig) //
             .build();
     }
 

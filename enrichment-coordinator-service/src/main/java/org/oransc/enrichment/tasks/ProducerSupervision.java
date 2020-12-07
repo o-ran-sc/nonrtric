@@ -57,7 +57,7 @@ public class ProducerSupervision {
     public ProducerSupervision(ApplicationConfig applicationConfig, EiProducers eiProducers, EiJobs eiJobs,
         EiTypes eiTypes, ConsumerCallbacks consumerCallbacks) {
         AsyncRestClientFactory restClientFactory = new AsyncRestClientFactory(applicationConfig.getWebClientConfig());
-        this.restClient = restClientFactory.createRestClient("");
+        this.restClient = restClientFactory.createRestClientNoHttpProxy("");
         this.eiJobs = eiJobs;
         this.eiProducers = eiProducers;
         this.eiTypes = eiTypes;

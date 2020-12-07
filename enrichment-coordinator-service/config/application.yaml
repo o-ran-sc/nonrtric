@@ -9,9 +9,11 @@ management:
   endpoints:
     web:
       exposure:
+        # Enabling of springboot actuator features. See springboot documentation.
         include: "loggers,logfile,health,info,metrics,threaddump,heapdump"
 
 logging:
+  # Configuration of logging
   level:
     ROOT: ERROR
     org.springframework: ERROR
@@ -21,6 +23,8 @@ logging:
   file:
     name: /var/log/enrichment-coordinator-service/application.log
 server:
+   # Configuration of the HTTP/REST server. The parameters are defined and handeled by the springboot framework.
+   # See springboot documentation.
    port : 8434
    http-port: 8083
    ssl:
@@ -30,10 +34,16 @@ server:
       key-password: policy_agent
       key-alias: policy_agent
 app:
-  filepath: /opt/app/enrichment-coordinator-service/data/application_configuration.json
   webclient:
+    # Configuration of the trust store used for the HTTP client (outgoing requests)
+    # The file location and the password for the truststore is only relevant if trust-store-used == true
+    # Note that the same keystore as for the server is used.
     trust-store-used: false
     trust-store-password: policy_agent
     trust-store: /opt/app/enrichment-coordinator-service/etc/cert/truststore.jks
+    # Configuration of usage of HTTP Proxy for the southbound accesses.
+    # The HTTP proxy (if configured) will only be used for accessing NearRT RIC:s
+    http.proxy-host:
+    http.proxy-port: 0
   vardata-directory: /var/enrichment-coordinator-service
 

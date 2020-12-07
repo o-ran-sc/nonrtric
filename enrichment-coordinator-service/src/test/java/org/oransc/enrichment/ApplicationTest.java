@@ -45,8 +45,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.oransc.enrichment.clients.AsyncRestClient;
 import org.oransc.enrichment.clients.AsyncRestClientFactory;
 import org.oransc.enrichment.configuration.ApplicationConfig;
+import org.oransc.enrichment.configuration.ImmutableHttpProxyConfig;
 import org.oransc.enrichment.configuration.ImmutableWebClientConfig;
 import org.oransc.enrichment.configuration.WebClientConfig;
+import org.oransc.enrichment.configuration.WebClientConfig.HttpProxyConfig;
 import org.oransc.enrichment.controller.ConsumerSimulatorController;
 import org.oransc.enrichment.controller.ProducerSimulatorController;
 import org.oransc.enrichment.controllers.consumer.ConsumerConsts;
@@ -161,7 +163,9 @@ class ApplicationTest {
         ResponseEntity<String> resp = restClient().getForEntity(url).block();
         assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
 
-        String indented = (new JSONObject(resp.getBody())).toString(4);
+        JSONObject jsonObj = new JSONObject(resp.getBody());
+        jsonObj.remove("host");
+        String indented = jsonObj.toString(4);
         try (PrintStream out = new PrintStream(new FileOutputStream("../docs/offeredapis/swagger/ecs-api.json"))) {
             out.print(indented);
         }
@@ -711,6 +715,10 @@ class ApplicationTest {
 
     private AsyncRestClient restClient(boolean useTrustValidation) {
         WebClientConfig config = this.applicationConfig.getWebClientConfig();
+        HttpProxyConfig httpProxyConfig = ImmutableHttpProxyConfig.builder() //
+            .httpProxyHost("") //
+            .httpProxyPort(0) //
+            .build();
         config = ImmutableWebClientConfig.builder() //
             .keyStoreType(config.keyStoreType()) //
             .keyStorePassword(config.keyStorePassword()) //
@@ -719,10 +727,10 @@ class ApplicationTest {
             .isTrustStoreUsed(useTrustValidation) //
             .trustStore(config.trustStore()) //
             .trustStorePassword(config.trustStorePassword()) //
-            .build();
+            .httpProxyConfig(httpProxyConfig).build();
 
         AsyncRestClientFactory restClientFactory = new AsyncRestClientFactory(config);
-        return restClientFactory.createRestClient(baseUrl());
+        return restClientFactory.createRestClientNoHttpProxy(baseUrl());
     }
 
     private AsyncRestClient restClient() {
