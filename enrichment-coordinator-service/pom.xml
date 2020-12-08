@@ -56,6 +56,7 @@
         <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
         <formatter-maven-plugin.version>2.12.2</formatter-maven-plugin.version>
         <spotless-maven-plugin.version>1.24.3</spotless-maven-plugin.version>
+        <swagger-codegen-maven-plugin.version>3.0.11</swagger-codegen-maven-plugin.version>
         <docker-maven-plugin>0.30.0</docker-maven-plugin>
         <version.dmaap>1.1.11</version.dmaap>
         <javax.ws.rs-api.version>2.1.1</javax.ws.rs-api.version>
@@ -277,6 +278,27 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>io.swagger.codegen.v3</groupId>
+                <artifactId>swagger-codegen-maven-plugin</artifactId>
+                <version>${swagger-codegen-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/api/ecs-api.json</inputSpec>
+                            <language>openapi-yaml</language>
+                            <output>${project.basedir}/api</output>
+                            <configOptions>
+                                <outputFile>ecs-api.yaml</outputFile>
+                            </configOptions>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
