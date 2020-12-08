@@ -7,8 +7,8 @@ Developer Guide
 
 This document provides a quickstart for developers of the Non-RT RIC.
 
-Policy Agent
-------------
+A1 Policy Management Service
+----------------------------
 
 The Policy Management is implemented in ONAP. For documentation see `readthedocs`_ and `wiki`_.
 
