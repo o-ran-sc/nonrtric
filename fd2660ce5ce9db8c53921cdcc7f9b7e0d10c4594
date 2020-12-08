@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7358fa4_73dbc1e9",
+        "filename": ".releases/maven-release-nonrtric-sdnc-a1-controller.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1000247
+      },
+      "writtenOn": "2020-12-08T08:55:07Z",
+      "side": 1,
+      "message": "nonrtric-sdnc-a1-controller-maven-stage-master/182 is red.\n\nnonrtric-sdnc-a1-controller-maven-stage-master/198?",
+      "revId": "fd2660ce5ce9db8c53921cdcc7f9b7e0d10c4594",
+      "serverId": "84e4e190-e623-4c37-9eda-58b1937c1b53",
+      "unresolved": true
+    }
+  ]
+}
