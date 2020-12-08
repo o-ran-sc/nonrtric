@@ -18,15 +18,15 @@ API-Docs
 This is the API-docs of Non-RT RIC.
 
 The Non-RT RIC consists of three parts, described in the sections below:
- * The Policy Agent
+ * The A1 Policy Management Service
  * The Enrichment Coordinator Service
  * The rAPP Catalogue
 
 
-Policy Agent
-============
+A1 Policy Management Service
+============================
 
-For information about the The Policy Agent that is implemented in ONAP, see `readthedocs`_ and `wiki`_.
+For information about the A1 Policy Management Service that is implemented in ONAP, see `readthedocs`_ and `wiki`_.
 
 .. _readthedocs: https://docs.onap.org/projects/onap-ccsdk-oran/en/latest/index.html
 .. _wiki: https://wiki.onap.org/pages/viewpage.action?pageId=84644984
