@@ -23,7 +23,7 @@ TC_ONELINE_DESCR="Repeatedly create and delete policies in each RICs for 24h (or
 INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
 #SUPPORTED TEST ENV FILE
-SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN ORAN-CHERRY"
+SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU  ORAN-CHERRY ORAN-DAWN"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh

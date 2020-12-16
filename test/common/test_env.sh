@@ -25,24 +25,24 @@
 
 # Local Policy Agent image and tag
 POLICY_AGENT_LOCAL_IMAGE="o-ran-sc/nonrtric-policy-agent"
-POLICY_AGENT_LOCAL_IMAGE_TAG="2.1.0-SNAPSHOT"
+POLICY_AGENT_LOCAL_IMAGE_TAG="2.2.0-SNAPSHOT"
 # Remote Policy Agent image and tag
 POLICY_AGENT_REMOTE_IMAGE="nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-policy-agent"
-POLICY_AGENT_REMOTE_IMAGE_TAG="2.1.0"
+POLICY_AGENT_REMOTE_IMAGE_TAG="2.2.0"
 
 # Local ECS image and tag
 ECS_LOCAL_IMAGE="o-ran-sc/nonrtric-enrichment-coordinator-service"
-ECS_LOCAL_IMAGE_TAG="1.0.0-SNAPSHOT"
+ECS_LOCAL_IMAGE_TAG="1.1.0-SNAPSHOT"
 # Remote ECS image and tag
 ECS_REMOTE_IMAGE="nexus3.o-ran-sc.org:10003/o-ran-sc/nonrtric-enrichment-coordinator-service"
-ECS_REMOTE_IMAGE_TAG="1.0.0-SNAPSHOT"
+ECS_REMOTE_IMAGE_TAG="1.1.0-SNAPSHOT"
 
 # Control Panel local image and tag
 CONTROL_PANEL_LOCAL_IMAGE="o-ran-sc/nonrtric-controlpanel"
-CONTROL_PANEL_LOCAL_IMAGE_TAG="2.0.0-SNAPSHOT"
+CONTROL_PANEL_LOCAL_IMAGE_TAG="2.2.0-SNAPSHOT"
 # Control Panel remote image and tag
 CONTROL_PANEL_REMOTE_IMAGE="nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-controlpanel"
-CONTROL_PANEL_REMOTE_IMAGE_TAG="2.0.0"
+CONTROL_PANEL_REMOTE_IMAGE_TAG="2.2.0"
 
 
 # SDNC A1 Controller local image and tag

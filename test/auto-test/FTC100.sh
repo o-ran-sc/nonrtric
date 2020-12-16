@@ -23,9 +23,8 @@ TC_ONELINE_DESCR="Full agent API walkthrough using agent REST/DMAAP and with/wit
 #App names to include in the test, space separated list
 INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
-
 #SUPPORTED TEST ENV FILE
-SUPPORTED_PROFILES="ONAP-MASTER ONAP-GUILIN ORAN-CHERRY"
+SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU  ORAN-CHERRY ORAN-DAWN"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
