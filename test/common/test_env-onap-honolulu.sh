@@ -16,8 +16,8 @@
 #  limitations under the License.
 #  ============LICENSE_END=================================================
 #
-#Profile for ONAP guilin release
-TEST_ENV_PROFILE="ONAP-GUILIN"
+#Profile for ONAP honolulu release
+TEST_ENV_PROFILE="ONAP-HONOLULU"
 
 ########################################
 ## Nexus repo settings
@@ -56,22 +56,20 @@ NEXUS_RELEASE_REPO_ONAP=$NEXUS_RELEASE_REPO
 # 6 XXX_REMOTE_RELEASE_ONAP: ONAP release images: <onap-release-nexus-repo><image-name>:<release-tag>
 # 7 XXX_PROXY: other images, not produced by the project: <proxy-nexus-repo><mage-name>:<proxy-tag>
 
-
 # Policy Agent image and tags
 POLICY_AGENT_IMAGE_BASE="onap/ccsdk-oran-a1policymanagementservice"
-POLICY_AGENT_IMAGE_TAG_LOCAL="1.0.2-SNAPSHOT"
-POLICY_AGENT_IMAGE_TAG_REMOTE_SNAPSHOT="1.0.2-SNAPSHOT"
-POLICY_AGENT_IMAGE_TAG_REMOTE="1.0.2-SNAPSHOT" #Will use snapshot repo
-POLICY_AGENT_IMAGE_TAG_REMOTE_RELEASE="1.0.1"
+POLICY_AGENT_IMAGE_TAG_LOCAL="1.1.1-SNAPSHOT"
+POLICY_AGENT_IMAGE_TAG_REMOTE_SNAPSHOT="1.1.1-SNAPSHOT"
+POLICY_AGENT_IMAGE_TAG_REMOTE="1.1.1-SNAPSHOT" #Will use snapshot repo
+POLICY_AGENT_IMAGE_TAG_REMOTE_RELEASE="1.1.1"
 
 
-# Tag for guilin branch
 # SDNC A1 Controller remote image and tag
 SDNC_A1_CONTROLLER_IMAGE_BASE="onap/sdnc-image"
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_SNAPSHOT="2.0.5-STAGING-latest"
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE="2.0.5-STAGING-latest"
-SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="2.0.4"   #Will use snapshot repo
-
+SDNC_A1_CONTROLLER_IMAGE_TAG_LOCAL="2.1.1-SNAPSHOT" ###CHECK THIS
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_SNAPSHOT="2.1.1-STAGING-latest"
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE="2.1.1-STAGING-latest"  #Will use snapshot repo
+SDNC_A1_CONTROLLER_IMAGE_TAG_REMOTE_RELEASE="2.1.1"
 
 #SDNC DB remote image and tag
 #The DB is part of SDNC so handled in the same way as SDNC
@@ -79,14 +77,24 @@ SDNC_DB_IMAGE_BASE="mysql/mysql-server"
 SDNC_DB_IMAGE_TAG_REMOTE_PROXY="5.6"
 
 
-# Control Panel image and tag - uses bronze release
+# ECS image and tag - uses cherry release
+ECS_IMAGE_BASE="o-ran-sc/nonrtric-enrichment-coordinator-service"
+ECS_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.0.0"
+
+
+# Control Panel image and tag - uses cherry release
 CONTROL_PANEL_IMAGE_BASE="o-ran-sc/nonrtric-controlpanel"
-CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.0.0"
+CONTROL_PANEL_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.1.0"
 
 
-# Near RT RIC Simulator image and tags - uses bronze release
+# RAPP Catalogue image and tags - uses cherry release
+RAPP_CAT_IMAGE_BASE="o-ran-sc/nonrtric-r-app-catalogue"
+RAPP_CAT_IMAGE_TAG_REMOTE_RELEASE_ORAN="1.0.0"
+
+
+# Near RT RIC Simulator image and tags - uses cherry release
 RIC_SIM_IMAGE_BASE="o-ran-sc/a1-simulator"
-RIC_SIM_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.0.0"
+RIC_SIM_IMAGE_TAG_REMOTE_RELEASE_ORAN="2.1.0"
 
 
 #Consul remote image and tag
@@ -123,10 +131,11 @@ PROD_STUB_IMAGE_TAG_LOCAL="latest"
 PROJECT_IMAGES_APP_NAMES="PA SDNC"
 
 # List of app short names which images pulled from ORAN
-ORAN_IMAGES_APP_NAMES="CP RICSIM"
+ORAN_IMAGES_APP_NAMES="CP ECS RICSIM RC"
 
 # List of app short names which images pulled from ONAP
 ONAP_IMAGES_APP_NAMES=""   # Not used
+
 
 ########################################
 # Detailed settings per app
@@ -141,11 +150,23 @@ export POLICY_AGENT_EXTERNAL_PORT=8081                          # Policy Agent c
 export POLICY_AGENT_INTERNAL_PORT=8081                          # Policy Agent container internal port (container -> container)
 export POLICY_AGENT_EXTERNAL_SECURE_PORT=8433                   # Policy Agent container external secure port (host -> container)
 export POLICY_AGENT_INTERNAL_SECURE_PORT=8433                   # Policy Agent container internal secure port (container -> container)
-export POLICY_AGENT_APIS="V1"                                   # Supported northbound api versions
+export POLICY_AGENT_APIS="V1 V2"                                # Supported northbound api versions
+export PMS_VERSION="V2"                                         # Tested version of northbound API
 
 export POLICY_AGENT_APP_NAME="policy-agent"                     # Name for Policy Agent container
 POLICY_AGENT_LOGPATH="/var/log/policy-agent/application.log"    # Path the application log in the Policy Agent container
 export POLICY_AGENT_APP_NAME_ALIAS="policy-agent-container"     # Alias name, name used by the control panel
+
+export ECS_EXTERNAL_PORT=8083                                   # ECS container external port (host -> container)
+export ECS_INTERNAL_PORT=8083                                   # ECS container internal port (container -> container)
+export ECS_EXTERNAL_SECURE_PORT=8434                            # ECS container external secure port (host -> container)
+export ECS_INTERNAL_SECURE_PORT=8434                            # ECS container internal secure port (container -> container)
+
+export ECS_APP_NAME="ecs"                                       # Name for ECS container
+ECS_LOGPATH="/var/log/enrichment-coordinator-service/application.log" # Path the application log in the ECS container
+export ECS_APP_NAME_ALIAS="enrichment-service-container"        # Alias name, name used by the control panel
+export ECS_HOST_MNT_DIR="./mnt"                                 # Mounted dir, relative to compose file, on the host
+export ECS_CONTAINER_MNT_DIR="/var/enrichment-coordinator-service" # Mounted dir in the container
 
 export MR_EXTERNAL_PORT=3905                                    # MR stub container external port (host -> container)
 export MR_INTERNAL_PORT=3905                                    # MR stub container internal port (container -> container)
@@ -160,6 +181,13 @@ export CR_INTERNAL_PORT=8090                                    # Callback recei
 export CR_EXTERNAL_SECURE_PORT=8091                             # Callback receiver container external secure port (host -> container)
 export CR_INTERNAL_SECURE_PORT=8091                             # Callback receiver container internal secure port (container -> container)
 export CR_APP_NAME="callback-receiver"                          # Name for the Callback receiver
+export CR_APP_CALLBACK="/callbacks"                             # Url for callbacks
+
+export PROD_STUB_EXTERNAL_PORT=8092                             # Producer stub container external port (host -> container)
+export PROD_STUB_INTERNAL_PORT=8092                             # Producer stub container internal port (container -> container)
+export PROD_STUB_EXTERNAL_SECURE_PORT=8093                      # Producer stub container external secure port (host -> container)
+export PROD_STUB_INTERNAL_SECURE_PORT=8093                      # Producer stub container internal secure port (container -> container)
+export PROD_STUB_APP_NAME="producer-stub"                       # Name for the Producer stub
 
 export CONSUL_HOST="consul-server"                              # Host name of consul
 export CONSUL_EXTERNAL_PORT=8500                                # Consul container external port (host -> container)
@@ -193,6 +221,11 @@ SDNC_API_URL="/restconf/operations/A1-ADAPTER-API:"             # Base url path 
 SDNC_ALIVE_URL="/apidoc/explorer/"                              # Base url path for SNDC API docs (for alive check)
 SDNC_KARAF_LOG="/opt/opendaylight/data/log/karaf.log"           # Path to karaf log
 
+export RAPP_CAT_APP_NAME="rapp-catalogue"                      # Name for the RAPP Catalogue
+export RAPP_CAT_EXTERNAL_PORT=8680                             # RAPP Catalogue container external port (host -> container)
+export RAPP_CAT_INTERNAL_PORT=8080                             # RAPP Catalogue container internal port (container -> container)
+export RAPP_CAT_EXTERNAL_SECURE_PORT=8633                      # RAPP Catalogue container external secure port (host -> container)
+export RAPP_CAT_INTERNAL_SECURE_PORT=8433                      # RAPP Catalogue container internal secure port (container -> container)
 
 export CONTROL_PANEL_APP_NAME="control-panel"                   # Name of the Control Panel container
 export CONTROL_PANEL_EXTERNAL_PORT=8080                         # Control Panel container external port (host -> container)
@@ -204,7 +237,6 @@ CONTROL_PANEL_LOGPATH="/logs/nonrtric-controlpanel.log"         # Path the appli
 # Setting for common curl-base function
 ########################################
 
-
 UUID=""                                                         # UUID used as prefix to the policy id to simulate a real UUID
                                                                 # Testscript need to set the UUID to use other this empty prefix is used
 
@@ -214,3 +246,20 @@ DMAAPBASE="http://localhost:"$MR_EXTERNAL_PORT                  # Base url to th
 DMAAPBASE_SECURE="https://localhost:"$MR_EXTERNAL_SECURE_PORT   # Base url to the Dmaap adapter, https
 ADAPTER=$RESTBASE                                               # Adapter holds the address the agent R-APP interface (REST OR DMAAP)
                                                                 # The values of this var is swiched between the two base url when needed
+                                                                # The values of this var is swiched between the four base url when needed
+
+ECS_RESTBASE="http://localhost:"$ECS_EXTERNAL_PORT              # Base url to the ECS NB REST interface
+ECS_RESTBASE_SECURE="https://localhost:"$ECS_EXTERNAL_SECURE_PORT # Base url to the secure ECS NB REST interface
+ECS_DMAAPBASE="http://localhost:"$MR_EXTERNAL_PORT              # Base url to the Dmaap adapter, http
+ECS_DMAAPBASE_SECURE="https://localhost:"$MR_EXTERNAL_SECURE_PORT   # Base url to the Dmaap adapter, https
+ECS_ADAPTER=$ECS_RESTBASE                                       # Adapter holds the address the ECS R-APP interface (REST OR DMAAP)
+                                                                # The values of this var is swiched between the four base url when needed
+
+CR_RESTBASE="http://localhost:"$CR_EXTERNAL_PORT                # Base url to the Callback receiver REST interface
+CR_RESTBASE_SECURE="https://localhost:"$CR_EXTERNAL_SECURE_PORT # Base url to the secure Callback receiver REST interface
+CR_ADAPTER=$CR_RESTBASE                                         # Adapter holds the address the CR admin interface (REST only)
+                                                                # The values of this var is swiched between the two base url when needed
+
+RC_RESTBASE="http://localhost:"$RAPP_CAT_EXTERNAL_PORT          # Base url to the RAPP Catalogue REST interface
+RC_RESTBASE_SECURE="https://localhost:"$RAPP_CAT_EXTERNAL_SECURE_PORT # Base url to the secure RAPP Catalogue REST interface
+RC_ADAPTER=$RC_RESTBASE                                         # Adapter holds the address the RAPP Catalogue interface

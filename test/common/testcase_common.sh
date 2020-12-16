@@ -17,8 +17,44 @@
 #  ============LICENSE_END=================================================
 #
 
-# This is a script that contains all the functions needed for auto test
-# Arg: local|remote|remote-remove [auto-clean] [--stop-at-error] [--ricsim-prefix <prefix> ] [ --env-file <environment-filename> ] [--use-local-image <app-nam> [<app-name>]*]
+# This is a script that contains all the common functions needed for auto test.
+# Specific test function are defined in scripts  XXXX_functions.sh
+
+
+# List of short names for all supported apps, including simulators etc
+APP_SHORT_NAMES="PA RICSIM SDNC CP ECS RC CBS CONSUL RC MRSTUB CR PRODSTUB"
+
+__print_args() {
+	echo "Args: remote|remote-remove --env-file <environment-filename> [release] [auto-clean] [--stop-at-error] "
+	echo "      [--ricsim-prefix <prefix> ] [--use-local-image <app-nam>+]  [--use-snapshot-image <app-nam>+]"
+	echo "      [--use-staging-image <app-nam>+] [--use-release-image <app-nam>+]"
+}
+
+if [ $# -eq 1 ] && [ "$1" == "help" ]; then
+
+	if [ ! -z "$TC_ONELINE_DESCR" ]; then
+		echo "Test script description:"
+		echo $TC_ONELINE_DESCR
+		echo ""
+	fi
+	__print_args
+	echo ""
+	echo "remote                -  Use images from remote repositories. Can be overridden for individual images using the '--use_xxx' flags"
+	echo "remote-remove         -  Same as 'remote' but will also try to pull fresh images from remote repositories"
+	echo "--env-file            -  The script will use the supplied file to read environment variables from"
+	echo "release               -  If this flag is given the script will use release version of the images"
+	echo "auto-clean            -  If the function 'auto_clean_containers' is present in the end of the test script then all containers will be stopped and removed. If 'auto-clean' is not given then the function has no effect."
+    echo "--stop-at-error       -  The script will stop when the first failed test or configuration"
+	echo "--ricsim-prefix       -  The a1 simulator will use the supplied string as container prefix instead of 'ricsim'"
+	echo "--use-local-image     -  The script will use local images for the supplied apps, space separated list of app short names"
+	echo "--use-snapshot-image  -  The script will use images from the nexus snapshot repo for the supplied apps, space separated list of app short names"
+	echo "--use-staging-image   -  The script will use images from the nexus staging repo for the supplied apps, space separated list of app short names"
+	echo "--use-release-image   -  The script will use images from the nexus release repo for the supplied apps, space separated list of app short names"
+	echo ""
+	echo "List of app short names supported: "$APP_SHORT_NAMES
+	exit 0
+fi
+
 
 
 # Create a test case id, ATC (Auto Test Case), from the name of the test case script.
@@ -80,14 +116,28 @@ AGENT_STAND_ALONE=0
 # Var to hold 'auto' in case containers shall be stopped when test case ends
 AUTO_CLEAN=""
 
-# Var to hold the app names to use local image for when running 'remote' or 'remote-remove'
+# Var to hold the app names to use local images for
 USE_LOCAL_IMAGES=""
 
-# List of available apps to override with local image
-AVAILABLE_LOCAL_IMAGES_OVERRIDE="PA ECS CP SDNC RICSIM RC"
+# Var to hold the app names to use remote snapshot images for
+USE_SNAPSHOT_IMAGES=""
+
+# Var to hold the app names to use remote staging images for
+USE_STAGING_IMAGES=""
+
+# Var to hold the app names to use remote release images for
+USE_RELEASE_IMAGES=""
+
+# List of available apps to override with local or remote staging/snapshot/release image
+AVAILABLE_IMAGES_OVERRIDE="PA ECS CP SDNC RICSIM RC"
 
 # Use this var (STOP_AT_ERROR=1 in the test script) for debugging/trouble shooting to take all logs and exit at first FAIL test case
 STOP_AT_ERROR=0
+
+# The default value "DEV" indicate that development image tags (SNAPSHOT) and nexus repos (nexus port 10002) are used.
+# The value "RELEASE" indicate that relase image tag and nexus repos (nexus port) are used
+# Applies only to images defined in the test-env files with image names and tags defined as XXXX_RELEASE
+IMAGE_CATEGORY="DEV"
 
 # Function to indent cmd output with one space
 indent1() { sed 's/^/ /'; }
@@ -265,12 +315,16 @@ echo "-----------------------------------      Test case setup      ------------
 
 START_ARG=$1
 paramerror=0
+paramerror_str=""
 if [ $# -lt 1 ]; then
 	paramerror=1
 fi
 if [ $paramerror -eq 0 ]; then
-	if [ "$1" != "remote" ] && [ "$1" != "remote-remove" ] && [ "$1" != "local" ]; then
+	if [ "$1" != "remote" ] && [ "$1" != "remote-remove" ]; then
 		paramerror=1
+		if [ -z "$paramerror_str" ]; then
+			paramerror_str="First arg shall be 'remote' or 'remote-remove'"
+		fi
 	else
 		shift;
 	fi
@@ -278,6 +332,14 @@ fi
 foundparm=0
 while [ $paramerror -eq 0 ] && [ $foundparm -eq 0 ]; do
 	foundparm=1
+	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "release" ]; then
+			IMAGE_CATEGORY="RELEASE"
+			echo "Option set - Release image tags used for applicable images "
+			shift;
+			foundparm=0
+		fi
+	fi
 	if [ $paramerror -eq 0 ]; then
 		if [ "$1" == "auto-clean" ]; then
 			AUTO_CLEAN="auto"
@@ -300,6 +362,9 @@ while [ $paramerror -eq 0 ] && [ $foundparm -eq 0 ]; do
 			RIC_SIM_PREFIX=$1
 			if [ -z "$1" ]; then
 				paramerror=1
+				if [ -z "$paramerror_str" ]; then
+					paramerror_str="No prefix found for flag: '--ricsim-prefix'"
+				fi
 			else
 				echo "Option set - Overriding RIC_SIM_PREFIX with: "$1
 				shift;
@@ -313,6 +378,9 @@ while [ $paramerror -eq 0 ] && [ $foundparm -eq 0 ]; do
 			TEST_ENV_VAR_FILE=$1
 			if [ -z "$1" ]; then
 				paramerror=1
+				if [ -z "$paramerror_str" ]; then
+					paramerror_str="No env file found for flag: '--env-file'"
+				fi
 			else
 				echo "Option set - Reading test env from: "$1
 				shift;
@@ -326,16 +394,97 @@ while [ $paramerror -eq 0 ] && [ $foundparm -eq 0 ]; do
 			shift
 			while [ $# -gt 0 ] && [[ "$1" != "--"* ]]; do
 				USE_LOCAL_IMAGES=$USE_LOCAL_IMAGES" "$1
-				if [[ "$AVAILABLE_LOCAL_IMAGES_OVERRIDE" != *"$1"* ]]; then
+				if [[ "$AVAILABLE_IMAGES_OVERRIDE" != *"$1"* ]]; then
 					paramerror=1
+					if [ -z "$paramerror_str" ]; then
+						paramerror_str="App name $1 is not available for local override for flag: '--use-local-image'"
+					fi
 				fi
 				shift;
 			done
 			foundparm=0
 			if [ -z "$USE_LOCAL_IMAGES" ]; then
 				paramerror=1
+				if [ -z "$paramerror_str" ]; then
+					paramerror_str="No app name found for flag: '--use-local-image'"
+				fi
 			else
-				echo "Option set - Override remote images for app(s):"$USE_LOCAL_IMAGES
+				echo "Option set - Overriding with local images for app(s):"$USE_LOCAL_IMAGES
+			fi
+		fi
+	fi
+	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "--use-snapshot-image" ]; then
+			USE_SNAPSHOT_IMAGES=""
+			shift
+			while [ $# -gt 0 ] && [[ "$1" != "--"* ]]; do
+				USE_SNAPSHOT_IMAGES=$USE_SNAPSHOT_IMAGES" "$1
+				if [[ "$AVAILABLE_IMAGES_OVERRIDE" != *"$1"* ]]; then
+					paramerror=1
+					if [ -z "$paramerror_str" ]; then
+						paramerror_str="App name $1 is not available for snapshot override for flag: '--use-snapshot-image'"
+					fi
+				fi
+				shift;
+			done
+			foundparm=0
+			if [ -z "$USE_SNAPSHOT_IMAGES" ]; then
+				paramerror=1
+				if [ -z "$paramerror_str" ]; then
+					paramerror_str="No app name found for flag: '--use-snapshot-image'"
+				fi
+			else
+				echo "Option set - Overriding with snapshot images for app(s):"$USE_SNAPSHOT_IMAGES
+			fi
+		fi
+	fi
+	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "--use-staging-image" ]; then
+			USE_STAGING_IMAGES=""
+			shift
+			while [ $# -gt 0 ] && [[ "$1" != "--"* ]]; do
+				USE_STAGING_IMAGES=$USE_STAGING_IMAGES" "$1
+				if [[ "$AVAILABLE_IMAGES_OVERRIDE" != *"$1"* ]]; then
+					paramerror=1
+					if [ -z "$paramerror_str" ]; then
+						paramerror_str="App name $1 is not available for staging override for flag: '--use-staging-image'"
+					fi
+				fi
+				shift;
+			done
+			foundparm=0
+			if [ -z "$USE_STAGING_IMAGES" ]; then
+				paramerror=1
+				if [ -z "$paramerror_str" ]; then
+					paramerror_str="No app name found for flag: '--use-staging-image'"
+				fi
+			else
+				echo "Option set - Overriding with staging images for app(s):"$USE_STAGING_IMAGES
+			fi
+		fi
+	fi
+	if [ $paramerror -eq 0 ]; then
+		if [ "$1" == "--use-release-image" ]; then
+			USE_RELEASE_IMAGES=""
+			shift
+			while [ $# -gt 0 ] && [[ "$1" != "--"* ]]; do
+				USE_RELEASE_IMAGES=$USE_RELEASE_IMAGES" "$1
+				if [[ "$AVAILABLE_IMAGES_OVERRIDE" != *"$1"* ]]; then
+					paramerror=1
+					if [ -z "$paramerror_str" ]; then
+						paramerror_str="App name $1 is not available for release override for flag: '--use-release-image'"
+					fi
+				fi
+				shift;
+			done
+			foundparm=0
+			if [ -z "$USE_RELEASE_IMAGES" ]; then
+				paramerror=1
+				if [ -z "$paramerror_str" ]; then
+					paramerror_str="No app name found for flag: '--use-release-image'"
+				fi
+			else
+				echo "Option set - Overriding with release images for app(s):"$USE_RELEASE_IMAGES
 			fi
 		fi
 	fi
@@ -345,10 +494,14 @@ echo ""
 #Still params left?
 if [ $paramerror -eq 0 ] && [ $# -gt 0 ]; then
 	paramerror=1
+	if [ -z "$paramerror_str" ]; then
+		paramerror_str="Unknown parameter(s): "$@
+	fi
 fi
 
 if [ $paramerror -eq 1 ]; then
-	echo -e $RED"Expected arg: local|remote|remote-remove [auto-clean] [--stop-at-error] [--ricsim-prefix <prefix> ] [ --env-file <environment-filename> ] [--use-local-image <app-nam> [<app-name>]*]"$ERED
+	echo -e $RED"Incorrect arg list: "$paramerror_str$ERED
+	__print_args
 	exit 1
 fi
 
@@ -358,12 +511,13 @@ if [ -f "$TEST_ENV_VAR_FILE" ]; then
 	. $TEST_ENV_VAR_FILE
 
 	if [ -z "$TEST_ENV_PROFILE" ] || [ -z "$SUPPORTED_PROFILES" ]; then
-		echo -e $YELLOW"This test case may no work with selected test env file. TEST_ENV_PROFILE is missing in test_env file or SUPPORTED_PROFILES is missing in test case file"$EYELLOW
+		echo -e $YELLOW"This test case may not work with selected test env file. TEST_ENV_PROFILE is missing in test_env file or SUPPORTED_PROFILES is missing in test case file"$EYELLOW
 	else
 		if [[ "$SUPPORTED_PROFILES" == *"$TEST_ENV_PROFILE"* ]]; then
 			echo -e $GREEN"Test case support the selected test env file"$EGREEN
 		else
 			echo -e $RED"Test case does not support the selected test env file"$ERED
+			echo "Profile: "$TEST_ENV_PROFILE"     Supported profiles: "$SUPPORTED_PROFILES
 			echo -e $RED"Exiting...."$ERED
 			exit 1
 		fi
@@ -375,6 +529,12 @@ else
 	ls ../common/test_env* | indent1
 	exit 1
 fi
+
+if [ -z "$PROJECT_IMAGES_APP_NAMES" ]; then
+	echo -e $RED"Var PROJECT_IMAGES_APP_NAMES must be defined in: "$TEST_ENV_VAR_FILE$ERED$ERED
+	exit 1
+fi
+
 
 #Vars for A1 interface version and container count
 G1_A1_VERSION=""
@@ -422,13 +582,13 @@ echo -e $BOLD"Checking configured image setting for this test case"$EBOLD
 IMAGE_ERR=0
 #Create a file with image info for later printing as a table
 image_list_file="./tmp/.image-list"
-echo -e " Container\tImage\ttag" > $image_list_file
+echo -e " Container\tImage\ttag\ttag-switch" > $image_list_file
 
 # Check if image env var is set and if so export the env var with image to use (used by docker compose files)
-# arg: <image name> <script start-arg> <target-variable-name> <image-variable-name> <image-tag-variable-name> <app-short-name>
-__check_image_var() {
+# arg: <image name> <target-variable-name> <image-variable-name> <image-tag-variable-name> <tag-suffix> <app-short-name>
+__check_and_create_image_var() {
 	if [ $# -ne 6 ]; then
-		echo "Expected arg: <image name> <script start-arg> <target-variable-name> <image-variable-name> <image-tag-variable-name> <app-short-name>"
+		echo "Expected arg: <image name> <target-variable-name> <image-variable-name> <image-tag-variable-name> <tag-suffix> <app-short-name>"
 		((IMAGE_ERR++))
 		return
 	fi
@@ -440,42 +600,50 @@ __check_image_var() {
 	fi
 	tmp=${1}"\t"
 	#Create var from the input var names
-	image="${!4}"
-	tag="${!5}"
+	image="${!3}"
+	tmptag=$4"_"$5
+	tag="${!tmptag}"
 
 	if [ -z $image ]; then
-	 	echo -e $RED"\$"$4" not set in $TEST_ENV_VAR_FILE"$ERED
-	 	((IMAGE_ERR++))
+		echo -e $RED"\$"$3" not set in $TEST_ENV_VAR_FILE"$ERED
+		((IMAGE_ERR++))
 		echo ""
 		tmp=$tmp"<no-image>\t"
 	else
+		#Add repo depending on image type
+		if [ "$5" == "REMOTE_RELEASE" ]; then
+			image=$NEXUS_RELEASE_REPO$image
+		fi
+		if [ "$5" == "REMOTE" ]; then
+			image=$NEXUS_STAGING_REPO$image
+		fi
+		if [ "$5" == "REMOTE_SNAPSHOT" ]; then
+			image=$NEXUS_SNAPSHOT_REPO$image
+		fi
+		if [ "$5" == "REMOTE_PROXY" ]; then
+			image=$NEXUS_PROXY_REPO$image
+		fi
+		if [ "$5" == "REMOTE_RELEASE_ONAP" ]; then
+			image=$NEXUS_RELEASE_REPO_ONAP$image
+		fi
+		if [ "$5" == "REMOTE_RELEASE_ORAN" ]; then
+			image=$NEXUS_RELEASE_REPO_ORAN$image
+		fi
+		#No nexus repo added for local images, tag: LOCAL
 		tmp=$tmp$image"\t"
 	fi
 	if [ -z $tag ]; then
-	 	echo -e $RED"\$"$5" not set in $TEST_ENV_VAR_FILE"$ERED
-	 	((IMAGE_ERR++))
+		echo -e $RED"\$"$tmptag" not set in $TEST_ENV_VAR_FILE"$ERED
+		((IMAGE_ERR++))
 		echo ""
 		tmp=$tmp"<no-tag>\t"
 	else
 		tmp=$tmp$tag
 	fi
+	tmp=$tmp"\t"$5
 	echo -e "$tmp" >> $image_list_file
 	#Export the env var
-	export "${3}"=$image":"$tag
-
-	#echo " Configured image for ${1} (script start arg=${2}): "$image":"$tag
-}
-
-
-#Check if app local image shall override remote image
-# Possible IDs for local image override: PA, CP, SDNC, RICSIM, ECS
-__check_image_local_override() {
-	for im in $USE_LOCAL_IMAGES; do
-		if [ "$1" == "$im" ]; then
-			return 1
-		fi
-	done
-	return 0
+	export "${2}"=$image":"$tag
 }
 
 # Check if app uses image included in this test run
@@ -490,93 +658,142 @@ __check_included_image() {
 	return 1
 }
 
+__check_image_local_override() {
+	for im in $USE_LOCAL_IMAGES; do
+		if [ "$1" == "$im" ]; then
+			return 1
+		fi
+	done
+	return 0
+}
+
+# Check if app uses image override
+# Returns the image/tag suffix LOCAL for local image or REMOTE/REMOTE_RELEASE/REMOTE_SNAPSHOT for staging/release/snapshot image
+__check_image_override() {
+
+	for im in $ORAN_IMAGES_APP_NAMES; do
+		if [ "$1" == "$im" ]; then
+			echo "REMOTE_RELEASE_ORAN"
+			return 0
+		fi
+	done
+
+	for im in $ONAP_IMAGES_APP_NAMES; do
+		if [ "$1" == "$im" ]; then
+			echo "REMOTE_RELEASE_ONAP"
+			return 0
+		fi
+	done
+
+	found=0
+	for im in $PROJECT_IMAGES_APP_NAMES; do
+		if [ "$1" == "$im" ]; then
+			found=1
+		fi
+	done
+
+	if [ $found -eq 0 ]; then
+		echo "REMOTE_PROXY"
+		return 0
+	fi
+
+	suffix=""
+	if [ $IMAGE_CATEGORY == "RELEASE" ]; then
+		suffix="REMOTE_RELEASE"
+	fi
+	if [ $IMAGE_CATEGORY == "DEV" ]; then
+		suffix="REMOTE"
+	fi
+	CTR=0
+	for im in $USE_STAGING_IMAGES; do
+		if [ "$1" == "$im" ]; then
+			suffix="REMOTE"
+			((CTR++))
+		fi
+	done
+	for im in $USE_RELEASE_IMAGES; do
+		if [ "$1" == "$im" ]; then
+			suffix="REMOTE_RELEASE"
+			((CTR++))
+		fi
+	done
+	for im in $USE_SNAPSHOT_IMAGES; do
+		if [ "$1" == "$im" ]; then
+			suffix="REMOTE_SNAPSHOT"
+			((CTR++))
+		fi
+	done
+	for im in $USE_LOCAL_IMAGES; do
+		if [ "$1" == "$im" ]; then
+			suffix="LOCAL"
+			((CTR++))
+		fi
+	done
+	echo $suffix
+	if [ $CTR -gt 1 ]; then
+		exit 1
+	fi
+	return 0
+}
+
 # Check that image env setting are available
 echo ""
 
-if [ $START_ARG == "local" ]; then
-
-	#Local agent image
-	__check_image_var " Policy Agent" $START_ARG "POLICY_AGENT_IMAGE" "POLICY_AGENT_LOCAL_IMAGE" "POLICY_AGENT_LOCAL_IMAGE_TAG" PA
-
-	#Local Control Panel image
-	__check_image_var " Control Panel" $START_ARG "CONTROL_PANEL_IMAGE" "CONTROL_PANEL_LOCAL_IMAGE" "CONTROL_PANEL_LOCAL_IMAGE_TAG" CP
-
-	#Local SNDC image
-	__check_image_var " SDNC A1 Controller" $START_ARG "SDNC_A1_CONTROLLER_IMAGE" "SDNC_A1_CONTROLLER_LOCAL_IMAGE" "SDNC_A1_CONTROLLER_LOCAL_IMAGE_TAG" SDNC
-
-	#Local ric sim image
-	__check_image_var " RIC Simulator" $START_ARG "RIC_SIM_IMAGE" "RIC_SIM_LOCAL_IMAGE" "RIC_SIM_LOCAL_IMAGE_TAG" RICSIM
-
-elif [ $START_ARG == "remote" ] || [ $START_ARG == "remote-remove" ]; then
-
-	__check_image_local_override 'PA'
-	if [ $? -eq 0 ]; then
-		#Remote agent image
-		__check_image_var " Policy Agent" $START_ARG "POLICY_AGENT_IMAGE" "POLICY_AGENT_REMOTE_IMAGE" "POLICY_AGENT_REMOTE_IMAGE_TAG" PA
-	else
-		#Local agent image
-		__check_image_var " Policy Agent" $START_ARG "POLICY_AGENT_IMAGE" "POLICY_AGENT_LOCAL_IMAGE" "POLICY_AGENT_LOCAL_IMAGE_TAG" PA
-	fi
-
-	__check_image_local_override 'CP'
-	if [ $? -eq 0 ]; then
-		#Remote Control Panel image
-		__check_image_var " Control Panel" $START_ARG "CONTROL_PANEL_IMAGE" "CONTROL_PANEL_REMOTE_IMAGE" "CONTROL_PANEL_REMOTE_IMAGE_TAG" CP
-	else
-		#Local Control Panel image
-		__check_image_var " Control Panel" $START_ARG "CONTROL_PANEL_IMAGE" "CONTROL_PANEL_LOCAL_IMAGE" "CONTROL_PANEL_LOCAL_IMAGE_TAG" CP
-	fi
-
-	__check_image_local_override 'SDNC'
-	if [ $? -eq 0 ]; then
-		#Remote SDNC image
-		__check_image_var " SDNC A1 Controller" $START_ARG "SDNC_A1_CONTROLLER_IMAGE" "SDNC_A1_CONTROLLER_REMOTE_IMAGE" "SDNC_A1_CONTROLLER_REMOTE_IMAGE_TAG" SDNC
-	else
-		#Local SNDC image
-		__check_image_var " SDNC A1 Controller" $START_ARG "SDNC_A1_CONTROLLER_IMAGE" "SDNC_A1_CONTROLLER_LOCAL_IMAGE" "SDNC_A1_CONTROLLER_LOCAL_IMAGE_TAG" SDNC
-	fi
-
-	__check_image_local_override 'RICSIM'
-	if [ $? -eq 0 ]; then
-		#Remote ric sim image
-		__check_image_var " RIC Simulator" $START_ARG "RIC_SIM_IMAGE" "RIC_SIM_REMOTE_IMAGE" "RIC_SIM_REMOTE_IMAGE_TAG" RICSIM
-	else
-		#Local ric sim image
-		__check_image_var " RIC Simulator" $START_ARG "RIC_SIM_IMAGE" "RIC_SIM_LOCAL_IMAGE" "RIC_SIM_LOCAL_IMAGE_TAG" RICSIM
-	fi
-
-	__check_image_local_override 'ECS'
-	if [ $? -eq 0 ]; then
-		#Remote ecs image
-		__check_image_var " ECS" $START_ARG "ECS_IMAGE" "ECS_REMOTE_IMAGE" "ECS_REMOTE_IMAGE_TAG" ECS
-	else
-		#Local ecs image
-		__check_image_var " ECS" $START_ARG "ECS_IMAGE" "ECS_LOCAL_IMAGE" "ECS_LOCAL_IMAGE_TAG" ECS
-	fi
-
-		__check_image_local_override 'RC'
-	if [ $? -eq 0 ]; then
-		#Remote ecs image
-		__check_image_var " RC" $START_ARG "RAPP_CAT_IMAGE" "RAPP_CAT_REMOTE_IMAGE" "RAPP_CAT_REMOTE_IMAGE_TAG" RC
-	else
-		#Local ecs image
-		__check_image_var " RC" $START_ARG "RAPP_CAT_IMAGE" "RAPP_CAT_LOCAL_IMAGE" "RAPP_CAT_LOCAL_IMAGE_TAG" RC
-	fi
-
-else
-	#Should never get here....
-	echo "Unknow args: "$@
-	exit 1
+#Agent image
+IMAGE_SUFFIX=$(__check_image_override 'PA')
+if [ $? -ne 0 ]; then
+	echo -e $RED"Image setting from cmd line not consistent for PA."$ERED
+	((IMAGE_ERR++))
 fi
+__check_and_create_image_var " Policy Agent" "POLICY_AGENT_IMAGE" "POLICY_AGENT_IMAGE_BASE" "POLICY_AGENT_IMAGE_TAG" $IMAGE_SUFFIX PA
 
+#Remote Control Panel image
+IMAGE_SUFFIX=$(__check_image_override 'CP')
+if [ $? -ne 0 ]; then
+	echo -e $RED"Image setting from cmd line not consistent for CP."$ERED
+	((IMAGE_ERR++))
+fi
+__check_and_create_image_var " Control Panel" "CONTROL_PANEL_IMAGE" "CONTROL_PANEL_IMAGE_BASE" "CONTROL_PANEL_IMAGE_TAG" $IMAGE_SUFFIX CP
+
+#Remote SDNC image
+IMAGE_SUFFIX=$(__check_image_override 'SDNC')
+if [ $? -ne 0 ]; then
+	echo -e $RED"Image setting from cmd line not consistent for SDNC."$ERED
+	((IMAGE_ERR++))
+fi
+__check_and_create_image_var " SDNC A1 Controller" "SDNC_A1_CONTROLLER_IMAGE" "SDNC_A1_CONTROLLER_IMAGE_BASE" "SDNC_A1_CONTROLLER_IMAGE_TAG" $IMAGE_SUFFIX SDNC
+
+#Remote ric sim image
+IMAGE_SUFFIX=$(__check_image_override 'RICSIM')
+if [ $? -ne 0 ]; then
+	echo -e $RED"Image setting from cmd line not consistent for RICSIM."$ERED
+	((IMAGE_ERR++))
+fi
+__check_and_create_image_var " RIC Simulator" "RIC_SIM_IMAGE" "RIC_SIM_IMAGE_BASE" "RIC_SIM_IMAGE_TAG" $IMAGE_SUFFIX RICSIM
+
+#Remote ecs image
+IMAGE_SUFFIX=$(__check_image_override 'ECS')
+if [ $? -ne 0 ]; then
+	echo -e $RED"Image setting from cmd line not consistent for ECS."$EREDs
+	((IMAGE_ERR++))
+fi
+__check_and_create_image_var " ECS" "ECS_IMAGE" "ECS_IMAGE_BASE" "ECS_IMAGE_TAG" $IMAGE_SUFFIX ECS
+
+#Remote rc image
+IMAGE_SUFFIX=$(__check_image_override 'RC')
+if [ $? -ne 0 ]; then
+	echo -e $RED"Image setting from cmd line not consistent for RC."$ERED
+	((IMAGE_ERR++))
+fi
+__check_and_create_image_var " RC" "RAPP_CAT_IMAGE" "RAPP_CAT_IMAGE_BASE" "RAPP_CAT_IMAGE_TAG" $IMAGE_SUFFIX RC
 
 # These images are not built as part of this project official images, just check that env vars are set correctly
-__check_image_var " Message Router" $START_ARG "MRSTUB_IMAGE" "MRSTUB_LOCAL_IMAGE" "MRSTUB_LOCAL_IMAGE_TAG" MR
-__check_image_var " Callback Receiver" $START_ARG "CR_IMAGE" "CR_LOCAL_IMAGE" "CR_LOCAL_IMAGE_TAG" CR
-__check_image_var " Producer stub" $START_ARG "PROD_STUB_IMAGE" "PROD_STUB_LOCAL_IMAGE" "PROD_STUB_LOCAL_IMAGE_TAG" PRODSTUB
-__check_image_var " Consul" $START_ARG "CONSUL_IMAGE" "CONSUL_REMOTE_IMAGE" "CONSUL_REMOTE_IMAGE_TAG" CONSUL
-__check_image_var " CBS" $START_ARG "CBS_IMAGE" "CBS_REMOTE_IMAGE" "CBS_REMOTE_IMAGE_TAG" CBS
-__check_image_var " SDNC DB" $START_ARG "SDNC_DB_IMAGE" "SDNC_DB_REMOTE_IMAGE" "SDNC_DB_REMOTE_IMAGE_TAG" SDNC #Uses sdnc app name
+__check_and_create_image_var " Message Router"    "MRSTUB_IMAGE"    "MRSTUB_IMAGE_BASE"    "MRSTUB_IMAGE_TAG"    LOCAL               MR
+__check_and_create_image_var " Callback Receiver" "CR_IMAGE"        "CR_IMAGE_BASE"        "CR_IMAGE_TAG"        LOCAL               CR
+__check_and_create_image_var " Producer stub"     "PROD_STUB_IMAGE" "PROD_STUB_IMAGE_BASE" "PROD_STUB_IMAGE_TAG" LOCAL               PRODSTUB
+__check_and_create_image_var " Consul"            "CONSUL_IMAGE"    "CONSUL_IMAGE_BASE"    "CONSUL_IMAGE_TAG"    REMOTE_PROXY        CONSUL
+__check_and_create_image_var " CBS"               "CBS_IMAGE"       "CBS_IMAGE_BASE"       "CBS_IMAGE_TAG"       REMOTE_RELEASE_ONAP CBS
+__check_and_create_image_var " SDNC DB"           "SDNC_DB_IMAGE"   "SDNC_DB_IMAGE_BASE"   "SDNC_DB_IMAGE_TAG"   REMOTE_PROXY        SDNC #Uses sdnc app name
 
 #Errors in image setting - exit
 if [ $IMAGE_ERR -ne 0 ]; then
@@ -656,35 +873,52 @@ __check_and_pull_image() {
 				fi
 			fi
 			echo -e "  Attempt to stop and remove container(s), if running - "$GREEN"stopped removed"$EGREEN
-			echo -ne "  Removing image - ${SAMELINE}"
-			tmp="$(docker images -q ${4})" &> /dev/null
-			if [ $? -eq 0 ] && [ ! -z "$tmp" ]; then
-				docker rmi --force $4 &> ./tmp/.dockererr
-				if [ $? -ne 0 ]; then
-					((IMAGE_ERR++))
-					echo ""
-					echo -e $RED"  Image could not be removed - try manual removal of the image"$ERED
-					cat ./tmp/.dockererr
-					return 1
-				fi
-				echo -e "  Removing image - "$GREEN"removed"$EGREEN
-			else
-				echo -e "  Removing image - "$GREEN"image not in repository"$EGREEN
-			fi
+			# echo -ne "  Removing image - ${SAMELINE}"
+			# tmp="$(docker images -q ${4})" &> /dev/null
+			# if [ $? -eq 0 ] && [ ! -z "$tmp" ]; then
+			# 	docker rmi --force $4 &> ./tmp/.dockererr
+			# 	if [ $? -ne 0 ]; then
+			# 		((IMAGE_ERR++))
+			# 		echo ""
+			# 		echo -e $RED"  Image could not be removed - try manual removal of the image"$ERED
+			# 		cat ./tmp/.dockererr
+			# 		return 1
+			# 	fi
+			# 	echo -e "  Removing image - "$GREEN"removed"$EGREEN
+			# else
+			# 	echo -e "  Removing image - "$GREEN"image not in repository"$EGREEN
+			# fi
 			tmp_im=""
 		fi
 		if [ -z "$tmp_im" ]; then
 			echo -ne "  Pulling image${SAMELINE}"
-			docker pull $4	&> ./tmp/.dockererr
-			tmp_im=$(docker images ${4} | grep -v REPOSITORY)
-			if [ -z "$tmp_im" ]; then
+			# docker pull $4	&> ./tmp/.dockererr
+			# tmp_im=$(docker images ${4} | grep -v REPOSITORY)
+			# if [ -z "$tmp_im" ]; then
+			# 	echo ""
+			# 	echo -e "  Pulling image -$RED could not be pulled"$ERED
+			# 	((IMAGE_ERR++))
+			# 	cat ./tmp/.dockererr
+			# 	return 1
+			# fi
+			# echo -e "  Pulling image -$GREEN Pulled $EGREEN"
+			out=$(docker pull $4)
+			if [ $? -ne 0 ]; then
 				echo ""
 				echo -e "  Pulling image -$RED could not be pulled"$ERED
 				((IMAGE_ERR++))
-				cat ./tmp/.dockererr
+				echo $out > ./tmp/.dockererr
+				echo $out
 				return 1
 			fi
-			echo -e "  Pulling image -$GREEN Pulled $EGREEN"
+			echo $out > ./tmp/.dockererr
+			if [[ $out == *"up to date"* ]]; then
+				echo -e "  Pulling image -$GREEN Image is up to date $EGREEN"
+			elif [[ $out == *"Downloaded newer image"* ]]; then
+				echo -e "  Pulling image -$GREEN Newer image pulled $EGREEN"
+			else
+				echo -e "  Pulling image -$GREEN Pulled $EGREEN"
+			fi
 		else
 			echo -e "  Pulling image -$GREEN OK $EGREEN(exists in local repository)"
 		fi
@@ -789,6 +1023,10 @@ if [ $IMAGE_ERR -ne 0 ]; then
 	echo "#################################################################################################"
 	echo -e $RED"One or more images could not be pulled or containers using the images could not be stopped/removed"$ERED
 	echo -e $RED"Or local image, overriding remote image, does not exist"$ERED
+	if [ $IMAGE_CATEGORY == "DEV" ]; then
+		echo -e $RED"Note that SNAPSHOT images may be purged from nexus after a certain period."$ERED
+		echo -e $RED"In that case, switch to use a released image instead."$ERED
+	fi
 	echo "#################################################################################################"
 	echo ""
 	exit 1
@@ -803,8 +1041,8 @@ __check_included_image 'MR'
 if [ $? -eq 0 ]; then
 	cd $curdir
 	cd ../mrstub
-	echo " Building mrstub image: $MRSTUB_LOCAL_IMAGE:$MRSTUB_LOCAL_IMAGE_TAG"
-	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $MRSTUB_LOCAL_IMAGE . &> .dockererr
+	echo " Building mrstub image: $MRSTUB_IMAGE:$MRSTUB_IMAGE_TAG_LOCAL"
+	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $MRSTUB_IMAGE . &> .dockererr
 	if [ $? -eq 0 ]; then
 		echo -e  $GREEN" Build Ok"$EGREEN
 	else
@@ -822,8 +1060,8 @@ fi
 __check_included_image 'CR'
 if [ $? -eq 0 ]; then
 	cd ../cr
-	echo " Building Callback Receiver image: $CR_LOCAL_IMAGE:$CR_IMAGE_TAG"
-	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $CR_LOCAL_IMAGE . &> .dockererr
+	echo " Building Callback Receiver image: $CR_IMAGE:$CR_IMAGE_TAG_LOCAL"
+	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $CR_IMAGE . &> .dockererr
 	if [ $? -eq 0 ]; then
 		echo -e  $GREEN" Build Ok"$EGREEN
 	else
@@ -841,8 +1079,8 @@ fi
 __check_included_image 'PRODSTUB'
 if [ $? -eq 0 ]; then
 	cd ../prodstub
-	echo " Building Producer stub image: $PROD_STUB_LOCAL_IMAGE:$PROD_STUB_LOCAL_IMAGE_TAG"
-	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $PROD_STUB_LOCAL_IMAGE . &> .dockererr
+	echo " Building Producer stub image: $PROD_STUB_IMAGE:$PROD_STUB_IMAGE_TAG_LOCAL"
+	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $PROD_STUB_IMAGE . &> .dockererr
 	if [ $? -eq 0 ]; then
 		echo -e  $GREEN" Build Ok"$EGREEN
 	else
@@ -895,7 +1133,7 @@ if [ $? -eq 0 ]; then
 fi
 __check_included_image 'PRODSTUB'
 if [ $? -eq 0 ]; then
-	echo -e " Produccer stub\t$(docker images --format $format_string $PROD_STUB_IMAGE)" >>   $docker_tmp_file
+	echo -e " Producer stub\t$(docker images --format $format_string $PROD_STUB_IMAGE)" >>   $docker_tmp_file
 fi
 __check_included_image 'CONSUL'
 if [ $? -eq 0 ]; then

@@ -23,7 +23,7 @@ TC_ONELINE_DESCR="Preparation demo setup  - policy management and enrichment inf
 INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC ECS PRODSTUB RC"
 
 #SUPPORTED TEST ENV FILE
-SUPPORTED_PROFILES="ONAP-MASTER ORAN-CHERRY"
+SUPPORTED_PROFILES="ONAP-HONOLULU  ORAN-CHERRY ORAN-DAWN"
 
 . ../common/testcase_common.sh $@
 . ../common/agent_api_functions.sh
@@ -71,8 +71,6 @@ prepare_consul_config      SDNC  ".consul_config.json"
 consul_config_app                  ".consul_config.json"
 
 start_policy_agent
-
-start_rapp_catalogue
 
 start_cr
 
