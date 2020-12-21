@@ -21,31 +21,20 @@ networks:
     name: nonrtric-docker-net
 
 services:
-  ecs:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-enrichment-coordinator-service:1.1.0
-    container_name: ecs
+  policy-agent:
+    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-policy-agent:2.2.0
+    container_name: policy-agent
     networks:
       default:
         aliases:
-          - enrichment-service-container
+          - policy-agent-container
     ports:
-      - 8083:8083
-      - 8434:8434
-
-  policy-control-panel:
-    image: nexus3.o-ran-sc.org:10004/o-ran-sc/nonrtric-controlpanel:2.2.0
-    container_name: policy-control-panel
-    networks:
-      - default
-    ports:
-      - 8080:8080
-      - 8082:8082
-
-  producer:
-    image: eexit/mirror-http-server
-    container_name: producer
-    networks:
-      - default
-    ports:
-      - 8088:80
-
+      - 8081:8081
+      - 8433:8433
+    volumes:
+      - ./config/application_configuration.json:/opt/app/policy-agent/data/application_configuration.json:ro
+    # For using own certs instead of the default ones (built into the container),
+    # place them in config/ directory, update the application-policyagent.yaml file, and uncomment the following lines
+    #  - ./config/keystore-policyagent.jks:/opt/app/policy-agent/etc/cert/keystore.jks:ro
+    #  - ./config/truststore-policyagent.jks:/opt/app/policy-agent/etc/cert/truststore.jks:ro
+    #  - ./config/application-policyagent.yaml:/opt/app/policy-agent/config/application.yaml:ro
