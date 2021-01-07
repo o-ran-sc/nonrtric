@@ -21,25 +21,98 @@
 package org.oransc.enrichment.repository;
 
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import org.oransc.enrichment.controllers.consumer.ConsumerCallbacks;
+import org.oransc.enrichment.controllers.producer.ProducerCallbacks;
+import org.oransc.enrichment.controllers.producer.ProducerRegistrationInfo;
+import org.oransc.enrichment.controllers.producer.ProducerRegistrationInfo.ProducerEiTypeRegistrationInfo;
 import org.oransc.enrichment.exceptions.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Dynamic representation of all EiProducers.
  */
 @SuppressWarnings("squid:S2629") // Invoke method(s) only conditionally
+@Component
 public class EiProducers {
     private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final Map<String, EiProducer> allEiProducers = new HashMap<>();
+    private final MultiMap<EiProducer> producersByType = new MultiMap<>();
 
-    public synchronized void put(EiProducer producer) {
+    @Autowired
+    private ProducerCallbacks producerCallbacks;
+
+    @Autowired
+    private ConsumerCallbacks consumerCallbacks;
+
+    @Autowired
+    private EiTypes eiTypes;
+
+    @Autowired
+    private EiJobs eiJobs;
+
+    public EiProducer registerProducer(String producerId, ProducerRegistrationInfo registrationInfo) {
+        EiProducer previousDefinition = this.get(producerId);
+        if (previousDefinition != null) {
+            for (EiType type : previousDefinition.getEiTypes()) {
+                producersByType.remove(type.getId(), producerId);
+            }
+            allEiProducers.remove(producerId);
+        }
+
+        EiProducer producer = createProducer(producerId, registrationInfo);
         allEiProducers.put(producer.getId(), producer);
+        for (EiType type : producer.getEiTypes()) {
+            producersByType.put(type.getId(), producer.getId(), producer);
+        }
+
+        if (previousDefinition != null) {
+            purgeTypes(previousDefinition.getEiTypes());
+            this.consumerCallbacks.notifyConsumersProducerDeleted(previousDefinition);
+        }
+
+        producerCallbacks.restartEiJobs(producer, this.eiJobs);
+        consumerCallbacks.notifyConsumersProducerAdded(producer);
+        return producer;
+    }
+
+    private void purgeTypes(Collection<EiType> types) {
+        for (EiType type : types) {
+            if (getProducersForType(type.getId()).isEmpty()) {
+                this.eiTypes.remove(type);
+            }
+        }
+    }
+
+    private EiType getType(ProducerEiTypeRegistrationInfo typeInfo) {
+        EiType type = this.eiTypes.get(typeInfo.eiTypeId);
+        if (type == null) {
+            type = new EiType(typeInfo.eiTypeId, typeInfo.jobDataSchema);
+            this.eiTypes.put(type);
+            this.consumerCallbacks.notifyConsumersTypeAdded(type);
+        }
+        return type;
+    }
+
+    private EiProducer createProducer(String producerId, ProducerRegistrationInfo registrationInfo) {
+        ArrayList<EiType> types = new ArrayList<>();
+
+        EiProducer producer = new EiProducer(producerId, types, registrationInfo.jobCallbackUrl,
+            registrationInfo.producerSupervisionCallbackUrl);
+
+        for (ProducerEiTypeRegistrationInfo typeInfo : registrationInfo.types) {
+            EiType type = getType(typeInfo);
+            types.add(type);
+        }
+        return producer;
     }
 
     public synchronized Collection<EiProducer> getAllProducers() {
@@ -58,33 +131,42 @@ public class EiProducers {
         return allEiProducers.get(id);
     }
 
-    public synchronized void remove(String id) {
-        this.allEiProducers.remove(id);
-    }
-
     public synchronized int size() {
         return allEiProducers.size();
     }
 
     public synchronized void clear() {
         this.allEiProducers.clear();
+        this.producersByType.clear();
     }
 
-    public void deregisterProducer(EiProducer producer, EiTypes eiTypes, EiJobs eiJobs) {
-        this.remove(producer);
+    public void deregisterProducer(EiProducer producer, EiTypes eiTypes) {
+        allEiProducers.remove(producer.getId());
         for (EiType type : producer.getEiTypes()) {
-            boolean removed = type.removeProducer(producer) != null;
-            if (!removed) {
+            if (producersByType.remove(type.getId(), producer.getId()) == null) {
                 this.logger.error("Bug, no producer found");
             }
-            if (type.getProducerIds().isEmpty()) {
+            if (this.producersByType.get(type.getId()).isEmpty()) {
                 eiTypes.remove(type);
             }
         }
+        this.consumerCallbacks.notifyConsumersProducerDeleted(producer);
     }
 
-    private synchronized void remove(EiProducer producer) {
-        this.allEiProducers.remove(producer.getId());
+    public synchronized Collection<EiProducer> getProducersForType(EiType type) {
+        return this.producersByType.get(type.getId());
+    }
+
+    public synchronized Collection<EiProducer> getProducersForType(String typeId) {
+        return this.producersByType.get(typeId);
+    }
+
+    public synchronized Collection<String> getProducerIdsForType(String typeId) {
+        Collection<String> producerIds = new ArrayList<>();
+        for (EiProducer p : this.getProducersForType(typeId)) {
+            producerIds.add(p.getId());
+        }
+        return producerIds;
     }
 
 }

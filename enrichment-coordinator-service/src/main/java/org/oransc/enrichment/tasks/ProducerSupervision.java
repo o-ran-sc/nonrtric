@@ -89,7 +89,7 @@ public class ProducerSupervision {
         logger.warn("Unresponsive producer: {} exception: {}", producer.getId(), throwable.getMessage());
         producer.setAliveStatus(false);
         if (producer.isDead()) {
-            this.eiProducers.deregisterProducer(producer, this.eiTypes, this.eiJobs);
+            this.eiProducers.deregisterProducer(producer, this.eiTypes);
             this.consumerCallbacks.notifyConsumersProducerDeleted(producer);
         }
     }

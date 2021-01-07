@@ -35,7 +35,6 @@ import java.util.List;
 
 import org.oransc.enrichment.controllers.ErrorResponse;
 import org.oransc.enrichment.controllers.VoidResponse;
-import org.oransc.enrichment.controllers.consumer.ConsumerCallbacks;
 import org.oransc.enrichment.controllers.producer.ProducerRegistrationInfo.ProducerEiTypeRegistrationInfo;
 import org.oransc.enrichment.repository.EiJob;
 import org.oransc.enrichment.repository.EiJobs;
@@ -73,12 +72,6 @@ public class ProducerController {
 
     @Autowired
     private EiProducers eiProducers;
-
-    @Autowired
-    ProducerCallbacks producerCallbacks;
-
-    @Autowired
-    ConsumerCallbacks consumerCallbacks;
 
     @GetMapping(path = ProducerConsts.API_ROOT + "/eitypes", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "EI type identifiers", notes = "")
@@ -233,30 +226,10 @@ public class ProducerController {
         @RequestBody ProducerRegistrationInfo registrationInfo) {
         try {
             EiProducer previousDefinition = this.eiProducers.get(eiProducerId);
-            if (previousDefinition != null) {
-                for (EiType type : previousDefinition.getEiTypes()) {
-                    type.removeProducer(previousDefinition);
-                }
-            }
-
-            EiProducer producer = registerProducer(eiProducerId, registrationInfo);
-            if (previousDefinition != null) {
-                purgeTypes(previousDefinition.getEiTypes());
-                this.consumerCallbacks.notifyConsumersProducerDeleted(previousDefinition);
-            }
-            this.consumerCallbacks.notifyConsumersProducerAdded(producer);
-
+            this.eiProducers.registerProducer(eiProducerId, registrationInfo);
             return new ResponseEntity<>(previousDefinition == null ? HttpStatus.CREATED : HttpStatus.OK);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
-        }
-    }
-
-    private void purgeTypes(Collection<EiType> types) {
-        for (EiType type : types) {
-            if (type.getProducerIds().isEmpty()) {
-                this.eiTypes.remove(type);
-            }
         }
     }
 
@@ -272,45 +245,14 @@ public class ProducerController {
     public ResponseEntity<Object> deleteEiProducer(@PathVariable("eiProducerId") String eiProducerId) {
         try {
             final EiProducer producer = this.eiProducers.getProducer(eiProducerId);
-            this.eiProducers.deregisterProducer(producer, this.eiTypes, this.eiJobs);
-            this.consumerCallbacks.notifyConsumersProducerDeleted(producer);
+            this.eiProducers.deregisterProducer(producer, this.eiTypes);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
         }
     }
 
-    private EiType registerType(ProducerEiTypeRegistrationInfo typeInfo) {
-        EiType type = this.eiTypes.get(typeInfo.eiTypeId);
-        if (type == null) {
-            type = new EiType(typeInfo.eiTypeId, typeInfo.jobDataSchema);
-            this.eiTypes.put(type);
-            this.consumerCallbacks.notifyConsumersTypeAdded(type);
-        }
-        return type;
-    }
-
-    EiProducer createProducer(Collection<EiType> types, String producerId, ProducerRegistrationInfo registrationInfo) {
-        return new EiProducer(producerId, types, registrationInfo.jobCallbackUrl,
-            registrationInfo.producerSupervisionCallbackUrl);
-    }
-
-    private EiProducer registerProducer(String producerId, ProducerRegistrationInfo registrationInfo) {
-        ArrayList<EiType> typesForProducer = new ArrayList<>();
-        EiProducer producer = createProducer(typesForProducer, producerId, registrationInfo);
-        for (ProducerEiTypeRegistrationInfo typeInfo : registrationInfo.types) {
-            EiType type = registerType(typeInfo);
-            typesForProducer.add(type);
-            type.addProducer(producer); //
-        }
-        this.eiProducers.put(producer);
-
-        producerCallbacks.restartJobs(producer, this.eiJobs);
-
-        return producer;
-    }
-
-    ProducerRegistrationInfo toEiProducerRegistrationInfo(EiProducer p) {
+    private ProducerRegistrationInfo toEiProducerRegistrationInfo(EiProducer p) {
         Collection<ProducerEiTypeRegistrationInfo> types = new ArrayList<>();
         for (EiType type : p.getEiTypes()) {
             types.add(toEiTypeRegistrationInfo(type));
@@ -323,6 +265,7 @@ public class ProducerController {
     }
 
     private ProducerEiTypeInfo toEiTypeInfo(EiType t) {
-        return new ProducerEiTypeInfo(t.getJobDataSchema(), t.getProducerIds());
+        Collection<String> producerIds = this.eiProducers.getProducerIdsForType(t.getId());
+        return new ProducerEiTypeInfo(t.getJobDataSchema(), producerIds);
     }
 }

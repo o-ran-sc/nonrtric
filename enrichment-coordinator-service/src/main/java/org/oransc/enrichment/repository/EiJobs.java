@@ -39,6 +39,7 @@ import java.util.ServiceLoader;
 import java.util.Vector;
 
 import org.oransc.enrichment.configuration.ApplicationConfig;
+import org.oransc.enrichment.controllers.producer.ProducerCallbacks;
 import org.oransc.enrichment.exceptions.ServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,11 +58,14 @@ public class EiJobs {
     private final ApplicationConfig config;
     private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    public EiJobs(ApplicationConfig config) {
+    private final ProducerCallbacks producerCallbacks;
+
+    public EiJobs(ApplicationConfig config, ProducerCallbacks producerCallbacks) {
         this.config = config;
         GsonBuilder gsonBuilder = new GsonBuilder();
         ServiceLoader.load(TypeAdapterFactory.class).forEach(gsonBuilder::registerTypeAdapterFactory);
         this.gson = gsonBuilder.create();
+        this.producerCallbacks = producerCallbacks;
     }
 
     public synchronized void restoreJobsFromDatabase() throws IOException {
@@ -71,13 +75,13 @@ public class EiJobs {
         for (File file : dbDir.listFiles()) {
             String json = Files.readString(file.toPath());
             EiJob job = gson.fromJson(json, EiJob.class);
-            this.put(job, false);
+            this.doPut(job);
         }
-
     }
 
     public synchronized void put(EiJob job) {
-        this.put(job, true);
+        this.doPut(job);
+        storeJobInFile(job);
     }
 
     public synchronized Collection<EiJob> getJobs() {
@@ -108,15 +112,15 @@ public class EiJobs {
         return allEiJobs.get(id);
     }
 
-    public synchronized EiJob remove(String id) {
+    public synchronized EiJob remove(String id, EiProducers eiProducers) {
         EiJob job = allEiJobs.get(id);
         if (job != null) {
-            remove(job);
+            remove(job, eiProducers);
         }
         return job;
     }
 
-    public synchronized void remove(EiJob job) {
+    public synchronized void remove(EiJob job, EiProducers eiProducers) {
         this.allEiJobs.remove(job.getId());
         jobsByType.remove(job.getTypeId(), job.getId());
         jobsByOwner.remove(job.getOwner(), job.getId());
@@ -126,7 +130,7 @@ public class EiJobs {
         } catch (IOException e) {
             logger.warn("Could not remove file: {}", e.getMessage());
         }
-
+        this.producerCallbacks.stopEiJob(job, eiProducers);
     }
 
     public synchronized int size() {
@@ -137,6 +141,10 @@ public class EiJobs {
         this.allEiJobs.clear();
         this.jobsByType.clear();
         jobsByOwner.clear();
+        clearDatabase();
+    }
+
+    private void clearDatabase() {
         try {
             FileSystemUtils.deleteRecursively(Path.of(getDatabaseDirectory()));
             Files.createDirectories(Paths.get(getDatabaseDirectory()));
@@ -145,13 +153,10 @@ public class EiJobs {
         }
     }
 
-    private void put(EiJob job, boolean storePersistently) {
+    private void doPut(EiJob job) {
         allEiJobs.put(job.getId(), job);
         jobsByType.put(job.getTypeId(), job.getId(), job);
         jobsByOwner.put(job.getOwner(), job.getId(), job);
-        if (storePersistently) {
-            storeJobInFile(job);
-        }
     }
 
     private void storeJobInFile(EiJob job) {
@@ -173,7 +178,7 @@ public class EiJobs {
     }
 
     private String getDatabaseDirectory() {
-        return config.getVardataDirectory() + "/database";
+        return config.getVardataDirectory() + "/eijobs";
     }
 
 }
