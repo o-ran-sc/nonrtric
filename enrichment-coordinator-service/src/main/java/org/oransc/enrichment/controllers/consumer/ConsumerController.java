@@ -33,7 +33,6 @@ import io.swagger.annotations.ApiResponses;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Vector;
 
 import org.everit.json.schema.Schema;
 import org.everit.json.schema.loader.SchemaLoader;
@@ -46,6 +45,7 @@ import org.oransc.enrichment.exceptions.ServiceException;
 import org.oransc.enrichment.repository.EiJob;
 import org.oransc.enrichment.repository.EiJobs;
 import org.oransc.enrichment.repository.EiProducer;
+import org.oransc.enrichment.repository.EiProducers;
 import org.oransc.enrichment.repository.EiType;
 import org.oransc.enrichment.repository.EiTypes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +76,9 @@ public class ConsumerController {
 
     @Autowired
     private EiTypes eiTypes;
+
+    @Autowired
+    private EiProducers eiProducers;
 
     @Autowired
     ProducerCallbacks producerCallbacks;
@@ -206,11 +209,7 @@ public class ConsumerController {
     }
 
     private Collection<EiProducer> getProducers(EiJob eiJob) {
-        try {
-            return this.eiTypes.getType(eiJob.getTypeId()).getProducers();
-        } catch (Exception e) {
-            return new Vector<>();
-        }
+        return this.eiProducers.getProducersForType(eiJob.getTypeId());
     }
 
     private ConsumerEiJobStatus toEiJobStatus(EiJob job) {
@@ -235,8 +234,7 @@ public class ConsumerController {
         @PathVariable("eiJobId") String eiJobId) {
         try {
             EiJob job = this.eiJobs.getJob(eiJobId);
-            this.eiJobs.remove(job);
-            this.producerCallbacks.notifyProducersJobDeleted(job);
+            this.eiJobs.remove(job, this.eiProducers);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } catch (Exception e) {
             return ErrorResponse.create(e, HttpStatus.NOT_FOUND);
@@ -263,14 +261,14 @@ public class ConsumerController {
         final boolean isNewJob = this.eiJobs.get(eiJobId) == null;
 
         return validatePutEiJob(eiJobId, eiJobObject) //
-            .flatMap(this::notifyProducersNewJob) //
+            .flatMap(this::startEiJob) //
             .doOnNext(newEiJob -> this.eiJobs.put(newEiJob)) //
             .flatMap(newEiJob -> Mono.just(new ResponseEntity<>(isNewJob ? HttpStatus.CREATED : HttpStatus.OK)))
             .onErrorResume(throwable -> Mono.just(ErrorResponse.create(throwable, HttpStatus.NOT_FOUND)));
     }
 
-    private Mono<EiJob> notifyProducersNewJob(EiJob newEiJob) {
-        return this.producerCallbacks.notifyProducersJobStarted(newEiJob) //
+    private Mono<EiJob> startEiJob(EiJob newEiJob) {
+        return this.producerCallbacks.startEiJob(newEiJob, eiProducers) //
             .flatMap(noOfAcceptingProducers -> {
                 if (noOfAcceptingProducers.intValue() > 0) {
                     return Mono.just(newEiJob);

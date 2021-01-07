@@ -55,6 +55,7 @@ import org.oransc.enrichment.controllers.consumer.ConsumerConsts;
 import org.oransc.enrichment.controllers.consumer.ConsumerEiJobInfo;
 import org.oransc.enrichment.controllers.consumer.ConsumerEiJobStatus;
 import org.oransc.enrichment.controllers.consumer.ConsumerEiTypeInfo;
+import org.oransc.enrichment.controllers.producer.ProducerCallbacks;
 import org.oransc.enrichment.controllers.producer.ProducerConsts;
 import org.oransc.enrichment.controllers.producer.ProducerJobInfo;
 import org.oransc.enrichment.controllers.producer.ProducerRegistrationInfo;
@@ -126,6 +127,9 @@ class ApplicationTest {
 
     @Autowired
     ProducerSupervision producerSupervision;
+
+    @Autowired
+    ProducerCallbacks producerCallbacks;
 
     private static Gson gson = new GsonBuilder().create();
 
@@ -382,7 +386,7 @@ class ApplicationTest {
 
         assertThat(this.eiTypes.size()).isEqualTo(1);
         EiType type = this.eiTypes.getType(EI_TYPE_ID);
-        assertThat(type.getProducerIds()).contains("eiProducerId");
+        assertThat(this.eiProducers.getProducersForType(EI_TYPE_ID).size()).isEqualTo(1);
         assertThat(this.eiProducers.size()).isEqualTo(1);
         assertThat(this.eiProducers.get("eiProducerId").getEiTypes().iterator().next().getId()).isEqualTo(EI_TYPE_ID);
 
@@ -453,14 +457,14 @@ class ApplicationTest {
 
         assertThat(this.eiProducers.size()).isEqualTo(2);
         EiType type = this.eiTypes.getType(EI_TYPE_ID);
-        assertThat(type.getProducerIds()).contains("eiProducerId");
-        assertThat(type.getProducerIds()).contains("eiProducerId2");
+        assertThat(this.eiProducers.getProducerIdsForType(type.getId())).contains("eiProducerId");
+        assertThat(this.eiProducers.getProducerIdsForType(type.getId())).contains("eiProducerId2");
         putEiJob(EI_TYPE_ID, "jobId");
         assertThat(this.eiJobs.size()).isEqualTo(1);
 
         deleteEiProducer("eiProducerId");
         assertThat(this.eiProducers.size()).isEqualTo(1);
-        assertThat(this.eiTypes.getType(EI_TYPE_ID).getProducerIds()).doesNotContain("eiProducerId");
+        assertThat(this.eiProducers.getProducerIdsForType(EI_TYPE_ID)).doesNotContain("eiProducerId");
         verifyJobStatus("jobId", "ENABLED");
 
         deleteEiProducer("eiProducerId2");
@@ -555,8 +559,8 @@ class ApplicationTest {
 
         // After 3 failed checks, the producer and the type shall be deregisterred
         this.producerSupervision.createTask().blockLast();
-        assertThat(this.eiProducers.size()).isEqualTo(0);
-        assertThat(this.eiTypes.size()).isEqualTo(0);
+        assertThat(this.eiProducers.size()).isEqualTo(0); // The producer is removed
+        assertThat(this.eiTypes.size()).isEqualTo(0); // The type is removed
         verifyJobStatus(EI_JOB_ID, "DISABLED");
 
         // Job disabled status notification shall be received
@@ -585,21 +589,49 @@ class ApplicationTest {
 
         {
             // Restore the jobs
-            EiJobs jobs = new EiJobs(this.applicationConfig);
+            EiJobs jobs = new EiJobs(this.applicationConfig, this.producerCallbacks);
             jobs.restoreJobsFromDatabase();
             assertThat(jobs.size()).isEqualTo(2);
-            jobs.remove("jobId1");
-            jobs.remove("jobId2");
+            jobs.remove("jobId1", this.eiProducers);
+            jobs.remove("jobId2", this.eiProducers);
         }
         {
             // Restore the jobs, no jobs in database
-            EiJobs jobs = new EiJobs(this.applicationConfig);
+            EiJobs jobs = new EiJobs(this.applicationConfig, this.producerCallbacks);
             jobs.restoreJobsFromDatabase();
             assertThat(jobs.size()).isEqualTo(0);
         }
         logger.warn("Test removing a job when the db file is gone");
-        this.eiJobs.remove("jobId1");
+        this.eiJobs.remove("jobId1", this.eiProducers);
         assertThat(this.eiJobs.size()).isEqualTo(1);
+
+        ProducerSimulatorController.TestResults simulatorResults = this.producerSimulator.getTestResults();
+        await().untilAsserted(() -> assertThat(simulatorResults.jobsStopped.size()).isEqualTo(3));
+    }
+
+    @Test
+    void testEiTypesDatabase() throws Exception {
+        putEiProducerWithOneType(EI_PRODUCER_ID, EI_TYPE_ID);
+
+        assertThat(this.eiTypes.size()).isEqualTo(1);
+
+        {
+            // Restore the types
+            EiTypes types = new EiTypes(this.applicationConfig);
+            types.restoreTypesFromDatabase();
+            assertThat(types.size()).isEqualTo(1);
+
+        }
+        {
+            // Restore the jobs, no jobs in database
+            EiTypes types = new EiTypes(this.applicationConfig);
+            types.clear();
+            types.restoreTypesFromDatabase();
+            assertThat(types.size()).isEqualTo(0);
+        }
+        logger.warn("Test removing a job when the db file is gone");
+        this.eiTypes.remove(this.eiTypes.getType(EI_TYPE_ID));
+        assertThat(this.eiJobs.size()).isEqualTo(0);
     }
 
     private void deleteEiProducer(String eiProducerId) {
@@ -706,6 +738,7 @@ class ApplicationTest {
         String body = gson.toJson(producerEiRegistratioInfo(eiTypeId));
 
         restClient().putForEntity(url, body).block();
+
         return this.eiTypes.getType(eiTypeId);
     }
 

@@ -31,8 +31,8 @@ import org.oransc.enrichment.configuration.ApplicationConfig;
 import org.oransc.enrichment.repository.EiJob;
 import org.oransc.enrichment.repository.EiJobs;
 import org.oransc.enrichment.repository.EiProducer;
+import org.oransc.enrichment.repository.EiProducers;
 import org.oransc.enrichment.repository.EiType;
-import org.oransc.enrichment.repository.EiTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,21 +49,21 @@ public class ConsumerCallbacks {
     private static Gson gson = new GsonBuilder().create();
 
     private final AsyncRestClient restClient;
-    private final EiTypes eiTypes;
     private final EiJobs eiJobs;
+    private final EiProducers eiProducers;
 
     @Autowired
-    public ConsumerCallbacks(ApplicationConfig config, EiTypes eiTypes, EiJobs eiJobs) {
+    public ConsumerCallbacks(ApplicationConfig config, EiJobs eiJobs, EiProducers eiProducers) {
         AsyncRestClientFactory restClientFactory = new AsyncRestClientFactory(config.getWebClientConfig());
         this.restClient = restClientFactory.createRestClientUseHttpProxy("");
-        this.eiTypes = eiTypes;
         this.eiJobs = eiJobs;
+        this.eiProducers = eiProducers;
     }
 
     public void notifyConsumersProducerDeleted(EiProducer eiProducer) {
         for (EiType type : eiProducer.getEiTypes()) {
-            if (this.eiTypes.get(type.getId()) == null) {
-                // The type is removed
+            if (this.eiProducers.getProducersForType(type).isEmpty()) {
+                // No producers left for the type
                 for (EiJob job : this.eiJobs.getJobsForType(type)) {
                     if (job.isLastStatusReportedEnabled()) {
                         noifyJobOwner(job, new ConsumerEiJobStatus(ConsumerEiJobStatus.EiJobStatusValues.DISABLED));

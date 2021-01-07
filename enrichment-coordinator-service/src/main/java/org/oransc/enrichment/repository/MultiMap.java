@@ -38,14 +38,16 @@ public class MultiMap<T> {
         this.map.computeIfAbsent(key, k -> new HashMap<>()).put(id, value);
     }
 
-    public void remove(String key, String id) {
+    public T remove(String key, String id) {
         Map<String, T> innerMap = this.map.get(key);
         if (innerMap != null) {
-            innerMap.remove(id);
+            T removedElement = innerMap.remove(id);
             if (innerMap.isEmpty()) {
                 this.map.remove(key);
             }
+            return removedElement;
         }
+        return null;
     }
 
     public Collection<T> get(String key) {
