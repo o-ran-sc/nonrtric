@@ -180,6 +180,7 @@
                             <invokerPackage>org.oransc.rappcatalogue</invokerPackage>
                             <configOptions>
                                 <delegatePattern>true</delegatePattern>
+                                <unhandledException>true</unhandledException>
                             </configOptions>
                         </configuration>
                     </execution>

@@ -35,22 +35,19 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class GeneralRappCatalogueControllerAdvisor extends ResponseEntityExceptionHandler {
     @ExceptionHandler(InvalidServiceException.class)
-    public ResponseEntity<Object> handleInvalidServiceException(
-        InvalidServiceException ex) {
+    public ResponseEntity<Object> handleInvalidServiceException(InvalidServiceException ex) {
 
         return new ResponseEntity<>(getErrorInformation(ex, BAD_REQUEST), BAD_REQUEST);
     }
 
     @ExceptionHandler(ServiceNotFoundException.class)
-    public ResponseEntity<Object> handleServiceNotFoundException(
-        ServiceNotFoundException ex) {
+    public ResponseEntity<Object> handleServiceNotFoundException(ServiceNotFoundException ex) {
 
         return new ResponseEntity<>(getErrorInformation(ex, NOT_FOUND), NOT_FOUND);
     }
 
     @ExceptionHandler(HeaderException.class)
-    public ResponseEntity<Object> handleHeaderException(
-        HeaderException ex) {
+    public ResponseEntity<Object> handleHeaderException(HeaderException ex) {
 
         return new ResponseEntity<>(getErrorInformation(ex, INTERNAL_SERVER_ERROR), INTERNAL_SERVER_ERROR);
     }
