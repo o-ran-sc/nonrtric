@@ -62,21 +62,26 @@ public class ApplicationConfig {
     @Value("${app.webclient.http.proxy-port:0}")
     private int httpProxyPort = 0;
 
+    private WebClientConfig webClientConfig = null;
+
     public WebClientConfig getWebClientConfig() {
-        HttpProxyConfig httpProxyConfig = ImmutableHttpProxyConfig.builder() //
-            .httpProxyHost(this.httpProxyHost) //
-            .httpProxyPort(this.httpProxyPort) //
-            .build();
-        return ImmutableWebClientConfig.builder() //
-            .keyStoreType(this.sslKeyStoreType) //
-            .keyStorePassword(this.sslKeyStorePassword) //
-            .keyStore(this.sslKeyStore) //
-            .keyPassword(this.sslKeyPassword) //
-            .isTrustStoreUsed(this.sslTrustStoreUsed) //
-            .trustStore(this.sslTrustStore) //
-            .trustStorePassword(this.sslTrustStorePassword) //
-            .httpProxyConfig(httpProxyConfig) //
-            .build();
+        if (this.webClientConfig == null) {
+            HttpProxyConfig httpProxyConfig = ImmutableHttpProxyConfig.builder() //
+                .httpProxyHost(this.httpProxyHost) //
+                .httpProxyPort(this.httpProxyPort) //
+                .build();
+            this.webClientConfig = ImmutableWebClientConfig.builder() //
+                .keyStoreType(this.sslKeyStoreType) //
+                .keyStorePassword(this.sslKeyStorePassword) //
+                .keyStore(this.sslKeyStore) //
+                .keyPassword(this.sslKeyPassword) //
+                .isTrustStoreUsed(this.sslTrustStoreUsed) //
+                .trustStore(this.sslTrustStore) //
+                .trustStorePassword(this.sslTrustStorePassword) //
+                .httpProxyConfig(httpProxyConfig) //
+                .build();
+        }
+        return this.webClientConfig;
     }
 
 }
