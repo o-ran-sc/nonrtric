@@ -18,7 +18,7 @@
 
 package org.oransc.rappcatalogue.exception;
 
-public class InvalidServiceException extends RuntimeException {
+public class InvalidServiceException extends Exception {
     private static final long serialVersionUID = 3849219105170316564L;
 
     public InvalidServiceException() {
