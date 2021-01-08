@@ -7,7 +7,7 @@
 #  you may not use this file except in compliance with the License.
 #  You may obtain a copy of the License at
 #
-#       http://www.apache.org/licenses/LICENSE-2.0
+#    http://www.apache.org/licenses/LICENSE-2.0
 #
 #  Unless required by applicable law or agreed to in writing, software
 #  distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@
 #
 #Profile for ONAP guilin release
 TEST_ENV_PROFILE="ONAP-GUILIN"
+FLAVOUR="ONAP"
 
 ########################################
 ## Nexus repo settings
@@ -112,12 +113,26 @@ CR_IMAGE_BASE="callback-receiver"
 CR_IMAGE_TAG_LOCAL="latest"
 #No remote image for CR, local image always used
 
+#Http proxy remote image and tag
+HTTP_PROXY_IMAGE_BASE="mitmproxy/mitmproxy"
+HTTP_PROXY_IMAGE_TAG_REMOTE_PROXY="6.0.2"
+#No local image for SSDNC DB, remote image always used
 
-#Producer stub image and tag
-PROD_STUB_IMAGE_BASE="producer-stub"
-PROD_STUB_IMAGE_TAG_LOCAL="latest"
-#No remote image for producer stub, local image always used
 
+#ONAP Zookeeper remote image and tag
+ONAP_ZOOKEEPER_IMAGE_BASE="onap/dmaap/zookeeper"
+ONAP_ZOOKEEPER_IMAGE_TAG_REMOTE_RELEASE_ONAP="6.0.3"
+#No local image for ONAP Zookeeper, remote image always used
+
+#ONAP Kafka remote image and tag
+ONAP_KAFKA_IMAGE_BASE="onap/dmaap/kafka111"
+ONAP_KAFKA_IMAGE_TAG_REMOTE_RELEASE_ONAP="1.0.4"
+#No local image for ONAP Kafka, remote image always used
+
+#ONAP DMAAP-MR remote image and tag
+ONAP_DMAAPMR_IMAGE_BASE="onap/dmaap/dmaap-mr"
+ONAP_DMAAPMR_IMAGE_TAG_REMOTE_RELEASE_ONAP="1.1.18"
+#No local image for ONAP DMAAP-MR, remote image always used
 
 # List of app short names produced by the project
 PROJECT_IMAGES_APP_NAMES="PA SDNC"
@@ -132,85 +147,143 @@ ONAP_IMAGES_APP_NAMES=""   # Not used
 # Detailed settings per app
 ########################################
 
-# Vars used by docker-compose need to be exported
+
+DOCKER_SIM_NWNAME="nonrtric-docker-net"                  # Name of docker private network
+
+KUBE_NONRTRIC_NAMESPACE="nonrtric"                       # Namespace for all nonrtric components
+KUBE_SIM_NAMESPACE="nonrtric-ft"                         # Namespace for simulators (except MR and RICSIM)
+KUBE_ONAP_NAMESPACE="onap"                               # Namespace for onap (only message router)
+
+POLICY_AGENT_EXTERNAL_PORT=8081                          # Policy Agent container external port (host -> container)
+POLICY_AGENT_INTERNAL_PORT=8081                          # Policy Agent container internal port (container -> container)
+POLICY_AGENT_EXTERNAL_SECURE_PORT=8433                   # Policy Agent container external secure port (host -> container)
+POLICY_AGENT_INTERNAL_SECURE_PORT=8433                   # Policy Agent container internal secure port (container -> container)
+POLICY_AGENT_APIS="V1"                                   # Supported northbound api versions
+PMS_VERSION="V1"                                         # Tested version of northbound API
+PMS_API_PREFIX=""                                        # api url prefix, only for V2
+
+POLICY_AGENT_APP_NAME="policymanagementservice"          # Name for Policy Agent container
+POLICY_AGENT_DISPLAY_NAME="Policy Management Service"
+POLICY_AGENT_HOST_MNT_DIR="./mnt"                        # Mounted dir, relative to compose file, on the host
+POLICY_AGENT_LOGPATH="/var/log/policy-agent/application.log" # Path the application log in the Policy Agent container
+POLICY_AGENT_APP_NAME_ALIAS="policy-agent-container"     # Alias name, name used by the control panel
+POLICY_AGENT_CONFIG_KEY="policy-agent"                   # Key for consul config
+POLICY_AGENT_PKG_NAME="org.onap.ccsdk.oran.a1policymanagementservice"  # Java base package name
+POLICY_AGENT_ACTUATOR="/actuator/loggers/$POLICY_AGENT_PKG_NAME" # Url for trace/debug
+POLICY_AGENT_ALIVE_URL="/status"                         # Base path for alive check
+POLICY_AGENT_COMPOSE_DIR="policy_agent"                  # Dir in simulator_group for docker-compose
+POLICY_AGENT_CONFIG_MOUNT_PATH="/opt/app/policy-agent/config" # Path in container for config file
+POLICY_AGENT_DATA_MOUNT_PATH="/opt/app/policy-agent/data" # Path in container for data file
+POLICY_AGENT_CONFIG_FILE="application.yaml"              # Container config file name
+POLICY_AGENT_DATA_FILE="application_configuration.json"  # Container data file name
+
+MR_DMAAP_APP_NAME="dmaap-mr"                             # Name for the Dmaap MR
+MR_STUB_APP_NAME="mr-stub"                               # Name of the MR stub
+MR_DMAAP_DISPLAY_NAME="DMAAP Message Router"
+MR_STUB_DISPLAY_NAME="Message Router stub"
+MR_STUB_CERT_MOUNT_DIR="./cert"
+MR_EXTERNAL_PORT=3904                                    # MR dmaap/stub container external port
+MR_INTERNAL_PORT=3904                                    # MR dmaap/stub container internal port
+MR_EXTERNAL_SECURE_PORT=3905                             # MR dmaap/stub container external secure port
+MR_INTERNAL_SECURE_PORT=3905                             # MR dmaap/stub container internal secure port
+MR_DMAAP_LOCALHOST_PORT=3904                             # MR stub container external port (host -> container)
+MR_STUB_LOCALHOST_PORT=3908                              # MR stub container external port (host -> container)
+MR_DMAAP_LOCALHOST_SECURE_PORT=3905                      # MR stub container internal port (container -> container)
+MR_STUB_LOCALHOST_SECURE_PORT=3909                       # MR stub container external secure port (host -> container)
+MR_READ_URL="/events/A1-POLICY-AGENT-READ/users/policy-agent?timeout=15000&limit=100" # Path to read messages from MR
+MR_WRITE_URL="/events/A1-POLICY-AGENT-WRITE"             # Path write messages to MR
+MR_READ_TOPIC="A1-POLICY-AGENT-READ"                     # Read topic
+MR_WRITE_TOPIC="A1-POLICY-AGENT-WRITE"                   # Write topic
+MR_STUB_ALIVE_URL="/"                                    # Base path for mr stub alive check
+MR_DMAAP_ALIVE_URL="/topics"                             # Base path for dmaap-mr alive check
+MR_DMAAP_COMPOSE_DIR="dmaapmr"                           # Dir in simulator_group for dmaap mr for - docker-compose
+MR_STUB_COMPOSE_DIR="mrstub"                             # Dir in simulator_group for mr stub for - docker-compose
+MR_KAFKA_APP_NAME="kafka"                                # Kafka app name
+MR_ZOOKEEPER_APP_NAME="zookeeper"                        # Zookeeper app name
 
 
-export DOCKER_SIM_NWNAME="nonrtric-docker-net"                  # Name of docker private network
+CR_APP_NAME="callback-receiver"                          # Name for the Callback receiver
+CR_DISPLAY_NAME="Callback Reciever"
+CR_EXTERNAL_PORT=8090                                    # Callback receiver container external port (host -> container)
+CR_INTERNAL_PORT=8090                                    # Callback receiver container internal port (container -> container)
+CR_EXTERNAL_SECURE_PORT=8091                             # Callback receiver container external secure port (host -> container)
+CR_INTERNAL_SECURE_PORT=8091                             # Callback receiver container internal secure port (container -> container)
+CR_APP_CALLBACK="/callbacks"                             # Url for callbacks
+CR_ALIVE_URL="/"                                         # Base path for alive check
+CR_COMPOSE_DIR="cr"                                      # Dir in simulator_group for docker-compose
 
-export POLICY_AGENT_EXTERNAL_PORT=8081                          # Policy Agent container external port (host -> container)
-export POLICY_AGENT_INTERNAL_PORT=8081                          # Policy Agent container internal port (container -> container)
-export POLICY_AGENT_EXTERNAL_SECURE_PORT=8433                   # Policy Agent container external secure port (host -> container)
-export POLICY_AGENT_INTERNAL_SECURE_PORT=8433                   # Policy Agent container internal secure port (container -> container)
-export POLICY_AGENT_APIS="V1"                                   # Supported northbound api versions
+CONSUL_HOST="consul-server"                              # Host name of consul
+CONSUL_DISPLAY_NAME="Consul"
+CONSUL_EXTERNAL_PORT=8500                                # Consul container external port (host -> container)
+CONSUL_INTERNAL_PORT=8500                                # Consul container internal port (container -> container)
+CONSUL_APP_NAME="polman-consul"                          # Name for consul container
+CONSUL_ALIVE_URL="/ui/dc1/kv"                            # Base path for alive check
+CONSUL_CBS_COMPOSE_DIR="consul_cbs"                      # Dir in simulator group for docker compose
 
-export POLICY_AGENT_APP_NAME="policy-agent"                     # Name for Policy Agent container
-POLICY_AGENT_LOGPATH="/var/log/policy-agent/application.log"    # Path the application log in the Policy Agent container
-export POLICY_AGENT_APP_NAME_ALIAS="policy-agent-container"     # Alias name, name used by the control panel
+CBS_APP_NAME="polman-cbs"                                # Name for CBS container
+CBS_DISPLAY_NAME="Config Binding Service"
+CBS_EXTERNAL_PORT=10000                                  # CBS container external port (host -> container)
+CBS_INTERNAL_PORT=10000                                  # CBS container internal port (container -> container)
+CONFIG_BINDING_SERVICE="config-binding-service"          # Host name of CBS
+CBS_ALIVE_URL="/healthcheck"                             # Base path for alive check
 
-export MR_EXTERNAL_PORT=3905                                    # MR stub container external port (host -> container)
-export MR_INTERNAL_PORT=3905                                    # MR stub container internal port (container -> container)
-export MR_EXTERNAL_SECURE_PORT=3906                             # MR stub container external secure port (host -> container)
-export MR_INTERNAL_SECURE_PORT=3906                             # MR stub container internal secure port (container -> container)
-export MR_APP_NAME="message-router"                             # Name for the MR
-export MR_READ_URL="/events/A1-POLICY-AGENT-READ/users/policy-agent?timeout=15000&limit=100" # Path to read messages from MR
-export MR_WRITE_URL="/events/A1-POLICY-AGENT-WRITE"             # Path write messages to MR
+RIC_SIM_DISPLAY_NAME="Near-RT RIC A1 Simulator"
+RIC_SIM_BASE="g"                                         # Base name of the RIC Simulator container, shall be the group code
+                                                         # Note, a prefix is added to each container name by the .env file in the 'ric' dir
+RIC_SIM_PREFIX="ricsim"                                  # Prefix added to ric container name, added in the .env file in the 'ric' dir
+                                                         # This prefix can be changed from the command line
+RIC_SIM_INTERNAL_PORT=8085                               # RIC Simulator container internal port (container -> container).
+                                                         # (external ports allocated by docker)
+RIC_SIM_INTERNAL_SECURE_PORT=8185                        # RIC Simulator container internal secure port (container -> container).
+                                                         # (external ports allocated by docker)
+RIC_SIM_CERT_MOUNT_DIR="./cert"
+RIC_SIM_COMPOSE_DIR="ric"                                # Dir in simulator group for docker compose
+RIC_SIM_ALIVE_URL="/"
 
-export CR_EXTERNAL_PORT=8090                                    # Callback receiver container external port (host -> container)
-export CR_INTERNAL_PORT=8090                                    # Callback receiver container internal port (container -> container)
-export CR_EXTERNAL_SECURE_PORT=8091                             # Callback receiver container external secure port (host -> container)
-export CR_INTERNAL_SECURE_PORT=8091                             # Callback receiver container internal secure port (container -> container)
-export CR_APP_NAME="callback-receiver"                          # Name for the Callback receiver
-
-export CONSUL_HOST="consul-server"                              # Host name of consul
-export CONSUL_EXTERNAL_PORT=8500                                # Consul container external port (host -> container)
-export CONSUL_INTERNAL_PORT=8500                                # Consul container internal port (container -> container)
-export CONSUL_APP_NAME="polman-consul"                          # Name for consul container
-
-export CBS_APP_NAME="polman-cbs"                                # Name for CBS container
-export CBS_EXTERNAL_PORT=10000                                  # CBS container external port (host -> container)
-export CBS_INTERNAL_PORT=10000                                  # CBS container internal port (container -> container)
-export CONFIG_BINDING_SERVICE="config-binding-service"          # Host name of CBS
-
-export RIC_SIM_BASE="g"                                         # Base name of the RIC Simulator container, shall be the group code
-                                                                # Note, a prefix is added to each container name by the .env file in the 'ric' dir
-RIC_SIM_PREFIX="ricsim"                                         # Prefix added to ric container name, added in the .env file in the 'ric' dir
-                                                                # This prefix can be changed from the command line
-export RIC_SIM_INTERNAL_PORT=8085                               # RIC Simulator container internal port (container -> container).
-                                                                # (external ports allocated by docker)
-export RIC_SIM_INTERNAL_SECURE_PORT=8185                        # RIC Simulator container internal secure port (container -> container).
-                                                                # (external ports allocated by docker)
-
-export SDNC_APP_NAME="a1-controller"                            # Name of the SNDC A1 Controller container
-export SDNC_EXTERNAL_PORT=8282                                  # SNDC A1 Controller container external port (host -> container)
-export SDNC_INTERNAL_PORT=8181                                  # SNDC A1 Controller container internal port (container -> container)
-export SDNC_EXTERNAL_SECURE_PORT=8443                           # SNDC A1 Controller container external securee port (host -> container)
-export SDNC_INTERNAL_SECURE_PORT=8443                           # SNDC A1 Controller container internal secure port (container -> container)
-export SDNC_DB_APP_NAME="sdnc-db"                               # Name of the SDNC DB container
-export SDNC_A1_TRUSTSTORE_PASSWORD="a1adapter"                  # SDNC truststore password
-SDNC_USER="admin"                                               # SDNC username
-SDNC_PWD="Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U"          # SNDC PWD
-SDNC_API_URL="/restconf/operations/A1-ADAPTER-API:"             # Base url path for SNDC API
-SDNC_ALIVE_URL="/apidoc/explorer/"                              # Base url path for SNDC API docs (for alive check)
-SDNC_KARAF_LOG="/opt/opendaylight/data/log/karaf.log"           # Path to karaf log
+SDNC_APP_NAME="a1controller"                             # Name of the SNDC A1 Controller container
+SDNC_DISPLAY_NAME="SDNC A1 Controller"
+SDNC_EXTERNAL_PORT=8282                                  # SNDC A1 Controller container external port (host -> container)
+SDNC_INTERNAL_PORT=8181                                  # SNDC A1 Controller container internal port (container -> container)
+SDNC_EXTERNAL_SECURE_PORT=8443                           # SNDC A1 Controller container external securee port (host -> container)
+SDNC_INTERNAL_SECURE_PORT=8443                           # SNDC A1 Controller container internal secure port (container -> container)
+SDNC_DB_APP_NAME="sdncdb"                                # Name of the SDNC DB container
+SDNC_A1_TRUSTSTORE_PASSWORD="a1adapter"                  # SDNC truststore password
+SDNC_USER="admin"                                        # SDNC username
+SDNC_PWD="Kp8bJ4SXszM0WXlhak3eHlcse2gAw84vaoGGmJvUy2U"   # SNDC PWD
+SDNC_API_URL="/restconf/operations/A1-ADAPTER-API:"      # Base url path for SNDC API
+SDNC_ALIVE_URL="/apidoc/explorer/"                       # Base url path for SNDC API docs (for alive check)
+SDNC_COMPOSE_DIR="sdnc"                                  # Dir in simulator_group for docker-compose
+SDNC_KARAF_LOG="/opt/opendaylight/data/log/karaf.log"    # Path to karaf log
 
 
-export CONTROL_PANEL_APP_NAME="control-panel"                   # Name of the Control Panel container
-export CONTROL_PANEL_EXTERNAL_PORT=8080                         # Control Panel container external port (host -> container)
-export CONTROL_PANEL_INTERNAL_PORT=8080                         # Control Panel container external port (host -> container)
-CONTROL_PANEL_LOGPATH="/logs/nonrtric-controlpanel.log"         # Path the application log in the Control Panel container
+CONTROL_PANEL_APP_NAME="controlpanel"                    # Name of the Control Panel container
+CONTROL_PANEL_DISPLAY_NAME="Non-RT RIC Control Panel"
+CONTROL_PANEL_EXTERNAL_PORT=8080                         # Control Panel container external port (host -> container)
+CONTROL_PANEL_INTERNAL_PORT=8080                         # Control Panel container internal port (container -> container)
+CONTROL_PANEL_EXTERNAL_SECURE_PORT=8880                  # Control Panel container external port (host -> container)
+CONTROL_PANEL_INTERNAL_SECURE_PORT=8082                  # Control Panel container internal port (container -> container)
+CONTROL_PANEL_LOGPATH="/logs/nonrtric-controlpanel.log"  # Path the application log in the Control Panel container
+CONTROL_PANEL_ALIVE_URL="/"                              # Base path for alive check
+CONTROL_PANEL_COMPOSE_DIR="control_panel"                # Dir in simulator_group for docker-compose
+CONTROL_PANEL_CONFIG_MOUNT_PATH=/maven                   # Container internal path for config
+CONTROL_PANEL_CONFIG_FILE=application.properties         # Config file name
 
+HTTP_PROXY_APP_NAME="httpproxy"                          # Name of the Http Proxy container
+HTTP_PROXY_DISPLAY_NAME="Http Proxy"
+HTTP_PROXY_EXTERNAL_PORT=8780                            # Http Proxy container external port (host -> container)
+HTTP_PROXY_INTERNAL_PORT=8080                            # Http Proxy container internal port (container -> container)
+HTTP_PROXY_WEB_EXTERNAL_PORT=8781                        # Http Proxy container external port (host -> container)
+HTTP_PROXY_WEB_INTERNAL_PORT=8081                        # Http Proxy container internal port (container -> container)
+HTTP_PROXY_CONFIG_PORT=0                                 # Port number for proxy config, will be set if proxy is started
+HTTP_PROXY_CONFIG_HOST_NAME=""                           # Proxy host, will be set if proxy is started
+HTTP_PROXY_ALIVE_URL="/"                                 # Base path for alive check
+HTTP_PROXY_COMPOSE_DIR="httpproxy"                       # Dir in simulator_group for docker-compose
 
 ########################################
 # Setting for common curl-base function
 ########################################
 
 
-UUID=""                                                         # UUID used as prefix to the policy id to simulate a real UUID
-                                                                # Testscript need to set the UUID to use other this empty prefix is used
+UUID=""                                                  # UUID used as prefix to the policy id to simulate a real UUID
+                                                         # Testscript need to set the UUID to use other this empty prefix is used
 
-RESTBASE="http://localhost:"$POLICY_AGENT_EXTERNAL_PORT         # Base url to the Agent NB REST interface
-RESTBASE_SECURE="https://localhost:"$POLICY_AGENT_EXTERNAL_SECURE_PORT # Base url to the secure Agent NB REST interface
-DMAAPBASE="http://localhost:"$MR_EXTERNAL_PORT                  # Base url to the Dmaap adapter, http
-DMAAPBASE_SECURE="https://localhost:"$MR_EXTERNAL_SECURE_PORT   # Base url to the Dmaap adapter, https
-ADAPTER=$RESTBASE                                               # Adapter holds the address the agent R-APP interface (REST OR DMAAP)
-                                                                # The values of this var is swiched between the two base url when needed

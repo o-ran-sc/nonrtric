@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $PROD_STUB_APP_NAME
+  namespace: $KUBE_SIM_NAMESPACE
+  labels:
+    run: $PROD_STUB_APP_NAME
+    autotest: PRODSTUB
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: $PROD_STUB_APP_NAME
+  template:
+    metadata:
+      labels:
+        run: $PROD_STUB_APP_NAME
+        autotest: PRODSTUB
+    spec:
+      containers:
+      - name: $PROD_STUB_APP_NAME
+        image: $PROD_STUB_IMAGE
+        imagePullPolicy: Never
+        ports:
+        - name: http
+          containerPort: $PROD_STUB_INTERNAL_PORT
+        - name: https
+          containerPort: $PROD_STUB_INTERNAL_SECURE_PORT

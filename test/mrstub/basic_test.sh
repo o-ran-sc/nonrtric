@@ -31,12 +31,12 @@ fi
 
 if [ $1 == "nonsecure" ]; then
     #Default http port for the simulator
-    PORT=3905
+    PORT=3904
     # Set http protocol
     HTTPX="http"
 else
     #Default https port for the mr-stub
-    PORT=3906
+    PORT=3905
     # Set https protocol
     HTTPX="https"
 fi

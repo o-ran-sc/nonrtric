@@ -19,16 +19,26 @@
 
 TC_ONELINE_DESCR="Create 10000 policies in sequence using http/https and Agent REST/DMAAP with/without SDNC controller"
 
-#App names to include in the test, space separated list
-INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
+#App names to include in the test when running docker, space separated list
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
-#SUPPORTED TEST ENV FILE
+#App names to include in the test when running kubernetes, space separated list
+KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC"
+#Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
+KUBE_PRESTARTED_IMAGES=""
+
+#Supported test environment profiles
 SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU  ORAN-CHERRY ORAN-DAWN"
+#Supported run modes
+SUPPORTED_RUNMODES="DOCKER KUBE"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
 . ../common/cr_api_functions.sh
+. ../common/mr_api_functions.sh
+. ../common/control_panel_api_functions.sh
+. ../common/controller_api_functions.sh
 
 #### TEST BEGIN ####
 
@@ -69,7 +79,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         # Policy instance start id
         START_ID=1
 
-        clean_containers
+        clean_environment
 
         start_ric_simulators ricsim_g1 1 OSC_2.1.0
         start_ric_simulators ricsim_g2 1 STD_1.1.3
@@ -81,6 +91,14 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         start_cr
 
+        start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/application.properties
+
+        start_policy_agent NORPOXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/application.yaml
+
+        set_agent_debug
+
+        mr_equal requests_submitted 0
+
         if [[ $interface == "SDNC" ]]; then
             start_sdnc
             prepare_consul_config      SDNC    ".consul_config.json"
@@ -88,17 +106,15 @@ for __httpx in $TESTED_PROTOCOLS ; do
             prepare_consul_config      NOSDNC  ".consul_config.json"
         fi
 
-        start_consul_cbs
+        if [ $RUNMODE == "DOCKER" ]; then
+            start_consul_cbs
+        fi
 
-        consul_config_app                      ".consul_config.json"
-
-        start_control_panel
-
-        start_policy_agent
-
-        set_agent_debug
-
-        mr_equal requests_submitted 0
+        if [ $RUNMODE == "KUBE" ]; then
+            agent_load_config                       ".consul_config.json"
+        else
+            consul_config_app                      ".consul_config.json"
+        fi
 
 
         api_get_status 200
@@ -114,15 +130,15 @@ for __httpx in $TESTED_PROTOCOLS ; do
         if [ "$PMS_VERSION" == "V2" ]; then
             sim_put_policy_type 201 ricsim_g3_1 STD_QOS2_0.1.0 testdata/STD2/sim_qos2.json
 
-            api_equal json:policy-types 3 120  #Wait for the agent to refresh types from the simulators
+            api_equal json:policy-types 3 300  #Wait for the agent to refresh types from the simulators
         else
-            api_equal json:policy_types 2 120  #Wait for the agent to refresh types from the simulators
+            api_equal json:policy_types 2 300  #Wait for the agent to refresh types from the simulators
         fi
 
-        api_put_service 201 "serv1" 3600 "$CR_PATH/1"
+        api_put_service 201 "serv1" 3600 "$CR_SERVICE_PATH/1"
 
         if [ "$PMS_VERSION" == "V2" ]; then
-            notificationurl=$CR_PATH"/test"
+            notificationurl=$CR_SERVICE_PATH"/test"
         else
             notificationurl=""
         fi
@@ -215,16 +231,16 @@ for __httpx in $TESTED_PROTOCOLS ; do
         fi
 
         if [ $interface == "SDNC" ]; then
-            sim_contains_str ricsim_g1_1 remote_hosts "a1-controller"
-            sim_contains_str ricsim_g2_1 remote_hosts "a1-controller"
+            sim_contains_str ricsim_g1_1 remote_hosts $SDNC_APP_NAME
+            sim_contains_str ricsim_g2_1 remote_hosts $SDNC_APP_NAME
             if [ "$PMS_VERSION" == "V2" ]; then
-                sim_contains_str ricsim_g3_1 remote_hosts "a1-controller"
+                sim_contains_str ricsim_g3_1 remote_hosts $SDNC_APP_NAME
             fi
         else
-            sim_contains_str ricsim_g1_1 remote_hosts "policy-agent"
-            sim_contains_str ricsim_g2_1 remote_hosts "policy-agent"
+            sim_contains_str ricsim_g1_1 remote_hosts $POLICY_AGENT_APP_NAME
+            sim_contains_str ricsim_g2_1 remote_hosts $POLICY_AGENT_APP_NAME
             if [ "$PMS_VERSION" == "V2" ]; then
-                sim_contains_str ricsim_g3_1 remote_hosts "policy-agent"
+                sim_contains_str ricsim_g3_1 remote_hosts $POLICY_AGENT_APP_NAME
             fi
         fi
 
@@ -241,4 +257,4 @@ done
 
 print_result
 
-auto_clean_containers
+auto_clean_environment

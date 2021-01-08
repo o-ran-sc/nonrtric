@@ -19,16 +19,27 @@
 
 TC_ONELINE_DESCR="Change supported policy types and reconfigure rics"
 
-#App names to include in the test, space separated list
-INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
+#App names to include in the test when running docker, space separated list
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
-#SUPPORTED TEST ENV FILE
+#App names to include in the test when running kubernetes, space separated list
+KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC"
+#Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
+KUBE_PRESTARTED_IMAGES=""
+
+#Supported test environment profiles
 SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU  ORAN-CHERRY ORAN-DAWN"
+#Supported run modes
+SUPPORTED_RUNMODES="DOCKER KUBE"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
+. ../common/consul_cbs_functions.sh
 . ../common/ricsimulator_api_functions.sh
 . ../common/cr_api_functions.sh
+. ../common/mr_api_functions.sh
+. ../common/control_panel_api_functions.sh
+. ../common/controller_api_functions.sh
 
 #### TEST BEGIN ####
 
@@ -52,7 +63,7 @@ for interface in $TESTED_VARIANTS ; do
 
 
     # Clean container and start all needed containers #
-    clean_containers
+    clean_environment
 
     #Start simulators and prepare two configs
 
@@ -62,7 +73,9 @@ for interface in $TESTED_VARIANTS ; do
 
     start_mr
 
-    start_consul_cbs
+    if [ $RUNMODE == "DOCKER" ]; then
+        start_consul_cbs
+    fi
 
     # Create first config
     if [[ $interface = *"SDNC"* ]]; then
@@ -81,7 +94,7 @@ for interface in $TESTED_VARIANTS ; do
         prepare_consul_config      NOSDNC  ".consul_config_all.json"
     fi
 
-    start_policy_agent
+    start_policy_agent NORPOXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/application.yaml
 
     set_agent_trace
 
@@ -89,10 +102,14 @@ for interface in $TESTED_VARIANTS ; do
 
     # Create service to be able to receive events when rics becomes available
     # Must use rest towards the agent since dmaap is not configured yet
-    api_put_service 201 "ric-registration" 0 "$CR_PATH/ric-registration"
+    api_put_service 201 "ric-registration" 0 "$CR_SERVICE_PATH/ric-registration"
 
     #Load first config
-    consul_config_app                  ".consul_config_initial.json"
+    if [ $RUNMODE == "KUBE" ]; then
+        agent_load_config                      ".consul_config_initial.json"
+    else
+        consul_config_app                      ".consul_config_initial.json"
+    fi
 
     for ((i=1; i<=${NUM_RICS}; i++))
     do
@@ -100,7 +117,7 @@ for interface in $TESTED_VARIANTS ; do
     done
 
     # All sims running but 2 are not configured in consul
-    api_equal json:rics 8 120
+    api_equal json:rics 8 300
 
     if [ "$PMS_VERSION" == "V2" ]; then
         cr_equal received_callbacks?id=ric-registration 8 120
@@ -187,7 +204,11 @@ for interface in $TESTED_VARIANTS ; do
     fi
 
     #Load config with all rics
-    consul_config_app                  ".consul_config_all.json"
+    if [ $RUNMODE == "KUBE" ]; then
+        agent_load_config                       ".consul_config_all.json"
+    else
+        consul_config_app                       ".consul_config_all.json"
+    fi
 
     api_equal json:rics 10 120
 
@@ -250,10 +271,10 @@ for interface in $TESTED_VARIANTS ; do
         api_equal json:policy_types 5
     fi
 
-    api_put_service 201 "serv1" 3600 "$CR_PATH/serv1"
+    api_put_service 201 "serv1" 3600 "$CR_SERVICE_PATH/serv1"
 
     if [ "$PMS_VERSION" == "V2" ]; then
-        notificationurl=$CR_PATH"/test"
+        notificationurl=$CR_SERVICE_PATH"/test"
     else
         notificationurl=""
     fi
@@ -261,7 +282,11 @@ for interface in $TESTED_VARIANTS ; do
     sleep_wait 120
 
     # Load config with reduced number of rics
-    consul_config_app                  ".consul_config_initial.json"
+    if [ $RUNMODE == "KUBE" ]; then
+        agent_load_config                      ".consul_config_initial.json"
+    else
+        consul_config_app                      ".consul_config_initial.json"
+    fi
 
     api_equal json:rics 8 120
 
@@ -312,7 +337,11 @@ for interface in $TESTED_VARIANTS ; do
     api_get_policy_types 404 ricsim_g1_9
 
     # Load config with all rics
-    consul_config_app                  ".consul_config_all.json"
+    if [ $RUNMODE == "KUBE" ]; then
+        agent_load_config                      ".consul_config_all.json"
+    else
+        consul_config_app                      ".consul_config_all.json"
+    fi
 
     api_equal json:rics 10 120
 
@@ -442,4 +471,4 @@ done
 
 print_result
 
-auto_clean_containers
+auto_clean_environment

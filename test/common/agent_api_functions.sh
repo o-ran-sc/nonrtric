@@ -17,11 +17,283 @@
 #  ============LICENSE_END=================================================
 #
 
-# This is a script that contains specific test functions for Policy Agent API
+# This is a script that contains management and test functions for Policy Agent
 
-### API functiond towards the Policy Agent
 
-. ../common/api_curl.sh
+## Access to Policy agent
+# Host name may be changed if app started by kube
+# Direct access from script
+PA_HTTPX="http"
+PA_HOST_NAME=$LOCALHOST_NAME
+PA_PATH=$PA_HTTPX"://"$PA_HOST_NAME":"$POLICY_AGENT_EXTERNAL_PORT$PMS_AP
+
+# PA_ADAPTER used for switch between REST and DMAAP
+PA_ADAPTER_TYPE="REST"
+PA_ADAPTER=$PA_PATH
+
+# Make curl retries towards the agent for http response codes set in this env var, space separated list of codes
+AGENT_RETRY_CODES=""
+
+###########################
+### Policy Agents functions
+###########################
+
+# All calls to the agent will be directed to the agent REST interface from now on
+# args: -
+# (Function for test scripts)
+use_agent_rest_http() {
+	echo -e $BOLD"Agent protocol setting"$EBOLD
+	echo -e " Using $BOLD http $EBOLD and $BOLD REST $EBOLD towards the agent"
+	PA_HTTPX="http"
+	PA_PATH=$PA_HTTPX"://"$PA_HOST_NAME":"$POLICY_AGENT_EXTERNAL_PORT
+
+	PA_ADAPTER_TYPE="REST"
+	PA_ADAPTER=$PA_PATH
+	echo ""
+}
+
+# All calls to the agent will be directed to the agent REST interface from now on
+# args: -
+# (Function for test scripts)
+use_agent_rest_https() {
+	echo -e $BOLD"Agent protocol setting"$EBOLD
+	echo -e " Using $BOLD https $EBOLD and $BOLD REST $EBOLD towards the agent"
+	PA_HTTPX="https"
+	PA_PATH=$PA_HTTPX"://"$PA_HOST_NAME":"$POLICY_AGENT_EXTERNAL_SECURE_PORT
+
+	PA_ADAPTER_TYPE="REST"
+	PA_ADAPTER=$PA_PATH
+	echo ""
+}
+
+# All calls to the agent will be directed to the agent dmaap interface over http from now on
+# args: -
+# (Function for test scripts)
+use_agent_dmaap_http() {
+	echo -e $BOLD"Agent dmaap protocol setting"$EBOLD
+	echo -e " Using $BOLD http $EBOLD and $BOLD DMAAP $EBOLD towards the agent"
+	PA_ADAPTER_TYPE="MR-HTTP"
+	echo ""
+}
+
+# All calls to the agent will be directed to the agent dmaap interface over https from now on
+# args: -
+# (Function for test scripts)
+use_agent_dmaap_https() {
+	echo -e $BOLD"Agent dmaap protocol setting"$EBOLD
+	echo -e " Using $BOLD https $EBOLD and $BOLD DMAAP $EBOLD towards the agent"
+	echo -e $YELLOW" Setting http instead of https - MR only uses http"$EYELLOW
+	PA_ADAPTER_TYPE="MR-HTTPS"
+	echo ""
+}
+
+# Start the policy agent
+# args: (kube only) PROXY|NOPROXY <config-file> [ <data-file>]
+# (Function for test scripts)
+start_policy_agent() {
+	echo -e $BOLD"Starting $POLICY_AGENT_DISPLAY_NAME"$EBOLD
+
+	if [ $RUNMODE == "KUBE" ]; then
+
+		# Check if app shall be fully managed by the test script
+		__check_included_image "PA"
+		retcode_i=$?
+
+		# Check if app shall only be used by the testscipt
+		__check_prestarted_image "PA"
+		retcode_p=$?
+
+		if [ $retcode_i -ne 0 ] && [ $retcode_p -ne 0 ]; then
+			echo -e $RED"The $POLICY_AGENT_APP_NAME app is not included as managed nor prestarted in this test script"$ERED
+			echo -e $RED"The $POLICY_AGENT_APP_NAME will not be started"$ERED
+			exit
+		fi
+		if [ $retcode_i -eq 0 ] && [ $retcode_p -eq 0 ]; then
+			echo -e $RED"The $POLICY_AGENT_APP_NAME app is included both as managed and prestarted in this test script"$ERED
+			echo -e $RED"The $POLICY_AGENT_APP_NAME will not be started"$ERED
+			exit
+		fi
+
+		if [ $retcode_p -eq 0 ]; then
+			echo -e " Using existing $POLICY_AGENT_APP_NAME deployment and service"
+			echo " Setting $POLICY_AGENT_APP_NAME replicas=1"
+			__kube_scale deployment $POLICY_AGENT_APP_NAME $KUBE_NONRTRIC_NAMESPACE 1
+		fi
+
+		if [ $retcode_i -eq 0 ]; then
+
+			echo -e " Creating $POLICY_AGENT_APP_NAME app and expose service"
+
+			#Check if nonrtric namespace exists, if not create it
+			__kube_create_namespace $KUBE_NONRTRIC_NAMESPACE
+
+			#Export all vars needed for service and deployment
+			export POLICY_AGENT_APP_NAME
+			export KUBE_NONRTRIC_NAMESPACE
+			export POLICY_AGENT_IMAGE
+			export POLICY_AGENT_INTERNAL_PORT
+			export POLICY_AGENT_INTERNAL_SECURE_PORT
+			export POLICY_AGENT_EXTERNAL_PORT
+			export POLICY_AGENT_EXTERNAL_SECURE_PORT
+			export POLICY_AGENT_CONFIG_MOUNT_PATH
+			export POLICY_AGENT_DATA_MOUNT_PATH
+			export POLICY_AGENT_CONFIG_CONFIGMAP_NAME=$POLICY_AGENT_APP_NAME"-config"
+			export POLICY_AGENT_DATA_CONFIGMAP_NAME=$POLICY_AGENT_APP_NAME"-data"
+			export POLICY_AGENT_PKG_NAME
+			if [ $1 == "PROXY" ]; then
+				AGENT_HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_CONFIG_PORT  #Set if proxy is started
+				AGENT_HTTP_PROXY_CONFIG_HOST_NAME=$HTTP_PROXY_CONFIG_HOST_NAME #Set if proxy is started
+			else
+				AGENT_HTTP_PROXY_CONFIG_PORT=0
+				AGENT_HTTP_PROXY_CONFIG_HOST_NAME=""
+			fi
+			export AGENT_HTTP_PROXY_CONFIG_PORT
+			export AGENT_HTTP_PROXY_CONFIG_HOST_NAME
+
+
+			# Create config map for config
+			configfile=$PWD/tmp/$POLICY_AGENT_CONFIG_FILE
+			cp $2 $configfile
+			output_yaml=$PWD/tmp/pa_cfc.yaml
+			__kube_create_configmap $POLICY_AGENT_CONFIG_CONFIGMAP_NAME $KUBE_NONRTRIC_NAMESPACE autotest PA $configfile $output_yaml
+
+			# Create config map for data
+			data_json=$PWD/tmp/$POLICY_AGENT_DATA_FILE
+			if [ $# -lt 3 ]; then
+				#create empty dummy file
+				echo "{}" > $data_json
+			else
+				cp $3 $data_json
+			fi
+			output_yaml=$PWD/tmp/pa_cfd.yaml
+			__kube_create_configmap $POLICY_AGENT_DATA_CONFIGMAP_NAME $KUBE_NONRTRIC_NAMESPACE autotest PA $data_json $output_yaml
+
+			# Create service
+			input_yaml=$SIM_GROUP"/"$POLICY_AGENT_COMPOSE_DIR"/"svc.yaml
+			output_yaml=$PWD/tmp/pa_svc.yaml
+			__kube_create_instance service $POLICY_AGENT_APP_NAME $input_yaml $output_yaml
+
+			# Create app
+			input_yaml=$SIM_GROUP"/"$POLICY_AGENT_COMPOSE_DIR"/"app.yaml
+			output_yaml=$PWD/tmp/pa_app.yaml
+			__kube_create_instance app $POLICY_AGENT_APP_NAME $input_yaml $output_yaml
+
+		fi
+
+		echo " Retrieving host and ports for service..."
+		PA_HOST_NAME=$(__kube_get_service_host $POLICY_AGENT_APP_NAME $KUBE_NONRTRIC_NAMESPACE)
+		POLICY_AGENT_EXTERNAL_PORT=$(__kube_get_service_port $POLICY_AGENT_APP_NAME $KUBE_NONRTRIC_NAMESPACE "http")
+		POLICY_AGENT_EXTERNAL_SECURE_PORT=$(__kube_get_service_port $POLICY_AGENT_APP_NAME $KUBE_NONRTRIC_NAMESPACE "https")
+
+		echo " Host IP, http port, https port: $PA_HOST_NAME $POLICY_AGENT_EXTERNAL_PORT $POLICY_AGENT_EXTERNAL_SECURE_PORT"
+
+		if [ $PA_HTTPX == "http" ]; then
+			PA_PATH=$PA_HTTPX"://"$PA_HOST_NAME":"$POLICY_AGENT_EXTERNAL_PORT
+		else
+			PA_PATH=$PA_HTTPX"://"$PA_HOST_NAME":"$POLICY_AGENT_EXTERNAL_SECURE_PORT
+		fi
+		__check_service_start $POLICY_AGENT_APP_NAME $PA_PATH$POLICY_AGENT_ALIVE_URL
+
+		if [ $PA_ADAPTER_TYPE == "REST" ]; then
+			PA_ADAPTER=$PA_PATH
+		fi
+	else
+		__check_included_image 'PA'
+		if [ $? -eq 1 ]; then
+			echo -e $RED"The Policy Agent app is not included in this test script"$ERED
+			echo -e $RED"The Policy Agent will not be started"$ERED
+			exit
+		fi
+
+		#Export all vars needed for docker-compose
+		export POLICY_AGENT_APP_NAME
+		export POLICY_AGENT_APP_NAME_ALIAS
+		export POLICY_AGENT_INTERNAL_PORT
+		export POLICY_AGENT_EXTERNAL_PORT
+		export POLICY_AGENT_INTERNAL_SECURE_PORT
+		export POLICY_AGENT_EXTERNAL_SECURE_PORT
+		export CONSUL_HOST
+		export CONSUL_INTERNAL_PORT
+		export CONFIG_BINDING_SERVICE
+		export POLICY_AGENT_CONFIG_KEY
+		export DOCKER_SIM_NWNAME
+		export POLICY_AGENT_HOST_MNT_DIR
+		export POLICY_AGENT_CONFIG_MOUNT_PATH
+		export POLICY_AGENT_CONFIG_FILE
+		export POLICY_AGENT_PKG_NAME
+
+		if [ $1 == "PROXY" ]; then
+			AGENT_HTTP_PROXY_CONFIG_PORT=$HTTP_PROXY_CONFIG_PORT  #Set if proxy is started
+			AGENT_HTTP_PROXY_CONFIG_HOST_NAME=$HTTP_PROXY_CONFIG_HOST_NAME #Set if proxy is started
+		else
+			AGENT_HTTP_PROXY_CONFIG_PORT=0
+			AGENT_HTTP_PROXY_CONFIG_HOST_NAME=""
+		fi
+		export AGENT_HTTP_PROXY_CONFIG_PORT
+		export AGENT_HTTP_PROXY_CONFIG_HOST_NAME
+
+		dest_file=$SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/$POLICY_AGENT_HOST_MNT_DIR/application.yaml
+
+		envsubst < $2 > $dest_file
+
+		__start_container $POLICY_AGENT_COMPOSE_DIR NODOCKERARGS 1 $POLICY_AGENT_APP_NAME
+
+		__check_service_start $POLICY_AGENT_APP_NAME $PA_PATH$POLICY_AGENT_ALIVE_URL
+	fi
+	echo ""
+	return 0
+}
+
+agent_load_config() {
+	echo -e $BOLD"Agent - load config from "$EBOLD$1
+	data_json=$PWD/tmp/$POLICY_AGENT_DATA_FILE
+	cp $1 $data_json
+	output_yaml=$PWD/tmp/pa_cfd.yaml
+	__kube_create_configmap $POLICY_AGENT_APP_NAME"-data" $KUBE_NONRTRIC_NAMESPACE autotest PA $data_json $output_yaml
+}
+
+
+# Turn on debug level tracing in the agent
+# args: -
+# (Function for test scripts)
+set_agent_debug() {
+	echo -e $BOLD"Setting agent debug logging"$EBOLD
+	curlString="$PA_PATH$POLICY_AGENT_ACTUATOR -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"debug\"}"
+	result=$(__do_curl "$curlString")
+	if [ $? -ne 0 ]; then
+		__print_err "could not set debug mode" $@
+		((RES_CONF_FAIL++))
+		return 1
+	fi
+	echo ""
+	return 0
+}
+
+# Turn on trace level tracing in the agent
+# args: -
+# (Function for test scripts)
+set_agent_trace() {
+	echo -e $BOLD"Setting agent trace logging"$EBOLD
+	curlString="$PA_PATH$POLICY_AGENT_ACTUATOR -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"trace\"}"
+	result=$(__do_curl "$curlString")
+	if [ $? -ne 0 ]; then
+		__print_err "could not set trace mode" $@
+		((RES_CONF_FAIL++))
+		return 1
+	fi
+	echo ""
+	return 0
+}
+
+# Perform curl retries when making direct call to the agent for the specified http response codes
+# Speace separated list of http response codes
+# args: [<response-code>]*
+use_agent_retries() {
+	echo -e $BOLD"Do curl retries to the agent REST inteface for these response codes:$@"$EBOLD
+	AGENT_RETRY_CODES=$@
+	echo ""
+	return
+}
 
 #########################################################
 #### Test case functions A1 Policy management service
@@ -36,9 +308,9 @@ api_equal() {
 	if [ $# -eq 2 ] || [ $# -eq 3 ]; then
 		if [[ $1 == "json:"* ]]; then
 			if [ "$PMS_VERSION" == "V2" ]; then
-				__var_test "Policy Agent" $LOCALHOST$POLICY_AGENT_EXTERNAL_PORT"/v2/" $1 "=" $2 $3
+				__var_test "Policy Agent" $PA_PATH"/v2/" $1 "=" $2 $3
 			else
-				__var_test "Policy Agent" $LOCALHOST$POLICY_AGENT_EXTERNAL_PORT"/" $1 "=" $2 $3
+				__var_test "Policy Agent" $PA_PATH"/" $1 "=" $2 $3
 			fi
 			return 0
 		fi
@@ -546,7 +818,8 @@ api_put_policy_parallel() {
 	count=$1; shift;
 	pids=$1; shift;
 
-	if [ $ADAPTER != $RESTBASE ] && [ $ADAPTER != $RESTBASE_SECURE ]; then
+	#if [ $PA_ADAPTER != $RESTBASE ] && [ $PA_ADAPTER != $RESTBASE_SECURE ]; then
+	if [ $__ADAPTER_TYPE != "REST" ]; then
 		echo " Info - api_put_policy_parallel uses only the agent REST interface - create over dmaap in parallel is not supported"
 		echo " Info - will execute over agent REST"
 	fi
@@ -570,7 +843,7 @@ api_put_policy_parallel() {
 		fi
 	fi
 
-	urlbase=${ADAPTER}${query}
+	urlbase=${PA_ADAPTER}${query}
 
 	for ((i=1; i<=$pids; i++))
 	do
@@ -746,7 +1019,8 @@ api_delete_policy_parallel() {
 	count=$1; shift;
 	pids=$1; shift;
 
-	if [ $ADAPTER != $RESTBASE ] && [ $ADAPTER != $RESTBASE_SECURE ]; then
+	#if [ $PA_ADAPTER != $RESTBASE ] && [ $PA_ADAPTER != $RESTBASE_SECURE ]; then
+	if [ $__ADAPTER_TYPE != "REST" ]; then
 		echo " Info - api_delete_policy_parallel uses only the agent REST interface - create over dmaap in parallel is not supported"
 		echo " Info - will execute over agent REST"
 	fi
@@ -757,7 +1031,7 @@ api_delete_policy_parallel() {
 		query="/policy"
 	fi
 
-	urlbase=${ADAPTER}${query}
+	urlbase=${PA_ADAPTER}${query}
 
 	for ((i=1; i<=$pids; i++))
 	do

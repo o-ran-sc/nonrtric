@@ -37,7 +37,7 @@ services:
         max-size: "30m"
         max-file: "5"
 
-  a1-controller:
+  a1controller:
     image: ${SDNC_A1_CONTROLLER_IMAGE}
     depends_on :
       - db

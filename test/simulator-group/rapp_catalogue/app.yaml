@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $RAPP_CAT_APP_NAME
+  namespace: $KUBE_NONRTRIC_NAMESPACE
+  labels:
+    run: $RAPP_CAT_APP_NAME
+    autotest: RC
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: $RAPP_CAT_APP_NAME
+  template:
+    metadata:
+      labels:
+        run: $RAPP_CAT_APP_NAME
+        autotest: RC
+    spec:
+      containers:
+      - name: $RAPP_CAT_APP_NAME
+        image: $RAPP_CAT_IMAGE
+        imagePullPolicy: Never
+        ports:
+        - name: http
+          containerPort: $RAPP_CAT_INTERNAL_PORT
+        - name: https
+          containerPort: $RAPP_CAT_INTERNAL_SECURE_PORT

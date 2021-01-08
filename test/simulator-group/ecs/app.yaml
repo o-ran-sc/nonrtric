@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $ECS_APP_NAME
+  namespace: $KUBE_NONRTRIC_NAMESPACE
+  labels:
+    run: $ECS_APP_NAME
+    autotest: ECS
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: $ECS_APP_NAME
+  template:
+    metadata:
+      labels:
+        run: $ECS_APP_NAME
+        autotest: ECS
+    spec:
+      containers:
+      - name: $ECS_APP_NAME
+        image: $ECS_IMAGE
+        imagePullPolicy: Never
+        ports:
+        - name: http
+          containerPort: $ECS_INTERNAL_PORT
+        - name: https
+          containerPort: $ECS_INTERNAL_SECURE_PORT
+        volumeMounts:
+        - mountPath: $ECS_CONFIG_MOUNT_PATH
+          name: ecs-conf-name
+        volumeMounts:
+        - mountPath: $ECS_CONTAINER_MNT_DIR
+          name: ecs-data-name
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: $ECS_CONFIG_CONFIGMAP_NAME
+        name: ecs-conf-name
+      - persistentVolumeClaim:
+          claimName: $ECS_DATA_CONFIGMAP_NAME
+        name: ecs-data-name
+

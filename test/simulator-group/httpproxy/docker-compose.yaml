@@ -15,14 +15,18 @@
 #  ============LICENSE_END=================================================
 #
 
-service {
-  # Name for CBS in consul, env var CONFIG_BINDING_SERVICE
-  # should be passed to Policy Agent app with this value
-  # This is only to be used when contacting cbs via local host
-  # (typicall when Policy Agent is executed as an application without a container)
-  Name = "config-binding-service-localhost"
-  # Host name where CBS is running
-  Address = "localhost"
-  # Port number where CBS is running
-  Port = 10000
-}
+version: '3.0'
+networks:
+  default:
+    external:
+      name: ${DOCKER_SIM_NWNAME}
+services:
+  httpproxy:
+    networks:
+      - default
+    container_name: ${HTTP_PROXY_APP_NAME}
+    image: ${HTTP_PROXY_IMAGE}
+    tty: true
+    command: mitmweb --web-host 0.0.0.0 --no-web-open-browser --set ssl_insecure
+    ports:
+      - ${HTTP_PROXY_WEB_EXTERNAL_PORT}:${HTTP_PROXY_WEB_INTERNAL_PORT}

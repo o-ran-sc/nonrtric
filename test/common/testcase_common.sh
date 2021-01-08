@@ -20,12 +20,13 @@
 # This is a script that contains all the common functions needed for auto test.
 # Specific test function are defined in scripts  XXXX_functions.sh
 
+. ../common/api_curl.sh
 
 # List of short names for all supported apps, including simulators etc
-APP_SHORT_NAMES="PA RICSIM SDNC CP ECS RC CBS CONSUL RC MRSTUB CR PRODSTUB"
+APP_SHORT_NAMES="PA RICSIM SDNC CP ECS RC CBS CONSUL RC MR DMAAPMR CR PRODSTUB"
 
 __print_args() {
-	echo "Args: remote|remote-remove --env-file <environment-filename> [release] [auto-clean] [--stop-at-error] "
+	echo "Args: remote|remote-remove docker|kube --env-file <environment-filename> [release] [auto-clean] [--stop-at-error] "
 	echo "      [--ricsim-prefix <prefix> ] [--use-local-image <app-nam>+]  [--use-snapshot-image <app-nam>+]"
 	echo "      [--use-staging-image <app-nam>+] [--use-release-image <app-nam>+]"
 }
@@ -41,6 +42,8 @@ if [ $# -eq 1 ] && [ "$1" == "help" ]; then
 	echo ""
 	echo "remote                -  Use images from remote repositories. Can be overridden for individual images using the '--use_xxx' flags"
 	echo "remote-remove         -  Same as 'remote' but will also try to pull fresh images from remote repositories"
+	echo "docker                -  Test executed in docker environment"
+	echo "kube                  -  Test executed in kubernetes environment - requires an already started kubernetes environment"
 	echo "--env-file            -  The script will use the supplied file to read environment variables from"
 	echo "release               -  If this flag is given the script will use release version of the images"
 	echo "auto-clean            -  If the function 'auto_clean_containers' is present in the end of the test script then all containers will be stopped and removed. If 'auto-clean' is not given then the function has no effect."
@@ -54,8 +57,6 @@ if [ $# -eq 1 ] && [ "$1" == "help" ]; then
 	echo "List of app short names supported: "$APP_SHORT_NAMES
 	exit 0
 fi
-
-
 
 # Create a test case id, ATC (Auto Test Case), from the name of the test case script.
 # FTC1.sh -> ATC == FTC1
@@ -76,23 +77,6 @@ YELLOW="\033[33m\033[1m"
 EYELLOW="\033[0m"
 SAMELINE="\033[0K\r"
 
-tmp=$(which python3)
-if [ $? -ne 0 ] || [ -z tmp ]; then
-	echo -e $RED"python3 is required to run the test environment, pls install"$ERED
-	exit 1
-fi
-tmp=$(which docker)
-if [ $? -ne 0 ] || [ -z tmp ]; then
-	echo -e $RED"docker is required to run the test environment, pls install"$ERED
-	exit 1
-fi
-
-tmp=$(which docker-compose)
-if [ $? -ne 0 ] || [ -z tmp ]; then
-	echo -e $RED"docker-compose is required to run the test environment, pls install"$ERED
-	exit 1
-fi
-
 # Just resetting any previous echo formatting...
 echo -ne $EBOLD
 
@@ -101,17 +85,10 @@ TEST_ENV_VAR_FILE=""
 
 echo "Test case started as: ${BASH_SOURCE[$i+1]} "$@
 
-#Localhost constant
-LOCALHOST="http://localhost:"
-
-# Make curl retries towards ECS for http response codes set in this env var, space separated list of codes
-ECS_RETRY_CODES=""
-
-# Make curl retries towards the agent for http response codes set in this env var, space separated list of codes
-AGENT_RETRY_CODES=""
-
-# Var to contol if the agent runs in a container (normal = 0) or as application on the local machine ( = 1)
-AGENT_STAND_ALONE=0
+#Localhost constants
+LOCALHOST_NAME="localhost"
+LOCALHOST_HTTP="http://localhost"
+LOCALHOST_HTTPS="https://localhost"
 
 # Var to hold 'auto' in case containers shall be stopped when test case ends
 AUTO_CLEAN=""
@@ -174,7 +151,6 @@ fi
 HTTPLOG=$PWD"/.httplog_"$ATC".txt"
 echo "" > $HTTPLOG
 
-
 # Create a log dir for the test case
 mkdir -p $TESTLOGS/$ATC
 
@@ -208,7 +184,6 @@ RES_DEVIATION=0
 #File to keep deviation messages
 DEVIATION_FILE=".tmp_deviations"
 rm $DEVIATION_FILE &> /dev/null
-
 
 # Trap "command not found" and make the script fail
 trap_fnc() {
@@ -329,6 +304,24 @@ if [ $paramerror -eq 0 ]; then
 		shift;
 	fi
 fi
+if [ $paramerror -eq 0 ]; then
+	if [ "$1" != "docker" ] && [ "$1" != "kube" ]; then
+		paramerror=1
+		if [ -z "$paramerror_str" ]; then
+			paramerror_str="Second arg shall be 'docker' or 'kube'"
+		fi
+	else
+		if [ $1 == "docker" ]; then
+			RUNMODE="DOCKER"
+			echo "Setting RUNMODE=DOCKER"
+		fi
+		if [ $1 == "kube" ]; then
+			RUNMODE="KUBE"
+			echo "Setting RUNMODE=KUBE"
+		fi
+		shift;
+	fi
+fi
 foundparm=0
 while [ $paramerror -eq 0 ] && [ $foundparm -eq 0 ]; do
 	foundparm=1
@@ -359,7 +352,7 @@ while [ $paramerror -eq 0 ] && [ $foundparm -eq 0 ]; do
 	if [ $paramerror -eq 0 ]; then
 		if [ "$1" == "--ricsim-prefix" ]; then
 			shift;
-			RIC_SIM_PREFIX=$1
+			TMP_RIC_SIM_PREFIX=$1  #RIC_SIM_PREFIX need to be updated after sourcing of the env file
 			if [ -z "$1" ]; then
 				paramerror=1
 				if [ -z "$paramerror_str" ]; then
@@ -513,9 +506,14 @@ if [ -f "$TEST_ENV_VAR_FILE" ]; then
 	if [ -z "$TEST_ENV_PROFILE" ] || [ -z "$SUPPORTED_PROFILES" ]; then
 		echo -e $YELLOW"This test case may not work with selected test env file. TEST_ENV_PROFILE is missing in test_env file or SUPPORTED_PROFILES is missing in test case file"$EYELLOW
 	else
-		if [[ "$SUPPORTED_PROFILES" == *"$TEST_ENV_PROFILE"* ]]; then
-			echo -e $GREEN"Test case support the selected test env file"$EGREEN
-		else
+		found_profile=0
+		for prof in $SUPPORTED_PROFILES; do
+			if [ "$TEST_ENV_PROFILE" == "$prof" ]; then
+				echo -e $GREEN"Test case supports the selected test env file"$EGREEN
+				found_profile=1
+			fi
+		done
+		if [ $found_profile -ne 1 ]; then
 			echo -e $RED"Test case does not support the selected test env file"$ERED
 			echo "Profile: "$TEST_ENV_PROFILE"     Supported profiles: "$SUPPORTED_PROFILES
 			echo -e $RED"Exiting...."$ERED
@@ -530,51 +528,56 @@ else
 	exit 1
 fi
 
+#This var need be preserved from the command line option, if set, when env var is sourced.
+if [ ! -z "$TMP_RIC_SIM_PREFIX" ]; then
+	RIC_SIM_PREFIX=$TMP_RIC_SIM_PREFIX
+fi
+
 if [ -z "$PROJECT_IMAGES_APP_NAMES" ]; then
-	echo -e $RED"Var PROJECT_IMAGES_APP_NAMES must be defined in: "$TEST_ENV_VAR_FILE$ERED$ERED
+	echo -e $RED"Var PROJECT_IMAGES_APP_NAMES must be defined in: "$TEST_ENV_VAR_FILE $ERED
 	exit 1
 fi
 
+if [[ $SUPPORTED_RUNMODES != *"$RUNMODE"* ]]; then
+	echo -e $RED"This test script does not support RUNMODE $RUNMODE"$ERED
+	echo "Supported RUNMODEs: "$SUPPORTED_RUNMODES
+	exit 1
+fi
 
-#Vars for A1 interface version and container count
-G1_A1_VERSION=""
-G2_A1_VERSION=""
-G3_A1_VERSION=""
-G4_A1_VERSION=""
-G5_A1_VERSION=""
-G1_COUNT=0
-G2_COUNT=0
-G3_COUNT=0
-G4_COUNT=0
-G5_COUNT=0
+# Choose list of included apps depending on run-mode
+if [ $RUNMODE == "KUBE" ]; then
+	INCLUDED_IMAGES=$KUBE_INCLUDED_IMAGES
+else
+	INCLUDED_IMAGES=$DOCKER_INCLUDED_IMAGES
+fi
 
-# Vars to switch between http and https. Extra curl flag needed for https
-export RIC_SIM_HTTPX="http"
-export RIC_SIM_LOCALHOST=$RIC_SIM_HTTPX"://localhost:"
-export RIC_SIM_PORT=$RIC_SIM_INTERNAL_PORT
-export RIC_SIM_CERT_MOUNT_DIR="./cert"
+# Check needed installed sw
+tmp=$(which python3)
+if [ $? -ne 0 ] || [ -z tmp ]; then
+	echo -e $RED"python3 is required to run the test environment, pls install"$ERED
+	exit 1
+fi
+tmp=$(which docker)
+if [ $? -ne 0 ] || [ -z tmp ]; then
+	echo -e $RED"docker is required to run the test environment, pls install"$ERED
+	exit 1
+fi
 
-export MR_HTTPX="http"
-export MR_PORT=$MR_INTERNAL_PORT
-export MR_LOCAL_PORT=$MR_EXTERNAL_PORT #When agent is running outside the docker net
+tmp=$(which docker-compose)
+if [ $? -ne 0 ] || [ -z tmp ]; then
+	if [ $RUNMODE == "DOCKER" ]; then
+		echo -e $RED"docker-compose is required to run the test environment, pls install"$ERED
+		exit 1
+	fi
+fi
 
-export CR_HTTPX="http"
-export CR_PORT=$CR_INTERNAL_PORT
-export CR_LOCAL_PORT=$CR_EXTERNAL_PORT #When CR is running outside the docker net
-export CR_PATH="$CR_HTTPX://$CR_APP_NAME:$CR_PORT$CR_APP_CALLBACK"
-
-export PROD_STUB_HTTPX="http"
-export PROD_STUB_PORT=$PROD_STUB_INTERNAL_PORT
-export PROD_STUB_LOCAL_PORT=$PROD_STUB_EXTERNAL_PORT #When Prodstub is running outside the docker net
-export PROD_STUB_LOCALHOST=$PROD_STUB_HTTPX"://localhost:"$PROD_STUB_LOCAL_PORT
-
-export SDNC_HTTPX="http"
-export SDNC_PORT=$SDNC_INTERNAL_PORT
-export SDNC_LOCAL_PORT=$SDNC_EXTERNAL_PORT #When agent is running outside the docker net
-
-export RAPP_CAT_HTTPX="http"
-export RAPP_CAT_PORT=$RAPP_CAT_INTERNAL_PORT
-export RAPP_CAT_LOCAL_PORT=$RAPP_CAT_EXTERNAL_PORT #When Rapp catalogue is running outside the docker net
+tmp=$(which kubectl)
+if [ $? -ne 0 ] || [ -z tmp ]; then
+	if [ $RUNMODE == "KUBE" ]; then
+		echo -e $RED"kubectl is required to run the test environment in kubernetes mode, pls install"$ERED
+		exit 1
+	fi
+fi
 
 echo -e $BOLD"Checking configured image setting for this test case"$EBOLD
 
@@ -648,7 +651,6 @@ __check_and_create_image_var() {
 
 # Check if app uses image included in this test run
 # Returns 0 if image is included, 1 if not
-# Possible IDs for image inclusion: CBS, CONSUL, CP, CR, ECS, MR, PA, PRODSTUB, RICSIM, SDNC
 __check_included_image() {
 	for im in $INCLUDED_IMAGES; do
 		if [ "$1" == "$im" ]; then
@@ -658,6 +660,18 @@ __check_included_image() {
 	return 1
 }
 
+# Check if app is included in the prestarted set of apps
+# Returns 0 if image is included, 1 if not
+__check_prestarted_image() {
+	for im in $KUBE_PRESTARTED_IMAGES; do
+		if [ "$1" == "$im" ]; then
+			return 0
+		fi
+	done
+	return 1
+}
+
+# Check if an app shall use a local image, based on the cmd parameters
 __check_image_local_override() {
 	for im in $USE_LOCAL_IMAGES; do
 		if [ "$1" == "$im" ]; then
@@ -740,60 +754,106 @@ __check_image_override() {
 echo ""
 
 #Agent image
-IMAGE_SUFFIX=$(__check_image_override 'PA')
-if [ $? -ne 0 ]; then
-	echo -e $RED"Image setting from cmd line not consistent for PA."$ERED
-	((IMAGE_ERR++))
+__check_included_image 'PA'
+	if [ $? -eq 0 ]; then
+	IMAGE_SUFFIX=$(__check_image_override 'PA')
+	if [ $? -ne 0 ]; then
+		echo -e $RED"Image setting from cmd line not consistent for PA."$ERED
+		((IMAGE_ERR++))
+	fi
+	__check_and_create_image_var " Policy Agent" "POLICY_AGENT_IMAGE" "POLICY_AGENT_IMAGE_BASE" "POLICY_AGENT_IMAGE_TAG" $IMAGE_SUFFIX PA
 fi
-__check_and_create_image_var " Policy Agent" "POLICY_AGENT_IMAGE" "POLICY_AGENT_IMAGE_BASE" "POLICY_AGENT_IMAGE_TAG" $IMAGE_SUFFIX PA
 
 #Remote Control Panel image
-IMAGE_SUFFIX=$(__check_image_override 'CP')
-if [ $? -ne 0 ]; then
-	echo -e $RED"Image setting from cmd line not consistent for CP."$ERED
-	((IMAGE_ERR++))
+__check_included_image 'CP'
+if [ $? -eq 0 ]; then
+	IMAGE_SUFFIX=$(__check_image_override 'CP')
+	if [ $? -ne 0 ]; then
+		echo -e $RED"Image setting from cmd line not consistent for CP."$ERED
+		((IMAGE_ERR++))
+	fi
+	__check_and_create_image_var " Control Panel" "CONTROL_PANEL_IMAGE" "CONTROL_PANEL_IMAGE_BASE" "CONTROL_PANEL_IMAGE_TAG" $IMAGE_SUFFIX CP
 fi
-__check_and_create_image_var " Control Panel" "CONTROL_PANEL_IMAGE" "CONTROL_PANEL_IMAGE_BASE" "CONTROL_PANEL_IMAGE_TAG" $IMAGE_SUFFIX CP
 
 #Remote SDNC image
-IMAGE_SUFFIX=$(__check_image_override 'SDNC')
-if [ $? -ne 0 ]; then
-	echo -e $RED"Image setting from cmd line not consistent for SDNC."$ERED
-	((IMAGE_ERR++))
+__check_included_image 'SDNC'
+if [ $? -eq 0 ]; then
+	IMAGE_SUFFIX=$(__check_image_override 'SDNC')
+	if [ $? -ne 0 ]; then
+		echo -e $RED"Image setting from cmd line not consistent for SDNC."$ERED
+		((IMAGE_ERR++))
+	fi
+	__check_and_create_image_var " SDNC A1 Controller" "SDNC_A1_CONTROLLER_IMAGE" "SDNC_A1_CONTROLLER_IMAGE_BASE" "SDNC_A1_CONTROLLER_IMAGE_TAG" $IMAGE_SUFFIX SDNC
 fi
-__check_and_create_image_var " SDNC A1 Controller" "SDNC_A1_CONTROLLER_IMAGE" "SDNC_A1_CONTROLLER_IMAGE_BASE" "SDNC_A1_CONTROLLER_IMAGE_TAG" $IMAGE_SUFFIX SDNC
 
 #Remote ric sim image
-IMAGE_SUFFIX=$(__check_image_override 'RICSIM')
-if [ $? -ne 0 ]; then
-	echo -e $RED"Image setting from cmd line not consistent for RICSIM."$ERED
-	((IMAGE_ERR++))
+__check_included_image 'RICSIM'
+if [ $? -eq 0 ]; then
+	IMAGE_SUFFIX=$(__check_image_override 'RICSIM')
+	if [ $? -ne 0 ]; then
+		echo -e $RED"Image setting from cmd line not consistent for RICSIM."$ERED
+		((IMAGE_ERR++))
+	fi
+	__check_and_create_image_var " RIC Simulator" "RIC_SIM_IMAGE" "RIC_SIM_IMAGE_BASE" "RIC_SIM_IMAGE_TAG" $IMAGE_SUFFIX RICSIM
 fi
-__check_and_create_image_var " RIC Simulator" "RIC_SIM_IMAGE" "RIC_SIM_IMAGE_BASE" "RIC_SIM_IMAGE_TAG" $IMAGE_SUFFIX RICSIM
 
 #Remote ecs image
-IMAGE_SUFFIX=$(__check_image_override 'ECS')
-if [ $? -ne 0 ]; then
-	echo -e $RED"Image setting from cmd line not consistent for ECS."$EREDs
-	((IMAGE_ERR++))
+__check_included_image 'ECS'
+if [ $? -eq 0 ]; then
+	IMAGE_SUFFIX=$(__check_image_override 'ECS')
+	if [ $? -ne 0 ]; then
+		echo -e $RED"Image setting from cmd line not consistent for ECS."$EREDs
+		((IMAGE_ERR++))
+	fi
+	__check_and_create_image_var " ECS" "ECS_IMAGE" "ECS_IMAGE_BASE" "ECS_IMAGE_TAG" $IMAGE_SUFFIX ECS
 fi
-__check_and_create_image_var " ECS" "ECS_IMAGE" "ECS_IMAGE_BASE" "ECS_IMAGE_TAG" $IMAGE_SUFFIX ECS
 
 #Remote rc image
-IMAGE_SUFFIX=$(__check_image_override 'RC')
-if [ $? -ne 0 ]; then
-	echo -e $RED"Image setting from cmd line not consistent for RC."$ERED
-	((IMAGE_ERR++))
+__check_included_image 'RC'
+if [ $? -eq 0 ]; then
+	IMAGE_SUFFIX=$(__check_image_override 'RC')
+	if [ $? -ne 0 ]; then
+		echo -e $RED"Image setting from cmd line not consistent for RC."$ERED
+		((IMAGE_ERR++))
+	fi
+	__check_and_create_image_var " RC" "RAPP_CAT_IMAGE" "RAPP_CAT_IMAGE_BASE" "RAPP_CAT_IMAGE_TAG" $IMAGE_SUFFIX RC
 fi
-__check_and_create_image_var " RC" "RAPP_CAT_IMAGE" "RAPP_CAT_IMAGE_BASE" "RAPP_CAT_IMAGE_TAG" $IMAGE_SUFFIX RC
 
 # These images are not built as part of this project official images, just check that env vars are set correctly
-__check_and_create_image_var " Message Router"    "MRSTUB_IMAGE"    "MRSTUB_IMAGE_BASE"    "MRSTUB_IMAGE_TAG"    LOCAL               MR
-__check_and_create_image_var " Callback Receiver" "CR_IMAGE"        "CR_IMAGE_BASE"        "CR_IMAGE_TAG"        LOCAL               CR
-__check_and_create_image_var " Producer stub"     "PROD_STUB_IMAGE" "PROD_STUB_IMAGE_BASE" "PROD_STUB_IMAGE_TAG" LOCAL               PRODSTUB
-__check_and_create_image_var " Consul"            "CONSUL_IMAGE"    "CONSUL_IMAGE_BASE"    "CONSUL_IMAGE_TAG"    REMOTE_PROXY        CONSUL
-__check_and_create_image_var " CBS"               "CBS_IMAGE"       "CBS_IMAGE_BASE"       "CBS_IMAGE_TAG"       REMOTE_RELEASE_ONAP CBS
-__check_and_create_image_var " SDNC DB"           "SDNC_DB_IMAGE"   "SDNC_DB_IMAGE_BASE"   "SDNC_DB_IMAGE_TAG"   REMOTE_PROXY        SDNC #Uses sdnc app name
+__check_included_image 'MR'
+if [ $? -eq 0 ]; then
+	__check_and_create_image_var " Message Router stub"    "MRSTUB_IMAGE"    "MRSTUB_IMAGE_BASE"    "MRSTUB_IMAGE_TAG"    LOCAL               MR
+fi
+__check_included_image 'DMAAPMR'
+if [ $? -eq 0 ]; then
+	__check_and_create_image_var " DMAAP Message Router"    "ONAP_DMAAPMR_IMAGE"   "ONAP_DMAAPMR_IMAGE_BASE"    "ONAP_DMAAPMR_IMAGE_TAG"    REMOTE_RELEASE_ONAP               DMAAPMR
+	__check_and_create_image_var " ZooKeeper"   "ONAP_ZOOKEEPER_IMAGE" "ONAP_ZOOKEEPER_IMAGE_BASE"  "ONAP_ZOOKEEPER_IMAGE_TAG"  REMOTE_RELEASE_ONAP               DMAAPMR
+	__check_and_create_image_var " Kafka"       "ONAP_KAFKA_IMAGE"     "ONAP_KAFKA_IMAGE_BASE"      "ONAP_KAFKA_IMAGE_TAG"      REMOTE_RELEASE_ONAP               DMAAPMR
+fi
+__check_included_image 'CR'
+if [ $? -eq 0 ]; then
+	__check_and_create_image_var " Callback Receiver" "CR_IMAGE"        "CR_IMAGE_BASE"        "CR_IMAGE_TAG"        LOCAL               CR
+fi
+__check_included_image 'PRODSTUB'
+if [ $? -eq 0 ]; then
+	__check_and_create_image_var " Producer stub"     "PROD_STUB_IMAGE" "PROD_STUB_IMAGE_BASE" "PROD_STUB_IMAGE_TAG" LOCAL               PRODSTUB
+fi
+__check_included_image 'CONSUL'
+if [ $? -eq 0 ]; then
+	__check_and_create_image_var " Consul"            "CONSUL_IMAGE"    "CONSUL_IMAGE_BASE"    "CONSUL_IMAGE_TAG"    REMOTE_PROXY        CONSUL
+fi
+__check_included_image 'CBS'
+if [ $? -eq 0 ]; then
+	__check_and_create_image_var " CBS"               "CBS_IMAGE"       "CBS_IMAGE_BASE"       "CBS_IMAGE_TAG"       REMOTE_RELEASE_ONAP CBS
+fi
+__check_included_image 'SDNC'
+if [ $? -eq 0 ]; then
+	__check_and_create_image_var " SDNC DB"           "SDNC_DB_IMAGE"   "SDNC_DB_IMAGE_BASE"   "SDNC_DB_IMAGE_TAG"   REMOTE_PROXY        SDNC #Uses sdnc app name
+fi
+__check_included_image 'HTTPPROXY'
+if [ $? -eq 0 ]; then
+	__check_and_create_image_var " Http Proxy"        "HTTP_PROXY_IMAGE" "HTTP_PROXY_IMAGE_BASE" "HTTP_PROXY_IMAGE_TAG" REMOTE_PROXY HTTPPROXY
+fi
 
 #Errors in image setting - exit
 if [ $IMAGE_ERR -ne 0 ]; then
@@ -848,60 +908,39 @@ __check_and_pull_image() {
 		fi
 	elif [ $1 == "remote" ] || [ $1 == "remote-remove" ]; then
 		if [ $1 == "remote-remove" ]; then
-			echo -ne "  Attempt to stop and remove container(s), if running - ${SAMELINE}"
-			tmp="$(docker ps -aq --filter name=${3})"
-			if [ $? -eq 0 ] && [ ! -z "$tmp" ]; then
-				docker stop $tmp &> ./tmp/.dockererr
-				if [ $? -ne 0 ]; then
-					((IMAGE_ERR++))
-					echo ""
-					echo -e $RED"  Container(s) could not be stopped - try manual stopping the container(s)"$ERED
-					cat ./tmp/.dockererr
-					return 1
+			if [ $RUNMODE == "DOCKER" ]; then
+				echo -ne "  Attempt to stop and remove container(s), if running - ${SAMELINE}"
+				tmp="$(docker ps -aq --filter name=${3})"
+				if [ $? -eq 0 ] && [ ! -z "$tmp" ]; then
+					docker stop $tmp &> ./tmp/.dockererr
+					if [ $? -ne 0 ]; then
+						((IMAGE_ERR++))
+						echo ""
+						echo -e $RED"  Container(s) could not be stopped - try manual stopping the container(s)"$ERED
+						cat ./tmp/.dockererr
+						return 1
+					fi
 				fi
-			fi
-			echo -ne "  Attempt to stop and remove container(s), if running - "$GREEN"stopped"$EGREEN"${SAMELINE}"
-			tmp="$(docker ps -aq --filter name=${3})" &> /dev/null
-			if [ $? -eq 0 ] && [ ! -z "$tmp" ]; then
-				docker rm $tmp &> ./tmp/.dockererr
-				if [ $? -ne 0 ]; then
-					((IMAGE_ERR++))
-					echo ""
-					echo -e $RED"  Container(s) could not be removed - try manual removal of the container(s)"$ERED
-					cat ./tmp/.dockererr
-					return 1
+				echo -ne "  Attempt to stop and remove container(s), if running - "$GREEN"stopped"$EGREEN"${SAMELINE}"
+				tmp="$(docker ps -aq --filter name=${3})" &> /dev/null
+				if [ $? -eq 0 ] && [ ! -z "$tmp" ]; then
+					docker rm $tmp &> ./tmp/.dockererr
+					if [ $? -ne 0 ]; then
+						((IMAGE_ERR++))
+						echo ""
+						echo -e $RED"  Container(s) could not be removed - try manual removal of the container(s)"$ERED
+						cat ./tmp/.dockererr
+						return 1
+					fi
 				fi
+				echo -e "  Attempt to stop and remove container(s), if running - "$GREEN"stopped removed"$EGREEN
+				tmp_im=""
+			else
+				tmp_im=""
 			fi
-			echo -e "  Attempt to stop and remove container(s), if running - "$GREEN"stopped removed"$EGREEN
-			# echo -ne "  Removing image - ${SAMELINE}"
-			# tmp="$(docker images -q ${4})" &> /dev/null
-			# if [ $? -eq 0 ] && [ ! -z "$tmp" ]; then
-			# 	docker rmi --force $4 &> ./tmp/.dockererr
-			# 	if [ $? -ne 0 ]; then
-			# 		((IMAGE_ERR++))
-			# 		echo ""
-			# 		echo -e $RED"  Image could not be removed - try manual removal of the image"$ERED
-			# 		cat ./tmp/.dockererr
-			# 		return 1
-			# 	fi
-			# 	echo -e "  Removing image - "$GREEN"removed"$EGREEN
-			# else
-			# 	echo -e "  Removing image - "$GREEN"image not in repository"$EGREEN
-			# fi
-			tmp_im=""
 		fi
 		if [ -z "$tmp_im" ]; then
 			echo -ne "  Pulling image${SAMELINE}"
-			# docker pull $4	&> ./tmp/.dockererr
-			# tmp_im=$(docker images ${4} | grep -v REPOSITORY)
-			# if [ -z "$tmp_im" ]; then
-			# 	echo ""
-			# 	echo -e "  Pulling image -$RED could not be pulled"$ERED
-			# 	((IMAGE_ERR++))
-			# 	cat ./tmp/.dockererr
-			# 	return 1
-			# fi
-			# echo -e "  Pulling image -$GREEN Pulled $EGREEN"
 			out=$(docker pull $4)
 			if [ $? -ne 0 ]; then
 				echo ""
@@ -1017,6 +1056,22 @@ else
 	echo -e $YELLOW" Excluding SDNC image and related DB image from image check/pull"$EYELLOW
 fi
 
+__check_included_image 'HTTPPROXY'
+if [ $? -eq 0 ]; then
+	app="HTTPPROXY";                __check_and_pull_image $START_ARG "$app" $HTTP_PROXY_APP_NAME $HTTP_PROXY_IMAGE
+else
+	echo -e $YELLOW" Excluding Http Proxy image from image check/pull"$EYELLOW
+fi
+
+__check_included_image 'DMAAPMR'
+if [ $? -eq 0 ]; then
+	app="DMAAP Message Router";      __check_and_pull_image $START_ARG "$app" $MR_DMAAP_APP_NAME $ONAP_DMAAPMR_IMAGE
+	app="ZooKeeper";                 __check_and_pull_image $START_ARG "$app" $MR_ZOOKEEPER_APP_NAME $ONAP_ZOOKEEPER_IMAGE
+	app="Kafka";                     __check_and_pull_image $START_ARG "$app" $MR_KAFKA_APP_NAME $ONAP_KAFKA_IMAGE
+else
+	echo -e $YELLOW" Excluding DMAAP MR image and images (zookeeper, kafka) from image check/pull"$EYELLOW
+fi
+
 #Errors in image setting - exit
 if [ $IMAGE_ERR -ne 0 ]; then
 	echo ""
@@ -1041,7 +1096,7 @@ __check_included_image 'MR'
 if [ $? -eq 0 ]; then
 	cd $curdir
 	cd ../mrstub
-	echo " Building mrstub image: $MRSTUB_IMAGE:$MRSTUB_IMAGE_TAG_LOCAL"
+	echo " Building mrstub image: $MRSTUB_IMAGE"
 	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $MRSTUB_IMAGE . &> .dockererr
 	if [ $? -eq 0 ]; then
 		echo -e  $GREEN" Build Ok"$EGREEN
@@ -1060,7 +1115,7 @@ fi
 __check_included_image 'CR'
 if [ $? -eq 0 ]; then
 	cd ../cr
-	echo " Building Callback Receiver image: $CR_IMAGE:$CR_IMAGE_TAG_LOCAL"
+	echo " Building Callback Receiver image: $CR_IMAGE"
 	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $CR_IMAGE . &> .dockererr
 	if [ $? -eq 0 ]; then
 		echo -e  $GREEN" Build Ok"$EGREEN
@@ -1079,7 +1134,7 @@ fi
 __check_included_image 'PRODSTUB'
 if [ $? -eq 0 ]; then
 	cd ../prodstub
-	echo " Building Producer stub image: $PROD_STUB_IMAGE:$PROD_STUB_IMAGE_TAG_LOCAL"
+	echo " Building Producer stub image: $PROD_STUB_IMAGE"
 	docker build  --build-arg NEXUS_PROXY_REPO=$NEXUS_PROXY_REPO -t $PROD_STUB_IMAGE . &> .dockererr
 	if [ $? -eq 0 ]; then
 		echo -e  $GREEN" Build Ok"$EGREEN
@@ -1103,10 +1158,12 @@ echo -e $BOLD"Local docker registry images used in the this test script"$EBOLD
 docker_tmp_file=./tmp/.docker-images-table
 format_string="{{.Repository}}\\t{{.Tag}}\\t{{.CreatedSince}}\\t{{.Size}}\\t{{.CreatedAt}}"
 echo -e " Application\tRepository\tTag\tCreated since\tSize\tCreated at" > $docker_tmp_file
+
 __check_included_image 'PA'
 if [ $? -eq 0 ]; then
 	echo -e " Policy Agent\t$(docker images --format $format_string $POLICY_AGENT_IMAGE)" >>   $docker_tmp_file
 fi
+
 __check_included_image 'ECS'
 if [ $? -eq 0 ]; then
 	echo -e " ECS\t$(docker images --format $format_string $ECS_IMAGE)" >>   $docker_tmp_file
@@ -1125,7 +1182,13 @@ if [ $? -eq 0 ]; then
 fi
 __check_included_image 'MR'
 if [ $? -eq 0 ]; then
-	echo -e " Message Router\t$(docker images --format $format_string $MRSTUB_IMAGE)" >>   $docker_tmp_file
+	echo -e " Message Router stub\t$(docker images --format $format_string $MRSTUB_IMAGE)" >>   $docker_tmp_file
+fi
+__check_included_image 'DMAAPMR'
+if [ $? -eq 0 ]; then
+	echo -e " DMAAP Message Router\t$(docker images --format $format_string $ONAP_DMAAPMR_IMAGE)" >>   $docker_tmp_file
+	echo -e " ZooKeeper\t$(docker images --format $format_string $ONAP_ZOOKEEPER_IMAGE)" >>   $docker_tmp_file
+	echo -e " Kafka\t$(docker images --format $format_string $ONAP_KAFKA_IMAGE)" >>   $docker_tmp_file
 fi
 __check_included_image 'CR'
 if [ $? -eq 0 ]; then
@@ -1147,6 +1210,10 @@ __check_included_image 'SDNC'
 if [ $? -eq 0 ]; then
 	echo -e " SDNC A1 Controller\t$(docker images --format $format_string $SDNC_A1_CONTROLLER_IMAGE)" >>   $docker_tmp_file
 	echo -e " SDNC DB\t$(docker images --format $format_string $SDNC_DB_IMAGE)" >>   $docker_tmp_file
+fi
+__check_included_image 'HTTPPROXY'
+if [ $? -eq 0 ]; then
+	echo -e " Http Proxy\t$(docker images --format $format_string $HTTP_PROXY_IMAGE)" >>   $docker_tmp_file
 fi
 
 column -t -s $'\t' $docker_tmp_file
@@ -1203,7 +1270,7 @@ print_result() {
 		echo -e "\033[31m\033[1m\__ \ (__|   /| ||  _/ | |   | _/ _ \ | || |_| |_| |   / _| \033[0m"
  		echo -e "\033[31m\033[1m|___/\___|_|_\___|_|   |_|   |_/_/ \_\___|____\___/|_|_\___|\033[0m"
 	elif [ $RES_CONF_FAIL -ne 0 ]; then
-		echo -e "\033[1mOne or more configure regest has failed. Check the script log....\033[0m"
+		echo -e "\033[1mOne or more configurations has failed. Check the script log....\033[0m"
 		echo -e "\033[31m\033[1m ___  ___ ___ ___ ___ _____   ___ _   ___ _   _   _ ___ ___ \033[0m"
 		echo -e "\033[31m\033[1m/ __|/ __| _ \_ _| _ \_   _| | __/_\ |_ _| | | | | | _ \ __|\033[0m"
 		echo -e "\033[31m\033[1m\__ \ (__|   /| ||  _/ | |   | _/ _ \ | || |_| |_| |   / _| \033[0m"
@@ -1351,8 +1418,8 @@ __check_app_name() {
 
 # Stop and remove all containers
 # args: -
-# (Function for test scripts)
-clean_containers() {
+# (Not for test scripts)
+__clean_containers() {
 
 	echo -e $BOLD"Stopping and removing all running containers, by container name"$EBOLD
 
@@ -1360,14 +1427,18 @@ clean_containers() {
 					  "ECS                    " $(__check_app_name $ECS_APP_NAME)\
 					  "RAPP Catalogue         " $(__check_app_name $RAPP_CAT_APP_NAME)\
 					  "Non-RT RIC Simulator(s)" $(__check_app_name $RIC_SIM_PREFIX)\
-					  "Message Router         " $(__check_app_name $MR_APP_NAME)\
+					  "Message Router stub    " $(__check_app_name $MR_STUB_APP_NAME)\
+					  "DMAAP Message Router   " $(__check_app_name $MR_DMAAP_APP_NAME)\
+					  "Zookeeper              " $(__check_app_name $MR_ZOOKEEPER_APP_NAME)\
+					  "Kafka                  " $(__check_app_name $MR_KAFKA_APP_NAME)\
 					  "Callback Receiver      " $(__check_app_name $CR_APP_NAME)\
 					  "Producer stub          " $(__check_app_name $PROD_STUB_APP_NAME)\
 					  "Control Panel          " $(__check_app_name $CONTROL_PANEL_APP_NAME)\
 					  "SDNC A1 Controller     " $(__check_app_name $SDNC_APP_NAME)\
 					  "SDNC DB                " $(__check_app_name $SDNC_DB_APP_NAME)\
 					  "CBS                    " $(__check_app_name $CBS_APP_NAME)\
-					  "Consul                 " $(__check_app_name $CONSUL_APP_NAME))
+					  "Consul                 " $(__check_app_name $CONSUL_APP_NAME)\
+					  "Http Proxy             " $(__check_app_name $HTTP_PROXY_APP_NAME))
 
 	nw=0 # Calc max width of container name, to make a nice table
 	for (( i=1; i<${#CONTAINTER_NAMES[@]} ; i+=2 )) ; do
@@ -1428,14 +1499,647 @@ clean_containers() {
 	fi
 }
 
-# Function stop and remove all container in the end of the test script, if the arg 'auto-clean' is given at test script start
+###################################
+### Functions for kube management
+###################################
+
+# Scale a kube resource to a specific count
+# args: <resource-type> <resource-name> <namespace> <target-count>
+# (Not for test scripts)
+__kube_scale() {
+	echo -ne "  Setting $1 $2 replicas=$4 in namespace $3"$SAMELINE
+	kubectl scale  $1 $2  -n $3 --replicas=$4 1> /dev/null 2> ./tmp/kubeerr
+	if [ $? -ne 0 ]; then
+		echo -e "  Setting $1 $2 replicas=$4 in namespace $3 $RED Failed $ERED"
+		((RES_CONF_FAIL++))
+		echo "  Message: $(<./tmp/kubeerr)"
+		return 1
+	else
+		echo -e "  Setting $1 $2 replicas=$4 in namespace $3 $GREEN OK $EGREEN"
+	fi
+
+	TSTART=$SECONDS
+
+	for i in {1..500}; do
+		count=$(kubectl get $1/$2  -n $3 -o jsonpath='{.status.replicas}' 2> /dev/null)
+		retcode=$?
+		if [ -z "$count" ]; then
+			#No value is sometimes returned for some reason, in case the resource has replica 0
+			count=0
+		fi
+		if [ $retcode -ne 0 ]; then
+			echo -e "$RED  Cannot fetch current replica count for $1 $2 in namespace $3 $ERED"
+			((RES_CONF_FAIL++))
+			return 1
+		fi
+		#echo ""
+		if [ $count -ne $4 ]; then
+			echo -ne "  Waiting for $1 $2 replicas=$4 in namespace $3. Replicas=$count after $(($SECONDS-$TSTART)) seconds $SAMELINE"
+			sleep $i
+		else
+			echo -e "  Waiting for $1 $2 replicas=$4 in namespace $3. Replicas=$count after $(($SECONDS-$TSTART)) seconds"
+			echo -e "  Replicas=$4 after $(($SECONDS-$TSTART)) seconds $GREEN OK $EGREEN"
+			echo ""
+			return 0
+		fi
+	done
+	echo ""
+	echo -e "$RED  Replica count did not reach target replicas=$4. Failed with replicas=$count $ERED"
+	((RES_CONF_FAIL++))
+	return 0
+}
+
+# Scale all kube resource sets to 0 in a namespace for resources having a certain lable and label-id
+# This function does not wait for the resource to reach 0
+# args: <namespace> <label-name> <label-id>
+# (Not for test scripts)
+__kube_scale_all_resources() {
+	namespace=$1
+	labelname=$2
+	labelid=$3
+	resources="deployment replicaset statefulset"
+	for restype in $resources; do
+		result=$(kubectl get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.'$labelname'=="'$labelid'")].metadata.name}')
+		if [ $? -eq 0 ] && [ ! -z "$result" ]; then
+			deleted_resourcetypes=$deleted_resourcetypes" "$restype
+			for resid in $result; do
+				echo -ne "  Ordered caling $restype $resid from namespace $namespace with label $labelname=$labelid to 0"$SAMELINE
+				kubectl scale  $restype $resid  -n $namespace --replicas=0 1> /dev/null 2> ./tmp/kubeerr
+				echo -e "  Ordered scaling $restype $resid from namespace $namespace with label $labelname=$labelid to 0 $GREEN OK $EGREEN"
+			done
+		fi
+	done
+}
+
+# Scale all kube resource sets to 0 in a namespace for resources having a certain lable and label-id
+# This function do wait for the resource to reach 0
+# args: <namespace> <label-name> <label-id>
+# (Not for test scripts)
+__kube_scale_and_wait_all_resources() {
+	namespace=$1
+	labelname=$2
+	labelid=$3
+	resources="deployment replicaset statefulset"
+	scaled_all=1
+	while [ $scaled_all -ne 0 ]; do
+		scaled_all=0
+		for restype in $resources; do
+			result=$(kubectl get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.'$labelname'=="'$labelid'")].metadata.name}')
+			if [ $? -eq 0 ] && [ ! -z "$result" ]; then
+				for resid in $result; do
+					echo -e "  Ordered scaling $restype $resid from namespace $namespace with label $labelname=$labelid to 0"
+					kubectl scale  $restype $resid  -n $namespace --replicas=0 1> /dev/null 2> ./tmp/kubeerr
+					count=1
+					T_START=$SECONDS
+					while [ $count -ne 0 ]; do
+						count=$(kubectl get $restype $resid  -n $namespace -o jsonpath='{.status.replicas}' 2> /dev/null)
+						echo -ne "  Scaling $restype $resid from namespace $namespace with label $labelname=$labelid to 0,count=$count"$SAMELINE
+						if [ $? -eq 0 ] && [ ! -z "$count" ]; then
+							sleep 0.5
+						else
+							count=0
+						fi
+						duration=$(($SECONDS-$T_START))
+						if [ $duration -gt 100 ]; then
+							#Forcring count 0, to avoid hanging for failed scaling
+							scaled_all=1
+							count=0
+						fi
+					done
+					echo -e "  Scaled $restype $resid from namespace $namespace with label $labelname=$labelid to 0,count=$count $GREEN OK $EGREEN"
+				done
+			fi
+		done
+	done
+}
+
+# Remove all kube resources in a namespace for resources having a certain label and label-id
+# This function wait until the resources are gone. Scaling to 0 must have been ordered previously
+# args: <namespace> <label-name> <label-id>
+# (Not for test scripts)
+__kube_delete_all_resources() {
+	namespace=$1
+	labelname=$2
+	labelid=$3
+	resources="deployments replicaset statefulset services pods configmaps pvc"
+	deleted_resourcetypes=""
+	for restype in $resources; do
+		result=$(kubectl get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.'$labelname'=="'$labelid'")].metadata.name}')
+		if [ $? -eq 0 ] && [ ! -z "$result" ]; then
+			deleted_resourcetypes=$deleted_resourcetypes" "$restype
+			for resid in $result; do
+				if [ $restype == "replicaset" ] || [ $restype == "statefulset" ]; then
+					count=1
+					while [ $count -ne 0 ]; do
+						count=$(kubectl get $restype $resid  -n $namespace -o jsonpath='{.status.replicas}' 2> /dev/null)
+						echo -ne "  Scaling $restype $resid from namespace $namespace with label $labelname=$labelid to 0,count=$count"$SAMELINE
+						if [ $? -eq 0 ] && [ ! -z "$count" ]; then
+							sleep 0.5
+						else
+							count=0
+						fi
+					done
+					echo -e "  Scaled $restype $resid from namespace $namespace with label $labelname=$labelid to 0,count=$count $GREEN OK $EGREEN"
+				fi
+				echo -ne "  Deleting $restype $resid from namespace $namespace with label $labelname=$labelid "$SAMELINE
+				kubectl delete $restype $resid -n $namespace 1> /dev/null 2> ./tmp/kubeerr
+				if [ $? -eq 0 ]; then
+					echo -e "  Deleted $restype $resid from namespace $namespace with label $labelname=$labelid $GREEN OK $EGREEN"
+				else
+					echo -e "  Deleted $restype $resid from namespace $namespace with label $labelname=$labelid $GREEN Does not exist - OK $EGREEN"
+				fi
+				#fi
+			done
+		fi
+	done
+	if [ ! -z "$deleted_resourcetypes" ]; then
+		for restype in $deleted_resources; do
+			echo -ne "  Waiting for $restype in namespace $namespace with label $labelname=$labelid to be deleted..."$SAMELINE
+			T_START=$SECONDS
+			result="dummy"
+			while [ ! -z "$result" ]; do
+				sleep 0.5
+				result=$(kubectl get $restype -n $namespace -o jsonpath='{.items[?(@.metadata.labels.'$labelname'=="'$labelid'")].metadata.name}')
+				echo -ne "  Waiting for $restype in namespace $namespace with label $labelname=$labelid to be deleted...$(($SECONDS-$T_START)) seconds "$SAMELINE
+				if [ -z "$result" ]; then
+					echo -e " Waiting for $restype in namespace $namespace with label $labelname=$labelid to be deleted...$(($SECONDS-$T_START)) seconds $GREEN OK $EGREEN"
+				elif [ $(($SECONDS-$T_START)) -gt 300 ]; then
+					echo -e " Waiting for $restype in namespace $namespace with label $labelname=$labelid to be deleted...$(($SECONDS-$T_START)) seconds $RED Failed $ERED"
+					result=""
+				fi
+			done
+		done
+	fi
+}
+
+# Creates a namespace if it does not exists
+# args: <namespace>
+# (Not for test scripts)
+__kube_create_namespace() {
+
+	#Check if test namespace exists, if not create it
+	kubectl get namespace $1 1> /dev/null 2> ./tmp/kubeerr
+	if [ $? -ne 0 ]; then
+		echo -ne " Creating namespace "$1 $SAMELINE
+		kubectl create namespace $1 1> /dev/null 2> ./tmp/kubeerr
+		if [ $? -ne 0 ]; then
+			echo -e " Creating namespace $1 $RED$BOLD FAILED $EBOLD$ERED"
+			((RES_CONF_FAIL++))
+			echo "  Message: $(<./tmp/kubeerr)"
+			return 1
+		else
+			echo -e " Creating namespace $1 $GREEN$BOLD OK $EBOLD$EGREEN"
+		fi
+	else
+		echo -e " Creating namespace $1 $GREEN$BOLD Already exists, OK $EBOLD$EGREEN"
+	fi
+	return 0
+}
+
+# Find the host ip of an app (using the service resource)
+# args: <app-name> <namespace>
+# (Not for test scripts)
+__kube_get_service_host() {
+	if [ $# -ne 2 ]; then
+		((RES_CONF_FAIL++))
+    	__print_err "need 2 args, <app-name> <namespace>" $@
+		exit 1
+	fi
+	for timeout in {1..60}; do
+		host=$(kubectl get svc $1  -n $2 -o jsonpath='{.spec.clusterIP}')
+		if [ $? -eq 0 ]; then
+			if [ ! -z "$host" ]; then
+				echo $host
+				return 0
+			fi
+		fi
+		sleep 0.5
+	done
+	((RES_CONF_FAIL++))
+	echo "host-not-found-fatal-error"
+	return 1
+}
+
+# Translate ric name to kube host name
+# args: <ric-name>
+# For test scripts
+get_kube_sim_host() {
+	name=$(echo "$1" | tr '_' '-')  #kube does not accept underscore in names
+	#example gnb_1_2 -> gnb-1-2
+	set_name=$(echo $name | rev | cut -d- -f2- | rev) # Cut index part of ric name to get the name of statefulset
+	# example gnb-g1-2 -> gnb-g1 where gnb-g1-2 is the ric name and gnb-g1 is the set name
+	echo $name"."$set_name"."$KUBE_NONRTRIC_NAMESPACE
+
+}
+
+# Find the named port to an app (using the service resource)
+# args: <app-name> <namespace> <port-name>
+# (Not for test scripts)
+__kube_get_service_port() {
+	if [ $# -ne 3 ]; then
+		((RES_CONF_FAIL++))
+    	__print_err "need 3 args, <app-name> <namespace> <port-name>" $@
+		exit 1
+	fi
+
+	for timeout in {1..60}; do
+		port=$(kubectl get svc $1  -n $2 -o jsonpath='{...ports[?(@.name=="'$3'")].port}')
+		if [ $? -eq 0 ]; then
+			if [ ! -z "$port" ]; then
+				echo $port
+				return 0
+			fi
+		fi
+		sleep 0.5
+	done
+	((RES_CONF_FAIL++))
+	echo "0"
+	return 1
+}
+
+# Create a kube resource from a yaml template
+# args: <resource-type> <resource-name> <template-yaml> <output-yaml>
+# (Not for test scripts)
+__kube_create_instance() {
+	echo -ne " Creating $1 $2"$SAMELINE
+	envsubst < $3 > $4
+	kubectl apply -f $4 1> /dev/null 2> ./tmp/kubeerr
+	if [ $? -ne 0 ]; then
+		((RES_CONF_FAIL++))
+		echo -e " Creating $1 $2 $RED Failed $ERED"
+		echo "  Message: $(<./tmp/kubeerr)"
+		return 1
+	else
+		echo -e " Creating $1 $2 $GREEN OK $EGREEN"
+	fi
+}
+
+# Function to create a configmap in kubernetes
+# args: <configmap-name> <namespace> <labelname> <labelid> <path-to-data-file> <path-to-output-yaml>
+# (Not for test scripts)
+__kube_create_configmap() {
+	echo -ne " Creating configmap $1 "$SAMELINE
+	envsubst < $5 > $5"_tmp"
+	cp $5"_tmp" $5  #Need to copy back to orig file name since create configmap neeed the original file name
+	kubectl create configmap $1  -n $2 --from-file=$5 --dry-run=client -o yaml > $6
+	if [ $? -ne 0 ]; then
+		echo -e " Creating configmap $1 $RED Failed $ERED"
+		((RES_CONF_FAIL++))
+		return 1
+	fi
+
+	kubectl apply -f $6 1> /dev/null 2> ./tmp/kubeerr
+	if [ $? -ne 0 ]; then
+		echo -e " Creating configmap $1 $RED Apply failed $ERED"
+		echo "  Message: $(<./tmp/kubeerr)"
+		((RES_CONF_FAIL++))
+		return 1
+	fi
+	kubectl label configmap $1 -n $2 $3"="$4 --overwrite 1> /dev/null 2> ./tmp/kubeerr
+	if [ $? -ne 0 ]; then
+		echo -e " Creating configmap $1 $RED Labeling failed $ERED"
+		echo "  Message: $(<./tmp/kubeerr)"
+		((RES_CONF_FAIL++))
+		return 1
+	fi
+	# Log the resulting map
+	kubectl get configmap $1 -n $2 -o yaml > $6
+
+	echo -e " Creating configmap $1 $GREEN OK $EGREEN"
+	return 0
+}
+
+# This function scales or deletes all resources for app selected by the testcase.
+# args: -
+# (Not for test scripts)
+__clean_kube() {
+	echo -e $BOLD"Initialize kube services//pods/statefulsets/replicaset to initial state"$EBOLD
+
+	# Scale prestarted or managed apps
+	__check_prestarted_image 'RICSIM'
+	if [ $? -eq 0 ]; then
+		echo -e " Scaling all kube resources for app $BOLD RICSIM $EBOLD to 0"
+		__kube_scale_and_wait_all_resources $KUBE_NONRTRIC_NAMESPACE app nonrtric-a1simulator
+	else
+		echo -e " Scaling all kube resources for app $BOLD RICSIM $EBOLD to 0"
+		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest RICSIM
+	fi
+
+	__check_prestarted_image 'PA'
+	if [ $? -eq 0 ]; then
+		echo -e " Scaling all kube resources for app $BOLD PA $EBOLD to 0"
+		__kube_scale_and_wait_all_resources $KUBE_NONRTRIC_NAMESPACE app nonrtric-policymanagementservice
+	else
+	    echo -e " Scaling all kube resources for app $BOLD PA $EBOLD to 0"
+		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest PA
+	fi
+
+	__check_prestarted_image 'ECS'
+	if [ $? -eq 0 ]; then
+		echo -e " Scaling all kube resources for app $BOLD ECS $EBOLD to 0"
+		__kube_scale_and_wait_all_resources $KUBE_NONRTRIC_NAMESPACE app nonrtric-enrichmentservice
+	else
+		echo -e " Scaling all kube resources for app $BOLD ECS $EBOLD to 0"
+		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest ECS
+	fi
+
+	__check_prestarted_image 'RC'
+	if [ $? -eq 0 ]; then
+		echo -e " Scaling all kube resources for app $BOLD RC $EBOLD to 0"
+		__kube_scale_and_wait_all_resources $KUBE_NONRTRIC_NAMESPACE app nonrtric-rappcatalogueservice
+	else
+		echo -e " Scaling all kube resources for app $BOLD RC $EBOLD to 0"
+		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest RC
+	fi
+
+	__check_prestarted_image 'CP'
+	if [ $? -eq 0 ]; then
+		echo -e " CP replicas kept as is"
+	else
+		echo -e " Scaling all kube resources for app $BOLD CP $EBOLD to 0"
+		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest CP
+	fi
+
+	__check_prestarted_image 'SDNC'
+	if [ $? -eq 0 ]; then
+		echo -e " SDNC replicas kept as is"
+	else
+		echo -e " Scaling all kube resources for app $BOLD SDNC $EBOLD to 0"
+		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest SDNC
+	fi
+
+	__check_prestarted_image 'MR'
+	if [ $? -eq 0 ]; then
+		echo -e " MR replicas kept as is"
+	else
+		echo -e " Scaling all kube resources for app $BOLD MR $EBOLD to 0"
+		__kube_scale_all_resources $KUBE_ONAP_NAMESPACE autotest MR
+	fi
+
+	__check_prestarted_image 'DMAAPMR'
+	if [ $? -eq 0 ]; then
+		echo -e " DMAAP replicas kept as is"
+	else
+		echo -e " Scaling all kube resources for app $BOLD DMAAPMR $EBOLD to 0"
+		__kube_scale_all_resources $KUBE_ONAP_NAMESPACE autotest DMAAPMR
+	fi
+
+	echo -e " Scaling all kube resources for app $BOLD CR $EBOLD to 0"
+	__kube_scale_all_resources $KUBE_SIM_NAMESPACE autotest CR
+
+	echo -e " Scaling all kube resources for app $BOLD PRODSTUB $EBOLD to 0"
+	__kube_scale_all_resources $KUBE_SIM_NAMESPACE autotest PRODSTUB
+
+	echo -e " Scaling all kube resources for app $BOLD HTTPPROXY $EBOLD to 0"
+	__kube_scale_all_resources $KUBE_SIM_NAMESPACE autotest HTTPPROXY
+
+
+	## Clean all managed apps
+
+	__check_prestarted_image 'RICSIM'
+	if [ $? -eq 1 ]; then
+		echo -e " Deleting all kube resources for app $BOLD RICSIM $EBOLD"
+		__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest RICSIM
+	fi
+
+	__check_prestarted_image 'PA'
+	if [ $? -eq 1 ]; then
+	    echo -e " Deleting all kube resources for app $BOLD PA $EBOLD"
+		__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest PA
+	fi
+
+	__check_prestarted_image 'ECS'
+	if [ $? -eq 1 ]; then
+		echo -e " Deleting all kube resources for app $BOLD ECS $EBOLD"
+		__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest ECS
+	fi
+
+	__check_prestarted_image 'RC'
+	if [ $? -eq 1 ]; then
+		echo -e " Deleting all kube resources for app $BOLD RC $EBOLD"
+		__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest RC
+	fi
+
+	__check_prestarted_image 'CP'
+	if [ $? -eq 1 ]; then
+		echo -e " Deleting all kube resources for app $BOLD CP $EBOLD"
+		__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest CP
+	fi
+
+	__check_prestarted_image 'SDNC'
+	if [ $? -eq 1 ]; then
+		echo -e " Deleting all kube resources for app $BOLD SDNC $EBOLD"
+		__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest SDNC
+	fi
+
+	__check_prestarted_image 'MR'
+	if [ $? -eq 1 ]; then
+		echo -e " Deleting all kube resources for app $BOLD MR $EBOLD"
+		__kube_delete_all_resources $KUBE_ONAP_NAMESPACE autotest MR
+	fi
+
+	__check_prestarted_image 'DMAAPMR'
+	if [ $? -eq 1 ]; then
+		echo -e " Deleting all kube resources for app $BOLD DMAAPMR $EBOLD"
+		__kube_delete_all_resources $KUBE_ONAP_NAMESPACE autotest DMAAPMR
+	fi
+
+	echo -e " Deleting all kube resources for app $BOLD CR $EBOLD"
+	__kube_delete_all_resources $KUBE_SIM_NAMESPACE autotest CR
+
+	echo -e " Deleting all kube resources for app $BOLD PRODSTUB $EBOLD"
+	__kube_delete_all_resources $KUBE_SIM_NAMESPACE autotest PRODSTUB
+
+	echo -e " Deleting all kube resources for app $BOLD HTTPPROXY $EBOLD"
+	__kube_delete_all_resources $KUBE_SIM_NAMESPACE autotest HTTPPROXY
+
+	echo ""
+}
+
+# # This function scales or deletes all resources for app selected by the testcase.
+# # args: -
+# # (Not for test scripts)
+# __clean_kube() {
+# 	echo -e $BOLD"Initialize kube services//pods/statefulsets/replicaset to initial state"$EBOLD
+
+# 	# Clean prestarted apps
+# 	__check_prestarted_image 'RICSIM'
+# 	if [ $? -eq 0 ]; then
+# 		echo -e " Scaling all kube resources for app $BOLD RICSIM $EBOLD to 0"
+# 		__kube_scale_and_wait_all_resources $KUBE_NONRTRIC_NAMESPACE app nonrtric-a1simulator
+# 	fi
+
+# 	__check_prestarted_image 'PA'
+# 	if [ $? -eq 0 ]; then
+# 		echo -e " Scaling all kube resources for app $BOLD PA $EBOLD to 0"
+# 		__kube_scale_and_wait_all_resources $KUBE_NONRTRIC_NAMESPACE app nonrtric-policymanagementservice
+# 	fi
+
+# 	__check_prestarted_image 'ECS'
+# 	if [ $? -eq 0 ]; then
+# 		echo -e " Scaling all kube resources for app $BOLD ECS $EBOLD to 0"
+# 		__kube_scale_and_wait_all_resources $KUBE_NONRTRIC_NAMESPACE app nonrtric-enrichmentservice
+# 	fi
+
+# 	__check_prestarted_image 'RC'
+# 	if [ $? -eq 0 ]; then
+# 		echo -e " Scaling all kube resources for app $BOLD RC $EBOLD to 0"
+# 		__kube_scale_and_wait_all_resources $KUBE_NONRTRIC_NAMESPACE app nonrtric-rappcatalogueservice
+# 	fi
+
+# 	__check_prestarted_image 'CP'
+# 	if [ $? -eq 0 ]; then
+# 		echo -e " CP replicas kept as is"
+# 	fi
+
+# 	__check_prestarted_image 'SDNC'
+# 	if [ $? -eq 0 ]; then
+# 		echo -e " SDNC replicas kept as is"
+# 	fi
+
+# 	__check_prestarted_image 'MR'
+# 	if [ $? -eq 0 ]; then
+# 		echo -e " MR replicas kept as is"
+# 	fi
+
+
+# 	# Clean included apps - apps fully managed by the script
+
+# 	## Scale all to zero
+# 	__check_included_image 'RICSIM'
+# 	if [ $? -eq 0 ]; then
+# 		echo -e " Scaling all kube resources for app $BOLD RICSIM $EBOLD to 0"
+# 		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest RICSIM
+# 	fi
+
+# 	__check_included_image 'PA'
+# 	if [ $? -eq 0 ]; then
+# 	    echo -e " Scaling all kube resources for app $BOLD PA $EBOLD to 0"
+# 		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest PA
+# 	fi
+
+# 	__check_included_image 'ECS'
+# 	if [ $? -eq 0 ]; then
+# 		echo -e " Scaling all kube resources for app $BOLD ECS $EBOLD to 0"
+# 		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest ECS
+# 	fi
+
+# 	__check_included_image 'RC'
+# 	if [ $? -eq 0 ]; then
+# 		echo -e " Scaling all kube resources for app $BOLD RC $EBOLD to 0"
+# 		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest RC
+# 	fi
+
+# 	__check_included_image 'CP'
+# 	if [ $? -eq 0 ]; then
+# 		echo -e " Scaling all kube resources for app $BOLD CP $EBOLD to 0"
+# 		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest CP
+# 	fi
+
+# 	__check_included_image 'SDNC'
+# 	if [ $? -eq 0 ]; then
+# 		echo -e " Scaling all kube resources for app $BOLD SDNC $EBOLD to 0"
+# 		__kube_scale_all_resources $KUBE_NONRTRIC_NAMESPACE autotest SDNC
+# 	fi
+
+# 	__check_included_image 'CR'
+# 	if [ $? -eq 0 ]; then
+# 		echo -e " Scaling all kube resources for app $BOLD CR $EBOLD to 0"
+# 		__kube_scale_all_resources $KUBE_SIM_NAMESPACE autotest CR
+# 	fi
+
+# 	__check_included_image 'MR'
+# 	if [ $? -eq 0 ]; then
+# 		echo -e " Scaling all kube resources for app $BOLD MR $EBOLD to 0"
+# 		__kube_scale_all_resources $KUBE_ONAP_NAMESPACE autotest MR
+# 	fi
+
+# 	__check_included_image 'PRODSTUB'
+# 	if [ $? -eq 0 ]; then
+# 		echo -e " Scaling all kube resources for app $BOLD PRODSTUB $EBOLD to 0"
+# 		__kube_scale_all_resources $KUBE_SIM_NAMESPACE autotest PRODSTUB
+# 	fi
+
+
+# 	## Remove all resources
+
+# 	__check_included_image 'RICSIM'
+# 	if [ $? -eq 0 ]; then
+# 		echo -e " Deleting all kube resources for app $BOLD RICSIM $EBOLD"
+# 		__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest RICSIM
+# 	fi
+
+# 	__check_included_image 'PA'
+# 	if [ $? -eq 0 ]; then
+# 	    echo -e " Deleting all kube resources for app $BOLD PA $EBOLD"
+# 		__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest PA
+# 	fi
+
+# 	__check_included_image 'ECS'
+# 	if [ $? -eq 0 ]; then
+# 		echo -e " Deleting all kube resources for app $BOLD ECS $EBOLD"
+# 		__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest ECS
+# 	fi
+
+# 	__check_included_image 'RC'
+# 	if [ $? -eq 0 ]; then
+# 		echo -e " Deleting all kube resources for app $BOLD RC $EBOLD"
+# 		__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest RC
+# 	fi
+
+# 	__check_included_image 'CP'
+# 	if [ $? -eq 0 ]; then
+# 		echo -e " Deleting all kube resources for app $BOLD CP $EBOLD"
+# 		__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest CP
+# 	fi
+
+# 	__check_included_image 'SDNC'
+# 	if [ $? -eq 0 ]; then
+# 		echo -e " Deleting all kube resources for app $BOLD SDNC $EBOLD"
+# 		__kube_delete_all_resources $KUBE_NONRTRIC_NAMESPACE autotest SDNC
+# 	fi
+
+# 	__check_included_image 'CR'
+# 	if [ $? -eq 0 ]; then
+# 		echo -e " Deleting all kube resources for app $BOLD CR $EBOLD"
+# 		__kube_delete_all_resources $KUBE_SIM_NAMESPACE autotest CR
+# 	fi
+
+# 	__check_included_image 'MR'
+# 	if [ $? -eq 0 ]; then
+# 		echo -e " Deleting all kube resources for app $BOLD MR $EBOLD"
+# 		__kube_delete_all_resources $KUBE_ONAP_NAMESPACE autotest MR
+# 	fi
+
+# 	__check_included_image 'PRODSTUB'
+# 	if [ $? -eq 0 ]; then
+# 		echo -e " Deleting all kube resources for app $BOLD PRODSTUB $EBOLD"
+# 		__kube_delete_all_resources $KUBE_SIM_NAMESPACE autotest PRODSTUB
+# 	fi
+
+# 	echo ""
+# }
+
+# Function stop and remove all containers (docker) and services/deployments etc(kube)
+# args: -
+# Function for test script
+clean_environment() {
+	if [ $RUNMODE == "KUBE" ]; then
+		__clean_kube
+	else
+		__clean_containers
+	fi
+
+}
+
+# Function stop and remove all containers (docker) and services/deployments etc(kube) in the end of the test script, if the arg 'auto-clean' is given at test script start
 # args: -
 # (Function for test scripts)
-auto_clean_containers() {
+auto_clean_environment() {
 	echo
 	if [ "$AUTO_CLEAN" == "auto" ]; then
-		echo -e $BOLD"Initiating automatic cleaning of started containers"$EBOLD
-		clean_containers
+		echo -e $BOLD"Initiating automatic cleaning of environment"$EBOLD
+		clean_environment
 	fi
 }
 
@@ -1473,7 +2177,7 @@ __print_err() {
 }
 
 
-# Helper function to get a the port of a specific ric simulatpor
+# Helper function to get a the port of a specific ric simulator
 # args: <ric-id>
 # (Not for test scripts)
 __find_sim_port() {
@@ -1485,6 +2189,35 @@ __find_sim_port() {
 	else
 		echo "0"
     fi
+}
+
+# Helper function to get a the port and host name of a specific ric simulator
+# args: <ric-id>
+# (Not for test scripts)
+__find_sim_host() {
+	if [ $RUNMODE == "KUBE" ]; then
+		ricname=$(echo "$1" | tr '_' '-')
+		for timeout in {1..60}; do
+			host=$(kubectl get pod $ricname  -n $KUBE_NONRTRIC_NAMESPACE -o jsonpath='{.status.podIP}' 2> /dev/null)
+			if [ ! -z "$host" ]; then
+				echo $RIC_SIM_HTTPX"://"$host":"$RIC_SIM_PORT
+				return 0
+			fi
+			sleep 0.5
+		done
+		echo "host-not-found-fatal-error"
+	else
+		name=$1" " #Space appended to prevent matching 10 if 1 is desired....
+		cmdstr="docker inspect --format='{{(index (index .NetworkSettings.Ports \"$RIC_SIM_PORT/tcp\") 0).HostPort}}' ${name}"
+		res=$(eval $cmdstr)
+		if [[ "$res" =~ ^[0-9]+$ ]]; then
+			echo $RIC_SIM_HOST:$res
+			return 0
+		else
+			echo "0"
+		fi
+	fi
+	return 1
 }
 
 # Function to create the docker network for the test
@@ -1509,30 +2242,56 @@ __create_docker_network() {
 	fi
 }
 
-# Check if container is started by calling url on localhost using a port, expects response code 2XX
-# args: <container-name> <port> <url> https|https
-# Not to be called from the test script itself.
-__check_container_start() {
-	paramError=0
-	if [ $# -ne 4 ]; then
-		paramError=1
-	elif [ $4 != "http" ] && [ $4 != "https" ]; then
-		paramError=1
-	fi
-	if [ $paramError -ne 0 ]; then
+# Function to start container with docker-compose and wait until all are in state running.
+#args: <docker-compose-dir> <docker-compose-arg>|NODOCKERARGS <count> <app-name>+
+# (Not for test scripts)
+__start_container() {
+	if [ $# -lt 4 ]; then
 		((RES_CONF_FAIL++))
-		__print_err "need 3 args, <container-name> <port> <url> https|https" $@
-		return 1
+    	__print_err "need 4 or more args, <docker-compose-dir> <docker-compose-arg>|NODOCKERARGS <count> <app-name>+" $@
+		exit 1
 	fi
-	echo -ne " Container $BOLD$1$EBOLD starting${SAMELINE}"
-	appname=$1
-	localport=$2
-	url=$3
-	if [[ $appname != "STANDALONE_"* ]]	; then
+
+	__create_docker_network
+
+	curdir=$PWD
+	cd $SIM_GROUP
+	compose_dir=$1
+	cd $1
+	shift
+	compose_args=$1
+	shift
+	appcount=$1
+	shift
+
+	if [ "$compose_args" == "NODOCKERARGS" ]; then
+		docker-compose up -d &> .dockererr
+		if [ $? -ne 0 ]; then
+			echo -e $RED"Problem to launch container(s) with docker-compose"$ERED
+			cat .dockererr
+			echo -e $RED"Stopping script...."$ERED
+			exit 1
+		fi
+	else
+		docker-compose up -d $compose_args &> .dockererr
+		if [ $? -ne 0 ]; then
+			echo -e $RED"Problem to launch container(s) with docker-compose"$ERED
+			cat .dockererr
+			echo -e $RED"Stopping script...."$ERED
+			exit 1
+		fi
+	fi
+
+	cd $curdir
+
+	appindex=0
+	while [ $appindex -lt $appcount ]; do
+		appname=$1
+		shift
 		app_started=0
 		for i in {1..10}; do
 			if [ "$(docker inspect --format '{{ .State.Running }}' $appname)" == "true" ]; then
-					echo -e " Container $BOLD$1$EBOLD$GREEN running$EGREEN on$BOLD image $(docker inspect --format '{{ .Config.Image }}' ${appname}) $EBOLD"
+					echo -e " Container $BOLD${appname}$EBOLD$GREEN running$EGREEN on$BOLD image $(docker inspect --format '{{ .Config.Image }}' ${appname}) $EBOLD"
 					app_started=1
 					break
 				else
@@ -1546,40 +2305,58 @@ __check_container_start() {
 			echo -e $RED" Stopping script..."$ERED
 			exit 1
 		fi
-		if [ $localport -eq 0 ]; then
-			while [ $localport -eq 0 ]; do
-				echo -ne " Waiting for container ${appname} to publish its ports...${SAMELINE}"
-				localport=$(__find_sim_port $appname)
-				sleep 1
-				echo -ne " Waiting for container ${appname} to publish its ports...retrying....${SAMELINE}"
-			done
-			echo -ne " Waiting for container ${appname} to publish its ports...retrying....$GREEN OK $EGREEN"
-			echo ""
-		fi
+		let appindex=appindex+1
+	done
+	return 0
+}
+
+# Generate a UUID to use as prefix for policy ids
+generate_uuid() {
+	UUID=$(python3 -c 'import sys,uuid; sys.stdout.write(uuid.uuid4().hex)')
+	#Reduce length to make space for serial id, uses 'a' as marker where the serial id is added
+	UUID=${UUID:0:${#UUID}-4}"a"
+}
+
+
+# Function to check if container/service is responding to http/https
+# args: <container-name>|<service-name> url
+# (Not for test scripts)
+__check_service_start() {
+
+	if [ $# -ne 2 ]; then
+		((RES_CONF_FAIL++))
+		__print_err "need 2 args, <container-name>|<service-name> url" $@
+		return 1
 	fi
 
+	if [ $RUNMODE == "KUBE" ]; then
+		ENTITY="service/set/deployment"
+	else
+		ENTITY="container"
+	fi
+	appname=$1
+	url=$2
+	echo -ne " Container $BOLD${appname}$EBOLD starting${SAMELINE}"
+
+
 	pa_st=false
-	echo -ne " Waiting for container ${appname} service status...${SAMELINE}"
+	echo -ne " Waiting for ${ENTITY} ${appname} service status...${SAMELINE}"
 	TSTART=$SECONDS
 	for i in {1..50}; do
-		if [ $4 == "https" ]; then
-			result="$(__do_curl "-k https://localhost:"${localport}${url})"
-		else
-			result="$(__do_curl $LOCALHOST${localport}${url})"
-		fi
+		result="$(__do_curl $url)"
 		if [ $? -eq 0 ]; then
 			if [ ${#result} -gt 15 ]; then
 				#If response is too long, truncate
 				result="...response text too long, omitted"
 			fi
-			echo -ne " Waiting for container $BOLD${appname}$EBOLD service status, result: $result${SAMELINE}"
-	   		echo -ne " Container $BOLD${appname}$EBOLD$GREEN is alive$EGREEN, responds to service status:$GREEN $result $EGREEN after $(($SECONDS-$TSTART)) seconds"
+			echo -ne " Waiting for {ENTITY} $BOLD${appname}$EBOLD service status on ${3}, result: $result${SAMELINE}"
+	   		echo -ne " The ${ENTITY} $BOLD${appname}$EBOLD$GREEN is alive$EGREEN, responds to service status:$GREEN $result $EGREEN on ${url} after $(($SECONDS-$TSTART)) seconds"
 	   		pa_st=true
 	   		break
 	 	else
 		 	TS_TMP=$SECONDS
 			while [ $(($TS_TMP+$i)) -gt $SECONDS ]; do
-				echo -ne " Waiting for container ${appname} service status...$(($SECONDS-$TSTART)) seconds, retrying in $(($TS_TMP+$i-$SECONDS)) seconds   ${SAMELINE}"
+				echo -ne " Waiting for ${ENTITY} ${appname} service status on ${url}...$(($SECONDS-$TSTART)) seconds, retrying in $(($TS_TMP+$i-$SECONDS)) seconds   ${SAMELINE}"
 				sleep 1
 			done
 	 	fi
@@ -1587,837 +2364,14 @@ __check_container_start() {
 
 	if [ "$pa_st" = "false"  ]; then
 		((RES_CONF_FAIL++))
-		echo -e $RED" Container ${appname} did not respond to service status in $(($SECONDS-$TSTART)) seconds"$ERED
-		return 0
-	fi
-
-	echo ""
-	return 0
-}
-
-
-# Function to start a container and wait until it responds on the given port and url.
-#args: <docker-compose-dir> NODOCKERARGS|<docker-compose-arg> <app-name> <port-number> <alive-url> [<app-name> <port-number> <alive-url>]*
-__start_container() {
-
-	variableArgCount=$(($#-2))
-	if [ $# -lt 6 ] && [ [ $(($variableArgCount%4)) -ne 0 ]; then
-		((RES_CONF_FAIL++))
-    	__print_err "need 6 or more args,  <docker-compose-dir> NODOCKERARGS|<docker-compose-arg> <app-name> <port-number> <alive-url> http|https [<app-name> <port-number> <alive-url> http|https ]*" $@
-		exit 1
-	fi
-
-	__create_docker_network
-
-	curdir=$PWD
-	cd $SIM_GROUP
-	cd $1
-
-	if [ "$2" == "NODOCKERARGS" ]; then
-		docker-compose up -d &> .dockererr
-		if [ $? -ne 0 ]; then
-			echo -e $RED"Problem to launch container(s) with docker-compose"$ERED
-			cat .dockererr
-			echo -e $RED"Stopping script...."$ERED
-			exit 1
-		fi
-	elif [ "$2" == "STANDALONE" ]; then
-		echo "Skipping docker-compose"
-	else
-		docker-compose up -d $2 &> .dockererr
-		if [ $? -ne 0 ]; then
-			echo -e $RED"Problem to launch container(s) with docker-compose"$ERED
-			cat .dockererr
-			echo -e $RED"Stopping script...."$ERED
-			exit 1
-		fi
-	fi
-	app_prefix=""
-	if [ "$2" == "STANDALONE" ]; then
-		app_prefix="STANDALONE_"
-	fi
-	shift; shift;
-	cntr=0
-	while [ $cntr -lt $variableArgCount ]; do
-		app=$app_prefix$1; shift;
-		port=$1; shift;
-		url=$1; shift;
-		httpx=$1; shift;
-		let cntr=cntr+4
-
-		__check_container_start "$app" "$port" "$url" $httpx
-	done
-
-	cd $curdir
-	echo ""
-	return 0
-}
-
-# Generate a UUID to use as prefix for policy ids
-generate_uuid() {
-	UUID=$(python3 -c 'import sys,uuid; sys.stdout.write(uuid.uuid4().hex)')
-	#Reduce length to make space for serial id, us 'a' as marker where the serial id is added
-	UUID=${UUID:0:${#UUID}-4}"a"
-}
-
-####################
-### Consul functions
-####################
-
-# Function to load config from a file into consul for the Policy Agent
-# arg: <json-config-file>
-# (Function for test scripts)
-consul_config_app() {
-
-	echo -e $BOLD"Configuring Consul"$EBOLD
-
-	if [ $# -ne 1 ]; then
-		((RES_CONF_FAIL++))
-    	__print_err "need one arg,  <json-config-file>" $@
-		exit 1
-	fi
-
-	echo " Loading config for "$POLICY_AGENT_APP_NAME" from "$1
-
-	curlString="$LOCALHOST${CONSUL_EXTERNAL_PORT}/v1/kv/${POLICY_AGENT_APP_NAME}?dc=dc1 -X PUT -H Accept:application/json -H Content-Type:application/json -H X-Requested-With:XMLHttpRequest --data-binary @"$1
-	result=$(__do_curl "$curlString")
-	if [ $? -ne 0 ]; then
-		echo -e $RED" FAIL - json config could not be loaded to consul" $ERED
-		((RES_CONF_FAIL++))
-		return 1
-	fi
-	body="$(__do_curl $LOCALHOST$CBS_EXTERNAL_PORT/service_component_all/$POLICY_AGENT_APP_NAME)"
-	echo $body > "./tmp/.output"$1
-
-	if [ $? -ne 0 ]; then
-		echo -e $RED" FAIL - json config could not be loaded from consul/cbs, contents cannot be checked." $ERED
-		((RES_CONF_FAIL++))
-		return 1
-	else
-		targetJson=$(< $1)
-		targetJson="{\"config\":"$targetJson"}"
-		echo "TARGET JSON: $targetJson" >> $HTTPLOG
-		res=$(python3 ../common/compare_json.py "$targetJson" "$body")
-		if [ $res -ne 0 ]; then
-			echo -e $RED" FAIL - policy json config read from consul/cbs is not equal to the intended json config...." $ERED
-			((RES_CONF_FAIL++))
-			return 1
-		else
-			echo -e $GREEN" Config loaded ok to consul"$EGREEN
-		fi
-	fi
-
-	echo ""
-
-}
-
-# Function to perpare the consul configuration according to the current simulator configuration
-# args: SDNC|NOSDNC <output-file>
-# (Function for test scripts)
-prepare_consul_config() {
-  	echo -e $BOLD"Prepare Consul config"$EBOLD
-
-	echo " Writing consul config for "$POLICY_AGENT_APP_NAME" to file: "$2
-
-	if [ $# != 2 ];  then
-		((RES_CONF_FAIL++))
-    	__print_err "need two args,  SDNC|NOSDNC <output-file>" $@
-		exit 1
-	fi
-
-	if [ $1 == "SDNC" ]; then
-		echo -e " Config$BOLD including SDNC$EBOLD configuration"
-	elif [ $1 == "NOSDNC" ];  then
-		echo -e " Config$BOLD excluding SDNC$EBOLD configuration"
-	else
-		((RES_CONF_FAIL++))
-    	__print_err "need two args,  SDNC|NOSDNC <output-file>" $@
-		exit 1
-	fi
-
-	config_json="\n            {"
-	if [ $1 == "SDNC" ]; then
-		config_json=$config_json"\n   \"controller\": ["
-		config_json=$config_json"\n                     {"
-		config_json=$config_json"\n                       \"name\": \"$SDNC_APP_NAME\","
-		if [ $AGENT_STAND_ALONE -eq 0 ]; then
-			config_json=$config_json"\n                       \"baseUrl\": \"$SDNC_HTTPX://$SDNC_APP_NAME:$SDNC_PORT\","
-		else
-			config_json=$config_json"\n                       \"baseUrl\": \"$SDNC_HTTPX://localhost:$SDNC_LOCAL_PORT\","
-		fi
-		config_json=$config_json"\n                       \"userName\": \"$SDNC_USER\","
-		config_json=$config_json"\n                       \"password\": \"$SDNC_PWD\""
-		config_json=$config_json"\n                     }"
-		config_json=$config_json"\n   ],"
-	fi
-
-	config_json=$config_json"\n   \"streams_publishes\": {"
-	config_json=$config_json"\n                            \"dmaap_publisher\": {"
-	config_json=$config_json"\n                              \"type\": \"$MR_APP_NAME\","
-	config_json=$config_json"\n                              \"dmaap_info\": {"
-	if [ $AGENT_STAND_ALONE -eq 0 ]; then
-		config_json=$config_json"\n                                \"topic_url\": \"$MR_HTTPX://$MR_APP_NAME:$MR_PORT$MR_WRITE_URL\""
-	else
-		config_json=$config_json"\n                                \"topic_url\": \"$MR_HTTPX://localhost:$MR_LOCAL_PORT$MR_WRITE_URL\""
-	fi
-	config_json=$config_json"\n                              }"
-	config_json=$config_json"\n                            }"
-	config_json=$config_json"\n   },"
-	config_json=$config_json"\n   \"streams_subscribes\": {"
-	config_json=$config_json"\n                             \"dmaap_subscriber\": {"
-	config_json=$config_json"\n                               \"type\": \"$MR_APP_NAME\","
-	config_json=$config_json"\n                               \"dmaap_info\": {"
-	if [ $AGENT_STAND_ALONE -eq 0 ]; then
-		config_json=$config_json"\n                                   \"topic_url\": \"$MR_HTTPX://$MR_APP_NAME:$MR_PORT$MR_READ_URL\""
-	else
-		config_json=$config_json"\n                                   \"topic_url\": \"$MR_HTTPX://localhost:$MR_LOCAL_PORT$MR_READ_URL\""
-	fi
-	config_json=$config_json"\n                                 }"
-	config_json=$config_json"\n                               }"
-	config_json=$config_json"\n   },"
-
-	config_json=$config_json"\n   \"ric\": ["
-
-	rics=$(docker ps | grep $RIC_SIM_PREFIX | awk '{print $NF}')
-
-	if [ $? -ne 0 ] || [ -z "$rics" ]; then
-		echo -e $RED" FAIL - the names of the running RIC Simulator cannot be retrieved." $ERED
-		((RES_CONF_FAIL++))
+		echo -e $RED" The ${ENTITY} ${appname} did not respond to service status on ${url} in $(($SECONDS-$TSTART)) seconds"$ERED
 		return 1
 	fi
 
-	cntr=0
-	for ric in $rics; do
-		if [ $cntr -gt 0 ]; then
-			config_json=$config_json"\n          ,"
-		fi
-		config_json=$config_json"\n          {"
-		config_json=$config_json"\n            \"name\": \"$ric\","
-		if [ $AGENT_STAND_ALONE -eq 0 ]; then
-			config_json=$config_json"\n            \"baseUrl\": \"$RIC_SIM_HTTPX://$ric:$RIC_SIM_PORT\","
-		else
-			config_json=$config_json"\n            \"baseUrl\": \"$RIC_SIM_HTTPX://localhost:$(__find_sim_port $ric)\","
-		fi
-		if [ $1 == "SDNC" ]; then
-			config_json=$config_json"\n            \"controller\": \"$SDNC_APP_NAME\","
-		fi
-		config_json=$config_json"\n            \"managedElementIds\": ["
-		config_json=$config_json"\n              \"me1_$ric\","
-		config_json=$config_json"\n              \"me2_$ric\""
-		config_json=$config_json"\n            ]"
-		config_json=$config_json"\n          }"
-		let cntr=cntr+1
-	done
-
-	config_json=$config_json"\n           ]"
-	config_json=$config_json"\n}"
-
-
-	printf "$config_json">$2
-
-	echo ""
-}
-
-
-# Start Consul and CBS
-# args: -
-# (Function for test scripts)
-start_consul_cbs() {
-
-	echo -e $BOLD"Starting Consul and CBS"$EBOLD
-	__check_included_image 'CONSUL'
-	if [ $? -eq 1 ]; then
-		echo -e $RED"The Consul image has not been checked for this test run due to arg to the test script"$ERED
-		echo -e $RED"Consul will not be started"$ERED
-		exit
-	fi
-	__start_container consul_cbs NODOCKERARGS  "$CONSUL_APP_NAME" "$CONSUL_EXTERNAL_PORT" "/ui/dc1/kv" "http" \
-	                                             "$CBS_APP_NAME" "$CBS_EXTERNAL_PORT" "/healthcheck" "http"
-}
-
-###########################
-### RIC Simulator functions
-###########################
-
-use_simulator_http() {
-	echo -e $BOLD"RICSIM protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD towards the simulators"
-	export RIC_SIM_HTTPX="http"
-	export RIC_SIM_LOCALHOST=$RIC_SIM_HTTPX"://localhost:"
-	export RIC_SIM_PORT=$RIC_SIM_INTERNAL_PORT
-	echo ""
-}
-
-use_simulator_https() {
-	echo -e $BOLD"RICSIM protocol setting"$EBOLD
-	echo -e " Using $BOLD https $EBOLD towards the simulators"
-	export RIC_SIM_HTTPX="https"
-	export RIC_SIM_LOCALHOST=$RIC_SIM_HTTPX"://localhost:"
-	export RIC_SIM_PORT=$RIC_SIM_INTERNAL_SECURE_PORT
-	echo ""
-}
-
-# Start one group (ricsim_g1, ricsim_g2 .. ricsim_g5) with a number of RIC Simulators using a given A interface
-# 'ricsim' may be set on command line to other prefix
-# args:  ricsim_g1|ricsim_g2|ricsim_g3|ricsim_g4|ricsim_g5 <count> <interface-id>
-# (Function for test scripts)
-start_ric_simulators() {
-
-	echo -e $BOLD"Starting RIC Simulators"$EBOLD
-
-	__check_included_image 'RICSIM'
-	if [ $? -eq 1 ]; then
-		echo -e $RED"The Near-RT RIC Simulator image has not been checked for this test run due to arg to the test script"$ERED
-		echo -e $RED"The Near-RT RIC Simulartor(s) will not be started"$ERED
-		exit
-	fi
-
-	RIC1=$RIC_SIM_PREFIX"_g1"
-	RIC2=$RIC_SIM_PREFIX"_g2"
-	RIC3=$RIC_SIM_PREFIX"_g3"
-	RIC4=$RIC_SIM_PREFIX"_g4"
-	RIC5=$RIC_SIM_PREFIX"_g5"
-
-	if [ $# != 3 ]; then
-		((RES_CONF_FAIL++))
-    	__print_err "need three args,  $RIC1|$RIC2|$RIC3|$RIC4|$RIC5 <count> <interface-id>" $@
-		exit 1
-	fi
-	echo " $2 simulators using basename: $1 on interface: $3"
-	#Set env var for simulator count and A1 interface vesion for the given group
-	if [ $1 == "$RIC1" ]; then
-		G1_COUNT=$2
-		G1_A1_VERSION=$3
-	elif [ $1 == "$RIC2" ]; then
-		G2_COUNT=$2
-		G2_A1_VERSION=$3
-	elif [ $1 == "$RIC3" ]; then
-		G3_COUNT=$2
-		G3_A1_VERSION=$3
-	elif [ $1 == "$RIC4" ]; then
-		G4_COUNT=$2
-		G4_A1_VERSION=$3
-	elif [ $1 == "$RIC5" ]; then
-		G5_COUNT=$2
-		G5_A1_VERSION=$3
-	else
-		((RES_CONF_FAIL++))
-    	__print_err "need three args, $RIC1|$RIC2|$RIC3|$RIC4|$RIC5 <count> <interface-id>" $@
-		exit 1
-	fi
-
-	# Create .env file to compose project, all ric container will get this prefix
-	echo "COMPOSE_PROJECT_NAME="$RIC_SIM_PREFIX > $SIM_GROUP/ric/.env
-
-	export G1_A1_VERSION
-	export G2_A1_VERSION
-	export G3_A1_VERSION
-	export G4_A1_VERSION
-	export G5_A1_VERSION
-
-	docker_args="--scale g1=$G1_COUNT --scale g2=$G2_COUNT --scale g3=$G3_COUNT --scale g4=$G4_COUNT --scale g5=$G5_COUNT"
-	app_data=""
-	cntr=1
-	while [ $cntr -le $2 ]; do
-		app=$1"_"$cntr
-		port=0
-		app_data="$app_data $app $port / "$RIC_SIM_HTTPX
-		let cntr=cntr+1
-	done
-	__start_container ric "$docker_args" $app_data
-
-}
-
-###########################
-### Control Panel functions
-###########################
-
-# Start the Control Panel container
-# args: -
-# (Function for test scripts)
-start_control_panel() {
-
-	echo -e $BOLD"Starting Control Panel"$EBOLD
-	__check_included_image 'CP'
-	if [ $? -eq 1 ]; then
-		echo -e $RED"The Control Panel image has not been checked for this test run due to arg to the test script"$ERED
-		echo -e $RED"The Control Panel will not be started"$ERED
-		exit
-	fi
-	__start_container control_panel NODOCKERARGS $CONTROL_PANEL_APP_NAME $CONTROL_PANEL_EXTERNAL_PORT "/" "http"
-
-}
-
-###########################
-### RAPP Catalogue
-###########################
-
-# Start the RAPP Catalogue container
-# args: -
-# (Function for test scripts)
-start_rapp_catalogue() {
-
-	echo -e $BOLD"Starting RAPP Catalogue"$EBOLD
-
-	__check_included_image 'RC'
-	if [ $? -eq 1 ]; then
-		echo -e $RED"The RAPP Catalogue image has not been checked for this test run due to arg to the test script"$ERED
-		echo -e $RED"The RAPP Catalogue will not be started"$ERED
-		exit
-	fi
-	__start_container rapp_catalogue NODOCKERARGS $RAPP_CAT_APP_NAME $RAPP_CAT_EXTERNAL_PORT "/services" "http"
-}
-
-use_rapp_catalogue_http() {
-	echo -e $BOLD"RAPP Catalogue protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD towards the RAPP Catalogue"
-	export RAPP_CAT_HTTPX="http"
-	export RAPP_CAT_PORT=$RAPP_CAT_INTERNAL_PORT
-	export RAPP_CAT_LOCAL_PORT=$RAPP_CAT_EXTERNAL_PORT
-	echo ""
-}
-
-use_rapp_catalogue_https() {
-	echo -e $BOLD"RAPP Catalogue protocol setting"$EBOLD
-	echo -e " Using $BOLD https $EBOLD towards the RAPP Catalogue"
-	export RAPP_CAT_HTTPX="https"
-	export RAPP_CAT_PORT=$RAPP_CAT_INTERNAL_PORT
-	export RAPP_CAT_LOCAL_PORT=$RAPP_CAT_EXTERNAL_PORT
-	echo ""
-}
-
-##################
-### SDNC functions
-##################
-
-# Start the SDNC A1 Controller
-# args: -
-# (Function for test scripts)
-start_sdnc() {
-
-	echo -e $BOLD"Starting SDNC A1 Controller"$EBOLD
-
-	__check_included_image 'SDNC'
-	if [ $? -eq 1 ]; then
-		echo -e $RED"The image for SDNC and the related DB has not been checked for this test run due to arg to the test script"$ERED
-		echo -e $RED"SDNC will not be started"$ERED
-		exit
-	fi
-
-	__start_container sdnc NODOCKERARGS $SDNC_APP_NAME $SDNC_EXTERNAL_PORT $SDNC_ALIVE_URL "http"
-
-}
-
-use_sdnc_http() {
-	echo -e $BOLD"SDNC protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD towards SDNC"
-	export SDNC_HTTPX="http"
-	export SDNC_PORT=$SDNC_INTERNAL_PORT
-	export SDNC_LOCAL_PORT=$SDNC_EXTERNAL_PORT
-	echo ""
-}
-
-use_sdnc_https() {
-	echo -e $BOLD"SDNC protocol setting"$EBOLD
-	echo -e " Using $BOLD https $EBOLD towards SDNC"
-	export SDNC_HTTPX="https"
-	export SDNC_PORT=$SDNC_INTERNAL_SECURE_PORT
-	export SDNC_LOCAL_PORT=$SDNC_EXTERNAL_SECURE_PORT
-	echo ""
-}
-
-#####################
-### MR stub functions
-#####################
-
-# Start the Message Router stub interface in the simulator group
-# args: -
-# (Function for test scripts)
-start_mr() {
-
-	echo -e $BOLD"Starting Message Router 'mrstub'"$EBOLD
-	__check_included_image 'MR'
-	if [ $? -eq 1 ]; then
-		echo -e $RED"The Message Router image has not been checked for this test run due to arg to the test script"$ERED
-		echo -e $RED"The Message Router will not be started"$ERED
-		exit
-	fi
-	export MR_CERT_MOUNT_DIR="./cert"
-	__start_container mr NODOCKERARGS $MR_APP_NAME $MR_EXTERNAL_PORT "/" "http"
-}
-
-use_mr_http() {
-	echo -e $BOLD"MR protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD towards MR"
-	export MR_HTTPX="http"
-	export MR_PORT=$MR_INTERNAL_PORT
-	export MR_LOCAL_PORT=$MR_EXTERNAL_PORT
-	echo ""
-}
-
-use_mr_https() {
-	echo -e $BOLD"MR protocol setting"$EBOLD
-	echo -e " Using $BOLD https $EBOLD towards MR"
-	export MR_HTTPX="https"
-	export MR_PORT=$MR_INTERNAL_SECURE_PORT
-	export MR_LOCAL_PORT=$MR_EXTERNAL_SECURE_PORT
-	echo ""
-}
-
-
-################
-### CR functions
-################
-
-# Start the Callback reciver in the simulator group
-# args: -
-# (Function for test scripts)
-start_cr() {
-
-	echo -e $BOLD"Starting Callback Receiver"$EBOLD
-	__check_included_image 'CR'
-	if [ $? -eq 1 ]; then
-		echo -e $RED"The Callback Receiver image has not been checked for this test run due to arg to the test script"$ERED
-		echo -e $RED"The Callback Receiver will not be started"$ERED
-		exit
-	fi
-	__start_container cr NODOCKERARGS $CR_APP_NAME $CR_EXTERNAL_PORT "/" "http"
-
-}
-
-use_cr_http() {
-	echo -e $BOLD"CR protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD towards CR"
-	export CR_HTTPX="http"
-	export CR_PORT=$CR_INTERNAL_PORT
-	export CR_LOCAL_PORT=$CR_EXTERNAL_PORT
-	export CR_PATH="$CR_HTTPX://$CR_APP_NAME:$CR_PORT$CR_APP_CALLBACK"
-	echo ""
-}
-
-use_cr_https() {
-	echo -e $BOLD"CR protocol setting"$EBOLD
-	echo -e " Using $BOLD https $EBOLD towards CR"
-	export CR_HTTPX="https"
-	export CR_PORT=$CR_INTERNAL_SECURE_PORT
-	export CR_LOCAL_PORT=$CR_EXTERNAL_SECURE_PORT
-	export CR_PATH="$CR_HTTPX://$CR_APP_NAME:$CR_PORT$CR_APP_CALLBACK"
-	echo ""
-}
-
-###########################
-### Producer stub functions
-###########################
-
-# Start the Producer stub in the simulator group
-# args: -
-# (Function for test scripts)
-start_prod_stub() {
-
-	echo -e $BOLD"Starting Producer stub"$EBOLD
-	__check_included_image 'PRODSTUB'
-	if [ $? -eq 1 ]; then
-		echo -e $RED"The Producer stub image has not been checked for this test run due to arg to the test script"$ERED
-		echo -e $RED"The Producer stub will not be started"$ERED
-		exit
-	fi
-	__start_container prodstub NODOCKERARGS $PROD_STUB_APP_NAME $PROD_STUB_EXTERNAL_PORT "/" "http"
-
-}
-
-use_prod_stub_http() {
-	echo -e $BOLD"Producer stub protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD towards Producer stub"
-	export PROD_STUB_HTTPX="http"
-	export PROD_STUB_PORT=$PROD_STUB_INTERNAL_PORT
-	export PROD_STUB_LOCAL_PORT=$PROD_STUB_EXTERNAL_PORT
-	export PROD_STUB_LOCALHOST=$PROD_STUB_HTTPX"://localhost:"$PROD_STUB_LOCAL_PORT
-	echo ""
-}
-
-use_prod_stub_https() {
-	echo -e $BOLD"Producer stub protocol setting"$EBOLD
-	echo -e " Using $BOLD https $EBOLD towards Producer stub"
-	export PROD_STUB_HTTPX="https"
-	export PROD_STUB_PORT=$PROD_STUB_INTERNAL_SECURE_PORT
-	export PROD_STUB_LOCAL_PORT=$PROD_STUB_EXTERNAL_SECURE_PORT
-	export PROD_STUB_LOCALHOST=$PROD_STUB_HTTPX"://localhost:"$PROD_STUB_LOCAL_PORT
-	echo ""
-}
-
-###########################
-### Policy Agents functions
-###########################
-
-# Use an agent on the local machine instead of container
-use_agent_stand_alone() {
-	AGENT_STAND_ALONE=1
-}
-
-# Start the policy agent
-# args: -
-# (Function for test scripts)
-start_policy_agent() {
-
-	echo -e $BOLD"Starting Policy Agent"$EBOLD
-
-	if [ $AGENT_STAND_ALONE -eq 0 ]; then
-		__check_included_image 'PA'
-		if [ $? -eq 1 ]; then
-			echo -e $RED"The Policy Agent image has not been checked for this test run due to arg to the test script"$ERED
-			echo -e $RED"The Policy Agent will not be started"$ERED
-			exit
-		fi
-		__start_container policy_agent NODOCKERARGS $POLICY_AGENT_APP_NAME $POLICY_AGENT_EXTERNAL_PORT "/status" "http"
-	else
-		echo -e $RED"The consul config produced by this test script (filename '<fullpath-to-autotest-dir>.output<file-name>"$ERED
-		echo -e $RED"where the file name is the file in the consul_config_app command in this script) must be pointed out by the agent "$ERED
-		echo -e $RED"application.yaml"$ERED
-		echo -e $RED"The application jar may need to be built before continuing"$ERED
-		echo -e $RED"The agent shall now be running on port $POLICY_AGENT_EXTERNAL_PORT for http"$ERED
-
-		read -p "<press any key to continue>"
-		__start_container policy_agent "STANDALONE" $POLICY_AGENT_APP_NAME $POLICY_AGENT_EXTERNAL_PORT "/status" "http"
-	fi
-
-}
-
-# All calls to the agent will be directed to the agent REST interface from now on
-# args: -
-# (Function for test scripts)
-use_agent_rest_http() {
-	echo -e $BOLD"Agent protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD and $BOLD REST $EBOLD towards the agent"
-	export ADAPTER=$RESTBASE
-	echo ""
-}
-
-# All calls to the agent will be directed to the agent REST interface from now on
-# args: -
-# (Function for test scripts)
-use_agent_rest_https() {
-	echo -e $BOLD"Agent protocol setting"$EBOLD
-	echo -e " Using $BOLD https $EBOLD and $BOLD REST $EBOLD towards the agent"
-	export ADAPTER=$RESTBASE_SECURE
 	echo ""
 	return 0
 }
 
-# All calls to the agent will be directed to the agent dmaap interface over http from now on
-# args: -
-# (Function for test scripts)
-use_agent_dmaap_http() {
-	echo -e $BOLD"Agent dmaap protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD and $BOLD DMAAP $EBOLD towards the agent"
-	export ADAPTER=$DMAAPBASE
-	echo ""
-	return 0
-}
-
-# All calls to the agent will be directed to the agent dmaap interface over https from now on
-# args: -
-# (Function for test scripts)
-use_agent_dmaap_https() {
-	echo -e $BOLD"Agent dmaap protocol setting"$EBOLD
-	echo -e " Using $BOLD https $EBOLD and $BOLD DMAAP $EBOLD towards the agent"
-	export ADAPTER=$DMAAPBASE_SECURE
-	echo ""
-	return 0
-}
-
-# Turn on debug level tracing in the agent
-# args: -
-# (Function for test scripts)
-set_agent_debug() {
-	echo -e $BOLD"Setting agent debug logging"$EBOLD
-	actuator="/actuator/loggers/org.oransc.policyagent"
-	if [[ $POLICY_AGENT_IMAGE = *"onap"* ]]; then
-		actuator="/actuator/loggers/org.onap.ccsdk.oran.a1policymanagementservice"
-	fi
-	curlString="$LOCALHOST$POLICY_AGENT_EXTERNAL_PORT$actuator -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"debug\"}"
-	result=$(__do_curl "$curlString")
-	if [ $? -ne 0 ]; then
-		__print_err "could not set debug mode" $@
-		((RES_CONF_FAIL++))
-		return 1
-	fi
-	echo ""
-	return 0
-}
-
-# Turn on trace level tracing in the agent
-# args: -
-# (Function for test scripts)
-set_agent_trace() {
-	echo -e $BOLD"Setting agent trace logging"$EBOLD
-	actuator="/actuator/loggers/org.oransc.policyagent"
-	if [[ $POLICY_AGENT_IMAGE = *"onap"* ]]; then
-		actuator="/actuator/loggers/org.onap.ccsdk.oran.a1policymanagementservice"
-	fi
-	curlString="$LOCALHOST$POLICY_AGENT_EXTERNAL_PORT$actuator -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"trace\"}"
-	result=$(__do_curl "$curlString")
-	if [ $? -ne 0 ]; then
-		__print_err "could not set trace mode" $@
-		((RES_CONF_FAIL++))
-		return 1
-	fi
-	echo ""
-	return 0
-}
-
-# Perform curl retries when making direct call to the agent for the specified http response codes
-# Speace separated list of http response codes
-# args: [<response-code>]*
-use_agent_retries() {
-	echo -e $BOLD"Do curl retries to the agent REST inteface for these response codes:$@"$EBOLD
-	AGENT_RETRY_CODES=$@
-	echo ""
-	return
-}
-
-###########################
-### ECS functions
-###########################
-
-# Start the ECS
-# args: -
-# (Function for test scripts)
-start_ecs() {
-
-	echo -e $BOLD"Starting ECS"$EBOLD
-
-	curdir=$PWD
-	cd $SIM_GROUP
-	cd ecs
-	cd $ECS_HOST_MNT_DIR
-	if [ -d database ]; then
-		if [ "$(ls -A $DIR)" ]; then
-			echo -e $BOLD" Cleaning files in mounted dir: $PWD/database"$EBOLD
-			rm -rf database/*  &> /dev/null
-			if [ $? -ne 0 ]; then
-				echo -e $RED" Cannot remove database files in: $PWD"$ERED
-				exit 1
-			fi
-		fi
-	else
-		echo " No files in mounted dir or dir does not exists"
-	fi
-	cd $curdir
-
-	__check_included_image 'ECS'
-	if [ $? -eq 1 ]; then
-		echo -e $RED"The ECS image has not been checked for this test run due to arg to the test script"$ERED
-		echo -e $RED"ECS will not be started"$ERED
-		exit
-	fi
-	export ECS_CERT_MOUNT_DIR="./cert"
-	__start_container ecs NODOCKERARGS $ECS_APP_NAME $ECS_EXTERNAL_PORT "/status" "http"
-}
-
-# Restart ECS
-# args: -
-# (Function for test scripts)
-restart_ecs() {
-	echo -e $BOLD"Re-starting ECS"$EBOLD
-	docker restart $ECS_APP_NAME &> ./tmp/.dockererr
-	if [ $? -ne 0 ]; then
-		__print_err "Could restart $ECS_APP_NAME" $@
-		cat ./tmp/.dockererr
-		((RES_CONF_FAIL++))
-		return 1
-	fi
-
-	__check_container_start $ECS_APP_NAME $ECS_EXTERNAL_PORT "/status" "http"
-	echo ""
-	return 0
-}
-
-# All calls to ECS will be directed to the ECS REST interface from now on
-# args: -
-# (Function for test scripts)
-use_ecs_rest_http() {
-	echo -e $BOLD"ECS protocol setting"$EBOLD
-	echo -e " Using $BOLD http $EBOLD and $BOLD REST $EBOLD towards ECS"
-	export ECS_ADAPTER=$ECS_RESTBASE
-	echo ""
-}
-
-# All calls to ECS will be directed to the ECS REST interface from now on
-# args: -
-# (Function for test scripts)
-use_ecs_rest_https() {
-	echo -e $BOLD"ECS protocol setting"$EBOLD
-	echo -e " Using $BOLD https $EBOLD and $BOLD REST $EBOLD towards ECS"
-	export ECS_ADAPTER=$ECS_RESTBASE_SECURE
-	echo ""
-	return 0
-}
-
-# All calls to ECS will be directed to the ECS dmaap interface over http from now on
-# args: -
-# (Function for test scripts)
-use_ecs_dmaap_http() {
-	echo -e $BOLD"ECS dmaap protocol setting"$EBOLD
-	echo -e $RED" - NOT SUPPORTED - "$ERED
-	echo -e " Using $BOLD http $EBOLD and $BOLD DMAAP $EBOLD towards ECS"
-	export ECS_ADAPTER=$ECS_DMAAPBASE
-	echo ""
-	return 0
-}
-
-# All calls to ECS will be directed to the ECS dmaap interface over https from now on
-# args: -
-# (Function for test scripts)
-use_ecs_dmaap_https() {
-	echo -e $BOLD"RICSIM protocol setting"$EBOLD
-	echo -e $RED" - NOT SUPPORTED - "$ERED
-	echo -e " Using $BOLD https $EBOLD and $BOLD REST $EBOLD towards ECS"
-	export ECS_ADAPTER=$ECS_DMAAPBASE_SECURE
-	echo ""
-	return 0
-}
-
-# Turn on debug level tracing in ECS
-# args: -
-# (Function for test scripts)
-set_ecs_debug() {
-	echo -e $BOLD"Setting ecs debug logging"$EBOLD
-	curlString="$LOCALHOST$ECS_EXTERNAL_PORT/actuator/loggers/org.oransc.enrichment -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"debug\"}"
-	result=$(__do_curl "$curlString")
-	if [ $? -ne 0 ]; then
-		__print_err "Could not set debug mode" $@
-		((RES_CONF_FAIL++))
-		return 1
-	fi
-	echo ""
-	return 0
-}
-
-# Turn on trace level tracing in ECS
-# args: -
-# (Function for test scripts)
-set_ecs_trace() {
-	echo -e $BOLD"Setting ecs trace logging"$EBOLD
-	curlString="$LOCALHOST$ECS_EXTERNAL_PORT/actuator/loggers/org.oransc.enrichment -X POST  -H Content-Type:application/json -d {\"configuredLevel\":\"trace\"}"
-	result=$(__do_curl "$curlString")
-	if [ $? -ne 0 ]; then
-		__print_err "Could not set trace mode" $@
-		((RES_CONF_FAIL++))
-		return 1
-	fi
-	echo ""
-	return 0
-}
-
-# Perform curl retries when making direct call to ECS for the specified http response codes
-# Speace separated list of http response codes
-# args: [<response-code>]*
-use_agent_retries() {
-	echo -e $BOLD"Do curl retries to the ECS REST inteface for these response codes:$@"$EBOLD
-	ECS_AGENT_RETRY_CODES=$@
-	echo ""
-	return
-}
 
 #################
 ### Log functions
@@ -2444,6 +2398,7 @@ check_sdnc_logs() {
 }
 
 __check_container_logs() {
+
 	dispname=$1
 	appname=$2
 	logpath=$3
@@ -2451,6 +2406,11 @@ __check_container_logs() {
 	error=$5
 
 	echo -e $BOLD"Checking $dispname container $appname log ($logpath) for WARNINGs and ERRORs"$EBOLD
+
+	if [ $RUNMODE == "KUBE" ]; then
+		echo -e $YELLOW" Internal log for $dispname not checked in kube"$EYELLOW
+		return
+	fi
 
 	#tmp=$(docker ps | grep $appname)
 	tmp=$(docker ps -q --filter name=$appname) #get the container id
@@ -2495,63 +2455,83 @@ store_logs() {
 
 	docker stats --no-stream > $TESTLOGS/$ATC/$1_docker_stats.log 2>&1
 
-	__check_included_image 'CONSUL'
-	if [ $? -eq 0 ]; then
-		docker logs $CONSUL_APP_NAME > $TESTLOGS/$ATC/$1_consul.log 2>&1
-	fi
-
-	__check_included_image 'CBS'
-	if [ $? -eq 0 ]; then
-		docker logs $CBS_APP_NAME > $TESTLOGS/$ATC/$1_cbs.log 2>&1
-		body="$(__do_curl $LOCALHOST$CBS_EXTERNAL_PORT/service_component_all/$POLICY_AGENT_APP_NAME)"
-		echo "$body" > $TESTLOGS/$ATC/$1_consul_config.json 2>&1
-	fi
-
-	__check_included_image 'PA'
-	if [ $? -eq 0 ]; then
-		docker logs $POLICY_AGENT_APP_NAME > $TESTLOGS/$ATC/$1_policy-agent.log 2>&1
-	fi
-
-	__check_included_image 'ECS'
-	if [ $? -eq 0 ]; then
-		docker logs $ECS_APP_NAME > $TESTLOGS/$ATC/$1_ecs.log 2>&1
-	fi
-
-	__check_included_image 'CP'
-	if [ $? -eq 0 ]; then
-		docker logs $CONTROL_PANEL_APP_NAME > $TESTLOGS/$ATC/$1_control-panel.log 2>&1
-	fi
-
-	__check_included_image 'MR'
-	if [ $? -eq 0 ]; then
-		docker logs $MR_APP_NAME > $TESTLOGS/$ATC/$1_mr.log 2>&1
-	fi
-
-	__check_included_image 'CR'
-	if [ $? -eq 0 ]; then
-		docker logs $CR_APP_NAME > $TESTLOGS/$ATC/$1_cr.log 2>&1
-	fi
+	docker ps -a  > $TESTLOGS/$ATC/$1_docker_ps.log 2>&1
 
 	cp .httplog_${ATC}.txt $TESTLOGS/$ATC/$1_httplog_${ATC}.txt 2>&1
 
-	__check_included_image 'SDNC'
-	if [ $? -eq 0 ]; then
-		docker exec -t $SDNC_APP_NAME cat $SDNC_KARAF_LOG> $TESTLOGS/$ATC/$1_SDNC_karaf.log 2>&1
-	fi
+	if [ $RUNMODE == "DOCKER" ]; then
+		__check_included_image 'CONSUL'
+		if [ $? -eq 0 ]; then
+			docker logs $CONSUL_APP_NAME > $TESTLOGS/$ATC/$1_consul.log 2>&1
+		fi
 
-	__check_included_image 'RICSIM'
-	if [ $? -eq 0 ]; then
-		rics=$(docker ps -f "name=$RIC_SIM_PREFIX" --format "{{.Names}}")
-		for ric in $rics; do
-			docker logs $ric > $TESTLOGS/$ATC/$1_$ric.log 2>&1
+		__check_included_image 'CBS'
+		if [ $? -eq 0 ]; then
+			docker logs $CBS_APP_NAME > $TESTLOGS/$ATC/$1_cbs.log 2>&1
+			body="$(__do_curl $LOCALHOST_HTTP:$CBS_EXTERNAL_PORT/service_component_all/$POLICY_AGENT_APP_NAME)"
+			echo "$body" > $TESTLOGS/$ATC/$1_consul_config.json 2>&1
+		fi
+
+		__check_included_image 'PA'
+		if [ $? -eq 0 ]; then
+			docker logs $POLICY_AGENT_APP_NAME > $TESTLOGS/$ATC/$1_policy-agent.log 2>&1
+		fi
+
+		__check_included_image 'ECS'
+		if [ $? -eq 0 ]; then
+			docker logs $ECS_APP_NAME > $TESTLOGS/$ATC/$1_ecs.log 2>&1
+		fi
+
+		__check_included_image 'CP'
+		if [ $? -eq 0 ]; then
+			docker logs $CONTROL_PANEL_APP_NAME > $TESTLOGS/$ATC/$1_control-panel.log 2>&1
+		fi
+
+		__check_included_image 'MR'
+		if [ $? -eq 0 ]; then
+			docker logs $MR_STUB_APP_NAME > $TESTLOGS/$ATC/$1_mr_stub.log 2>&1
+		fi
+
+		__check_included_image 'DMAAPSMR'
+		if [ $? -eq 0 ]; then
+			docker logs $MR_DMAAP_APP_NAME > $TESTLOGS/$ATC/$1_mr.log 2>&1
+			docker logs $MR_KAFKA_APP_NAME > $TESTLOGS/$ATC/$1_mr_kafka.log 2>&1
+			docker logs $MR_ZOOKEEPER_APP_NAME > $TESTLOGS/$ATC/$1_mr_zookeeper.log 2>&1
+
+		fi
+
+		__check_included_image 'CR'
+		if [ $? -eq 0 ]; then
+			docker logs $CR_APP_NAME > $TESTLOGS/$ATC/$1_cr.log 2>&1
+		fi
+
+		__check_included_image 'SDNC'
+		if [ $? -eq 0 ]; then
+			docker exec -t $SDNC_APP_NAME cat $SDNC_KARAF_LOG> $TESTLOGS/$ATC/$1_SDNC_karaf.log 2>&1
+		fi
+
+		__check_included_image 'RICSIM'
+		if [ $? -eq 0 ]; then
+			rics=$(docker ps -f "name=$RIC_SIM_PREFIX" --format "{{.Names}}")
+			for ric in $rics; do
+				docker logs $ric > $TESTLOGS/$ATC/$1_$ric.log 2>&1
+			done
+		fi
+
+		__check_included_image 'PRODSTUB'
+		if [ $? -eq 0 ]; then
+			docker logs $PROD_STUB_APP_NAME > $TESTLOGS/$ATC/$1_prodstub.log 2>&1
+		fi
+	fi
+	if [ $RUNMODE == "KUBE" ]; then
+		namespaces=$(kubectl  get namespaces -o jsonpath='{.items[?(@.metadata.name)].metadata.name}')
+		for nsid in $namespaces; do
+			pods=$(kubectl get pods -n $nsid -o jsonpath='{.items[?(@.metadata.labels.autotest)].metadata.name}')
+			for podid in $pods; do
+				kubectl logs -n $nsid $podid > $TESTLOGS/$ATC/$1_${podid}.log
+			done
 		done
 	fi
-
-	__check_included_image 'PRODSTUB'
-	if [ $? -eq 0 ]; then
-		docker logs $PROD_STUB_APP_NAME > $TESTLOGS/$ATC/$1_prodstub.log 2>&1
-	fi
-
 	echo ""
 }
 
@@ -2713,56 +2693,4 @@ __var_test() {
 		echo "Got:" $@
 		exit 1
 	fi
-}
-
-
-### Generic test cases for varaible checking
-
-# Tests if a variable value in the MR stub is equal to a target value and and optional timeout.
-# Arg: <variable-name> <target-value> - This test set pass or fail depending on if the variable is
-# equal to the target or not.
-# Arg: <variable-name> <target-value> <timeout-in-sec>  - This test waits up to the timeout seconds
-# before setting pass or fail depending on if the variable value becomes equal to the target
-# value or not.
-# (Function for test scripts)
-mr_equal() {
-	if [ $# -eq 2 ] || [ $# -eq 3 ]; then
-		__var_test "MR" "$LOCALHOST$MR_EXTERNAL_PORT/counter/" $1 "=" $2 $3
-	else
-		((RES_CONF_FAIL++))
-		__print_err "Wrong args to mr_equal, needs two or three args: <sim-param> <target-value> [ timeout ]" $@
-	fi
-}
-
-# Tests if a variable value in the MR stub is greater than a target value and and optional timeout.
-# Arg: <variable-name> <target-value> - This test set pass or fail depending on if the variable is
-# greater than the target or not.
-# Arg: <variable-name> <target-value> <timeout-in-sec>  - This test waits up to the timeout seconds
-# before setting pass or fail depending on if the variable value becomes greater than the target
-# value or not.
-# (Function for test scripts)
-mr_greater() {
-	if [ $# -eq 2 ] || [ $# -eq 3 ]; then
-		__var_test "MR" "$LOCALHOST$MR_EXTERNAL_PORT/counter/" $1 ">" $2 $3
-	else
-		((RES_CONF_FAIL++))
-		__print_err "Wrong args to mr_greater, needs two or three args: <sim-param> <target-value> [ timeout ]" $@
-	fi
-}
-
-# Read a variable value from MR sim and send to stdout. Arg: <variable-name>
-mr_read() {
-	echo "$(__do_curl $LOCALHOST$MR_EXTERNAL_PORT/counter/$1)"
-}
-
-# Print a variable value from the MR stub.
-# arg: <variable-name>
-# (Function for test scripts)
-mr_print() {
-	if [ $# != 1 ]; then
-		((RES_CONF_FAIL++))
-    	__print_err "need one arg, <mr-param>" $@
-		exit 1
-	fi
-	echo -e $BOLD"INFO(${BASH_LINENO[0]}): mrstub, $1 = $(__do_curl $LOCALHOST$MR_EXTERNAL_PORT/counter/$1)"$EBOLD
 }
