@@ -19,16 +19,26 @@
 
 TC_ONELINE_DESCR="Repeatedly create and delete policies in each RICs for 24h (or configured number of days). Via agent REST/DMAAP/DMAAP_BATCH and SDNC using http or https"
 
-#App names to include in the test, space separated list
-INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
+#App names to include in the test when running docker, space separated list
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
-#SUPPORTED TEST ENV FILE
+#App names to include in the test when running kubernetes, space separated list
+KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC"
+#Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
+KUBE_PRESTARTED_IMAGES=""
+
+#Supported test environment profiles
 SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU  ORAN-CHERRY ORAN-DAWN"
+#Supported run modes
+SUPPORTED_RUNMODES="DOCKER KUBE"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
 . ../common/cr_api_functions.sh
+. ../common/mr_api_functions.sh
+. ../common/control_panel_api_functions.sh
+. ../common/controller_api_functions.sh
 
 #### TEST BEGIN ####
 
@@ -48,7 +58,7 @@ NUM_INSTANCES=5
 
 DAYS=3
 
-clean_containers
+clean_environment
 
 # use HTTP or HTTPS for all apis
 HTTPX=HTTPS
@@ -77,16 +87,23 @@ start_mr
 
 start_cr
 
-start_consul_cbs
+start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/application.properties
+
+start_policy_agent NORPOXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/application.yaml
+
+if [ $RUNMODE == "DOCKER" ]; then
+   start_consul_cbs
+fi
 
 prepare_consul_config      SDNC  ".consul_config.json"
-consul_config_app                  ".consul_config.json"
+
+if [ $RUNMODE == "KUBE" ]; then
+   agent_load_config                       ".consul_config.json"
+else
+   consul_config_app                      ".consul_config.json"
+fi
 
 start_sdnc
-
-start_control_panel
-
-start_policy_agent
 
 
 api_get_status 200
@@ -147,9 +164,9 @@ fi
 
 echo "Wait for the agent to refresh types from the simulator"
 if [ "$PMS_VERSION" == "V2" ]; then
-   api_equal json:policy-types 3 120
+   api_equal json:policy-types 3 300
 else
-   api_equal json:policy_types 2 120
+   api_equal json:policy_types 2 300
 fi
 
 echo "Check the number of types in the agent for each ric is 1"
@@ -164,7 +181,7 @@ do
 done
 
 echo "Register a service"
-api_put_service 201 "serv1" 0 "$CR_PATH/1"
+api_put_service 201 "serv1" 0 "$CR_SERVICE_PATH/1"
 
 TEST_DURATION=$((24*3600*$DAYS))
 TEST_START=$SECONDS
@@ -174,7 +191,7 @@ AGENT_INTERFACES="REST REST_PARALLEL DMAAP DMAAP-BATCH"
 MR_MESSAGES=0
 
 if [ "$PMS_VERSION" == "V2" ]; then
-      notificationurl=$CR_PATH"/test"
+      notificationurl=$CR_SERVICE_PATH"/test"
 else
       notificationurl=""
 fi
@@ -380,11 +397,11 @@ while [ $(($SECONDS-$TEST_START)) -lt $TEST_DURATION ]; do
 
       for ((i=1; i<=$NUM_RICS; i++))
       do
-         sim_contains_str ricsim_g1_$i remote_hosts "a1-controller"
-         sim_contains_str ricsim_g2_$i remote_hosts "a1-controller"
+         sim_contains_str ricsim_g1_$i remote_hosts $SDNC_APP_NAME
+         sim_contains_str ricsim_g2_$i remote_hosts $SDNC_APP_NAME
 
          if [ "$PMS_VERSION" == "V2" ]; then
-            sim_contains_str ricsim_g3_$i remote_hosts "a1-controller"
+            sim_contains_str ricsim_g3_$i remote_hosts $SDNC_APP_NAME
          fi
       done
 
@@ -401,4 +418,4 @@ store_logs          END
 
 print_result
 
-auto_clean_containers
+auto_clean_environment

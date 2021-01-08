@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $SDNC_APP_NAME
+  namespace: $KUBE_NONRTRIC_NAMESPACE
+  labels:
+    run: $SDNC_APP_NAME
+    autotest: SDNC
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: $SDNC_APP_NAME
+  template:
+    metadata:
+      labels:
+        run: $SDNC_APP_NAME
+        autotest: SDNC
+    spec:
+      containers:
+      - name: $SDNC_APP_NAME
+        image: $SDNC_A1_CONTROLLER_IMAGE
+        imagePullPolicy: Never
+        ports:
+        - name: http
+          containerPort: $SDNC_INTERNAL_PORT
+        - name: https
+          containerPort: $SDNC_INTERNAL_SECURE_PORT
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: openECOMP1.0
+        - name: SDNC_CONFIG_DIR
+          value: /opt/onap/sdnc/data/properties
+        - name: SDNC_DB_INIT
+          value: 'true'
+        - name: A1_TRUSTSTORE_PASSWORD
+          value: $SDNC_A1_TRUSTSTORE_PASSWORD
+        command:
+        - /opt/onap/sdnc/bin/startODL.sh
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $SDNC_DB_APP_NAME
+  namespace: $KUBE_NONRTRIC_NAMESPACE
+  labels:
+    run: $SDNC_DB_APP_NAME
+    autotest: SDNC
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: $SDNC_DB_APP_NAME
+  template:
+    metadata:
+      labels:
+        run: $SDNC_DB_APP_NAME
+        autotest: SDNC
+    spec:
+      containers:
+        - name: $SDNC_DB_APP_NAME
+          image: $SDNC_DB_IMAGE
+          imagePullPolicy: Never
+          ports:
+          - name: http
+            containerPort: 3306
+          env:
+          - name: MYSQL_ROOT_PASSWORD
+            value: openECOMP1.0
+          - name: MYSQL_ROOT_HOST
+            value: '%'
+

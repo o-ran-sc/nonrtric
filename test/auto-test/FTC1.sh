@@ -20,19 +20,30 @@
 
 TC_ONELINE_DESCR="Sanity test, create service and then create,update and delete a policy using http/https and Agent REST/DMAAP with/without SDNC controller"
 
-#App names to include in the test, space separated list
-INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
+#App names to include in the test when running docker, space separated list
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR DMAAPMR PA RICSIM SDNC"
 
-#SUPPORTED TEST ENV FILE
+#App names to include in the test when running kubernetes, space separated list
+KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC"
+#Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
+KUBE_PRESTARTED_IMAGES=""
+
+#Supported test environment profiles
 SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU  ORAN-CHERRY ORAN-DAWN"
+#Supported run modes
+SUPPORTED_RUNMODES="DOCKER KUBE"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
-. ../common/ricsimulator_api_functions.sh
+. ../common/consul_cbs_functions.sh
+. ../common/control_panel_api_functions.sh
+. ../common/controller_api_functions.sh
 . ../common/cr_api_functions.sh
+. ../common/mr_api_functions.sh
+. ../common/ricsimulator_api_functions.sh
+
 
 #### TEST BEGIN ####
-
 
 generate_uuid
 
@@ -49,8 +60,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "#####################################################################"
         echo "#####################################################################"
 
-        # Clean container and start all needed containers #
-        clean_containers
+        clean_environment
 
         if [ $__httpx == "HTTPS" ]; then
             use_agent_rest_https
@@ -58,13 +68,13 @@ for __httpx in $TESTED_PROTOCOLS ; do
             use_agent_rest_http
         fi
 
-        start_policy_agent
+        start_policy_agent NORPOXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/application.yaml
 
         set_agent_trace
 
         # Create service to be able to receive events when rics becomes available
         # Must use rest towards the agent since dmaap is not configured yet
-        api_put_service 201 "ric-registration" 0 "$CR_PATH/ric-registration"
+        api_put_service 201 "ric-registration" 0 "$CR_SERVICE_PATH/ric-registration"
 
         if [ $__httpx == "HTTPS" ]; then
             use_cr_https
@@ -102,9 +112,11 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         start_cr
 
-        start_control_panel
+        start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/application.properties
 
-        start_consul_cbs
+        if [ $RUNMODE == "DOCKER" ]; then
+            start_consul_cbs
+        fi
 
         if [[ $interface = *"SDNC"* ]]; then
             start_sdnc
@@ -113,7 +125,11 @@ for __httpx in $TESTED_PROTOCOLS ; do
             prepare_consul_config      NOSDNC  ".consul_config.json"
         fi
 
-        consul_config_app                      ".consul_config.json"
+        if [ $RUNMODE == "KUBE" ]; then
+            agent_load_config                       ".consul_config.json"
+        else
+            consul_config_app                      ".consul_config.json"
+        fi
 
         mr_equal requests_submitted 0
 
@@ -123,7 +139,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
             sim_put_policy_type 201 ricsim_g3_1 STD_QOS_0_2_0 testdata/STD2/sim_qos.json
 
-            api_equal json:rics 3 60
+            api_equal json:rics 3 300
 
             api_equal json:policy-types 3 120
 
@@ -136,7 +152,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
             cr_api_check_all_sync_events 200 ric-registration ricsim_g1_1 ricsim_g2_1 ricsim_g3_1
 
         else
-            api_equal json:rics 2 60
+            api_equal json:rics 2 300
 
             api_equal json:policy_schemas 2 120
 
@@ -157,7 +173,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "##### Service registry and supervision #####"
         echo "############################################"
 
-        api_put_service 201 "serv1" 1000 "$CR_PATH/1"
+        api_put_service 201 "serv1" 1000 "$CR_SERVICE_PATH/1"
 
         api_get_service_ids 200 "serv1" "ric-registration"
 
@@ -178,7 +194,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         echo "############################################"
 
         if [ "$PMS_VERSION" == "V2" ]; then
-            notificationurl=$CR_PATH"/test"
+            notificationurl=$CR_SERVICE_PATH"/test"
         else
             notificationurl=""
         fi
@@ -237,16 +253,16 @@ for __httpx in $TESTED_PROTOCOLS ; do
         fi
 
         if [[ $interface = *"SDNC"* ]]; then
-            sim_contains_str ricsim_g1_1 remote_hosts "a1-controller"
-            sim_contains_str ricsim_g2_1 remote_hosts "a1-controller"
+            sim_contains_str ricsim_g1_1 remote_hosts $SDNC_APP_NAME
+            sim_contains_str ricsim_g2_1 remote_hosts $SDNC_APP_NAME
             if [ "$PMS_VERSION" == "V2" ]; then
-                sim_contains_str ricsim_g3_1 remote_hosts "a1-controller"
+                sim_contains_str ricsim_g3_1 remote_hosts $SDNC_APP_NAME
             fi
         else
-            sim_contains_str ricsim_g1_1 remote_hosts "policy-agent"
-            sim_contains_str ricsim_g2_1 remote_hosts "policy-agent"
+            sim_contains_str ricsim_g1_1 remote_hosts $POLICY_AGENT_APP_NAME
+            sim_contains_str ricsim_g2_1 remote_hosts $POLICY_AGENT_APP_NAME
             if [ "$PMS_VERSION" == "V2" ]; then
-                sim_contains_str ricsim_g3_1 remote_hosts "policy-agent"
+                sim_contains_str ricsim_g3_1 remote_hosts $POLICY_AGENT_APP_NAME
             fi
         fi
 
@@ -268,4 +284,4 @@ done
 
 print_result
 
-auto_clean_containers
+auto_clean_environment

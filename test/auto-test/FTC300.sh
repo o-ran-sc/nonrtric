@@ -19,14 +19,26 @@
 
 TC_ONELINE_DESCR="Resync 10000 policies using OSC and STD interface"
 
-#App names to include in the test, space separated list
-INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
+#App names to include in the test when running docker, space separated list
+DOCKER_INCLUDED_IMAGES="CBS CONSUL CP CR MR PA RICSIM SDNC"
 
-#SUPPORTED TEST ENV FILE
+#App names to include in the test when running kubernetes, space separated list
+KUBE_INCLUDED_IMAGES="CP CR MR PA RICSIM SDNC"
+#Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
+KUBE_PRESTARTED_IMAGES=""
+
+#Supported test environment profiles
 SUPPORTED_PROFILES="ONAP-GUILIN ONAP-HONOLULU  ORAN-CHERRY ORAN-DAWN"
+#Supported run modes
+SUPPORTED_RUNMODES="DOCKER KUBE"
 
 . ../common/testcase_common.sh  $@
 . ../common/agent_api_functions.sh
+. ../common/consul_cbs_functions.sh
+. ../common/control_panel_api_functions.sh
+. ../common/controller_api_functions.sh
+. ../common/cr_api_functions.sh
+. ../common/mr_api_functions.sh
 . ../common/ricsimulator_api_functions.sh
 
 #### TEST BEGIN ####
@@ -37,6 +49,7 @@ generate_uuid
 TESTED_VARIANTS="REST   DMAAP   REST+SDNC   DMAAP+SDNC DMAAP_BATCH DMAAP_BATCH+SDNC"
 #Test agent and simulator protocol versions (others are http only)
 TESTED_PROTOCOLS="HTTP HTTPS"
+
 for __httpx in $TESTED_PROTOCOLS ; do
     for interface in $TESTED_VARIANTS ; do
 
@@ -73,7 +86,7 @@ for __httpx in $TESTED_PROTOCOLS ; do
         fi
 
         # Clean container and start all needed containers #
-        clean_containers
+        clean_environment
 
         start_ric_simulators ricsim_g1 4 OSC_2.1.0
 
@@ -87,7 +100,15 @@ for __httpx in $TESTED_PROTOCOLS ; do
 
         start_cr
 
-        start_consul_cbs
+        if [ $RUNMODE == "DOCKER" ]; then
+            start_consul_cbs
+        fi
+
+        start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/application.properties
+
+        start_policy_agent NORPOXY $SIM_GROUP/$POLICY_AGENT_COMPOSE_DIR/application.yaml
+
+        set_agent_debug
 
         if [[ $interface = *"SDNC"* ]]; then
             start_sdnc
@@ -96,13 +117,11 @@ for __httpx in $TESTED_PROTOCOLS ; do
             prepare_consul_config      NOSDNC  ".consul_config.json"
         fi
 
-        consul_config_app                  ".consul_config.json"
-
-        start_control_panel
-
-        start_policy_agent
-
-        set_agent_debug
+        if [ $RUNMODE == "KUBE" ]; then
+            agent_load_config                       ".consul_config.json"
+        else
+            consul_config_app                      ".consul_config.json"
+        fi
 
         api_get_status 200
 
@@ -122,13 +141,13 @@ for __httpx in $TESTED_PROTOCOLS ; do
             api_equal json:policy_types 2 120  #Wait for the agent to refresh types from the simulator
         fi
 
-        api_put_service 201 "serv1" 3600 "$CR_PATH/1"
+        api_put_service 201 "serv1" 3600 "$CR_SERVICE_PATH/1"
 
         START_ID=2000
         NUM_POLICIES=10000  # Must be at least 100
 
         if [ "$PMS_VERSION" == "V2" ]; then
-            notificationurl=$CR_PATH"/test"
+            notificationurl=$CR_SERVICE_PATH"/test"
         else
             notificationurl=""
         fi
@@ -201,4 +220,4 @@ done
 
 print_result
 
-auto_clean_containers
+auto_clean_environment

@@ -21,13 +21,16 @@ networks:
     external:
       name: ${DOCKER_SIM_NWNAME}
 services:
-  message-router:
+  mr-stub:
     networks:
       - default
-    container_name: ${MR_APP_NAME}
+    container_name: ${MR_STUB_APP_NAME}
     image: ${MRSTUB_IMAGE}
     ports:
-      - ${MR_EXTERNAL_PORT}:${MR_INTERNAL_PORT}
-      - ${MR_EXTERNAL_SECURE_PORT}:${MR_INTERNAL_SECURE_PORT}
+      - ${MR_STUB_LOCALHOST_PORT}:${MR_INTERNAL_PORT}
+      - ${MR_STUB_LOCALHOST_SECURE_PORT}:${MR_INTERNAL_SECURE_PORT}
     volumes:
-      - ${MR_CERT_MOUNT_DIR}:/usr/src/app/cert:ro
+      - ${MR_STUB_CERT_MOUNT_DIR}:/usr/src/app/cert:ro
+    environment:
+      - TOPIC_READ=${TOPIC_READ}
+      - TOPIC_WRITE=${TOPIC_WRITE}

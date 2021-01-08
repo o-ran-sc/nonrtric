@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: $POLICY_AGENT_APP_NAME
+  namespace: $KUBE_NONRTRIC_NAMESPACE
+  labels:
+    run: $POLICY_AGENT_APP_NAME
+    autotest: PA
+spec:
+  type: ClusterIP
+  ports:
+  - port: $POLICY_AGENT_EXTERNAL_PORT
+    targetPort: $POLICY_AGENT_INTERNAL_PORT
+    protocol: TCP
+    name: http
+  - port: $POLICY_AGENT_EXTERNAL_SECURE_PORT
+    targetPort: $POLICY_AGENT_INTERNAL_SECURE_PORT
+    protocol: TCP
+    name: https
+  selector:
+    run: $POLICY_AGENT_APP_NAME

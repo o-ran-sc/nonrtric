@@ -20,22 +20,32 @@
 
 TC_ONELINE_DESCR="ECS full intefaces walkthrough"
 
-#App names to include in the test, space separated list
-INCLUDED_IMAGES="ECS PRODSTUB CR RICSIM CP"
+#App names to include in the test when running docker, space separated list
+DOCKER_INCLUDED_IMAGES="ECS PRODSTUB CR RICSIM CP"
 
-#SUPPORTED TEST ENV FILE
+#App names to include in the test when running kubernetes, space separated list
+KUBE_INCLUDED_IMAGES=" PRODSTUB CR ECS RICSIM CP "
+#Prestarted app (not started by script) to include in the test when running kubernetes, space separated list
+KUBE_PRESTARTED_IMAGES=" "
+
+#Supported test environment profiles
 SUPPORTED_PROFILES="ONAP-HONOLULU  ORAN-CHERRY ORAN-DAWN"
+#Supported run modes
+SUPPORTED_RUNMODES="DOCKER KUBE"
 
 . ../common/testcase_common.sh  $@
 . ../common/ecs_api_functions.sh
 . ../common/prodstub_api_functions.sh
 . ../common/cr_api_functions.sh
+. ../common/control_panel_api_functions.sh
+. ../common/controller_api_functions.sh
+. ../common/ricsimulator_api_functions.sh
 
 #### TEST BEGIN ####
 
 FLAT_A1_EI="1"
 
-clean_containers
+clean_environment
 
 use_ecs_rest_https
 
@@ -45,13 +55,17 @@ use_simulator_https
 
 use_cr_https
 
-start_ecs
+start_ecs $SIM_GROUP/$ECS_COMPOSE_DIR/application.yaml
+
+if [ $RUNMODE == "KUBE" ]; then
+    ecs_api_admin_reset
+fi
 
 start_prod_stub
 
 set_ecs_trace
 
-start_control_panel
+start_control_panel $SIM_GROUP/$CONTROL_PANEL_COMPOSE_DIR/application.properties
 
 if [ "$PMS_VERSION" == "V2" ]; then
     start_ric_simulators ricsim_g3 4  STD_2.0.0
@@ -59,19 +73,19 @@ fi
 
 start_cr
 
-CB_JOB="$PROD_STUB_HTTPX://$PROD_STUB_APP_NAME:$PROD_STUB_PORT/callbacks/job"
-CB_SV="$PROD_STUB_HTTPX://$PROD_STUB_APP_NAME:$PROD_STUB_PORT/callbacks/supervision"
+CB_JOB="$PROD_STUB_SERVICE_PATH$PROD_STUB_JOB_CALLBACK"
+CB_SV="$PROD_STUB_SERVICE_PATH$PROD_STUB_SUPERVISION_CALLBACK"
 TARGET1="$RIC_SIM_HTTPX://ricsim_g3_1:$RIC_SIM_PORT/datadelivery"
 TARGET2="$RIC_SIM_HTTPX://ricsim_g3_2:$RIC_SIM_PORT/datadelivery"
 TARGET3="$RIC_SIM_HTTPX://ricsim_g3_3:$RIC_SIM_PORT/datadelivery"
 TARGET8="$RIC_SIM_HTTPX://ricsim_g3_4:$RIC_SIM_PORT/datadelivery"
 TARGET10="$RIC_SIM_HTTPX://ricsim_g3_4:$RIC_SIM_PORT/datadelivery"
 
-STATUS1="$CR_HTTPX://$CR_APP_NAME:$CR_PORT/callbacks/job1-status"
-STATUS2="$CR_HTTPX://$CR_APP_NAME:$CR_PORT/callbacks/job2-status"
-STATUS3="$CR_HTTPX://$CR_APP_NAME:$CR_PORT/callbacks/job3-status"
-STATUS8="$CR_HTTPX://$CR_APP_NAME:$CR_PORT/callbacks/job8-status"
-STATUS10="$CR_HTTPX://$CR_APP_NAME:$CR_PORT/callbacks/job10-status"
+STATUS1="$CR_SERVICE_PATH/job1-status"
+STATUS2="$CR_SERVICE_PATH/job2-status"
+STATUS3="$CR_SERVICE_PATH/job3-status"
+STATUS8="$CR_SERVICE_PATH/job8-status"
+STATUS10="$CR_SERVICE_PATH/job10-status"
 
 ### Setup prodstub sim to accept calls for producers, types and jobs
 ## prod-a type1
@@ -771,4 +785,4 @@ store_logs END
 
 print_result
 
-auto_clean_containers
+auto_clean_environment

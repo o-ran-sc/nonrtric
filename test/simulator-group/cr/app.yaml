@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $CR_APP_NAME
+  namespace: $KUBE_SIM_NAMESPACE
+  labels:
+    run: $CR_APP_NAME
+    autotest: CR
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: $CR_APP_NAME
+  template:
+    metadata:
+      labels:
+        run: $CR_APP_NAME
+        autotest: CR
+    spec:
+      containers:
+      - name: $CR_APP_NAME
+        image: $CR_IMAGE
+        imagePullPolicy: Never
+        ports:
+        - name: http
+          containerPort: $CR_INTERNAL_PORT
+        - name: https
+          containerPort: $CR_INTERNAL_SECURE_PORT

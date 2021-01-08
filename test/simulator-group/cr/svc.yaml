@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: $CR_APP_NAME
+  namespace: $KUBE_SIM_NAMESPACE
+  labels:
+    run: $CR_APP_NAME
+    autotest: CR
+spec:
+  type: ClusterIP
+  ports:
+  - port: $CR_EXTERNAL_PORT
+    targetPort: $CR_INTERNAL_PORT
+    protocol: TCP
+    name: http
+  - port: $CR_EXTERNAL_SECURE_PORT
+    targetPort: $CR_INTERNAL_SECURE_PORT
+    protocol: TCP
+    name: https
+  selector:
+    run: $CR_APP_NAME
