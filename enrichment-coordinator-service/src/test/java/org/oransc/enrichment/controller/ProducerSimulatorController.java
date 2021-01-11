@@ -48,7 +48,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController("ProducerSimulatorController")
-@Api(tags = {"Producer Callbacks"})
+@Api(tags = {"Data Producer Job Control (example producer)"})
 public class ProducerSimulatorController {
 
     private final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -134,7 +134,7 @@ public class ProducerSimulatorController {
     }
 
     @DeleteMapping(path = JOB_ERROR_URL + "/{eiJobId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Callback for EI job creation, returns error", notes = "", hidden = true)
+    @ApiOperation(value = "Callback for EI job deletion, returns error", notes = "", hidden = true)
     @ApiResponses(
         value = { //
             @ApiResponse(code = 200, message = "OK", response = VoidResponse.class)}//

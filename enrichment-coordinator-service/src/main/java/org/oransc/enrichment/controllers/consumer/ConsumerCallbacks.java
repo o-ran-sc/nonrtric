@@ -24,19 +24,22 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import java.lang.invoke.MethodHandles;
+import java.util.Collection;
 
 import org.oransc.enrichment.clients.AsyncRestClient;
 import org.oransc.enrichment.clients.AsyncRestClientFactory;
 import org.oransc.enrichment.configuration.ApplicationConfig;
 import org.oransc.enrichment.repository.EiJob;
 import org.oransc.enrichment.repository.EiJobs;
-import org.oransc.enrichment.repository.EiProducer;
 import org.oransc.enrichment.repository.EiProducers;
 import org.oransc.enrichment.repository.EiType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  * Callbacks to the EiProducer
@@ -60,44 +63,28 @@ public class ConsumerCallbacks {
         this.eiProducers = eiProducers;
     }
 
-    public void notifyConsumersProducerDeleted(EiProducer eiProducer) {
-        for (EiType type : eiProducer.getEiTypes()) {
-            if (this.eiProducers.getProducersForType(type).isEmpty()) {
-                // No producers left for the type
-                for (EiJob job : this.eiJobs.getJobsForType(type)) {
-                    if (job.isLastStatusReportedEnabled()) {
-                        noifyJobOwner(job, new ConsumerEiJobStatus(ConsumerEiJobStatus.EiJobStatusValues.DISABLED));
-                        job.setLastReportedStatus(false);
-                    }
-                }
-            }
-        }
+    public Flux<String> notifyJobStatus(Collection<EiType> eiTypes) {
+        return Flux.fromIterable(eiTypes) //
+            .flatMap(eiType -> Flux.fromIterable(this.eiJobs.getJobsForType(eiType))) //
+            .filter(eiJob -> !eiJob.getJobStatusUrl().isEmpty()) //
+            .filter(eiJob -> this.eiProducers.isJobEnabled(eiJob) != eiJob.isLastStatusReportedEnabled())
+            .flatMap(this::noifyStatusToJobOwner);
     }
 
-    public void notifyConsumersProducerAdded(EiProducer eiProducer) {
-        for (EiType type : eiProducer.getEiTypes()) {
-            notifyConsumersTypeAdded(type);
-        }
-    }
+    private Mono<String> noifyStatusToJobOwner(EiJob job) {
+        boolean isJobEnabled = this.eiProducers.isJobEnabled(job);
+        ConsumerEiJobStatus status =
+            isJobEnabled ? new ConsumerEiJobStatus(ConsumerEiJobStatus.EiJobStatusValues.ENABLED)
+                : new ConsumerEiJobStatus(ConsumerEiJobStatus.EiJobStatusValues.DISABLED);
+        String body = gson.toJson(status);
+        return this.restClient.post(job.getJobStatusUrl(), body) //
+            .doOnNext(response -> logger.debug("Consumer notified OK {}", job.getId())) //
+            .doOnNext(response -> job.setLastReportedStatus(isJobEnabled)) //
+            .onErrorResume(throwable -> {
+                logger.warn("Consumer notify failed {} {}", job.getJobStatusUrl(), throwable.toString());
+                return Mono.empty();
+            });
 
-    public void notifyConsumersTypeAdded(EiType eiType) {
-        for (EiJob job : this.eiJobs.getJobsForType(eiType)) {
-            if (!job.isLastStatusReportedEnabled()) {
-                noifyJobOwner(job, new ConsumerEiJobStatus(ConsumerEiJobStatus.EiJobStatusValues.ENABLED));
-                job.setLastReportedStatus(true);
-            }
-        }
-    }
-
-    private void noifyJobOwner(EiJob job, ConsumerEiJobStatus status) {
-        if (!job.getJobStatusUrl().isEmpty()) {
-            String body = gson.toJson(status);
-            this.restClient.post(job.getJobStatusUrl(), body) //
-                .subscribe(notUsed -> logger.debug("Consumer notified OK {}", job.getId()), //
-                    throwable -> logger.warn("Consumer notify failed {} {}", job.getJobStatusUrl(),
-                        throwable.toString()), //
-                    null);
-        }
     }
 
 }

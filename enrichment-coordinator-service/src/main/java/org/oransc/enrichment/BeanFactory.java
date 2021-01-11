@@ -28,7 +28,6 @@ import org.apache.catalina.connector.Connector;
 import org.oransc.enrichment.configuration.ApplicationConfig;
 import org.oransc.enrichment.controllers.producer.ProducerCallbacks;
 import org.oransc.enrichment.repository.EiJobs;
-import org.oransc.enrichment.repository.EiProducers;
 import org.oransc.enrichment.repository.EiTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +49,6 @@ class BeanFactory {
     private ProducerCallbacks producerCallbacks;
     private EiTypes eiTypes;
     private EiJobs eiJobs;
-    private EiProducers eiProducers;
 
     @Bean
     public ObjectMapper mapper() {
